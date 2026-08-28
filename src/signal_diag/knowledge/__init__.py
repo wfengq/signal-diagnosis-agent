@@ -1,5 +1,6 @@
 """Curated local knowledge corpus and deterministic retrieval."""
 
+from signal_diag.knowledge.index import KnowledgeIndex
 from signal_diag.knowledge.models import (
     KnowledgeChunk,
     KnowledgeDocument,
@@ -10,6 +11,7 @@ from signal_diag.knowledge.models import (
 __all__ = [
     "KnowledgeChunk",
     "KnowledgeDocument",
+    "KnowledgeIndex",
     "KnowledgeMatch",
     "KnowledgeRetrievalResult",
 ]
