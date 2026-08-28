@@ -579,6 +579,48 @@ async def test_t118_duplicate_knowledge_request_is_no_progress_without_budget_us
 
 
 @pytest.mark.asyncio
+async def test_t118_knowledge_budget_exhausts_after_successful_retrieval(
+    runtime_parts: dict[str, object],
+) -> None:
+    index = CountingKnowledgeIndex()
+    planner = ScriptedPlanner(
+        [
+            ScriptedStep(
+                expected_observation_count=0,
+                decision=RetrieveKnowledgeDecision(
+                    task_assessment=_assessment(),
+                    query_text="clipping",
+                    tags=("clipping",),
+                    purpose="first retrieval",
+                ),
+            ),
+            ScriptedStep(
+                expected_observation_count=0,
+                decision=RetrieveKnowledgeDecision(
+                    query_text="harmonic",
+                    tags=("harmonic",),
+                    purpose="distinct retrieval",
+                ),
+            ),
+        ]
+    )
+    runtime = DistortionDiagnosisRuntime(
+        repository=runtime_parts["repository"],  # type: ignore[arg-type]
+        tool_service=SignalToolService(runtime_parts["repository"]),  # type: ignore[arg-type]
+        planner=planner,
+        limits=AgentLimits(max_knowledge_retrievals=1),
+        knowledge_index=index,
+    )
+    result = await runtime.run(
+        signal_id=str(runtime_parts["signal_id"]),
+        user_request="Why distorted?",
+    )
+    assert result.termination_reason == "max_knowledge_retrievals"
+    assert index.calls == 1
+    assert len(result.knowledge_retrievals) == 1
+
+
+@pytest.mark.asyncio
 async def test_t120_missing_knowledge_index_returns_runtime_error(
     runtime_parts: dict[str, object],
 ) -> None:
