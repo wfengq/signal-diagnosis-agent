@@ -10,6 +10,7 @@ from .models import (
     SpectrumPeak,
 )
 from .preprocess import peak_abs, remove_dc, rms
+from .spectrum import analyze_fft
 
 __all__ = [
     "ClippingAnalysis",
@@ -19,6 +20,7 @@ __all__ = [
     "HarmonicComponent",
     "SpectrumPeak",
     "analyze_clipping",
+    "analyze_fft",
     "peak_abs",
     "remove_dc",
     "rms",
