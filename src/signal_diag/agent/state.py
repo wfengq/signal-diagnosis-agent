@@ -1,0 +1,32 @@
+"""Mutable runtime state owned by DistortionDiagnosisRuntime."""
+
+from typing import TypedDict
+
+from signal_diag.signal.models import SignalMeta
+from signal_diag.tools.evidence import Evidence
+
+from .models import (
+    Observation,
+    StructuredDiagnosis,
+    TaskAssessment,
+    TerminationReason,
+    ToolHistoryEntry,
+)
+
+
+class DiagnosisState(TypedDict):
+    run_id: str
+    signal_id: str
+    user_request: str
+    signal_meta: SignalMeta
+    task_assessment: TaskAssessment | None
+    observations: list[Observation]
+    evidence: list[Evidence]
+    tool_history: list[ToolHistoryEntry]
+    planner_attempt_count: int
+    tool_call_count: int
+    no_progress_count: int
+    warnings: list[str]
+    errors: list[str]
+    termination_reason: TerminationReason | None
+    diagnosis: StructuredDiagnosis | None

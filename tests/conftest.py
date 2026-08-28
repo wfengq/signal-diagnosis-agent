@@ -13,6 +13,15 @@ from signal_diag.signal import (
 )
 
 
+def store_synthetic_case(
+    repository: InMemorySignalRepository,
+    case: SyntheticCase,
+) -> str:
+    """Store a synthetic case record and return its signal ID."""
+    repository.put(case.record)
+    return case.record.meta.signal_id
+
+
 @pytest.fixture
 def repository() -> InMemorySignalRepository:
     return InMemorySignalRepository()

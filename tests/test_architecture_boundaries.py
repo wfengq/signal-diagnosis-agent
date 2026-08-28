@@ -1,4 +1,4 @@
-"""Architecture boundary verification for Phase 1 packages."""
+"""Architecture boundary verification for Phase 1–2 packages."""
 
 from __future__ import annotations
 
@@ -11,9 +11,15 @@ FORBIDDEN = {
     "signal": {"signal_diag.dsp", "signal_diag.tools", "signal_diag.agent"},
     "dsp": {"signal_diag.tools", "signal_diag.agent"},
     "tools": {"signal_diag.agent"},
+    "agent": {
+        "signal_diag.rules",
+        "signal_diag.knowledge",
+        "signal_diag.evaluation",
+        "signal_diag.app",
+    },
 }
 
-DEFERRED_PACKAGES = ("agent", "rules", "knowledge", "evaluation", "app")
+DEFERRED_PACKAGES = ("rules", "knowledge", "evaluation", "app")
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_ROOT = PROJECT_ROOT / "src" / "signal_diag"
@@ -49,11 +55,13 @@ def find_forbidden_imports(
 
 def _layer_source_files(layer: str) -> list[Path]:
     layer_dir = SRC_ROOT / layer
+    if not layer_dir.exists():
+        return []
     return sorted(layer_dir.glob("*.py"))
 
 
 @pytest.mark.parametrize("layer", sorted(FORBIDDEN))
-def test_phase1_layers_do_not_import_forbidden_modules(layer: str) -> None:
+def test_layers_do_not_import_forbidden_modules(layer: str) -> None:
     violations: list[str] = []
     for path in _layer_source_files(layer):
         source = path.read_text(encoding="utf-8")
@@ -66,7 +74,7 @@ def test_phase1_layers_do_not_import_forbidden_modules(layer: str) -> None:
 def test_deferred_packages_are_not_present(package_name: str) -> None:
     package_dir = SRC_ROOT / package_name
     assert not package_dir.exists(), (
-        f"Phase 1 must not create src/signal_diag/{package_name}/ yet"
+        f"Phase 1–2 must not create src/signal_diag/{package_name}/ yet"
     )
 
 
