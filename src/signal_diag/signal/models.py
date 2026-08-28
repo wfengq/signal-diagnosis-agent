@@ -1,8 +1,7 @@
 """Validated public models for canonical signal records."""
 
 from dataclasses import dataclass
-import sys
-from typing import Literal, Optional
+from typing import Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -14,20 +13,13 @@ ChannelMode = Literal["left", "right", "mixdown"]
 FaultLabel = Literal["clipping", "harmonic_distortion", "noise"]
 
 
-def _frozen_signal_dataclass(cls):
-    """Use the contracted slots layout where the supported runtime provides it."""
-    if sys.version_info >= (3, 10):
-        return dataclass(frozen=True, slots=True)(cls)
-    return dataclass(frozen=True)(cls)
-
-
 class TimeRange(BaseModel):
     """A left-closed, right-open selection interval in seconds."""
 
     model_config = ConfigDict(frozen=True)
 
     start_s: float = Field(default=0.0, ge=0.0)
-    end_s: Optional[float] = Field(default=None, gt=0.0)
+    end_s: float | None = Field(default=None, gt=0.0)
 
     @model_validator(mode="after")
     def validate_interval(self) -> "TimeRange":
@@ -43,7 +35,7 @@ class SignalMeta(BaseModel):
 
     signal_id: str = Field(min_length=1)
     source_type: SourceType
-    filename: Optional[str] = None
+    filename: str | None = None
     sample_rate_hz: int = Field(gt=0)
     channels: int = Field(gt=0)
     num_samples: int = Field(gt=0)
@@ -59,7 +51,7 @@ class SignalMeta(BaseModel):
         return self
 
 
-@_frozen_signal_dataclass
+@dataclass(frozen=True, slots=True)
 class SignalRecord:
     """A canonical, two-dimensional waveform and its derived metadata."""
 

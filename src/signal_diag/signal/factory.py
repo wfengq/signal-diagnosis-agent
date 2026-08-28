@@ -1,6 +1,5 @@
 """Construction of canonical signal records."""
 
-from typing import Optional
 from uuid import uuid4
 
 import numpy as np
@@ -26,8 +25,8 @@ def build_signal_record(
     *,
     sample_rate_hz: int,
     source_type: SourceType,
-    filename: Optional[str] = None,
-    signal_id: Optional[str] = None,
+    filename: str | None = None,
+    signal_id: str | None = None,
 ) -> SignalRecord:
     """Validate and canonicalize a source waveform without peak normalization."""
     if sample_rate_hz <= 0:
@@ -47,11 +46,11 @@ def build_signal_record(
     values = _to_float32(samples)
     if values.ndim == 1:
         values = values[:, None]
-    values = np.ascontiguousarray(values)
+    values = np.array(values, dtype=np.float32, order="C", copy=True)
 
     num_samples, channels = values.shape
     metadata = SignalMeta(
-        signal_id=signal_id or "sig_{}".format(uuid4().hex),
+        signal_id="sig_{}".format(uuid4().hex) if signal_id is None else signal_id,
         source_type=source_type,
         filename=filename,
         sample_rate_hz=sample_rate_hz,
