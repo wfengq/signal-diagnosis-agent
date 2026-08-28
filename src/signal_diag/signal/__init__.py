@@ -18,10 +18,19 @@ from .models import (
 )
 from .repository import InMemorySignalRepository, SignalRepository
 from .segment import extract_segment
+from .synthetic import (
+    GroundTruthValue,
+    SyntheticCase,
+    SyntheticGroundTruth,
+    generate_clipped_sine,
+    generate_sine,
+    generate_white_noise,
+)
 
 __all__ = [
     "ChannelMode",
     "FaultLabel",
+    "GroundTruthValue",
     "InMemorySignalRepository",
     "InvalidSignalError",
     "InvalidTimeRangeError",
@@ -31,8 +40,13 @@ __all__ = [
     "SignalRecord",
     "SignalRepository",
     "SourceType",
+    "SyntheticCase",
+    "SyntheticGroundTruth",
     "TimeRange",
     "UnsupportedChannelError",
     "build_signal_record",
     "extract_segment",
+    "generate_clipped_sine",
+    "generate_sine",
+    "generate_white_noise",
 ]
