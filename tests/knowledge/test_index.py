@@ -33,6 +33,15 @@ def corpus_root(tmp_path: Path) -> Path:
         "Beta overview with clipping context.\n",
         encoding="utf-8",
     )
+    # `_zed.md` sorts before alpha.md, but document_id is doc_zed (after
+    # doc_alpha / doc_beta). Zed.md would not invert on Windows Path sort.
+    (root / "_zed.md").write_text(
+        "# Zed topic\n"
+        "Tags: zed-tag\n\n"
+        "## Overview\n"
+        "Zed overview with clipping context.\n",
+        encoding="utf-8",
+    )
     return root
 
 
@@ -88,6 +97,20 @@ def test_t111_ranking_is_deterministic(index: KnowledgeIndex) -> None:
         len(match.matched_terms) + len(match.matched_tags) for match in first.matches
     ]
     assert scores == sorted(scores, reverse=True)
+    assert set(scores) == {1}
+    # Load order is _zed.md, alpha.md, beta.md; ID order is alpha, beta, zed.
+    assert [match.chunk_id for match in first.matches] == [
+        "chunk_alpha_000",
+        "chunk_alpha_001",
+        "chunk_beta_000",
+        "chunk_zed_000",
+    ]
+    assert [match.document_id for match in first.matches] == [
+        "doc_alpha",
+        "doc_alpha",
+        "doc_beta",
+        "doc_zed",
+    ]
 
 
 def test_t112_knowledge_index_isolation() -> None:
