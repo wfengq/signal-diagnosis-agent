@@ -1,5 +1,6 @@
 """Deterministic rule profiles and evaluation."""
 
+from signal_diag.rules.engine import RuleEngine
 from signal_diag.rules.loader import YamlRuleProfileLoader
 from signal_diag.rules.models import (
     RuleComparator,
@@ -14,6 +15,7 @@ from signal_diag.rules.models import (
 __all__ = [
     "RuleComparator",
     "RuleDefinition",
+    "RuleEngine",
     "RuleEvaluation",
     "RuleEvaluationBatch",
     "RuleJudgment",
