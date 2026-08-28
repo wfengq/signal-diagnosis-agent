@@ -251,6 +251,57 @@ async def test_t117_duplicate_rule_request_is_no_progress_without_budget_use(
 
 
 @pytest.mark.asyncio
+async def test_t117_rule_budget_exhausts_after_successful_evaluation(
+    runtime_parts: dict[str, object],
+) -> None:
+    engine = CountingRuleEngine()
+    evidence_id = "ev_detect_clipping_detect_clipping_000000_000"
+    planner = ScriptedPlanner(
+        [
+            ScriptedStep(
+                expected_observation_count=0,
+                decision=CallToolDecision(
+                    task_assessment=_assessment(),
+                    call=DetectClippingCall(args=ClippingInput()),
+                    purpose="collect clipping evidence",
+                ),
+            ),
+            ScriptedStep(
+                expected_observation_count=1,
+                required_evidence_metrics=("clipping_detected",),
+                decision=EvaluateRulesDecision(
+                    profile_id="profile_s1_distortion",
+                    evidence_refs=(),
+                    purpose="first evaluation",
+                ),
+            ),
+            ScriptedStep(
+                expected_observation_count=1,
+                decision=EvaluateRulesDecision(
+                    profile_id="profile_s1_distortion",
+                    evidence_refs=(evidence_id,),
+                    purpose="distinct filter evaluation",
+                ),
+            ),
+        ]
+    )
+    runtime, _ = build_runtime(
+        planner=planner,
+        rule_engine=engine,
+        rule_profile_loader=runtime_parts["loader"],  # type: ignore[arg-type]
+        limits=AgentLimits(max_rule_evaluations=1),
+        repository=runtime_parts["repository"],  # type: ignore[arg-type]
+    )
+    result = await runtime.run(
+        signal_id=str(runtime_parts["signal_id"]),
+        user_request="Why distorted?",
+    )
+    assert result.termination_reason == "max_rule_evaluations"
+    assert engine.calls == 1
+    assert len(result.rule_evaluation_batches) == 1
+
+
+@pytest.mark.asyncio
 async def test_t120_missing_rule_dependencies_return_runtime_error(
     runtime_parts: dict[str, object],
 ) -> None:
