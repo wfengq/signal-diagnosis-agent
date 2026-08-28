@@ -17,6 +17,7 @@ from .models import (
     TimeRange,
 )
 from .repository import InMemorySignalRepository, SignalRepository
+from .segment import extract_segment
 
 __all__ = [
     "ChannelMode",
@@ -33,4 +34,5 @@ __all__ = [
     "TimeRange",
     "UnsupportedChannelError",
     "build_signal_record",
+    "extract_segment",
 ]
