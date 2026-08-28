@@ -1,6 +1,7 @@
 """Deterministic DSP result models and preprocessing."""
 
 from .clipping import analyze_clipping
+from .harmonics import analyze_harmonic_distortion
 from .models import (
     ClippingAnalysis,
     F0Estimate,
@@ -22,6 +23,7 @@ __all__ = [
     "SpectrumPeak",
     "analyze_clipping",
     "analyze_fft",
+    "analyze_harmonic_distortion",
     "estimate_f0_autocorrelation",
     "peak_abs",
     "remove_dc",
