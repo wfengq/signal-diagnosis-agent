@@ -16,16 +16,19 @@ from .models import (
     SourceType,
     TimeRange,
 )
+from .repository import InMemorySignalRepository, SignalRepository
 
 __all__ = [
     "ChannelMode",
     "FaultLabel",
+    "InMemorySignalRepository",
     "InvalidSignalError",
     "InvalidTimeRangeError",
     "SignalError",
     "SignalMeta",
     "SignalNotFoundError",
     "SignalRecord",
+    "SignalRepository",
     "SourceType",
     "TimeRange",
     "UnsupportedChannelError",
