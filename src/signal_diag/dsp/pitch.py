@@ -60,7 +60,10 @@ def estimate_f0_autocorrelation(
     n_fft = 1 << (2 * len(windowed) - 1).bit_length()
     power = np.abs(np.fft.rfft(windowed, n=n_fft)) ** 2
     autocorrelation = np.fft.irfft(power, n=n_fft)[: len(windowed)]
-    autocorrelation = autocorrelation / autocorrelation[0]
+    acf_zero = float(autocorrelation[0])
+    if acf_zero <= 0.0 or not np.isfinite(acf_zero):
+        return _unvoiced()
+    autocorrelation = autocorrelation / acf_zero
 
     search = autocorrelation[min_lag : max_lag + 1]
     candidate_lag = min_lag + int(np.argmax(search))

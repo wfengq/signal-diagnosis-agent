@@ -17,6 +17,7 @@ from .contracts import (
 from .evidence import Evidence, EvidenceValidity, EvidenceValue
 from .registry import ToolDescriptor, get_tool_descriptors
 from .results import ToolResult, ToolStatus
+from .service import SignalToolService
 
 __all__ = [
     "ClippingInput",
@@ -30,6 +31,7 @@ __all__ = [
     "HarmonicDistortionInput",
     "HarmonicDistortionOutput",
     "SignalSelection",
+    "SignalToolService",
     "SpectrumInput",
     "SpectrumOutput",
     "SpectrumPeakOutput",

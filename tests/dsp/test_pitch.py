@@ -1,5 +1,7 @@
 """Tests for deterministic autocorrelation fundamental estimation."""
 
+import warnings
+
 import numpy as np
 import pytest
 
@@ -90,3 +92,14 @@ def test_t043_estimation_does_not_mutate_input(sine_case: SyntheticCase) -> None
     estimate_f0_autocorrelation(samples, 48_000)
 
     assert samples.tobytes() == before
+
+
+def test_short_endpoint_only_arrays_are_unvoiced_without_runtime_warning() -> None:
+    samples = np.array([1.0, 0.0, 0.0, -1.0], dtype=np.float32)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)
+        estimate = estimate_f0_autocorrelation(samples, 48_000)
+
+    assert not estimate.voiced
+    assert estimate.f0_hz is None
