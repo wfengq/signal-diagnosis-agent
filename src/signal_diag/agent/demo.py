@@ -1,10 +1,11 @@
-"""Development CLI for deterministic scripted distortion diagnosis traces."""
+"""Development CLI for distortion diagnosis traces (scripted or real LLM)."""
 
 from __future__ import annotations
 
 import argparse
 import asyncio
 import json
+import os
 import sys
 
 from signal_diag.signal import InMemorySignalRepository, generate_clipped_sine
@@ -17,9 +18,10 @@ from .models import (
     DiagnosisClaim,
     FinishDecision,
     PlannerContext,
+    PlannerOutputError,
     TaskAssessment,
 )
-from .planner import ScriptedPlanner
+from .planner import RealLLMPlanner, ScriptedPlanner, _missing_credentials_message
 from .runtime import DistortionDiagnosisRuntime
 
 
@@ -55,7 +57,17 @@ class _DemoFinishPlanner(ScriptedPlanner):
         )
 
 
-async def _run_demo() -> dict[str, object]:
+def _build_planner(name: str) -> ScriptedPlanner | RealLLMPlanner:
+    if name == "scripted":
+        return _DemoFinishPlanner([])
+    if name == "real":
+        if not os.environ.get("DEEPSEEK_API_KEY"):
+            raise PlannerOutputError(_missing_credentials_message())
+        return RealLLMPlanner(provider="deepseek")
+    raise ValueError(f"unsupported planner: {name}")
+
+
+async def _run_demo(planner: ScriptedPlanner | RealLLMPlanner) -> dict[str, object]:
     case = generate_clipped_sine(
         frequency_hz=200.0,
         sample_rate_hz=48_000,
@@ -68,7 +80,7 @@ async def _run_demo() -> dict[str, object]:
     runtime = DistortionDiagnosisRuntime(
         repository=repository,
         tool_service=SignalToolService(repository),
-        planner=_DemoFinishPlanner([]),
+        planner=planner,
     )
     result = await runtime.run(
         signal_id=case.record.meta.signal_id,
@@ -83,10 +95,25 @@ async def _run_demo() -> dict[str, object]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Run a deterministic scripted distortion diagnosis demo.",
+        description="Run a distortion diagnosis demo trace.",
     )
-    parser.parse_args(argv)
-    payload = asyncio.run(_run_demo())
+    parser.add_argument(
+        "--planner",
+        choices=("scripted", "real"),
+        default="scripted",
+        help="Planner backend (default: scripted for CI-safe deterministic runs)",
+    )
+    args = parser.parse_args(argv)
+    try:
+        planner = _build_planner(args.planner)
+    except PlannerOutputError as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    try:
+        payload = asyncio.run(_run_demo(planner))
+    except PlannerOutputError as error:
+        print(str(error), file=sys.stderr)
+        return 1
     json.dump(payload, sys.stdout, indent=2, sort_keys=True)
     sys.stdout.write("\n")
     return 0
