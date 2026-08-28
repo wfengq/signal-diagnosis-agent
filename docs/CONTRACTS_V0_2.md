@@ -1587,11 +1587,12 @@ Initial S1 rule bindings (subject to profile file values) cover at minimum:
 
 | rule metric family | source tool | example metric names |
 |---|---|---|
-| clipping | `detect_clipping` | `clipping_ratio`, `detected`, `flat_top_detected` |
+| clipping | `detect_clipping` | `clipping_ratio`, `clipping_detected`, `flat_top_detected` |
 | harmonic distortion | `analyze_harmonic_distortion` | `thd_percent`, `valid` |
 
-Exact thresholds and comparator choices belong in the versioned profile file and
-are recorded in `docs/OPEN_QUESTIONS.md` until approved.
+Exact thresholds and comparator choices belong in the versioned profile file.
+OQ-003 approved `profile_s1_distortion` version `1.0.0-demo`; D015 records its
+values and demonstration-only status.
 
 ---
 
@@ -1950,7 +1951,7 @@ agent.runtime (behavioral extension)
 
 ### 40.2 Still unfrozen after Phase 3 approval
 
-- exact S1 profile threshold values and YAML schema details (see OQ-003);
+- YAML serialization details beyond the frozen RuleProfile fields;
 - corpus document list and chunking parameters;
 - embedding or vector retrieval backends;
 - Phase 4 evaluation and fixed-pipeline contracts;

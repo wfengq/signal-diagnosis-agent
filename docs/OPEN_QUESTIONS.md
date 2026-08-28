@@ -1,7 +1,7 @@
 # Open Contract and Architecture Questions
 
 **Status:** Active register
-**Current open questions:** 1 pending (OQ-003 deferred); 4 resolved (OQ-001, OQ-002, OQ-004, OQ-005)
+**Current open questions:** 0 pending; 5 resolved (OQ-001–OQ-005)
 
 Use this file only for concrete issues that may require changing an approved
 contract or architectural boundary.
@@ -66,14 +66,14 @@ User decision: approved — architecture boundary migration tests included; OQ-0
 ```text
 ID: OQ-003
 Date: 2026-08-28
-Status: open — deferred until before Phase 3 completion; comparator-as-PASS-condition frozen first
+Status: approved — exact demonstration profile approved on 2026-08-29
 Affected document and section: docs/CONTRACTS_V0_2.md §33–§34; rules/profiles/
 Observed problem: Contract names supported metric families and comparator PASS semantics but does not freeze demonstration threshold values for clipping_ratio, thd_percent, flat_top_detected, or related rules.
 Why the current contract cannot represent a correct implementation: RuleEngine PASS/FAIL behavior for scripted S1 acceptance requires concrete profile values aligned with synthetic ground truth.
-Minimal proposed change: Approve an initial profile_s1_distortion v1 YAML with explicit comparators and thresholds documented as demonstration-only, not industry standards. Threshold approval is not required for OQ-001 contract freeze.
+Minimal proposed change: Freeze profile_s1_distortion version 1.0.0-demo with clipping_detected eq false, clipping_ratio lte 0.01, flat_top_detected eq false, harmonic valid eq true, and thd_percent lte 5.0%; document all values as demonstration-only rather than industry standards.
 Compatibility impact: Profile file content only; public RuleProfile and RuleEvaluation models unchanged.
 Test impact: T098–T120 may use test-local profiles during TDD; T121–T124 and the Phase 3 completion gate require the approved production demonstration profile.
-User decision: deferred — approve demo-only profile thresholds before T121–T124 are finalized and before Phase 3 completion
+User decision: approved 2026-08-29 — use the exact 1.0.0-demo profile above; changing a comparator or threshold requires a new profile version
 ```
 
 ---

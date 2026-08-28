@@ -117,5 +117,42 @@ acceptance authority.
 Phase 3 uses deterministic rule profiles, keyword/tag knowledge retrieval,
 optional injected runtime dependencies, and independent limits of four rule
 evaluations and four knowledge retrievals per run. Phase 2-only runtime
-construction remains compatible. OQ-003 remains open and must approve the
-versioned S1 demonstration profile thresholds before Phase 3 completion.
+construction remains compatible. The separate OQ-003 profile decision is
+recorded in D015.
+
+## D015 — Approve the S1 demonstration rule profile
+
+**Decision:** OQ-003 is approved. The first profile is
+`profile_s1_distortion`, version `1.0.0-demo`, with comparator expressions
+interpreted as PASS conditions:
+
+- `clipping_detected eq false`;
+- `clipping_ratio lte 0.01`;
+- `flat_top_detected eq false`;
+- harmonic-analysis `valid eq true`;
+- `thd_percent lte 5.0`, unit `%`.
+
+These values separate the accepted synthetic S1 fixtures and are explicitly
+demonstration limits, not industry standards. Changing any comparator or
+threshold requires a new profile version. Boundary tests cover values below,
+equal to, and above the 1% and 5% thresholds.
+
+## D016 — Define V0.2 as the first resume-grade vertical slice
+
+**Decision:** The long-term project vision remains an extensible Signal Test and
+Fault Diagnosis Agent for audio, sensor, and generic sampled waveforms. V0.2 is
+the first complete, resume-grade vertical slice of that platform; it does not
+redefine the whole project as S1-only.
+
+V0.2 completion includes the full S1 distortion-diagnosis path: Phase 3
+deterministic rules and knowledge, Phase 4 versioned evaluation plus an
+Agent-versus-fixed-pipeline comparison, and Phase 5 WAV/API/UI/reporting
+adapters. The product path uses a real LLM; deterministic acceptance uses an
+injected scripted/fake planner.
+
+Within V0.2, supported diagnosis remains explicitly limited to clipping,
+harmonic distortion, basic supporting frequency/fundamental evidence, no
+supported fault, and inconclusive outcomes. Later versioned scenarios may add
+noise/SNR, frequency drift, amplitude abnormalities, PCM/CSV inputs, and sensor
+waveforms. Those later capabilities receive their own contracts and tests and
+must not cause speculative compatibility code in V0.2.

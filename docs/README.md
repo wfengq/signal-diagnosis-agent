@@ -18,6 +18,14 @@ Read these documents before changing implementation code:
 5. [`superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`](superpowers/plans/2026-08-28-phase1-deterministic-foundation.md)
    — task-level Phase 1 TDD implementation plan covering T001–T063.
 
+## Acceptance reports and active implementation plan
+
+- [`reports/PHASE2_R001_R006_ACCEPTANCE_REPORT.md`](reports/PHASE2_R001_R006_ACCEPTANCE_REPORT.md)
+  — retained Phase 2 real-model R001–R006 review, explicitly separate from CI.
+- [`superpowers/plans/2026-08-29-phase3-rules-knowledge.md`](superpowers/plans/2026-08-29-phase3-rules-knowledge.md)
+  — approved task-level Phase 3 TDD plan covering T093–T124; OQ-003 is resolved
+  and Cursor may begin implementation at Task 1.
+
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
 frozen contract.

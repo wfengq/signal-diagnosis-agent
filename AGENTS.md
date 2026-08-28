@@ -187,7 +187,7 @@ Before declaring a task complete:
 
 Phase 3 is complete only when its required tests pass with no required skip or
 xfail, Phase 1–2 tests remain green, the frozen Phase 3 contract is unchanged or
-explicitly revised, and OQ-003 is resolved with an approved versioned
-`profile_s1_distortion` demonstration profile.
+explicitly revised, and the OQ-003-approved `profile_s1_distortion`
+`1.0.0-demo` profile is included with its boundary tests.
 
 Never say that implementation is complete if required tests are failing.

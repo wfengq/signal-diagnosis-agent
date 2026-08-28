@@ -721,7 +721,7 @@ Architecture boundary migration (T093) may land before `rules/` and
 |---|---|---|
 | T094 | RuleProfile duplicate-ID validation | rejects duplicate `rule_id` within profile |
 | T095 | RuleProfile validation | rejects empty `rules` tuple |
-| T096 | Comparator PASS semantics | `lte`/`eq`/`neq` express PASS condition per §33 |
+| T096 | Comparator PASS semantics and approved profile boundaries | `lte`/`eq`/`neq` express PASS condition per §33; `profile_s1_distortion` tests values below, equal to, and above clipping ratio 0.01 and THD 5.0% |
 | T097 | RuleProfileLoader injection | loader resolves profile by ID; no implicit directory reads in tests |
 
 ### Rule engine
