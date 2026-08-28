@@ -14,11 +14,13 @@ from signal_diag.agent.models import (
     DetectClippingCall,
     EvaluateRulesDecision,
     FinishDecision,
+    RetrieveKnowledgeDecision,
     TaskAssessment,
 )
 from signal_diag.agent.planner import ScriptedPlanner, ScriptedStep
 from signal_diag.agent.policies import AgentLimits
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
+from signal_diag.knowledge.index import KnowledgeIndex
 from signal_diag.rules.engine import RuleEngine
 from signal_diag.rules.loader import YamlRuleProfileLoader
 from signal_diag.rules.models import RuleEvaluationBatch, RuleProfile, RuleProfileLoader
@@ -37,6 +39,7 @@ PROFILE_PATH = (
     / "profiles"
     / "s1_distortion_v1.yaml"
 )
+CORPUS_PATH = PROJECT_ROOT / "src" / "signal_diag" / "knowledge" / "corpus"
 
 
 def _assessment() -> TaskAssessment:
@@ -363,3 +366,178 @@ async def test_rule_action_with_tool_evidence_filter(
     result = await runtime.run(signal_id=signal_id, user_request="Why distorted?")
     assert engine.calls == 1
     assert result.rule_evaluation_batches
+
+
+@dataclass
+class CountingKnowledgeIndex:
+    calls: int = 0
+    raise_on_call: bool = False
+    _delegate: KnowledgeIndex = field(
+        default_factory=lambda: KnowledgeIndex(CORPUS_PATH)
+    )
+
+    def retrieve(
+        self,
+        *,
+        query_text: str,
+        tags: Sequence[str] = (),
+        max_results: int = 5,
+    ):
+        self.calls += 1
+        if self.raise_on_call:
+            raise RuntimeError("knowledge index failure")
+        return self._delegate.retrieve(
+            query_text=query_text,
+            tags=tags,
+            max_results=max_results,
+        )
+
+
+def knowledge_first_planner() -> ScriptedPlanner:
+    return ScriptedPlanner(
+        [
+            ScriptedStep(
+                expected_observation_count=0,
+                decision=RetrieveKnowledgeDecision(
+                    task_assessment=_assessment(),
+                    query_text="clipping",
+                    tags=("clipping",),
+                    purpose="explain clipping evidence",
+                ),
+            ),
+            ScriptedStep(
+                expected_observation_count=0,
+                decision=FinishDecision(
+                    outcome="inconclusive",
+                    claims=(),
+                    confidence_label="low",
+                    limitations=("stop after knowledge",),
+                ),
+            ),
+        ]
+    )
+
+
+@pytest.mark.asyncio
+async def test_t118_zero_knowledge_budget_terminates_before_execution(
+    runtime_parts: dict[str, object],
+) -> None:
+    index = CountingKnowledgeIndex()
+    runtime = DistortionDiagnosisRuntime(
+        repository=runtime_parts["repository"],  # type: ignore[arg-type]
+        tool_service=SignalToolService(runtime_parts["repository"]),  # type: ignore[arg-type]
+        planner=knowledge_first_planner(),
+        limits=AgentLimits(max_knowledge_retrievals=0),
+        knowledge_index=index,
+    )
+    result = await runtime.run(
+        signal_id=str(runtime_parts["signal_id"]),
+        user_request="Why distorted?",
+    )
+    assert result.termination_reason == "max_knowledge_retrievals"
+    assert index.calls == 0
+
+
+@pytest.mark.asyncio
+async def test_t118_knowledge_counter_increments_before_dependency_exception(
+    runtime_parts: dict[str, object],
+) -> None:
+    index = CountingKnowledgeIndex(raise_on_call=True)
+    runtime = DistortionDiagnosisRuntime(
+        repository=runtime_parts["repository"],  # type: ignore[arg-type]
+        tool_service=SignalToolService(runtime_parts["repository"]),  # type: ignore[arg-type]
+        planner=knowledge_first_planner(),
+        knowledge_index=index,
+    )
+    result = await runtime.run(
+        signal_id=str(runtime_parts["signal_id"]),
+        user_request="Why distorted?",
+    )
+    assert index.calls == 1
+    assert result.termination_reason == "runtime_error"
+
+
+@pytest.mark.asyncio
+async def test_t118_successful_knowledge_action_propagates_retrieval(
+    runtime_parts: dict[str, object],
+) -> None:
+    index = CountingKnowledgeIndex()
+    runtime = DistortionDiagnosisRuntime(
+        repository=runtime_parts["repository"],  # type: ignore[arg-type]
+        tool_service=SignalToolService(runtime_parts["repository"]),  # type: ignore[arg-type]
+        planner=knowledge_first_planner(),
+        knowledge_index=index,
+    )
+    result = await runtime.run(
+        signal_id=str(runtime_parts["signal_id"]),
+        user_request="Why distorted?",
+    )
+    assert index.calls == 1
+    assert len(result.knowledge_retrievals) == 1
+    assert result.knowledge_retrievals[0].query_text == "clipping"
+
+
+@pytest.mark.asyncio
+async def test_t118_duplicate_knowledge_request_is_no_progress_without_budget_use(
+    runtime_parts: dict[str, object],
+) -> None:
+    index = CountingKnowledgeIndex()
+    planner = ScriptedPlanner(
+        [
+            ScriptedStep(
+                expected_observation_count=0,
+                decision=RetrieveKnowledgeDecision(
+                    task_assessment=_assessment(),
+                    query_text="clipping",
+                    tags=("clipping",),
+                    purpose="first retrieval",
+                ),
+            ),
+            ScriptedStep(
+                expected_observation_count=0,
+                decision=RetrieveKnowledgeDecision(
+                    query_text="clipping",
+                    tags=(" clipping ",),
+                    purpose="duplicate retrieval",
+                ),
+            ),
+            ScriptedStep(
+                expected_observation_count=0,
+                decision=FinishDecision(
+                    outcome="inconclusive",
+                    claims=(),
+                    confidence_label="low",
+                    limitations=("done",),
+                ),
+            ),
+        ]
+    )
+    runtime = DistortionDiagnosisRuntime(
+        repository=runtime_parts["repository"],  # type: ignore[arg-type]
+        tool_service=SignalToolService(runtime_parts["repository"]),  # type: ignore[arg-type]
+        planner=planner,
+        knowledge_index=index,
+    )
+    result = await runtime.run(
+        signal_id=str(runtime_parts["signal_id"]),
+        user_request="Why distorted?",
+    )
+    assert index.calls == 1
+    assert len(result.knowledge_retrievals) == 1
+    assert result.termination_reason == "planner_finished"
+
+
+@pytest.mark.asyncio
+async def test_t120_missing_knowledge_index_returns_runtime_error(
+    runtime_parts: dict[str, object],
+) -> None:
+    runtime = DistortionDiagnosisRuntime(
+        repository=runtime_parts["repository"],  # type: ignore[arg-type]
+        tool_service=SignalToolService(runtime_parts["repository"]),  # type: ignore[arg-type]
+        planner=knowledge_first_planner(),
+    )
+    result = await runtime.run(
+        signal_id=str(runtime_parts["signal_id"]),
+        user_request="Why distorted?",
+    )
+    assert result.termination_reason == "runtime_error"

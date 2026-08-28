@@ -97,6 +97,7 @@ class DistortionDiagnosisRuntime:
         planner_retries_remaining = self._limits.max_planner_retries
         recoverable_errors: list[str] = []
         seen_rule_evaluations: set[str] = set()
+        seen_knowledge_retrievals: set[str] = set()
 
         while state["termination_reason"] is None:
             context = self._build_context(
@@ -166,15 +167,23 @@ class DistortionDiagnosisRuntime:
                 continue
 
             if isinstance(decision, RetrieveKnowledgeDecision):
-                state["errors"].append(
-                    f"phase 3 action requires injected dependencies: "
-                    f"{decision.decision_type}"
+                handled, planner_retries_remaining, recoverable_errors = (
+                    self._handle_retrieve_knowledge_decision(
+                        state,
+                        decision,
+                        seen_knowledge_retrievals=seen_knowledge_retrievals,
+                        planner_retries_remaining=planner_retries_remaining,
+                        recoverable_errors=recoverable_errors,
+                    )
                 )
-                state["termination_reason"] = "runtime_error"
-                return self._finalize_from_state(
-                    state,
-                    recoverable_errors=recoverable_errors,
-                )
+                if handled == "continue":
+                    continue
+                if handled == "terminated":
+                    return self._finalize_from_state(
+                        state,
+                        recoverable_errors=recoverable_errors,
+                    )
+                continue
 
             if not isinstance(decision, FinishDecision):
                 state["errors"].append("unsupported planner decision type")
@@ -460,6 +469,83 @@ class DistortionDiagnosisRuntime:
         reset_progress(state)
         return "continue", planner_retries_remaining, recoverable_errors
 
+    def _canonical_knowledge_retrieval_key(
+        self,
+        decision: RetrieveKnowledgeDecision,
+    ) -> str:
+        payload = {
+            "query_text": decision.query_text,
+            "tags": [tag.strip() for tag in decision.tags],
+        }
+        return json.dumps(payload, sort_keys=True, separators=(",", ":"))
+
+    def _handle_retrieve_knowledge_decision(
+        self,
+        state: DiagnosisState,
+        decision: RetrieveKnowledgeDecision,
+        *,
+        seen_knowledge_retrievals: set[str],
+        planner_retries_remaining: int,
+        recoverable_errors: list[str],
+    ) -> tuple[str, int, list[str]]:
+        if state["task_assessment"] is None and decision.task_assessment is None:
+            return self._reject_decision(
+                state,
+                message="initial decision requires task_assessment",
+                planner_retries_remaining=planner_retries_remaining,
+                recoverable_errors=recoverable_errors,
+            )
+
+        self._apply_task_assessment(state, decision.task_assessment)
+        assessment = state["task_assessment"]
+        assert assessment is not None
+        if assessment.task_type == "unsupported":
+            return self._reject_decision(
+                state,
+                message="unsupported task must finish without knowledge retrieval",
+                planner_retries_remaining=planner_retries_remaining,
+                recoverable_errors=recoverable_errors,
+            )
+
+        if state["knowledge_retrieval_count"] >= self._limits.max_knowledge_retrievals:
+            state["termination_reason"] = "max_knowledge_retrievals"
+            return "terminated", planner_retries_remaining, recoverable_errors
+
+        canonical_key = self._canonical_knowledge_retrieval_key(decision)
+        if canonical_key in seen_knowledge_retrievals:
+            record_no_progress(state)
+            recoverable_errors.append(
+                "equivalent knowledge retrieval rejected: "
+                f"{decision.query_text!r} with identical tags"
+            )
+            if should_terminate_no_progress(state, self._limits):
+                state["termination_reason"] = "no_progress"
+                return "terminated", planner_retries_remaining, recoverable_errors
+            return "continue", planner_retries_remaining, recoverable_errors
+
+        if self._knowledge_index is None:
+            state["errors"].append(
+                "retrieve_knowledge requires injected knowledge_index"
+            )
+            state["termination_reason"] = "runtime_error"
+            return "terminated", planner_retries_remaining, recoverable_errors
+
+        state["knowledge_retrieval_count"] += 1
+        try:
+            retrieval = self._knowledge_index.retrieve(
+                query_text=decision.query_text,
+                tags=decision.tags,
+            )
+        except Exception as error:  # noqa: BLE001 - runtime maps dependency failures
+            state["errors"].append(str(error))
+            state["termination_reason"] = "runtime_error"
+            return "terminated", planner_retries_remaining, recoverable_errors
+
+        state["knowledge_retrievals"].append(retrieval)
+        seen_knowledge_retrievals.add(canonical_key)
+        reset_progress(state)
+        return "continue", planner_retries_remaining, recoverable_errors
+
     def _handle_finish_decision(
         self,
         state: DiagnosisState,
@@ -488,10 +574,20 @@ class DistortionDiagnosisRuntime:
         known_evidence_ids = frozenset(
             item.evidence_id for item in state["evidence"]
         )
+        known_rule_evaluation_ids = frozenset(
+            evaluation.evaluation_id
+            for batch in state["rule_evaluation_batches"]
+            for evaluation in batch.evaluations
+        )
+        known_knowledge_retrieval_ids = frozenset(
+            item.retrieval_id for item in state["knowledge_retrievals"]
+        )
         try:
             validate_finish_decision(
                 decision,
                 known_evidence_ids=known_evidence_ids,
+                known_rule_evaluation_ids=known_rule_evaluation_ids,
+                known_knowledge_retrieval_ids=known_knowledge_retrieval_ids,
                 task_assessment=assessment,
             )
         except DiagnosisValidationError as error:

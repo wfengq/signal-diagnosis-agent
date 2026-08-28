@@ -23,6 +23,8 @@ def validate_finish_decision(
     *,
     known_evidence_ids: frozenset[str],
     task_assessment: TaskAssessment | None,
+    known_rule_evaluation_ids: frozenset[str] = frozenset(),
+    known_knowledge_retrieval_ids: frozenset[str] = frozenset(),
 ) -> None:
     """Validate finish semantics before accepting a terminal diagnosis."""
     assessment = decision.task_assessment or task_assessment
@@ -55,6 +57,16 @@ def validate_finish_decision(
             if evidence_id not in known_evidence_ids:
                 raise DiagnosisValidationError(
                     f"unknown evidence reference: {evidence_id}"
+                )
+        for rule_id in claim.rule_refs:
+            if rule_id not in known_rule_evaluation_ids:
+                raise DiagnosisValidationError(
+                    f"unknown rule reference: {rule_id}"
+                )
+        for knowledge_id in claim.knowledge_refs:
+            if knowledge_id not in known_knowledge_retrieval_ids:
+                raise DiagnosisValidationError(
+                    f"unknown knowledge reference: {knowledge_id}"
                 )
 
 
