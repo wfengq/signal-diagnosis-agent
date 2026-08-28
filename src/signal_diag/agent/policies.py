@@ -18,6 +18,8 @@ class AgentLimits(BaseModel):
     max_tool_calls: int = Field(default=8, ge=1)
     max_planner_retries: int = Field(default=2, ge=0)
     max_no_progress: int = Field(default=2, ge=1)
+    max_rule_evaluations: int = Field(default=4, ge=0)
+    max_knowledge_retrievals: int = Field(default=4, ge=0)
 
 
 def normalize_tool_arguments(call: ToolInvocation) -> dict[str, object]:

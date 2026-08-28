@@ -12,9 +12,11 @@ from signal_diag.agent.models import (
     CallToolDecision,
     ClippingInput,
     DetectClippingCall,
+    EvaluateRulesDecision,
     FinishDecision,
     PlannerContext,
     PlannerOutputError,
+    RetrieveKnowledgeDecision,
     TaskAssessment,
 )
 from signal_diag.agent.planner import (
@@ -241,7 +243,7 @@ async def test_real_llm_planner_parses_mocked_response() -> None:
         "type": "json_object",
     }
     user_content = client.chat.completions.last_kwargs["messages"][1]["content"]
-    assert "v0.2-s1-planner-3" in user_content
+    assert "v0.2-s1-planner-4" in user_content
     assert "sig_llm" in user_content
     assert "frequencies_hz" not in user_content
 
@@ -278,8 +280,8 @@ def test_missing_credentials_message_is_explicit() -> None:
     assert "ScriptedPlanner" in message
 
 
-def test_prompt_version_is_planner_3() -> None:
-    assert PROMPT_VERSION == "v0.2-s1-planner-3"
+def test_prompt_version_is_planner_4() -> None:
+    assert PROMPT_VERSION == "v0.2-s1-planner-4"
 
 
 @pytest.mark.parametrize(
@@ -449,3 +451,35 @@ async def test_real_llm_planner_parses_finish_decision() -> None:
     )
     assert isinstance(decision, FinishDecision)
     assert decision.outcome == "no_supported_fault"
+
+
+def test_parse_agent_decision_accepts_evaluate_rules_wrapper() -> None:
+    decision = _parse_agent_decision(
+        json.dumps(
+            {
+                "evaluate_rules": {
+                    "profile_id": "profile_s1_distortion",
+                    "evidence_refs": ["ev_clip_001"],
+                    "purpose": "apply configured limits",
+                }
+            }
+        )
+    )
+    assert isinstance(decision, EvaluateRulesDecision)
+    assert decision.profile_id == "profile_s1_distortion"
+
+
+def test_parse_agent_decision_accepts_retrieve_knowledge_wrapper() -> None:
+    decision = _parse_agent_decision(
+        json.dumps(
+            {
+                "retrieve_knowledge": {
+                    "query_text": "clipping harmonic distortion",
+                    "tags": ["clipping"],
+                    "purpose": "explain findings",
+                }
+            }
+        )
+    )
+    assert isinstance(decision, RetrieveKnowledgeDecision)
+    assert decision.query_text == "clipping harmonic distortion"

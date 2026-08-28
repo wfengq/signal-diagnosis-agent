@@ -6,10 +6,12 @@ from signal_diag.agent.models import (
     CallToolDecision,
     ClippingInput,
     DetectClippingCall,
+    EvaluateRulesDecision,
     FinishDecision,
     Observation,
     PlannerContext,
     PlannerOutputError,
+    RetrieveKnowledgeDecision,
     ScriptExhaustedError,
     TaskAssessment,
 )
@@ -134,3 +136,31 @@ async def test_t070_script_exhaustion_raises() -> None:
     await planner.decide(_context())
     with pytest.raises(ScriptExhaustedError):
         await planner.decide(_context())
+
+
+@pytest.mark.asyncio
+async def test_scripted_planner_returns_phase3_decisions() -> None:
+    planner = ScriptedPlanner(
+        [
+            ScriptedStep(
+                expected_observation_count=0,
+                decision=EvaluateRulesDecision(
+                    profile_id="profile_s1_distortion",
+                    evidence_refs=(),
+                    purpose="evaluate configured limits",
+                ),
+            ),
+            ScriptedStep(
+                expected_observation_count=0,
+                decision=RetrieveKnowledgeDecision(
+                    query_text="clipping",
+                    tags=("clipping",),
+                    purpose="explain clipping evidence",
+                ),
+            ),
+        ]
+    )
+    rules = await planner.decide(_context())
+    assert isinstance(rules, EvaluateRulesDecision)
+    knowledge = await planner.decide(_context())
+    assert isinstance(knowledge, RetrieveKnowledgeDecision)

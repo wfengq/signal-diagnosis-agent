@@ -19,7 +19,7 @@ from .models import (
 # DeepSeek V4 Flash official API model ID (OpenAI-compatible endpoint).
 DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
-PROMPT_VERSION = "v0.2-s1-planner-3"
+PROMPT_VERSION = "v0.2-s1-planner-4"
 
 _AGENT_DECISION_ADAPTER: TypeAdapter[AgentDecision] = TypeAdapter(AgentDecision)
 
@@ -89,17 +89,38 @@ finish shape — inconclusive (invalid/unreliable metrics; claims may be empty; 
   ]
 }
 
+evaluate_rules shape — apply configured profile thresholds to existing evidence:
+{
+  "decision_type": "evaluate_rules",
+  "profile_id": "profile_s1_distortion",
+  "evidence_refs": ["ev_clip_001", "ev_thd_001"],
+  "purpose": "Apply configured clipping and THD limits."
+}
+
+retrieve_knowledge shape — explanatory corpus lookup (not numerical evidence):
+{
+  "decision_type": "retrieve_knowledge",
+  "query_text": "clipping harmonic distortion",
+  "tags": ["clipping", "harmonic-distortion"],
+  "purpose": "Explain clipping and THD findings for the final diagnosis."
+}
+
 Exact field names (required):
-- decision_type: "call_tool" or "finish" (top level only)
+- decision_type: "call_tool", "evaluate_rules", "retrieve_knowledge", or "finish"
 - task_assessment.objective: non-empty string on the first decision
 - call.tool_name: registered tool name (never "name")
 - call.args: tool input object (use {} when defaults apply)
 - purpose: non-empty string explaining why the tool is called
 - claims[].evidence_refs: array of evidence_id strings from context
+- claims[].rule_refs: array of ruleval_* evaluation IDs from rule_evaluation_batches
+- claims[].knowledge_refs: array of know_* retrieval IDs from knowledge_retrievals
 - limitations: non-empty array of strings when outcome is inconclusive
 
 Rules:
 - Never invent or calculate DSP metrics; only reference evidence already in context.
+- Use profile_s1_distortion for configured S1 clipping and harmonic rule evaluation.
+- Knowledge retrieval explains claims; it does not replace evidence_refs for numeric claims.
+- Cite only evidence_id, ruleval_*, and know_* IDs present in planner context.
 - On the first decision, include task_assessment with task_type distortion_analysis.
 - When finishing, every claim evidence_refs must reference existing evidence_id values.
 - Prefer stopping once supported evidence is sufficient; avoid redundant tool calls.
@@ -399,6 +420,20 @@ def _normalize_agent_decision_payload(payload: dict[str, Any]) -> dict[str, Any]
             branch = normalized.pop("finish")
             normalized["decision_type"] = "finish"
             normalized = _merge_finish_branch(normalized, branch)
+        elif "evaluate_rules" in normalized and isinstance(
+            normalized["evaluate_rules"], dict
+        ):
+            branch = normalized.pop("evaluate_rules")
+            normalized = {**normalized, **branch, "decision_type": "evaluate_rules"}
+        elif "retrieve_knowledge" in normalized and isinstance(
+            normalized["retrieve_knowledge"], dict
+        ):
+            branch = normalized.pop("retrieve_knowledge")
+            normalized = {
+                **normalized,
+                **branch,
+                "decision_type": "retrieve_knowledge",
+            }
 
     decision_type = normalized.get("decision_type")
     if decision_type == "call_tool":

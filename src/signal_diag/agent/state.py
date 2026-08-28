@@ -2,6 +2,8 @@
 
 from typing import TypedDict
 
+from signal_diag.knowledge.models import KnowledgeRetrievalResult
+from signal_diag.rules.models import RuleEvaluationBatch
 from signal_diag.signal.models import SignalMeta
 from signal_diag.tools.evidence import Evidence
 
@@ -30,3 +32,7 @@ class DiagnosisState(TypedDict):
     errors: list[str]
     termination_reason: TerminationReason | None
     diagnosis: StructuredDiagnosis | None
+    rule_evaluation_batches: list[RuleEvaluationBatch]
+    knowledge_retrievals: list[KnowledgeRetrievalResult]
+    rule_evaluation_count: int
+    knowledge_retrieval_count: int

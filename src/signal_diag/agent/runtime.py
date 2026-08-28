@@ -17,11 +17,13 @@ from .models import (
     DetectClippingCall,
     DiagnosisValidationError,
     EstimateFundamentalCall,
+    EvaluateRulesDecision,
     FinishDecision,
     Observation,
     PlannerContext,
     PlannerError,
     PlannerOutputError,
+    RetrieveKnowledgeDecision,
     RunStatus,
     StructuredDiagnosis,
     TaskAssessment,
@@ -133,6 +135,27 @@ class DistortionDiagnosisRuntime:
                     )
                 continue
 
+            if isinstance(
+                decision, (EvaluateRulesDecision, RetrieveKnowledgeDecision)
+            ):
+                state["errors"].append(
+                    f"phase 3 action requires injected dependencies: "
+                    f"{decision.decision_type}"
+                )
+                state["termination_reason"] = "runtime_error"
+                return self._finalize_from_state(
+                    state,
+                    recoverable_errors=recoverable_errors,
+                )
+
+            if not isinstance(decision, FinishDecision):
+                state["errors"].append("unsupported planner decision type")
+                state["termination_reason"] = "runtime_error"
+                return self._finalize_from_state(
+                    state,
+                    recoverable_errors=recoverable_errors,
+                )
+
             handled, planner_retries_remaining, recoverable_errors = (
                 self._handle_finish_decision(
                     state,
@@ -176,6 +199,10 @@ class DistortionDiagnosisRuntime:
             errors=[],
             termination_reason=None,
             diagnosis=None,
+            rule_evaluation_batches=[],
+            knowledge_retrievals=[],
+            rule_evaluation_count=0,
+            knowledge_retrieval_count=0,
         )
 
     def _new_run_id(self) -> str:
@@ -211,6 +238,8 @@ class DistortionDiagnosisRuntime:
             no_progress_count=state["no_progress_count"],
             warnings=tuple(state["warnings"]),
             recoverable_errors=recoverable_errors,
+            rule_evaluation_batches=tuple(state["rule_evaluation_batches"]),
+            knowledge_retrievals=tuple(state["knowledge_retrievals"]),
         )
 
     def _apply_task_assessment(
@@ -369,6 +398,8 @@ class DistortionDiagnosisRuntime:
             limitations=decision.limitations,
             termination_reason=termination_reason,
             tool_call_count=state["tool_call_count"],
+            rule_evaluation_batches=tuple(state["rule_evaluation_batches"]),
+            knowledge_retrievals=tuple(state["knowledge_retrievals"]),
         )
         return "finished", planner_retries_remaining, recoverable_errors
 
@@ -442,6 +473,8 @@ class DistortionDiagnosisRuntime:
         if termination_reason in {
             "max_tool_calls",
             "max_planner_retries",
+            "max_rule_evaluations",
+            "max_knowledge_retrievals",
             "no_progress",
             "runtime_error",
         }:
@@ -473,6 +506,8 @@ class DistortionDiagnosisRuntime:
             termination_reason=termination_reason,
             warnings=tuple(state["warnings"]),
             errors=tuple(state["errors"] + recoverable_errors),
+            rule_evaluation_batches=tuple(state["rule_evaluation_batches"]),
+            knowledge_retrievals=tuple(state["knowledge_retrievals"]),
         )
 
     def _finalize(
@@ -494,6 +529,8 @@ class DistortionDiagnosisRuntime:
             termination_reason=termination_reason,
             warnings=tuple(state["warnings"]),
             errors=tuple(state["errors"] + recoverable_errors),
+            rule_evaluation_batches=tuple(state["rule_evaluation_batches"]),
+            knowledge_retrievals=tuple(state["knowledge_retrievals"]),
         )
 
     def _error_result(

@@ -4,6 +4,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from signal_diag.knowledge.models import KnowledgeRetrievalResult
+from signal_diag.rules.models import RuleEvaluationBatch
 from signal_diag.signal.models import SignalMeta
 from signal_diag.tools.contracts import (
     ClippingInput,
@@ -41,6 +43,8 @@ TerminationReason = Literal[
     "unsupported_task",
     "max_tool_calls",
     "max_planner_retries",
+    "max_rule_evaluations",
+    "max_knowledge_retrievals",
     "no_progress",
     "runtime_error",
 ]
@@ -135,6 +139,8 @@ class DiagnosisClaim(BaseModel):
     ]
     statement: str = Field(min_length=1)
     evidence_refs: tuple[str, ...] = ()
+    rule_refs: tuple[str, ...] = ()
+    knowledge_refs: tuple[str, ...] = ()
 
 
 class CallToolDecision(BaseModel):
@@ -158,8 +164,31 @@ class FinishDecision(BaseModel):
     limitations: tuple[str, ...] = ()
 
 
+class EvaluateRulesDecision(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    decision_type: Literal["evaluate_rules"] = "evaluate_rules"
+    task_assessment: TaskAssessment | None = None
+    profile_id: str = Field(pattern=r"^profile_")
+    evidence_refs: tuple[str, ...] = ()
+    purpose: str = Field(min_length=1)
+
+
+class RetrieveKnowledgeDecision(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    decision_type: Literal["retrieve_knowledge"] = "retrieve_knowledge"
+    task_assessment: TaskAssessment | None = None
+    query_text: str = Field(min_length=1)
+    tags: tuple[str, ...] = ()
+    purpose: str = Field(min_length=1)
+
+
 AgentDecision = Annotated[
-    CallToolDecision | FinishDecision,
+    CallToolDecision
+    | EvaluateRulesDecision
+    | RetrieveKnowledgeDecision
+    | FinishDecision,
     Field(discriminator="decision_type"),
 ]
 
@@ -205,6 +234,8 @@ class PlannerContext(BaseModel):
     no_progress_count: int = Field(ge=0)
     warnings: tuple[str, ...] = ()
     recoverable_errors: tuple[str, ...] = ()
+    rule_evaluation_batches: tuple[RuleEvaluationBatch, ...] = ()
+    knowledge_retrievals: tuple[KnowledgeRetrievalResult, ...] = ()
 
 
 class StructuredDiagnosis(BaseModel):
@@ -218,6 +249,8 @@ class StructuredDiagnosis(BaseModel):
     limitations: tuple[str, ...]
     termination_reason: TerminationReason
     tool_call_count: int = Field(ge=0)
+    rule_evaluation_batches: tuple[RuleEvaluationBatch, ...] = ()
+    knowledge_retrievals: tuple[KnowledgeRetrievalResult, ...] = ()
 
 
 class AgentRunResult(BaseModel):
@@ -232,3 +265,5 @@ class AgentRunResult(BaseModel):
     termination_reason: TerminationReason
     warnings: tuple[str, ...] = ()
     errors: tuple[str, ...] = ()
+    rule_evaluation_batches: tuple[RuleEvaluationBatch, ...] = ()
+    knowledge_retrievals: tuple[KnowledgeRetrievalResult, ...] = ()
