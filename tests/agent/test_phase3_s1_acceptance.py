@@ -402,8 +402,18 @@ async def test_t124_s1_combined_rules_and_knowledge(
     )
     result = await _run_phase3(repository, signal_id, planner)
     assert_phase3_trace_is_grounded(result)
+    assert result.diagnosis is not None
     assert len(result.knowledge_retrievals) == 1
-    assert len(result.diagnosis.claims) == 2  # type: ignore[union-attr]
+    knowledge_ids = {item.retrieval_id for item in result.knowledge_retrievals}
+    claims = result.diagnosis.claims
+    assert len(claims) == 2
+    for claim in claims:
+        assert claim.evidence_refs
+        assert claim.rule_refs
+        assert claim.knowledge_refs
+        for knowledge_id in claim.knowledge_refs:
+            assert knowledge_id in knowledge_ids
+            assert knowledge_id.startswith("know_")
 
 
 @pytest.mark.asyncio
@@ -449,6 +459,8 @@ async def test_t124_s1_noise_rules_and_knowledge_inconclusive(
     result = await _run_phase3(repository, signal_id, planner)
     assert_phase3_trace_is_grounded(result)
     assert result.diagnosis is not None
+    assert len(result.knowledge_retrievals) == 1
+    assert result.knowledge_retrievals[0].query_tags == ("inconclusive",)
     assert result.diagnosis.outcome == "inconclusive"
     judgments = {
         evaluation.rule_id: evaluation.judgment
