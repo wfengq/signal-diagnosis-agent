@@ -17,7 +17,7 @@ def _to_float32(samples: np.ndarray) -> np.ndarray:
         return scaled.astype(np.float32)
     if np.issubdtype(samples.dtype, np.floating):
         return samples.astype(np.float32, copy=True)
-    raise InvalidSignalError("unsupported dtype: {}".format(samples.dtype))
+    raise InvalidSignalError(f"unsupported dtype: {samples.dtype}")
 
 
 def build_signal_record(
@@ -38,7 +38,7 @@ def build_signal_record(
     if samples.size == 0:
         raise InvalidSignalError("samples must not be empty")
     if not (np.issubdtype(samples.dtype, np.integer) or np.issubdtype(samples.dtype, np.floating)):
-        raise InvalidSignalError("unsupported dtype: {}".format(samples.dtype))
+        raise InvalidSignalError(f"unsupported dtype: {samples.dtype}")
     if not np.isfinite(samples).all():
         raise InvalidSignalError("samples must be finite")
 
@@ -50,7 +50,7 @@ def build_signal_record(
 
     num_samples, channels = values.shape
     metadata = SignalMeta(
-        signal_id="sig_{}".format(uuid4().hex) if signal_id is None else signal_id,
+        signal_id=f"sig_{uuid4().hex}" if signal_id is None else signal_id,
         source_type=source_type,
         filename=filename,
         sample_rate_hz=sample_rate_hz,

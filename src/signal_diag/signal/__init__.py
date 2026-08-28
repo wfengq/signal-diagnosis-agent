@@ -8,7 +8,14 @@ from .exceptions import (
     UnsupportedChannelError,
 )
 from .factory import build_signal_record
-from .models import ChannelMode, FaultLabel, SignalMeta, SignalRecord, SourceType, TimeRange
+from .models import (
+    ChannelMode,
+    FaultLabel,
+    SignalMeta,
+    SignalRecord,
+    SourceType,
+    TimeRange,
+)
 
 __all__ = [
     "ChannelMode",
