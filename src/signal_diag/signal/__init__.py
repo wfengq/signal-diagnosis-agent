@@ -23,6 +23,8 @@ from .synthetic import (
     SyntheticCase,
     SyntheticGroundTruth,
     generate_clipped_sine,
+    generate_combined_distortion,
+    generate_harmonic_sine,
     generate_sine,
     generate_white_noise,
 )
@@ -47,6 +49,8 @@ __all__ = [
     "build_signal_record",
     "extract_segment",
     "generate_clipped_sine",
+    "generate_combined_distortion",
+    "generate_harmonic_sine",
     "generate_sine",
     "generate_white_noise",
 ]
