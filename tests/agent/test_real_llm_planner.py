@@ -18,8 +18,10 @@ from signal_diag.agent.models import (
     TaskAssessment,
 )
 from signal_diag.agent.planner import (
+    PROMPT_VERSION,
     RealLLMPlanner,
     _missing_credentials_message,
+    _normalize_agent_decision_payload,
     _parse_agent_decision,
 )
 from signal_diag.signal.models import SignalMeta
@@ -108,6 +110,106 @@ def test_parse_agent_decision_accepts_valid_call_tool() -> None:
     assert decision.call.tool_name == "detect_clipping"
 
 
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {
+            "call_tool": {
+                "name": "detect_clipping",
+                "purpose": "Check for clipping distortion in the signal.",
+                "task_assessment": {
+                    "task_type": "distortion_analysis",
+                    "objective": "Identify clipping as a common cause.",
+                },
+            }
+        },
+        {
+            "decision_type": "call_tool",
+            "task_assessment": {
+                "task_type": "distortion_analysis",
+                "hypotheses": ["checking for clipping."],
+            },
+            "call_tool": {
+                "decision_type": "call_tool",
+                "name": "detect_clipping",
+                "purpose": "checking for clipping.",
+            },
+        },
+        {
+            "decision_type": "call_tool",
+            "task_assessment": {
+                "task_type": "distortion_analysis",
+                "objective": "Assess distortion affecting the signal.",
+            },
+            "call_tool": {
+                "decision_type": "call_tool",
+                "name": "detect_clipping",
+                "purpose": "Detect clipping affecting the signal.",
+            },
+        },
+    ],
+)
+def test_parse_agent_decision_normalizes_eval_trace_call_tool_patterns(
+    payload: dict[str, object],
+) -> None:
+    decision = _parse_agent_decision(json.dumps(payload))
+    assert isinstance(decision, CallToolDecision)
+    assert decision.call.tool_name == "detect_clipping"
+    assert decision.purpose
+    assert decision.task_assessment is not None
+    assert decision.task_assessment.objective
+
+
+def test_normalize_agent_decision_payload_maps_finish_wrapper() -> None:
+    normalized = _normalize_agent_decision_payload(
+        {
+            "finish": {
+                "outcome": "no_supported_fault",
+                "claims": [
+                    {
+                        "claim_id": "claim_clean",
+                        "fault_type": "no_supported_fault",
+                        "statement": "no clipping or harmonic evidence",
+                        "evidence_refs": ["ev_none_001"],
+                    }
+                ],
+                "confidence_label": "medium",
+            }
+        }
+    )
+    assert normalized["decision_type"] == "finish"
+    assert normalized["outcome"] == "no_supported_fault"
+    assert normalized["claims"][0]["evidence_refs"] == ["ev_none_001"]
+
+
+def test_parse_agent_decision_accepts_finish_with_evidence_refs() -> None:
+    payload = {
+        "decision_type": "finish",
+        "outcome": "supported_fault",
+        "claims": [
+            {
+                "claim_id": "claim_clip_1",
+                "fault_type": "clipping",
+                "statement": "Clipping metrics exceed threshold.",
+                "evidence_refs": ["ev_clip_001"],
+            }
+        ],
+        "confidence_label": "high",
+    }
+    decision = _parse_agent_decision(json.dumps(payload))
+    assert isinstance(decision, FinishDecision)
+    assert decision.claims[0].evidence_refs == ("ev_clip_001",)
+
+
+def test_parse_agent_decision_preserves_valid_payload() -> None:
+    payload = _valid_call_tool_payload()
+    normalized = _normalize_agent_decision_payload(payload)
+    assert normalized == payload
+    decision = _parse_agent_decision(json.dumps(payload))
+    assert isinstance(decision, CallToolDecision)
+    assert decision.call.tool_name == "detect_clipping"
+
+
 def test_parse_agent_decision_rejects_invalid_json() -> None:
     with pytest.raises(PlannerOutputError, match="non-JSON"):
         _parse_agent_decision("not json")
@@ -135,7 +237,11 @@ async def test_real_llm_planner_parses_mocked_response() -> None:
     assert decision.call.args == ClippingInput()
     assert client.chat.completions.last_kwargs is not None
     assert client.chat.completions.last_kwargs["model"] == "deepseek-v4-flash"
+    assert client.chat.completions.last_kwargs["response_format"] == {
+        "type": "json_object",
+    }
     user_content = client.chat.completions.last_kwargs["messages"][1]["content"]
+    assert "v0.2-s1-planner-3" in user_content
     assert "sig_llm" in user_content
     assert "frequencies_hz" not in user_content
 
@@ -170,6 +276,143 @@ def test_missing_credentials_message_is_explicit() -> None:
     message = _missing_credentials_message()
     assert "DEEPSEEK_API_KEY" in message
     assert "ScriptedPlanner" in message
+
+
+def test_prompt_version_is_planner_3() -> None:
+    assert PROMPT_VERSION == "v0.2-s1-planner-3"
+
+
+@pytest.mark.parametrize(
+    ("alias_field", "alias_value", "expected_limitations"),
+    [
+        (
+            "reason",
+            "Fundamental frequency estimate is invalid.",
+            ("Fundamental frequency estimate is invalid.",),
+        ),
+        (
+            "summary",
+            [
+                "THD metrics are not applicable.",
+                "No reliable harmonic evidence.",
+            ],
+            (
+                "THD metrics are not applicable.",
+                "No reliable harmonic evidence.",
+            ),
+        ),
+        (
+            "limitation",
+            "Noise-only input prevents reliable pitch tracking.",
+            ("Noise-only input prevents reliable pitch tracking.",),
+        ),
+    ],
+)
+def test_normalize_inconclusive_lifts_limitations_from_aliases(
+    alias_field: str,
+    alias_value: str | list[str],
+    expected_limitations: tuple[str, ...],
+) -> None:
+    payload: dict[str, object] = {
+        "decision_type": "finish",
+        "outcome": "inconclusive",
+        "claims": [],
+        "confidence_label": "low",
+        alias_field: alias_value,
+    }
+    normalized = _normalize_agent_decision_payload(payload)
+    assert normalized["limitations"] == expected_limitations
+    assert alias_field not in normalized
+
+
+def test_normalize_inconclusive_preserves_existing_limitations() -> None:
+    payload = {
+        "decision_type": "finish",
+        "outcome": "inconclusive",
+        "claims": [],
+        "confidence_label": "low",
+        "limitations": ["Already provided limitation."],
+        "reason": "Should not override existing limitations.",
+    }
+    normalized = _normalize_agent_decision_payload(payload)
+    assert normalized["limitations"] == ["Already provided limitation."]
+    assert "reason" in normalized
+
+
+def test_parse_agent_decision_accepts_inconclusive_with_reason_alias() -> None:
+    payload = {
+        "decision_type": "finish",
+        "outcome": "inconclusive",
+        "claims": [],
+        "confidence_label": "low",
+        "reason": "Invalid F0 prevents harmonic analysis.",
+    }
+    decision = _parse_agent_decision(json.dumps(payload))
+    assert isinstance(decision, FinishDecision)
+    assert decision.outcome == "inconclusive"
+    assert decision.limitations == ("Invalid F0 prevents harmonic analysis.",)
+
+
+def test_normalize_no_supported_fault_finish_wrapper() -> None:
+    normalized = _normalize_agent_decision_payload(
+        {
+            "finish": {
+                "outcome": "no_supported_fault",
+                "claims": [
+                    {
+                        "claim_id": "claim_clean",
+                        "fault_type": "no_supported_fault",
+                        "statement": "No clipping or harmonic distortion detected.",
+                        "evidence_refs": ["ev_neg_001"],
+                    }
+                ],
+                "confidence_label": "high",
+            }
+        }
+    )
+    assert normalized["decision_type"] == "finish"
+    assert normalized["outcome"] == "no_supported_fault"
+    assert normalized["claims"][0]["fault_type"] == "no_supported_fault"
+
+
+def test_parse_agent_decision_accepts_no_supported_fault_finish() -> None:
+    payload = {
+        "decision_type": "finish",
+        "outcome": "no_supported_fault",
+        "claims": [
+            {
+                "claim_id": "claim_clean_1",
+                "fault_type": "no_supported_fault",
+                "statement": "Negative clipping and harmonic evidence.",
+                "evidence_refs": ["ev_neg_001"],
+            }
+        ],
+        "confidence_label": "high",
+    }
+    decision = _parse_agent_decision(json.dumps(payload))
+    assert isinstance(decision, FinishDecision)
+    assert decision.outcome == "no_supported_fault"
+    assert decision.claims[0].fault_type == "no_supported_fault"
+
+
+def test_normalize_does_not_convert_supported_fault_to_no_supported_fault() -> None:
+    payload = {
+        "decision_type": "finish",
+        "outcome": "supported_fault",
+        "claims": [
+            {
+                "claim_id": "claim_clip_1",
+                "fault_type": "clipping",
+                "statement": "Clipping detected.",
+                "evidence_refs": ["ev_clip_001"],
+            }
+        ],
+        "confidence_label": "high",
+        "reason": "Negative evidence wording must not change outcome.",
+    }
+    normalized = _normalize_agent_decision_payload(payload)
+    assert normalized["outcome"] == "supported_fault"
+    assert "limitations" not in normalized
 
 
 @pytest.mark.asyncio

@@ -19,7 +19,7 @@ from .models import (
 # DeepSeek V4 Flash official API model ID (OpenAI-compatible endpoint).
 DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
-PROMPT_VERSION = "v0.2-s1-planner-1"
+PROMPT_VERSION = "v0.2-s1-planner-3"
 
 _AGENT_DECISION_ADAPTER: TypeAdapter[AgentDecision] = TypeAdapter(AgentDecision)
 
@@ -29,18 +29,92 @@ You receive compact structured context: signal metadata, prior tool observations
 deterministic evidence records, tool descriptors, and runtime limits. You never
 receive raw waveform samples or full FFT arrays.
 
-Your job is to return exactly one JSON object matching the AgentDecision schema:
-- Either call_tool: select one registered tool with valid args and a clear purpose.
-- Or finish: provide outcome, evidence-grounded claims, and confidence.
+Return exactly one JSON object. Required top-level discriminator: decision_type.
+Do NOT wrap the decision in a call_tool or finish key. Do NOT use name for tools;
+always use call.tool_name.
+
+call_tool shape (first step example — include task_assessment.objective):
+{
+  "decision_type": "call_tool",
+  "task_assessment": {
+    "task_type": "distortion_analysis",
+    "objective": "Determine whether clipping or harmonic distortion explains the signal.",
+    "hypotheses": ["clipping", "harmonic_distortion"]
+  },
+  "call": {
+    "tool_name": "detect_clipping",
+    "args": {}
+  },
+  "purpose": "Obtain clipping evidence before further distortion analysis."
+}
+
+finish shape — supported_fault (positive fault evidence; every claim must cite evidence_refs):
+{
+  "decision_type": "finish",
+  "outcome": "supported_fault",
+  "claims": [
+    {
+      "claim_id": "claim_clip_1",
+      "fault_type": "clipping",
+      "statement": "Clipping metrics exceed the supported threshold.",
+      "evidence_refs": ["ev_clip_001"]
+    }
+  ],
+  "confidence_label": "high"
+}
+
+finish shape — no_supported_fault (negative evidence rules out faults; outcome MUST be no_supported_fault):
+{
+  "decision_type": "finish",
+  "outcome": "no_supported_fault",
+  "claims": [
+    {
+      "claim_id": "claim_clean_1",
+      "fault_type": "no_supported_fault",
+      "statement": "Clipping and harmonic metrics show no supported fault.",
+      "evidence_refs": ["ev_clip_neg_001", "ev_thd_neg_001"]
+    }
+  ],
+  "confidence_label": "high"
+}
+
+finish shape — inconclusive (invalid/unreliable metrics; claims may be empty; limitations REQUIRED):
+{
+  "decision_type": "finish",
+  "outcome": "inconclusive",
+  "claims": [],
+  "confidence_label": "low",
+  "limitations": [
+    "Fundamental frequency estimate is invalid; harmonic distortion metrics are not applicable."
+  ]
+}
+
+Exact field names (required):
+- decision_type: "call_tool" or "finish" (top level only)
+- task_assessment.objective: non-empty string on the first decision
+- call.tool_name: registered tool name (never "name")
+- call.args: tool input object (use {} when defaults apply)
+- purpose: non-empty string explaining why the tool is called
+- claims[].evidence_refs: array of evidence_id strings from context
+- limitations: non-empty array of strings when outcome is inconclusive
 
 Rules:
 - Never invent or calculate DSP metrics; only reference evidence already in context.
 - On the first decision, include task_assessment with task_type distortion_analysis.
 - When finishing, every claim evidence_refs must reference existing evidence_id values.
 - Prefer stopping once supported evidence is sufficient; avoid redundant tool calls.
+- Ruling out clipping/harmonic with negative evidence is NOT supported_fault; use no_supported_fault.
+- When outcome is inconclusive, limitations array is REQUIRED and must not be empty.
+- If recoverable_errors mention missing limitation, next finish must include limitations.
 - If metrics are invalid or not applicable, finish with inconclusive when justified.
 - Use only tool names and argument fields from available_tools input schemas.
+- Respond with a single JSON object only (no markdown fences or commentary).
 """
+
+
+def _deepseek_response_format() -> dict[str, str]:
+    """DeepSeek-compatible structured output (json_schema is not always available)."""
+    return {"type": "json_object"}
 
 
 @runtime_checkable
@@ -143,6 +217,185 @@ def _build_user_message(context: PlannerContext) -> str:
     return json.dumps(payload, indent=2, sort_keys=True)
 
 
+def _normalize_call_dict(call: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(call)
+    if "tool_name" not in normalized and "name" in normalized:
+        normalized["tool_name"] = normalized.pop("name")
+    normalized.setdefault("args", {})
+    return normalized
+
+
+def _normalize_task_assessment_payload(
+    task_assessment: dict[str, Any],
+) -> dict[str, Any]:
+    normalized = dict(task_assessment)
+    if "objective" not in normalized:
+        for alias in ("goal", "description", "summary"):
+            if alias in normalized:
+                normalized["objective"] = normalized.pop(alias)
+                break
+    hypotheses = normalized.get("hypotheses")
+    if "objective" not in normalized and isinstance(hypotheses, str):
+        normalized["objective"] = hypotheses
+        normalized["hypotheses"] = ()
+    elif "objective" not in normalized and isinstance(hypotheses, list) and hypotheses:
+        first = hypotheses[0]
+        if isinstance(first, str):
+            normalized["objective"] = first
+    return normalized
+
+
+def _merge_call_tool_branch(
+    outer: dict[str, Any],
+    inner: dict[str, Any],
+) -> dict[str, Any]:
+    merged = dict(outer)
+    branch = dict(inner)
+    branch.pop("decision_type", None)
+
+    for field in ("purpose", "expected_evidence", "task_assessment"):
+        if field not in merged and field in branch:
+            merged[field] = branch.pop(field)
+
+    if "call" in branch:
+        merged["call"] = branch.pop("call")
+    elif "tool_name" in branch or "name" in branch:
+        merged["call"] = {
+            key: branch.pop(key)
+            for key in ("tool_name", "name", "args")
+            if key in branch
+        }
+        if "tool_name" not in merged["call"] and "name" in merged["call"]:
+            merged["call"]["tool_name"] = merged["call"].pop("name")
+        merged["call"].setdefault("args", {})
+    elif "tool" in branch and isinstance(branch["tool"], dict):
+        merged["call"] = branch.pop("tool")
+
+    if "purpose" not in merged and "purpose" in branch:
+        merged["purpose"] = branch.pop("purpose")
+
+    return merged
+
+
+def _normalize_call_tool_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(payload)
+
+    if "call_tool" in normalized and isinstance(normalized["call_tool"], dict):
+        normalized = _merge_call_tool_branch(normalized, normalized.pop("call_tool"))
+
+    if "tool" in normalized and "call" not in normalized and isinstance(
+        normalized["tool"], dict
+    ):
+        normalized["call"] = normalized.pop("tool")
+
+    if "call" not in normalized and ("tool_name" in normalized or "name" in normalized):
+        normalized["call"] = {
+            key: normalized.pop(key)
+            for key in ("tool_name", "name", "args")
+            if key in normalized
+        }
+
+    if isinstance(normalized.get("call"), dict):
+        normalized["call"] = _normalize_call_dict(normalized["call"])
+
+    if isinstance(normalized.get("task_assessment"), dict):
+        normalized["task_assessment"] = _normalize_task_assessment_payload(
+            normalized["task_assessment"]
+        )
+
+    return normalized
+
+
+def _merge_finish_branch(
+    outer: dict[str, Any],
+    inner: dict[str, Any],
+) -> dict[str, Any]:
+    merged = dict(outer)
+    branch = dict(inner)
+    branch.pop("decision_type", None)
+
+    for field in (
+        "task_assessment",
+        "outcome",
+        "claims",
+        "confidence_label",
+        "limitations",
+    ):
+        if field not in merged and field in branch:
+            merged[field] = branch.pop(field)
+
+    return merged
+
+
+def _coerce_limitation_strings(value: Any) -> tuple[str, ...]:
+    if isinstance(value, str) and value.strip():
+        return (value.strip(),)
+    if isinstance(value, list):
+        return tuple(
+            item.strip()
+            for item in value
+            if isinstance(item, str) and item.strip()
+        )
+    return ()
+
+
+def _lift_inconclusive_limitations(normalized: dict[str, Any]) -> dict[str, Any]:
+    if normalized.get("outcome") != "inconclusive":
+        return normalized
+
+    limitations = normalized.get("limitations")
+    if limitations:
+        return normalized
+
+    for alias in ("limitation", "summary", "reason"):
+        if alias not in normalized:
+            continue
+        lifted = _coerce_limitation_strings(normalized.pop(alias))
+        if lifted:
+            normalized["limitations"] = lifted
+            break
+
+    return normalized
+
+
+def _normalize_finish_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(payload)
+
+    if "finish" in normalized and isinstance(normalized["finish"], dict):
+        normalized = _merge_finish_branch(normalized, normalized.pop("finish"))
+
+    if isinstance(normalized.get("task_assessment"), dict):
+        normalized["task_assessment"] = _normalize_task_assessment_payload(
+            normalized["task_assessment"]
+        )
+
+    return _lift_inconclusive_limitations(normalized)
+
+
+def _normalize_agent_decision_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(payload, dict):
+        return payload
+
+    normalized: dict[str, Any] = dict(payload)
+
+    if "decision_type" not in normalized:
+        if "call_tool" in normalized and isinstance(normalized["call_tool"], dict):
+            branch = normalized.pop("call_tool")
+            normalized["decision_type"] = "call_tool"
+            normalized = _merge_call_tool_branch(normalized, branch)
+        elif "finish" in normalized and isinstance(normalized["finish"], dict):
+            branch = normalized.pop("finish")
+            normalized["decision_type"] = "finish"
+            normalized = _merge_finish_branch(normalized, branch)
+
+    decision_type = normalized.get("decision_type")
+    if decision_type == "call_tool":
+        return _normalize_call_tool_payload(normalized)
+    if decision_type == "finish":
+        return _normalize_finish_payload(normalized)
+    return normalized
+
+
 def _parse_agent_decision(raw_content: str) -> AgentDecision:
     try:
         parsed = json.loads(raw_content)
@@ -150,6 +403,8 @@ def _parse_agent_decision(raw_content: str) -> AgentDecision:
         raise PlannerOutputError(
             f"planner returned non-JSON content: {error.msg}"
         ) from error
+    if isinstance(parsed, dict):
+        parsed = _normalize_agent_decision_payload(parsed)
     try:
         return _AGENT_DECISION_ADAPTER.validate_python(parsed)
     except ValidationError as error:
@@ -223,14 +478,7 @@ class RealLLMPlanner:
                 {"role": "system", "content": _SYSTEM_PROMPT},
                 {"role": "user", "content": _build_user_message(context)},
             ],
-            response_format={
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "agent_decision",
-                    "schema": _AGENT_DECISION_ADAPTER.json_schema(),
-                    "strict": True,
-                },
-            },
+            response_format=_deepseek_response_format(),
             temperature=0.0,
             extra_body={"thinking": {"type": "disabled"}},
         )
