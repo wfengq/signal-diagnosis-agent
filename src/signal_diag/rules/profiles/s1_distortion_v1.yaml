@@ -1,0 +1,39 @@
+profile_id: profile_s1_distortion
+version: 1.0.0-demo
+description: Demonstration-only S1 clipping and harmonic-distortion limits; not an industry standard.
+rules:
+  - rule_id: rule_clipping_detected_absent
+    metric: clipping_detected
+    source_tool: detect_clipping
+    comparator: eq
+    threshold: false
+    unit: null
+    description: No clipping detection is acceptable.
+  - rule_id: rule_clipping_ratio_acceptable
+    metric: clipping_ratio
+    source_tool: detect_clipping
+    comparator: lte
+    threshold: 0.01
+    unit: null
+    description: A clipping ratio at or below one percent passes the demo rule.
+  - rule_id: rule_flat_top_absent
+    metric: flat_top_detected
+    source_tool: detect_clipping
+    comparator: eq
+    threshold: false
+    unit: null
+    description: No flat-top event is acceptable.
+  - rule_id: rule_harmonic_analysis_valid
+    metric: valid
+    source_tool: analyze_harmonic_distortion
+    comparator: eq
+    threshold: true
+    unit: null
+    description: Harmonic analysis must be applicable before THD is judged.
+  - rule_id: rule_thd_acceptable
+    metric: thd_percent
+    source_tool: analyze_harmonic_distortion
+    comparator: lte
+    threshold: 5.0
+    unit: "%"
+    description: THD at or below five percent passes the demo rule.
