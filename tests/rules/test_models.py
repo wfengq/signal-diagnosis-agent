@@ -23,6 +23,34 @@ rules:
     description: demo ratio
 """
 
+YAML_BOOL_PROFILE = """\
+profile_id: profile_test
+version: 1.0.0-demo
+description: YAML native bool thresholds must remain bool.
+rules:
+  - rule_id: rule_false
+    metric: clipping_detected
+    source_tool: detect_clipping
+    comparator: eq
+    threshold: false
+    description: yaml false
+  - rule_id: rule_true
+    metric: valid
+    source_tool: analyze_harmonic_distortion
+    comparator: eq
+    threshold: true
+    description: yaml true
+"""
+
+SHIPPED_S1_PROFILE = (
+    Path(__file__).resolve().parents[2]
+    / "src"
+    / "signal_diag"
+    / "rules"
+    / "profiles"
+    / "s1_distortion_v1.yaml"
+)
+
 
 def test_t093_rule_models_instantiate_frozen_profile() -> None:
     rule = RuleDefinition(
@@ -104,6 +132,28 @@ def test_t095_empty_profile_is_rejected() -> None:
             description="test",
             rules=(),
         )
+
+
+def test_t097_loader_preserves_yaml_bool_thresholds(tmp_path: Path) -> None:
+    profile_path = tmp_path / "profile.yaml"
+    profile_path.write_text(YAML_BOOL_PROFILE, encoding="utf-8")
+    loaded = YamlRuleProfileLoader({"profile_test": profile_path}).load("profile_test")
+    false_rule, true_rule = loaded.rules
+    assert type(false_rule.threshold) is bool
+    assert false_rule.threshold is False
+    assert type(true_rule.threshold) is bool
+    assert true_rule.threshold is True
+
+    shipped = YamlRuleProfileLoader({"profile_s1_distortion": SHIPPED_S1_PROFILE}).load(
+        "profile_s1_distortion"
+    )
+    by_id = {rule.rule_id: rule for rule in shipped.rules}
+    assert type(by_id["rule_clipping_detected_absent"].threshold) is bool
+    assert by_id["rule_clipping_detected_absent"].threshold is False
+    assert type(by_id["rule_flat_top_absent"].threshold) is bool
+    assert by_id["rule_flat_top_absent"].threshold is False
+    assert type(by_id["rule_harmonic_analysis_valid"].threshold) is bool
+    assert by_id["rule_harmonic_analysis_valid"].threshold is True
 
 
 def test_t097_loader_uses_explicit_mapping(tmp_path: Path) -> None:
