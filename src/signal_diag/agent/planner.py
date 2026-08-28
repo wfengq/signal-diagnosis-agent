@@ -126,14 +126,26 @@ class PlannerModel(Protocol):
         ...
 
 
+class _ChatCompletions(Protocol):
+    async def create(
+        self,
+        *,
+        model: Any,
+        messages: Any,
+        response_format: Any,
+        temperature: Any,
+        extra_body: Any,
+    ) -> Any: ...
+
+
+class _ChatResource(Protocol):
+    @property
+    def completions(self) -> _ChatCompletions: ...
+
+
 class _ChatClient(Protocol):
-    class _Chat:
-        class _Completions:
-            async def create(self, **kwargs: Any) -> Any: ...
-
-        completions: _Completions
-
-    chat: _Chat
+    @property
+    def chat(self) -> _ChatResource: ...
 
 
 class ScriptedStep(BaseModel):
