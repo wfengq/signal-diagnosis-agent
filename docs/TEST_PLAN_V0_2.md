@@ -2,8 +2,9 @@
 
 **Document:** `TEST_PLAN_V0_2.md`  
 **Version:** `0.2`  
-**Status:** Approved and required for Phase 1–2  
-**Scope:** Phase 1 deterministic foundation and Phase 2 hybrid Agent runtime  
+**Status:** Approved and required for Phase 1–3
+**Scope:** Phase 1 deterministic foundation, Phase 2 hybrid Agent runtime, and
+Phase 3 rules/knowledge acceptance
 **Contracts:** `docs/CONTRACTS_V0_2.md`  
 **Architecture:** `docs/ARCHITECTURE_V0_2.md`  
 
@@ -38,6 +39,9 @@ Required tests follow these rules:
 - keep real LLM calls out of `pytest` required acceptance;
 - do not weaken scientific requirements to make tests pass;
 - do not use `skip` or `xfail` on required T001–T092 tests;
+- do not use `skip` or `xfail` on required T093–T124 tests at the Phase 3
+  completion gate; package-absence skips are allowed only during incremental
+  pre-implementation migration;
 - verify tests fail for the intended reason before implementing behavior;
 - run focused tests and the full current suite after every logical unit.
 
@@ -68,6 +72,13 @@ tests/
     ├── test_runtime.py
     ├── test_termination.py
     └── test_s1_acceptance.py
+├── test_architecture_boundaries.py   # T093; Phase 3 gate migration
+├── rules/                            # Phase 3
+│   ├── test_models.py
+│   └── test_engine.py
+└── knowledge/                        # Phase 3
+    ├── test_models.py
+    └── test_index.py
 ```
 
 Real-model evaluation is not stored as a required pytest module. Its Phase 2
@@ -184,9 +195,14 @@ generate_white_noise(
 | D | Agent contracts and scripted planner | T064–T070 |
 | E | Runtime routing and termination | T071–T085 |
 | F | Reproducible S1 state-machine acceptance | T086–T092 |
+| G | Phase 3 rules, knowledge, runtime integration | T093–T124 |
 
 Each checkpoint requires its focused tests and the complete suite accumulated so
 far.
+
+OQ-001 approval on 2026-08-28 authorizes Phase 3 checkpoint G. T093 updates the
+architecture boundary gate; remaining T094–T124 are added during Phase 3
+implementation.
 
 ---
 
@@ -589,6 +605,25 @@ Product-Demo readiness additionally requires:
 - confirmation that the displayed trace came from the real model path;
 - no claim that stochastic behavior is CI-certified.
 
+### Phase 3 completion
+
+Phase 3 requires:
+
+- OQ-001 contract approval (§32–§40);
+- T093–T124 passing with no skip or xfail;
+- all Phase 1–2 tests (T001–T092) still passing;
+- no network access in required tests;
+- architecture boundary tests enforcing Phase 3 dependency direction;
+- runtime integration using injected `RuleEngine`, `RuleProfileLoader`, and
+  `KnowledgeIndex` (no implicit fixed-directory reads);
+- scripted S1 traces with rule evaluation and knowledge retrieval branches;
+- no fallback from real to scripted planner in product composition;
+- OQ-003 resolved and an approved, versioned `profile_s1_distortion`
+  demonstration profile included in the repository.
+
+Test-local demonstration profiles may be used during RuleEngine and runtime TDD,
+but they do not satisfy the Phase 3 completion gate.
+
 ---
 
 ## 18. Failure Handling Policy
@@ -651,6 +686,94 @@ skipped, or xfailed.
 | Agent models/Planner protocol | T064–T070 |
 | Runtime/policies/termination | T071–T085 |
 | S1 deterministic acceptance | T086–T092 |
+| Architecture boundary migration | T093 |
+| Rule profile and engine | T094–T105 |
+| Knowledge corpus and retrieval | T106–T112 |
+| Agent model and runtime extensions | T113–T120 |
+| S1 rule/knowledge acceptance | T121–T124 |
 | Real-model behavior | R001–R006, non-CI |
 
 Together, T001–T092 form the required Phase 1–2 deterministic acceptance gate.
+T093–T124 form the required Phase 3 deterministic acceptance gate once
+implementation begins.
+
+---
+
+## 21. Phase 3 — Rules, Knowledge, and Runtime Integration
+
+Phase 3 tests verify deterministic rule evaluation, keyword/tag knowledge
+retrieval, injected runtime boundaries, and extended S1 scripted acceptance.
+They use real rule-engine and knowledge-index execution; no mocked numerical
+results.
+
+Architecture boundary migration (T093) may land before `rules/` and
+`knowledge/` packages exist; those tests skip until packages are created.
+
+### Checkpoint G — Architecture and package boundaries
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T093 | Phase 3 architecture boundary migration | `rules/` and `knowledge/` are no longer deferred; when present, dependency direction matches §37; `evaluation/` and `app/` remain absent; agent may import rules/knowledge |
+
+### Rule profile models
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T094 | RuleProfile duplicate-ID validation | rejects duplicate `rule_id` within profile |
+| T095 | RuleProfile validation | rejects empty `rules` tuple |
+| T096 | Comparator PASS semantics | `lte`/`eq`/`neq` express PASS condition per §33 |
+| T097 | RuleProfileLoader injection | loader resolves profile by ID; no implicit directory reads in tests |
+
+### Rule engine
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T098 | PASS on valid Evidence | observed value satisfies comparator → `pass` with evidence ref |
+| T099 | FAIL on valid Evidence | observed value fails comparator → `fail` with evidence ref |
+| T100 | No matching Evidence | one `not_applicable` per rule, empty `evidence_refs`, non-empty `reason` |
+| T101 | Inapplicable Evidence | invalid validity, strict scalar-type mismatch (including bool/int), or unit mismatch produces one `not_applicable` citing the Evidence ID |
+| T102 | Multiple matching Evidence | one evaluation per matching Evidence for the same rule |
+| T103 | evidence_filter | only filtered Evidence IDs considered |
+| T104 | Deterministic batch output | identical profile + Evidence → identical business fields |
+| T105 | Engine isolation | RuleEngine may import `tools.evidence`/contracts, but imports no agent, DSP algorithms, SignalToolService/registry runtime callables, LLM clients, evaluation, or app modules |
+
+### Knowledge corpus and retrieval
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T106 | Chunk model validation | deterministic chunk IDs and excerpts for fixed corpus |
+| T107 | Empty query and result-limit validation | empty query returns `query_text=""` with empty matches/chunks; `max_results <= 0` raises `ValueError` |
+| T108 | Keyword normalization | Unicode casefold, punctuation tokenization, dedup |
+| T109 | Tag matching | exact tag match after whitespace strip |
+| T110 | matches/chunks 1:1 | same order, every match chunk_id resolves |
+| T111 | Ranking determinism | stable ordering for fixed corpus and query |
+| T112 | Knowledge isolation | KnowledgeIndex imports no agent/rules/dsp/tools |
+
+### Agent model extensions
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T113 | EvaluateRulesDecision validation | profile_id pattern, purpose required |
+| T114 | RetrieveKnowledgeDecision validation | non-empty query_text in planner decision |
+| T115 | PlannerContext snapshots | immutable tuples for batches and retrievals |
+| T116 | DiagnosisState mutability | lists for `rule_evaluation_batches` and `knowledge_retrievals` |
+
+### Runtime integration
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T117 | Rule evaluation budget | counter semantics are exact and exhaustion terminates with `max_rule_evaluations` |
+| T118 | Knowledge retrieval budget | counter semantics are exact and exhaustion terminates with `max_knowledge_retrievals` |
+| T119 | Diagnosis validation | `rule_refs` resolve to evaluation IDs within batches; knowledge refs resolve |
+| T120 | Injected dependencies | runtime uses injected engine, loader, and index; Phase 2 construction remains valid; requesting a Phase 3 action with its dependency absent terminates as `runtime_error` |
+| T121 | S1-CLEAN rules branch | scripted trace evaluates clean profile rules |
+| T122 | S1-CLIP rules branch | clipping rules PASS/FAIL aligned with synthetic ground truth |
+| T123 | S1-HARM rules branch | harmonic rules PASS/FAIL aligned with synthetic ground truth |
+| T124 | S1 combined rules + knowledge | claims cite evidence, rule refs, and knowledge refs; invalid Evidence yields `not_applicable` rule judgments |
+
+Every T121–T124 test additionally asserts:
+
+- real Tool/DSP execution for Evidence;
+- real rule-engine and knowledge-index execution;
+- no numeric fabrication on invalid inputs;
+- complete reproducible trace for the scripted planner path.

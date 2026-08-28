@@ -2,17 +2,21 @@
 
 **Document:** `CONTRACTS_V0_2.md`  
 **Contract version:** `0.2`  
-**Status:** Frozen for Phase 1–2  
-**Scope:** Phase 1 deterministic foundation and Phase 2 hybrid Agent runtime  
+**Status:** Frozen for Phase 1–3
+**Scope:** Phase 1 deterministic foundation, Phase 2 hybrid Agent runtime, and
+Phase 3 rules/knowledge contracts
 **Architecture:** `docs/ARCHITECTURE_V0_2.md`  
 
 ---
 
 ## 1. Contract Policy
 
-This document defines the Phase 1–2 public Python surface for V0.2. After user
-approval, implementation must not silently rename modules, classes, functions,
-arguments, return types, statuses, or waveform conventions.
+This document defines the public Python surface for V0.2. Sections 2–31 are
+frozen for Phase 1–2. Sections 32–40 were approved on 2026-08-28 and are frozen
+for Phase 3.
+
+After approval, implementation must not silently rename modules, classes,
+functions, arguments, return types, statuses, or waveform conventions.
 
 If a genuine correctness problem is found:
 
@@ -21,8 +25,8 @@ If a genuine correctness problem is found:
 3. propose the smallest correction and its test impact;
 4. obtain explicit approval before changing the public surface.
 
-Private helpers remain implementation details. Phase 3–5 interfaces are not
-frozen here.
+Private helpers remain implementation details. Phase 4–5 interfaces remain
+unfrozen. Phase 3 interfaces are frozen in §32–§40.
 
 ---
 
@@ -41,7 +45,9 @@ contracts.
 
 ---
 
-## 3. Required Phase 1–2 Package Layout
+## 3. Required Package Layout
+
+### 3.1 Phase 1–2 layout (frozen)
 
 ```text
 src/signal_diag/
@@ -79,8 +85,29 @@ src/signal_diag/
     └── demo.py
 ```
 
-`agent/` is created only in Phase 2. No `rules/`, `knowledge/`, `evaluation/`,
-or `app/` implementation is part of this contract.
+`agent/` is part of the frozen Phase 2 contract. No `evaluation/` or `app/`
+implementation is part of the Phase 1–2 contract.
+
+### 3.2 Phase 3 additions (frozen)
+
+```text
+src/signal_diag/
+├── rules/
+│   ├── __init__.py
+│   ├── models.py
+│   ├── engine.py
+│   └── profiles/
+│       └── s1_distortion_v1.yaml
+└── knowledge/
+    ├── __init__.py
+    ├── models.py
+    ├── index.py
+    └── corpus/
+        └── *.md
+```
+
+`rules/` and `knowledge/` are created only in Phase 3. They must not import
+`agent/`, LLM frameworks, or orchestration libraries.
 
 ---
 
@@ -1130,6 +1157,9 @@ class AgentLimits(BaseModel):
     max_no_progress: int = Field(default=2, ge=1)
 ```
 
+Phase 3 adds `max_rule_evaluations` and `max_knowledge_retrievals` additively;
+see §38.2. Phase 2 behavior uses only the three fields above.
+
 Two Tool calls are equivalent when their tool name and canonical serialized
 arguments are equal. Changing prose purpose alone does not make an equivalent
 call useful. An equivalent call is rejected and increments no-progress count.
@@ -1264,21 +1294,22 @@ These are outcome constraints, not a fixed Tool pipeline.
 
 ---
 
-## 29. Explicitly Unfrozen Phase 3–5 Interfaces
+## 29. Explicitly Unfrozen Phase 4–5 Interfaces
 
-V0.2 does not freeze:
+V0.2 does not yet freeze:
 
-- rule profile models;
-- knowledge retrieval models;
 - evaluation dataset/report schemas;
+- fixed-pipeline baseline contracts;
 - WAV loader signature;
 - HTTP API;
 - UI contracts;
 - HTML/PDF report schema;
-- concrete LLM provider constructor;
+- embedding or vector-database retrieval backends;
+- concrete LLM provider constructor details beyond Phase 2 behavior requirements;
 - orchestration framework integration.
 
-Those contracts are frozen immediately before their implementation phase.
+Phase 3 rule and knowledge contracts are frozen in §32–§40. Phase 4–5
+contracts are frozen immediately before their implementation phase.
 
 ---
 
@@ -1381,3 +1412,549 @@ agent.runtime
 
 Any Phase 1–2 change to this surface after approval requires explicit contract
 revision.
+
+---
+
+## 32. Phase 3 Contract Policy
+
+Phase 3 separates three concerns that must not be conflated:
+
+1. **Evidence** — deterministic numerical facts from DSP Tools;
+2. **Rule judgment** — configured PASS/FAIL/NOT_APPLICABLE results over Evidence;
+3. **Knowledge** — curated explanatory text retrieved for the planner and final
+   diagnosis narrative.
+
+Phase 3 adds `rules/` and `knowledge/` below `tools/` and extends Agent contracts
+additively. Sections 2–31 remain frozen. Phase 3 must not change existing Phase
+1–2 field names, statuses, or semantics.
+
+Phase 3 Agent extensions are defined as new models and optional fields in §39.
+OQ-001 approval authorizes their implementation in `agent/models.py`.
+
+### 32.1 Deterministic ID policy
+
+For identical business inputs (profile, Evidence, query text/tags, corpus
+version), Phase 3 outputs must have identical business fields: judgments,
+observed values, matched terms/tags, ordering, and cited references.
+
+Trace identifiers (`evaluation_id`, `batch_id`, `retrieval_id`) may vary between
+runs unless a test explicitly asserts stable IDs. When stability is required,
+tests must pin the ID generator or compare normalized payloads excluding trace
+IDs.
+
+---
+
+## 33. Rule Profile Models
+
+Location: `rules/models.py`
+
+```python
+RuleComparator = Literal[
+    "lt",
+    "lte",
+    "gt",
+    "gte",
+    "eq",
+    "neq",
+]
+
+RuleJudgment = Literal[
+    "pass",
+    "fail",
+    "not_applicable",
+]
+
+class RuleDefinition(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    rule_id: str = Field(pattern=r"^rule_")
+    metric: str = Field(min_length=1)
+    source_tool: ToolName
+    comparator: RuleComparator
+    threshold: EvidenceValue
+    unit: str | None = None
+    description: str = Field(min_length=1)
+
+class RuleProfile(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    profile_id: str = Field(pattern=r"^profile_")
+    version: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    rules: tuple[RuleDefinition, ...]
+```
+
+Required semantics:
+
+- `metric` names a deterministic Evidence metric produced by `source_tool`;
+- `threshold` uses the same scalar type as the referenced Evidence value;
+  compatibility is strict by scalar category (`bool`, `int`, `float`, `str`),
+  and `bool` is never treated as an `int` despite Python subclass semantics;
+- when `RuleDefinition.unit` is non-null, matching Evidence must have the exact
+  same unit; a unit mismatch is not type-compatible. A null rule unit imposes no
+  unit constraint;
+- `comparator` expresses the **PASS condition**: when Evidence is valid and
+  type-compatible, the expression `observed_value <comparator> threshold` (using
+  the named comparator) evaluates to `true` → judgment `pass`, `false` →
+  judgment `fail`. Examples: `clipping_ratio lte 0.01`, `flat_top_detected eq
+  false`, `thd_percent lte 5.0`;
+- `rules` must be non-empty and contain no duplicate `rule_id` values within a
+  profile;
+- profile `version` is opaque to callers but must change when any rule threshold
+  or comparator changes;
+- the first supported profile is `profile_s1_distortion` for S1 clipping and
+  harmonic metrics;
+- demonstration thresholds are not industry standards.
+
+Profile files live under `rules/profiles/` as versioned YAML or JSON loaded into
+`RuleProfile`. Loading is explicit dependency injection; the runtime must not
+read fixed directories or globals implicitly.
+
+```python
+class RuleProfileLoader(Protocol):
+    def load(self, profile_id: str) -> RuleProfile:
+        ...
+```
+
+Callers inject a `RuleProfileLoader` (or equivalent callable) into
+`DistortionDiagnosisRuntime`; see §38.1.
+
+---
+
+## 34. Rule Evaluation Result
+
+Location: `rules/models.py`, `rules/engine.py`
+
+```python
+class RuleEvaluation(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    evaluation_id: str = Field(pattern=r"^ruleval_")
+    rule_id: str = Field(pattern=r"^rule_")
+    judgment: RuleJudgment
+    observed_value: EvidenceValue | None = None
+    comparator: RuleComparator
+    threshold: EvidenceValue
+    profile_id: str = Field(pattern=r"^profile_")
+    profile_version: str = Field(min_length=1)
+    evidence_refs: tuple[str, ...]
+    reason: str | None = None
+
+class RuleEvaluationBatch(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    batch_id: str = Field(pattern=r"^rulebatch_")
+    profile_id: str = Field(pattern=r"^profile_")
+    profile_version: str = Field(min_length=1)
+    evaluations: tuple[RuleEvaluation, ...]
+```
+
+```python
+class RuleEngine:
+    def evaluate_profile(
+        self,
+        profile: RuleProfile,
+        evidence: Sequence[Evidence],
+        *,
+        evidence_filter: frozenset[str] | None = None,
+    ) -> RuleEvaluationBatch:
+        ...
+```
+
+Required behavior:
+
+- evaluation is deterministic for identical profile and Evidence inputs;
+- **one `RuleDefinition` × one matching Evidence → one `RuleEvaluation`**;
+- when no Evidence matches a rule's `source_tool` and `metric`, emit one
+  `not_applicable` evaluation for that rule with **empty** `evidence_refs` and a
+  non-empty `reason`;
+- when matching Evidence exists but has `validity="not_applicable"`, is
+  type-incompatible with the rule threshold, or violates the rule's unit
+  constraint, emit one `not_applicable` evaluation that **must** cite that
+  Evidence in `evidence_refs`;
+- when multiple Evidence records match the same rule (same `source_tool` and
+  `metric`), emit **one evaluation per matching Evidence**;
+- optional `evidence_filter` restricts which Evidence IDs are considered; rules
+  with no matching Evidence after filtering follow the no-match rule above;
+- `not_applicable` must never be reported as `pass`;
+- the engine does not call DSP, Tools, or an LLM;
+- PASS/FAIL applies the comparator-as-PASS-condition rule from §33 only when
+  Evidence is valid and type-compatible;
+- `evidence_refs` entries must reference existing Evidence IDs from the input
+  sequence when non-empty.
+
+Initial S1 rule bindings (subject to profile file values) cover at minimum:
+
+| rule metric family | source tool | example metric names |
+|---|---|---|
+| clipping | `detect_clipping` | `clipping_ratio`, `detected`, `flat_top_detected` |
+| harmonic distortion | `analyze_harmonic_distortion` | `thd_percent`, `valid` |
+
+Exact thresholds and comparator choices belong in the versioned profile file and
+are recorded in `docs/OPEN_QUESTIONS.md` until approved.
+
+---
+
+## 35. Knowledge Corpus Models
+
+Location: `knowledge/models.py`
+
+```python
+class KnowledgeDocument(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    document_id: str = Field(pattern=r"^doc_")
+    title: str = Field(min_length=1)
+    source_path: str = Field(min_length=1)
+    tags: tuple[str, ...] = ()
+    version: str = Field(min_length=1)
+
+class KnowledgeChunk(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    chunk_id: str = Field(pattern=r"^chunk_")
+    document_id: str = Field(pattern=r"^doc_")
+    title: str = Field(min_length=1)
+    excerpt: str = Field(min_length=1)
+    tags: tuple[str, ...] = ()
+    heading_path: tuple[str, ...] = ()
+```
+
+Required semantics:
+
+- corpus content is curated local Markdown under `knowledge/corpus/`;
+- chunks are deterministic subdivisions of source documents;
+- chunking rules are implementation details but must be stable for a fixed corpus
+  version;
+- corpus text does not create numerical Evidence and must not alter DSP metrics;
+- initial corpus size is small and S1-focused (clipping, harmonic distortion,
+  THD explanation, inconclusive handling).
+
+---
+
+## 36. Knowledge Retrieval Result
+
+Location: `knowledge/models.py`, `knowledge/index.py`
+
+```python
+class KnowledgeMatch(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    document_id: str = Field(pattern=r"^doc_")
+    chunk_id: str = Field(pattern=r"^chunk_")
+    matched_terms: tuple[str, ...] = ()
+    matched_tags: tuple[str, ...] = ()
+
+class KnowledgeRetrievalResult(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    retrieval_id: str = Field(pattern=r"^know_")
+    query_text: str = Field(default="")
+    query_tags: tuple[str, ...] = ()
+    matches: tuple[KnowledgeMatch, ...]
+    chunks: tuple[KnowledgeChunk, ...]
+```
+
+```python
+class KnowledgeIndex:
+    def __init__(self, corpus_root: Path) -> None: ...
+
+    def retrieve(
+        self,
+        *,
+        query_text: str,
+        tags: Sequence[str] = (),
+        max_results: int = 5,
+    ) -> KnowledgeRetrievalResult:
+        ...
+```
+
+Required behavior per D011:
+
+- retrieval is deterministic keyword and tag matching over the local corpus;
+- `max_results` must be at least 1; zero or negative values raise `ValueError`;
+- no network access, embeddings, or vector database in the initial implementation;
+- identical query inputs return identical match ordering and business fields for
+  a fixed corpus version (see §32.1 for trace ID policy);
+- `matches` and `chunks` are **1:1**, in the same order, with no missing chunk
+  references: each `KnowledgeMatch.chunk_id` resolves to the corresponding
+  `KnowledgeChunk` at the same index in `chunks`;
+- `chunks` contains compact excerpts only; no raw waveform or FFT data;
+- when both `query_text` and `tags` are empty, `retrieve()` returns a
+  `KnowledgeRetrievalResult` with `query_text=""`, empty `matches`, and empty
+  `chunks` — not an error;
+- non-empty `query_text` in planner decisions uses `Field(min_length=1)`; only
+  the empty-query retrieval result allows `query_text=""`;
+- missing knowledge does not change deterministic numerical conclusions;
+- a later embedding backend may replace indexing internals if it preserves this
+  public result contract.
+
+Keyword normalization (frozen minimum):
+
+- Unicode casefold on query terms and corpus tokens;
+- split on punctuation and whitespace into tokens;
+- deduplicate query tokens while preserving first-seen order;
+- tag matching is exact string equality after stripping leading/trailing
+  whitespace on both query tags and chunk/document tags.
+
+Ranking is by descending count of matched query terms and tags, then stable
+document/chunk ID order. Tie-breaking rules are fixed in implementation tests.
+
+---
+
+## 37. Phase 3 Package Boundaries
+
+Allowed dependencies:
+
+```text
+rules  -> tools, signal
+knowledge -> (stdlib only; no signal/tools/agent imports required)
+agent  -> rules, knowledge, tools, signal   # Phase 3 runtime integration only
+```
+
+Forbidden dependencies:
+
+- `rules/` must not import `agent/`, `evaluation/`, `app/`, or LLM clients;
+- `knowledge/` must not import `agent/`, `rules/`, `dsp/`, `tools/`, LLM
+  clients, or embedding/vector libraries in the initial implementation;
+- `signal/`, `dsp/`, and `tools/` must not import `rules/` or `knowledge/`.
+
+`rules/` and `knowledge/` expose compact structured results only. They never pass
+corpus text or rule configuration into model prompts except through the
+existing Agent context and diagnosis fields defined in §39.
+
+---
+
+## 38. Phase 3 Runtime Actions
+
+Location: `agent/runtime.py` (extended), `rules/engine.py`, `knowledge/index.py`
+
+### 38.1 Runtime dependency injection
+
+Phase 3 extends `DistortionDiagnosisRuntime` additively. All rule and knowledge
+boundaries are injected; the runtime must not read fixed profile directories,
+corpus paths, or module-level singletons implicitly.
+
+```python
+class DistortionDiagnosisRuntime:
+    def __init__(
+        self,
+        *,
+        repository: SignalRepository,
+        tool_service: SignalToolService,
+        planner: PlannerModel,
+        limits: AgentLimits = AgentLimits(),
+        rule_engine: RuleEngine | None = None,
+        rule_profile_loader: RuleProfileLoader | None = None,
+        knowledge_index: KnowledgeIndex | None = None,
+    ) -> None:
+        ...
+```
+
+- `rule_engine` evaluates profiles against run Evidence;
+- `rule_profile_loader.load(profile_id)` resolves versioned profiles;
+- `knowledge_index` serves deterministic retrieval over the injected corpus.
+
+Phase 2-only construction without the three Phase 3 dependencies remains valid.
+If the planner requests a Phase 3 action while its required injected dependency
+is absent, the runtime terminates explicitly with `runtime_error`; it must not
+load a fixed directory, use a module-level singleton, or silently fall back.
+
+### 38.2 AgentLimits extension
+
+Phase 3 adds independent action budgets separate from Tool-call limits:
+
+```python
+class AgentLimits(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    max_tool_calls: int = Field(default=8, ge=1)
+    max_planner_retries: int = Field(default=2, ge=0)
+    max_no_progress: int = Field(default=2, ge=1)
+    max_rule_evaluations: int = Field(default=4, ge=0)
+    max_knowledge_retrievals: int = Field(default=4, ge=0)
+```
+
+Existing Phase 2 defaults for the first three fields are unchanged. Rule and
+knowledge actions do not consume `max_tool_calls`.
+
+Phase 3 extends `TerminationReason` additively with:
+
+```python
+"max_rule_evaluations"
+"max_knowledge_retrievals"
+```
+
+The corresponding runtime counter increments immediately before an injected
+rule or knowledge dependency is executed, including an execution that returns
+an error. A rejected equivalent action does not increment the action counter and
+instead follows the existing no-progress policy.
+
+### 38.3 Runtime actions
+
+Phase 3 adds two deterministic runtime actions executed by
+`DistortionDiagnosisRuntime` after planner validation:
+
+1. **evaluate rules** — load the requested profile via `rule_profile_loader`,
+   evaluate with `rule_engine` against current run Evidence, append
+   `RuleEvaluationBatch` to state;
+2. **retrieve knowledge** — query `knowledge_index`, append
+   `KnowledgeRetrievalResult` to state.
+
+Each action counts as progress when it adds a new batch or retrieval result not
+equivalent to a prior action with the same profile/query inputs.
+
+Equivalent rule evaluations and knowledge retrievals follow the same no-progress
+semantics as equivalent Tool calls (§24).
+
+---
+
+## 39. Phase 3 Agent Contract Extensions
+
+Location: `agent/models.py`, `agent/diagnosis.py`, `agent/state.py`
+
+Phase 3 extends the frozen Phase 2 Agent contracts additively.
+
+### 39.1 Additional planner decisions
+
+```python
+class EvaluateRulesDecision(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    decision_type: Literal["evaluate_rules"] = "evaluate_rules"
+    task_assessment: TaskAssessment | None = None
+    profile_id: str = Field(pattern=r"^profile_")
+    evidence_refs: tuple[str, ...] = ()
+    purpose: str = Field(min_length=1)
+
+class RetrieveKnowledgeDecision(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    decision_type: Literal["retrieve_knowledge"] = "retrieve_knowledge"
+    task_assessment: TaskAssessment | None = None
+    query_text: str = Field(min_length=1)
+    tags: tuple[str, ...] = ()
+    purpose: str = Field(min_length=1)
+```
+
+Extended union:
+
+```python
+AgentDecision = Annotated[
+    CallToolDecision
+    | EvaluateRulesDecision
+    | RetrieveKnowledgeDecision
+    | FinishDecision,
+    Field(discriminator="decision_type"),
+]
+```
+
+### 39.2 Extended planner context and state
+
+`DiagnosisState` (mutable, runtime-owned) gains:
+
+```python
+rule_evaluation_batches: list[RuleEvaluationBatch]
+knowledge_retrievals: list[KnowledgeRetrievalResult]
+rule_evaluation_count: int
+knowledge_retrieval_count: int
+```
+
+`PlannerContext` and `AgentRunResult` (immutable snapshots) gain:
+
+```python
+rule_evaluation_batches: tuple[RuleEvaluationBatch, ...] = ()
+knowledge_retrievals: tuple[KnowledgeRetrievalResult, ...] = ()
+```
+
+These fields contain only compact structured results from §34 and §36. Claims
+cite individual `RuleEvaluation.evaluation_id` values found within batches via
+`rule_refs`.
+
+### 39.3 Extended diagnosis output
+
+Diagnosis output must distinguish evidence, rule judgment, and explanation.
+
+```python
+class DiagnosisClaim(BaseModel):
+    # existing Phase 2 fields unchanged
+    rule_refs: tuple[str, ...] = ()       # RuleEvaluation.evaluation_id values
+    knowledge_refs: tuple[str, ...] = ()    # KnowledgeRetrievalResult.retrieval_id values
+
+class StructuredDiagnosis(BaseModel):
+    # existing Phase 2 fields unchanged
+    rule_evaluation_batches: tuple[RuleEvaluationBatch, ...] = ()
+    knowledge_retrievals: tuple[KnowledgeRetrievalResult, ...] = ()
+```
+
+Validation extensions:
+
+- every `rule_refs` entry must exist as an `evaluation_id` within
+  `rule_evaluation_batches` for the same run;
+- every `knowledge_refs` entry must exist in `knowledge_retrievals` for the same
+  run;
+- numerical claims still require deterministic Evidence; knowledge refs alone are
+  insufficient;
+- claims that assert a configured threshold outcome must cite the supporting
+  `rule_refs`;
+- `knowledge_refs` explain claims and limitations; they do not satisfy Evidence
+  requirements.
+
+`AgentRunResult` gains the same two optional batch/retrieval tuples for trace
+completeness.
+
+### 39.4 Scripted planner extension
+
+`ScriptedStep` may return `EvaluateRulesDecision` and
+`RetrieveKnowledgeDecision` in addition to existing decision types. Scripted
+tests must drive real rule-engine and knowledge-index execution.
+
+---
+
+## 40. Phase 3 Public Surface Summary and Remaining Unfrozen Items
+
+### 40.1 Frozen Phase 3 public surface
+
+```text
+rules.models
+    RuleComparator, RuleJudgment
+    RuleDefinition, RuleProfile, RuleProfileLoader
+    RuleEvaluation, RuleEvaluationBatch
+
+rules.engine
+    RuleEngine
+
+knowledge.models
+    KnowledgeDocument, KnowledgeChunk
+    KnowledgeMatch, KnowledgeRetrievalResult
+
+knowledge.index
+    KnowledgeIndex
+
+agent.models (additive)
+    EvaluateRulesDecision, RetrieveKnowledgeDecision
+    extended AgentDecision, PlannerContext, DiagnosisClaim, StructuredDiagnosis
+    extended TerminationReason for rule/knowledge budget exhaustion
+
+agent.state (additive)
+    rule_evaluation_batches, knowledge_retrievals
+    rule_evaluation_count, knowledge_retrieval_count in DiagnosisState
+
+agent.policies (additive)
+    max_rule_evaluations, max_knowledge_retrievals in AgentLimits
+
+agent.runtime (behavioral extension)
+    optional injected RuleEngine, RuleProfileLoader, KnowledgeIndex
+    execute evaluate_rules and retrieve_knowledge actions
+```
+
+### 40.2 Still unfrozen after Phase 3 approval
+
+- exact S1 profile threshold values and YAML schema details (see OQ-003);
+- corpus document list and chunking parameters;
+- embedding or vector retrieval backends;
+- Phase 4 evaluation and fixed-pipeline contracts;
+- Phase 5 presentation contracts.
+
+Approval of §32–§40 authorizes Phase 3 implementation but does not freeze Phase
+4–5 interfaces.

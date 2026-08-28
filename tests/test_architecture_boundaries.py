@@ -1,4 +1,4 @@
-"""Architecture boundary verification for Phase 1–2 packages."""
+"""Architecture boundary verification for Phase 1–3 packages."""
 
 from __future__ import annotations
 
@@ -11,15 +11,32 @@ FORBIDDEN = {
     "signal": {"signal_diag.dsp", "signal_diag.tools", "signal_diag.agent"},
     "dsp": {"signal_diag.tools", "signal_diag.agent"},
     "tools": {"signal_diag.agent"},
-    "agent": {
+    "rules": {
+        "signal_diag.agent",
+        "signal_diag.evaluation",
+        "signal_diag.app",
+    },
+    "knowledge": {
+        "signal_diag.agent",
         "signal_diag.rules",
-        "signal_diag.knowledge",
+        "signal_diag.dsp",
+        "signal_diag.tools",
+        "signal_diag.evaluation",
+        "signal_diag.app",
+    },
+    "agent": {
         "signal_diag.evaluation",
         "signal_diag.app",
     },
 }
 
-DEFERRED_PACKAGES = ("rules", "knowledge", "evaluation", "app")
+# evaluation/ and app/ remain deferred until their phases.
+DEFERRED_PACKAGES = ("evaluation", "app")
+
+# rules/ and knowledge/ are authorized by the approved Phase 3 contract (OQ-001).
+# Pre-implementation: absence is valid. Post-implementation: dependency direction
+# is enforced by test_phase3_package_dependency_direction_when_present (T093).
+PHASE3_PACKAGES = ("rules", "knowledge")
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_ROOT = PROJECT_ROOT / "src" / "signal_diag"
@@ -60,13 +77,20 @@ def _layer_source_files(layer: str) -> list[Path]:
     return sorted(layer_dir.glob("*.py"))
 
 
-@pytest.mark.parametrize("layer", sorted(FORBIDDEN))
-def test_layers_do_not_import_forbidden_modules(layer: str) -> None:
+def _collect_layer_violations(layer: str) -> list[str]:
     violations: list[str] = []
     for path in _layer_source_files(layer):
         source = path.read_text(encoding="utf-8")
         for module in find_forbidden_imports(layer, source, str(path)):
             violations.append(f"{path.relative_to(PROJECT_ROOT)} imports {module}")
+    return violations
+
+
+@pytest.mark.parametrize("layer", sorted(FORBIDDEN))
+def test_layers_do_not_import_forbidden_modules(layer: str) -> None:
+    if layer in PHASE3_PACKAGES and not (SRC_ROOT / layer).exists():
+        pytest.skip(f"Phase 3 package {layer}/ not created yet")
+    violations = _collect_layer_violations(layer)
     assert not violations, "Forbidden imports detected:\n" + "\n".join(violations)
 
 
@@ -74,8 +98,31 @@ def test_layers_do_not_import_forbidden_modules(layer: str) -> None:
 def test_deferred_packages_are_not_present(package_name: str) -> None:
     package_dir = SRC_ROOT / package_name
     assert not package_dir.exists(), (
-        f"Phase 1–2 must not create src/signal_diag/{package_name}/ yet"
+        f"Deferred package src/signal_diag/{package_name}/ must not exist yet"
     )
+
+
+@pytest.mark.parametrize("package_name", PHASE3_PACKAGES)
+def test_phase3_package_dependency_direction_when_present(package_name: str) -> None:
+    """T093 gate: when rules/ or knowledge/ exist, enforce dependency direction."""
+    package_dir = SRC_ROOT / package_name
+    if not package_dir.exists():
+        pytest.skip(f"Phase 3 package {package_name}/ not created yet")
+    violations = _collect_layer_violations(package_name)
+    assert not violations, "Forbidden imports detected:\n" + "\n".join(violations)
+
+
+def test_phase3_packages_are_not_deferred() -> None:
+    """Document gate: rules/ and knowledge/ are no longer Phase 1–2 deferred packages."""
+    assert "rules" not in DEFERRED_PACKAGES
+    assert "knowledge" not in DEFERRED_PACKAGES
+
+
+def test_agent_may_import_phase3_packages() -> None:
+    """Phase 3 runtime integration: agent may depend on rules/ and knowledge/."""
+    forbidden = FORBIDDEN["agent"]
+    assert "signal_diag.rules" not in forbidden
+    assert "signal_diag.knowledge" not in forbidden
 
 
 def test_boundary_helper_detects_forbidden_import_in_memory() -> None:

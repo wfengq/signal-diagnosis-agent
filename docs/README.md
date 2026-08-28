@@ -10,9 +10,10 @@ Read these documents before changing implementation code:
 1. [`ARCHITECTURE_V0_2.md`](ARCHITECTURE_V0_2.md) — approved system architecture,
    Scenario S1, phase boundaries, and Hybrid Agent design.
 2. [`CONTRACTS_V0_2.md`](CONTRACTS_V0_2.md) — frozen Phase 1–2 public Python
-   contracts.
-3. [`TEST_PLAN_V0_2.md`](TEST_PLAN_V0_2.md) — required T001–T092 deterministic
-   acceptance and separate R001–R006 real-model evaluation.
+   contracts and frozen Phase 3 §32–§40 rules/knowledge contracts.
+3. [`TEST_PLAN_V0_2.md`](TEST_PLAN_V0_2.md) — required T001–T092 Phase 1–2
+   acceptance, required T093–T124 Phase 3 acceptance, and separate R001–R006
+   real-model evaluation.
 4. [`DECISIONS.md`](DECISIONS.md) — approved architectural and process decisions.
 5. [`superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`](superpowers/plans/2026-08-28-phase1-deterministic-foundation.md)
    — task-level Phase 1 TDD implementation plan covering T001–T063.
@@ -63,6 +64,9 @@ override active engineering contracts.
 
 ## Future documents
 
-Phase 2–5 implementation plans are created only when the previous phase satisfies
-its approved completion gate. Future contracts are frozen immediately before
-their implementation phase, as defined by `ARCHITECTURE_V0_2.md`.
+Phase 3 implementation planning is authorized by the approved §32–§40 freeze.
+Later implementation plans are created only when the preceding contract and
+completion gates permit them. Phase 2 was implemented directly from its accepted
+architecture, contracts, and test plan and has no separate plan document. Future
+contracts are frozen immediately before their implementation phase, as defined
+by `ARCHITECTURE_V0_2.md`.

@@ -107,3 +107,15 @@ the validated core. They must not duplicate DSP, rules, or Agent runtime logic.
 **Decision:** The project remains planned or partially implemented until its
 actual code, tests, evaluation, and Demo exist. Synthetic signals are described
 as synthetic and must not be presented as real chip or production test data.
+
+## D014 — Freeze Phase 3 rules and knowledge contracts
+
+**Decision:** OQ-001 is approved. `CONTRACTS_V0_2.md` §32–§40 and
+`TEST_PLAN_V0_2.md` T093–T124 are the frozen Phase 3 implementation and
+acceptance authority.
+
+Phase 3 uses deterministic rule profiles, keyword/tag knowledge retrieval,
+optional injected runtime dependencies, and independent limits of four rule
+evaluations and four knowledge retrievals per run. Phase 2-only runtime
+construction remains compatible. OQ-003 remains open and must approve the
+versioned S1 demonstration profile thresholds before Phase 3 completion.
