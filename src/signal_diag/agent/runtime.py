@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import uuid
 from typing import cast
 
+from signal_diag.knowledge.index import KnowledgeIndex
+from signal_diag.rules.engine import RuleEngine
+from signal_diag.rules.models import RuleProfileLoader
 from signal_diag.signal import SignalNotFoundError, SignalRepository
 from signal_diag.tools import SignalToolService, ToolResult, get_tool_descriptors
 
@@ -56,11 +60,17 @@ class DistortionDiagnosisRuntime:
         tool_service: SignalToolService,
         planner: PlannerModel,
         limits: AgentLimits = _DEFAULT_LIMITS,
+        rule_engine: RuleEngine | None = None,
+        rule_profile_loader: RuleProfileLoader | None = None,
+        knowledge_index: KnowledgeIndex | None = None,
     ) -> None:
         self._repository = repository
         self._tool_service = tool_service
         self._planner = planner
         self._limits = limits
+        self._rule_engine = rule_engine
+        self._rule_profile_loader = rule_profile_loader
+        self._knowledge_index = knowledge_index
         self._observation_sequence = 0
 
     async def run(
@@ -86,6 +96,7 @@ class DistortionDiagnosisRuntime:
         )
         planner_retries_remaining = self._limits.max_planner_retries
         recoverable_errors: list[str] = []
+        seen_rule_evaluations: set[str] = set()
 
         while state["termination_reason"] is None:
             context = self._build_context(
@@ -135,9 +146,26 @@ class DistortionDiagnosisRuntime:
                     )
                 continue
 
-            if isinstance(
-                decision, (EvaluateRulesDecision, RetrieveKnowledgeDecision)
-            ):
+            if isinstance(decision, EvaluateRulesDecision):
+                handled, planner_retries_remaining, recoverable_errors = (
+                    self._handle_evaluate_rules_decision(
+                        state,
+                        decision,
+                        seen_rule_evaluations=seen_rule_evaluations,
+                        planner_retries_remaining=planner_retries_remaining,
+                        recoverable_errors=recoverable_errors,
+                    )
+                )
+                if handled == "continue":
+                    continue
+                if handled == "terminated":
+                    return self._finalize_from_state(
+                        state,
+                        recoverable_errors=recoverable_errors,
+                    )
+                continue
+
+            if isinstance(decision, RetrieveKnowledgeDecision):
                 state["errors"].append(
                     f"phase 3 action requires injected dependencies: "
                     f"{decision.decision_type}"
@@ -334,6 +362,102 @@ class DistortionDiagnosisRuntime:
         else:
             reset_progress(state)
 
+        return "continue", planner_retries_remaining, recoverable_errors
+
+    def _canonical_rule_evaluation_key(
+        self,
+        decision: EvaluateRulesDecision,
+    ) -> str:
+        payload = {
+            "profile_id": decision.profile_id,
+            "evidence_refs": sorted(decision.evidence_refs),
+        }
+        return json.dumps(payload, sort_keys=True, separators=(",", ":"))
+
+    def _handle_evaluate_rules_decision(
+        self,
+        state: DiagnosisState,
+        decision: EvaluateRulesDecision,
+        *,
+        seen_rule_evaluations: set[str],
+        planner_retries_remaining: int,
+        recoverable_errors: list[str],
+    ) -> tuple[str, int, list[str]]:
+        if state["task_assessment"] is None and decision.task_assessment is None:
+            return self._reject_decision(
+                state,
+                message="initial decision requires task_assessment",
+                planner_retries_remaining=planner_retries_remaining,
+                recoverable_errors=recoverable_errors,
+            )
+
+        self._apply_task_assessment(state, decision.task_assessment)
+        assessment = state["task_assessment"]
+        assert assessment is not None
+        if assessment.task_type == "unsupported":
+            return self._reject_decision(
+                state,
+                message="unsupported task must finish without rule evaluation",
+                planner_retries_remaining=planner_retries_remaining,
+                recoverable_errors=recoverable_errors,
+            )
+
+        if state["rule_evaluation_count"] >= self._limits.max_rule_evaluations:
+            state["termination_reason"] = "max_rule_evaluations"
+            return "terminated", planner_retries_remaining, recoverable_errors
+
+        canonical_key = self._canonical_rule_evaluation_key(decision)
+        if canonical_key in seen_rule_evaluations:
+            record_no_progress(state)
+            recoverable_errors.append(
+                "equivalent rule evaluation rejected: "
+                f"{decision.profile_id} with identical evidence_refs"
+            )
+            if should_terminate_no_progress(state, self._limits):
+                state["termination_reason"] = "no_progress"
+                return "terminated", planner_retries_remaining, recoverable_errors
+            return "continue", planner_retries_remaining, recoverable_errors
+
+        known_evidence_ids = {
+            item.evidence_id for item in state["evidence"]
+        }
+        for evidence_id in decision.evidence_refs:
+            if evidence_id not in known_evidence_ids:
+                return self._reject_decision(
+                    state,
+                    message=f"unknown evidence reference: {evidence_id}",
+                    planner_retries_remaining=planner_retries_remaining,
+                    recoverable_errors=recoverable_errors,
+                )
+
+        if self._rule_engine is None or self._rule_profile_loader is None:
+            state["errors"].append(
+                "evaluate_rules requires injected rule_engine and rule_profile_loader"
+            )
+            state["termination_reason"] = "runtime_error"
+            return "terminated", planner_retries_remaining, recoverable_errors
+
+        state["rule_evaluation_count"] += 1
+        try:
+            profile = self._rule_profile_loader.load(decision.profile_id)
+            evidence_filter = (
+                frozenset(decision.evidence_refs)
+                if decision.evidence_refs
+                else None
+            )
+            batch = self._rule_engine.evaluate_profile(
+                profile,
+                state["evidence"],
+                evidence_filter=evidence_filter,
+            )
+        except Exception as error:  # noqa: BLE001 - runtime maps dependency failures
+            state["errors"].append(str(error))
+            state["termination_reason"] = "runtime_error"
+            return "terminated", planner_retries_remaining, recoverable_errors
+
+        state["rule_evaluation_batches"].append(batch)
+        seen_rule_evaluations.add(canonical_key)
+        reset_progress(state)
         return "continue", planner_retries_remaining, recoverable_errors
 
     def _handle_finish_decision(
