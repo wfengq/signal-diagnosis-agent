@@ -88,6 +88,110 @@ def test_t119_phase2_callers_remain_compatible() -> None:
     )
 
 
+def test_t119_inconclusive_rejects_unknown_rule_refs() -> None:
+    decision = FinishDecision(
+        outcome="inconclusive",
+        claims=(
+            DiagnosisClaim(
+                claim_id="claim_noise",
+                fault_type="inconclusive",
+                statement="Fabricated rule refs must be rejected.",
+                rule_refs=("ruleval_fake",),
+            ),
+        ),
+        confidence_label="low",
+        limitations=("metrics not applicable",),
+    )
+    with pytest.raises(DiagnosisValidationError, match="unknown rule reference"):
+        validate_finish_decision(
+            decision,
+            known_evidence_ids=frozenset(),
+            known_rule_evaluation_ids=frozenset(),
+            known_knowledge_retrieval_ids=frozenset(),
+            task_assessment=assessment(),
+        )
+
+
+def test_t119_inconclusive_rejects_unknown_knowledge_refs() -> None:
+    decision = FinishDecision(
+        outcome="inconclusive",
+        claims=(
+            DiagnosisClaim(
+                claim_id="claim_noise",
+                fault_type="inconclusive",
+                statement="Fabricated knowledge refs must be rejected.",
+                knowledge_refs=("know_fake",),
+            ),
+        ),
+        confidence_label="low",
+        limitations=("metrics not applicable",),
+    )
+    with pytest.raises(DiagnosisValidationError, match="unknown knowledge reference"):
+        validate_finish_decision(
+            decision,
+            known_evidence_ids=frozenset(),
+            known_rule_evaluation_ids=frozenset(),
+            known_knowledge_retrieval_ids=frozenset(),
+            task_assessment=assessment(),
+        )
+
+
+def test_t119_unsupported_rejects_unknown_rule_refs() -> None:
+    decision = FinishDecision(
+        task_assessment=TaskAssessment(
+            task_type="unsupported",
+            objective="out of scope",
+        ),
+        outcome="inconclusive",
+        claims=(
+            DiagnosisClaim(
+                claim_id="claim_unsup",
+                fault_type="inconclusive",
+                statement="Fabricated rule refs must be rejected.",
+                rule_refs=("ruleval_fake",),
+            ),
+        ),
+        confidence_label="low",
+        limitations=("task unsupported",),
+    )
+    with pytest.raises(DiagnosisValidationError, match="unknown rule reference"):
+        validate_finish_decision(
+            decision,
+            known_evidence_ids=frozenset(),
+            known_rule_evaluation_ids=frozenset(),
+            known_knowledge_retrieval_ids=frozenset(),
+            task_assessment=None,
+        )
+
+
+def test_t119_unsupported_rejects_unknown_knowledge_refs() -> None:
+    decision = FinishDecision(
+        task_assessment=TaskAssessment(
+            task_type="unsupported",
+            objective="out of scope",
+        ),
+        outcome="inconclusive",
+        claims=(
+            DiagnosisClaim(
+                claim_id="claim_unsup",
+                fault_type="inconclusive",
+                statement="Fabricated knowledge refs must be rejected.",
+                knowledge_refs=("know_fake",),
+            ),
+        ),
+        confidence_label="low",
+        limitations=("task unsupported",),
+    )
+    with pytest.raises(DiagnosisValidationError, match="unknown knowledge reference"):
+        validate_finish_decision(
+            decision,
+            known_evidence_ids=frozenset(),
+            known_rule_evaluation_ids=frozenset(),
+            known_knowledge_retrieval_ids=frozenset(),
+            task_assessment=None,
+        )
+
+
 def test_t119_valid_rule_and_knowledge_refs_pass() -> None:
     decision = FinishDecision(
         outcome="supported_fault",

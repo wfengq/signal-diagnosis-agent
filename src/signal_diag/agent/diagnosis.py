@@ -31,6 +31,18 @@ def validate_finish_decision(
     if assessment is None:
         raise DiagnosisValidationError("finish decision requires task assessment")
 
+    for claim in decision.claims:
+        for rule_id in claim.rule_refs:
+            if rule_id not in known_rule_evaluation_ids:
+                raise DiagnosisValidationError(
+                    f"unknown rule reference: {rule_id}"
+                )
+        for knowledge_id in claim.knowledge_refs:
+            if knowledge_id not in known_knowledge_retrieval_ids:
+                raise DiagnosisValidationError(
+                    f"unknown knowledge reference: {knowledge_id}"
+                )
+
     if assessment.task_type == "unsupported":
         return
 
@@ -57,16 +69,6 @@ def validate_finish_decision(
             if evidence_id not in known_evidence_ids:
                 raise DiagnosisValidationError(
                     f"unknown evidence reference: {evidence_id}"
-                )
-        for rule_id in claim.rule_refs:
-            if rule_id not in known_rule_evaluation_ids:
-                raise DiagnosisValidationError(
-                    f"unknown rule reference: {rule_id}"
-                )
-        for knowledge_id in claim.knowledge_refs:
-            if knowledge_id not in known_knowledge_retrieval_ids:
-                raise DiagnosisValidationError(
-                    f"unknown knowledge reference: {knowledge_id}"
                 )
 
 

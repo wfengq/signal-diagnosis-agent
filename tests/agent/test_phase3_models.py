@@ -99,6 +99,17 @@ def test_t113_evaluate_rules_decision_validation() -> None:
     assert decision.decision_type == "evaluate_rules"
     with pytest.raises(ValidationError):
         EvaluateRulesDecision(profile_id="bad", purpose="x")
+    with pytest.raises(ValidationError):
+        EvaluateRulesDecision(
+            profile_id="profile_s1_distortion",
+            evidence_refs=("ev_clip_001",),
+            purpose="",
+        )
+    with pytest.raises(ValidationError):
+        EvaluateRulesDecision(
+            profile_id="profile_s1_distortion",
+            evidence_refs=("ev_clip_001",),
+        )
 
 
 def test_t114_retrieve_knowledge_requires_query() -> None:

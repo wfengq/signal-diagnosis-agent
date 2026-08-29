@@ -57,7 +57,8 @@ finish shape — supported_fault (positive fault evidence; every claim must cite
       "claim_id": "claim_clip_1",
       "fault_type": "clipping",
       "statement": "Clipping metrics exceed the supported threshold.",
-      "evidence_refs": ["ev_clip_001"]
+      "evidence_refs": ["ev_clip_001"],
+      "rule_refs": ["ruleval_clip_001"]
     }
   ],
   "confidence_label": "high"

@@ -8,11 +8,28 @@ from pathlib import Path
 import pytest
 
 FORBIDDEN = {
-    "signal": {"signal_diag.dsp", "signal_diag.tools", "signal_diag.agent"},
-    "dsp": {"signal_diag.tools", "signal_diag.agent"},
-    "tools": {"signal_diag.agent"},
+    "signal": {
+        "signal_diag.dsp",
+        "signal_diag.tools",
+        "signal_diag.agent",
+        "signal_diag.rules",
+        "signal_diag.knowledge",
+    },
+    "dsp": {
+        "signal_diag.tools",
+        "signal_diag.agent",
+        "signal_diag.rules",
+        "signal_diag.knowledge",
+    },
+    "tools": {
+        "signal_diag.agent",
+        "signal_diag.rules",
+        "signal_diag.knowledge",
+    },
     "rules": {
         "signal_diag.agent",
+        "signal_diag.dsp",
+        "signal_diag.knowledge",
         "signal_diag.evaluation",
         "signal_diag.app",
     },
@@ -125,7 +142,44 @@ def test_agent_may_import_phase3_packages() -> None:
     assert "signal_diag.knowledge" not in forbidden
 
 
+def test_t093_forbidden_edges_include_phase3_reverse_deps() -> None:
+    """CONTRACTS §37: signal/dsp/tools ↛ rules/knowledge; rules ↛ dsp/knowledge."""
+    for layer in ("signal", "dsp", "tools"):
+        assert "signal_diag.rules" in FORBIDDEN[layer]
+        assert "signal_diag.knowledge" in FORBIDDEN[layer]
+    assert "signal_diag.dsp" in FORBIDDEN["rules"]
+    assert "signal_diag.knowledge" in FORBIDDEN["rules"]
+
+
 def test_boundary_helper_detects_forbidden_import_in_memory() -> None:
     source = "from signal_diag.dsp import analyze_clipping\n"
     violations = find_forbidden_imports("signal", source, "fake_signal_module.py")
     assert violations == ["signal_diag.dsp"]
+
+
+def test_boundary_helper_detects_phase3_reverse_imports_in_memory() -> None:
+    assert find_forbidden_imports(
+        "signal",
+        "from signal_diag.rules import RuleEngine\n",
+        "fake_signal_module.py",
+    ) == ["signal_diag.rules"]
+    assert find_forbidden_imports(
+        "dsp",
+        "from signal_diag.knowledge import KnowledgeIndex\n",
+        "fake_dsp_module.py",
+    ) == ["signal_diag.knowledge"]
+    assert find_forbidden_imports(
+        "tools",
+        "import signal_diag.rules.engine\n",
+        "fake_tools_module.py",
+    ) == ["signal_diag.rules.engine"]
+    assert find_forbidden_imports(
+        "rules",
+        "from signal_diag.dsp import thd\n",
+        "fake_rules_module.py",
+    ) == ["signal_diag.dsp"]
+    assert find_forbidden_imports(
+        "rules",
+        "from signal_diag.knowledge import KnowledgeIndex\n",
+        "fake_rules_module.py",
+    ) == ["signal_diag.knowledge"]
