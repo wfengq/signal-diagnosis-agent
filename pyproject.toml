@@ -30,6 +30,7 @@ where = ["src"]
 [tool.setuptools.package-data]
 "signal_diag.rules" = ["profiles/*.yaml"]
 "signal_diag.knowledge" = ["corpus/*.md"]
+"signal_diag.evaluation" = ["manifests/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

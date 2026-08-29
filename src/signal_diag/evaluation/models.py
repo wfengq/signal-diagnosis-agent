@@ -301,6 +301,24 @@ class DatasetManifest(BaseModel):
         return self
 
 
+class DatasetValidationIssue(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    code: str = Field(min_length=1)
+    case_id: str | None = None
+    message: str = Field(min_length=1)
+
+
+class DatasetValidationReport(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    dataset_id: str
+    dataset_version: str
+    valid: bool
+    checked_case_ids: tuple[str, ...]
+    issues: tuple[DatasetValidationIssue, ...] = ()
+
+
 class ProviderUsage(BaseModel):
     model_config = ConfigDict(frozen=True)
 

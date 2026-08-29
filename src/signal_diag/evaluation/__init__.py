@@ -1,5 +1,6 @@
 """Phase 4 evaluation public surface."""
 
+from signal_diag.evaluation.dataset import load_dataset_manifest, validate_dataset
 from signal_diag.evaluation.models import (
     AggregateMetrics,
     AttemptErrorCode,
@@ -19,6 +20,8 @@ from signal_diag.evaluation.models import (
     ConfigScalar,
     ConfigValue,
     DatasetManifest,
+    DatasetValidationIssue,
+    DatasetValidationReport,
     DiagnosisClaimType,
     EvaluationCase,
     EvaluationCategory,
@@ -72,6 +75,8 @@ __all__ = [
     "ConfigScalar",
     "ConfigValue",
     "DatasetManifest",
+    "DatasetValidationIssue",
+    "DatasetValidationReport",
     "DiagnosisClaimType",
     "EvaluationCase",
     "EvaluationCategory",
@@ -104,4 +109,6 @@ __all__ = [
     "TargetStatus",
     "UnscoredSlotArtifact",
     "WhiteNoiseSignalSpec",
+    "load_dataset_manifest",
+    "validate_dataset",
 ]
