@@ -4,13 +4,13 @@
 
 This repository implements a Signal Test and Fault Diagnosis Agent.
 
-The current development phase remains V0.2 Phase 3 on branch
-`phase3-rules-knowledge`: deterministic rules and knowledge retrieval for
-Scenario S1. Phase 1 (T001–T063) and Phase 2 (T064–T092) are accepted.
-Phase 3 has a deterministic implementation plus a Codex-rejection fix wave;
-it is **not** finally accepted until that fix wave is independently
-re-reviewed. Do not treat Codex review as acceptance. Do not merge this
-branch. Do not implement Phase 4 evaluation or Phase 5 presentation adapters.
+The current development phase is V0.2 Phase 4 gated: evaluation, including
+Agent versus a fixed pipeline, is not yet authorized.
+
+Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
+and accepted. Phase 3 passed Codex final acceptance at commit `a820b7f` on
+branch `phase3-rules-knowledge`. Do not implement Phase 4 evaluation or Phase 5
+presentation adapters until that phase is explicitly authorized.
 
 ## Required reading
 
@@ -30,8 +30,8 @@ implementation authority for Agent runtime work.
 
 Phase 3 implementation authority remains `ARCHITECTURE_V0_2.md` §13, revised
 `CONTRACTS_V0_2.md` §32–§40, and `TEST_PLAN_V0_2.md` §21 (T093–T124).
-OQ-001 and OQ-003 were approved. That authorization does not mean Phase 3
-is finally accepted, and it does not authorize Phase 4.
+OQ-001 and OQ-003 were approved. Phase 3 passed final acceptance at `a820b7f`.
+That acceptance does not authorize Phase 4.
 
 These documents describe approved architecture and frozen interfaces.
 
@@ -109,7 +109,7 @@ Do not add:
 unless that later phase is explicitly authorized.
 
 The complete project architecture is approved, but that approval does not waive
-the Phase 3 re-review gate or authorize Phase 4.
+the Phase 4 gate.
 
 ## Completed phases (reference)
 
@@ -123,18 +123,17 @@ Tool contracts, Evidence, and tests T001–T063.
 `PlannerModel`, `ScriptedPlanner`, `RealLLMPlanner`, `DistortionDiagnosisRuntime`,
 S1 deterministic acceptance T064–T092, and separate R001–R006 real-model checks.
 
-### Phase 3 — deterministic rules and knowledge retrieval (pending re-review)
+### Phase 3 — deterministic rules and knowledge retrieval (accepted at `a820b7f`)
 
 Versioned `profile_s1_distortion` `1.0.0-demo` rule profiles, `RuleEngine`,
 curated local Markdown corpus, keyword/tag `KnowledgeIndex`, runtime rule and
 knowledge actions, and T093–T124. Demo thresholds are not industry standards.
-Deterministic implementation exists; this Codex-rejection fix wave is pending
-independent re-review. Do not claim Codex accepted Phase 3. Do not merge and
-do not start Phase 4 yet. The product-path runner is
+The deterministic implementation and its final fix wave passed independent
+Codex acceptance at `a820b7f`. The product-path runner is
 `scripts/run_phase3_real_model_eval.py`. The real-model observation in
 `docs/reports/PHASE3_REAL_MODEL_BEHAVIOR_REPORT.md` **RAN** once (honest
 DeepSeek run, not a CI gate) with 0 rule-evaluation and 0 knowledge-retrieval
-actions.
+actions. Phase 4 remains gated.
 
 ## Development workflow
 
@@ -187,12 +186,10 @@ Before declaring a task complete:
 - report exactly which tests were run;
 - report any remaining warnings, failures, TODOs, or contract concerns.
 
-Phase 3 is not finally accepted until this fix wave is independently
-re-reviewed. Deterministic T001–T124 with zero required skip/xfail, the
-OQ-003-approved `profile_s1_distortion` `1.0.0-demo` profile, and an honest
-real-model report are necessary but not sufficient. The real-model run
-**RAN** once with 0 rule/knowledge actions; do not treat that as Phase 3
-product-path acceptance.
+Phase 3 final acceptance at `a820b7f` includes deterministic T001–T124 with zero
+required skip/xfail, the OQ-003-approved `profile_s1_distortion` `1.0.0-demo`
+profile, an honest real-model report, and closure of the final same-run trace
+validation findings. The real-model run **RAN** once with 0 rule/knowledge
+actions; do not treat that as a Phase 3 product-behavior pass.
 
-Never say that Phase 3 or a later phase is complete if required tests are
-failing or independent re-review is still pending.
+Never say that a later phase is complete if required tests are failing.

@@ -28,10 +28,9 @@ Read these documents before changing implementation code:
   and 0 knowledge actions. This is not a CI gate and is not Phase 3
   product-path acceptance.
 - [`superpowers/plans/2026-08-29-phase3-rules-knowledge.md`](superpowers/plans/2026-08-29-phase3-rules-knowledge.md)
-  — Phase 3 TDD plan covering T093–T124; OQ-003 is resolved.
-  Deterministic implementation plus a Codex-rejection fix wave are
-  pending independent re-review. Do not claim Codex accepted. Do not
-  merge and do not start Phase 4 yet.
+  — completed Phase 3 TDD plan covering T093–T124; OQ-003 is resolved and the
+  implementation plus final fix wave passed Codex acceptance at `a820b7f`.
+  Phase 4 remains gated.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -79,11 +78,11 @@ override active engineering contracts.
 
 ## Future documents
 
-Phase 3 is not finally accepted. Deterministic implementation plus this
-fix wave remain pending independent re-review. Phase 4 evaluation contracts
-remain unfrozen. Later implementation plans are created only when the
-preceding contract and completion gates permit them. Phase 2 was implemented
-directly from its accepted architecture, contracts, and test plan and has no
-separate plan document. Future contracts are frozen immediately before their
-implementation phase, as defined by `ARCHITECTURE_V0_2.md`. Do not merge
-this branch. Do not implement Phase 4 or Phase 5.
+Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 evaluation contracts
+remain unfrozen and Phase 4 implementation is not yet authorized. Later
+implementation plans are created only when the preceding contract and
+completion gates permit them. Phase 2 was implemented directly from its
+accepted architecture, contracts, and test plan and has no separate plan
+document. Future contracts are frozen immediately before their implementation
+phase, as defined by `ARCHITECTURE_V0_2.md`. Do not implement Phase 4 or Phase 5
+until that phase is explicitly authorized.
