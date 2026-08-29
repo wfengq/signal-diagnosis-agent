@@ -375,6 +375,48 @@ def _after_artifacts(
     )
 
 
+def _exclude_unapplied_action_records(
+    records: tuple[PlannerDecisionRecord, ...],
+    result: AgentRunResult,
+) -> tuple[PlannerDecisionRecord, ...]:
+    """Drop tool/rule/knowledge decisions that produced no artifact delta.
+
+    FinishDecision records are always kept. Empty-delta action decisions are
+    runtime rejections (equivalent call, budget, no-progress), not chronology
+    guesses: the next snapshot is inspected once, then assembly runs on the
+    filtered tuple with no prefix search.
+    """
+    kept: list[PlannerDecisionRecord] = []
+    for index, record in enumerate(records):
+        decision = record.decision
+        if (
+            record.status != "decision"
+            or decision is None
+            or isinstance(decision, FinishDecision)
+        ):
+            kept.append(record)
+            continue
+        after = _after_artifacts(records, index, result)
+        before = record.context
+        try:
+            deltas = (
+                _strict_suffix(before.observations, after[0], "observations"),
+                _strict_suffix(before.evidence, after[1], "evidence"),
+                _strict_suffix(
+                    before.rule_evaluation_batches, after[2], "rule_evaluation_batches"
+                ),
+                _strict_suffix(
+                    before.knowledge_retrievals, after[3], "knowledge_retrievals"
+                ),
+            )
+        except ValueError:
+            kept.append(record)
+            continue
+        if any(deltas):
+            kept.append(record)
+    return tuple(kept)
+
+
 def _assemble_baseline_events(result: BaselineRunResult) -> list[EvaluationEvent]:
     events: list[EvaluationEvent] = []
     event_index = 0
@@ -462,13 +504,17 @@ def _validate_claim_refs(
         for event in events
         if isinstance(event, KnowledgeRetrievalEvent)
     }
-    claims: list[DiagnosisClaim] = []
-    if result.diagnosis is not None:
-        claims.extend(result.diagnosis.claims)
+    applied_claims = (
+        tuple(result.diagnosis.claims) if result.diagnosis is not None else ()
+    )
+    claims: list[DiagnosisClaim] = list(applied_claims)
     for record in records:
         decision = record.decision
-        if isinstance(decision, FinishDecision):
-            claims.extend(decision.claims)
+        if not isinstance(decision, FinishDecision):
+            continue
+        if decision.claims != applied_claims:
+            continue
+        claims.extend(decision.claims)
     for claim in claims:
         for ref in claim.evidence_refs:
             if ref not in evidence_ids:

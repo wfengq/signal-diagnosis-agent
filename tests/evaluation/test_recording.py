@@ -37,6 +37,7 @@ from signal_diag.evaluation.models import (
     ProviderUsage,
 )
 from signal_diag.evaluation.recording import RecordingPlanner, assemble_evaluation_trace
+from signal_diag.evaluation.runner import _assemble_applied_agent_trace
 from signal_diag.knowledge.models import (
     KnowledgeChunk,
     KnowledgeMatch,
@@ -1010,3 +1011,60 @@ def test_t148_trace_safety_and_optional_usage(payload: dict[str, Any]) -> None:
         execution_path="agent",
     )
     assert unused.provider_usage is None
+
+
+def _planner_records(trace) -> tuple[PlannerDecisionRecord, ...]:
+    return tuple(
+        event.record for event in trace.events if event.event_type == "planner_call"
+    )
+
+
+def test_official_assembly_keeps_trailing_unmatched_finish() -> None:
+    case, records, result, config = _full_agent_chain()
+    unmatched_claim = _claim().model_copy(update={"evidence_refs": ("ev_missing_001",)})
+    unmatched_finish = FinishDecision(
+        task_assessment=_task_assessment(),
+        outcome="inconclusive",
+        claims=(unmatched_claim,),
+        confidence_label="low",
+    )
+    trailing = _decision_record(len(records), records[-1].context, unmatched_finish)
+    full_records = records + (trailing,)
+
+    trace = _assemble_applied_agent_trace(case, full_records, result, config, run_slot=1)
+
+    assembled = _planner_records(trace)
+    assert assembled == full_records
+    assert isinstance(assembled[-1].decision, FinishDecision)
+    assert assembled[-1].decision.claims == (unmatched_claim,)
+    assert result.diagnosis is not None
+    assert assembled[-2].decision == _finish_decision()
+    assert result.diagnosis.claims == _finish_decision().claims
+
+
+def test_official_assembly_keeps_rejected_then_accepted_finish() -> None:
+    case, records, result, config = _full_agent_chain()
+    rejected_claim = _claim().model_copy(update={"evidence_refs": ("ev_missing_001",)})
+    rejected_finish = FinishDecision(
+        task_assessment=_task_assessment(),
+        outcome="no_supported_fault",
+        claims=(rejected_claim,),
+        confidence_label="low",
+    )
+    after_knowledge = records[-1].context
+    rejected = _decision_record(len(records) - 1, after_knowledge, rejected_finish)
+    accepted = _decision_record(len(records), after_knowledge, _finish_decision())
+    full_records = records[:-1] + (rejected, accepted)
+
+    trace = _assemble_applied_agent_trace(case, full_records, result, config, run_slot=1)
+
+    assembled = _planner_records(trace)
+    assert assembled == full_records
+    finishes = [
+        record.decision
+        for record in assembled
+        if isinstance(record.decision, FinishDecision)
+    ]
+    assert finishes == [rejected_finish, _finish_decision()]
+    assert result.diagnosis is not None
+    assert result.diagnosis.claims == _finish_decision().claims

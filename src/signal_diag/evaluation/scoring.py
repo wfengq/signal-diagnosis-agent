@@ -414,8 +414,14 @@ def _retrieval_relevant(
     case: EvaluationCase, retrieval: KnowledgeRetrievalResult
 ) -> bool:
     wanted = set(_normalize_tags(case.knowledge_tags))
+    if not wanted:
+        return False
     got = set(_normalize_tags(retrieval.query_tags))
-    return bool(wanted and got & wanted)
+    for match in retrieval.matches:
+        got.update(_normalize_tags(match.matched_tags))
+    for chunk in retrieval.chunks:
+        got.update(_normalize_tags(chunk.tags))
+    return bool(got & wanted)
 
 
 def _normalize_tags(tags: tuple[str, ...]) -> tuple[str, ...]:

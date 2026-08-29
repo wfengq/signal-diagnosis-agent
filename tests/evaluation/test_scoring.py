@@ -205,27 +205,42 @@ def _retrieval(
     retrieval_id: str,
     tags: tuple[str, ...],
 ) -> KnowledgeRetrievalResult:
+    return _retrieval_with_tag_sources(
+        retrieval_id=retrieval_id,
+        query_tags=tags,
+        matched_tags=tags,
+        chunk_tags=tags,
+    )
+
+
+def _retrieval_with_tag_sources(
+    *,
+    retrieval_id: str,
+    query_tags: tuple[str, ...],
+    matched_tags: tuple[str, ...],
+    chunk_tags: tuple[str, ...],
+) -> KnowledgeRetrievalResult:
     chunk = KnowledgeChunk(
         chunk_id="chunk_scoring_000",
         document_id="doc_scoring",
         title="Scoring notes",
         excerpt="Relevant excerpt.",
-        tags=tags,
+        tags=chunk_tags,
     )
     return KnowledgeRetrievalResult(
         retrieval_id=retrieval_id,
-        query_text=" ".join(tags) or "notes",
-        query_tags=tags,
+        query_text=" ".join(query_tags) or "notes",
+        query_tags=query_tags,
         matches=(
             KnowledgeMatch(
                 document_id="doc_scoring",
                 chunk_id="chunk_scoring_000",
-                matched_tags=tags,
+                matched_tags=matched_tags,
             ),
         )
-        if tags
+        if matched_tags
         else (),
-        chunks=(chunk,) if tags else (),
+        chunks=(chunk,) if chunk_tags else (),
     )
 
 
@@ -859,6 +874,7 @@ def _legal_noise_trace(
     retrieve: bool = True,
     cite: bool = True,
     tags: tuple[str, ...] | None = None,
+    retrieval: KnowledgeRetrievalResult | None = None,
 ) -> tuple[EvaluationCase, EvaluationTrace]:
     case = _noise_case()
     evidence = _evidence(
@@ -870,17 +886,18 @@ def _legal_noise_trace(
         validity="not_applicable",
     )
     batch = _rule_batch("rulebatch_noise", "ruleval_noise", ("ev_noise",))
-    retrieval = _retrieval(
-        retrieval_id="know_noise",
-        tags=case.knowledge_tags if tags is None else tags,
-    )
+    if retrieval is None:
+        retrieval = _retrieval(
+            retrieval_id="know_noise",
+            tags=case.knowledge_tags if tags is None else tags,
+        )
     claims = (
         _claim(
             claim_id="claim_noise",
             fault_type="inconclusive",
             evidence_refs=("ev_noise",),
             rule_refs=("ruleval_noise",),
-            knowledge_refs=("know_noise",) if retrieve and cite else (),
+            knowledge_refs=(retrieval.retrieval_id,) if retrieve and cite else (),
         ),
     )
     steps: list[dict[str, Any]] = [
@@ -1785,6 +1802,34 @@ def test_t165_knowledge_selectivity_scoring() -> None:
     assert omitted.required_knowledge_opportunities == 1
     assert omitted.required_knowledge_actions == 0
     assert FAILURE_REQUIRED_KNOWLEDGE_OMITTED in omitted.failure_codes
+
+    match_only_case, match_only_trace = _legal_noise_trace(
+        retrieval=_retrieval_with_tag_sources(
+            retrieval_id="know_noise_match",
+            query_tags=("unrelated-topic",),
+            matched_tags=("invalid-signal",),
+            chunk_tags=("other-topic",),
+        )
+    )
+    match_only = score_evaluation_trace(match_only_case, match_only_trace)
+    assert match_only.required_knowledge_actions == 1
+    assert match_only.unnecessary_knowledge_actions == 0
+    assert FAILURE_REQUIRED_KNOWLEDGE_OMITTED not in match_only.failure_codes
+    assert FAILURE_IRRELEVANT_TAGS not in match_only.failure_codes
+
+    chunk_only_case, chunk_only_trace = _legal_noise_trace(
+        retrieval=_retrieval_with_tag_sources(
+            retrieval_id="know_noise_chunk",
+            query_tags=(),
+            matched_tags=(),
+            chunk_tags=("invalid-signal",),
+        )
+    )
+    chunk_only = score_evaluation_trace(chunk_only_case, chunk_only_trace)
+    assert chunk_only.required_knowledge_actions == 1
+    assert chunk_only.unnecessary_knowledge_actions == 0
+    assert FAILURE_REQUIRED_KNOWLEDGE_OMITTED not in chunk_only.failure_codes
+    assert FAILURE_IRRELEVANT_TAGS not in chunk_only.failure_codes
 
     irrelevant_case, irrelevant_trace = _legal_noise_trace(tags=("unrelated-topic",))
     irrelevant = score_evaluation_trace(irrelevant_case, irrelevant_trace)

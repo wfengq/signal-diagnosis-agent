@@ -55,7 +55,11 @@ from signal_diag.evaluation.models import (
     ProviderUsage,
     TargetBands,
 )
-from signal_diag.evaluation.recording import RecordingPlanner, assemble_evaluation_trace
+from signal_diag.evaluation.recording import (
+    RecordingPlanner,
+    _exclude_unapplied_action_records,
+    assemble_evaluation_trace,
+)
 from signal_diag.evaluation.reporting import write_benchmark_bundle
 from signal_diag.evaluation.scoring import aggregate_benchmark, score_evaluation_trace
 from signal_diag.knowledge.index import KnowledgeIndex
@@ -602,31 +606,18 @@ def _assemble_applied_agent_trace(
     config: BenchmarkConfig,
     run_slot: int,
 ) -> EvaluationTrace:
-    remaining = list(records)
-    last_error: ValueError | None = None
-    while remaining:
-        try:
-            return assemble_evaluation_trace(
-                case,
-                tuple(remaining),
-                result,
-                config,
-                run_slot=run_slot,
-                execution_path="agent",
-            )
-        except ValueError as error:
-            last_error = error
-            remaining.pop()
-    if last_error is not None:
-        raise last_error
-    return assemble_evaluation_trace(
-        case,
-        records,
-        result,
-        config,
-        run_slot=run_slot,
-        execution_path="agent",
-    )
+    try:
+        return assemble_evaluation_trace(
+            case,
+            _exclude_unapplied_action_records(records, result),
+            result,
+            config,
+            run_slot=run_slot,
+            execution_path="agent",
+        )
+    except ValueError as error:
+        error._signal_diag_attempt_error_code = "trace_assembly"  # type: ignore[attr-defined]
+        raise
 
 
 async def _execute_agent_slot(
