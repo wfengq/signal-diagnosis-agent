@@ -1,4 +1,4 @@
-"""Architecture boundary verification for Phase 1–3 packages."""
+"""Architecture boundary verification for Phase 1–4 packages."""
 
 from __future__ import annotations
 
@@ -14,17 +14,20 @@ FORBIDDEN = {
         "signal_diag.agent",
         "signal_diag.rules",
         "signal_diag.knowledge",
+        "signal_diag.evaluation",
     },
     "dsp": {
         "signal_diag.tools",
         "signal_diag.agent",
         "signal_diag.rules",
         "signal_diag.knowledge",
+        "signal_diag.evaluation",
     },
     "tools": {
         "signal_diag.agent",
         "signal_diag.rules",
         "signal_diag.knowledge",
+        "signal_diag.evaluation",
     },
     "rules": {
         "signal_diag.agent",
@@ -47,8 +50,8 @@ FORBIDDEN = {
     },
 }
 
-# evaluation/ and app/ remain deferred until their phases.
-DEFERRED_PACKAGES = ("evaluation", "app")
+# app/ remains deferred until Phase 5. evaluation/ is a Phase 4 hard gate (T182).
+DEFERRED_PACKAGES = ("app",)
 
 # rules/ and knowledge/ are authorized by the approved Phase 3 contract (OQ-001).
 # Pre-implementation: absence is valid. Post-implementation: dependency direction
@@ -91,7 +94,7 @@ def _layer_source_files(layer: str) -> list[Path]:
     layer_dir = SRC_ROOT / layer
     if not layer_dir.exists():
         return []
-    return sorted(layer_dir.glob("*.py"))
+    return sorted(path for path in layer_dir.rglob("*.py") if path.is_file())
 
 
 def _collect_layer_violations(layer: str) -> list[str]:
@@ -183,3 +186,90 @@ def test_boundary_helper_detects_phase3_reverse_imports_in_memory() -> None:
         "from signal_diag.knowledge import KnowledgeIndex\n",
         "fake_rules_module.py",
     ) == ["signal_diag.knowledge"]
+
+
+PHASE4_UPSTREAM_LAYERS = ("signal", "dsp", "tools", "rules", "knowledge", "agent")
+PHASE1_3_PACKAGES = (
+    "signal_diag.signal",
+    "signal_diag.dsp",
+    "signal_diag.tools",
+    "signal_diag.rules",
+    "signal_diag.knowledge",
+    "signal_diag.agent",
+)
+EVALUATION_PREFIX = "signal_diag.evaluation"
+
+
+def _python_files_under(layer: str) -> list[Path]:
+    return _layer_source_files(layer)
+
+
+def _modules_imported_from(path: Path) -> set[str]:
+    return _imported_modules(ast.parse(path.read_text(encoding="utf-8"), filename=str(path)))
+
+
+def _imports_evaluation(modules: set[str]) -> list[str]:
+    return sorted(
+        module
+        for module in modules
+        if module == EVALUATION_PREFIX or module.startswith(f"{EVALUATION_PREFIX}.")
+    )
+
+
+def test_t182_evaluation_package_exists() -> None:
+    """T182 hard gate: evaluation/ exists once Phase 4 is implemented."""
+    assert (SRC_ROOT / "evaluation").is_dir()
+
+
+def test_t182_evaluation_is_not_deferred() -> None:
+    """T182: remove the former deferred-package skip/assert for evaluation/."""
+    assert "evaluation" not in DEFERRED_PACKAGES
+
+
+def test_t182_app_remains_deferred_and_absent() -> None:
+    """T182: Phase 5 app/ remains absent."""
+    assert "app" in DEFERRED_PACKAGES
+    assert not (SRC_ROOT / "app").exists()
+
+
+def test_t182_upstream_layers_forbid_evaluation() -> None:
+    """T182: signal/dsp/tools/rules/knowledge/agent never import evaluation."""
+    for layer in PHASE4_UPSTREAM_LAYERS:
+        assert "signal_diag.evaluation" in FORBIDDEN[layer]
+
+
+def test_t182_evaluation_may_import_phase1_3_packages() -> None:
+    """T182: evaluation may import accepted Phase 1–3 packages."""
+    if "evaluation" in FORBIDDEN:
+        for module in PHASE1_3_PACKAGES:
+            assert module not in FORBIDDEN["evaluation"]
+    imported: set[str] = set()
+    for path in _python_files_under("evaluation"):
+        imported.update(_modules_imported_from(path))
+    assert any(
+        module == prefix or module.startswith(f"{prefix}.")
+        for module in imported
+        for prefix in PHASE1_3_PACKAGES
+    )
+
+
+def test_t182_upstream_sources_do_not_import_evaluation() -> None:
+    """T182: parse imports under src/signal_diag; no reverse evaluation deps."""
+    violations: list[str] = []
+    for layer in PHASE4_UPSTREAM_LAYERS:
+        for path in _python_files_under(layer):
+            hits = _imports_evaluation(_modules_imported_from(path))
+            violations.extend(
+                f"{path.relative_to(PROJECT_ROOT)} imports {module}" for module in hits
+            )
+    assert not violations, "Forbidden evaluation imports detected:\n" + "\n".join(
+        violations
+    )
+
+
+def test_boundary_helper_detects_evaluation_reverse_imports_in_memory() -> None:
+    source = "from signal_diag.evaluation import score_evaluation_trace\n"
+    for layer in PHASE4_UPSTREAM_LAYERS:
+        assert find_forbidden_imports(layer, source, f"fake_{layer}_module.py") == [
+            "signal_diag.evaluation"
+        ]

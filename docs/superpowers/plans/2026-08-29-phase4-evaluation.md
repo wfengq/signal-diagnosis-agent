@@ -879,15 +879,15 @@ Modify `pyproject.toml` only to package `evaluation/manifests/*.yaml`. Modify `t
 - Consumes: all Phase 4 modules and tests.
 - Produces: deterministic `harness_accepted` evidence; does not claim `benchmark_completed` unless the separate 80-slot real run and immutable bundle actually exist.
 
-- [ ] **Step 1: Add the failing Phase 4 dependency-boundary test**
+- [x] **Step 1: Add the failing Phase 4 dependency-boundary test**
 
   Parse imports under `src/signal_diag`. Assert `evaluation` may import Phase 1–3, while `signal`, `dsp`, `tools`, `rules`, `knowledge`, and `agent` never import `signal_diag.evaluation`. Assert `app` remains absent. Remove the former Phase 4 skip; T182 must be a hard gate once the package exists.
 
-- [ ] **Step 2: Run T182 RED, then make only boundary-compliant corrections**
+- [x] **Step 2: Run T182 RED, then make only boundary-compliant corrections**
 
   Run `python -m pytest tests/test_architecture_boundaries.py -q`. If it fails, move evaluation-only helpers inward; do not change a frozen Phase 1–3 import to accommodate evaluation.
 
-- [ ] **Step 3: Run every focused Phase 4 file with no skips or xfails**
+- [x] **Step 3: Run every focused Phase 4 file with no skips or xfails**
 
   Run:
 
@@ -897,7 +897,7 @@ Modify `pyproject.toml` only to package `evaluation/manifests/*.yaml`. Modify `t
 
   Expected: T125–T182 pass; no required skip/xfail is reported.
 
-- [ ] **Step 4: Run the complete deterministic quality gate**
+- [x] **Step 4: Run the complete deterministic quality gate**
 
   Run exactly:
 
@@ -910,11 +910,11 @@ Modify `pyproject.toml` only to package `evaluation/manifests/*.yaml`. Modify `t
 
   Expected: T001–T183 pass, zero required skip/xfail, Ruff clean, mypy clean, and no whitespace errors.
 
-- [ ] **Step 5: Update documentation with honest dual acceptance status**
+- [x] **Step 5: Update documentation with honest dual acceptance status**
 
   Set Phase 4 deterministic status to `harness_accepted` only after Step 4 passes. Keep real status `benchmark_pending` if credentials/service were unavailable, `incomplete` if infrastructure/evaluator attempts exhausted, or `completed` only with 80 scoreable held-out slots and the six-file bundle. Keep Phase 5 gated unless both harness and benchmark are complete. Record actual commit IDs and exact command outputs; do not convert a target miss into a failure or hide it.
 
-- [ ] **Step 6: Commit the final deterministic gate**
+- [x] **Step 6: Commit the final deterministic gate**
 
   ```powershell
   git add tests/test_architecture_boundaries.py AGENTS.md docs/README.md docs/superpowers/plans/2026-08-29-phase4-evaluation.md

@@ -4,16 +4,20 @@
 
 This repository implements a Signal Test and Fault Diagnosis Agent.
 
-The current development phase is V0.2 Phase 4 implementation planning. The
-Phase 4 written specification was approved on 2026-08-29; §§41–§49 and
-T125–T183 are frozen. Phase 4 code remains gated until the Superpowers
-task-level plan is complete and the user makes an explicit execution choice.
+The current development phase is V0.2 Phase 4 evaluation. The Phase 4 written
+specification was approved on 2026-08-29; §§41–§49 and T125–T183 are frozen
+and implemented. Deterministic status is `harness_accepted` after T001–T183,
+Ruff, mypy, and `git diff --check` passed on branch `phase4-evaluation-design`
+(pre-commit HEAD `a5ebd0987752f1234e803e762a2c78196b4738a0`: 434 passed, zero
+skip/xfail). Real-model status is `benchmark_pending`: this branch has not run
+a live 80-slot DeepSeek benchmark and has no official credentialed six-file
+bundle. Do not claim `benchmark_completed`. Do not implement Phase 5
+presentation adapters until both `harness_accepted` and `benchmark_completed`
+are satisfied.
 
 Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
 and accepted. Phase 3 passed Codex final acceptance at commit `a820b7f` on
-branch `phase3-rules-knowledge`. Do not implement Phase 4 evaluation until its
-implementation-plan and explicit execution-choice gates pass. Do not implement
-Phase 5 presentation adapters.
+branch `phase3-rules-knowledge`.
 
 ## Required reading
 
@@ -36,13 +40,13 @@ implementation authority for Agent runtime work.
 Phase 3 implementation authority remains `ARCHITECTURE_V0_2.md` §13, revised
 `CONTRACTS_V0_2.md` §32–§40, and `TEST_PLAN_V0_2.md` §21 (T093–T124).
 OQ-001 and OQ-003 were approved. Phase 3 passed final acceptance at `a820b7f`.
-That acceptance does not authorize Phase 4.
+That acceptance does not complete Phase 4.
 
 Phase 4 design authority is the user-approved written design captured in
 `docs/superpowers/specs/2026-08-29-phase4-evaluation-design.md`, frozen
 `CONTRACTS_V0_2.md` §41–§49, `TEST_PLAN_V0_2.md` §22 (T125–T183), and
-D017–D020. These remain implementation-gated until a Superpowers task-level
-plan is complete and the user explicitly chooses an execution workflow.
+D017–D020. Deterministic implementation is `harness_accepted`. Real-model
+`benchmark_completed` is not claimed.
 
 These documents describe approved architecture and frozen interfaces.
 
@@ -53,8 +57,7 @@ Files under `docs/archive/v0.1/` are historical references only. Files under
 
 The Phase 1–4 interfaces in `docs/CONTRACTS_V0_2.md` are frozen. Phase 3
 implementation conforms to §32–§40 and the T093–T124 acceptance gate. Phase 4
-§41–§49 becomes implementation authority after its implementation-plan and
-explicit execution-choice gates pass.
+§41–§49 is implementation authority for the accepted deterministic harness.
 
 Do not redesign or rename public models, functions, modules, arguments, return
 values, or package boundaries unless the user explicitly requests a contract
@@ -82,7 +85,7 @@ Rules:
   judgments over Evidence.
 - `knowledge/` owns curated corpus storage and deterministic keyword/tag retrieval.
 - `agent/` owns Planner integration and deterministic runtime control.
-- `evaluation/` will later own deterministic and real-model evaluation.
+- `evaluation/` owns deterministic and real-model evaluation.
 - `app/` will later own CLI/API/UI/report adapters.
 - `signal/`, `dsp/`, `tools/`, `rules/`, and `knowledge/` must not depend on
   Agent or LLM frameworks.
@@ -108,8 +111,6 @@ Rules:
 
 Do not add:
 
-- Phase 4 evaluation code before implementation-plan completion and explicit
-  execution choice
 - Phase 5 WAV loader, FastAPI, web frontend, or HTML/PDF reporting
 - LangGraph (unless explicitly requested and contract-approved)
 - vector databases or embedding retrieval (initial Phase 3 uses keyword/tag only;
@@ -122,9 +123,8 @@ Do not add:
 
 unless that later phase is explicitly authorized.
 
-The complete project architecture and written Phase 4 design are approved, but
-that approval does not waive the implementation-plan and explicit
-execution-choice gates.
+Phase 4 deterministic `harness_accepted` does not authorize Phase 5. Full
+Phase 4 product acceptance additionally requires `benchmark_completed`.
 
 ## Completed phases (reference)
 
@@ -148,7 +148,17 @@ Codex acceptance at `a820b7f`. The product-path runner is
 `scripts/run_phase3_real_model_eval.py`. The real-model observation in
 `docs/reports/PHASE3_REAL_MODEL_BEHAVIOR_REPORT.md` **RAN** once (honest
 DeepSeek run, not a CI gate) with 0 rule-evaluation and 0 knowledge-retrieval
-actions. Phase 4 implementation remains gated.
+actions. That acceptance does not complete Phase 4.
+
+### Phase 4 — evaluation harness (`harness_accepted`; real-model `benchmark_pending`)
+
+Versioned S1 evaluation package, scripted deterministic harness, honest
+fixed-pipeline baseline, scoring, immutable report writer, official runner
+CLI, and T125–T183. Quality gate this session on pre-commit HEAD `a5ebd09`:
+434 passed, zero skip/xfail; Ruff clean; mypy clean (45 files);
+`git diff --check` clean. This branch never ran a live 80-slot DeepSeek
+benchmark and has no official credentialed six-file bundle. Phase 5 remains
+gated until both harness and benchmark are complete.
 
 ## Development workflow
 
@@ -197,7 +207,7 @@ Do not commit or push unless explicitly requested.
 Before declaring a task complete:
 
 - run the relevant focused tests;
-- run the full pytest suite (Phase 1–2 tests must remain green);
+- run the full pytest suite (Phase 1–4 tests must remain green);
 - report exactly which tests were run;
 - report any remaining warnings, failures, TODOs, or contract concerns.
 
@@ -206,5 +216,10 @@ required skip/xfail, the OQ-003-approved `profile_s1_distortion` `1.0.0-demo`
 profile, an honest real-model report, and closure of the final same-run trace
 validation findings. The real-model run **RAN** once with 0 rule/knowledge
 actions; do not treat that as a Phase 3 product-behavior pass.
+
+Phase 4 deterministic `harness_accepted` requires T001–T183 with zero required
+skip/xfail plus Ruff, mypy, and `git diff --check`. Real-model status remains
+`benchmark_pending` until an official 80-slot DeepSeek run and six-file bundle
+exist. Do not treat `benchmark_pending` as `benchmark_completed`.
 
 Never say that a later phase is complete if required tests are failing.

@@ -13,7 +13,7 @@ Read these documents before changing implementation code:
    contracts, frozen Phase 3 §32–§40 rules/knowledge contracts, and frozen
    Phase 4 §41–§49 evaluation contracts.
 3. [`TEST_PLAN_V0_2.md`](TEST_PLAN_V0_2.md) — required T001–T092 Phase 1–2
-   acceptance, required T093–T124 Phase 3 acceptance, frozen T125–T183 Phase 4
+   acceptance, required T093–T124 Phase 3 acceptance, required T125–T183 Phase 4
    acceptance, and separate real-model evaluation.
 4. [`DECISIONS.md`](DECISIONS.md) — approved architectural and process decisions.
 5. [`superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`](superpowers/plans/2026-08-28-phase1-deterministic-foundation.md)
@@ -31,13 +31,17 @@ Read these documents before changing implementation code:
 - [`superpowers/plans/2026-08-29-phase3-rules-knowledge.md`](superpowers/plans/2026-08-29-phase3-rules-knowledge.md)
   — completed Phase 3 TDD plan covering T093–T124; OQ-003 is resolved and the
   implementation plus final fix wave passed Codex acceptance at `a820b7f`.
-  Phase 4 remains gated.
+  Phase 4 deterministic status is `harness_accepted`; real-model status is
+  `benchmark_pending`.
 - [`superpowers/specs/2026-08-29-phase4-evaluation-design.md`](superpowers/specs/2026-08-29-phase4-evaluation-design.md)
   — written Phase 4 evaluation design approved on 2026-08-29; §41–§49 and
-  T125–T183 are frozen for implementation planning.
+  T125–T183 are frozen.
 - [`superpowers/plans/2026-08-29-phase4-evaluation.md`](superpowers/plans/2026-08-29-phase4-evaluation.md)
-  — task-level TDD implementation plan for Phase 4 covering T125–T183; code
-  execution awaits the user's workflow choice.
+  — task-level TDD implementation plan for Phase 4 covering T125–T183.
+  Deterministic harness is `harness_accepted` after T001–T183, Ruff, mypy,
+  and `git diff --check`. This branch has not run a live 80-slot DeepSeek
+  benchmark and has no official credentialed six-file bundle, so real-model
+  status remains `benchmark_pending`. Do not claim `benchmark_completed`.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -85,10 +89,35 @@ override active engineering contracts.
 
 ## Future documents
 
-Phase 3 passed final Codex acceptance at `a820b7f`. The Phase 4 written design
-was approved on 2026-08-29, so §41–§49 and T125–T183 are frozen. Phase 4 code
-remains unauthorized until its Superpowers task-level plan is complete and the
-user explicitly chooses an execution workflow. Phase 2 was implemented
-directly from its accepted architecture, contracts, and test plan and has no
-separate plan document. Do not implement Phase 5 until Phase 4 is fully
-accepted.
+Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
+status is `harness_accepted` on branch `phase4-evaluation-design` after the
+quality gate below (pre-commit HEAD `a5ebd0987752f1234e803e762a2c78196b4738a0`).
+Real-model status is `benchmark_pending`: no live 80-slot DeepSeek run and no
+official credentialed six-file bundle exist on this branch. Phase 5 remains
+gated until both `harness_accepted` and `benchmark_completed` are satisfied.
+Do not convert a target miss into a failure or hide it.
+
+Quality gate this session (Python
+`C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`):
+
+```text
+python -m pytest tests/evaluation tests/test_architecture_boundaries.py -q -rxXs --basetemp .pytest_cache/phase4-task11-basetemp
+159 passed in 15.14s
+
+python -m pytest -q -rxXs --basetemp .pytest_cache/phase4-task11-basetemp
+434 passed in 17.89s
+
+python -m ruff check .
+All checks passed!
+
+python -m mypy src
+Success: no issues found in 45 source files
+
+git diff --check
+(exit 0, empty output)
+```
+
+Zero required skip/xfail were reported. The former deferred-package failure
+`test_deferred_packages_are_not_present[evaluation]` is gone. `app/` remains
+absent. Phase 2 was implemented directly from its accepted architecture,
+contracts, and test plan and has no separate plan document.
