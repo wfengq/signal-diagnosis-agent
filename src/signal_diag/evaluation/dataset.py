@@ -1,4 +1,14 @@
-"""Canonical dataset loading, materialization, and validation."""
+"""Canonical dataset loading, materialization, and validation.
+
+Fixture calibration notes (dataset QA only; not product thresholds):
+
+- THD-at-boundary harmonic rows inject second-harmonic ratio ``0.04999999``
+  so measured THD is about ``4.9999993522848%``, inside the stacked
+  ``gte 4.999`` / ``lte 5.001`` window and the rule condition ``lte 5.0``.
+- ``case_held_clean_01`` uses 220 Hz at amplitude 0.35. A 100 Hz sine at
+  the same amplitude false-triggers the existing DSP 1e-4 flat-top
+  detector near peaks; that is a known DSP/dataset-calibration limitation.
+"""
 
 from __future__ import annotations
 

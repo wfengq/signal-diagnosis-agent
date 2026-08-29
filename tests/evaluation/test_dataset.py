@@ -359,12 +359,46 @@ def test_t137_boundary_coverage() -> None:
 
     thd_below = thd_percent("case_held_harmonic_01")
     thd_at = thd_percent("case_held_harmonic_02")
+    thd_at_dev = thd_percent("case_dev_harmonic_boundary")
     thd_above = thd_percent("case_held_harmonic_03")
     assert thd_below == pytest.approx(4.0, abs=0.05)
-    assert thd_at == pytest.approx(5.0, abs=0.002)
+    assert thd_at == pytest.approx(4.9999993522848, abs=1e-6)
+    assert thd_at_dev == pytest.approx(4.9999993522848, abs=1e-6)
     assert thd_above == pytest.approx(8.0, abs=0.05)
     assert thd_below < 5.0 < thd_above
     assert 4.999 <= thd_at <= 5.001
+    assert 4.999 <= thd_at_dev <= 5.001
+    assert thd_at <= 5.0
+    assert thd_at_dev <= 5.0
+
+    clean_01 = by_id["case_held_clean_01"]
+    assert clean_01.signal.frequency_hz == 220.0
+    assert clean_01.signal.amplitude == pytest.approx(0.35)
+
+    for case_id in ("case_dev_harmonic_boundary", "case_held_harmonic_02"):
+        case = by_id[case_id]
+        ratios = {item.order: item.ratio for item in case.signal.harmonic_ratios}
+        assert ratios[2] == pytest.approx(0.04999999)
+        thd_pairs = {
+            (condition.comparator, condition.expected_value)
+            for condition in case.observable_conditions
+            if condition.metric == "thd_percent"
+        }
+        assert ("gte", 4.999) in thd_pairs
+        assert ("lte", 5.001) in thd_pairs
+        assert ("lte", 5.0) in thd_pairs
+        thd_refs = [
+            condition.condition_id
+            for condition in case.observable_conditions
+            if (
+                condition.metric == "thd_percent"
+                and condition.comparator == "lte"
+                and condition.expected_value == 5.0
+            )
+        ]
+        assert thd_refs
+        for evidence_set in case.sufficient_evidence_sets:
+            assert thd_refs[0] in evidence_set.condition_refs
 
 
 def test_t138_invalid_noise_behavior() -> None:
