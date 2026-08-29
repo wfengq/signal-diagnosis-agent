@@ -22,9 +22,14 @@ Read these documents before changing implementation code:
 
 - [`reports/PHASE2_R001_R006_ACCEPTANCE_REPORT.md`](reports/PHASE2_R001_R006_ACCEPTANCE_REPORT.md)
   — retained Phase 2 real-model R001–R006 review, explicitly separate from CI.
+- [`reports/PHASE3_REAL_MODEL_BEHAVIOR_REPORT.md`](reports/PHASE3_REAL_MODEL_BEHAVIOR_REPORT.md)
+  — Phase 3 product-path observation with injected rules and knowledge;
+  the recorded status is **NOT RUN** because credentials were unavailable.
+  This is not a CI gate and is not a fabricated pass.
 - [`superpowers/plans/2026-08-29-phase3-rules-knowledge.md`](superpowers/plans/2026-08-29-phase3-rules-knowledge.md)
-  — approved task-level Phase 3 TDD plan covering T093–T124; OQ-003 is resolved
-  and Cursor may begin implementation at Task 1.
+  — completed Phase 3 TDD plan covering T093–T124; OQ-003 is resolved and
+  Phase 3 is deterministically accepted. Independent Task 9 review is still
+  required before merge.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -72,9 +77,10 @@ override active engineering contracts.
 
 ## Future documents
 
-Phase 3 implementation planning is authorized by the approved §32–§40 freeze.
-Later implementation plans are created only when the preceding contract and
+Phase 3 is accepted. Phase 4 evaluation contracts remain unfrozen. Later
+implementation plans are created only when the preceding contract and
 completion gates permit them. Phase 2 was implemented directly from its accepted
 architecture, contracts, and test plan and has no separate plan document. Future
 contracts are frozen immediately before their implementation phase, as defined
-by `ARCHITECTURE_V0_2.md`.
+by `ARCHITECTURE_V0_2.md`. Do not implement Phase 4 or Phase 5 until that phase
+is explicitly authorized.

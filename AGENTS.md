@@ -4,13 +4,13 @@
 
 This repository implements a Signal Test and Fault Diagnosis Agent.
 
-The current development phase is V0.2 Phase 3: deterministic rules and a small
-knowledge retrieval layer for Scenario S1.
+The current development phase is V0.2 Phase 4 gated: evaluation, including
+Agent versus a fixed pipeline, is not authorized.
 
-Phase 1 (T001–T063) and Phase 2 (T064–T092) are complete and accepted on branch
-`phase2-agent-runtime`. Do not implement Phase 4 evaluation or Phase 5
-presentation adapters until Phase 3 passes its required tests and is explicitly
-accepted.
+Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
+and accepted. Phase 3 is accepted on branch `phase3-rules-knowledge`. Do not
+implement Phase 4 evaluation or Phase 5 presentation adapters until that phase
+is explicitly authorized.
 
 ## Required reading
 
@@ -22,14 +22,16 @@ Before modifying code, read:
 - `docs/TEST_PLAN_V0_2.md` (Phase 1–3 required; T093–T124 in §21)
 - `docs/DECISIONS.md`
 - `docs/superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`
+- `docs/superpowers/plans/2026-08-29-phase3-rules-knowledge.md`
 
 Phase 2 has no separate implementation plan under `docs/superpowers/plans/`.
 Use `ARCHITECTURE_V0_2.md` §12 and the accepted Phase 2 contracts as the
 implementation authority for Agent runtime work.
 
-Phase 3 implementation authority: `ARCHITECTURE_V0_2.md` §13, revised
+Phase 3 implementation authority remains `ARCHITECTURE_V0_2.md` §13, revised
 `CONTRACTS_V0_2.md` §32–§40, and `TEST_PLAN_V0_2.md` §21 (T093–T124).
-OQ-001 was approved on 2026-08-28, so Phase 3 implementation is authorized.
+OQ-001 and OQ-003 were approved; Phase 3 is accepted. Do not start Phase 4
+from this authorization.
 
 These documents describe approved architecture and frozen interfaces.
 
@@ -89,38 +91,25 @@ Rules:
 - The product Agent will use `RealLLMPlanner`; `ScriptedPlanner` is only a test
   double and is never a silent product fallback.
 
-## Phase 3 scope
-
-Implement only:
-
-1. Versioned rule profile models and deterministic rule engine.
-2. PASS, FAIL, and NOT_APPLICABLE rule evaluations with observed value,
-   comparator, threshold, profile version, and evidence references.
-3. Curated local Markdown knowledge corpus and chunk models.
-4. Deterministic keyword/tag retrieval with document and chunk references.
-5. Phase 3 Agent contract extensions: `EvaluateRulesDecision`,
-   `RetrieveKnowledgeDecision`, extended `PlannerContext`, extended diagnosis
-   output distinguishing evidence, rule judgment, and explanation.
-6. Runtime integration for rule evaluation and knowledge retrieval actions.
-7. Required Phase 3 tests T093–T124 in `docs/TEST_PLAN_V0_2.md`.
+## Gated next phases
 
 Do not add:
 
+- Phase 4 evaluation datasets, fixed-pipeline baseline, or report schemas
+- Phase 5 WAV loader, FastAPI, web frontend, or HTML/PDF reporting
 - LangGraph (unless explicitly requested and contract-approved)
 - vector databases or embedding retrieval (initial Phase 3 uses keyword/tag only;
   see D011)
 - large-scale knowledge ingestion or network search
-- Phase 4 evaluation datasets, fixed-pipeline baseline, or report schemas
-- Phase 5 WAV loader, FastAPI, web frontend, or HTML/PDF reporting
 - multi-agent architecture
 - database persistence
 - Docker infrastructure
 - LLM-generated thresholds or standards
 
-unless explicitly requested.
+unless that later phase is explicitly authorized.
 
 The complete project architecture is approved, but that approval does not waive
-the current Phase 3 gate.
+the Phase 4 gate.
 
 ## Completed phases (reference)
 
@@ -134,9 +123,18 @@ Tool contracts, Evidence, and tests T001–T063.
 `PlannerModel`, `ScriptedPlanner`, `RealLLMPlanner`, `DistortionDiagnosisRuntime`,
 S1 deterministic acceptance T064–T092, and separate R001–R006 real-model checks.
 
+### Phase 3 — deterministic rules and knowledge retrieval (accepted)
+
+Versioned `profile_s1_distortion` `1.0.0-demo` rule profiles, `RuleEngine`,
+curated local Markdown corpus, keyword/tag `KnowledgeIndex`, runtime rule and
+knowledge actions, and T093–T124. Demo thresholds are not industry standards.
+The product-path runner is `scripts/run_phase3_real_model_eval.py`; the
+real-model observation in `docs/reports/PHASE3_REAL_MODEL_BEHAVIOR_REPORT.md`
+is **NOT RUN** because credentials were unavailable and is not a CI gate.
+
 ## Development workflow
 
-Use test-driven development for Phase 3.
+Use test-driven development.
 
 For each behavior:
 
@@ -185,9 +183,9 @@ Before declaring a task complete:
 - report exactly which tests were run;
 - report any remaining warnings, failures, TODOs, or contract concerns.
 
-Phase 3 is complete only when its required tests pass with no required skip or
-xfail, Phase 1–2 tests remain green, the frozen Phase 3 contract is unchanged or
-explicitly revised, and the OQ-003-approved `profile_s1_distortion`
-`1.0.0-demo` profile is included with its boundary tests.
+Phase 3 deterministic acceptance is T001–T124 with zero required skip/xfail,
+the OQ-003-approved `profile_s1_distortion` `1.0.0-demo` profile, and an
+honest real-model report (run or not-run). Do not treat a missing-credential
+NOT RUN report as a fabricated real-model pass.
 
-Never say that implementation is complete if required tests are failing.
+Never say that a later phase is complete if its required tests are failing.
