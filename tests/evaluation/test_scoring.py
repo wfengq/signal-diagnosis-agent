@@ -1,9 +1,14 @@
-"""Checkpoint L — pure per-run scoring (T155, T157–T165)."""
+"""Checkpoint L — pure per-run and aggregate scoring (T155–T166, T175 fingerprint)."""
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+import hashlib
+import json
+from datetime import UTC, datetime, timedelta
+from math import ceil
 from typing import Any
+
+import pytest
 
 from signal_diag.agent.models import (
     AgentRunResult,
@@ -22,8 +27,9 @@ from signal_diag.agent.models import (
     ToolHistoryEntry,
 )
 from signal_diag.agent.policies import normalize_tool_arguments
-from signal_diag.evaluation import score_evaluation_trace
+from signal_diag.evaluation import aggregate_benchmark, score_evaluation_trace
 from signal_diag.evaluation.models import (
+    AttemptRecord,
     BaselineDiagnosis,
     BaselineRunResult,
     BenchmarkConfig,
@@ -35,6 +41,8 @@ from signal_diag.evaluation.models import (
     PlannerDecisionRecord,
     ProviderUsage,
     RuleEvaluationEvent,
+    RunScore,
+    TargetBands,
 )
 from signal_diag.knowledge.models import (
     KnowledgeChunk,
@@ -52,6 +60,7 @@ from signal_diag.tools.evidence import Evidence
 from signal_diag.tools.registry import get_tool_descriptors
 from tests.evaluation.conftest import (
     make_condition,
+    make_dataset_manifest,
     make_evaluation_case,
     make_sufficient_set,
 )
@@ -1886,3 +1895,518 @@ def test_t165_knowledge_selectivity_scoring() -> None:
     used = score_evaluation_trace(clip_case, used_trace)
     assert used.provider_usage == usage
     assert used.end_to_end_latency_ms is None
+
+
+_PROMPT_SHA256 = "ab" * 32
+_CAUSAL_LABELS: tuple[str, ...] = ("clipping", "harmonic_distortion")
+
+
+def _agg_config(**overrides: Any) -> BenchmarkConfig:
+    payload: dict[str, Any] = {
+        "benchmark_id": "bench_task7",
+        "dataset_id": "s1-distortion-synthetic",
+        "dataset_version": "1.0.0",
+        "rule_profile_id": "profile_s1_distortion",
+        "rule_profile_version": "1.0.0-demo",
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "prompt_version": "v0.2-s1-planner-4",
+        "prompt_sha256": _PROMPT_SHA256,
+        "model_parameters": {
+            "temperature": 0.0,
+            "response_format": {"type": "json_object"},
+            "thinking": {"type": "disabled"},
+        },
+        "sdk_versions": {"openai": "1.0.0"},
+        "repetitions": 1,
+        "max_infrastructure_retries": 2,
+        "max_concurrency": 1,
+        "started_at_utc": datetime(2026, 8, 29, 10, 0, tzinfo=UTC),
+    }
+    payload.update(overrides)
+    return BenchmarkConfig(**payload)
+
+
+def _fingerprint_sha256(config: BenchmarkConfig) -> str:
+    payload = config.model_dump(mode="json", exclude={"benchmark_id", "started_at_utc"})
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _bind_run(
+    case: EvaluationCase,
+    trace: EvaluationTrace,
+    config: BenchmarkConfig,
+    *,
+    split: str = "held_out",
+    case_id: str | None = None,
+    run_slot: int = 1,
+) -> tuple[EvaluationCase, EvaluationTrace, RunScore]:
+    case_id = case_id or case.case_id
+    case = case.model_copy(update={"case_id": case_id, "split": split})
+    trace = trace.model_copy(
+        update={
+            "case_id": case_id,
+            "run_slot": run_slot,
+            "config": config,
+            "trace_id": f"trace_{trace.execution_path}_{case_id}_{run_slot:02d}",
+        }
+    )
+    return case, trace, score_evaluation_trace(case, trace)
+
+
+def _behavior_attempt(
+    trace: EvaluationTrace,
+    *,
+    latency_ms: float,
+    attempt_index: int = 1,
+    started: datetime | None = None,
+    status: str = "behavior_result",
+    error_code: str | None = None,
+) -> AttemptRecord:
+    started = started or datetime(2026, 8, 29, 12, 0, tzinfo=UTC)
+    return AttemptRecord(
+        execution_path=trace.execution_path,
+        case_id=trace.case_id,
+        run_slot=trace.run_slot,
+        attempt_index=attempt_index,
+        status=status,  # type: ignore[arg-type]
+        error_code=error_code,  # type: ignore[arg-type]
+        started_at_utc=started,
+        finished_at_utc=started + timedelta(milliseconds=latency_ms),
+    )
+
+
+def _label_f1(tp: int, fp: int, fn: int) -> float:
+    denominator = 2 * tp + fp + fn
+    return 0.0 if denominator == 0 else (2 * tp) / denominator
+
+
+def _macro_f1_from_scores(scores: tuple[RunScore, ...]) -> tuple[float, dict[str, tuple[int, int, int]]]:
+    counts: dict[str, tuple[int, int, int]] = {}
+    f1_values: list[float] = []
+    for label in _CAUSAL_LABELS:
+        tp = fp = fn = 0
+        for score in scores:
+            expected = label in score.expected_faults
+            predicted = label in score.predicted_faults
+            if expected and predicted:
+                tp += 1
+            elif predicted:
+                fp += 1
+            elif expected:
+                fn += 1
+        counts[label] = (tp, fp, fn)
+        f1_values.append(_label_f1(tp, fp, fn))
+    return (f1_values[0] + f1_values[1]) / 2, counts
+
+
+def _nearest_rank(samples: tuple[float, ...], percentile: float) -> float:
+    ordered = sorted(samples)
+    rank = ceil(percentile * len(ordered))
+    return ordered[rank - 1]
+
+
+def _combined_clip_only_trace() -> tuple[EvaluationCase, EvaluationTrace]:
+    case = _combined_case()
+    clip = _clip_ev("ev_comb_clip", "call_000", detected=True)
+    thd = _thd_ev("ev_comb_thd", "call_001", value=9.0)
+    batch = _rule_batch(
+        "rulebatch_comb", "ruleval_comb", ("ev_comb_clip", "ev_comb_thd")
+    )
+    claims = (
+        _claim(
+            claim_id="claim_comb_clip",
+            fault_type="clipping",
+            evidence_refs=("ev_comb_clip",),
+            rule_refs=("ruleval_comb",),
+        ),
+    )
+    trace = _agent_trace(
+        case,
+        (
+            {"kind": "tool", "tool_name": "detect_clipping", "evidence": (clip,)},
+            {
+                "kind": "tool",
+                "tool_name": "analyze_harmonic_distortion",
+                "evidence": (thd,),
+            },
+            {"kind": "rules", "batch": batch},
+            {"kind": "finish"},
+        ),
+        claims=claims,
+        outcome="supported_fault",
+    )
+    return case, trace
+
+
+def _clipping_overclaim_trace() -> tuple[EvaluationCase, EvaluationTrace]:
+    return _legal_clipping_trace(
+        claims=(
+            _claim(
+                claim_id="claim_clip",
+                fault_type="clipping",
+                evidence_refs=("ev_clip",),
+                rule_refs=("ruleval_clip",),
+            ),
+            _claim(
+                claim_id="claim_harm_extra",
+                fault_type="harmonic_distortion",
+                evidence_refs=("ev_clip",),
+                rule_refs=("ruleval_clip",),
+            ),
+        )
+    )
+
+
+def _legal_clipping_baseline() -> tuple[EvaluationCase, EvaluationTrace]:
+    case = _clipping_case()
+    evidence = _clip_ev("ev_clip", "call_000", detected=True)
+    thd = _thd_ev("ev_thd", "call_001", value=1.0)
+    observations = (
+        _observation(
+            observation_id="obs_clip",
+            call_id="call_000",
+            tool_name="detect_clipping",
+            evidence_ids=("ev_clip",),
+        ),
+        _observation(
+            observation_id="obs_thd",
+            call_id="call_001",
+            tool_name="analyze_harmonic_distortion",
+            evidence_ids=("ev_thd",),
+        ),
+    )
+    batch = _rule_batch("rulebatch_clip", "ruleval_clip", ("ev_clip",))
+    claims = (
+        _claim(
+            claim_id="claim_clip",
+            fault_type="clipping",
+            evidence_refs=("ev_clip",),
+            rule_refs=("ruleval_clip",),
+        ),
+    )
+    trace = _baseline_trace(
+        case,
+        observations=observations,
+        evidence=(evidence, thd),
+        batches=(batch,),
+        claims=claims,
+        outcome="supported_fault",
+    )
+    return case, trace
+
+
+def _aggregate_from_runs(
+    runs: tuple[tuple[EvaluationCase, EvaluationTrace, RunScore], ...],
+    config: BenchmarkConfig,
+    *,
+    attempts: tuple[AttemptRecord, ...] | None = None,
+    extra_cases: tuple[EvaluationCase, ...] = (),
+    harness_status: str = "accepted",
+    targets: TargetBands | None = None,
+):
+    cases = tuple(run[0] for run in runs) + extra_cases
+    traces = tuple(run[1] for run in runs)
+    scores = tuple(run[2] for run in runs)
+    if attempts is None:
+        attempts = tuple(_behavior_attempt(trace, latency_ms=10.0) for trace in traces)
+    seen: dict[str, EvaluationCase] = {}
+    for case in cases:
+        seen[case.case_id] = case
+    manifest = make_dataset_manifest(
+        cases=tuple(seen.values()),
+        dataset_id=config.dataset_id,
+        version=config.dataset_version,
+        rule_profile_id=config.rule_profile_id,
+        rule_profile_version=config.rule_profile_version,
+    )
+    return aggregate_benchmark(
+        manifest,
+        traces,
+        scores,
+        attempts,
+        config,
+        targets or TargetBands(),
+        harness_status=harness_status,  # type: ignore[arg-type]
+    )
+
+
+def test_t156_causal_macro_f1() -> None:
+    config = _agg_config()
+    clip_case, clip_trace = _legal_clipping_trace()
+    harm_case, harm_trace = _legal_harmonic_trace()
+    perfect = (
+        _bind_run(clip_case, clip_trace, config, case_id="case_macro_clip_01"),
+        _bind_run(harm_case, harm_trace, config, case_id="case_macro_harm_01"),
+    )
+    report = _aggregate_from_runs(perfect, config)
+    expected, counts = _macro_f1_from_scores((perfect[0][2], perfect[1][2]))
+    assert counts["clipping"] == (1, 0, 0)
+    assert counts["harmonic_distortion"] == (1, 0, 0)
+    assert _label_f1(1, 0, 0) == 1.0
+    assert report.agent_metrics is not None
+    assert report.agent_metrics.causal_macro_f1 == expected == 1.0
+
+    under_case, under_trace = _combined_clip_only_trace()
+    over_case, over_trace = _clipping_overclaim_trace()
+    mixed = (
+        _bind_run(under_case, under_trace, config, case_id="case_macro_comb_01"),
+        _bind_run(over_case, over_trace, config, case_id="case_macro_over_01"),
+    )
+    mixed_report = _aggregate_from_runs(mixed, config)
+    mixed_expected, mixed_counts = _macro_f1_from_scores((mixed[0][2], mixed[1][2]))
+    assert mixed_counts["clipping"] == (2, 0, 0)
+    assert mixed_counts["harmonic_distortion"] == (0, 1, 1)
+    assert _label_f1(0, 1, 1) == 0.0
+    assert mixed_expected == 0.5
+    assert mixed_report.agent_metrics is not None
+    assert mixed_report.agent_metrics.causal_macro_f1 == 0.5
+
+    clean_case, clean_trace = _legal_clean_trace()
+    zero = (
+        _bind_run(clean_case, clean_trace, config, case_id="case_macro_clean_01"),
+        _bind_run(clean_case, clean_trace, config, case_id="case_macro_clean_02"),
+    )
+    zero_report = _aggregate_from_runs(zero, config)
+    zero_expected, zero_counts = _macro_f1_from_scores((zero[0][2], zero[1][2]))
+    assert zero_counts["clipping"] == (0, 0, 0)
+    assert zero_counts["harmonic_distortion"] == (0, 0, 0)
+    assert _label_f1(0, 0, 0) == 0.0
+    assert zero_expected == 0.0
+    assert zero_report.agent_metrics is not None
+    assert zero_report.agent_metrics.causal_macro_f1 == 0.0
+
+
+def test_t166_aggregate_rates_latency_and_usage() -> None:
+    config = _agg_config()
+    clip_case, clip_trace = _legal_clipping_trace()
+    harm_case, harm_trace = _legal_harmonic_trace()
+    usage = ProviderUsage(input_tokens=10, output_tokens=4, total_tokens=14, cost_usd=0.02)
+    used_trace = clip_trace.model_copy(update={"provider_usage": usage})
+    agent_clip = _bind_run(clip_case, used_trace, config, case_id="case_agg_clip_01")
+    agent_harm = _bind_run(harm_case, harm_trace, config, case_id="case_agg_harm_01")
+    base_case, base_trace = _legal_clipping_baseline()
+    baseline = _bind_run(base_case, base_trace, config, case_id="case_agg_clip_01")
+    dev_harm = _bind_run(
+        harm_case,
+        harm_trace,
+        config,
+        case_id="case_agg_dev_harm_01",
+        split="development",
+    )
+    latencies = (10.0, 20.0, 40.0)
+    attempts = (
+        _behavior_attempt(agent_clip[1], latency_ms=latencies[0]),
+        _behavior_attempt(agent_harm[1], latency_ms=latencies[1]),
+        _behavior_attempt(baseline[1], latency_ms=latencies[2]),
+        _behavior_attempt(dev_harm[1], latency_ms=5.0),
+    )
+    report = _aggregate_from_runs(
+        (agent_clip, agent_harm, baseline, dev_harm),
+        config,
+        attempts=attempts,
+    )
+    assert report.scores == (agent_clip[2], agent_harm[2], baseline[2], dev_harm[2])
+    assert report.harness_status == "accepted"
+    assert report.benchmark_status == "completed"
+    assert report.agent_metrics is not None
+    assert report.baseline_metrics is not None
+    assert report.agent_metrics.run_count == 2
+    assert report.baseline_metrics.run_count == 1
+    agent_scores = (agent_clip[2], agent_harm[2])
+    exact_num = sum(score.causal_exact_set_correct for score in agent_scores)
+    assert report.agent_metrics.causal_exact_set_accuracy.numerator == exact_num
+    assert report.agent_metrics.causal_exact_set_accuracy.denominator == 2
+    assert report.agent_metrics.causal_exact_set_accuracy.value == exact_num / 2
+    grounded = sum(score.grounded_claims for score in agent_scores)
+    scored_claims = sum(score.scored_claims for score in agent_scores)
+    assert report.agent_metrics.evidence_grounding_rate.numerator == grounded
+    assert report.agent_metrics.evidence_grounding_rate.denominator == scored_claims
+    assert report.agent_metrics.evidence_grounding_rate.value == grounded / scored_claims
+    first_num = sum(score.first_tool_correct is True for score in agent_scores)
+    first_den = sum(score.first_tool_correct is not None for score in agent_scores)
+    assert report.agent_metrics.first_tool_selection_rate.numerator == first_num
+    assert report.agent_metrics.first_tool_selection_rate.denominator == first_den
+    assert report.baseline_metrics.first_tool_selection_rate.denominator == 0
+    assert report.baseline_metrics.first_tool_selection_rate.value == 0.0
+    assert report.agent_metrics.average_planner_calls == (
+        agent_clip[2].planner_calls + agent_harm[2].planner_calls
+    ) / 2
+    assert report.baseline_metrics.average_planner_calls is None
+    assert report.agent_metrics.average_tool_actions == (
+        agent_clip[2].tool_actions + agent_harm[2].tool_actions
+    ) / 2
+    assert report.agent_metrics.provider_usage_coverage_rate.numerator == 1
+    assert report.agent_metrics.provider_usage_coverage_rate.denominator == 2
+    assert report.agent_metrics.provider_usage_coverage_rate.value == 0.5
+    assert report.agent_metrics.observed_input_tokens == 10
+    assert report.agent_metrics.observed_output_tokens == 4
+    assert report.agent_metrics.observed_total_tokens == 14
+    assert report.agent_metrics.observed_cost_usd == 0.02
+    assert report.baseline_metrics.provider_usage_coverage_rate.numerator == 0
+    assert report.baseline_metrics.observed_input_tokens is None
+    assert report.baseline_metrics.observed_output_tokens is None
+    assert report.baseline_metrics.observed_total_tokens is None
+    assert report.baseline_metrics.observed_cost_usd is None
+    agent_latencies = latencies[:2]
+    assert report.agent_metrics.latency_ms_mean == sum(agent_latencies) / 2
+    assert report.agent_metrics.latency_ms_p50 == _nearest_rank(agent_latencies, 0.50)
+    assert report.agent_metrics.latency_ms_p95 == _nearest_rank(agent_latencies, 0.95)
+    assert report.agent_metrics.latency_ms_p50 == 10.0
+    assert report.agent_metrics.latency_ms_p95 == 20.0
+    assert agent_clip[2].end_to_end_latency_ms is None
+    planner_sum = 0.0
+    for event in agent_clip[1].events:
+        if isinstance(event, PlannerDecisionEvent) and event.record.latency_ms is not None:
+            planner_sum += event.record.latency_ms
+    assert planner_sum > 0
+    assert report.agent_metrics.latency_ms_mean != planner_sum
+
+
+def test_t166_aggregate_rejects_duplicate_mismatch_and_foreign() -> None:
+    config = _agg_config()
+    clip_case, clip_trace = _legal_clipping_trace()
+    run = _bind_run(clip_case, clip_trace, config, case_id="case_id_clip_01")
+    with pytest.raises(ValueError, match="duplicate"):
+        _aggregate_from_runs((run, run), config)
+
+    mismatched = run[2].model_copy(update={"trace_id": "trace_agent_case_missing_01"})
+    with pytest.raises(ValueError, match="mismatch"):
+        _aggregate_from_runs(
+            ((run[0], run[1], mismatched),),
+            config,
+            attempts=(_behavior_attempt(run[1], latency_ms=10.0),),
+        )
+
+    foreign_config = _agg_config(dataset_id="other-dataset")
+    foreign_trace = run[1].model_copy(update={"config": foreign_config})
+    with pytest.raises(ValueError, match="foreign"):
+        _aggregate_from_runs(
+            ((run[0], foreign_trace, run[2]),),
+            config,
+            attempts=(_behavior_attempt(run[1], latency_ms=10.0),),
+        )
+
+    unknown_attempt = _behavior_attempt(run[1], latency_ms=10.0).model_copy(
+        update={"case_id": "case_unknown_01"}
+    )
+    with pytest.raises(ValueError, match="foreign"):
+        _aggregate_from_runs((run,), config, attempts=(unknown_attempt,))
+
+
+def test_t166_aggregate_target_status_and_zero_denominators() -> None:
+    config = _agg_config()
+    clip_case, clip_trace = _legal_clipping_trace()
+    harm_case, harm_trace = _legal_harmonic_trace()
+    held = (
+        _bind_run(clip_case, clip_trace, config, case_id="case_tgt_clip_01"),
+        _bind_run(harm_case, harm_trace, config, case_id="case_tgt_harm_01"),
+    )
+    meets = _aggregate_from_runs(held, config)
+    assert meets.benchmark_status == "completed"
+    assert meets.target_status == "meets_target"
+    assert meets.agent_metrics is not None
+    assert meets.agent_metrics.required_knowledge_usage_rate.denominator == 0
+    assert meets.agent_metrics.required_knowledge_usage_rate.value == 0.0
+    assert any("required_knowledge" in warning for warning in meets.warnings)
+    assert all("not applicable" in warning.lower() or "zero" in warning.lower() for warning in meets.warnings)
+
+    wrong = _legal_clipping_trace(
+        claims=(
+            _claim(
+                claim_id="claim_wrong",
+                fault_type="no_supported_fault",
+                evidence_refs=("ev_clip",),
+                rule_refs=("ruleval_clip",),
+            ),
+        ),
+        outcome="no_supported_fault",
+    )
+    below_runs = (
+        _bind_run(wrong[0], wrong[1], config, case_id="case_tgt_miss_a"),
+        _bind_run(wrong[0], wrong[1], config, case_id="case_tgt_miss_b"),
+    )
+    below = _aggregate_from_runs(below_runs, config)
+    assert below.benchmark_status == "completed"
+    assert below.target_status == "below_target"
+
+    pending_case = held[0][0]
+    pending_attempt = AttemptRecord(
+        execution_path="agent",
+        case_id=pending_case.case_id,
+        run_slot=1,
+        attempt_index=1,
+        status="configuration_error",
+        error_code="missing_credentials",
+        error_message="credentials unavailable",
+        started_at_utc=datetime(2026, 8, 29, 12, 0, tzinfo=UTC),
+        finished_at_utc=datetime(2026, 8, 29, 12, 0, 1, tzinfo=UTC),
+    )
+    pending = _aggregate_from_runs(
+        (),
+        config,
+        attempts=(pending_attempt,),
+        extra_cases=(pending_case, held[1][0]),
+        harness_status="pending",
+    )
+    assert pending.benchmark_status == "pending"
+    assert pending.target_status == "not_evaluated"
+    assert pending.agent_metrics is None
+
+    incomplete = _aggregate_from_runs(
+        (held[0],),
+        config,
+        extra_cases=(held[1][0],),
+    )
+    assert incomplete.benchmark_status == "incomplete"
+    assert incomplete.target_status == "not_evaluated"
+
+
+def test_t175_configuration_fingerprint_is_canonical() -> None:
+    config = _agg_config()
+    clip_case, clip_trace = _legal_clipping_trace()
+    run = _bind_run(clip_case, clip_trace, config, case_id="case_fp_clip_01")
+    report = _aggregate_from_runs((run,), config)
+    expected = _fingerprint_sha256(config)
+    assert report.config_fingerprint_sha256 == expected
+    assert len(report.config_fingerprint_sha256) == 64
+
+    same_behavior = _agg_config(
+        benchmark_id="bench_task7_rerun",
+        started_at_utc=datetime(2026, 8, 30, 8, 0, tzinfo=UTC),
+    )
+    assert _fingerprint_sha256(same_behavior) == expected
+    rerun = _bind_run(clip_case, clip_trace, same_behavior, case_id="case_fp_clip_01")
+    rerun_report = _aggregate_from_runs((rerun,), same_behavior)
+    assert rerun_report.config_fingerprint_sha256 == expected
+
+    changed_fields = (
+        _agg_config(dataset_version="1.0.1"),
+        _agg_config(rule_profile_version="1.0.1-demo"),
+        _agg_config(provider="other-provider"),
+        _agg_config(model="other-model"),
+        _agg_config(prompt_version="v0.2-s1-planner-5"),
+        _agg_config(prompt_sha256="cd" * 32),
+        _agg_config(model_parameters={"temperature": 0.1}),
+        _agg_config(sdk_versions={"openai": "2.0.0"}),
+        _agg_config(repetitions=5),
+        _agg_config(max_infrastructure_retries=1),
+        _agg_config(max_concurrency=2),
+    )
+    fingerprints = {_fingerprint_sha256(item) for item in changed_fields}
+    assert expected not in fingerprints
+    assert len(fingerprints) == len(changed_fields)
+    omitted = _agg_config(model_parameters={})
+    assert _fingerprint_sha256(omitted) != expected
+    changed_run = _bind_run(
+        clip_case, clip_trace, changed_fields[0], case_id="case_fp_clip_01"
+    )
+    changed_report = _aggregate_from_runs((changed_run,), changed_fields[0])
+    assert changed_report.config_fingerprint_sha256 != expected
+    assert "waveform" not in json.dumps(
+        config.model_dump(mode="json", exclude={"benchmark_id", "started_at_utc"})
+    )
+    assert "fft" not in report.config_fingerprint_sha256
+    assert "api_key" not in report.config_fingerprint_sha256
+

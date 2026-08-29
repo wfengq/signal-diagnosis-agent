@@ -1,8 +1,11 @@
-"""Pure per-run scoring over EvaluationTrace and EvaluationCase."""
+"""Pure per-run and aggregate scoring over EvaluationTrace and EvaluationCase."""
 
 from __future__ import annotations
 
+import hashlib
+import json
 import operator
+from math import ceil
 
 from signal_diag.agent.models import (
     CallToolDecision,
@@ -14,17 +17,27 @@ from signal_diag.agent.models import (
     ToolStatus,
 )
 from signal_diag.evaluation.models import (
+    AggregateMetrics,
+    AttemptRecord,
     BaselineCompletionReason,
     BaselineRunResult,
+    BenchmarkConfig,
+    BenchmarkReport,
+    BenchmarkStatus,
     CausalFault,
+    DatasetManifest,
     EvaluationCase,
     EvaluationTrace,
     EvidenceCondition,
+    HarnessStatus,
     KnowledgeRetrievalEvent,
     ObservationEvent,
     PlannerDecisionEvent,
+    RateMetric,
     RuleEvaluationEvent,
     RunScore,
+    TargetBands,
+    TargetStatus,
 )
 from signal_diag.knowledge.models import KnowledgeRetrievalResult
 from signal_diag.tools.contracts import ToolName
@@ -575,3 +588,376 @@ def _completion_reason(
 
 def _unique(values: list[str]) -> tuple[str, ...]:
     return tuple(dict.fromkeys(values))
+
+
+_SLOT_KEY = tuple[str, str, int]
+_CONFIG_ERROR_CODES = frozenset(
+    {
+        "missing_credentials",
+        "missing_dependency",
+        "authentication",
+        "invalid_configuration",
+    }
+)
+_TARGET_RATE_FIELDS: tuple[tuple[str, str, str], ...] = (
+    ("first_tool_selection_rate", "first_tool_selection_min", "min"),
+    ("observation_driven_replan_rate", "observation_driven_replan_min", "min"),
+    ("evidence_grounding_rate", "evidence_grounding_min", "min"),
+    ("unsupported_claim_rate", "unsupported_claim_rate_max", "max"),
+    ("unnecessary_tool_action_rate", "unnecessary_tool_action_rate_max", "max"),
+    ("timely_stopping_rate", "timely_stopping_min", "min"),
+    ("applicable_rule_usage_rate", "applicable_rule_usage_min", "min"),
+    ("required_knowledge_usage_rate", "required_knowledge_usage_min", "min"),
+    ("knowledge_citation_utilization_rate", "knowledge_citation_utilization_min", "min"),
+    ("unnecessary_knowledge_retrieval_rate", "unnecessary_knowledge_retrieval_rate_max", "max"),
+)
+
+
+def aggregate_benchmark(
+    manifest: DatasetManifest,
+    traces: tuple[EvaluationTrace, ...],
+    scores: tuple[RunScore, ...],
+    attempts: tuple[AttemptRecord, ...],
+    config: BenchmarkConfig,
+    targets: TargetBands,
+    *,
+    harness_status: HarnessStatus,
+) -> BenchmarkReport:
+    cases = _validate_aggregate_inputs(manifest, traces, scores, attempts, config)
+    agent_scores = _held_out_scores(scores, cases, "agent")
+    baseline_scores = _held_out_scores(scores, cases, "fixed_pipeline")
+    agent_metrics = _aggregate_metrics(agent_scores, attempts, planner_applicable=True)
+    baseline_metrics = _aggregate_metrics(
+        baseline_scores, attempts, planner_applicable=False
+    )
+    status = _benchmark_status(manifest, config, cases, scores, attempts)
+    target_status, warnings = _target_status(status, agent_metrics, targets)
+    return BenchmarkReport(
+        config=config,
+        config_fingerprint_sha256=_config_fingerprint(config),
+        manifest=manifest,
+        harness_status=harness_status,
+        benchmark_status=status,
+        target_status=target_status,
+        targets=targets,
+        agent_metrics=agent_metrics,
+        baseline_metrics=baseline_metrics,
+        scores=scores,
+        traces=traces,
+        attempts=attempts,
+        warnings=warnings,
+    )
+
+
+def _config_fingerprint(config: BenchmarkConfig) -> str:
+    payload = config.model_dump(mode="json", exclude={"benchmark_id", "started_at_utc"})
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _rate(numerator: int, denominator: int) -> RateMetric:
+    value = 0.0 if denominator == 0 else numerator / denominator
+    return RateMetric(numerator=numerator, denominator=denominator, value=value)
+
+
+def _slot_key(item: EvaluationTrace | RunScore | AttemptRecord) -> _SLOT_KEY:
+    return (item.execution_path, item.case_id, item.run_slot)
+
+
+def _validate_aggregate_inputs(
+    manifest: DatasetManifest,
+    traces: tuple[EvaluationTrace, ...],
+    scores: tuple[RunScore, ...],
+    attempts: tuple[AttemptRecord, ...],
+    config: BenchmarkConfig,
+) -> dict[str, EvaluationCase]:
+    if (
+        config.dataset_id != manifest.dataset_id
+        or config.dataset_version != manifest.version
+        or config.rule_profile_id != manifest.rule_profile_id
+        or config.rule_profile_version != manifest.rule_profile_version
+    ):
+        raise ValueError("foreign dataset/configuration")
+    cases = {case.case_id: case for case in manifest.cases}
+    _reject_duplicate_slots(traces)
+    _reject_duplicate_slots(scores)
+    trace_by_id = {}
+    for trace in traces:
+        if trace.case_id not in cases:
+            raise ValueError(f"foreign case_id: {trace.case_id}")
+        if trace.config != config:
+            raise ValueError("foreign dataset/configuration")
+        if trace.trace_id in trace_by_id:
+            raise ValueError(f"duplicate trace_id: {trace.trace_id}")
+        trace_by_id[trace.trace_id] = trace
+    if len(traces) != len(scores):
+        raise ValueError("trace/score mismatch")
+    scored_ids: set[str] = set()
+    for score in scores:
+        if score.case_id not in cases:
+            raise ValueError(f"foreign case_id: {score.case_id}")
+        matched = trace_by_id.get(score.trace_id)
+        if matched is None:
+            raise ValueError(f"trace/score mismatch: unknown trace_id {score.trace_id}")
+        if _slot_key(score) != _slot_key(matched):
+            raise ValueError("trace/score mismatch")
+        scored_ids.add(score.trace_id)
+    if scored_ids != set(trace_by_id):
+        raise ValueError("trace/score mismatch")
+    for attempt in attempts:
+        if attempt.case_id not in cases:
+            raise ValueError(f"foreign case_id: {attempt.case_id}")
+    return cases
+
+
+def _reject_duplicate_slots(
+    items: tuple[EvaluationTrace, ...] | tuple[RunScore, ...],
+) -> None:
+    seen: set[_SLOT_KEY] = set()
+    for item in items:
+        key = _slot_key(item)
+        if key in seen:
+            raise ValueError(f"duplicate (execution_path, case_id, run_slot): {key}")
+        seen.add(key)
+
+
+def _held_out_scores(
+    scores: tuple[RunScore, ...],
+    cases: dict[str, EvaluationCase],
+    execution_path: str,
+) -> tuple[RunScore, ...]:
+    return tuple(
+        score
+        for score in scores
+        if score.execution_path == execution_path
+        and cases[score.case_id].split == "held_out"
+    )
+
+
+def _aggregate_metrics(
+    scores: tuple[RunScore, ...],
+    attempts: tuple[AttemptRecord, ...],
+    *,
+    planner_applicable: bool,
+) -> AggregateMetrics | None:
+    if not scores:
+        return None
+    run_count = len(scores)
+    first_true = sum(score.first_tool_correct is True for score in scores)
+    first_den = sum(score.first_tool_correct is not None for score in scores)
+    timely_true = sum(score.timely_stop is True for score in scores)
+    timely_den = sum(score.timely_stop is not None for score in scores)
+    mean_latency, p50, p95 = _latency_stats(scores, attempts)
+    covered = tuple(
+        score.provider_usage for score in scores if score.provider_usage is not None
+    )
+    input_tokens, output_tokens, total_tokens, cost_usd = _usage_totals(covered)
+    planner_calls: float | None
+    if planner_applicable:
+        planner_calls = sum(score.planner_calls for score in scores) / run_count
+    else:
+        planner_calls = None
+    return AggregateMetrics(
+        run_count=run_count,
+        causal_exact_set_accuracy=_rate(
+            sum(score.causal_exact_set_correct for score in scores), run_count
+        ),
+        causal_macro_f1=_causal_macro_f1(scores),
+        outcome_accuracy=_rate(sum(score.outcome_correct for score in scores), run_count),
+        evidence_grounding_rate=_rate(
+            sum(score.grounded_claims for score in scores),
+            sum(score.scored_claims for score in scores),
+        ),
+        unsupported_claim_rate=_rate(
+            sum(score.unsupported_fault_claims for score in scores),
+            sum(score.predicted_fault_claims for score in scores),
+        ),
+        first_tool_selection_rate=_rate(first_true, first_den),
+        observation_driven_replan_rate=_rate(
+            sum(score.appropriate_replans for score in scores),
+            sum(score.replan_opportunities for score in scores),
+        ),
+        unnecessary_tool_action_rate=_rate(
+            sum(score.unnecessary_tool_actions for score in scores),
+            sum(score.tool_actions for score in scores),
+        ),
+        timely_stopping_rate=_rate(timely_true, timely_den),
+        applicable_rule_usage_rate=_rate(
+            sum(score.correct_rule_actions for score in scores),
+            sum(score.rule_action_opportunities for score in scores),
+        ),
+        required_knowledge_usage_rate=_rate(
+            sum(score.required_knowledge_actions for score in scores),
+            sum(score.required_knowledge_opportunities for score in scores),
+        ),
+        unnecessary_knowledge_retrieval_rate=_rate(
+            sum(score.unnecessary_knowledge_actions for score in scores),
+            sum(score.knowledge_actions for score in scores),
+        ),
+        knowledge_citation_utilization_rate=_rate(
+            sum(score.cited_knowledge_actions for score in scores),
+            sum(score.knowledge_actions for score in scores),
+        ),
+        average_tool_actions=sum(score.tool_actions for score in scores) / run_count,
+        average_planner_calls=planner_calls,
+        latency_ms_mean=mean_latency,
+        latency_ms_p50=p50,
+        latency_ms_p95=p95,
+        provider_usage_coverage_rate=_rate(len(covered), run_count),
+        observed_input_tokens=input_tokens,
+        observed_output_tokens=output_tokens,
+        observed_total_tokens=total_tokens,
+        observed_cost_usd=cost_usd,
+    )
+
+
+def _causal_macro_f1(scores: tuple[RunScore, ...]) -> float:
+    f1_values: list[float] = []
+    for label in _CAUSAL_FAULTS:
+        tp = fp = fn = 0
+        for score in scores:
+            expected = label in score.expected_faults
+            predicted = label in score.predicted_faults
+            if expected and predicted:
+                tp += 1
+            elif predicted:
+                fp += 1
+            elif expected:
+                fn += 1
+        denominator = 2 * tp + fp + fn
+        f1_values.append(0.0 if denominator == 0 else (2 * tp) / denominator)
+    return (f1_values[0] + f1_values[1]) / 2
+
+
+def _latency_stats(
+    scores: tuple[RunScore, ...],
+    attempts: tuple[AttemptRecord, ...],
+) -> tuple[float | None, float | None, float | None]:
+    wanted = {_slot_key(score) for score in scores}
+    samples: list[float] = []
+    seen: set[_SLOT_KEY] = set()
+    for attempt in attempts:
+        key = _slot_key(attempt)
+        if key not in wanted or attempt.status != "behavior_result":
+            continue
+        if key in seen:
+            continue
+        seen.add(key)
+        elapsed_ms = (
+            attempt.finished_at_utc - attempt.started_at_utc
+        ).total_seconds() * 1000.0
+        samples.append(elapsed_ms)
+    if not samples:
+        return None, None, None
+    return (
+        sum(samples) / len(samples),
+        _nearest_rank(samples, 0.50),
+        _nearest_rank(samples, 0.95),
+    )
+
+
+def _nearest_rank(samples: list[float], percentile: float) -> float:
+    ordered = sorted(samples)
+    rank = ceil(percentile * len(ordered))
+    return ordered[rank - 1]
+
+
+def _usage_totals(
+    covered: tuple[object, ...],
+) -> tuple[int | None, int | None, int | None, float | None]:
+    if not covered:
+        return None, None, None, None
+    return (
+        _sum_optional_int(covered, "input_tokens"),
+        _sum_optional_int(covered, "output_tokens"),
+        _sum_optional_int(covered, "total_tokens"),
+        _sum_optional_float(covered, "cost_usd"),
+    )
+
+
+def _sum_optional_int(items: tuple[object, ...], field: str) -> int | None:
+    values = [getattr(item, field) for item in items if getattr(item, field) is not None]
+    if not values:
+        return None
+    return int(sum(values))
+
+
+def _sum_optional_float(items: tuple[object, ...], field: str) -> float | None:
+    values = [getattr(item, field) for item in items if getattr(item, field) is not None]
+    if not values:
+        return None
+    return float(sum(values))
+
+
+def _benchmark_status(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    cases: dict[str, EvaluationCase],
+    scores: tuple[RunScore, ...],
+    attempts: tuple[AttemptRecord, ...],
+) -> BenchmarkStatus:
+    expected = {
+        ("agent", case.case_id, slot)
+        for case in manifest.cases
+        if case.split == "held_out"
+        for slot in range(1, config.repetitions + 1)
+    }
+    scored = {
+        ("agent", score.case_id, score.run_slot)
+        for score in scores
+        if score.execution_path == "agent" and cases[score.case_id].split == "held_out"
+    }
+    if expected and expected <= scored:
+        return "completed"
+    has_behavior = bool(scored)
+    has_config_block = any(
+        attempt.status == "configuration_error"
+        or attempt.error_code in _CONFIG_ERROR_CODES
+        for attempt in attempts
+    )
+    if not has_behavior and (has_config_block or not attempts):
+        return "pending"
+    return "incomplete"
+
+
+def _target_status(
+    status: BenchmarkStatus,
+    agent_metrics: AggregateMetrics | None,
+    targets: TargetBands,
+) -> tuple[TargetStatus, tuple[str, ...]]:
+    warnings = _non_applicable_warnings(agent_metrics)
+    if status != "completed":
+        return "not_evaluated", warnings
+    if agent_metrics is None:
+        return "not_evaluated", warnings
+    if _meets_applicable_targets(agent_metrics, targets):
+        return "meets_target", warnings
+    return "below_target", warnings
+
+
+def _non_applicable_warnings(metrics: AggregateMetrics | None) -> tuple[str, ...]:
+    if metrics is None:
+        return ()
+    warnings: list[str] = []
+    for metric_name, _, _ in _TARGET_RATE_FIELDS:
+        rate: RateMetric = getattr(metrics, metric_name)
+        if rate.denominator == 0:
+            warnings.append(
+                f"{metric_name} is not applicable (zero denominator)"
+            )
+    return tuple(warnings)
+
+
+def _meets_applicable_targets(metrics: AggregateMetrics, targets: TargetBands) -> bool:
+    if metrics.causal_macro_f1 < targets.causal_macro_f1_min:
+        return False
+    for metric_name, band_name, direction in _TARGET_RATE_FIELDS:
+        rate: RateMetric = getattr(metrics, metric_name)
+        if rate.denominator == 0:
+            continue
+        threshold = getattr(targets, band_name)
+        if direction == "min" and rate.value < threshold:
+            return False
+        if direction == "max" and rate.value > threshold:
+            return False
+    return True

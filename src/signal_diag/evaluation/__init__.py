@@ -57,7 +57,7 @@ from signal_diag.evaluation.models import (
     WhiteNoiseSignalSpec,
 )
 from signal_diag.evaluation.recording import RecordingPlanner, assemble_evaluation_trace
-from signal_diag.evaluation.scoring import score_evaluation_trace
+from signal_diag.evaluation.scoring import aggregate_benchmark, score_evaluation_trace
 
 __all__ = [
     "AggregateMetrics",
@@ -114,6 +114,7 @@ __all__ = [
     "TargetStatus",
     "UnscoredSlotArtifact",
     "WhiteNoiseSignalSpec",
+    "aggregate_benchmark",
     "assemble_evaluation_trace",
     "load_dataset_manifest",
     "score_evaluation_trace",
