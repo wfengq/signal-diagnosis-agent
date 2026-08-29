@@ -209,11 +209,6 @@ def _score_path(
                 pending_delta = False
             decision = record.decision
             if isinstance(decision, CallToolDecision):
-                _note_tool_decision(
-                    score,
-                    decision.call.tool_name,
-                    sufficient=sufficient,
-                )
                 pending_tool = {
                     "is_replan": is_replan,
                     "error_recovery": last_status in _FAILED_TOOL_STATUSES,
@@ -238,6 +233,13 @@ def _score_path(
                 if is_replan:
                     _note_replan(score, appropriate)
         elif isinstance(event, ObservationEvent):
+            score.tool_actions += 1
+            tool_name = event.observation.tool_name
+            if score.first_dsp_tool is None and tool_name in _DSP_TOOLS:
+                score.first_dsp_tool = tool_name
+            if sufficient:
+                score.timely_stop = False
+                score.failure_codes.append(FAILURE_LATE_TOOL)
             if pending_tool is not None:
                 failed = event.observation.status in _FAILED_TOOL_STATUSES
                 advanced = False
@@ -333,24 +335,10 @@ def _score_baseline_path(
 
 
 def _note_unapplied_tool(score: _PathScore, pending_tool: dict[str, object]) -> None:
-    score.unnecessary_tool_actions += 1
-    score.failure_codes.append(FAILURE_UNNECESSARY_TOOL)
+    # Rejected equivalent CallTool decisions stay in the Planner trace and
+    # planner_calls, but they are not executed Tool actions (§38.2 / §46).
     if pending_tool.get("is_replan"):
         _note_replan(score, False)
-
-
-def _note_tool_decision(
-    score: _PathScore,
-    tool_name: ToolName,
-    *,
-    sufficient: bool,
-) -> None:
-    score.tool_actions += 1
-    if score.first_dsp_tool is None and tool_name in _DSP_TOOLS:
-        score.first_dsp_tool = tool_name
-    if sufficient:
-        score.timely_stop = False
-        score.failure_codes.append(FAILURE_LATE_TOOL)
 
 
 def _note_rule_decision(

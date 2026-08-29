@@ -14,12 +14,14 @@ from typing import Any
 
 import pytest
 
+from signal_diag.agent.models import CallToolDecision
 from signal_diag.agent.planner import _SYSTEM_PROMPT, PROMPT_VERSION
 from signal_diag.evaluation.models import (
     AttemptErrorCode,
     BenchmarkConfig,
     BenchmarkReport,
     DatasetManifest,
+    ObservationEvent,
     PlannerDecisionEvent,
 )
 from signal_diag.evaluation.runner import (
@@ -606,10 +608,28 @@ async def test_official_trace_keeps_empty_delta_planner_decisions(
         for event in agent_traces[0].events
         if isinstance(event, PlannerDecisionEvent)
     ]
+    observation_events = [
+        event
+        for event in agent_traces[0].events
+        if isinstance(event, ObservationEvent)
+    ]
+    rejected_call_tools = [
+        event
+        for event in planner_events
+        if isinstance(event.record.decision, CallToolDecision)
+        and not any(
+            isinstance(item, ObservationEvent)
+            and item.caused_by_decision_index == event.record.decision_index
+            for item in agent_traces[0].events
+        )
+    ]
     assert len(planner_events) == 3
+    assert len(observation_events) == 1
+    assert len(rejected_call_tools) == 2
     assert agent_scores[0].planner_calls == 3
-    assert agent_scores[0].tool_actions == 3
-    assert agent_scores[0].unnecessary_tool_actions >= 2
+    assert agent_scores[0].tool_actions == 1
+    assert agent_scores[0].tool_actions == len(observation_events)
+    assert agent_scores[0].unnecessary_tool_actions <= agent_scores[0].tool_actions
     assert agent_traces[0].result.termination_reason == "no_progress"
 
 
