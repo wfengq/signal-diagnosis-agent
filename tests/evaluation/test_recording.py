@@ -110,6 +110,12 @@ class _RaisePlanner:
         raise self.error
 
 
+def test_assemble_evaluation_trace_is_package_public_export() -> None:
+    from signal_diag.evaluation import assemble_evaluation_trace as package_fn
+
+    assert package_fn is assemble_evaluation_trace
+
+
 @pytest.mark.asyncio
 async def test_t141_transparent_planner_delegation() -> None:
     context = _planner_context()
