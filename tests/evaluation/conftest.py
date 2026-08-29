@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 import pytest
 
+from signal_diag.evaluation.dataset import load_dataset_manifest
 from signal_diag.evaluation.models import (
+    BenchmarkConfig,
     ClippedSineSignalSpec,
     CombinedDistortionSignalSpec,
     CombinedIdentifiabilitySpec,
@@ -19,6 +22,15 @@ from signal_diag.evaluation.models import (
     SineSignalSpec,
     SufficientEvidenceSet,
     WhiteNoiseSignalSpec,
+)
+
+CANONICAL_MANIFEST = (
+    Path(__file__).resolve().parents[2]
+    / "src"
+    / "signal_diag"
+    / "evaluation"
+    / "manifests"
+    / "s1_distortion_v1.yaml"
 )
 
 _CATEGORY_DEFAULTS: dict[str, dict[str, Any]] = {
@@ -206,3 +218,20 @@ def evaluation_case() -> EvaluationCase:
 @pytest.fixture
 def dataset_manifest() -> DatasetManifest:
     return make_dataset_manifest()
+
+
+@pytest.fixture(scope="module")
+def official_manifest() -> DatasetManifest:
+    return load_dataset_manifest(CANONICAL_MANIFEST)
+
+
+@pytest.fixture
+def deterministic_config(utc_now: datetime) -> BenchmarkConfig:
+    return BenchmarkConfig(
+        benchmark_id="bench_task8_deterministic",
+        dataset_id="s1-distortion-synthetic",
+        dataset_version="1.0.0",
+        rule_profile_id="profile_s1_distortion",
+        rule_profile_version="1.0.0-demo",
+        started_at_utc=utc_now,
+    )
