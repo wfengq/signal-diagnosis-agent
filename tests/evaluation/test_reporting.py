@@ -623,3 +623,25 @@ def test_t181_report_artifact_safety(tmp_path: Path) -> None:
     assert field_names.isdisjoint(FORBIDDEN_FIELD_NAMES)
     dumped = json.dumps(report.config.model_dump(mode="json"), sort_keys=True)
     assert "api_key" not in dumped
+
+
+def test_writer_redacts_raw_provider_body_in_attempt_message(tmp_path: Path) -> None:
+    private = "PRIVATE_PROVIDER_BODY_DO_NOT_PERSIST"
+    report = _make_report()
+    poisoned = report.attempts[-1].model_copy(
+        update={
+            "error_message": (
+                '{"choices":[{"message":{"content":"' + private + '"}}]}'
+            )
+        }
+    )
+    poisoned_report = report.model_copy(
+        update={"attempts": report.attempts[:-1] + (poisoned,)}
+    )
+    write_benchmark_bundle(poisoned_report, tmp_path)
+    dest = _bundle_dir(tmp_path, poisoned_report)
+    raw = (dest / "runs.jsonl").read_text(encoding="utf-8")
+    markdown = _read_text(dest / "report.md")
+    assert private not in raw
+    assert private not in markdown
+    assert private in str(poisoned.error_message)

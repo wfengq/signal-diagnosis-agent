@@ -45,6 +45,14 @@ _SECRET_PATTERN = re.compile(
     r"|(?:bearer\s+)\S+"
     r"|\bsk-[A-Za-z0-9]+\b"
 )
+_PROVIDER_PAYLOAD_MARKERS = (
+    '"choices"',
+    '"provider_response"',
+    '"raw_response"',
+    '"response_body"',
+    '"raw_body"',
+    '"raw_provider_response"',
+)
 _FORBIDDEN_PAYLOAD_KEYS = frozenset(
     {
         "samples",
@@ -102,7 +110,7 @@ def _json_line(value: object) -> str:
 
 
 def _dump(value: object) -> object:
-    return _sanitize(_reject_unsafe(value))
+    return _reject_unsafe(_sanitize(value))
 
 
 def _manifest_payload(report: BenchmarkReport) -> object:
@@ -329,7 +337,7 @@ def _variation_lines(report: BenchmarkReport) -> tuple[str, ...]:
 
 
 def _failure_lines(report: BenchmarkReport) -> tuple[str, ...]:
-    lines = [
+    lines: list[str] = [
         (
             f"- {score.execution_path} {score.case_id} run_slot {score.run_slot}: "
             f"{';'.join(score.failure_codes)}"
@@ -337,6 +345,33 @@ def _failure_lines(report: BenchmarkReport) -> tuple[str, ...]:
         for score in report.scores
         if score.failure_codes
     ]
+    scored_keys = {_slot_key(score) for score in report.scores}
+    for artifact in _run_artifacts(report):
+        if not isinstance(artifact, UnscoredSlotArtifact):
+            continue
+        labels: list[str] = []
+        for attempt in artifact.attempts:
+            if attempt.status == "behavior_result":
+                continue
+            if attempt.error_code:
+                labels.append(attempt.error_code)
+            labels.append(attempt.status)
+        unique = tuple(dict.fromkeys(labels))
+        text = ";".join(unique) if unique else "unscored"
+        lines.append(
+            f"- {artifact.execution_path} {artifact.case_id} run_slot {artifact.run_slot}: "
+            f"{text}"
+        )
+    for attempt in report.attempts:
+        if attempt.status == "behavior_result":
+            continue
+        if _slot_key(attempt) not in scored_keys:
+            continue
+        code = attempt.error_code or attempt.status
+        lines.append(
+            f"- {attempt.execution_path} {attempt.case_id} run_slot {attempt.run_slot}: "
+            f"{attempt.status}/{code}"
+        )
     if not lines:
         return ("none",)
     return tuple(lines)
@@ -355,7 +390,13 @@ def _sanitize(value: object) -> object:
 
 
 def _sanitize_text(text: str) -> str:
-    return _SECRET_PATTERN.sub("[redacted]", text).replace("\\", "/")
+    redacted = _SECRET_PATTERN.sub("[redacted]", text).replace("\\", "/")
+    lowered = redacted.lower()
+    if "{" in redacted and any(
+        marker in lowered for marker in _PROVIDER_PAYLOAD_MARKERS
+    ):
+        return "[redacted-provider-payload]"
+    return redacted
 
 
 def _reject_unsafe(value: object) -> object:
@@ -371,5 +412,12 @@ def _reject_unsafe(value: object) -> object:
     if isinstance(value, list | tuple):
         for item in value:
             _reject_unsafe(item)
+        return value
+    if isinstance(value, str):
+        lowered = value.lower()
+        if "{" in value and any(
+            marker in lowered for marker in _PROVIDER_PAYLOAD_MARKERS
+        ):
+            raise ValueError("raw provider response cannot be serialized")
         return value
     return value

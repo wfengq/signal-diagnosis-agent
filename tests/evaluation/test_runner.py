@@ -20,6 +20,7 @@ from signal_diag.evaluation.models import (
     BenchmarkConfig,
     BenchmarkReport,
     DatasetManifest,
+    PlannerDecisionEvent,
 )
 from signal_diag.evaluation.runner import (
     _baseline_slot_schedule,
@@ -582,6 +583,107 @@ async def test_t179_behavioral_failures_keep_original_slot(
         assert reason in expected_reason
     else:
         assert reason == expected_reason
+
+
+@pytest.mark.asyncio
+async def test_official_trace_keeps_empty_delta_planner_decisions(
+    dummy_deepseek_key: None,
+    tmp_path: Path,
+) -> None:
+    manifest = _mini_manifest("case_held_no_progress_keep_01")
+    report = await _run_official_benchmark(
+        manifest,
+        _mini_config(manifest, benchmark_id="bench_fixwave_keep_planner"),
+        tmp_path,
+        client_factory=_client_factory_for(_no_progress_handler),
+    )
+    agent_traces = [trace for trace in report.traces if trace.execution_path == "agent"]
+    agent_scores = [score for score in report.scores if score.execution_path == "agent"]
+    assert len(agent_traces) == 1
+    assert len(agent_scores) == 1
+    planner_events = [
+        event
+        for event in agent_traces[0].events
+        if isinstance(event, PlannerDecisionEvent)
+    ]
+    assert len(planner_events) == 3
+    assert agent_scores[0].planner_calls == 3
+    assert agent_scores[0].tool_actions == 3
+    assert agent_scores[0].unnecessary_tool_actions >= 2
+    assert agent_traces[0].result.termination_reason == "no_progress"
+
+
+class _PrivateProviderBodyError(_MarkedError):
+    status_code = 500
+
+    def __str__(self) -> str:
+        return (
+            '{"choices":[{"message":{"content":'
+            '"PRIVATE_PROVIDER_BODY_DO_NOT_PERSIST"}}]}'
+        )
+
+
+@pytest.mark.asyncio
+async def test_attempt_record_redacts_raw_provider_body(
+    dummy_deepseek_key: None,
+    tmp_path: Path,
+) -> None:
+    private = "PRIVATE_PROVIDER_BODY_DO_NOT_PERSIST"
+    error = _PrivateProviderBodyError()
+    assert private in str(error)
+    manifest = _mini_manifest("case_held_redact_01")
+    report = await _run_official_benchmark(
+        manifest,
+        _mini_config(manifest, benchmark_id="bench_fixwave_redact"),
+        tmp_path,
+        client_factory=_client_factory_for(_raise_handler(error)),
+    )
+    agent_attempts = [
+        attempt
+        for attempt in report.attempts
+        if attempt.execution_path == "agent"
+    ]
+    assert agent_attempts
+    for attempt in agent_attempts:
+        assert attempt.error_message is not None
+        assert private not in attempt.error_message
+        assert "choices" not in (attempt.error_message or "")
+        assert type(error).__name__ in attempt.error_message
+        assert "500" in attempt.error_message
+    bundle = tmp_path / "bench_fixwave_redact" / "runs.jsonl"
+    raw = bundle.read_text(encoding="utf-8")
+    assert private not in raw
+    assert '"choices"' not in raw or private not in raw
+
+
+@pytest.mark.asyncio
+async def test_markdown_failures_cover_unscored_missing_credentials(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    manifest = _mini_manifest("case_held_md_fail_01")
+    report = await _run_official_benchmark(
+        manifest,
+        _mini_config(manifest, benchmark_id="bench_fixwave_md_failures"),
+        tmp_path,
+    )
+    assert {attempt.error_code for attempt in report.attempts} == {
+        "missing_credentials"
+    }
+    runs = (tmp_path / "bench_fixwave_md_failures" / "runs.jsonl").read_text(
+        encoding="utf-8"
+    )
+    assert "missing_credentials" in runs
+    assert "configuration_error" in runs
+    markdown = (tmp_path / "bench_fixwave_md_failures" / "report.md").read_text(
+        encoding="utf-8"
+    )
+    failures = markdown.split("## Failures", 1)[1].split("## ", 1)[0]
+    body_lines = [line.strip() for line in failures.splitlines() if line.strip()]
+    assert body_lines
+    assert body_lines != ["none"]
+    assert "missing_credentials" in failures or "configuration_error" in failures
 
 
 @pytest.mark.asyncio

@@ -197,6 +197,9 @@ def _score_path(
     for event in trace.events:
         if isinstance(event, PlannerDecisionEvent):
             score.planner_calls += 1
+            if pending_tool is not None:
+                _note_unapplied_tool(score, pending_tool)
+                pending_tool = None
             record = event.record
             if record.status != "decision" or record.decision is None:
                 continue
@@ -272,6 +275,8 @@ def _score_path(
             score.pending_knowledge_replan = False
             pending_delta = True
 
+    if pending_tool is not None:
+        _note_unapplied_tool(score, pending_tool)
     if success_evidence_ids and score.correct_rule_actions == 0:
         score.failure_codes.append(FAILURE_OMITTED_RULE)
         if rule_decisions == 0:
@@ -325,6 +330,13 @@ def _score_baseline_path(
         score.failure_codes.append(FAILURE_OMITTED_RULE)
         if score.rule_action_opportunities == 0:
             score.rule_action_opportunities += 1
+
+
+def _note_unapplied_tool(score: _PathScore, pending_tool: dict[str, object]) -> None:
+    score.unnecessary_tool_actions += 1
+    score.failure_codes.append(FAILURE_UNNECESSARY_TOOL)
+    if pending_tool.get("is_replan"):
+        _note_replan(score, False)
 
 
 def _note_tool_decision(

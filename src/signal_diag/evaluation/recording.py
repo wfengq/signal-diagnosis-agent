@@ -289,10 +289,12 @@ def _assemble_agent_events(
         )
         decision = record.decision
         if isinstance(decision, CallToolDecision):
-            if len(obs_delta) != 1:
-                raise ValueError("CallToolDecision requires exactly one Observation")
             if rule_delta or knowledge_delta:
                 raise ValueError("CallToolDecision produced unexpected artifacts")
+            if not obs_delta and not evidence_delta:
+                continue
+            if len(obs_delta) != 1:
+                raise ValueError("CallToolDecision requires exactly one Observation")
             observation = obs_delta[0]
             if observation.tool_name != decision.call.tool_name:
                 raise ValueError("Observation tool does not match CallToolDecision")
@@ -314,6 +316,8 @@ def _assemble_agent_events(
         if isinstance(decision, EvaluateRulesDecision):
             if obs_delta or evidence_delta or knowledge_delta:
                 raise ValueError("EvaluateRulesDecision produced unexpected artifacts")
+            if not rule_delta:
+                continue
             if len(rule_delta) != 1:
                 raise ValueError("EvaluateRulesDecision requires exactly one RuleEvaluationBatch")
             events.append(
@@ -328,6 +332,8 @@ def _assemble_agent_events(
         if isinstance(decision, RetrieveKnowledgeDecision):
             if obs_delta or evidence_delta or rule_delta:
                 raise ValueError("RetrieveKnowledgeDecision produced unexpected artifacts")
+            if not knowledge_delta:
+                continue
             if len(knowledge_delta) != 1:
                 raise ValueError(
                     "RetrieveKnowledgeDecision requires exactly one KnowledgeRetrievalResult"
@@ -373,48 +379,6 @@ def _after_artifacts(
         result.rule_evaluation_batches,
         result.knowledge_retrievals,
     )
-
-
-def _exclude_unapplied_action_records(
-    records: tuple[PlannerDecisionRecord, ...],
-    result: AgentRunResult,
-) -> tuple[PlannerDecisionRecord, ...]:
-    """Drop tool/rule/knowledge decisions that produced no artifact delta.
-
-    FinishDecision records are always kept. Empty-delta action decisions are
-    runtime rejections (equivalent call, budget, no-progress), not chronology
-    guesses: the next snapshot is inspected once, then assembly runs on the
-    filtered tuple with no prefix search.
-    """
-    kept: list[PlannerDecisionRecord] = []
-    for index, record in enumerate(records):
-        decision = record.decision
-        if (
-            record.status != "decision"
-            or decision is None
-            or isinstance(decision, FinishDecision)
-        ):
-            kept.append(record)
-            continue
-        after = _after_artifacts(records, index, result)
-        before = record.context
-        try:
-            deltas = (
-                _strict_suffix(before.observations, after[0], "observations"),
-                _strict_suffix(before.evidence, after[1], "evidence"),
-                _strict_suffix(
-                    before.rule_evaluation_batches, after[2], "rule_evaluation_batches"
-                ),
-                _strict_suffix(
-                    before.knowledge_retrievals, after[3], "knowledge_retrievals"
-                ),
-            )
-        except ValueError:
-            kept.append(record)
-            continue
-        if any(deltas):
-            kept.append(record)
-    return tuple(kept)
 
 
 def _assemble_baseline_events(result: BaselineRunResult) -> list[EvaluationEvent]:

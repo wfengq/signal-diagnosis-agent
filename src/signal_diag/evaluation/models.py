@@ -318,6 +318,12 @@ class DatasetValidationReport(BaseModel):
     checked_case_ids: tuple[str, ...]
     issues: tuple[DatasetValidationIssue, ...] = ()
 
+    @model_validator(mode="after")
+    def _validate_valid_matches_issues(self) -> DatasetValidationReport:
+        if self.valid != (len(self.issues) == 0):
+            raise ValueError("valid is true exactly when issues is empty")
+        return self
+
 
 class ProviderUsage(BaseModel):
     model_config = ConfigDict(frozen=True)
@@ -606,6 +612,47 @@ class RunScore(BaseModel):
     provider_usage: ProviderUsage | None = None
     completion_reason: TerminationReason | BaselineCompletionReason
     failure_codes: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _validate_count_bounds(self) -> RunScore:
+        pairs = (
+            (self.grounded_claims, self.scored_claims, "grounded_claims"),
+            (
+                self.unsupported_fault_claims,
+                self.predicted_fault_claims,
+                "unsupported_fault_claims",
+            ),
+            (self.appropriate_replans, self.replan_opportunities, "appropriate_replans"),
+            (
+                self.unnecessary_tool_actions,
+                self.tool_actions,
+                "unnecessary_tool_actions",
+            ),
+            (
+                self.correct_rule_actions,
+                self.rule_action_opportunities,
+                "correct_rule_actions",
+            ),
+            (
+                self.required_knowledge_actions,
+                self.required_knowledge_opportunities,
+                "required_knowledge_actions",
+            ),
+            (
+                self.unnecessary_knowledge_actions,
+                self.knowledge_actions,
+                "unnecessary_knowledge_actions",
+            ),
+            (
+                self.cited_knowledge_actions,
+                self.knowledge_actions,
+                "cited_knowledge_actions",
+            ),
+        )
+        for numerator, denominator, name in pairs:
+            if numerator > denominator:
+                raise ValueError(f"{name} cannot exceed its denominator")
+        return self
 
 
 class AggregateMetrics(BaseModel):

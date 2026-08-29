@@ -57,7 +57,6 @@ from signal_diag.evaluation.models import (
 )
 from signal_diag.evaluation.recording import (
     RecordingPlanner,
-    _exclude_unapplied_action_records,
     assemble_evaluation_trace,
 )
 from signal_diag.evaluation.reporting import write_benchmark_bundle
@@ -569,6 +568,27 @@ def _configuration_attempts(
     )
 
 
+def _error_status_code(error: BaseException) -> int | None:
+    for attribute in ("status_code", "status"):
+        value = getattr(error, attribute, None)
+        if isinstance(value, int):
+            return value
+    response = getattr(error, "response", None)
+    if response is not None:
+        value = getattr(response, "status_code", None)
+        if isinstance(value, int):
+            return value
+    return None
+
+
+def _restricted_error_message(error: BaseException) -> str:
+    error_type = type(error).__name__
+    status = _error_status_code(error)
+    if status is None:
+        return error_type
+    return f"{error_type} status={status}"
+
+
 def _attempt_record(
     *,
     execution_path: str,
@@ -609,7 +629,7 @@ def _assemble_applied_agent_trace(
     try:
         return assemble_evaluation_trace(
             case,
-            _exclude_unapplied_action_records(records, result),
+            records,
             result,
             config,
             run_slot=run_slot,
@@ -685,7 +705,7 @@ async def _run_agent_slot_with_retries(
                     attempt_index=attempt_index,
                     status=status,
                     error_code=code,
-                    error_message=str(error).strip() or type(error).__name__,
+                    error_message=_restricted_error_message(error),
                     started=started,
                     finished=finished,
                 )
@@ -953,7 +973,7 @@ async def _run_official_benchmark(
                     attempt_index=len(slot_attempts) + 1,
                     status="evaluator_error",
                     error_code="scoring",
-                    error_message=str(error).strip() or type(error).__name__,
+                    error_message=_restricted_error_message(error),
                     started=finished,
                     finished=finished,
                 )
@@ -977,7 +997,7 @@ async def _run_official_benchmark(
                     attempt_index=1,
                     status="evaluator_error",
                     error_code="trace_assembly",
-                    error_message=str(error).strip() or type(error).__name__,
+                    error_message=_restricted_error_message(error),
                     started=started,
                     finished=finished,
                 )

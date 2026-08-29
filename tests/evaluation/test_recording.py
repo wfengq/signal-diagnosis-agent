@@ -825,19 +825,6 @@ def test_t147_ambiguity_rejection(kind: str) -> None:
             records[0],
             _decision_record(1, empty, _finish_decision()),
         )
-        result = _agent_result(
-            observations=(),
-            evidence=(),
-            batches=(),
-            retrievals=(),
-            claims=(
-                DiagnosisClaim(
-                    claim_id="claim_001",
-                    fault_type="inconclusive",
-                    statement="Missing tool artifact.",
-                ),
-            ),
-        )
     elif kind == "duplicate_observation":
         extra = records[1].context.observations[0].model_copy(
             update={"observation_id": "obs_clip_002", "call_id": "call_clip_002"}

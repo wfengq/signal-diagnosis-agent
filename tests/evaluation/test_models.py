@@ -14,10 +14,13 @@ from signal_diag.evaluation.models import (
     CombinedDistortionSignalSpec,
     CombinedIdentifiabilitySpec,
     DatasetManifest,
+    DatasetValidationIssue,
+    DatasetValidationReport,
     EvaluationCase,
     EvidenceCondition,
     HarmonicRatioSpec,
     HarmonicSineSignalSpec,
+    RunScore,
     SineSignalSpec,
     SyntheticSignalSpec,
     WhiteNoiseSignalSpec,
@@ -387,3 +390,125 @@ def test_t132_manifest_identity_and_references(
     assert valid.rule_profile_version == "1.0.0-demo"
     with pytest.raises(ValidationError):
         mutator(valid)
+
+
+def test_dataset_validation_report_valid_iff_issues_empty() -> None:
+    issue = DatasetValidationIssue(
+        code="seed_mismatch",
+        case_id="case_clean_dev_01",
+        message="seeded reconstruction mismatch",
+    )
+    ok = DatasetValidationReport(
+        dataset_id="s1-distortion-synthetic",
+        dataset_version="1.0.0",
+        valid=True,
+        checked_case_ids=("case_clean_dev_01",),
+        issues=(),
+    )
+    assert ok.valid is True
+    assert ok.issues == ()
+    invalid = DatasetValidationReport(
+        dataset_id="s1-distortion-synthetic",
+        dataset_version="1.0.0",
+        valid=False,
+        checked_case_ids=("case_clean_dev_01",),
+        issues=(issue,),
+    )
+    assert invalid.valid is False
+    assert invalid.issues == (issue,)
+    with pytest.raises(ValidationError):
+        DatasetValidationReport(
+            dataset_id="s1-distortion-synthetic",
+            dataset_version="1.0.0",
+            valid=True,
+            checked_case_ids=("case_clean_dev_01",),
+            issues=(issue,),
+        )
+    with pytest.raises(ValidationError):
+        DatasetValidationReport(
+            dataset_id="s1-distortion-synthetic",
+            dataset_version="1.0.0",
+            valid=False,
+            checked_case_ids=("case_clean_dev_01",),
+            issues=(),
+        )
+
+
+def _minimal_run_score(**overrides: Any) -> RunScore:
+    payload: dict[str, Any] = {
+        "trace_id": "trace_agent_case_invariants_01_01",
+        "case_id": "case_invariants_01",
+        "run_slot": 1,
+        "execution_path": "agent",
+        "expected_faults": (),
+        "predicted_faults": (),
+        "acceptable_outcomes": ("no_supported_fault",),
+        "predicted_outcome": "no_supported_fault",
+        "causal_exact_set_correct": True,
+        "outcome_correct": True,
+        "grounded_claims": 0,
+        "scored_claims": 0,
+        "unsupported_fault_claims": 0,
+        "predicted_fault_claims": 0,
+        "first_tool_correct": True,
+        "appropriate_replans": 0,
+        "replan_opportunities": 0,
+        "unnecessary_tool_actions": 0,
+        "tool_actions": 0,
+        "timely_stop": True,
+        "correct_rule_actions": 0,
+        "rule_action_opportunities": 0,
+        "required_knowledge_actions": 0,
+        "required_knowledge_opportunities": 0,
+        "unnecessary_knowledge_actions": 0,
+        "knowledge_actions": 0,
+        "cited_knowledge_actions": 0,
+        "planner_calls": 0,
+        "completion_reason": "planner_finished",
+    }
+    payload.update(overrides)
+    return RunScore(**payload)
+
+
+def test_run_score_accepts_consistent_numerator_denominator_pairs() -> None:
+    score = _minimal_run_score(
+        grounded_claims=1,
+        scored_claims=2,
+        unsupported_fault_claims=1,
+        predicted_fault_claims=2,
+        appropriate_replans=1,
+        replan_opportunities=1,
+        unnecessary_tool_actions=1,
+        tool_actions=3,
+        correct_rule_actions=1,
+        rule_action_opportunities=1,
+        required_knowledge_actions=1,
+        required_knowledge_opportunities=1,
+        unnecessary_knowledge_actions=1,
+        knowledge_actions=2,
+        cited_knowledge_actions=1,
+        planner_calls=4,
+    )
+    assert score.appropriate_replans <= score.replan_opportunities
+    assert score.grounded_claims <= score.scored_claims
+
+
+@pytest.mark.parametrize(
+    ("numerator_field", "denominator_field"),
+    [
+        ("grounded_claims", "scored_claims"),
+        ("unsupported_fault_claims", "predicted_fault_claims"),
+        ("appropriate_replans", "replan_opportunities"),
+        ("unnecessary_tool_actions", "tool_actions"),
+        ("correct_rule_actions", "rule_action_opportunities"),
+        ("required_knowledge_actions", "required_knowledge_opportunities"),
+        ("unnecessary_knowledge_actions", "knowledge_actions"),
+        ("cited_knowledge_actions", "knowledge_actions"),
+    ],
+)
+def test_run_score_rejects_success_count_above_denominator(
+    numerator_field: str,
+    denominator_field: str,
+) -> None:
+    with pytest.raises(ValidationError):
+        _minimal_run_score(**{numerator_field: 2, denominator_field: 1})
