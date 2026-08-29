@@ -1542,6 +1542,88 @@ def test_t162_unnecessary_tool_scoring() -> None:
     assert recovery_score.unnecessary_tool_actions == 0
     assert recovery_score.appropriate_replans == recovery_score.replan_opportunities
 
+    recovery_claims = (
+        _claim(
+            claim_id="claim_clip",
+            fault_type="clipping",
+            evidence_refs=("ev_clip",),
+            rule_refs=("ruleval_rec",),
+        ),
+    )
+    for failed_status in ("error", "invalid"):
+        empty_fail = _agent_trace(
+            case,
+            (
+                {
+                    "kind": "tool",
+                    "tool_name": "detect_clipping",
+                    "evidence": (),
+                    "status": failed_status,
+                },
+                {
+                    "kind": "tool",
+                    "tool_name": "detect_clipping",
+                    "evidence": (recovered,),
+                },
+                {"kind": "rules", "batch": recovery_batch},
+                {"kind": "finish"},
+            ),
+            claims=recovery_claims,
+            outcome="supported_fault",
+        )
+        empty_score = score_evaluation_trace(case, empty_fail)
+        assert empty_score.tool_actions == 2
+        assert empty_score.unnecessary_tool_actions == 0
+        assert empty_score.replan_opportunities >= 1
+        assert empty_score.appropriate_replans == empty_score.replan_opportunities
+        assert FAILURE_UNNECESSARY_TOOL not in empty_score.failure_codes
+        assert FAILURE_INAPPROPRIATE_REPLAN not in empty_score.failure_codes
+
+    noise_case = _noise_case()
+    clip = _clip_ev("ev_noise_clip", "call_base_0", detected=False)
+    noise_ev = _evidence(
+        evidence_id="ev_noise_valid",
+        call_id="call_base_1",
+        tool_name="analyze_harmonic_distortion",
+        metric="valid",
+        value=False,
+        validity="not_applicable",
+    )
+    obs_clip = _observation(
+        observation_id="obs_base_0",
+        call_id="call_base_0",
+        tool_name="detect_clipping",
+        evidence_ids=("ev_noise_clip",),
+    )
+    obs_noise = _observation(
+        observation_id="obs_base_1",
+        call_id="call_base_1",
+        tool_name="analyze_harmonic_distortion",
+        evidence_ids=("ev_noise_valid",),
+    )
+    noise_batch = _rule_batch(
+        "rulebatch_base_noise", "ruleval_base_noise", ("ev_noise_valid",)
+    )
+    noise_baseline = _baseline_trace(
+        noise_case,
+        observations=(obs_clip, obs_noise),
+        evidence=(clip, noise_ev),
+        batches=(noise_batch,),
+        claims=(
+            _claim(
+                claim_id="claim_base_noise",
+                fault_type="inconclusive",
+                evidence_refs=("ev_noise_valid",),
+                rule_refs=("ruleval_base_noise",),
+            ),
+        ),
+        outcome="inconclusive",
+    )
+    noise_baseline_score = score_evaluation_trace(noise_case, noise_baseline)
+    assert noise_baseline_score.tool_actions == 2
+    assert noise_baseline_score.unnecessary_tool_actions == 1
+    assert FAILURE_UNNECESSARY_TOOL in noise_baseline_score.failure_codes
+
 
 def test_t163_timely_stopping_scoring() -> None:
     case, good = _legal_clipping_trace()

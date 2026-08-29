@@ -38,6 +38,7 @@ _DSP_TOOLS: frozenset[str] = frozenset(
         "analyze_harmonic_distortion",
     }
 )
+_FAILED_TOOL_STATUSES: frozenset[str] = frozenset({"error", "invalid"})
 _CAUSAL_FAULTS: tuple[CausalFault, ...] = ("clipping", "harmonic_distortion")
 _COMPARATORS = {
     "eq": operator.eq,
@@ -199,7 +200,7 @@ def _score_path(
                 )
                 pending_tool = {
                     "is_replan": is_replan,
-                    "error_recovery": last_status in {"error", "invalid"},
+                    "error_recovery": last_status in _FAILED_TOOL_STATUSES,
                     "satisfied": set(satisfied),
                     "contradicted": set(contradicted),
                 }
@@ -217,23 +218,26 @@ def _score_path(
                 score.pending_knowledge_replan = is_replan
             elif isinstance(decision, FinishDecision):
                 pending_tool = None
-                appropriate = sufficient or last_status in {"error", "invalid"}
+                appropriate = sufficient or last_status in _FAILED_TOOL_STATUSES
                 if is_replan:
                     _note_replan(score, appropriate)
         elif isinstance(event, ObservationEvent):
             if pending_tool is not None:
-                advanced = _advances_viable_set(
-                    case,
-                    event.evidence,
-                    satisfied=pending_tool["satisfied"],  # type: ignore[arg-type]
-                    contradicted=pending_tool["contradicted"],  # type: ignore[arg-type]
-                )
+                failed = event.observation.status in _FAILED_TOOL_STATUSES
+                advanced = False
+                if not failed:
+                    advanced = _advances_viable_set(
+                        case,
+                        event.evidence,
+                        satisfied=pending_tool["satisfied"],  # type: ignore[arg-type]
+                        contradicted=pending_tool["contradicted"],  # type: ignore[arg-type]
+                    )
                 error_recovery = bool(pending_tool["error_recovery"])
-                if not advanced and not error_recovery:
+                if not failed and not advanced and not error_recovery:
                     score.unnecessary_tool_actions += 1
                     score.failure_codes.append(FAILURE_UNNECESSARY_TOOL)
                 if pending_tool["is_replan"]:
-                    _note_replan(score, advanced or error_recovery)
+                    _note_replan(score, failed or advanced or error_recovery)
                 pending_tool = None
             if event.observation.status == "success":
                 _apply_evidence(case, event.evidence, satisfied, contradicted)
@@ -274,6 +278,7 @@ def _score_baseline_path(
     sufficient = False
     success_evidence_ids: list[str] = []
     seen_rule_states: set[frozenset[str]] = set()
+    last_status: ToolStatus | None = None
     for event in trace.events:
         if isinstance(event, ObservationEvent):
             score.tool_actions += 1
@@ -282,14 +287,17 @@ def _score_baseline_path(
             if sufficient:
                 score.timely_stop = False
                 score.failure_codes.append(FAILURE_LATE_TOOL)
-            advanced = _advances_viable_set(
-                case,
-                event.evidence,
-                satisfied=satisfied,
-                contradicted=contradicted,
-            )
-            if event.observation.status == "success":
-                if not advanced and score.tool_actions > 1:
+            status = event.observation.status
+            failed = status in _FAILED_TOOL_STATUSES
+            error_recovery = last_status in _FAILED_TOOL_STATUSES
+            if not failed:
+                advanced = _advances_viable_set(
+                    case,
+                    event.evidence,
+                    satisfied=satisfied,
+                    contradicted=contradicted,
+                )
+                if not advanced and not error_recovery:
                     score.unnecessary_tool_actions += 1
                     score.failure_codes.append(FAILURE_UNNECESSARY_TOOL)
                 _apply_evidence(case, event.evidence, satisfied, contradicted)
@@ -297,6 +305,7 @@ def _score_baseline_path(
                     item.evidence_id for item in event.evidence
                 )
                 sufficient = _any_sufficient(case, satisfied, contradicted)
+            last_status = status
         elif isinstance(event, RuleEvaluationEvent):
             _note_rule_decision(score, success_evidence_ids, seen_rule_states)
     if success_evidence_ids and score.correct_rule_actions == 0:
