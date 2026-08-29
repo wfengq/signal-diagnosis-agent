@@ -2,9 +2,9 @@
 
 **Document:** `CONTRACTS_V0_2.md`  
 **Contract version:** `0.2`  
-**Status:** Frozen for Phase 1–3
+**Status:** Frozen for Phase 1–3; Phase 4 freeze candidate pending written-spec review
 **Scope:** Phase 1 deterministic foundation, Phase 2 hybrid Agent runtime, and
-Phase 3 rules/knowledge contracts
+Phase 3 rules/knowledge contracts; proposed Phase 4 evaluation contracts
 **Architecture:** `docs/ARCHITECTURE_V0_2.md`  
 
 ---
@@ -25,8 +25,9 @@ If a genuine correctness problem is found:
 3. propose the smallest correction and its test impact;
 4. obtain explicit approval before changing the public surface.
 
-Private helpers remain implementation details. Phase 4–5 interfaces remain
-unfrozen. Phase 3 interfaces are frozen in §32–§40.
+Private helpers remain implementation details. Phase 3 interfaces are frozen in
+§32–§40. The section-by-section-approved Phase 4 freeze candidate is defined in
+§41–§49 and requires the written-spec review gate before implementation.
 
 ---
 
@@ -1294,12 +1295,10 @@ These are outcome constraints, not a fixed Tool pipeline.
 
 ---
 
-## 29. Explicitly Unfrozen Phase 4–5 Interfaces
+## 29. Explicitly Unfrozen Later Interfaces
 
 V0.2 does not yet freeze:
 
-- evaluation dataset/report schemas;
-- fixed-pipeline baseline contracts;
 - WAV loader signature;
 - HTTP API;
 - UI contracts;
@@ -1308,8 +1307,9 @@ V0.2 does not yet freeze:
 - concrete LLM provider constructor details beyond Phase 2 behavior requirements;
 - orchestration framework integration.
 
-Phase 3 rule and knowledge contracts are frozen in §32–§40. Phase 4–5
-contracts are frozen immediately before their implementation phase.
+Phase 3 rule and knowledge contracts are frozen in §32–§40. The Phase 4
+evaluation freeze candidate is in §41–§49. Phase 5 contracts are frozen
+immediately before implementation.
 
 ---
 
@@ -1949,13 +1949,1063 @@ agent.runtime (behavioral extension)
     execute evaluate_rules and retrieve_knowledge actions
 ```
 
-### 40.2 Still unfrozen after Phase 3 approval
+### 40.2 Items not frozen by Phase 3 approval
 
 - YAML serialization details beyond the frozen RuleProfile fields;
 - corpus document list and chunking parameters;
 - embedding or vector retrieval backends;
-- Phase 4 evaluation and fixed-pipeline contracts;
 - Phase 5 presentation contracts.
 
 Approval of §32–§40 authorizes Phase 3 implementation but does not freeze Phase
-4–5 interfaces.
+4–5 interfaces. Phase 4 is governed separately by §41–§49 after its written
+review gate.
+
+---
+
+## 41. Phase 4 Contract Status and Package Boundary
+
+Sections 41–49 are the Phase 4 evaluation freeze candidate approved
+section-by-section on 2026-08-29. They become implementation authority only
+after the user reviews the written specification at
+`docs/superpowers/specs/2026-08-29-phase4-evaluation-design.md`.
+
+Phase 4 adds:
+
+```text
+src/signal_diag/evaluation/
+├── __init__.py
+├── __main__.py
+├── models.py
+├── dataset.py
+├── recording.py
+├── baseline.py
+├── scoring.py
+├── runner.py
+├── reporting.py
+└── manifests/
+    └── s1_distortion_v1.yaml
+```
+
+The manifest is shipped as package data. Tests must verify it remains available
+from an installed wheel, not only from a source checkout.
+
+The frozen dependency direction is:
+
+```text
+signal -> dsp -> tools -> rules/knowledge -> agent -> evaluation -> app
+```
+
+`evaluation/` may import the existing layers it evaluates. No Phase 1–3
+package may import `evaluation/`. Phase 4 does not change any public Phase 1–3
+model, function, constructor, or runtime behavior.
+
+All Phase 4 public Pydantic models use `ConfigDict(frozen=True)`. Tuples are
+used in immutable snapshots and reports. Provider-specific SDK types do not
+appear in public models.
+
+---
+
+## 42. Dataset Manifest Models
+
+### 42.1 Common aliases
+
+```python
+EvaluationSplit = Literal["development", "held_out"]
+EvaluationCategory = Literal[
+    "clean",
+    "clipping",
+    "harmonic",
+    "combined",
+    "invalid_noise",
+]
+CausalFault = Literal["clipping", "harmonic_distortion"]
+DiagnosisClaimType = Literal[
+    "clipping",
+    "harmonic_distortion",
+    "no_supported_fault",
+    "inconclusive",
+]
+KnowledgePolicy = Literal["required", "optional", "not_needed"]
+EvidenceComparator = Literal["eq", "neq", "lt", "lte", "gt", "gte"]
+EvidenceScalar = StrictStr | StrictInt | StrictFloat | StrictBool
+```
+
+Boolean, integer, and float values remain strict distinct scalar types when
+conditions are evaluated. A range is represented by two conditions rather
+than a special hidden comparator.
+
+Causal-fault tuples contain no duplicates and use canonical order
+`clipping`, then `harmonic_distortion`. F1/exact-set extraction deduplicates
+labels across claims; unsupported-claim rates still count individual predicted
+fault claims so duplication cannot improve that metric.
+
+### 42.2 Typed synthetic specifications
+
+```python
+class HarmonicRatioSpec(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    order: int = Field(ge=2)
+    ratio: float = Field(ge=0.0)
+
+
+class SineSignalSpec(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    generator: Literal["sine"] = "sine"
+    frequency_hz: float = Field(gt=0.0)
+    sample_rate_hz: int = Field(default=48_000, gt=0)
+    duration_s: float = Field(default=2.0, gt=0.0)
+    amplitude: float = Field(default=0.5, gt=0.0, le=1.0)
+    phase_rad: float = 0.0
+    dc_offset: float = 0.0
+
+
+class ClippedSineSignalSpec(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    generator: Literal["clipped_sine"] = "clipped_sine"
+    frequency_hz: float = Field(gt=0.0)
+    clip_level: float = Field(gt=0.0, le=1.0)
+    sample_rate_hz: int = Field(default=48_000, gt=0)
+    duration_s: float = Field(default=2.0, gt=0.0)
+    amplitude: float = Field(default=0.9, gt=0.0, le=1.0)
+
+
+class HarmonicSineSignalSpec(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    generator: Literal["harmonic_sine"] = "harmonic_sine"
+    fundamental_hz: float = Field(gt=0.0)
+    harmonic_ratios: tuple[HarmonicRatioSpec, ...]
+    sample_rate_hz: int = Field(default=48_000, gt=0)
+    duration_s: float = Field(default=2.0, gt=0.0)
+    fundamental_amplitude: float = Field(default=0.5, gt=0.0, le=1.0)
+
+
+class CombinedDistortionSignalSpec(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    generator: Literal["combined_distortion"] = "combined_distortion"
+    fundamental_hz: float = Field(gt=0.0)
+    harmonic_ratios: tuple[HarmonicRatioSpec, ...]
+    clip_level: float = Field(gt=0.0, le=1.0)
+    sample_rate_hz: int = Field(default=48_000, gt=0)
+    duration_s: float = Field(default=2.0, gt=0.0)
+    fundamental_amplitude: float = Field(default=0.9, gt=0.0, le=1.0)
+
+
+class WhiteNoiseSignalSpec(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    generator: Literal["white_noise"] = "white_noise"
+    sample_rate_hz: int = Field(default=48_000, gt=0)
+    duration_s: float = Field(default=2.0, gt=0.0)
+    rms: float = Field(default=0.1, gt=0.0)
+    seed: int = 0
+
+
+SyntheticSignalSpec = Annotated[
+    SineSignalSpec
+    | ClippedSineSignalSpec
+    | HarmonicSineSignalSpec
+    | CombinedDistortionSignalSpec
+    | WhiteNoiseSignalSpec,
+    Field(discriminator="generator"),
+]
+```
+
+Harmonic specifications must contain at least one positive ratio and no
+duplicate order. Canonical manifests serialize all resolved generator fields,
+including defaulted values. The adapter calls only the existing Phase 1
+generators.
+
+Existing generators intentionally allocate a fresh Signal ID. The evaluation
+adapter therefore rewraps the returned immutable samples through the existing
+`build_signal_record` factory with stable ID
+`sig_eval_<case-id-without-case_>`. It changes no sample value and performs no
+normalization. Dataset reconstruction compares this stable materialized record
+and ground truth, not the generator's transient UUID.
+
+### 42.3 Evidence and sufficiency expectations
+
+```python
+class EvidenceCondition(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    condition_id: str = Field(pattern=r"^cond_")
+    tool_name: ToolName
+    metric: str = Field(min_length=1)
+    validity: EvidenceValidity
+    comparator: EvidenceComparator
+    expected_value: EvidenceScalar
+    unit: str | None = None
+    supports_claims: tuple[DiagnosisClaimType, ...] = ()
+
+
+class SufficientEvidenceSet(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    evidence_set_id: str = Field(pattern=r"^evset_")
+    condition_refs: tuple[str, ...]
+    supported_claims: tuple[DiagnosisClaimType, ...]
+    acceptable_outcomes: tuple[DiagnosisOutcome, ...]
+```
+
+All three tuples in `SufficientEvidenceSet` must be non-empty. Condition
+references resolve within the same case. Duplicate condition IDs, set IDs,
+references, claim types, and outcomes are invalid.
+
+An Evidence item matches a condition only when Tool, metric, validity, strict
+scalar type, unit, and comparator all match. `supports_claims` defines semantic
+grounding for fault, no-fault, and inconclusive claims; it is not inferred from
+a metric name.
+
+### 42.4 Combined identifiability
+
+```python
+class CombinedIdentifiabilitySpec(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    signature_metric: str = Field(pattern=r"^harmonic_order_[2-9][0-9]*_relative_amplitude$")
+    minimum_absolute_separation: float = Field(gt=0.0)
+```
+
+For a combined generator, the validator creates a matched clipping-only control
+with the same fundamental, amplitude, sampling, duration, and clipping fields
+and no injected harmonic ratios. The absolute difference in
+`signature_metric` must be at least `minimum_absolute_separation`.
+
+This field is dataset quality metadata only. It is absent from planner context,
+baseline input, and scoring thresholds. Combined cases require it; other
+categories reject it.
+
+### 42.5 Case and manifest
+
+```python
+class EvaluationCase(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    case_id: str = Field(pattern=r"^case_")
+    split: EvaluationSplit
+    category: EvaluationCategory
+    user_request: str = Field(min_length=1)
+    signal: SyntheticSignalSpec
+    causal_faults: tuple[CausalFault, ...] = ()
+    observable_conditions: tuple[EvidenceCondition, ...]
+    acceptable_first_tools: tuple[ToolName, ...]
+    sufficient_evidence_sets: tuple[SufficientEvidenceSet, ...]
+    knowledge_policy: KnowledgePolicy
+    knowledge_tags: tuple[str, ...] = ()
+    acceptable_outcomes: tuple[DiagnosisOutcome, ...]
+    requires_limitation: bool = False
+    tags: tuple[str, ...] = ()
+    identifiability: CombinedIdentifiabilitySpec | None = None
+
+
+class DatasetManifest(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    schema_version: Literal["1.0"] = "1.0"
+    dataset_id: str = Field(min_length=1)
+    version: str = Field(pattern=r"^[0-9]+\.[0-9]+\.[0-9]+$")
+    rule_profile_id: str = Field(pattern=r"^profile_")
+    rule_profile_version: str = Field(min_length=1)
+    cases: tuple[EvaluationCase, ...]
+```
+
+The official `s1-distortion-synthetic` `1.0.0` manifest contains exactly the
+24-case allocation approved in the Phase 4 design. IDs are unique and
+references resolve. Category, causal faults, signal generator, knowledge
+policy, and acceptable outcomes must be mutually consistent.
+
+| Split | Clean | Clipping | Harmonic | Combined | Invalid/noise | Total |
+|---|---:|---:|---:|---:|---:|---:|
+| Development | 2 | 2 | 2 | 1 | 1 | 8 |
+| Held-out | 3 | 4 | 4 | 3 | 2 | 16 |
+
+The official category mapping is:
+
+| Category | Generator | `causal_faults` | Acceptable outcome | Knowledge |
+|---|---|---|---|---|
+| `clean` | `sine` | empty | `no_supported_fault` | `not_needed` |
+| `clipping` | `clipped_sine` | clipping | `supported_fault` | `optional` |
+| `harmonic` | `harmonic_sine` | harmonic distortion | `supported_fault` | `optional` |
+| `combined` | `combined_distortion` | clipping + harmonic distortion | `supported_fault` | `optional` |
+| `invalid_noise` | `white_noise` | empty | `inconclusive` | `required` |
+
+Invalid/noise cases require a non-empty limitation. Combined cases require
+`CombinedIdentifiabilitySpec`; all other categories reject it.
+
+`knowledge_tags` is empty when policy is `not_needed` and non-empty when policy
+is `required`. For `optional`, it declares the topics under which a retrieval is
+relevant. Relevance is established deterministically by normalized overlap with
+the retrieval's query tags, matched tags, or returned chunk tags.
+
+All boundary and comparison tolerances are explicit manifest conditions. The
+loader, validator, and scorer have no hidden numeric tolerance.
+
+---
+
+## 43. Dataset Loading and Validation
+
+```python
+def load_dataset_manifest(path: Path) -> DatasetManifest:
+    ...
+
+
+class DatasetValidationIssue(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    code: str = Field(min_length=1)
+    case_id: str | None = None
+    message: str = Field(min_length=1)
+
+
+class DatasetValidationReport(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    dataset_id: str
+    dataset_version: str
+    valid: bool
+    checked_case_ids: tuple[str, ...]
+    issues: tuple[DatasetValidationIssue, ...] = ()
+
+
+def validate_dataset(
+    manifest: DatasetManifest,
+    repository: SignalRepository,
+    tool_service: SignalToolService,
+    rule_engine: RuleEngine,
+    profile_loader: RuleProfileLoader,
+) -> DatasetValidationReport:
+    ...
+```
+
+The canonical manifest is UTF-8 YAML at
+`src/signal_diag/evaluation/manifests/s1_distortion_v1.yaml` and is parsed with
+safe loading. `load_dataset_manifest` raises file/parse/Pydantic errors rather
+than returning a partial model. `validate_dataset` stores generated records in
+the injected repository and runs the existing synthetic generators,
+real DSP Tools, observable-condition checks, rule-profile identity/version
+checks, seed reconstruction checks, official split/category coverage, and
+combined-case identifiability.
+
+`valid` is true exactly when `issues` is empty. A non-valid report prevents any
+deterministic or real-model benchmark from starting.
+
+---
+
+## 44. Planner Recording and Evaluation Trace
+
+### 44.1 Usage and decision records
+
+```python
+class ProviderUsage(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    input_tokens: int | None = Field(default=None, ge=0)
+    output_tokens: int | None = Field(default=None, ge=0)
+    total_tokens: int | None = Field(default=None, ge=0)
+    cost_usd: float | None = Field(default=None, ge=0.0)
+
+
+PlannerCallStatus = Literal[
+    "decision",
+    "planner_output_error",
+    "planner_error",
+    "provider_error",
+]
+
+
+class PlannerDecisionRecord(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    record_id: str = Field(pattern=r"^decision_")
+    decision_index: int = Field(ge=0)
+    context: PlannerContext
+    status: PlannerCallStatus
+    decision: AgentDecision | None = None
+    error_type: str | None = None
+    error_message: str | None = None
+    latency_ms: float | None = Field(default=None, ge=0.0)
+    provider_usage: ProviderUsage | None = None
+```
+
+Unknown provider usage stays `None`. `total_tokens`, when present with both
+parts, must equal their sum. `status="decision"` requires a decision and no
+error fields. Every error status requires no decision plus non-empty error type
+and message.
+
+```python
+class RecordingPlanner:
+    def __init__(self, planner: PlannerModel) -> None:
+        ...
+
+    async def decide(self, context: PlannerContext) -> AgentDecision:
+        ...
+
+    @property
+    def records(self) -> tuple[PlannerDecisionRecord, ...]:
+        ...
+```
+
+The wrapper passes the same immutable context to the delegate and returns its
+decision unchanged after validation. It records every delegate call, including
+invalid-output and raised-error attempts, then re-raises the original exception
+unchanged. It never substitutes another planner, retries independently, or
+mutates runtime state.
+
+### 44.2 Chronological events
+
+```python
+class PlannerDecisionEvent(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    event_type: Literal["planner_call"] = "planner_call"
+    event_index: int = Field(ge=0)
+    record: PlannerDecisionRecord
+
+
+class ObservationEvent(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    event_type: Literal["observation"] = "observation"
+    event_index: int = Field(ge=0)
+    caused_by_decision_index: int = Field(ge=0)
+    observation: Observation
+    evidence: tuple[Evidence, ...]
+
+
+class RuleEvaluationEvent(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    event_type: Literal["rule_evaluation"] = "rule_evaluation"
+    event_index: int = Field(ge=0)
+    caused_by_decision_index: int = Field(ge=0)
+    batch: RuleEvaluationBatch
+
+
+class KnowledgeRetrievalEvent(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    event_type: Literal["knowledge_retrieval"] = "knowledge_retrieval"
+    event_index: int = Field(ge=0)
+    caused_by_decision_index: int = Field(ge=0)
+    retrieval: KnowledgeRetrievalResult
+
+
+EvaluationEvent = Annotated[
+    PlannerDecisionEvent
+    | ObservationEvent
+    | RuleEvaluationEvent
+    | KnowledgeRetrievalEvent,
+    Field(discriminator="event_type"),
+]
+```
+
+Event indices are contiguous from zero. A resulting artifact appears after its
+successful causing decision and before the next planner call. Error call events
+produce no runtime artifact. Evidence attached to an Observation event exactly
+matches the Observation's `evidence_refs`.
+
+### 44.3 Configuration, attempts, and trace
+
+```python
+ExecutionPath = Literal["agent", "fixed_pipeline"]
+ConfigScalar = str | int | float | bool | None
+ConfigObject = dict[str, ConfigScalar | dict[str, ConfigScalar]]
+ConfigValue = ConfigScalar | tuple[ConfigScalar, ...] | ConfigObject
+BaselineCompletionReason = Literal[
+    "baseline_completed",
+    "insufficient_evidence",
+    "runtime_error",
+]
+AttemptStatus = Literal[
+    "behavior_result",
+    "infrastructure_error",
+    "configuration_error",
+    "evaluator_error",
+]
+AttemptErrorCode = Literal[
+    "timeout",
+    "rate_limited",
+    "provider_5xx",
+    "provider_other",
+    "authentication",
+    "missing_credentials",
+    "missing_dependency",
+    "invalid_configuration",
+    "trace_assembly",
+    "scoring",
+    "reporting",
+]
+
+
+class BenchmarkConfig(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    benchmark_id: str = Field(pattern=r"^bench_")
+    dataset_id: str
+    dataset_version: str
+    rule_profile_id: str = Field(pattern=r"^profile_")
+    rule_profile_version: str
+    provider: str | None = None
+    model: str | None = None
+    prompt_version: str | None = None
+    prompt_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    model_parameters: dict[str, ConfigValue] = Field(
+        default_factory=dict
+    )
+    sdk_versions: dict[str, str] = Field(default_factory=dict)
+    repetitions: int = Field(default=1, ge=1)
+    max_infrastructure_retries: int = Field(default=2, ge=0)
+    max_concurrency: int = Field(default=1, ge=1)
+    started_at_utc: datetime
+
+
+class AttemptRecord(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    execution_path: ExecutionPath
+    case_id: str = Field(pattern=r"^case_")
+    run_slot: int = Field(ge=1)
+    attempt_index: int = Field(ge=1)
+    status: AttemptStatus
+    error_code: AttemptErrorCode | None = None
+    error_message: str | None = None
+    started_at_utc: datetime
+    finished_at_utc: datetime
+
+
+class BaselineDiagnosis(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    run_id: str = Field(pattern=r"^baseline_")
+    task_type: Literal["distortion_analysis"] = "distortion_analysis"
+    outcome: DiagnosisOutcome
+    claims: tuple[DiagnosisClaim, ...]
+    confidence_label: ConfidenceLabel
+    limitations: tuple[str, ...] = ()
+    tool_call_count: int = Field(ge=0)
+    rule_evaluation_batches: tuple[RuleEvaluationBatch, ...]
+
+
+class BaselineRunResult(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    result_type: Literal["fixed_pipeline"] = "fixed_pipeline"
+    run_id: str = Field(pattern=r"^baseline_")
+    status: RunStatus
+    diagnosis: BaselineDiagnosis | None
+    observations: tuple[Observation, ...]
+    evidence: tuple[Evidence, ...]
+    tool_history: tuple[ToolHistoryEntry, ...]
+    completion_reason: BaselineCompletionReason
+    warnings: tuple[str, ...] = ()
+    errors: tuple[str, ...] = ()
+    rule_evaluation_batches: tuple[RuleEvaluationBatch, ...]
+
+
+class EvaluationTrace(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    trace_id: str = Field(pattern=r"^trace_")
+    case_id: str = Field(pattern=r"^case_")
+    run_slot: int = Field(ge=1)
+    execution_path: ExecutionPath
+    config: BenchmarkConfig
+    events: tuple[EvaluationEvent, ...]
+    result: AgentRunResult | BaselineRunResult
+    provider_usage: ProviderUsage | None = None
+```
+
+```python
+def assemble_evaluation_trace(
+    case: EvaluationCase,
+    records: tuple[PlannerDecisionRecord, ...],
+    result: AgentRunResult | BaselineRunResult,
+    config: BenchmarkConfig,
+    *,
+    run_slot: int,
+    execution_path: ExecutionPath,
+) -> EvaluationTrace:
+    ...
+```
+
+Assembly rejects missing, duplicated, reordered, or ambiguous artifacts. It
+never guesses chronology. The fixed baseline produces the same Observation,
+Evidence, rule, and result event forms but no planner-decision events.
+
+Waveform arrays, full FFT arrays, secrets, and raw provider responses are
+forbidden in `PlannerDecisionRecord`, `EvaluationEvent`, and `EvaluationTrace`.
+
+All recorded datetimes must be timezone-aware UTC. Attempt completion cannot
+precede its start. Real-model configuration requires provider, model, prompt
+version, and prompt hash; deterministic and baseline configurations leave those
+fields `None`.
+
+---
+
+## 45. Fixed-Pipeline Baseline
+
+```python
+class FixedPipelineBaseline:
+    def __init__(
+        self,
+        *,
+        repository: SignalRepository,
+        tool_service: SignalToolService,
+        rule_engine: RuleEngine,
+        profile_loader: RuleProfileLoader,
+    ) -> None:
+        ...
+
+    async def run(
+        self,
+        *,
+        signal_id: str,
+        user_request: str,
+    ) -> BaselineRunResult:
+        ...
+```
+
+It always calls `detect_clipping` with `ClippingInput()` and then
+`analyze_harmonic_distortion` with `HarmonicDistortionInput()`, evaluates
+`profile_s1_distortion`, and applies the §6 mapping in the approved Phase 4
+design. It uses no planner, manifest truth, matched control, knowledge index,
+FFT, or F0. It creates no numerical values outside real Tool Evidence and no
+threshold outside the loaded profile.
+
+The exact mapping is:
+
+| Clipping indicator | Harmonic indicator | Harmonic validity | Result |
+|---|---|---|---|
+| true | true | valid | clipping + harmonic claims |
+| true | false | valid | clipping claim |
+| false | true | valid | harmonic claim |
+| false | false | valid | no-supported-fault claim |
+| true | not available | invalid | clipping claim plus harmonic limitation |
+| false/not available | not available | invalid | inconclusive plus limitation |
+
+The clipping indicator is true when any applicable clipping-profile rule fails.
+The harmonic indicator is true only when harmonic-validity passes and the THD
+rule fails.
+
+The result must satisfy the same same-run Evidence and rule-reference
+validation as an Agent result. Separate baseline models avoid falsely assigning
+`planner_finished` to a path with no planner. Its deterministic nature does not
+permit it to run more than once per case in the official comparison.
+
+Every baseline claim has empty `knowledge_refs`. Any non-empty knowledge ref or
+knowledge action is a contract error, not an ignorable extra.
+
+---
+
+## 46. Per-Run and Aggregate Scoring
+
+```python
+class RateMetric(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    numerator: int = Field(ge=0)
+    denominator: int = Field(ge=0)
+    value: float = Field(ge=0.0, le=1.0)
+
+
+class RunScore(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    trace_id: str = Field(pattern=r"^trace_")
+    case_id: str = Field(pattern=r"^case_")
+    run_slot: int = Field(ge=1)
+    execution_path: ExecutionPath
+    expected_faults: tuple[CausalFault, ...]
+    predicted_faults: tuple[CausalFault, ...]
+    acceptable_outcomes: tuple[DiagnosisOutcome, ...]
+    predicted_outcome: DiagnosisOutcome | None
+    causal_exact_set_correct: bool
+    outcome_correct: bool
+    grounded_claims: int = Field(ge=0)
+    scored_claims: int = Field(ge=0)
+    unsupported_fault_claims: int = Field(ge=0)
+    predicted_fault_claims: int = Field(ge=0)
+    first_tool_correct: bool | None = None
+    appropriate_replans: int = Field(ge=0)
+    replan_opportunities: int = Field(ge=0)
+    unnecessary_tool_actions: int = Field(ge=0)
+    tool_actions: int = Field(ge=0)
+    timely_stop: bool | None = None
+    correct_rule_actions: int = Field(ge=0)
+    rule_action_opportunities: int = Field(ge=0)
+    required_knowledge_actions: int = Field(ge=0)
+    required_knowledge_opportunities: int = Field(ge=0)
+    unnecessary_knowledge_actions: int = Field(ge=0)
+    knowledge_actions: int = Field(ge=0)
+    cited_knowledge_actions: int = Field(ge=0)
+    planner_calls: int = Field(ge=0)
+    end_to_end_latency_ms: float | None = Field(default=None, ge=0.0)
+    provider_usage: ProviderUsage | None = None
+    completion_reason: TerminationReason | BaselineCompletionReason
+    failure_codes: tuple[str, ...] = ()
+
+
+class AggregateMetrics(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    run_count: int = Field(ge=0)
+    causal_exact_set_accuracy: RateMetric
+    causal_macro_f1: float = Field(ge=0.0, le=1.0)
+    outcome_accuracy: RateMetric
+    evidence_grounding_rate: RateMetric
+    unsupported_claim_rate: RateMetric
+    first_tool_selection_rate: RateMetric
+    observation_driven_replan_rate: RateMetric
+    unnecessary_tool_action_rate: RateMetric
+    timely_stopping_rate: RateMetric
+    applicable_rule_usage_rate: RateMetric
+    required_knowledge_usage_rate: RateMetric
+    unnecessary_knowledge_retrieval_rate: RateMetric
+    knowledge_citation_utilization_rate: RateMetric
+    average_tool_actions: float = Field(ge=0.0)
+    average_planner_calls: float | None = Field(default=None, ge=0.0)
+    latency_ms_mean: float | None = Field(default=None, ge=0.0)
+    latency_ms_p50: float | None = Field(default=None, ge=0.0)
+    latency_ms_p95: float | None = Field(default=None, ge=0.0)
+    provider_usage_coverage_rate: RateMetric
+    observed_input_tokens: int | None = Field(default=None, ge=0)
+    observed_output_tokens: int | None = Field(default=None, ge=0)
+    observed_total_tokens: int | None = Field(default=None, ge=0)
+    observed_cost_usd: float | None = Field(default=None, ge=0.0)
+```
+
+A zero-denominator `RateMetric` has value `0.0`; the zero denominator remains
+visible so consumers cannot confuse not-applicable with observed success.
+Planner-specific metrics for the fixed baseline use denominator zero.
+
+For a non-zero denominator, `RateMetric.value` is exactly
+`numerator / denominator`; numerators and all per-run success counts cannot
+exceed their denominators. Aggregators compute these values rather than accept
+caller-supplied inconsistent rates.
+
+`causal_macro_f1` is multilabel macro-F1 over exactly `clipping` and
+`harmonic_distortion`. Clean and inconclusive are assessed by outcome and exact
+set accuracy.
+
+```python
+def score_evaluation_trace(
+    case: EvaluationCase,
+    trace: EvaluationTrace,
+) -> RunScore:
+    ...
+```
+
+The scorer implements the approved metric semantics. In particular, a claim is
+grounded only when all refs resolve and at least one cited Evidence matches a
+  condition whose `supports_claims` includes that claim type. A structurally
+valid but semantically unrelated citation is not grounded.
+
+Observation-driven replanning is an observable proxy: after a context delta,
+the next action must advance a still-viable sufficient Evidence set, validly
+apply rule/knowledge policy, finish when sufficient, or handle an invalid/error
+state according to the existing runtime policy. The scorer never attempts to
+infer hidden model reasoning.
+
+For Agent traces, no executed DSP Tool makes `first_tool_correct=False`;
+`None` is reserved for the fixed baseline's non-applicable planner metric.
+Timely stopping counts only DSP Tool actions after sufficiency; required rule or
+knowledge actions after sufficiency are not penalized.
+
+A required-knowledge case contributes one opportunity per run and at most one
+success when at least one non-duplicate retrieval is relevant under the case's
+`knowledge_tags`. Every retrieval is independently eligible for unnecessary
+and citation-utilization counts. Optional retrieval is neither rewarded nor
+penalized solely for occurring, but it must be relevant and cited to avoid
+those penalties.
+
+Latency uses the scoreable behavior attempt's UTC start/finish timestamps.
+Provider-token/cost totals cover only runs with actual provider usage and are
+paired with `provider_usage_coverage_rate`; when coverage is zero all observed
+usage totals are `None`. Missing usage is never estimated.
+
+Latency p50/p95 use the deterministic nearest-rank method on sorted observed
+latencies: one-based rank `ceil(p * n)`. No interpolation library default is
+allowed to change report values.
+
+---
+
+## 47. Targets and Benchmark Report
+
+```python
+class TargetBands(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    causal_macro_f1_min: float = 0.80
+    first_tool_selection_min: float = 0.80
+    observation_driven_replan_min: float = 0.80
+    evidence_grounding_min: float = 1.00
+    unsupported_claim_rate_max: float = 0.05
+    unnecessary_tool_action_rate_max: float = 0.20
+    timely_stopping_min: float = 0.80
+    applicable_rule_usage_min: float = 0.80
+    required_knowledge_usage_min: float = 0.80
+    knowledge_citation_utilization_min: float = 1.00
+    unnecessary_knowledge_retrieval_rate_max: float = 0.20
+
+
+BenchmarkStatus = Literal["pending", "incomplete", "completed"]
+TargetStatus = Literal["not_evaluated", "meets_target", "below_target"]
+HarnessStatus = Literal["pending", "accepted"]
+
+
+class BenchmarkReport(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    config: BenchmarkConfig
+    config_fingerprint_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    manifest: DatasetManifest
+    harness_status: HarnessStatus
+    benchmark_status: BenchmarkStatus
+    target_status: TargetStatus
+    targets: TargetBands
+    agent_metrics: AggregateMetrics | None
+    baseline_metrics: AggregateMetrics | None
+    scores: tuple[RunScore, ...]
+    traces: tuple[EvaluationTrace, ...]
+    attempts: tuple[AttemptRecord, ...]
+    warnings: tuple[str, ...] = ()
+
+
+class ScoredRunArtifact(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    record_type: Literal["scored_run"] = "scored_run"
+    trace: EvaluationTrace
+    score: RunScore
+    attempts: tuple[AttemptRecord, ...]
+
+
+class UnscoredSlotArtifact(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    record_type: Literal["unscored_slot"] = "unscored_slot"
+    execution_path: ExecutionPath
+    case_id: str = Field(pattern=r"^case_")
+    run_slot: int = Field(ge=1)
+    attempts: tuple[AttemptRecord, ...]
+
+
+RunArtifact = Annotated[
+    ScoredRunArtifact | UnscoredSlotArtifact,
+    Field(discriminator="record_type"),
+]
+```
+
+```python
+def aggregate_benchmark(
+    manifest: DatasetManifest,
+    traces: tuple[EvaluationTrace, ...],
+    scores: tuple[RunScore, ...],
+    attempts: tuple[AttemptRecord, ...],
+    config: BenchmarkConfig,
+    targets: TargetBands,
+    *,
+    harness_status: HarnessStatus,
+) -> BenchmarkReport:
+    ...
+```
+
+The aggregator rejects duplicate `(execution_path, case_id, run_slot)` keys,
+trace/score mismatches, and records referencing another dataset/configuration.
+Official target metrics use held-out Agent traces only. Baseline held-out
+metrics are reported alongside them; development results are retained outside
+the target calculation. The aggregator never requires the Agent to beat the
+baseline.
+
+`config_fingerprint_sha256` hashes the canonical behavioral configuration:
+dataset/profile identity, provider/model, prompt version/hash, model parameters,
+SDK versions, repetitions, and retry policy. It excludes `benchmark_id` and
+`started_at_utc`, so an honest later rerun has a new ID but the same fingerprint
+when behavioral configuration is unchanged.
+
+Target bands are V0.2 demonstration goals only. `below_target` is a valid
+completed real-model result and never fails required CI.
+
+Target comparison uses held-out Agent metrics with non-zero denominators. A
+zero-denominator metric is explicitly not-applicable and does not independently
+change target status. `benchmark_status` other than `completed` always yields
+`target_status="not_evaluated"`.
+
+---
+
+## 48. Official Execution and Reporting Protocol
+
+The official product configuration uses the provider-neutral
+`BenchmarkConfig` and pins provider `deepseek`, model
+`deepseek-v4-flash`, prompt version `v0.2-s1-planner-4` and its SHA-256, and five
+repetitions for each held-out case. The 16 held-out cases therefore define 80
+fixed Agent run slots. The deterministic baseline runs once per case.
+
+Official execution is sequential (`max_concurrency=1`) in five rounds. Each
+round visits held-out cases in manifest order, giving every case run slot 1
+before any case receives slot 2. The baseline visits all cases once in manifest
+order. Scheduling fields are part of the configuration fingerprint.
+
+The official `model_parameters` includes the actual product-path values for
+temperature `0.0`, JSON-object response format, and disabled DeepSeek thinking
+mode. `ConfigValue` deliberately supports scalar/tuple values and at most two
+nested object levels, which covers the frozen provider request without an
+unbounded recursive schema. Omitting a parameter changes the configuration
+fingerprint.
+
+Development cases may be used for prompt tuning. After held-out results are
+observed for a benchmark ID, that benchmark is append-only. A later run uses a
+new benchmark ID.
+
+Held-out cases are versioned and visible for reproducibility; they are not a
+secret competition set. `held_out` means they are excluded from prompt/model
+policy tuning for the official benchmark and their observed failures cannot be
+used to overwrite that benchmark.
+
+Only transport timeout, 429, and provider 5xx errors are retryable
+infrastructure errors, up to `max_infrastructure_retries`. Authentication and
+configuration failures are not retried. Invalid planner output and every
+Runtime termination are behavioral outcomes and keep their original run slot.
+
+Missing credentials/service access leaves `benchmark_status="pending"`.
+Exhausted infrastructure retries or evaluator failures leave it `incomplete`.
+All 80 scoreable terminal behavior slots produce `completed`, independently of
+target status.
+
+The runner performs credential, dependency, provider/model, prompt-hash, and
+dataset/profile preflight before scheduling a held-out slot. A preflight failure
+is `pending`. If execution has already produced any held-out behavior result,
+an equivalent later configuration/provider failure makes that benchmark
+`incomplete` rather than erasing earlier runs.
+
+```python
+def write_benchmark_bundle(
+    report: BenchmarkReport,
+    output_dir: Path,
+) -> tuple[Path, ...]:
+    ...
+```
+
+The writer creates exactly:
+
+```text
+benchmark_manifest.json
+runs.jsonl
+metrics.json
+case_summary.csv
+report.md
+checksums.sha256
+```
+
+under `docs/evaluations/phase4/<benchmark_id>/`. An existing destination is an
+error. JSON and JSONL use stable key ordering; CSV has a frozen header; Markdown
+contains all failures and run variation. The representations must agree on run
+counts and aggregates. Raw provider responses remain in a gitignored local
+directory and are never committed.
+
+All bundle files use UTF-8, LF line endings, and a final newline. JSON numbers
+must be finite; canonical JSON/JSONL uses sorted keys and no platform-specific
+path separators.
+
+The representation schemas are:
+
+- `benchmark_manifest.json`: `config`, `config_fingerprint_sha256`, and the
+  complete `DatasetManifest`;
+- `runs.jsonl`: one `ScoredRunArtifact` per trace/score pair plus one
+  `UnscoredSlotArtifact` for every scheduled slot without a scoreable trace;
+- `metrics.json`: harness/benchmark/target statuses, `TargetBands`, Agent and
+  baseline aggregates, and warnings;
+- `case_summary.csv`: one row per scored run using the exact header below;
+- `report.md`: required sections Configuration, Dataset, Acceptance Status,
+  Agent Metrics, Baseline Metrics, Per-Case Variation, Failures, and
+  Limitations;
+- `checksums.sha256`: SHA-256 entries for the other five files, excluding
+  itself.
+
+```text
+execution_path,case_id,split,category,run_slot,causal_exact_set_correct,
+outcome_correct,evidence_grounding_rate,unsupported_claim_rate,
+first_tool_correct,observation_driven_replan_rate,
+unnecessary_tool_action_rate,timely_stop,applicable_rule_usage_rate,
+required_knowledge_usage_rate,unnecessary_knowledge_retrieval_rate,
+knowledge_citation_utilization_rate,tool_actions,planner_calls,
+end_to_end_latency_ms,input_tokens,output_tokens,total_tokens,cost_usd,
+completion_reason,failure_codes
+```
+
+The displayed line wrapping above is editorial; the actual CSV header is one
+line with those fields in that order. Tuple failure codes use a stable
+semicolon-separated encoding.
+
+---
+
+## 49. Phase 4 Public Surface and Gate
+
+### 49.1 Public exports
+
+```text
+evaluation.models
+    EvaluationSplit, EvaluationCategory, CausalFault, DiagnosisClaimType
+    KnowledgePolicy, EvidenceComparator
+    HarmonicRatioSpec and five typed SyntheticSignalSpec variants
+    SyntheticSignalSpec
+    EvidenceCondition, SufficientEvidenceSet
+    CombinedIdentifiabilitySpec, EvaluationCase, DatasetManifest
+    DatasetValidationIssue, DatasetValidationReport
+    ProviderUsage, PlannerCallStatus, PlannerDecisionRecord
+    PlannerDecisionEvent, ObservationEvent
+    RuleEvaluationEvent, KnowledgeRetrievalEvent, EvaluationEvent
+    ExecutionPath, ConfigScalar, ConfigObject, ConfigValue
+    BaselineCompletionReason
+    AttemptStatus, AttemptErrorCode
+    BenchmarkConfig, AttemptRecord, EvaluationTrace
+    BaselineDiagnosis, BaselineRunResult
+    RateMetric, RunScore, AggregateMetrics, TargetBands, BenchmarkReport
+    ScoredRunArtifact, UnscoredSlotArtifact, RunArtifact
+
+evaluation.dataset
+    load_dataset_manifest, validate_dataset
+
+evaluation.recording
+    RecordingPlanner, assemble_evaluation_trace
+
+evaluation.baseline
+    FixedPipelineBaseline
+
+evaluation.scoring
+    score_evaluation_trace, aggregate_benchmark
+
+evaluation.reporting
+    write_benchmark_bundle
+```
+
+The operational entry point is:
+
+```text
+python -m signal_diag.evaluation validate-dataset
+python -m signal_diag.evaluation run-deterministic
+python -m signal_diag.evaluation run-real
+python -m signal_diag.evaluation render-report
+```
+
+Real-model credentials are read only from the environment or the existing
+provider configuration boundary. There is no plaintext credential CLI
+argument.
+
+### 49.2 Acceptance gate
+
+Deterministic `harness_accepted` requires T001–T183, zero required skip/xfail,
+Ruff, mypy, `git diff --check`, and the Phase 4 architecture boundary to pass.
+
+Full Phase 4 acceptance additionally requires `benchmark_completed` with an
+immutable official report bundle. A below-target result is honest completion;
+`pending` or `incomplete` is not. Phase 5 remains gated until full Phase 4
+acceptance.
+
+Approval of this freeze candidate does not itself authorize implementation.
+Implementation planning begins only after the written-spec review gate.

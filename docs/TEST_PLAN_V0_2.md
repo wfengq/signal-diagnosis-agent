@@ -2,9 +2,9 @@
 
 **Document:** `TEST_PLAN_V0_2.md`  
 **Version:** `0.2`  
-**Status:** Approved and required for Phase 1–3
+**Status:** Approved and required for Phase 1–3; Phase 4 freeze candidate pending written-spec review
 **Scope:** Phase 1 deterministic foundation, Phase 2 hybrid Agent runtime, and
-Phase 3 rules/knowledge acceptance
+Phase 3 rules/knowledge acceptance; proposed Phase 4 evaluation acceptance
 **Contracts:** `docs/CONTRACTS_V0_2.md`  
 **Architecture:** `docs/ARCHITECTURE_V0_2.md`  
 
@@ -777,3 +777,128 @@ Every T121–T124 test additionally asserts:
 - real rule-engine and knowledge-index execution;
 - no numeric fabrication on invalid inputs;
 - complete reproducible trace for the scripted planner path.
+
+---
+
+## 22. Phase 4 — Versioned Evaluation and Fixed Baseline
+
+Phase 4 required tests are deterministic. They use the real synthetic
+generators, repository, DSP, Tools, RuleEngine, profile loader, knowledge index,
+and an injected scripted planner. They never call a real LLM.
+
+The separate official real-model benchmark uses the same validated manifest and
+scorers but runs outside required pytest. Its stochastic scores are reported,
+not used as CI pass/fail conditions.
+
+### Checkpoint H — Public evaluation models and manifest
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T125 | Manifest identity and immutability | DatasetManifest uses schema `1.0`, semantic dataset version, immutable tuples, and rejects mutation |
+| T126 | SyntheticSignalSpec discrimination | all five generator variants parse by `generator`; unknown variants fail |
+| T127 | Synthetic parameter validation | invalid frequency, sampling, duration, clipping, amplitude constraints, RMS, or non-finite values fail before generation |
+| T128 | Harmonic ratio validation | non-empty ratios, at least one positive ratio, unique integer orders >=2, and finite non-negative values are required |
+| T129 | EvidenceCondition strictness | Tool, metric, validity, strict scalar type, unit, and comparator semantics are enforced |
+| T130 | Sufficient Evidence references | sets are non-empty, duplicate-free, and reference conditions within the same case |
+| T131 | EvaluationCase consistency | category, generator, causal faults, outcomes, knowledge policy, and identifiability fields cannot contradict each other |
+| T132 | Manifest identity/reference validation | case/condition/set IDs are unique; profile identity/version and all internal references resolve |
+
+### Checkpoint I — Official synthetic dataset
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T133 | Official case allocation and packaging | `s1-distortion-synthetic` `1.0.0` contains 8 development and 16 held-out cases with frozen category counts and ships in the installed package |
+| T134 | Reconstruction determinism | every case reconstructed twice from canonical parameters/seed has identical metadata and samples |
+| T135 | Dual-ground-truth consistency | generator ground truth agrees with declared causal faults while remaining separate from observable/rule conditions |
+| T136 | Observable-condition verification | real SignalToolService Evidence satisfies every declared observable condition |
+| T137 | Boundary coverage | dataset covers values below, within numeric tolerance of, and above clipping ratio 0.01 and THD 5.0% |
+| T138 | Invalid/noise behavior | harmonic/F0-style invalid results stay not-applicable and contain no fabricated numeric Evidence |
+| T139 | Combined identifiability | every combined case exceeds its matched clipping-only control by the declared harmonic-signature separation; control/truth never enters planner input |
+| T140 | Dataset gate | any allocation, DSP observation, profile, reconstruction, or identifiability failure makes validation non-valid and prevents evaluation start |
+
+### Checkpoint J — RecordingPlanner and chronological trace
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T141 | Transparent planner delegation | RecordingPlanner passes the same PlannerContext to its delegate and returns the validated decision unchanged |
+| T142 | Planner-call snapshot order | records are immutable, zero-based, monotonic, and preserve successful, invalid-output, and raised-error calls without changing retry behavior |
+| T143 | Tool delta assembly | each Tool decision is followed by its exact Observation and Evidence before the next planner decision |
+| T144 | Rule delta assembly | EvaluateRulesDecision aligns with exactly the newly appended RuleEvaluationBatch |
+| T145 | Knowledge delta assembly | RetrieveKnowledgeDecision aligns with exactly the newly appended KnowledgeRetrievalResult |
+| T146 | Final-result assembly | every result artifact and claim reference resolves within the same chronological trace |
+| T147 | Ambiguity rejection | missing, duplicate, out-of-order, or otherwise ambiguous artifacts fail trace assembly; grouped fallback is forbidden |
+| T148 | Trace safety and optional usage | raw waveform, full FFT, secrets, and raw provider responses are absent; unavailable token/cost fields remain null |
+
+### Checkpoint K — Honest fixed-pipeline baseline
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T149 | Fixed Tool order | baseline calls detect_clipping then analyze_harmonic_distortion exactly once each |
+| T150 | Shared dependencies | baseline uses the injected repository, SignalToolService, RuleEngine, loader, and official profile |
+| T151 | Deterministic mapping and result type | clipping, harmonic, combined, and no-supported-fault mappings use only applicable profile judgments; result uses baseline models and no planner completion reason |
+| T152 | Invalid/insufficient Evidence mapping | valid clipping survives invalid harmonic analysis with a limitation; otherwise insufficient Evidence yields justified inconclusive behavior without fabricated values |
+| T153 | No privileged or redundant actions | baseline reads no manifest truth/matched control, retrieves no knowledge, and calls no FFT/F0 |
+| T154 | Baseline reproducibility and honesty | repeated execution has identical business fields; clipping-induced high THD remains an exposed possible combined overclaim, not a fixture-specific patch |
+
+### Checkpoint L — Deterministic scoring
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T155 | Causal exact-set scoring | exact-set correctness handles clean, clipping, harmonic, combined, and inconclusive cases |
+| T156 | Causal macro-F1 | stored expected/predicted label sets produce macro-F1 over exactly clipping and harmonic multilabel truth with fixed formulas |
+| T157 | Outcome scoring | allowed clean/inconclusive outcomes score correctly and disallowed outcomes fail |
+| T158 | Semantic grounding | every ref must resolve and at least one cited Evidence condition must explicitly support the claim; unrelated valid refs do not pass |
+| T159 | Unsupported-claim scoring | only predicted causal fault claims absent from causal truth count; zero denominator is preserved with value 0.0 |
+| T160 | First-Tool scoring | first DSP action is checked against the acceptable set without prescribing the later sequence |
+| T161 | Observable replanning scoring | every context-delta opportunity receives an appropriate/inappropriate reason code under the frozen proxy semantics |
+| T162 | Unnecessary Tool scoring | calls that advance no viable Evidence set and are not error recovery count as unnecessary |
+| T163 | Timely stopping scoring | any DSP call after first sufficient Evidence fails the per-run stopping metric |
+| T164 | Applicable rule scoring | non-duplicate rule use with applicable current Evidence succeeds; omission, premature use, and redundant use fail |
+| T165 | Knowledge selectivity scoring | required usage, manifest-tag relevance, not-needed retrieval, and final citation utilization use independent visible denominators |
+| T166 | Aggregation and target status | rates, zero denominators, exact-set accuracy, macro-F1, latency/usage coverage, averages, non-applicable targets, and meets/below-target status are deterministic |
+
+### Checkpoint M — Deterministic end-to-end evaluation and reports
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T167 | Scripted full-manifest execution | all 24 cases run through the real runtime, DSP, Tools, rules, and knowledge dependencies with ScriptedPlanner |
+| T168 | Alternative legal routes | at least two cases use distinct sufficient Tool routes without changing expected outcome or requiring a fixed sequence |
+| T169 | Same-run traceability | every Evidence, rule ref, and knowledge ref in scored diagnoses resolves in the same run/trace |
+| T170 | Deterministic repeat | fixed manifest, scripted planner, injected IDs/clock, and dependencies produce identical normalized traces and scores |
+| T171 | Baseline full-manifest execution | baseline runs once on each of the same 24 cases and never reads case truth |
+| T172 | Agent/baseline comparison | aggregates are side by side; no test requires the Agent to beat the baseline |
+| T173 | Report representation agreement | JSON/JSONL, CSV, and Markdown agree on case/run counts, metrics, statuses, and failures |
+| T174 | Immutable report bundle | exact required files and checksums are written; existing benchmark directory is rejected; failed cases and repeated-run variation are retained |
+
+### Checkpoint N — Official real-model runner controls
+
+Tests in this checkpoint stub the provider boundary. They do not call the
+network or assert stochastic diagnosis quality.
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T175 | Configuration fingerprint | dataset/profile identity, provider/model, prompt version/hash, model parameters, and SDK versions determine recorded configuration |
+| T176 | Held-out slot schedule | official DeepSeek configuration schedules five sequential manifest-order rounds over 16 held-out cases; baseline schedules one manifest-order run per case |
+| T177 | Development/held-out separation | development runs may tune config; a benchmark ID becomes append-only once held-out results are observed |
+| T178 | Infrastructure retry policy | only timeout, 429, and provider 5xx retry, at most twice, with every attempt retained |
+| T179 | Behavioral failures are not replaced | invalid model output, planner retry exhaustion, no-progress, budgets, and Runtime terminal errors keep their original slot |
+| T180 | Acceptance status separation | missing credentials -> pending; exhausted infrastructure/evaluator failure -> incomplete; 80 scoreable slots -> completed; target miss -> below_target without CI failure |
+| T181 | Credential and artifact safety | no plaintext credential CLI argument or report field exists; official bundles cannot overwrite earlier benchmark IDs |
+
+### Checkpoint O — Architecture and regression
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T182 | Phase 4 dependency boundary | evaluation may import Phase 1–3 packages; signal/dsp/tools/rules/knowledge/agent do not import evaluation; app remains absent |
+| T183 | Cumulative completion gate | T001–T183 pass with zero required skip/xfail; Phase 1–3 semantics, Ruff, mypy, and diff-check remain green |
+
+### Phase 4 acceptance states
+
+`harness_accepted` requires T001–T183 and all deterministic quality gates.
+
+`benchmark_completed` additionally requires the frozen DeepSeek configuration
+to produce 80 scoreable held-out Agent slots and the immutable official report
+bundle. Real-model target misses produce `below_target` and never fail CI.
+Missing credentials leave `benchmark_pending`; exhausted infrastructure or an
+invalid evaluator leaves `incomplete`. Phase 5 remains gated until both states
+are satisfied.

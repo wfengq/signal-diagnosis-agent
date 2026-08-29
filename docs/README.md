@@ -10,10 +10,11 @@ Read these documents before changing implementation code:
 1. [`ARCHITECTURE_V0_2.md`](ARCHITECTURE_V0_2.md) — approved system architecture,
    Scenario S1, phase boundaries, and Hybrid Agent design.
 2. [`CONTRACTS_V0_2.md`](CONTRACTS_V0_2.md) — frozen Phase 1–2 public Python
-   contracts and frozen Phase 3 §32–§40 rules/knowledge contracts.
+   contracts, frozen Phase 3 §32–§40 rules/knowledge contracts, and the Phase 4
+   §41–§49 written freeze candidate.
 3. [`TEST_PLAN_V0_2.md`](TEST_PLAN_V0_2.md) — required T001–T092 Phase 1–2
-   acceptance, required T093–T124 Phase 3 acceptance, and separate R001–R006
-   real-model evaluation.
+   acceptance, required T093–T124 Phase 3 acceptance, proposed T125–T183 Phase
+   4 acceptance, and separate real-model evaluation.
 4. [`DECISIONS.md`](DECISIONS.md) — approved architectural and process decisions.
 5. [`superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`](superpowers/plans/2026-08-28-phase1-deterministic-foundation.md)
    — task-level Phase 1 TDD implementation plan covering T001–T063.
@@ -31,6 +32,9 @@ Read these documents before changing implementation code:
   — completed Phase 3 TDD plan covering T093–T124; OQ-003 is resolved and the
   implementation plus final fix wave passed Codex acceptance at `a820b7f`.
   Phase 4 remains gated.
+- [`superpowers/specs/2026-08-29-phase4-evaluation-design.md`](superpowers/specs/2026-08-29-phase4-evaluation-design.md)
+  — user-approved Phase 4 design captured as a written freeze candidate. It
+  awaits written-spec review before an implementation plan is created.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -78,11 +82,10 @@ override active engineering contracts.
 
 ## Future documents
 
-Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 evaluation contracts
-remain unfrozen and Phase 4 implementation is not yet authorized. Later
-implementation plans are created only when the preceding contract and
-completion gates permit them. Phase 2 was implemented directly from its
-accepted architecture, contracts, and test plan and has no separate plan
-document. Future contracts are frozen immediately before their implementation
-phase, as defined by `ARCHITECTURE_V0_2.md`. Do not implement Phase 4 or Phase 5
-until that phase is explicitly authorized.
+Phase 3 passed final Codex acceptance at `a820b7f`. The Phase 4 design was
+approved section-by-section on 2026-08-29 and is now recorded in a written
+freeze candidate. Phase 4 implementation remains unauthorized until the user
+reviews that written specification and a Superpowers implementation plan is
+created. Phase 2 was implemented directly from its accepted architecture,
+contracts, and test plan and has no separate plan document. Do not implement
+Phase 5 until Phase 4 is fully accepted.

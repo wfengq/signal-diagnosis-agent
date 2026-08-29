@@ -2,7 +2,7 @@
 
 **Status:** Active  
 **Current architecture version:** V0.2  
-**Last updated:** 2026-08-28  
+**Last updated:** 2026-08-29
 
 This file records approved decisions that affect implementation. Historical V0.1
 documents are preserved under `docs/archive/v0.1/`.
@@ -156,3 +156,57 @@ supported fault, and inconclusive outcomes. Later versioned scenarios may add
 noise/SNR, frequency drift, amplitude abnormalities, PCM/CSV inputs, and sensor
 waveforms. Those later capabilities receive their own contracts and tests and
 must not cause speculative compatibility code in V0.2.
+
+## D017 — Isolate Phase 4 as a manifest-driven evaluation subsystem
+
+**Decision:** Phase 4 adds `signal_diag.evaluation` above the accepted Phase 1–3
+layers. It does not modify `PlannerModel`, `DistortionDiagnosisRuntime`, or
+`AgentRunResult`.
+
+An external `RecordingPlanner` wraps real or scripted planners and captures
+pre-decision contexts. A trace assembler aligns those records with real
+Observations, Evidence, rule batches, and knowledge retrievals. Ambiguous
+chronology is an evaluator error; grouped summaries are not accepted as a
+substitute.
+
+The dataset manifest declares acceptable first Tools and alternative sufficient
+Evidence sets, never one mandatory full Tool sequence.
+
+## D018 — Use dual Phase 4 acceptance states
+
+**Decision:** Phase 4 separates deterministic `harness_accepted` from real-model
+`benchmark_completed`.
+
+The deterministic harness uses ScriptedPlanner and required T001–T183. The
+official product benchmark uses DeepSeek `deepseek-v4-flash`, 16 held-out cases,
+and five fixed slots per case. Real-model target misses are recorded as
+`below_target` but do not fail CI. Missing credentials leave `pending`; exhausted
+infrastructure/evaluator failures leave `incomplete`.
+
+Phase 5 remains gated until both states are satisfied.
+
+## D019 — Keep causal truth separate from observations and require identifiable combined cases
+
+**Decision:** Phase 4 cases store generator-injected `causal_faults` separately
+from DSP-observable conditions. Diagnosis metrics use causal truth; DSP,
+Evidence, and RuleEngine checks use observable truth.
+
+Because clipping itself creates harmonics, every combined case must pass a
+matched clipping-only control check using existing harmonic-component Evidence.
+The control and separation tolerance validate dataset fairness only and are
+never shown to the Agent or baseline.
+
+## D020 — Compare against an honest fixed pipeline and publish immutable results
+
+**Decision:** The fixed baseline always executes clipping analysis, harmonic
+distortion analysis, and the same S1 profile. It does not use knowledge, FFT,
+F0, manifest truth, or matched controls, and it is not patched to hide expected
+clipping/THD ambiguity.
+
+The baseline uses dedicated Phase 4 result models rather than representing a
+non-Agent run with the Agent-only `planner_finished` termination reason.
+
+Primary metrics are deterministic scorer outputs. Human review cannot edit
+them. Official report bundles are append-only, retain all failures and
+repeated-run variation, and describe V0.2 targets as demonstration targets
+rather than standards or SLAs.
