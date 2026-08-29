@@ -78,9 +78,16 @@ and are not industry standards.
 | Grounding of evidence/rule/knowledge refs | not scored — NOT RUN |
 | Limitations | not scored — NOT RUN |
 
-Do not treat this table as a pass. Re-run the command above when credentials
-are configured, retain the traces, and replace this report with an honest
-observation of that run. Do not rerun until a favorable trace appears.
+Do not treat this table as a pass. Missing credentials and a **NOT RUN**
+status are an honest record; they are not a fabricated pass. When credentials
+are configured, run the command above once, retain the traces including
+failures, and replace this report with an honest observation of that run.
+Score first-tool selection, observation-driven rule/retrieval decisions,
+unnecessary actions, stopping, grounding, and limitations honestly. Report
+individual failures rather than retrying until a favorable example appears
+(`TEST_PLAN_V0_2.md` §13). If a run performs poorly, retain the trace,
+classify the failure, and report variation transparently (§18). Do not wait
+for, loop for, or cherry-pick a favorable trace.
 
 ## 5. Deterministic gate (separate)
 
