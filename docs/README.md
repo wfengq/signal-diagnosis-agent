@@ -24,12 +24,14 @@ Read these documents before changing implementation code:
   — retained Phase 2 real-model R001–R006 review, explicitly separate from CI.
 - [`reports/PHASE3_REAL_MODEL_BEHAVIOR_REPORT.md`](reports/PHASE3_REAL_MODEL_BEHAVIOR_REPORT.md)
   — Phase 3 product-path observation with injected rules and knowledge;
-  the recorded status is **NOT RUN** because credentials were unavailable.
-  This is not a CI gate and is not a fabricated pass.
+  the recorded status is **RAN** once (honest DeepSeek run) with 0 rule
+  and 0 knowledge actions. This is not a CI gate and is not Phase 3
+  product-path acceptance.
 - [`superpowers/plans/2026-08-29-phase3-rules-knowledge.md`](superpowers/plans/2026-08-29-phase3-rules-knowledge.md)
-  — completed Phase 3 TDD plan covering T093–T124; OQ-003 is resolved and
-  Phase 3 is deterministically accepted. Independent Task 9 review is still
-  required before merge.
+  — Phase 3 TDD plan covering T093–T124; OQ-003 is resolved.
+  Deterministic implementation plus a Codex-rejection fix wave are
+  pending independent re-review. Do not claim Codex accepted. Do not
+  merge and do not start Phase 4 yet.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -77,10 +79,11 @@ override active engineering contracts.
 
 ## Future documents
 
-Phase 3 is accepted. Phase 4 evaluation contracts remain unfrozen. Later
-implementation plans are created only when the preceding contract and
-completion gates permit them. Phase 2 was implemented directly from its accepted
-architecture, contracts, and test plan and has no separate plan document. Future
-contracts are frozen immediately before their implementation phase, as defined
-by `ARCHITECTURE_V0_2.md`. Do not implement Phase 4 or Phase 5 until that phase
-is explicitly authorized.
+Phase 3 is not finally accepted. Deterministic implementation plus this
+fix wave remain pending independent re-review. Phase 4 evaluation contracts
+remain unfrozen. Later implementation plans are created only when the
+preceding contract and completion gates permit them. Phase 2 was implemented
+directly from its accepted architecture, contracts, and test plan and has no
+separate plan document. Future contracts are frozen immediately before their
+implementation phase, as defined by `ARCHITECTURE_V0_2.md`. Do not merge
+this branch. Do not implement Phase 4 or Phase 5.
