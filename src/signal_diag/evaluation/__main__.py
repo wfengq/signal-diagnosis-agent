@@ -17,6 +17,7 @@ from signal_diag.evaluation.runner import (
     _official_manifest_path,
     _run_deterministic_benchmark,
     _run_official_benchmark,
+    _scripted_benchmark_config,
 )
 from signal_diag.signal.repository import InMemorySignalRepository
 
@@ -102,29 +103,11 @@ def main(argv: list[str] | None = None) -> int:
         manifest = _load_manifest(args.manifest)
         if not isinstance(manifest, DatasetManifest):
             raise TypeError("expected DatasetManifest")
-        config = _official_benchmark_config(
+        config = _scripted_benchmark_config(
+            manifest,
             benchmark_id=args.benchmark_id or _stamp_id("deterministic"),
             started_at_utc=datetime.now(UTC),
         )
-        if (
-            manifest.dataset_id != config.dataset_id
-            or manifest.version != config.dataset_version
-        ):
-            config = config.model_copy(
-                update={
-                    "dataset_id": manifest.dataset_id,
-                    "dataset_version": manifest.version,
-                    "rule_profile_id": manifest.rule_profile_id,
-                    "rule_profile_version": manifest.rule_profile_version,
-                    "provider": None,
-                    "model": None,
-                    "prompt_version": None,
-                    "prompt_sha256": None,
-                    "model_parameters": {},
-                    "sdk_versions": {},
-                    "repetitions": 1,
-                }
-            )
         report = asyncio.run(
             _run_deterministic_benchmark(manifest, config, args.output_dir)
         )

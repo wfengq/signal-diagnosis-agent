@@ -9,6 +9,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -27,6 +28,7 @@ from signal_diag.evaluation.runner import (
     _official_benchmark_config,
     _official_prompt_sha256,
     _run_official_benchmark,
+    _scripted_benchmark_config,
 )
 from tests.evaluation.conftest import make_dataset_manifest, make_evaluation_case
 
@@ -806,3 +808,73 @@ def test_t181_public_surface_has_no_provider_sdk_type() -> None:
     assert "from openai" not in lowered
     assert "import openai" not in lowered
     assert "--api-key" not in lowered
+
+
+def test_scripted_benchmark_config_uses_scripted_identity() -> None:
+    manifest = make_dataset_manifest(
+        (
+            make_evaluation_case(
+                "clean",
+                case_id="case_scripted_identity_01",
+                split="held_out",
+            ),
+        ),
+        dataset_id="s1-distortion-synthetic",
+        version="1.0.0",
+        rule_profile_id="profile_s1_distortion",
+        rule_profile_version="1.0.0-demo",
+    )
+    config = _scripted_benchmark_config(
+        manifest,
+        benchmark_id="bench_scripted_identity",
+        started_at_utc=_STARTED,
+    )
+    assert config.repetitions == 1
+    assert config.provider is None
+    assert config.model is None
+    assert config.prompt_version is None
+    assert config.prompt_sha256 is None
+    assert config.model_parameters == {}
+    assert config.sdk_versions == {}
+    assert config.dataset_id == manifest.dataset_id
+    assert config.dataset_version == manifest.version
+    assert config.rule_profile_id == manifest.rule_profile_id
+    assert config.rule_profile_version == manifest.rule_profile_version
+
+
+def test_run_deterministic_cli_writes_scripted_identity_config(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from signal_diag.evaluation import __main__ as cli
+
+    captured: dict[str, BenchmarkConfig] = {}
+
+    async def fake_run(
+        manifest: DatasetManifest,
+        config: BenchmarkConfig,
+        output_dir: Path,
+        **kwargs: object,
+    ) -> SimpleNamespace:
+        captured["config"] = config
+        return SimpleNamespace(benchmark_status="completed")
+
+    monkeypatch.setattr(cli, "_run_deterministic_benchmark", fake_run)
+    code = cli.main(
+        [
+            "run-deterministic",
+            "--benchmark-id",
+            "bench_scripted_cli",
+            "--output-dir",
+            str(tmp_path),
+        ]
+    )
+    assert code == 0
+    config = captured["config"]
+    assert config.repetitions == 1
+    assert config.provider is None
+    assert config.model is None
+    assert config.prompt_version is None
+    assert config.prompt_sha256 is None
+    assert config.dataset_id == "s1-distortion-synthetic"
+    assert config.dataset_version == "1.0.0"

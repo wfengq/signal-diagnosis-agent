@@ -407,6 +407,29 @@ def _official_benchmark_config(
     )
 
 
+def _scripted_benchmark_config(
+    manifest: DatasetManifest,
+    *,
+    benchmark_id: str,
+    started_at_utc: datetime,
+) -> BenchmarkConfig:
+    return BenchmarkConfig(
+        benchmark_id=benchmark_id,
+        dataset_id=manifest.dataset_id,
+        dataset_version=manifest.version,
+        rule_profile_id=manifest.rule_profile_id,
+        rule_profile_version=manifest.rule_profile_version,
+        provider=None,
+        model=None,
+        prompt_version=None,
+        prompt_sha256=None,
+        model_parameters={},
+        sdk_versions={},
+        repetitions=1,
+        started_at_utc=started_at_utc,
+    )
+
+
 def _held_out_slot_schedule(
     manifest: DatasetManifest,
     config: BenchmarkConfig,
