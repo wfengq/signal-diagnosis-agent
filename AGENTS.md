@@ -8,7 +8,7 @@ The current development phase is V0.2 Phase 4 evaluation. The Phase 4 written
 specification was approved on 2026-08-29; §§41–§49 and T125–T183 are frozen
 and implemented. Deterministic status is `harness_accepted` after T001–T183,
 Ruff, mypy, and `git diff --check` passed on branch `phase4-evaluation-design`
-(pre-commit HEAD `a5ebd0987752f1234e803e762a2c78196b4738a0`: 434 passed, zero
+(accepted implementation HEAD `bde2ee42d76ef97c4ef08bc6541e92945da6e3f8`: 451 passed, zero
 skip/xfail). Real-model status is `benchmark_pending`: this branch has not run
 a live 80-slot DeepSeek benchmark and has no official credentialed six-file
 bundle. Do not claim `benchmark_completed`. Do not implement Phase 5
@@ -154,8 +154,8 @@ actions. That acceptance does not complete Phase 4.
 
 Versioned S1 evaluation package, scripted deterministic harness, honest
 fixed-pipeline baseline, scoring, immutable report writer, official runner
-CLI, and T125–T183. Quality gate this session on pre-commit HEAD `a5ebd09`:
-434 passed, zero skip/xfail; Ruff clean; mypy clean (45 files);
+CLI, and T125–T183. Independent acceptance gate on HEAD `bde2ee4`:
+451 passed, zero skip/xfail; Ruff clean; mypy clean (45 files);
 `git diff --check` clean. This branch never ran a live 80-slot DeepSeek
 benchmark and has no official credentialed six-file bundle. Phase 5 remains
 gated until both harness and benchmark are complete.

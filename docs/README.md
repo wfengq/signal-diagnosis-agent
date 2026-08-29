@@ -91,7 +91,8 @@ override active engineering contracts.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design` after the
-quality gate below (pre-commit HEAD `a5ebd0987752f1234e803e762a2c78196b4738a0`).
+quality gate below (accepted implementation HEAD
+`bde2ee42d76ef97c4ef08bc6541e92945da6e3f8`).
 Real-model status is `benchmark_pending`: no live 80-slot DeepSeek run and no
 official credentialed six-file bundle exist on this branch. Phase 5 remains
 gated until both `harness_accepted` and `benchmark_completed` are satisfied.
@@ -101,19 +102,19 @@ Quality gate this session (Python
 `C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`):
 
 ```text
-python -m pytest tests/evaluation tests/test_architecture_boundaries.py -q -rxXs --basetemp .pytest_cache/phase4-task11-basetemp
-159 passed in 15.14s
+python -m pytest -q -rxXs -p no:cacheprovider --basetemp <temporary-directory> tests/evaluation/test_runner.py::test_official_trace_keeps_empty_delta_planner_decisions tests/evaluation/test_scoring.py::test_t162_unnecessary_tool_scoring
+2 passed in 1.50s
 
-python -m pytest -q -rxXs --basetemp .pytest_cache/phase4-task11-basetemp
-434 passed in 17.89s
+python -m pytest -q -rxXs -p no:cacheprovider --basetemp <temporary-directory>
+451 passed in 20.64s
 
-python -m ruff check .
+python -m ruff check --no-cache src tests scripts
 All checks passed!
 
-python -m mypy src
+python -m mypy --no-incremental src
 Success: no issues found in 45 source files
 
-git diff --check
+git diff --check 9bd01f2..HEAD
 (exit 0, empty output)
 ```
 
