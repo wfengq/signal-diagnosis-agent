@@ -1,7 +1,7 @@
 # Phase 4 Evaluation Design
 
 **Date:** 2026-08-29
-**Status:** Approved section-by-section; pending written-spec review
+**Status:** Approved in written-spec review on 2026-08-29
 **Baseline:** `3eaf662` (`phase3-rules-knowledge`)
 **Scope:** V0.2 Phase 4 only
 
@@ -426,7 +426,8 @@ formatting helpers remain private.
 
 ## 14. Written-spec review gate
 
-The user approved each design section in conversation on 2026-08-29. This file
-and the synchronized contract/test-plan changes require one written-spec review
-before implementation planning. No Phase 4 code is authorized by this design
-commit alone.
+The user approved each design section in conversation and approved this written
+specification on 2026-08-29. Sections 41–49 of `CONTRACTS_V0_2.md` are therefore
+frozen as Phase 4 implementation authority. Implementation remains gated on a
+Superpowers task-level plan and an explicit execution choice; approval of this
+specification alone does not authorize Phase 4 code changes.

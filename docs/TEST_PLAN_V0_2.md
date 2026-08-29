@@ -2,9 +2,9 @@
 
 **Document:** `TEST_PLAN_V0_2.md`  
 **Version:** `0.2`  
-**Status:** Approved and required for Phase 1–3; Phase 4 freeze candidate pending written-spec review
+**Status:** Approved and required for Phase 1–4
 **Scope:** Phase 1 deterministic foundation, Phase 2 hybrid Agent runtime, and
-Phase 3 rules/knowledge acceptance; proposed Phase 4 evaluation acceptance
+Phase 3 rules/knowledge acceptance; frozen Phase 4 evaluation acceptance
 **Contracts:** `docs/CONTRACTS_V0_2.md`  
 **Architecture:** `docs/ARCHITECTURE_V0_2.md`  
 

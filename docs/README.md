@@ -10,11 +10,11 @@ Read these documents before changing implementation code:
 1. [`ARCHITECTURE_V0_2.md`](ARCHITECTURE_V0_2.md) — approved system architecture,
    Scenario S1, phase boundaries, and Hybrid Agent design.
 2. [`CONTRACTS_V0_2.md`](CONTRACTS_V0_2.md) — frozen Phase 1–2 public Python
-   contracts, frozen Phase 3 §32–§40 rules/knowledge contracts, and the Phase 4
-   §41–§49 written freeze candidate.
+   contracts, frozen Phase 3 §32–§40 rules/knowledge contracts, and frozen
+   Phase 4 §41–§49 evaluation contracts.
 3. [`TEST_PLAN_V0_2.md`](TEST_PLAN_V0_2.md) — required T001–T092 Phase 1–2
-   acceptance, required T093–T124 Phase 3 acceptance, proposed T125–T183 Phase
-   4 acceptance, and separate real-model evaluation.
+   acceptance, required T093–T124 Phase 3 acceptance, frozen T125–T183 Phase 4
+   acceptance, and separate real-model evaluation.
 4. [`DECISIONS.md`](DECISIONS.md) — approved architectural and process decisions.
 5. [`superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`](superpowers/plans/2026-08-28-phase1-deterministic-foundation.md)
    — task-level Phase 1 TDD implementation plan covering T001–T063.
@@ -33,8 +33,11 @@ Read these documents before changing implementation code:
   implementation plus final fix wave passed Codex acceptance at `a820b7f`.
   Phase 4 remains gated.
 - [`superpowers/specs/2026-08-29-phase4-evaluation-design.md`](superpowers/specs/2026-08-29-phase4-evaluation-design.md)
-  — user-approved Phase 4 design captured as a written freeze candidate. It
-  awaits written-spec review before an implementation plan is created.
+  — written Phase 4 evaluation design approved on 2026-08-29; §41–§49 and
+  T125–T183 are frozen for implementation planning.
+- [`superpowers/plans/2026-08-29-phase4-evaluation.md`](superpowers/plans/2026-08-29-phase4-evaluation.md)
+  — task-level TDD implementation plan for Phase 4 covering T125–T183; code
+  execution awaits the user's workflow choice.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -82,10 +85,10 @@ override active engineering contracts.
 
 ## Future documents
 
-Phase 3 passed final Codex acceptance at `a820b7f`. The Phase 4 design was
-approved section-by-section on 2026-08-29 and is now recorded in a written
-freeze candidate. Phase 4 implementation remains unauthorized until the user
-reviews that written specification and a Superpowers implementation plan is
-created. Phase 2 was implemented directly from its accepted architecture,
-contracts, and test plan and has no separate plan document. Do not implement
-Phase 5 until Phase 4 is fully accepted.
+Phase 3 passed final Codex acceptance at `a820b7f`. The Phase 4 written design
+was approved on 2026-08-29, so §41–§49 and T125–T183 are frozen. Phase 4 code
+remains unauthorized until its Superpowers task-level plan is complete and the
+user explicitly chooses an execution workflow. Phase 2 was implemented
+directly from its accepted architecture, contracts, and test plan and has no
+separate plan document. Do not implement Phase 5 until Phase 4 is fully
+accepted.

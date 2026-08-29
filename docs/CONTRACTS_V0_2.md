@@ -2,9 +2,9 @@
 
 **Document:** `CONTRACTS_V0_2.md`  
 **Contract version:** `0.2`  
-**Status:** Frozen for Phase 1–3; Phase 4 freeze candidate pending written-spec review
+**Status:** Frozen for Phase 1–4; Phase 4 implementation plan pending
 **Scope:** Phase 1 deterministic foundation, Phase 2 hybrid Agent runtime, and
-Phase 3 rules/knowledge contracts; proposed Phase 4 evaluation contracts
+Phase 3 rules/knowledge contracts; frozen Phase 4 evaluation contracts
 **Architecture:** `docs/ARCHITECTURE_V0_2.md`  
 
 ---
@@ -26,8 +26,9 @@ If a genuine correctness problem is found:
 4. obtain explicit approval before changing the public surface.
 
 Private helpers remain implementation details. Phase 3 interfaces are frozen in
-§32–§40. The section-by-section-approved Phase 4 freeze candidate is defined in
-§41–§49 and requires the written-spec review gate before implementation.
+§32–§40. The written-spec-approved Phase 4 contracts are frozen in §41–§49.
+Phase 4 implementation remains gated on its Superpowers task-level plan and an
+explicit execution choice.
 
 ---
 
@@ -1308,8 +1309,8 @@ V0.2 does not yet freeze:
 - orchestration framework integration.
 
 Phase 3 rule and knowledge contracts are frozen in §32–§40. The Phase 4
-evaluation freeze candidate is in §41–§49. Phase 5 contracts are frozen
-immediately before implementation.
+evaluation contracts are frozen in §41–§49. Phase 5 contracts remain gated and
+will be frozen immediately before implementation.
 
 ---
 
@@ -1956,18 +1957,18 @@ agent.runtime (behavioral extension)
 - embedding or vector retrieval backends;
 - Phase 5 presentation contracts.
 
-Approval of §32–§40 authorizes Phase 3 implementation but does not freeze Phase
-4–5 interfaces. Phase 4 is governed separately by §41–§49 after its written
-review gate.
+Approval of §32–§40 authorizes Phase 3 implementation. Phase 4 is governed by
+the written-spec-approved and frozen §41–§49. Phase 5 interfaces remain gated.
 
 ---
 
 ## 41. Phase 4 Contract Status and Package Boundary
 
-Sections 41–49 are the Phase 4 evaluation freeze candidate approved
-section-by-section on 2026-08-29. They become implementation authority only
-after the user reviews the written specification at
-`docs/superpowers/specs/2026-08-29-phase4-evaluation-design.md`.
+Sections 41–49 are the frozen Phase 4 evaluation contracts. The user approved
+them section-by-section and approved the written specification at
+`docs/superpowers/specs/2026-08-29-phase4-evaluation-design.md` on 2026-08-29.
+They become implementation authority once the task-level implementation-plan
+and explicit execution-choice gates pass.
 
 Phase 4 adds:
 
@@ -3007,5 +3008,6 @@ immutable official report bundle. A below-target result is honest completion;
 `pending` or `incomplete` is not. Phase 5 remains gated until full Phase 4
 acceptance.
 
-Approval of this freeze candidate does not itself authorize implementation.
-Implementation planning begins only after the written-spec review gate.
+The written-spec review gate passed on 2026-08-29. Implementation planning is
+authorized; code changes remain gated on the completed task-level plan and an
+explicit execution choice.

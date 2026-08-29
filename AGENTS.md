@@ -4,16 +4,16 @@
 
 This repository implements a Signal Test and Fault Diagnosis Agent.
 
-The current development phase is V0.2 Phase 4 written-spec review. The Phase 4
-evaluation design was approved section-by-section on 2026-08-29, and the
-written freeze candidate is awaiting final user review. Phase 4 implementation
-is not yet authorized.
+The current development phase is V0.2 Phase 4 implementation planning. The
+Phase 4 written specification was approved on 2026-08-29; §§41–§49 and
+T125–T183 are frozen. Phase 4 code remains gated until the Superpowers
+task-level plan is complete and the user makes an explicit execution choice.
 
 Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
 and accepted. Phase 3 passed Codex final acceptance at commit `a820b7f` on
 branch `phase3-rules-knowledge`. Do not implement Phase 4 evaluation until its
-written-spec review and implementation-plan gates pass. Do not implement Phase
-5 presentation adapters.
+implementation-plan and explicit execution-choice gates pass. Do not implement
+Phase 5 presentation adapters.
 
 ## Required reading
 
@@ -21,10 +21,11 @@ Before modifying code, read:
 
 - `docs/README.md`
 - `docs/ARCHITECTURE_V0_2.md` (especially §13–§18)
-- `docs/CONTRACTS_V0_2.md` (Phase 1–3 frozen; Phase 4 candidate §41–§49)
-- `docs/TEST_PLAN_V0_2.md` (Phase 1–3 required; Phase 4 candidate §22)
+- `docs/CONTRACTS_V0_2.md` (Phase 1–4 frozen; Phase 4 §41–§49)
+- `docs/TEST_PLAN_V0_2.md` (Phase 1–4 required; Phase 4 §22)
 - `docs/DECISIONS.md`
 - `docs/superpowers/specs/2026-08-29-phase4-evaluation-design.md`
+- `docs/superpowers/plans/2026-08-29-phase4-evaluation.md`
 - `docs/superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`
 - `docs/superpowers/plans/2026-08-29-phase3-rules-knowledge.md`
 
@@ -37,11 +38,11 @@ Phase 3 implementation authority remains `ARCHITECTURE_V0_2.md` §13, revised
 OQ-001 and OQ-003 were approved. Phase 3 passed final acceptance at `a820b7f`.
 That acceptance does not authorize Phase 4.
 
-Phase 4 design authority is the user-approved design captured in
-`docs/superpowers/specs/2026-08-29-phase4-evaluation-design.md`, the proposed
+Phase 4 design authority is the user-approved written design captured in
+`docs/superpowers/specs/2026-08-29-phase4-evaluation-design.md`, frozen
 `CONTRACTS_V0_2.md` §41–§49, `TEST_PLAN_V0_2.md` §22 (T125–T183), and
-D017–D020. These remain implementation-gated until the user approves the
-written specification and a Superpowers implementation plan is created.
+D017–D020. These remain implementation-gated until a Superpowers task-level
+plan is complete and the user explicitly chooses an execution workflow.
 
 These documents describe approved architecture and frozen interfaces.
 
@@ -50,10 +51,10 @@ Files under `docs/archive/v0.1/` are historical references only. Files under
 
 ## Source of truth
 
-The Phase 1–3 interfaces in `docs/CONTRACTS_V0_2.md` are frozen. Phase 3
+The Phase 1–4 interfaces in `docs/CONTRACTS_V0_2.md` are frozen. Phase 3
 implementation conforms to §32–§40 and the T093–T124 acceptance gate. Phase 4
-§41–§49 is a written freeze candidate, not implementation authority until its
-review gate passes.
+§41–§49 becomes implementation authority after its implementation-plan and
+explicit execution-choice gates pass.
 
 Do not redesign or rename public models, functions, modules, arguments, return
 values, or package boundaries unless the user explicitly requests a contract
@@ -107,7 +108,8 @@ Rules:
 
 Do not add:
 
-- Phase 4 evaluation code before written-spec and implementation-plan approval
+- Phase 4 evaluation code before implementation-plan completion and explicit
+  execution choice
 - Phase 5 WAV loader, FastAPI, web frontend, or HTML/PDF reporting
 - LangGraph (unless explicitly requested and contract-approved)
 - vector databases or embedding retrieval (initial Phase 3 uses keyword/tag only;
@@ -120,8 +122,9 @@ Do not add:
 
 unless that later phase is explicitly authorized.
 
-The complete project architecture and in-chat Phase 4 design are approved, but
-that approval does not waive the written-spec and implementation-plan gates.
+The complete project architecture and written Phase 4 design are approved, but
+that approval does not waive the implementation-plan and explicit
+execution-choice gates.
 
 ## Completed phases (reference)
 
