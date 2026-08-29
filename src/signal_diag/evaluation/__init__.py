@@ -55,6 +55,7 @@ from signal_diag.evaluation.models import (
     UnscoredSlotArtifact,
     WhiteNoiseSignalSpec,
 )
+from signal_diag.evaluation.recording import RecordingPlanner
 
 __all__ = [
     "AggregateMetrics",
@@ -98,6 +99,7 @@ __all__ = [
     "PlannerDecisionRecord",
     "ProviderUsage",
     "RateMetric",
+    "RecordingPlanner",
     "RuleEvaluationEvent",
     "RunArtifact",
     "RunScore",
