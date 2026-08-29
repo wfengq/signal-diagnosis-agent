@@ -1,5 +1,6 @@
 """Phase 4 evaluation public surface."""
 
+from signal_diag.evaluation.baseline import FixedPipelineBaseline
 from signal_diag.evaluation.dataset import load_dataset_manifest, validate_dataset
 from signal_diag.evaluation.models import (
     AggregateMetrics,
@@ -88,6 +89,7 @@ __all__ = [
     "EvidenceCondition",
     "EvidenceScalar",
     "ExecutionPath",
+    "FixedPipelineBaseline",
     "HarmonicRatioSpec",
     "HarmonicSineSignalSpec",
     "HarnessStatus",
