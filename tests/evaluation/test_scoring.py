@@ -2454,4 +2454,3 @@ def test_t175_configuration_fingerprint_is_canonical() -> None:
     )
     assert "fft" not in report.config_fingerprint_sha256
     assert "api_key" not in report.config_fingerprint_sha256
-

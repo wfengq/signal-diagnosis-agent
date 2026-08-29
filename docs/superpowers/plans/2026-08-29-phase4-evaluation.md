@@ -905,10 +905,10 @@ Modify `pyproject.toml` only to package `evaluation/manifests/*.yaml`. Modify `t
   python -m pytest -q -rxXs
   python -m ruff check .
   python -m mypy src
-  git diff --check
+  git diff --check 9bd01f2..HEAD
   ```
 
-  Expected: T001–T183 pass, zero required skip/xfail, Ruff clean, mypy clean, and no whitespace errors.
+  Expected: T001–T183 pass, zero required skip/xfail, Ruff clean, mypy clean, and no whitespace errors against the Phase 4 design baseline (`9bd01f2..HEAD`). Unstaged-only `git diff --check` is not the T183 gate.
 
 - [x] **Step 5: Update documentation with honest dual acceptance status**
 

@@ -890,7 +890,7 @@ network or assert stochastic diagnosis quality.
 | ID | Behavior | Required result |
 |---|---|---|
 | T182 | Phase 4 dependency boundary | evaluation may import Phase 1–3 packages; signal/dsp/tools/rules/knowledge/agent do not import evaluation; app remains absent |
-| T183 | Cumulative completion gate | T001–T183 pass with zero required skip/xfail; Phase 1–3 semantics, Ruff, mypy, and diff-check remain green |
+| T183 | Cumulative completion gate | T001–T183 pass with zero required skip/xfail; Phase 1–3 semantics, Ruff, mypy, and `git diff --check 9bd01f2..HEAD` (Phase 4 design baseline) remain green |
 
 ### Phase 4 acceptance states
 

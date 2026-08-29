@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -273,3 +274,18 @@ def test_boundary_helper_detects_evaluation_reverse_imports_in_memory() -> None:
         assert find_forbidden_imports(layer, source, f"fake_{layer}_module.py") == [
             "signal_diag.evaluation"
         ]
+
+
+_PHASE4_DESIGN_BASELINE = "9bd01f2"
+
+
+def test_t183_diff_check_against_phase4_design_baseline() -> None:
+    """T183 quality gate is git diff --check 9bd01f2..HEAD, not unstaged-only."""
+    result = subprocess.run(
+        ["git", "diff", "--check", f"{_PHASE4_DESIGN_BASELINE}"],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
