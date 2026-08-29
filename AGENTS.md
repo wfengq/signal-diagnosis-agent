@@ -9,11 +9,11 @@ specification was approved on 2026-08-29; §§41–§49 and T125–T183 are froz
 and implemented. Deterministic status is `harness_accepted` after T001–T183,
 Ruff, mypy, and `git diff --check` passed on branch `phase4-evaluation-design`
 (accepted implementation HEAD `bde2ee42d76ef97c4ef08bc6541e92945da6e3f8`: 451 passed, zero
-skip/xfail). Real-model status is `benchmark_pending`: this branch has not run
-a live 80-slot DeepSeek benchmark and has no official credentialed six-file
-bundle. Do not claim `benchmark_completed`. Do not implement Phase 5
-presentation adapters until both `harness_accepted` and `benchmark_completed`
-are satisfied.
+skip/xfail). Real-model status is `benchmark_completed` with honest
+`target_status=below_target` after the official live 80-slot DeepSeek run
+`bench_official_s1_20260829t162243z` wrote the six-file bundle under
+`docs/evaluations/phase4/`. Do not implement Phase 5 presentation adapters
+until explicitly authorized.
 
 Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
 and accepted. Phase 3 passed Codex final acceptance at commit `a820b7f` on
@@ -46,7 +46,7 @@ Phase 4 design authority is the user-approved written design captured in
 `docs/superpowers/specs/2026-08-29-phase4-evaluation-design.md`, frozen
 `CONTRACTS_V0_2.md` §41–§49, `TEST_PLAN_V0_2.md` §22 (T125–T183), and
 D017–D020. Deterministic implementation is `harness_accepted`. Real-model
-`benchmark_completed` is not claimed.
+status is `benchmark_completed` (`below_target`).
 
 These documents describe approved architecture and frozen interfaces.
 
@@ -123,8 +123,9 @@ Do not add:
 
 unless that later phase is explicitly authorized.
 
-Phase 4 deterministic `harness_accepted` does not authorize Phase 5. Full
-Phase 4 product acceptance additionally requires `benchmark_completed`.
+Phase 4 dual acceptance is now satisfied: `harness_accepted` and
+`benchmark_completed`. That unlocks Phase 5 only as a gate; do not start Phase 5
+until it is explicitly authorized.
 
 ## Completed phases (reference)
 
@@ -150,15 +151,18 @@ Codex acceptance at `a820b7f`. The product-path runner is
 DeepSeek run, not a CI gate) with 0 rule-evaluation and 0 knowledge-retrieval
 actions. That acceptance does not complete Phase 4.
 
-### Phase 4 — evaluation harness (`harness_accepted`; real-model `benchmark_pending`)
+### Phase 4 — evaluation harness (`harness_accepted`; real-model `benchmark_completed`)
 
 Versioned S1 evaluation package, scripted deterministic harness, honest
 fixed-pipeline baseline, scoring, immutable report writer, official runner
 CLI, and T125–T183. Independent acceptance gate on HEAD `bde2ee4`:
 451 passed, zero skip/xfail; Ruff clean; mypy clean (45 files);
-`git diff --check` clean. This branch never ran a live 80-slot DeepSeek
-benchmark and has no official credentialed six-file bundle. Phase 5 remains
-gated until both harness and benchmark are complete.
+`git diff --check` clean. Official live DeepSeek benchmark
+`bench_official_s1_20260829t162243z`: provider `deepseek`, model
+`deepseek-v4-flash`, prompt `v0.2-s1-planner-4`, 80 scoreable held-out Agent
+slots, `benchmark_status=completed`, `target_status=below_target`. Bundle:
+`docs/evaluations/phase4/bench_official_s1_20260829t162243z/`. Phase 5 is
+unlocked as a gate only; do not start it without explicit authorization.
 
 ## Development workflow
 
@@ -218,8 +222,9 @@ validation findings. The real-model run **RAN** once with 0 rule/knowledge
 actions; do not treat that as a Phase 3 product-behavior pass.
 
 Phase 4 deterministic `harness_accepted` requires T001–T183 with zero required
-skip/xfail plus Ruff, mypy, and `git diff --check`. Real-model status remains
-`benchmark_pending` until an official 80-slot DeepSeek run and six-file bundle
-exist. Do not treat `benchmark_pending` as `benchmark_completed`.
+skip/xfail plus Ruff, mypy, and `git diff --check`. Real-model
+`benchmark_completed` additionally requires the official 80-slot DeepSeek run
+and immutable six-file bundle; a `below_target` result is honest completion.
+Do not treat `benchmark_pending` or `incomplete` as `benchmark_completed`.
 
 Never say that a later phase is complete if required tests are failing.

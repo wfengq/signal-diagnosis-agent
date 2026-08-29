@@ -298,7 +298,7 @@ def _report_markdown(report: BenchmarkReport) -> str:
         lines.append(f"## {title}")
         lines.extend(body)
         lines.append("")
-    return _sanitize_text("\n".join(lines) + "\n")
+    return _sanitize_text("\n".join(lines).rstrip("\n") + "\n")
 
 
 def _metrics_lines(metrics: AggregateMetrics | None) -> tuple[str, ...]:

@@ -507,6 +507,9 @@ def test_t173_report_representation_agreement(tmp_path: Path) -> None:
     assert len(manifest["manifest"]["cases"]) == len(report.manifest.cases)
 
     markdown = _read_text(dest / "report.md")
+    report_bytes = (dest / "report.md").read_bytes()
+    assert report_bytes.endswith(b"\n")
+    assert not report_bytes.endswith(b"\n\n")
     for section in MARKDOWN_SECTIONS:
         assert re.search(rf"^## {re.escape(section)}\s*$", markdown, re.MULTILINE)
 

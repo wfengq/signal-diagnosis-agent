@@ -32,16 +32,18 @@ Read these documents before changing implementation code:
   — completed Phase 3 TDD plan covering T093–T124; OQ-003 is resolved and the
   implementation plus final fix wave passed Codex acceptance at `a820b7f`.
   Phase 4 deterministic status is `harness_accepted`; real-model status is
-  `benchmark_pending`.
+  `benchmark_completed` with honest `below_target`.
 - [`superpowers/specs/2026-08-29-phase4-evaluation-design.md`](superpowers/specs/2026-08-29-phase4-evaluation-design.md)
   — written Phase 4 evaluation design approved on 2026-08-29; §41–§49 and
   T125–T183 are frozen.
 - [`superpowers/plans/2026-08-29-phase4-evaluation.md`](superpowers/plans/2026-08-29-phase4-evaluation.md)
   — task-level TDD implementation plan for Phase 4 covering T125–T183.
   Deterministic harness is `harness_accepted` after T001–T183, Ruff, mypy,
-  and `git diff --check`. This branch has not run a live 80-slot DeepSeek
-  benchmark and has no official credentialed six-file bundle, so real-model
-  status remains `benchmark_pending`. Do not claim `benchmark_completed`.
+  and `git diff --check`. Official live DeepSeek benchmark
+  `bench_official_s1_20260829t162243z` produced the six-file bundle under
+  [`evaluations/phase4/bench_official_s1_20260829t162243z/`](evaluations/phase4/bench_official_s1_20260829t162243z/):
+  80 scoreable held-out Agent slots, `benchmark_status=completed`,
+  `target_status=below_target`.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -93,10 +95,11 @@ Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design` after the
 quality gate below (accepted implementation HEAD
 `bde2ee42d76ef97c4ef08bc6541e92945da6e3f8`).
-Real-model status is `benchmark_pending`: no live 80-slot DeepSeek run and no
-official credentialed six-file bundle exist on this branch. Phase 5 remains
-gated until both `harness_accepted` and `benchmark_completed` are satisfied.
-Do not convert a target miss into a failure or hide it.
+Real-model status is `benchmark_completed` with honest `below_target` after
+the official live 80-slot DeepSeek run
+`bench_official_s1_20260829t162243z`. Phase 4 dual acceptance is satisfied.
+Do not convert a target miss into a failure or hide it. Do not start Phase 5
+until it is explicitly authorized.
 
 Quality gate this session (Python
 `C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`):
