@@ -32,6 +32,11 @@ def validate_finish_decision(
         raise DiagnosisValidationError("finish decision requires task assessment")
 
     for claim in decision.claims:
+        for evidence_id in claim.evidence_refs:
+            if evidence_id not in known_evidence_ids:
+                raise DiagnosisValidationError(
+                    f"unknown evidence reference: {evidence_id}"
+                )
         for rule_id in claim.rule_refs:
             if rule_id not in known_rule_evaluation_ids:
                 raise DiagnosisValidationError(

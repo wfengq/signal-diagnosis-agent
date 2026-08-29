@@ -192,6 +192,108 @@ def test_t119_unsupported_rejects_unknown_knowledge_refs() -> None:
         )
 
 
+def test_t119_inconclusive_rejects_unknown_evidence_refs() -> None:
+    decision = FinishDecision(
+        outcome="inconclusive",
+        claims=(
+            DiagnosisClaim(
+                claim_id="claim_noise",
+                fault_type="inconclusive",
+                statement="Fabricated evidence refs must be rejected.",
+                evidence_refs=("ev_missing",),
+            ),
+        ),
+        confidence_label="low",
+        limitations=("metrics not applicable",),
+    )
+    with pytest.raises(DiagnosisValidationError, match="unknown evidence reference"):
+        validate_finish_decision(
+            decision,
+            known_evidence_ids=frozenset({"ev_clip_001"}),
+            known_rule_evaluation_ids=frozenset(),
+            known_knowledge_retrieval_ids=frozenset(),
+            task_assessment=assessment(),
+        )
+
+
+def test_t119_unsupported_rejects_unknown_evidence_refs() -> None:
+    decision = FinishDecision(
+        task_assessment=TaskAssessment(
+            task_type="unsupported",
+            objective="out of scope",
+        ),
+        outcome="inconclusive",
+        claims=(
+            DiagnosisClaim(
+                claim_id="claim_unsup",
+                fault_type="inconclusive",
+                statement="Fabricated evidence refs must be rejected.",
+                evidence_refs=("ev_missing",),
+            ),
+        ),
+        confidence_label="low",
+        limitations=("task unsupported",),
+    )
+    with pytest.raises(DiagnosisValidationError, match="unknown evidence reference"):
+        validate_finish_decision(
+            decision,
+            known_evidence_ids=frozenset({"ev_clip_001"}),
+            known_rule_evaluation_ids=frozenset(),
+            known_knowledge_retrieval_ids=frozenset(),
+            task_assessment=None,
+        )
+
+
+def test_t119_inconclusive_accepts_existing_evidence_refs() -> None:
+    decision = FinishDecision(
+        outcome="inconclusive",
+        claims=(
+            DiagnosisClaim(
+                claim_id="claim_noise",
+                fault_type="inconclusive",
+                statement="Same-run evidence refs remain valid.",
+                evidence_refs=("ev_clip_001",),
+            ),
+        ),
+        confidence_label="low",
+        limitations=("metrics not applicable",),
+    )
+    validate_finish_decision(
+        decision,
+        known_evidence_ids=frozenset({"ev_clip_001"}),
+        known_rule_evaluation_ids=frozenset(),
+        known_knowledge_retrieval_ids=frozenset(),
+        task_assessment=assessment(),
+    )
+
+
+def test_t119_unsupported_accepts_existing_evidence_refs() -> None:
+    decision = FinishDecision(
+        task_assessment=TaskAssessment(
+            task_type="unsupported",
+            objective="out of scope",
+        ),
+        outcome="inconclusive",
+        claims=(
+            DiagnosisClaim(
+                claim_id="claim_unsup",
+                fault_type="inconclusive",
+                statement="Same-run evidence refs remain valid.",
+                evidence_refs=("ev_clip_001",),
+            ),
+        ),
+        confidence_label="low",
+        limitations=("task unsupported",),
+    )
+    validate_finish_decision(
+        decision,
+        known_evidence_ids=frozenset({"ev_clip_001"}),
+        known_rule_evaluation_ids=frozenset(),
+        known_knowledge_retrieval_ids=frozenset(),
+        task_assessment=None,
+    )
+
+
 def test_t119_valid_rule_and_knowledge_refs_pass() -> None:
     decision = FinishDecision(
         outcome="supported_fault",
