@@ -1,7 +1,7 @@
 # Open Contract and Architecture Questions
 
 **Status:** Active register
-**Current open questions:** 0 pending; 5 resolved (OQ-001–OQ-005)
+**Current open questions:** 0 pending; 6 resolved (OQ-001–OQ-006)
 
 Use this file only for concrete issues that may require changing an approved
 contract or architectural boundary.
@@ -108,4 +108,21 @@ Minimal proposed change: Add real_model_eval_output/ to .gitignore and treat as 
 Compatibility impact: None on frozen contracts.
 Test impact: None.
 User decision: approved — gitignore local eval output
+```
+
+---
+
+## OQ-006 — Preserve frozen v5 evidence while authorizing prompt v6 remediation
+
+```text
+ID: OQ-006
+Date: 2026-08-30
+Status: approved/resolved — additive v6 contract and Task 2–8 implementation approved on 2026-08-30
+Affected document and section: docs/CONTRACTS_V0_2.md §50; docs/TEST_PLAN_V0_2.md §23 T184/T194; docs/DECISIONS.md D021; Phase 4.1 operational campaign identities
+Observed problem: The immutable v5 development campaign at f9392c2 is completed/below_target. Its traces show that v5 appends policy to contradictory v4 examples, causing repeatable failures in D019 dual truth, combined-hypothesis coverage, inconclusive knowledge citation, and no-fault claim semantics. Frozen §50 and T184/T194 name and hash v5, so replacing v5 bytes or silently redirecting its campaign would invalidate recorded provenance.
+Why the current contract cannot represent a correct implementation: §50 correctly represents the completed v5 attempt but provides no separate prompt/campaign identity for a second prompt-only development candidate. Correct remediation must preserve v5 and gate1 byte-for-byte while binding a new prompt version, hash, development benchmark ID, and conditional official benchmark ID.
+Minimal proposed change: Keep §50 and T184–T195 unchanged; add §51 for v0.2-s1-planner-6, TEST_PLAN §24 T196–T200, and D022. Preserve existing phase4.1-development/official routes as v5 and add phase4.1-v6-development/official routes. Reuse only the v1.1.0 development split until v6 gate2 meets target; held-out remains unexecuted.
+Compatibility impact: Additive prompt specification, private planner/config builders, and CLI campaign choices only. No public PlannerModel, AgentDecision, PlannerContext, Runtime, DSP, rule, knowledge, evaluation model, scorer, target, or report schema change. v4/v5 reproducibility and all committed bundles remain intact.
+Test impact: Add T196–T200 for v4/v5 immutability, v6 identity and semantic coherence, no leakage and traceability, additive campaign scheduling, and the cumulative gate. T001–T195 remain required and unchanged.
+User decision: approved OQ-006, CONTRACTS §51, TEST_PLAN §24/T196–T200, and D022 on 2026-08-30; Task 2–8 implementation is authorized, while real-model held-out execution remains gated by a v6 development completed/meets_target result
 ```

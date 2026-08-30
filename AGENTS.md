@@ -5,11 +5,12 @@
 This repository implements a Signal Test and Fault Diagnosis Agent.
 
 Phase 4 accepted at `b68ec5e` (`completed/below_target` official v1.0.0 benchmark
-remains immutable). Phase 4.1 deterministic implementation is complete at
-`cadc15d`; T184–T195 green (499 passed, ruff/mypy/`git diff --check b68ec5e..HEAD`
-clean). Real-model gates are not done: 40-slot development then, only if
-`meets_target`, one-shot 80-slot official held-out. Phase 4.1 is not accepted.
-Phase 5 remains gated.
+remains immutable). Phase 4.1 v5 deterministic implementation is complete at
+`cadc15d`; its 40-slot development gate1 at `f9392c2` is honest
+`completed/below_target`. The additive prompt v6 correction (§51, T196–T200,
+D022) is approved and Task 2–8 implementation is authorized. The v1.1.0
+held-out split remains sealed until v6 development gate2 reaches
+`completed/meets_target`. Phase 4.1 is not accepted. Phase 5 remains gated.
 
 The Phase 4 written specification was approved on 2026-08-29; §§41–§49 and
 T125–T183 are frozen and implemented. Deterministic status is
@@ -21,10 +22,10 @@ the six-file bundle under `docs/evaluations/phase4/`. That first official
 benchmark is complete and honestly below target; it is not a harness failure
 and is not accepted as product-quality behavior.
 
-Phase 4.1 adds additive `CONTRACTS_V0_2.md` §50, `TEST_PLAN_V0_2.md` §23
-(T184–T195), and D021. It does not change frozen §§41–§49 or T125–T183
-semantics. Do not implement Phase 5 presentation adapters until Phase 4.1 is
-accepted and Phase 5 is explicitly authorized.
+Phase 4.1 authority is additive `CONTRACTS_V0_2.md` §§50–§51,
+`TEST_PLAN_V0_2.md` §§23–§24 (T184–T200), and D021–D022. It does not change
+frozen §§41–§49 or T125–T183 semantics. Do not implement Phase 5 presentation
+adapters until Phase 4.1 is accepted and Phase 5 is explicitly authorized.
 
 Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
 and accepted. Phase 3 passed Codex final acceptance at commit `a820b7f` on
@@ -36,13 +37,15 @@ Before modifying code, read:
 
 - `docs/README.md`
 - `docs/ARCHITECTURE_V0_2.md` (especially §13–§18)
-- `docs/CONTRACTS_V0_2.md` (Phase 1–4 frozen; Phase 4 §41–§49; additive Phase 4.1 §50)
-- `docs/TEST_PLAN_V0_2.md` (Phase 1–4 required; Phase 4 §22; additive Phase 4.1 §23 T184–T195)
+- `docs/CONTRACTS_V0_2.md` (Phase 1–4 frozen; Phase 4 §41–§49; additive Phase 4.1 §§50–§51)
+- `docs/TEST_PLAN_V0_2.md` (Phase 1–4 required; Phase 4 §22; additive Phase 4.1 §§23–§24 T184–T200)
 - `docs/DECISIONS.md`
 - `docs/superpowers/specs/2026-08-29-phase4-evaluation-design.md`
 - `docs/superpowers/plans/2026-08-29-phase4-evaluation.md`
 - `docs/superpowers/specs/2026-08-30-phase4-1-agent-behavior-improvement-design.md`
 - `docs/superpowers/plans/2026-08-30-phase4-1-agent-behavior-improvement.md`
+- `docs/superpowers/specs/2026-08-30-phase4-1-prompt-v6-correction-design.md`
+- `docs/superpowers/plans/2026-08-30-phase4-1-prompt-v6-correction.md`
 - `docs/superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`
 - `docs/superpowers/plans/2026-08-29-phase3-rules-knowledge.md`
 
@@ -63,11 +66,13 @@ D017–D020. Phase 4 is accepted at `b68ec5e`. Deterministic implementation is
 `harness_accepted`. Real-model status is `benchmark_completed`
 (`below_target`).
 
-Phase 4.1 design authority is
-`docs/superpowers/specs/2026-08-30-phase4-1-agent-behavior-improvement-design.md`,
-additive `CONTRACTS_V0_2.md` §50, `TEST_PLAN_V0_2.md` §23 (T184–T195), and
-D021. Deterministic implementation is complete at `cadc15d`; T184–T195 green.
-Real-model gates are not done. Phase 4.1 is not accepted.
+Phase 4.1 design authority is the original behavior-improvement design plus
+`docs/superpowers/specs/2026-08-30-phase4-1-prompt-v6-correction-design.md`,
+additive `CONTRACTS_V0_2.md` §§50–§51, `TEST_PLAN_V0_2.md` §§23–§24
+(T184–T200), and D021–D022. v5 deterministic implementation is complete at
+`cadc15d`; its development gate1 is `completed/below_target` at `f9392c2`.
+Prompt v6 Task 2–8 implementation is authorized. Official held-out remains
+development-gated. Phase 4.1 is not accepted.
 
 These documents describe approved architecture and frozen interfaces.
 
@@ -79,8 +84,10 @@ Files under `docs/archive/v0.1/` are historical references only. Files under
 The Phase 1–4 interfaces in `docs/CONTRACTS_V0_2.md` are frozen. Phase 3
 implementation conforms to §32–§40 and the T093–T124 acceptance gate. Phase 4
 §41–§49 is implementation authority for the accepted deterministic harness.
-Additive Phase 4.1 §50 is frozen; deterministic implementation is complete at
-`cadc15d`. Real-model gates and Phase 4.1 acceptance are not done.
+Additive Phase 4.1 §§50–§51 are frozen. v5 deterministic implementation is
+complete at `cadc15d`, and v5 development gate1 is immutable
+`completed/below_target` at `f9392c2`. v6 implementation is authorized under
+T196–T200; official held-out and Phase 4.1 acceptance are not done.
 
 Do not redesign or rename public models, functions, modules, arguments, return
 values, or package boundaries unless the user explicitly requests a contract
@@ -147,10 +154,11 @@ Do not add:
 unless that later phase is explicitly authorized.
 
 Phase 4 dual acceptance is satisfied at `b68ec5e`: `harness_accepted` and
-`benchmark_completed` with honest `below_target`. Phase 4.1 deterministic
-implementation is complete at `cadc15d`; real-model gates are not done. Phase
-4.1 is not accepted. Phase 5 remains gated until Phase 4.1 is accepted and
-explicitly authorized. Do not start Phase 5.
+`benchmark_completed` with honest `below_target`. Phase 4.1 v5 deterministic
+implementation is complete at `cadc15d`, and its development gate1 is
+`completed/below_target` at `f9392c2`. Prompt v6 implementation is the active
+work; its official held-out run is forbidden before development gate2 meets
+target. Phase 4.1 is not accepted. Phase 5 remains gated. Do not start Phase 5.
 
 ## Completed phases (reference)
 
@@ -190,11 +198,12 @@ scoreable held-out Agent slots, `benchmark_status=completed`,
 official result is honest `completed/below_target`; it is not a harness
 failure and is not accepted as product-quality behavior.
 
-### Phase 4.1 — agent behavior improvement (deterministic implementation complete at `cadc15d`; not accepted)
+### Phase 4.1 — agent behavior improvement (v5 development below target; v6 implementation authorized)
 
-Additive §50, T184–T195, and D021. Prompt-only correction on a fresh v1.1.0
-held-out set. Does not change frozen §§41–§49 or T125–T183. Phase 5 remains
-gated.
+Additive §§50–§51, T184–T200, and D021–D022. v5 gate1 is immutable
+`completed/below_target`; v6 is a coherent prompt-only correction using the
+existing v1.1.0 development split before any held-out access. It does not
+change frozen §§41–§49 or T125–T183. Phase 5 remains gated.
 
 ## Development workflow
 
@@ -261,9 +270,11 @@ Do not treat `benchmark_pending` or `incomplete` as `benchmark_completed`.
 The first official benchmark at `b68ec5e` is `completed/below_target`; it is
 not a product-quality behavior pass.
 
-Phase 4.1 deterministic implementation is complete at `cadc15d`; T184–T195
-green (499 passed, ruff/mypy/`git diff --check b68ec5e..HEAD` clean).
-Real-model gates are not done. Phase 4.1 is not accepted. Phase 4.1 acceptance
-requires `completed/meets_target` and T001–T195 green. Phase 5 remains gated.
+Phase 4.1 v5 deterministic implementation is complete at `cadc15d`; T184–T195
+were green before its honest `completed/below_target` development gate1 at
+`f9392c2`. v6 implementation must satisfy T001–T200, Ruff, mypy, architecture,
+and `git diff --check f9392c2..HEAD`; its 40-slot development gate2 must meet
+target before the one-shot 80-slot official run. Phase 4.1 acceptance requires
+the v6 official result to be `completed/meets_target`. Phase 5 remains gated.
 
 Never say that a later phase is complete if required tests are failing.

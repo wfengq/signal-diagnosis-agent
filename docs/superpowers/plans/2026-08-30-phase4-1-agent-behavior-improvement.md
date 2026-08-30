@@ -615,6 +615,13 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
 ### Task 6: Run and Freeze the 40-Slot Development Gate
 
+**Recorded result:** Completed at `f9392c2` as
+`benchmark_status=completed`, `target_status=below_target`. All 40 Agent slots
+were scoreable. Failing targets were causal macro F1 0.75, Evidence grounding
+30/38, and knowledge citation utilization 1/5. Task 7 was not run. The v5
+bundle is immutable; remediation moved to a separately approved prompt identity
+and benchmark ID.
+
 **Files:**
 - Create: `docs/evaluations/phase4_1/development/bench_phase4_1_dev_v5_gate1/benchmark_manifest.json`
 - Create: `docs/evaluations/phase4_1/development/bench_phase4_1_dev_v5_gate1/runs.jsonl`
@@ -627,11 +634,11 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 - Consumes: frozen deterministic implementation, v5 prompt, v1.1.0 development cases, real DeepSeek credentials.
 - Produces: one append-only 40-slot development bundle. It is tuning evidence, not official held-out proof.
 
-- [ ] **Step 1: Verify the pre-run freeze and credential gate**
+- [x] **Step 1: Verify the pre-run freeze and credential gate**
 
   Re-run Task 5 Step 3. Confirm `DEEPSEEK_API_KEY` exists without printing its value. Confirm the destination directory does not exist. Record v5 SHA-256, git HEAD, Python, OpenAI SDK, dataset, profile, provider, and model identities.
 
-- [ ] **Step 2: Run exactly one development campaign**
+- [x] **Step 2: Run exactly one development campaign**
 
   ```powershell
   & $py -m signal_diag.evaluation run-real --campaign phase4.1-development --benchmark-id bench_phase4_1_dev_v5_gate1 --output-dir docs/evaluations/phase4_1/development
@@ -639,13 +646,13 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Do not use a fake client. Do not run any v1.1.0 held-out case in this task.
 
-- [ ] **Step 3: Verify the development bundle independently**
+- [x] **Step 3: Verify the development bundle independently**
 
   Validate exactly six files and their checksums. Parse all records through repository Pydantic models. Confirm 40 unique Agent slots over only the 8 development case IDs, no unscored slot, `benchmark_status=completed`, and `target_status=meets_target`. Recompute every RunScore and aggregate from stored traces and compare exact serialized values. Scan artifacts for credentials, raw provider bodies, waveform/sample arrays, evaluation-truth leakage, and platform paths.
 
   If the report is `below_target`, commit the honest bundle, report the failing metrics, and stop before Task 7. Do not inspect or run v1.1.0 held-out behavior. Prompt-only remediation requires a new approved prompt version and a new development benchmark ID.
 
-- [ ] **Step 4: Commit the immutable development evidence**
+- [x] **Step 4: Commit the immutable development evidence**
 
   ```powershell
   git add docs/evaluations/phase4_1/development/bench_phase4_1_dev_v5_gate1

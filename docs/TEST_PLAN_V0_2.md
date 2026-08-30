@@ -2,7 +2,10 @@
 
 **Document:** `TEST_PLAN_V0_2.md`  
 **Version:** `0.2`  
-**Status:** Approved and required for Phase 1–4; Phase 4.1 T184–T195 deterministic implementation complete at `cadc15d` (499 passed, ruff/mypy/`git diff --check b68ec5e..HEAD` clean); real-model gates not done; Phase 4.1 not accepted
+**Status:** Approved and required for Phase 1–4; Phase 4.1 T184–T195
+deterministic implementation complete at `cadc15d`; v5 development gate1 is
+honest `completed/below_target`; additive v6 T196–T200 are frozen and pending
+implementation; Phase 4.1 is not accepted
 **Scope:** Phase 1 deterministic foundation, Phase 2 hybrid Agent runtime, and
 Phase 3 rules/knowledge acceptance; frozen Phase 4 evaluation acceptance;
 additive Phase 4.1 behavior-calibration acceptance
@@ -946,3 +949,40 @@ The first official Phase 4 benchmark at `b68ec5e` remains
 `completed/below_target`. That result is honest harness completion, not a
 failure of the evaluator and not a product-quality behavior pass. Phase 5
 remains gated until the Phase 4.1 gate is independently verified.
+
+---
+
+## 24. Phase 4.1 — Additive Prompt v6 Correction
+
+T196–T200 are deterministic and additive. They preserve T001–T195 and the
+recorded v4/v5 prompt, campaign, configuration, and report identities. Fake
+provider transports may drive the real `RealLLMPlanner` boundary for ordinary
+CI, but stochastic model behavior is evaluated only by the separately gated
+development and official campaigns.
+
+### Checkpoint Q — v6 identity, coherent policy, product path, and campaigns
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T196 | Prompt and legacy identity | exact v4/v5 prompt bytes, hashes, private builders, campaign routes, fingerprints, and committed bundles remain reproducible; v6 uses version `v0.2-s1-planner-6`, one coherent immutable prompt, and an exact SHA-256/configuration identity |
+| T197 | Coherent v6 semantics | prompt policy and examples consistently preserve viable hypotheses, separate causal Evidence from configured acceptance, restrict `no_supported_fault` to a final empty cause set, require traceable inconclusive claims, and avoid a fixed Tool sequence |
+| T198 | Product-boundary behavior | deterministic fake transport through the real `RealLLMPlanner` and real Runtime proves no evaluation leakage, same-run Evidence/rule/knowledge resolution, rule and knowledge propagation, and valid dynamic routes for boundary harmonic, combined, invalid/noisy, and strong-harmonic cases |
+| T199 | Additive campaign freeze | existing Phase 4.1 choices remain v5; `phase4.1-v6-development` binds v6 to 8 × 5 v1.1.0 development slots and `bench_phase4_1_dev_v6_gate2`; `phase4.1-v6-official` binds the byte-identical candidate to 16 × 5 held-out slots and `bench_official_s1_v11_planner6_gate2`, with official execution rejected before a development `completed/meets_target` bundle |
+| T200 | Cumulative gate | T001–T200 pass with zero required skip/xfail; Ruff, mypy, architecture boundaries, and `git diff --check f9392c2..HEAD` remain green; no Phase 5 code or controller-forced analysis action is introduced |
+
+### Phase 4.1 v6 acceptance states
+
+The 40-slot v6 development gate is tuning evidence, not official held-out
+proof. It must use the v1.1.0 development split only. A result other than
+`benchmark_status=completed` and `target_status=meets_target` is retained
+honestly and forbids the official v1.1.0 held-out run.
+
+After development meets target, the frozen candidate may run the official
+80-slot held-out gate once. Phase 4.1 is accepted only when that official run
+is `completed/meets_target`, all 80 Agent slots are scoreable, checksums and
+six-file bundle validation pass, T001–T200 have zero required skip/xfail, Ruff,
+mypy, architecture tests, and diff-check pass, and the v1.0.0 official plus v5
+development below-target assets remain present and reproducible. A completed
+official target miss remains honest evidence, leaves Phase 4.1 unaccepted, and
+must not be tuned against or rerun on the same held-out set. Phase 5 remains
+gated pending independent acceptance and a separate Phase 5 design approval.

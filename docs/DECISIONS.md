@@ -241,3 +241,31 @@ never by planner-visible evaluation labels.
 Phase 4.1 acceptance requires `completed/meets_target` on the new official
 bundle and T001–T195 green. Phase 5 remains gated until that gate is
 independently verified.
+
+## D022 — Preserve v5 evidence and add one coherent prompt v6 campaign
+
+**Decision:** The completed v5 development result at `f9392c2` is immutable
+`completed/below_target` evidence. Do not rewrite v5, append another policy
+block to it, redirect its campaign choices, or overwrite its gate1 report.
+
+Phase 4.1 adds prompt `v0.2-s1-planner-6` as one complete coherent instruction.
+It corrects the repeatable prompt contradictions around dual truth, unresolved
+combined hypotheses, inconclusive knowledge citation, and no-fault semantics.
+The correction remains prompt-only: public Planner, Runtime, DSP, Tool, rule,
+knowledge, evaluation, scoring, target, and report contracts do not change, and
+the runtime does not force an analysis action.
+
+Private legacy planners preserve exact v4/v5 reproducibility. The existing
+`phase4.1-development` and `phase4.1-official` routes remain v5. Additive
+`phase4.1-v6-development` and `phase4.1-v6-official` routes carry distinct v6
+prompt, hash, configuration, and benchmark identities.
+
+The v1.1.0 development split may be reused because it is already tuning data;
+the v1.1.0 held-out split remains sealed. The 40-slot v6 development gate2 must
+reach `completed/meets_target` before the byte-identical candidate may run the
+80-slot official held-out gate once. A development miss stops before held-out.
+An official miss is retained honestly and is neither tuned against nor rerun.
+
+T196–T200 enforce legacy identity, v6 semantic coherence, product-boundary
+traceability and no leakage, additive campaign scheduling, and the cumulative
+quality gate. Phase 5 remains gated until independent Phase 4.1 acceptance.

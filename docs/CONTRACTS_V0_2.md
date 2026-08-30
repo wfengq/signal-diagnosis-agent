@@ -2,7 +2,9 @@
 
 **Document:** `CONTRACTS_V0_2.md`  
 **Contract version:** `0.2`  
-**Status:** Frozen for Phase 1–4; Phase 4 accepted at `b68ec5e`; additive Phase 4.1 §50 pending implementation
+**Status:** Frozen for Phase 1–4; Phase 4 accepted at `b68ec5e`; Phase 4.1
+§50 deterministic implementation complete with v5 development below target;
+additive v6 correction §51 frozen and implementation-authorized
 **Scope:** Phase 1 deterministic foundation, Phase 2 hybrid Agent runtime, and
 Phase 3 rules/knowledge contracts; frozen Phase 4 evaluation contracts;
 additive Phase 4.1 behavior gate
@@ -29,8 +31,10 @@ If a genuine correctness problem is found:
 Private helpers remain implementation details. Phase 3 interfaces are frozen in
 §32–§40. The written-spec-approved Phase 4 contracts are frozen in §41–§49.
 Phase 4 is accepted at `b68ec5e`. Additive Phase 4.1 behavior contracts are
-frozen in §50; Phase 4.1 implementation remains gated on its Superpowers
-task-level plan and an explicit execution choice.
+frozen in §50. The v5 development result is immutable
+`completed/below_target`. The additive v6 correction is frozen in §51 and its
+Task 2–8 implementation is authorized; real-model execution remains subject to
+the §51 development-before-held-out gates.
 
 ---
 
@@ -3048,3 +3052,81 @@ Real-model gates are not done: 40-slot development then, only if
 `meets_target`, one-shot 80-slot official held-out. Phase 4.1 is not accepted.
 Phase 5 remains gated until Phase 4.1 reaches `completed/meets_target` with
 T001–T195 green.
+
+---
+
+## 51. Phase 4.1 Additive Prompt v6 Correction Gate
+
+The immutable v5 development campaign at `f9392c2` completed honestly with
+`target_status=below_target`. Its bundle remains at
+`docs/evaluations/phase4_1/development/bench_phase4_1_dev_v5_gate1/`.
+Observed failures are concentrated in mutually inconsistent v4 examples and
+the policy appendix used to construct v5. Section 51 authorizes one additive
+prompt-only correction without reopening §50, §§41–§49, or any Phase 1–4
+public interface. The written design at
+`docs/superpowers/specs/2026-08-30-phase4-1-prompt-v6-correction-design.md`
+was approved on 2026-08-30. D022 records the compatibility and evaluation
+decision.
+
+The following statements are normative:
+
+```text
+v4 and v5 prompt bytes, SHA-256 identities, planner builders, campaign routes,
+configuration fingerprints, and committed report bundles remain reproducible.
+
+The additive product prompt version is v0.2-s1-planner-6. Its system prompt is
+one coherent immutable prompt, not v4 plus an appendix and not v5 plus an
+appendix. Its exact UTF-8 bytes determine the SHA-256 identity frozen by T196
+before any real-model v6 campaign runs.
+
+RealLLMPlanner remains the product path and selects v6 after implementation.
+Private legacy planners may select exact v4 or v5 identities only to reproduce
+their historical campaigns. ScriptedPlanner and fake transports remain test
+doubles and are never silent product fallbacks.
+
+The runtime does not force DSP, rule, or knowledge actions. Numerical values
+remain DSP-produced; configured thresholds remain profile-produced. Raw
+waveforms, full FFT arrays, generator truth, expected faults, dataset policy,
+and scoring targets never enter PlannerContext or outbound LLM messages.
+
+The v6 prompt keeps every viable clipping or harmonic hypothesis open until it
+is supported, ruled out, or explicitly unobservable. It does not prescribe a
+fixed Tool sequence.
+
+Observed causal distortion and configured rule acceptance are independent
+facts. Rule PASS never erases supported harmonic or clipping Evidence.
+
+no_supported_fault is a final empty-cause-set conclusion. It is not emitted as
+an additional cause beside a supported fault and does not replace an observed
+distortion merely because a configured rule passes.
+
+An inconclusive diagnosis contains a traceable claim. The claim cites same-run
+Evidence, cites an applicable same-run rule evaluation or states why no rule is
+applicable, cites same-run knowledge when retrieval was used, and includes a
+non-empty limitation.
+
+Existing phase4.1-development and phase4.1-official campaign choices remain
+bound to v5. New phase4.1-v6-development and phase4.1-v6-official choices bind
+v6 without changing public evaluation or report models.
+
+The v6 development benchmark ID is bench_phase4_1_dev_v6_gate2. It uses only
+the existing v1.1.0 development split: 8 cases x 5 slots. A result other than
+completed/meets_target is retained honestly and stops v6 before held-out.
+
+The v6 official benchmark ID is bench_official_s1_v11_planner6_gate2. It may
+run exactly once only after the development gate is completed/meets_target,
+using the byte-identical approved candidate and the sealed v1.1.0 held-out
+split: 16 cases x 5 slots. Existing target bands are unchanged.
+
+Phase 4.1 acceptance requires the v6 official gate to be
+completed/meets_target, all 80 Agent slots scoreable, the append-only six-file
+bundle valid, and T001–T200 plus Ruff, mypy, architecture, and diff-check green.
+Phase 5 remains gated until independent Phase 4.1 acceptance.
+```
+
+If v6 development gate2 is below target, incomplete, or pending, the result is
+preserved and no v1.1.0 held-out case is run or inspected. A further prompt
+version, PlannerContext change, model change, runtime change, target change, or
+new dataset campaign requires a separate written design decision. If the
+one-shot official gate2 is below target, its result is preserved, Phase 4.1
+remains unaccepted, and the same held-out set is not used for tuning or rerun.
