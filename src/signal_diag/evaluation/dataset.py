@@ -12,6 +12,7 @@ Fixture calibration notes (dataset QA only; not product thresholds):
 
 from __future__ import annotations
 
+import hashlib
 import operator
 from collections import Counter
 from pathlib import Path
@@ -95,6 +96,13 @@ def _stable_signal_id(case_id: str) -> str:
     return f"sig_eval_{case_id.removeprefix('case_')}"
 
 
+def _opaque_evaluation_signal_id(
+    dataset_id: str, dataset_version: str, case_id: str
+) -> str:
+    raw = f"{dataset_id}\0{dataset_version}\0{case_id}".encode("utf-8")
+    return f"sig_eval_{hashlib.sha256(raw).hexdigest()[:24]}"
+
+
 def _harmonic_ratio_map(
     spec: HarmonicSineSignalSpec | CombinedDistortionSignalSpec,
 ) -> dict[int, float]:
@@ -147,13 +155,18 @@ def _generate(case: EvaluationCase) -> SyntheticCase:
     raise TypeError(f"unsupported signal spec: {type(spec)!r}")
 
 
-def _materialize_case(case: EvaluationCase, repository: SignalRepository) -> SignalRecord:
+def _materialize_case(
+    case: EvaluationCase,
+    repository: SignalRepository,
+    *,
+    signal_id: str | None = None,
+) -> SignalRecord:
     generated = _generate(case)
     record = build_signal_record(
         generated.record.samples,
         sample_rate_hz=generated.record.meta.sample_rate_hz,
         source_type="generated",
-        signal_id=_stable_signal_id(case.case_id),
+        signal_id=signal_id if signal_id is not None else _stable_signal_id(case.case_id),
     )
     repository.put(record)
     return record

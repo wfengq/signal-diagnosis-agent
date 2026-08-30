@@ -954,9 +954,19 @@ async def _execute_agent_slot(
     inner_client: object,
     *,
     planner_builder: Callable[[object], RealLLMPlanner],
+    signal_id_factory: Callable[[EvaluationCase], str] | None = None,
 ) -> EvaluationTrace:
     repository = InMemorySignalRepository()
-    record = _materialize_case(case, repository)
+    if signal_id_factory is None:
+        record = _materialize_case(case, repository)
+    else:
+        injected = signal_id_factory(case)
+        if not isinstance(injected, str) or not injected:
+            raise ValueError(
+                "signal_id_factory must return a non-empty signal_id; "
+                "refusing semantic fallback"
+            )
+        record = _materialize_case(case, repository, signal_id=injected)
     tool_service, rule_engine, profile_loader, knowledge_index = _official_dependencies(
         repository
     )
@@ -992,6 +1002,7 @@ async def _run_agent_slot_with_retries(
     client_factory: Callable[[], object],
     classify_error: Callable[[BaseException], tuple[AttemptStatus, AttemptErrorCode]],
     now: Callable[[], datetime],
+    signal_id_factory: Callable[[EvaluationCase], str] | None = None,
 ) -> tuple[EvaluationTrace | None, tuple[AttemptRecord, ...]]:
     max_attempts = 1 + config.max_infrastructure_retries
     attempts: list[AttemptRecord] = []
@@ -1004,6 +1015,7 @@ async def _run_agent_slot_with_retries(
                 run_slot,
                 client_factory(),
                 planner_builder=planner_builder,
+                signal_id_factory=signal_id_factory,
             )
         except Exception as error:  # noqa: BLE001 - classify any provider/transport failure
             finished = max(now(), started)
@@ -1227,6 +1239,7 @@ async def _run_real_benchmark_for_split(
     | None = None,
     import_openai: Callable[[], object] | None = None,
     now: Callable[[], datetime] | None = None,
+    signal_id_factory: Callable[[EvaluationCase], str] | None = None,
 ) -> BenchmarkReport:
     dest = output_dir / config.benchmark_id
     if dest.exists():
@@ -1276,6 +1289,7 @@ async def _run_real_benchmark_for_split(
             client_factory=factory,
             classify_error=classifier,
             now=clock,
+            signal_id_factory=signal_id_factory,
         )
         recorded_attempts.extend(slot_attempts)
         if trace is None:
