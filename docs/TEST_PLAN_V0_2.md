@@ -1072,3 +1072,41 @@ tuning or rerun occurred. Phase 5 remains gated pending separate authorization.
 
 Approval of this section freezes design and tests only. It does not authorize
 implementation or any real-model campaign.
+
+---
+
+## 27. Phase 4.3.1 — Planner v8.1 Compliance Correction
+
+T216–T223 are deterministic and additive. They preserve T001–T215, dataset
+`1.2.0`, all public models, frozen targets, historical scoring behavior,
+prompt/campaign identities, and committed bundles. Stochastic provider behavior
+is never a pytest gate.
+
+### Checkpoint T — v8.1 compliance, scoring provenance, and cumulative gate
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T216 | Historical and v8.1 identity | exact v4–v8 prompt bytes, hashes, private planners, routes, configurations, fingerprints, trace scores, and committed bundles remain reproducible; v8.1 is one complete `v0.2-s1-planner-8.1` prompt with independent exact SHA-256/configuration identity |
+| T217 | Request scope | existing TaskAssessment hypotheses start with clipping only for clipping-specific requests, harmonic only for harmonic-specific requests, and both for generic broad requests; clipping-specific finish is legal after its family closes, while broad/combined early finish is prohibited while another requested family remains viable |
+| T218 | Affirmative causal claims | causal fault types represent supported causes only; negative, ruled-out, absent, or limitation prose does not use a causal clipping/harmonic fault type; no-supported-fault and inconclusive semantics remain distinct |
+| T219 | Clipping attribution | real deterministic strong clipping with high THD and odd-order-only Evidence remains clipping-only; independent harmonic distortion requires reportable order-2 Evidence; combined cases retain separate clipping and order-2 support |
+| T220 | Versioned scoring policy | legacy configurations reproduce legacy results; `signal_diag.scoring=2.0.0` recognizes valid and invalid/not-applicable structured Evidence as eligible RuleEngine input, scores a following applicable NOT_APPLICABLE rule/replan appropriately, and leaves all other formulas, failure codes, targets, and public signatures unchanged |
+| T221 | Product-boundary behavior | deterministic fake transport through active RealLLMPlanner and real Runtime, DSP Tools, RuleEngine, and KnowledgeIndex proves clipping-specific, broad/combined, and invalid/noise routes; same-run Evidence/rule/knowledge references resolve and no ScriptedPlanner fallback or Runtime-forced action occurs |
+| T222 | Canonical campaigns and preflight | `phase4.3.1-v8.1-development` / `bench_phase4_3_1_dev_v8_1_v12_gate5` and conditional `phase4.3.1-v8.1-official` / `bench_official_s1_v12_planner8_1_gate5` bind dataset 1.2.0 and scoring 2.0.0; strict identity, destination, development-before-official, manifest, metrics, and checksum validation occurs before credentials, SDK construction, or held-out access |
+| T223 | Cumulative gate | T001–T223 pass with zero required skip/xfail; Ruff, mypy, architecture boundaries, and `git diff --check 1b94194..HEAD` remain green; public boundaries, dataset, targets, historical identities/assets, Phase 5, and held-out state do not drift |
+
+### Phase 4.3.1 real-model acceptance states
+
+The exact v8.1 development identity may run once only after T001–T223 and all
+static gates pass. All applicable frozen targets must pass simultaneously.
+
+A development miss is preserved honestly, forbids official and v8.2/v9, and
+requires a new written model-capability versus PlannerContext decision. A
+passing byte-identical candidate may run the official 80-slot held-out campaign
+once. Phase 4.3.1 is accepted only when official is
+`completed/meets_target`, all 80 slots are scoreable, all provenance validates,
+and no held-out tuning or rerun occurred. Phase 5 remains gated pending separate
+design and authorization.
+
+Approval of this section freezes design and tests only. It does not authorize
+implementation or any real-model campaign.

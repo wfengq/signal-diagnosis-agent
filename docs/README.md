@@ -13,11 +13,13 @@ Read these documents before changing implementation code:
    contracts, frozen Phase 3 §32–§40 rules/knowledge contracts, frozen
    Phase 4 §41–§49 evaluation contracts, additive Phase 4.1 §§50–§51
    behavior gates, the frozen Phase 4.2 §52 evaluation-integrity gate, and the
-   frozen Phase 4.3 §53 planner-v8 behavior gate.
+   frozen Phase 4.3 §53 planner-v8 behavior gate plus Phase 4.3.1 §54 v8.1
+   compliance correction.
 3. [`TEST_PLAN_V0_2.md`](TEST_PLAN_V0_2.md) — required T001–T092 Phase 1–2
    acceptance, required T093–T124 Phase 3 acceptance, required T125–T183 Phase 4
    acceptance, additive T184–T200 Phase 4.1 acceptance, Phase 4.2 T201–T208,
-   Phase 4.3 T209–T215, and separate real-model evaluation.
+   Phase 4.3 T209–T215, Phase 4.3.1 T216–T223, and separate real-model
+   evaluation.
 4. [`DECISIONS.md`](DECISIONS.md) — approved architectural and process decisions.
 5. [`superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`](superpowers/plans/2026-08-28-phase1-deterministic-foundation.md)
    — task-level Phase 1 TDD implementation plan covering T001–T063.
@@ -86,6 +88,12 @@ Read these documents before changing implementation code:
   v8 development gate4 at `48dfb89` is honest `completed/below_target`.
   Task 6 official/held-out was not run. Task 7 records that honest stop.
   Phase 4.3 is not accepted. Phase 5 remains unauthorized.
+- [`superpowers/specs/2026-08-30-phase4-3-1-v8-1-compliance-correction-design.md`](superpowers/specs/2026-08-30-phase4-3-1-v8-1-compliance-correction-design.md)
+  — approved Phase 4.3.1 compliance design under §54, T216–T223, D025, and
+  OQ-009. It records the T210 clipping-specific scope defect and the
+  invalid-Evidence/NOT_APPLICABLE scoring defect, preserves all v4–v8 assets,
+  and specifies one v8.1/scoring-2.0.0 gate5 candidate. Implementation and all
+  model runs remain gated pending a detailed plan and separate authorization.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -164,6 +172,13 @@ a live-model pass. Real-model development gate4
 that honest stop. Phase 4.3 is not accepted. The next written choice is
 model capability versus PlannerContext (option 2), not more prompts.
 Phase 5 remains unauthorized.
+
+Phase 4.3.1 is approved and frozen as a one-time compliance correction under
+§54, T216–T223, D025, and OQ-009. It does not overwrite v8 or reopen general
+prompt tuning. Its v8.1 prompt, versioned scoring policy, and gate5 campaigns
+are design identities only until a detailed plan and separate execution
+authorization exist. Official v1.2.0 held-out remains sealed, and Phase 5
+remains unauthorized.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model

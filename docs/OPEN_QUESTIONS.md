@@ -1,7 +1,7 @@
 # Open Contract and Architecture Questions
 
 **Status:** Active register
-**Current open questions:** 0 pending; 8 resolved (OQ-001–OQ-008)
+**Current open questions:** 0 pending; 9 resolved (OQ-001–OQ-009)
 
 Use this file only for concrete issues that may require changing an approved
 contract or architectural boundary.
@@ -159,4 +159,21 @@ Minimal proposed change: Preserve §§41–§52, T001–T208, dataset 1.2.0, Run
 Compatibility impact: Additive prompt, private planner/config/campaign bindings, tests, and optional evaluation bundles only. No public interface or deterministic numerical behavior changes.
 Test impact: Add deterministic T209–T215. Existing T001–T208 and all historical assets remain required and unchanged. Real-model development/official gates remain outside CI.
 User decision: approved the complete written Phase 4.3 design on 2026-08-30; §53, §26/T209–T215, D024, and this OQ resolution are frozen as design authority only; implementation, model execution, held-out access, Phase 5, push, and merge remain unauthorized pending a detailed plan and separate instruction
+```
+
+---
+
+## OQ-009 — Correct Phase 4.3 request scope and invalid-Evidence scoring
+
+```text
+ID: OQ-009
+Date: 2026-08-30
+Status: approved/resolved — written Phase 4.3.1 design and additive contract/test correction approved; implementation not authorized
+Affected document and section: docs/CONTRACTS_V0_2.md §54; docs/TEST_PLAN_V0_2.md §27 T216–T223; docs/DECISIONS.md D025; Phase 4.3.1 prompt, scoring-policy, and campaign identities
+Observed problem: The immutable v8 development campaign is completed/below_target. Its remaining misses are confounded by two deterministic conformance defects. T210 globally prohibited clipping-only finish even though §53 permits symptom-specific request scope, causing all ten clipping runs to continue into unnecessary harmonic analysis. Separately, the legacy scoring proxy excludes structured Evidence from invalid Tool observations and therefore can score the contract-required invalid Evidence -> NOT_APPLICABLE rule transition as premature or inappropriate. V8 also allowed negative prose to carry a positive causal fault_type and over-attributed clipping-generated odd harmonics as an independent harmonic cause.
+Why the current contract cannot represent a correct implementation: §53 and D024 close the prompt-only route after v8 and freeze legacy scoring, so silently modifying v8, reusing gate4, or changing scorer behavior globally would violate provenance. At the same time, moving directly to a new model or PlannerContext would treat a known test/scoring non-conformance as product-model evidence. A correct, reproducible correction needs independent prompt, scoring-policy, configuration, and campaign identities while preserving all historical behavior.
+Minimal proposed change: Preserve v4–v8 and every committed bundle. Add §54, T216–T223, and D025 for one coherent v0.2-s1-planner-8.1 compliance prompt; request-scoped hypotheses; affirmative-only causal claims; clipping attribution that requires reportable order-2 Evidence for an independent harmonic cause; internal scoring policy signal_diag.scoring 2.0.0 selected through existing BenchmarkConfig.sdk_versions; canonical phase4.3.1-v8.1 development/official campaigns; and strict one-shot gates. The scoring-policy correction recognizes invalid/not-applicable structured Evidence as valid input for a NOT_APPLICABLE rule without changing public models or other scoring formulas.
+Compatibility impact: Additive private prompt/planner/config/campaign bindings and internal versioned scorer dispatch only. Public Planner, Runtime, DiagnosisClaim, evaluation, score, report, DSP, Tool, RuleEngine, knowledge, dataset, target, provider, and model contracts remain unchanged. Legacy configurations dispatch to legacy scoring and historical fingerprints, traces, and bundles remain reproducible.
+Test impact: Add deterministic T216–T223. T001–T215 and all historical assets remain required. Real-model development and official campaigns remain outside CI and separately gated.
+User decision: approved the complete written Phase 4.3.1 design on 2026-08-30; §54, §27/T216–T223, D025, and this OQ resolution are frozen as design/test authority only; implementation, model execution, held-out access, Phase 5, push, and merge remain unauthorized pending a detailed plan and separate instruction
 ```

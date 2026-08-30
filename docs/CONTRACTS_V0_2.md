@@ -3469,3 +3469,155 @@ This section freezes design and tests only. It does not authorize Phase 4.3
 implementation, real-model development, official held-out access, Phase 5,
 push, or merge. Those require a detailed plan and separate explicit user
 authorization.
+
+---
+
+## 54. Phase 4.3.1 Planner v8.1 Compliance Correction
+
+Phase 4.3.1 corrects two conformance defects in the implemented Phase 4.3
+acceptance path. It does not replace or rerun v8 and does not reopen unrestricted
+prompt tuning. The v8 development bundle remains immutable
+`completed/below_target` evidence.
+
+### 54.1 Frozen scope and compatibility
+
+Dataset `s1-distortion-synthetic` `1.2.0`, PlannerModel, PlannerContext,
+AgentDecision, TaskAssessment, DiagnosisClaim, Runtime, DSP, Tools, Evidence,
+RuleEngine, profiles, KnowledgeIndex, evaluation/score/report models,
+TargetBands, provider, model, parameters, profile, and repetitions remain
+unchanged.
+
+All v4–v8 prompt bytes, hashes, planners, routes, configurations, fingerprints,
+trace results, reports, and committed bundles remain reproducible. Historical
+configurations continue to use legacy scoring semantics.
+
+Phase 4.3.1 adds exactly one complete prompt:
+
+```text
+v0.2-s1-planner-8.1
+```
+
+It is byte-frozen with an exact SHA-256 after implementation and is not a suffix
+appended to v8. RealLLMPlanner remains the product boundary. ScriptedPlanner and
+fake transports are deterministic test doubles only and never product
+fallbacks.
+
+### 54.2 Request scope and hypothesis policy
+
+The Planner records request scope in existing `TaskAssessment.hypotheses`:
+
+- clipping-specific begins with `clipping` only;
+- harmonic-specific begins with `harmonic_distortion` only;
+- generic broad distortion begins with both supported S1 families;
+- broad or combined requests cannot finish while a requested family remains
+  viable;
+- symptom-specific requests may finish once their requested family and required
+  rule/knowledge work are resolved;
+- another family may reopen only when a concrete new observation makes it
+  viable.
+
+This is Planner policy, not a Runtime keyword router. Runtime does not create,
+force, or reorder any Tool, rule, knowledge, or finish action.
+
+### 54.3 Claim polarity and clipping attribution
+
+A causal `DiagnosisClaim.fault_type` of `clipping` or
+`harmonic_distortion` is affirmative supported-cause data. It must not encode
+“not supported,” “ruled out,” “absent,” or a limitation. A clipping-only
+diagnosis contains only a clipping causal claim. Empty supported-cause sets use
+the existing `no_supported_fault` semantics; unresolved measurement uses the
+existing `inconclusive` semantics and traceable limitations.
+
+A THD value above the demo threshold means its configured rule failed; it does
+not by itself establish an independent harmonic cause. Supported clipping with
+only odd-order clipping products, including orders 3 and 5, remains
+clipping-only. Under dataset 1.2.0, an independent harmonic cause requires
+reportable order-2 Evidence. Combined cases still require separate clipping
+Evidence and reportable order-2 harmonic Evidence. DSP output, RuleEngine,
+comparators, and thresholds do not change.
+
+### 54.4 Versioned scoring policy
+
+Public scoring signatures and models remain unchanged. Existing
+`BenchmarkConfig.sdk_versions` carries the scoring-policy identity.
+
+```text
+Phase 4.3.1 required identity:
+signal_diag.scoring = 2.0.0
+```
+
+Legacy configurations dispatch to legacy semantics. Scoring 2.0.0 changes only
+the rule-timeliness and observation-driven-replanning proxy:
+
+- valid structured Evidence can justify a rule evaluation that returns PASS or
+  FAIL;
+- invalid/not-applicable structured Evidence can justify a rule evaluation that
+  returns NOT_APPLICABLE;
+- a rule action following either new Evidence kind is not premature merely
+  because the parent Tool observation status was `invalid`;
+- a rule action before relevant structured Evidence, or repeated equivalent
+  rule work, remains inappropriate.
+
+All other score formulas, failure codes, target bands, and denominators remain
+unchanged. The deterministic scorer does not infer negation from claim prose.
+
+The scoring-policy identity participates in configuration fingerprinting,
+benchmark manifest provenance, preflight, reports, and checksums. For Phase
+4.3.1, a missing, malformed, unknown, or mismatched scoring identity is
+`invalid_configuration`. Missing or unreadable `metrics.json` or
+`benchmark_manifest.json` is also `invalid_configuration`. These checks occur
+before credential access, SDK construction, or held-out scheduling. Historical
+bundles are not rewritten to add a version.
+
+### 54.5 Canonical campaigns
+
+```text
+prompt version:          v0.2-s1-planner-8.1
+development campaign:   phase4.3.1-v8.1-development
+development benchmark:  bench_phase4_3_1_dev_v8_1_v12_gate5
+official campaign:      phase4.3.1-v8.1-official
+official benchmark:     bench_official_s1_v12_planner8_1_gate5
+scoring policy:          signal_diag.scoring 2.0.0
+dataset:                 s1-distortion-synthetic 1.2.0
+provider/model:          deepseek / deepseek-v4-flash
+rule profile:            profile_s1_distortion 1.0.0-demo
+development slots:       8 cases x 5 = 40 Agent slots
+official slots:          16 cases x 5 = 80 Agent slots
+```
+
+Development reuses the unchanged v1.2 development split because it is tuning
+data. The v1.2 official held-out split remains sealed until the development
+gate passes. Canonical destinations are write-once and may not already exist.
+
+### 54.6 Development, official, and terminal gates
+
+The exact v8.1 development identity may run once only after T001–T223 and all
+static quality gates pass. Every applicable frozen TargetBands metric must pass
+simultaneously.
+
+A development result other than `completed/meets_target` is retained honestly,
+forbids official, forbids v8.2/v9 and same-identity rerun, and requires a new
+written choice between model capability and PlannerContext.
+
+Official may run exactly once only for the byte-identical v8.1 candidate whose
+canonical development bundle is `completed/meets_target` and whose prompt,
+dataset, scoring, profile, provider/model, repetition, benchmark, and checksum
+identities pass strict preflight. An official miss remains immutable, is not
+used for tuning, and is not rerun.
+
+### 54.7 Acceptance and authorization
+
+Phase 4.3.1 product-quality acceptance requires:
+
+- T001–T223 with zero required skip/xfail plus Ruff, mypy, architecture, and
+  `git diff --check 1b94194..HEAD`;
+- canonical development `completed/meets_target`;
+- canonical official `completed/meets_target` with all 80 Agent slots
+  scoreable;
+- valid complete provenance and checksums;
+- no leakage, target reduction, forced controller action, historical drift,
+  held-out tuning, or rerun.
+
+This section freezes design and tests only. It does not authorize Phase 4.3.1
+implementation, model execution, held-out access, Phase 5, push, or merge.
+Passing Phase 4.3.1 authorizes only Phase 5 design and contract freezing.

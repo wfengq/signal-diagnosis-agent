@@ -2,9 +2,9 @@
 
 **Date:** 2026-08-30
 
-**Status:** Written from user-approved section decisions on 2026-08-30;
-pending final review of this written specification. This document does not yet
-authorize implementation or model execution.
+**Status:** Approved in writing on 2026-08-30. §54, T216–T223, D025, and
+OQ-009 are frozen as design/test authority. Implementation and every model run
+remain gated pending a detailed plan and separate explicit instruction.
 
 **Implementation baseline:** `1b94194` on `phase4-evaluation-design`
 
@@ -32,7 +32,7 @@ PlannerContext, DSP, Tools, RuleEngine, knowledge system, target bands, or any
 historical evaluation asset.
 
 This is not an unrestricted v9 prompt attempt and does not reopen iterative
-prompt tuning. D025 will document a one-time exception to D024 because v8 did
+prompt tuning. D025 documents a one-time exception to D024 because v8 did
 not faithfully implement its own frozen request-scope and invalid-Evidence
 contracts. If the corrected v8.1 development campaign misses target, the
 prompt-only route ends and the next design choice is model capability versus a
@@ -348,9 +348,8 @@ data. No held-out content is inspected to construct v8.1.
 
 ## 9. Proposed deterministic acceptance contract
 
-After approval of this written specification, a separate contract-freeze task
-will propose OQ-009, additive `CONTRACTS_V0_2.md` §54,
-`TEST_PLAN_V0_2.md` T216–T223, and D025:
+The approved additive contract is recorded in OQ-009,
+`CONTRACTS_V0_2.md` §54, `TEST_PLAN_V0_2.md` T216–T223, and D025:
 
 ```text
 T216  Historical v4–v8 prompt/planner/campaign/configuration/bundle identities
@@ -461,8 +460,7 @@ of the pre-existing untracked `build/` directory.
 
 ## 12. Documentation sequence and authority
 
-Approval of this written specification will authorize only the next design
-steps:
+The approved documentation sequence is:
 
 1. record and approve OQ-009;
 2. freeze additive §54, T216–T223, and D025;
@@ -470,6 +468,6 @@ steps:
    implementation plan;
 4. obtain separate explicit implementation authorization.
 
-Until those gates pass, this specification does not authorize source or test
-changes, model execution, development or official evaluation, held-out access,
-Phase 5, push, or merge.
+Steps 1–2 are complete. Until steps 3–4 pass, this specification does not
+authorize source or test changes, model execution, development or official
+evaluation, held-out access, Phase 5, push, or merge.

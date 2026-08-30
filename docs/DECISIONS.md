@@ -332,3 +332,41 @@ separate authorization.
 
 This decision freezes the written design only. Implementation and all model
 runs require a detailed plan and separate explicit user authorization.
+
+## D025 — Permit one v8.1 compliance correction with versioned scoring
+
+**Decision:** The immutable v8 development result remains honest
+`completed/below_target`, but it is not sufficient evidence that the approved
+§53 product behavior exhausted the prompt-only route. T210 implemented a
+global prohibition on clipping-only finish that contradicts §53's permitted
+symptom-specific request scope. The legacy scoring proxy also excludes
+structured invalid Evidence when judging whether a following NOT_APPLICABLE
+rule action is timely.
+
+Phase 4.3.1 is a one-time compliance exception to D024, not another open-ended
+prompt iteration. It adds one complete `v0.2-s1-planner-8.1` prompt that uses
+the existing TaskAssessment hypotheses to distinguish clipping-specific,
+harmonic-specific, and broad requests. Causal fault types are affirmative only.
+Clipping-generated odd harmonics and a THD rule failure do not establish an
+independent harmonic cause; reportable order-2 Evidence remains required.
+
+The correction also adds internal scoring policy `signal_diag.scoring 2.0.0`
+through existing `BenchmarkConfig.sdk_versions`. It recognizes valid or
+invalid/not-applicable structured Evidence as RuleEngine input when scoring
+rule timing and replanning. Public scoring signatures, score/report models,
+all other formulas and failure codes, and TargetBands remain unchanged.
+Historical configurations use legacy scoring, so v4–v8 fingerprints, trace
+scores, and bundles remain reproducible.
+
+Canonical identities are `phase4.3.1-v8.1-development` /
+`bench_phase4_3_1_dev_v8_1_v12_gate5` and
+`phase4.3.1-v8.1-official` /
+`bench_official_s1_v12_planner8_1_gate5`. Dataset 1.2.0, provider, model,
+profile, parameters, and repetitions do not change. Development may run once
+after T001–T223 and all static gates. A development miss ends the prompt route
+and leaves official sealed. A passing byte-identical candidate may run official
+once. An official miss is retained and not tuned against or rerun.
+
+This decision freezes design and tests only. Implementation and every model
+run require a detailed plan and separate explicit authorization. Passing Phase
+4.3.1 authorizes Phase 5 design only, not implementation.
