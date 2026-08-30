@@ -986,3 +986,45 @@ development below-target assets remain present and reproducible. A completed
 official target miss remains honest evidence, leaves Phase 4.1 unaccepted, and
 must not be tuned against or rerun on the same held-out set. Phase 5 remains
 gated pending independent acceptance and a separate Phase 5 design approval.
+
+---
+
+## 25. Phase 4.2 — Evaluation Integrity and Planner v7 Calibration
+
+T201–T208 are deterministic and additive. They preserve T001–T200, all
+historical prompt/campaign/configuration identities, and committed report
+bundles. They correct evaluation input integrity before any v7 real-model
+campaign. Fake transports may exercise the real `RealLLMPlanner` boundary in
+CI; stochastic behavior remains outside required pytest.
+
+### Checkpoint R — v1.2 integrity, planner v7, campaigns, and cumulative gate
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T201 | Legacy and v7 identity | exact v4/v5/v6 prompt bytes, hashes, private planners, campaign routes, configurations, and committed bundles remain reproducible; v7 is one coherent `v0.2-s1-planner-7` prompt with an exact SHA-256/configuration identity and a private exact-v6 compatibility planner |
+| T202 | Opaque identity and value-level leakage | every v1.2 Agent signal ID is deterministic `sig_eval_` plus 24 lowercase SHA-256 hex characters and contains no semantic label; serialized outbound keys and values omit case ID, split, category, generator, causal truth, policy, acceptable Tools, sufficient sets, scoring targets, raw waveform, and full FFT |
+| T203 | v1.2 manifest freshness and request fairness | dataset `1.2.0` has the frozen 8/16 category allocation; IDs, complete parameter tuples, seeds, and request assignments are fresh and split-disjoint; reconstruction is deterministic; natural requests contain no Tool/answer labels; identical initial visible request/metadata cannot have disjoint acceptable first Tools |
+| T204 | Observable conditions and single-signal identifiability | real generators and SignalToolService satisfy every v1.2 condition; invalid/noise alternative routes stay non-fabricated; every combined case exposes a reportable order-2 harmonic supporting the harmonic claim and passes its matched-control separation; only valid v1.2 matched controls may treat an absent filtered order-2 component as zero; historical validation semantics do not change |
+| T205 | Coherent v7 policy | prompt policy treats signal IDs as opaque, chooses from visible symptoms, keeps dynamic hypotheses without a fixed pipeline, emits pure traceable inconclusive claims, separates configured acceptance from observed distortion, distinguishes odd clipping-induced content from v1.2 even-order combined Evidence, and qualifies arbitrary-WAV independence |
+| T206 | Product-boundary behavior | deterministic fake transport through active RealLLMPlanner and real Runtime, DSP Tools, RuleEngine, and KnowledgeIndex proves valid dynamic invalid/noise, clipping-only, combined, and harmonic-boundary routes; every final Evidence/rule/knowledge ref resolves in the same run and no evaluation truth leaks |
+| T207 | Canonical campaigns and strict provenance | historical v5/v6 choices remain unchanged; `phase4.2-v7-development` binds canonical `bench_phase4_2_dev_v7_v12_gate3` to v1.2 development 8 x 5; `phase4.2-v7-official` binds canonical `bench_official_s1_v12_planner7_gate3` to v1.2 held-out 16 x 5; official scheduling rejects missing, unreadable, incomplete, non-canonical, or identity-mismatched development provenance before credentials/held-out, including the historical v6 missing-manifest regression |
+| T208 | Cumulative gate | T001–T208 pass with zero required skip/xfail; Ruff, mypy, architecture boundaries, and `git diff --check aefccba..HEAD` remain green; no Phase 5 code, controller-forced action, target reduction, ScriptedPlanner fallback, or historical identity drift is introduced |
+
+### Phase 4.2 real-model acceptance states
+
+The canonical 40-slot v1.2 development gate is tuning evidence. It may run
+once for the exact frozen v7 identity after T001–T208 and the static gates pass.
+A status other than `benchmark_status=completed` and
+`target_status=meets_target` is preserved honestly and forbids official
+execution under that candidate.
+
+Only a strict identity-matching development bundle authorizes the canonical
+one-shot 80-slot v1.2 official held-out gate. Product-quality acceptance
+requires official `completed/meets_target`, 80 scoreable Agent slots, a valid
+append-only six-file bundle and checksums, and all deterministic/static gates.
+An official miss remains honest evidence and cannot be tuned against or rerun.
+The v1.1.0 held-out split remains unexecuted and is not a fallback official set.
+
+Approval of this section freezes design and tests only. Phase 4.2 Tasks 2–10,
+all code implementation, all real-model development execution, and every
+held-out run require separate explicit authorization. Phase 5 remains gated.

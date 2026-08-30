@@ -3130,3 +3130,212 @@ version, PlannerContext change, model change, runtime change, target change, or
 new dataset campaign requires a separate written design decision. If the
 one-shot official gate2 is below target, its result is preserved, Phase 4.1
 remains unaccepted, and the same held-out set is not used for tuning or rerun.
+
+---
+
+## 52. Phase 4.2 Evaluation Integrity and Planner v7 Gate
+
+The revised written design at
+`docs/superpowers/specs/2026-08-30-phase4-2-prompt-v7-correction-design.md`
+was approved on 2026-08-30. D023 records the decision. Section 52 is additive:
+it does not rewrite §§41–§51, T125–T200, or any committed v4/v5/v6 evidence.
+
+### 52.1 Preserved history and corrected evaluation boundary
+
+The v6 development bundle
+`docs/evaluations/phase4_1/development/bench_phase4_1_dev_v6_gate2/` remains
+immutable `completed/below_target`. The v1.1.0 held-out split remains
+unexecuted and is not a fallback official set for Phase 4.2.
+
+The prompt-only v7 draft is rejected. Phase 4.2 corrects three evaluation
+integrity defects before calibrating planner behavior:
+
+1. semantic case/split/category labels must not reach the model through
+   `signal_meta.signal_id` or any other serialized value;
+2. first-Tool expectations must be justified by the initial Planner-visible
+   request and public signal metadata rather than hidden case truth;
+3. a combined causal label must be supportable from the signal's own structured
+   Evidence; the Agent cannot rely on a matched control that is intentionally
+   absent from PlannerContext.
+
+No public Planner, Runtime, DSP, Tool, rule, knowledge, evaluation model,
+scorer, target, or report schema changes in Phase 4.2.
+
+### 52.2 Dataset `s1-distortion-synthetic` `1.2.0`
+
+The new manifest retains schema version `1.0`, rule profile
+`profile_s1_distortion` `1.0.0-demo`, and the established allocation:
+
+```text
+development: clean 2, clipping 2, harmonic 2, combined 1, invalid_noise 1
+held_out:    clean 3, clipping 4, harmonic 4, combined 3, invalid_noise 2
+```
+
+All 24 case IDs, complete signal parameter combinations, random seeds, and
+request assignments are fresh relative to dataset versions 1.0.0 and 1.1.0.
+Development and held-out IDs, parameter tuples, seeds, and complete request
+strings are disjoint. Exact manifest bytes freeze before any real-model v7
+slot.
+
+Request text may describe user-observable symptoms such as amplitude
+flattening, tonal overtones, unstable pitch, non-periodicity, or a generic
+request to inspect plausible S1 causes. It must not name a Tool, generator,
+injected cause, expected outcome, dataset split, or scoring label.
+
+The following fairness invariant is normative:
+
+```text
+If two cases have identical initial Planner-visible user_request and SignalMeta
+after signal_id is removed, their acceptable_first_tools tuples are identical.
+```
+
+Invalid/noise cases accept `estimate_fundamental` and
+`analyze_harmonic_distortion` as legal first observations when the request
+contains an unstable-pitch or non-periodic symptom cue. Alternative sufficient
+Evidence sets may support an inconclusive result from an unvoiced/invalid
+fundamental or an invalid harmonic analysis. A hidden case category never
+requires `detect_clipping` merely as a discovery step.
+
+### 52.3 Opaque v1.2 Agent signal identity
+
+For v1.2 Agent execution only, the signal ID passed through the repository and
+PlannerContext is:
+
+```text
+sig_eval_<24 lowercase hexadecimal characters>
+```
+
+The suffix is the first 24 hexadecimal characters of SHA-256 over these UTF-8
+bytes:
+
+```text
+dataset_id + "\0" + dataset_version + "\0" + case_id
+```
+
+The value is deterministic and unique within the manifest but contains no
+plain-text case ID, split, category, generator, fault, or policy token. It is a
+lookup key only. Historical v1.0/v1.1 materialization remains unchanged.
+EvaluationTrace may retain `case_id` outside PlannerContext for scoring.
+
+### 52.4 Single-signal combined identifiability
+
+Within dataset 1.2.0, clipping-only fixtures use symmetric hard clipping of a
+sinusoid. Every combined fixture injects a reportable even-order harmonic
+before the same symmetric clipping operation. Each combined case requires:
+
+- clipping Evidence supporting `clipping`;
+- valid harmonic Evidence supporting `harmonic_distortion`;
+- an observable `harmonic_order_2_relative_amplitude` condition supporting
+  `harmonic_distortion`;
+- a sufficient Evidence set containing clipping, harmonic validity, THD, and
+  the second-harmonic component;
+- a matched clipping-only control that satisfies the declared dataset-quality
+  separation.
+
+For v1.2 validation only, an absent second-harmonic component in an otherwise
+valid matched-control harmonic result is treated as `0.0`, because the Tool
+filters components below its deterministic reporting floor. Invalid harmonic
+analysis, a missing Tool result, or an absent arbitrary metric is never zero.
+Historical v1.0/v1.1 validation semantics remain unchanged.
+
+The matched control and numeric separation remain outside PlannerContext,
+baseline input, prompts, and scoring thresholds. The Agent uses only the
+structured presence of a reportable even-order component and never invents or
+cites the hidden separation value.
+
+### 52.5 Planner v7 identity and behavior
+
+```text
+prompt version: v0.2-s1-planner-7
+provider/model: deepseek / deepseek-v4-flash
+dataset: s1-distortion-synthetic 1.2.0
+profile: profile_s1_distortion 1.0.0-demo
+composition: one complete immutable prompt, not an appendix
+```
+
+Exact UTF-8 prompt bytes and SHA-256 freeze before any real-model v7 run.
+`RealLLMPlanner` becomes the v7 product path after deterministic acceptance. A
+private v6 compatibility planner preserves exact v6 campaigns. v4/v5 private
+planners remain unchanged. ScriptedPlanner and fake transports remain test
+doubles and are never silent product fallbacks.
+
+The v7 prompt treats `signal_id` as opaque; chooses actions from visible
+symptoms, metadata, and observations; keeps viable hypotheses open without a
+universal Tool sequence; and preserves the separation between observed
+distortion and configured rule acceptance.
+
+An inconclusive result contains only the claim set needed to explain the
+unresolved measurement. It cites appropriate invalid/not-applicable Evidence,
+applicable rule refs or an explicit not-applicable limitation, used knowledge
+refs, and a non-empty limitation. It does not mix valid Evidence from another
+fault family into that claim and does not add a sibling `no_supported_fault`.
+
+For the supported symmetric-synthetic family, odd-only harmonic content after
+clipping is not by itself an independent harmonic fault. A reportable
+even-order component may support the separate combined claim. For arbitrary
+WAV or unknown clipping mechanisms, harmonic independence remains qualified or
+unresolved without additional evidence; the synthetic assumption is not
+generalized silently.
+
+Raw waveform, full FFT, generator truth, causal faults, split, knowledge
+policy, acceptable Tools, sufficient Evidence sets, observable conditions, and
+scoring targets never enter PlannerContext or outbound messages.
+
+### 52.6 Canonical campaigns and provenance
+
+Historical campaign routes remain bound to their existing v5/v6 identities.
+Phase 4.2 adds exactly:
+
+```text
+phase4.2-v7-development
+phase4.2-v7-official
+```
+
+with canonical benchmark IDs:
+
+```text
+bench_phase4_2_dev_v7_v12_gate3
+bench_official_s1_v12_planner7_gate3
+```
+
+Development runs 8 cases x 5 Agent slots on v1.2.0 development. Official runs
+16 held-out cases x 5 Agent slots once, only after the byte-identical
+development candidate is `completed/meets_target`. Provider, model, profile,
+repetitions, concurrency, and target bands remain unchanged.
+
+Every official preflight requires readable `metrics.json` and
+`benchmark_manifest.json`. Metrics must record `completed/meets_target`, and
+these fields must match the candidate exactly:
+
+```text
+benchmark_id, prompt_version, prompt_sha256, dataset_id, dataset_version,
+rule_profile_id, rule_profile_version, provider, model, repetitions
+```
+
+Missing, unreadable, incomplete, or mismatched provenance is
+`invalid_configuration` before credential checks or held-out scheduling. The
+shared correction also closes the v6 missing-manifest bypass without making
+the below-target v6 gate eligible. Phase 4.2 acceptance campaigns reject a
+non-canonical benchmark ID; custom IDs are local exploratory evidence only and
+must not write inside acceptance directories.
+
+### 52.7 Acceptance and execution gate
+
+The 40-slot v1.2 development result is tuning evidence, not generalization
+proof. One frozen v7 identity may write its canonical development bundle once.
+A result other than `completed/meets_target` is retained honestly and stops
+before held-out; it is not rerun under the same identity.
+
+The v1.2 official held-out campaign may run once only after the strict
+development gate passes. An official target miss remains immutable evidence,
+leaves Phase 4.1 unaccepted, and is not used for tuning or rerun.
+
+Product-quality acceptance requires official `completed/meets_target`, all 80
+Agent slots scoreable, valid six-file checksums, T001–T208 with zero required
+skip/xfail, Ruff, mypy, architecture checks, and `git diff --check` against
+`aefccba`. Target bands are unchanged. Phase 5 remains gated until independent
+acceptance and separate authorization.
+
+Only the written Task 1 contract freeze is authorized at this point. Tasks
+2–10, all implementation changes, all real-model execution, and every held-out
+run remain explicitly unauthorized until a later user instruction.

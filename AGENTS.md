@@ -12,9 +12,14 @@ D022) is approved and Task 2–8 completed. The v1.1.0 held-out split remains
 sealed. The v6 deterministic gate passed. Real-model
 development gate2 `bench_phase4_1_dev_v6_gate2` is honest
 `completed/below_target`, so official v6 held-out stays sealed. Report
-`harness_status=pending` is CLI semantics, not a harness failure. A Phase 4.2
-prompt-v7 calibration design is drafted and pending OQ-007 approval;
-implementation is not authorized. Phase 4.1 is not accepted. Phase 5 remains
+`harness_status=pending` is CLI semantics, not a harness failure. Independent
+review rejected a prompt-only v7 retry because v1.1.0 exposes semantic signal
+IDs and contains hidden first-Tool/causal-identifiability requirements. A
+revised Phase 4.2 evaluation-integrity plus planner-v7 design proposes dataset
+1.2.0, opaque Agent signal IDs, T201–T208, and D023. Revised OQ-007, §52,
+T201–T208, and D023 were approved on 2026-08-30. Task 1 documentation is
+frozen; Tasks 2–10, all code changes, all real-model execution, and every
+held-out run remain unauthorized. Phase 4.1 is not accepted. Phase 5 remains
 gated.
 
 The Phase 4 written specification was approved on 2026-08-29; §§41–§49 and
@@ -32,6 +37,12 @@ Phase 4.1 authority is additive `CONTRACTS_V0_2.md` §§50–§51,
 frozen §§41–§49 or T125–T183 semantics. Do not implement Phase 5 presentation
 adapters until Phase 4.1 is accepted and Phase 5 is explicitly authorized.
 
+Phase 4.2 design authority is
+`docs/superpowers/specs/2026-08-30-phase4-2-prompt-v7-correction-design.md`,
+frozen `CONTRACTS_V0_2.md` §52, `TEST_PLAN_V0_2.md` §25 (T201–T208), and
+D023. The implementation plan is approved as a design asset only. Cursor may
+implement Tasks 2–10 only after a separate explicit user instruction.
+
 Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
 and accepted. Phase 3 passed Codex final acceptance at commit `a820b7f` on
 branch `phase3-rules-knowledge`.
@@ -42,8 +53,8 @@ Before modifying code, read:
 
 - `docs/README.md`
 - `docs/ARCHITECTURE_V0_2.md` (especially §13–§18)
-- `docs/CONTRACTS_V0_2.md` (Phase 1–4 frozen; Phase 4 §41–§49; additive Phase 4.1 §§50–§51)
-- `docs/TEST_PLAN_V0_2.md` (Phase 1–4 required; Phase 4 §22; additive Phase 4.1 §§23–§24 T184–T200)
+- `docs/CONTRACTS_V0_2.md` (Phase 1–4 frozen; Phase 4 §41–§49; additive Phase 4.1 §§50–§51; Phase 4.2 §52)
+- `docs/TEST_PLAN_V0_2.md` (Phase 1–4 required; Phase 4 §22; additive Phase 4.1 §§23–§24 T184–T200; Phase 4.2 §25 T201–T208)
 - `docs/DECISIONS.md`
 - `docs/superpowers/specs/2026-08-29-phase4-evaluation-design.md`
 - `docs/superpowers/plans/2026-08-29-phase4-evaluation.md`
@@ -51,6 +62,8 @@ Before modifying code, read:
 - `docs/superpowers/plans/2026-08-30-phase4-1-agent-behavior-improvement.md`
 - `docs/superpowers/specs/2026-08-30-phase4-1-prompt-v6-correction-design.md`
 - `docs/superpowers/plans/2026-08-30-phase4-1-prompt-v6-correction.md`
+- `docs/superpowers/specs/2026-08-30-phase4-2-prompt-v7-correction-design.md`
+- `docs/superpowers/plans/2026-08-30-phase4-2-prompt-v7-correction.md`
 - `docs/superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`
 - `docs/superpowers/plans/2026-08-29-phase3-rules-knowledge.md`
 
@@ -79,6 +92,12 @@ additive `CONTRACTS_V0_2.md` §§50–§51, `TEST_PLAN_V0_2.md` §§23–§24
 Prompt v6 Task 2–8 implementation is authorized. Official held-out remains
 development-gated. Phase 4.1 is not accepted.
 
+Phase 4.2 design authority is frozen under §52, T201–T208, and D023. It
+supersedes the rejected prompt-only v7 draft by requiring dataset 1.2.0,
+opaque Agent signal IDs, visible first-Tool fairness, and single-signal
+combined identifiability. Only Task 1 documentation freeze is authorized;
+Tasks 2–10 and all real-model execution remain gated for Cursor.
+
 These documents describe approved architecture and frozen interfaces.
 
 Files under `docs/archive/v0.1/` are historical references only. Files under
@@ -93,6 +112,11 @@ Additive Phase 4.1 §§50–§51 are frozen. v5 deterministic implementation is
 complete at `cadc15d`, and v5 development gate1 is immutable
 `completed/below_target` at `f9392c2`. v6 implementation is authorized under
 T196–T200; official held-out and Phase 4.1 acceptance are not done.
+
+Additive Phase 4.2 §52 and T201–T208 are frozen design authority. They do not
+authorize implementation. Do not modify code, create v1.2 evaluation assets,
+run a real-model campaign, or inspect/run held-out until the user explicitly
+hands Tasks 2–10 to Cursor.
 
 Do not redesign or rename public models, functions, modules, arguments, return
 values, or package boundaries unless the user explicitly requests a contract
@@ -160,10 +184,12 @@ unless that later phase is explicitly authorized.
 
 Phase 4 dual acceptance is satisfied at `b68ec5e`: `harness_accepted` and
 `benchmark_completed` with honest `below_target`. Phase 4.1 v5 deterministic
-implementation is complete at `cadc15d`, and its development gate1 is
-`completed/below_target` at `f9392c2`. Prompt v6 implementation is the active
-work; its official held-out run is forbidden before development gate2 meets
-target. Phase 4.1 is not accepted. Phase 5 remains gated. Do not start Phase 5.
+implementation is complete at `cadc15d`; both v5 development gate1 and v6
+development gate2 are immutable `completed/below_target` results. Phase 4.2
+Task 1 documentation is frozen. Tasks 2–10 are reserved for later Cursor
+implementation but remain unauthorized until a separate explicit user
+instruction. No real-model development or held-out run is authorized. Phase
+4.1 is not accepted. Phase 5 remains gated. Do not start Phase 5.
 
 ## Completed phases (reference)
 

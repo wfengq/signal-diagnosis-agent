@@ -11,12 +11,12 @@ Read these documents before changing implementation code:
    Scenario S1, phase boundaries, and Hybrid Agent design.
 2. [`CONTRACTS_V0_2.md`](CONTRACTS_V0_2.md) — frozen Phase 1–2 public Python
    contracts, frozen Phase 3 §32–§40 rules/knowledge contracts, frozen
-   Phase 4 §41–§49 evaluation contracts, and additive Phase 4.1 §§50–§51
-   behavior gates.
+   Phase 4 §41–§49 evaluation contracts, additive Phase 4.1 §§50–§51
+   behavior gates, and the frozen Phase 4.2 §52 evaluation-integrity gate.
 3. [`TEST_PLAN_V0_2.md`](TEST_PLAN_V0_2.md) — required T001–T092 Phase 1–2
    acceptance, required T093–T124 Phase 3 acceptance, required T125–T183 Phase 4
-   acceptance, additive T184–T200 Phase 4.1 acceptance, and separate real-model
-   evaluation.
+   acceptance, additive T184–T200 Phase 4.1 acceptance, Phase 4.2 T201–T208,
+   and separate real-model evaluation.
 4. [`DECISIONS.md`](DECISIONS.md) — approved architectural and process decisions.
 5. [`superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`](superpowers/plans/2026-08-28-phase1-deterministic-foundation.md)
    — task-level Phase 1 TDD implementation plan covering T001–T063.
@@ -61,11 +61,17 @@ Read these documents before changing implementation code:
   — completed Task 2–8 TDD plan. v6 development gate2 is honest
   `completed/below_target` at `808f653`; official v1.1.0 held-out was not run.
 - [`superpowers/specs/2026-08-30-phase4-2-prompt-v7-correction-design.md`](superpowers/specs/2026-08-30-phase4-2-prompt-v7-correction-design.md)
-  — drafted Phase 4.2 prompt v7 calibration design; OQ-007, proposed §52 and
-  T201–T205, and D023 are pending approval. Implementation is not authorized.
+  — approved and frozen Phase 4.2 evaluation-integrity and planner v7
+  calibration design under §52, T201–T208, D023, and resolved OQ-007. It adds
+  a fresh v1.2.0 dataset and opaque Agent signal IDs rather than retrying v7 on
+  the integrity-defective v1.1.0 evaluation inputs. Only the Task 1
+  documentation freeze is authorized.
 - [`superpowers/plans/2026-08-30-phase4-2-prompt-v7-correction.md`](superpowers/plans/2026-08-30-phase4-2-prompt-v7-correction.md)
-  — drafted Task 1–8 TDD plan for v7. Do not implement until the additive
-  contract is approved. v1.1.0 held-out remains sealed.
+  — revised Task 1–10 TDD plan for dataset v1.2.0, outbound identity integrity,
+  prompt v7, campaigns, and gated live evaluation. Task 1 is the approved
+  documentation freeze; Tasks 2–10 are reserved for Cursor and require a
+  separate explicit implementation instruction. v1.1.0 held-out remains
+  unexecuted.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -120,10 +126,14 @@ complete at `cadc15d`; its development gate1 at `f9392c2` is honest
 T196–T200. The v1.1.0 held-out split remains sealed. The v6 deterministic gate
 passed. Real-model development gate2 `bench_phase4_1_dev_v6_gate2` is honest
 `completed/below_target`, so official v6 held-out stays sealed. Report
-`harness_status=pending` is CLI semantics, not a harness failure. A Phase 4.2
-prompt-v7 calibration design is drafted and pending OQ-007 approval;
-implementation is not authorized. Phase 4.1 is not accepted; Phase 5 remains
-gated.
+`harness_status=pending` is CLI semantics, not a harness failure. Independent
+review rejected a prompt-only v7 retry because v1.1.0 leaks semantic signal IDs
+and contains hidden first-Tool/causal-identifiability requirements. The revised
+Phase 4.2 design is approved and frozen under §52, T201–T208, D023, and
+resolved OQ-007. Task 1 is documentation only; Tasks 2–10, all code changes,
+all real-model development execution, and every held-out run remain
+unauthorized pending a separate Cursor implementation instruction. Phase 4.1
+is not accepted; Phase 5 remains gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model

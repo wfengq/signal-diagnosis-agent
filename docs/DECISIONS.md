@@ -269,3 +269,40 @@ An official miss is retained honestly and is neither tuned against nor rerun.
 T196–T200 enforce legacy identity, v6 semantic coherence, product-boundary
 traceability and no leakage, additive campaign scheduling, and the cumulative
 quality gate. Phase 5 remains gated until independent Phase 4.1 acceptance.
+
+## D023 — Repair evaluation integrity before planner v7 calibration
+
+**Decision:** The v6 development result remains immutable
+`completed/below_target`, but its remaining misses are not treated as a purely
+prompt-level defect. The first v7 draft was rejected because semantic case
+labels reached PlannerContext through `signal_id`, some first-Tool expectations
+depended on hidden case truth, and the Agent could not observe the matched
+control used to prove a third-harmonic combined cause.
+
+Phase 4.2 adds dataset `s1-distortion-synthetic` `1.2.0` with fresh case IDs,
+signal parameter combinations, seeds, request assignments, and held-out cases.
+For v1.2 Agent runs, deterministic opaque signal IDs contain no category or
+split semantics. Identical initial Planner-visible inputs cannot carry
+different acceptable-first-Tool requirements. Natural symptom cues may guide
+selection without naming Tools or answers.
+
+Combined v1.2 cases use symmetric synthetic clipping plus a reportable injected
+even-order harmonic. This makes the separate harmonic cause observable in the
+signal's own structured Evidence. The matched clipping-only control remains
+dataset-quality metadata outside PlannerContext. For v1.2 only, an absent
+filtered order-2 component in an otherwise valid control is zero; invalid
+analysis is not. Historical dataset validation semantics remain unchanged.
+
+After these integrity corrections, Phase 4.2 adds one coherent prompt
+`v0.2-s1-planner-7`, canonical development/official campaigns, and a strict
+identity-complete provenance gate. Existing targets, public Agent/Runtime/DSP/
+Tool/rule/knowledge/evaluation/scoring/report contracts, provider, and model do
+not change. v4/v5/v6 identities and bundles remain reproducible, and v1.1.0
+held-out remains unexecuted.
+
+The v1.2 development gate is tuning evidence; only a byte-identical
+`completed/meets_target` candidate may run the v1.2 held-out gate once. Phase 5
+remains gated until independent product-quality acceptance. This decision
+authorizes the written Task 1 contract freeze only. Tasks 2–10, code changes,
+real-model execution, and all held-out runs require a later explicit user
+instruction.
