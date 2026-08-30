@@ -27,6 +27,7 @@ from signal_diag.evaluation.models import (
     CausalFault,
     DatasetManifest,
     EvaluationCase,
+    EvaluationSplit,
     EvaluationTrace,
     EvidenceCondition,
     HarnessStatus,
@@ -629,15 +630,43 @@ def aggregate_benchmark(
     *,
     harness_status: HarnessStatus,
 ) -> BenchmarkReport:
+    return _aggregate_benchmark_for_split(
+        manifest,
+        traces,
+        scores,
+        attempts,
+        config,
+        targets,
+        harness_status=harness_status,
+        score_split="held_out",
+    )
+
+
+def _aggregate_benchmark_for_split(
+    manifest: DatasetManifest,
+    traces: tuple[EvaluationTrace, ...],
+    scores: tuple[RunScore, ...],
+    attempts: tuple[AttemptRecord, ...],
+    config: BenchmarkConfig,
+    targets: TargetBands,
+    *,
+    harness_status: HarnessStatus,
+    score_split: EvaluationSplit,
+    extra_warnings: tuple[str, ...] = (),
+) -> BenchmarkReport:
     cases = _validate_aggregate_inputs(manifest, traces, scores, attempts, config)
-    agent_scores = _held_out_scores(scores, cases, "agent")
-    baseline_scores = _held_out_scores(scores, cases, "fixed_pipeline")
+    agent_scores = _scores_for_split(scores, cases, "agent", score_split)
+    baseline_scores = _scores_for_split(
+        scores, cases, "fixed_pipeline", score_split
+    )
     agent_metrics = _aggregate_metrics(agent_scores, attempts, planner_applicable=True)
     baseline_metrics = _aggregate_metrics(
         baseline_scores, attempts, planner_applicable=False
     )
-    status = _benchmark_status(manifest, config, cases, scores, attempts)
-    target_status, warnings = _target_status(status, agent_metrics, targets)
+    status = _benchmark_status(
+        manifest, config, cases, scores, attempts, score_split=score_split
+    )
+    target_status, metric_warnings = _target_status(status, agent_metrics, targets)
     return BenchmarkReport(
         config=config,
         config_fingerprint_sha256=_config_fingerprint(config),
@@ -651,7 +680,7 @@ def aggregate_benchmark(
         scores=scores,
         traces=traces,
         attempts=attempts,
-        warnings=warnings,
+        warnings=extra_warnings + metric_warnings,
     )
 
 
@@ -727,16 +756,17 @@ def _reject_duplicate_slots(
         seen.add(key)
 
 
-def _held_out_scores(
+def _scores_for_split(
     scores: tuple[RunScore, ...],
     cases: dict[str, EvaluationCase],
     execution_path: str,
+    score_split: EvaluationSplit,
 ) -> tuple[RunScore, ...]:
     return tuple(
         score
         for score in scores
         if score.execution_path == execution_path
-        and cases[score.case_id].split == "held_out"
+        and cases[score.case_id].split == score_split
     )
 
 
@@ -901,17 +931,19 @@ def _benchmark_status(
     cases: dict[str, EvaluationCase],
     scores: tuple[RunScore, ...],
     attempts: tuple[AttemptRecord, ...],
+    *,
+    score_split: EvaluationSplit,
 ) -> BenchmarkStatus:
     expected = {
         ("agent", case.case_id, slot)
         for case in manifest.cases
-        if case.split == "held_out"
+        if case.split == score_split
         for slot in range(1, config.repetitions + 1)
     }
     scored = {
         ("agent", score.case_id, score.run_slot)
         for score in scores
-        if score.execution_path == "agent" and cases[score.case_id].split == "held_out"
+        if score.execution_path == "agent" and cases[score.case_id].split == score_split
     }
     if expected and expected <= scored:
         return "completed"

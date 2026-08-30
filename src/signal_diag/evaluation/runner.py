@@ -33,7 +33,7 @@ from signal_diag.agent.planner import (
     ScriptedStep,
     _Phase4V4RealLLMPlanner,
 )
-from signal_diag.agent.prompts import _S1_PROMPT_V4
+from signal_diag.agent.prompts import _S1_PROMPT_V4, _S1_PROMPT_V5
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.evaluation.baseline import FixedPipelineBaseline
 from signal_diag.evaluation.dataset import (
@@ -51,6 +51,7 @@ from signal_diag.evaluation.models import (
     ConfigValue,
     DatasetManifest,
     EvaluationCase,
+    EvaluationSplit,
     EvaluationTrace,
     ProviderUsage,
     TargetBands,
@@ -60,7 +61,11 @@ from signal_diag.evaluation.recording import (
     assemble_evaluation_trace,
 )
 from signal_diag.evaluation.reporting import write_benchmark_bundle
-from signal_diag.evaluation.scoring import aggregate_benchmark, score_evaluation_trace
+from signal_diag.evaluation.scoring import (
+    _aggregate_benchmark_for_split,
+    aggregate_benchmark,
+    score_evaluation_trace,
+)
 from signal_diag.knowledge.index import KnowledgeIndex
 from signal_diag.rules.engine import RuleEngine
 from signal_diag.rules.loader import YamlRuleProfileLoader
@@ -76,6 +81,9 @@ _OFFICIAL_PROVIDER = "deepseek"
 _OFFICIAL_MODEL = "deepseek-v4-flash"
 _OFFICIAL_PROMPT_VERSION = "v0.2-s1-planner-4"
 _OFFICIAL_REPETITIONS = 5
+_PHASE4_1_DATASET_VERSION = "1.1.0"
+_PHASE4_1_PROMPT_VERSION = "v0.2-s1-planner-5"
+_PHASE4_1_DEV_WARNING = "development split; not official held-out evidence"
 _RETRYABLE_ERROR_CODES: frozenset[AttemptErrorCode] = frozenset(
     {"timeout", "rate_limited", "provider_5xx"}
 )
@@ -105,6 +113,10 @@ def _package_path(*parts: str) -> Path:
 
 def _official_manifest_path() -> Path:
     return _package_path("evaluation", "manifests", "s1_distortion_v1.yaml")
+
+
+def _phase4_1_manifest_path() -> Path:
+    return _package_path("evaluation", "manifests", "s1_distortion_v1_1.yaml")
 
 
 def _official_profile_path() -> Path:
@@ -362,6 +374,10 @@ def _official_prompt_sha256() -> str:
     return hashlib.sha256(_S1_PROMPT_V4.system_prompt.encode("utf-8")).hexdigest()
 
 
+def _phase4_1_prompt_sha256() -> str:
+    return hashlib.sha256(_S1_PROMPT_V5.system_prompt.encode("utf-8")).hexdigest()
+
+
 def _official_model_parameters() -> dict[str, ConfigValue]:
     return {
         "temperature": 0.0,
@@ -410,6 +426,35 @@ def _official_benchmark_config(
     )
 
 
+def _phase4_1_benchmark_config(
+    *,
+    benchmark_id: str,
+    started_at_utc: datetime,
+) -> BenchmarkConfig:
+    if _S1_PROMPT_V5.version != _PHASE4_1_PROMPT_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            f"prompt version must be {_PHASE4_1_PROMPT_VERSION!r}",
+        )
+    return BenchmarkConfig(
+        benchmark_id=benchmark_id,
+        dataset_id=_OFFICIAL_DATASET_ID,
+        dataset_version=_PHASE4_1_DATASET_VERSION,
+        rule_profile_id=_OFFICIAL_PROFILE_ID,
+        rule_profile_version=_OFFICIAL_PROFILE_VERSION,
+        provider=_OFFICIAL_PROVIDER,
+        model=_OFFICIAL_MODEL,
+        prompt_version=_PHASE4_1_PROMPT_VERSION,
+        prompt_sha256=_phase4_1_prompt_sha256(),
+        model_parameters=_official_model_parameters(),
+        sdk_versions=_official_sdk_versions(),
+        repetitions=_OFFICIAL_REPETITIONS,
+        max_infrastructure_retries=2,
+        max_concurrency=1,
+        started_at_utc=started_at_utc,
+    )
+
+
 def _scripted_benchmark_config(
     manifest: DatasetManifest,
     *,
@@ -437,11 +482,19 @@ def _held_out_slot_schedule(
     manifest: DatasetManifest,
     config: BenchmarkConfig,
 ) -> tuple[tuple[str, int], ...]:
+    return _slot_schedule_for_split(manifest, config, "held_out")
+
+
+def _slot_schedule_for_split(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    score_split: EvaluationSplit,
+) -> tuple[tuple[str, int], ...]:
     return tuple(
         (case.case_id, run_slot)
         for run_slot in range(1, config.repetitions + 1)
         for case in manifest.cases
-        if case.split == "held_out"
+        if case.split == score_split
     )
 
 
@@ -546,6 +599,68 @@ def _preflight_official(
             ) from error
 
 
+def _preflight_phase4_1(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    *,
+    client_factory: Callable[[], object] | None = None,
+    import_openai: Callable[[], object] | None = None,
+) -> None:
+    if _S1_PROMPT_V5.version != _PHASE4_1_PROMPT_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            f"prompt version must be {_PHASE4_1_PROMPT_VERSION!r}",
+        )
+    expected_hash = _phase4_1_prompt_sha256()
+    if config.prompt_sha256 != expected_hash:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "prompt SHA-256 does not match the frozen product planner prompt",
+        )
+    if config.prompt_version != _PHASE4_1_PROMPT_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            f"prompt version must be {_PHASE4_1_PROMPT_VERSION!r}",
+        )
+    if config.dataset_version != _PHASE4_1_DATASET_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "Phase 4.1 runner pins dataset version 1.1.0",
+        )
+    if (
+        config.rule_profile_id != _OFFICIAL_PROFILE_ID
+        or config.rule_profile_version != _OFFICIAL_PROFILE_VERSION
+    ):
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "Phase 4.1 runner pins profile_s1_distortion 1.0.0-demo",
+        )
+    if config.provider != _OFFICIAL_PROVIDER or config.model != _OFFICIAL_MODEL:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "official runner pins provider deepseek and model deepseek-v4-flash",
+        )
+    if config.max_concurrency != 1:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "official execution requires max_concurrency=1",
+        )
+    _require_valid_dataset(manifest)
+    if not os.environ.get("DEEPSEEK_API_KEY"):
+        raise _PreflightFailure(
+            "missing_credentials",
+            "set DEEPSEEK_API_KEY before running the official real-model benchmark",
+        )
+    if client_factory is None:
+        try:
+            (import_openai or _import_openai)()
+        except ImportError as error:
+            raise _PreflightFailure(
+                "missing_dependency",
+                "RealLLMPlanner requires the optional openai dependency",
+            ) from error
+
+
 def _configuration_attempts(
     slots: tuple[tuple[str, int], ...],
     code: AttemptErrorCode,
@@ -619,6 +734,11 @@ def _build_official_planner(inner_client: object) -> RealLLMPlanner:
     return _Phase4V4RealLLMPlanner(provider="deepseek", client=capture_client)
 
 
+def _build_phase4_1_planner(inner_client: object) -> RealLLMPlanner:
+    capture = _UsageCapturingClient(inner_client)  # type: ignore[arg-type]
+    return RealLLMPlanner(provider="deepseek", client=capture)
+
+
 def _assemble_applied_agent_trace(
     case: EvaluationCase,
     records: tuple[Any, ...],
@@ -645,13 +765,15 @@ async def _execute_agent_slot(
     config: BenchmarkConfig,
     run_slot: int,
     inner_client: object,
+    *,
+    planner_builder: Callable[[object], RealLLMPlanner],
 ) -> EvaluationTrace:
     repository = InMemorySignalRepository()
     record = _materialize_case(case, repository)
     tool_service, rule_engine, profile_loader, knowledge_index = _official_dependencies(
         repository
     )
-    planner = _build_official_planner(inner_client)
+    planner = planner_builder(inner_client)
     recording = RecordingPlanner(planner)
     runtime = DistortionDiagnosisRuntime(
         repository=repository,
@@ -679,6 +801,7 @@ async def _run_agent_slot_with_retries(
     config: BenchmarkConfig,
     run_slot: int,
     *,
+    planner_builder: Callable[[object], RealLLMPlanner],
     client_factory: Callable[[], object],
     classify_error: Callable[[BaseException], tuple[AttemptStatus, AttemptErrorCode]],
     now: Callable[[], datetime],
@@ -693,6 +816,7 @@ async def _run_agent_slot_with_retries(
                 config,
                 run_slot,
                 client_factory(),
+                planner_builder=planner_builder,
             )
         except Exception as error:  # noqa: BLE001 - classify any provider/transport failure
             finished = max(now(), started)
@@ -901,11 +1025,16 @@ def _scripted_steps_for_case(case: EvaluationCase) -> tuple[ScriptedStep, ...]:
     return tuple(steps)
 
 
-async def _run_official_benchmark(
+async def _run_real_benchmark_for_split(
     manifest: DatasetManifest,
     config: BenchmarkConfig,
     output_dir: Path,
     *,
+    score_split: EvaluationSplit,
+    planner_builder: Callable[[object], RealLLMPlanner],
+    preflight: Callable[..., None],
+    baseline_case_ids: tuple[str, ...],
+    extra_warnings: tuple[str, ...] = (),
     client_factory: Callable[[], object] | None = None,
     classify_error: Callable[[BaseException], tuple[AttemptStatus, AttemptErrorCode]]
     | None = None,
@@ -918,9 +1047,9 @@ async def _run_official_benchmark(
     clock = now or (lambda: datetime.now(UTC))
     classifier = classify_error or _classify_transport_error
     cases = {case.case_id: case for case in manifest.cases}
-    agent_slots = _held_out_slot_schedule(manifest, config)
+    agent_slots = _slot_schedule_for_split(manifest, config, score_split)
     try:
-        _preflight_official(
+        preflight(
             manifest,
             config,
             client_factory=client_factory,
@@ -933,7 +1062,7 @@ async def _run_official_benchmark(
             error.message,
             clock(),
         )
-        report = aggregate_benchmark(
+        report = _aggregate_benchmark_for_split(
             manifest,
             (),
             (),
@@ -941,6 +1070,8 @@ async def _run_official_benchmark(
             config,
             TargetBands(),
             harness_status="pending",
+            score_split=score_split,
+            extra_warnings=extra_warnings,
         )
         write_benchmark_bundle(report, output_dir)
         return report
@@ -954,6 +1085,7 @@ async def _run_official_benchmark(
             cases[case_id],
             config,
             run_slot,
+            planner_builder=planner_builder,
             client_factory=factory,
             classify_error=classifier,
             now=clock,
@@ -982,7 +1114,8 @@ async def _run_official_benchmark(
         traces.append(trace)
         scores.append(score)
 
-    for case_id, run_slot in _baseline_slot_schedule(manifest):
+    for case_id in baseline_case_ids:
+        run_slot = 1
         started = clock()
         try:
             trace = await _execute_baseline_slot(cases[case_id], config, run_slot)
@@ -1018,7 +1151,7 @@ async def _run_official_benchmark(
             )
         )
 
-    report = aggregate_benchmark(
+    report = _aggregate_benchmark_for_split(
         manifest,
         tuple(traces),
         tuple(scores),
@@ -1026,6 +1159,133 @@ async def _run_official_benchmark(
         config,
         TargetBands(),
         harness_status="pending",
+        score_split=score_split,
+        extra_warnings=extra_warnings,
+    )
+    write_benchmark_bundle(report, output_dir)
+    return report
+
+
+async def _run_official_benchmark(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    output_dir: Path,
+    *,
+    client_factory: Callable[[], object] | None = None,
+    classify_error: Callable[[BaseException], tuple[AttemptStatus, AttemptErrorCode]]
+    | None = None,
+    import_openai: Callable[[], object] | None = None,
+    now: Callable[[], datetime] | None = None,
+) -> BenchmarkReport:
+    return await _run_real_benchmark_for_split(
+        manifest,
+        config,
+        output_dir,
+        score_split="held_out",
+        planner_builder=_build_official_planner,
+        preflight=_preflight_official,
+        baseline_case_ids=tuple(case.case_id for case in manifest.cases),
+        client_factory=client_factory,
+        classify_error=classify_error,
+        import_openai=import_openai,
+        now=now,
+    )
+
+
+async def _run_phase4_1_development_benchmark(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    output_dir: Path,
+    *,
+    client_factory: Callable[[], object] | None = None,
+    classify_error: Callable[[BaseException], tuple[AttemptStatus, AttemptErrorCode]]
+    | None = None,
+    import_openai: Callable[[], object] | None = None,
+    now: Callable[[], datetime] | None = None,
+) -> BenchmarkReport:
+    return await _run_real_benchmark_for_split(
+        manifest,
+        config,
+        output_dir,
+        score_split="development",
+        planner_builder=_build_phase4_1_planner,
+        preflight=_preflight_phase4_1,
+        baseline_case_ids=tuple(
+            case.case_id for case in manifest.cases if case.split == "development"
+        ),
+        extra_warnings=(_PHASE4_1_DEV_WARNING,),
+        client_factory=client_factory,
+        classify_error=classify_error,
+        import_openai=import_openai,
+        now=now,
+    )
+
+
+async def _run_phase4_1_official_benchmark(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    output_dir: Path,
+    *,
+    client_factory: Callable[[], object] | None = None,
+    classify_error: Callable[[BaseException], tuple[AttemptStatus, AttemptErrorCode]]
+    | None = None,
+    import_openai: Callable[[], object] | None = None,
+    now: Callable[[], datetime] | None = None,
+) -> BenchmarkReport:
+    return await _run_real_benchmark_for_split(
+        manifest,
+        config,
+        output_dir,
+        score_split="held_out",
+        planner_builder=_build_phase4_1_planner,
+        preflight=_preflight_phase4_1,
+        baseline_case_ids=tuple(case.case_id for case in manifest.cases),
+        client_factory=client_factory,
+        classify_error=classify_error,
+        import_openai=import_openai,
+        now=now,
+    )
+
+
+def _campaign_identity_matches(
+    manifest: DatasetManifest, config: BenchmarkConfig
+) -> bool:
+    return (
+        manifest.dataset_id == config.dataset_id
+        and manifest.version == config.dataset_version
+        and manifest.rule_profile_id == config.rule_profile_id
+        and manifest.rule_profile_version == config.rule_profile_version
+    )
+
+
+def _write_invalid_configuration_report(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    output_dir: Path,
+    *,
+    score_split: EvaluationSplit,
+    message: str,
+    extra_warnings: tuple[str, ...] = (),
+) -> BenchmarkReport:
+    dest = output_dir / config.benchmark_id
+    if dest.exists():
+        raise FileExistsError(dest)
+    attempts = _configuration_attempts(
+        _slot_schedule_for_split(manifest, config, score_split),
+        "invalid_configuration",
+        message,
+        config.started_at_utc,
+    )
+    report = _aggregate_benchmark_for_split(
+        manifest,
+        (),
+        (),
+        attempts,
+        config,
+        TargetBands(),
+        harness_status="pending",
+        score_split=score_split,
+        extra_warnings=extra_warnings,
     )
     write_benchmark_bundle(report, output_dir)
     return report
