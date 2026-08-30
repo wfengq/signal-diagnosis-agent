@@ -73,7 +73,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 - Consumes: approved Phase 4.1 design at `docs/superpowers/specs/2026-08-30-phase4-1-agent-behavior-improvement-design.md`.
 - Produces: additive §50 behavior contract, additive test-plan §23 T184–T195, and D021. It does not modify §§41–§49 or T125–T183.
 
-- [ ] **Step 1: Add the exact additive contract text**
+- [x] **Step 1: Add the exact additive contract text**
 
   Add `CONTRACTS_V0_2.md` §50 with these normative statements:
 
@@ -91,11 +91,11 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Add `TEST_PLAN_V0_2.md` §23 with the approved T184–T195 wording verbatim from the spec. Add D021 recording prompt-only correction, immutable `b68ec5e`, fresh held-out data, and the no-controller/no-retuning rules.
 
-- [ ] **Step 2: Update current-stage navigation honestly**
+- [x] **Step 2: Update current-stage navigation honestly**
 
   Set `AGENTS.md` and `docs/README.md` to “Phase 4 accepted at `b68ec5e`; Phase 4.1 design approved and implementation pending; Phase 5 gated.” Keep the first official benchmark described as `completed/below_target`, not failed and not accepted as product-quality behavior.
 
-- [ ] **Step 3: Verify the documentation-only gate**
+- [x] **Step 3: Verify the documentation-only gate**
 
   Run:
 
@@ -106,7 +106,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Expected: diff-check exits 0; every new authority and gate is discoverable; §§41–§49 and T125–T183 have no semantic edits.
 
-- [ ] **Step 4: Commit the normative gate**
+- [x] **Step 4: Commit the normative gate**
 
   ```powershell
   git add AGENTS.md docs/README.md docs/CONTRACTS_V0_2.md docs/TEST_PLAN_V0_2.md docs/DECISIONS.md
@@ -129,7 +129,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 - Consumes: existing `RealLLMPlanner`, `PlannerContext`, `AgentDecision`, real Runtime, Tools, RuleEngine, profile loader, and KnowledgeIndex.
 - Produces: private `_PlannerPromptSpec`, `_S1_PROMPT_V4`, `_S1_PROMPT_V5`, and `_Phase4V4RealLLMPlanner`. The public `RealLLMPlanner` constructor remains unchanged; `PROMPT_VERSION` and `_SYSTEM_PROMPT` advance to active v5 as approved.
 
-- [ ] **Step 1: Write failing prompt identity and leakage tests**
+- [x] **Step 1: Write failing prompt identity and leakage tests**
 
   In `test_phase4_1_prompt.py`, import the private versioned specs and assert:
 
@@ -152,7 +152,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Capture the default `RealLLMPlanner` outbound user message and assert it identifies v5 and contains only `prompt_version` plus serialized `PlannerContext`; it must not contain samples, `frequencies_hz`, generator inputs, or any forbidden evaluation field. Separately assert `_Phase4V4RealLLMPlanner` sends the byte-identical v4 prompt and v4 user-message identity.
 
-- [ ] **Step 2: Write failing dual-truth and action-policy tests**
+- [x] **Step 2: Write failing dual-truth and action-policy tests**
 
   Assert the v5 prompt explicitly states all of the following without fixing a Tool order:
 
@@ -172,7 +172,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Feed the active `RealLLMPlanner` a fake response containing a supported harmonic claim with both Evidence refs and a PASS `ruleval_*` ref. T186 must parse it without rewriting the outcome to `no_supported_fault`.
 
-- [ ] **Step 3: Write failing full-runtime fake-model scenarios**
+- [x] **Step 3: Write failing full-runtime fake-model scenarios**
 
   In `test_phase4_1_acceptance.py`, implement `_PolicyFakeCompletions.create` by parsing `kwargs["messages"][1]["content"]`. It returns exactly one JSON decision from current context:
 
@@ -200,7 +200,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
   judgment must never be described as PASS. Both runs retain Evidence and an
   explicit limitation rather than fabricating content.
 
-- [ ] **Step 4: Run the RED suites**
+- [x] **Step 4: Run the RED suites**
 
   ```powershell
   $py = 'C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
@@ -209,7 +209,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Expected: collection fails because `signal_diag.agent.prompts` and `_Phase4V4RealLLMPlanner` do not exist.
 
-- [ ] **Step 5: Implement immutable prompt specifications**
+- [x] **Step 5: Implement immutable prompt specifications**
 
   Create:
 
@@ -256,7 +256,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
   policy fields, expected outcomes, case IDs, score targets, or held-out
   behavior.
 
-- [ ] **Step 6: Bind v5 without changing the public constructor**
+- [x] **Step 6: Bind v5 without changing the public constructor**
 
   Define `_LEGACY_S1_SYSTEM_PROMPT` by moving the complete current
   `planner.py` `_SYSTEM_PROMPT` literal into `prompts.py` byte-for-byte; do not
@@ -289,7 +289,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
   v5 product prompt without a constructor change. The legacy Phase 4 runner is
   the only caller of `_Phase4V4RealLLMPlanner`.
 
-- [ ] **Step 7: Run GREEN, legacy regression, and commit**
+- [x] **Step 7: Run GREEN, legacy regression, and commit**
 
   ```powershell
   & $py -m pytest tests/agent/test_real_llm_planner.py tests/agent/test_phase4_1_prompt.py tests/evaluation/test_phase4_1_acceptance.py -q
@@ -322,11 +322,11 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 - Consumes: existing `DatasetManifest`, generators, materializer, real Tools, RuleEngine, and v1.0.0 allocation validation.
 - Produces: packaged v1.1.0 manifest and additive validator support. `load_dataset_manifest` and `validate_dataset` signatures remain unchanged.
 
-- [ ] **Step 1: Write the failing identity, natural-request, and isolation tests**
+- [x] **Step 1: Write the failing identity, natural-request, and isolation tests**
 
   Add a `PHASE4_1_MANIFEST` fixture path without changing `CANONICAL_MANIFEST`. Assert exact 8/16 allocation, exact category counts, unique IDs, deterministic reconstruction, and real-DSP validation. T192 rejects Tool names, `clipping`, `harmonic_distortion`, `causal_faults`, and order words such as `first`, `then`, or `pipeline` in every request. T193 compares v1.1 development and held-out cases and rejects equal case IDs, full signal-spec dumps, noise seeds, or exact request strings across splits; it also rejects exact v1.0.0 held-out signal-spec dumps in v1.1.0 held-out.
 
-- [ ] **Step 2: Run dataset RED**
+- [x] **Step 2: Run dataset RED**
 
   ```powershell
   & $py -m pytest tests/evaluation/test_phase4_1_dataset.py -q
@@ -334,7 +334,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Expected: the v1.1 manifest path is absent and validator identity rejects version `1.1.0`.
 
-- [ ] **Step 3: Write the exact 24-case signal matrix**
+- [x] **Step 3: Write the exact 24-case signal matrix**
 
   All cases use 48 kHz and 2.0 seconds. Sines use phase 0 and DC offset 0; noise uses RMS 0.1.
 
@@ -368,7 +368,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Calibration expectations from accepted DSP are: clipping ratios 0.009875 and 0.48125 for the two dev clipping cases; held clipping ratios 0.009375, 0.010000, 0.011625, and about 0.432292; harmonic THD about 5.0%, 8.5%, 4.0%, 5.0%, 7.5%, and 7.616%; combined signature separations exceed the declared 0.08/0.05/0.06/0.10 values. These are dataset-QA expectations, never product thresholds.
 
-- [ ] **Step 4: Assign natural requests without answer leakage**
+- [x] **Step 4: Assign natural requests without answer leakage**
 
   Alternate only these development phrasings:
 
@@ -388,7 +388,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Use the Phase 4 condition templates and dual truth. Harmonic cases below or at 5% still support a harmonic-distortion causal claim while their `lte 5.0` rule condition passes. Invalid/noise cases require `knowledge_tags: [inconclusive]`, an inconclusive outcome, and a limitation. Do not encode one complete Tool sequence.
 
-- [ ] **Step 5: Generalize dataset identity validation additively**
+- [x] **Step 5: Generalize dataset identity validation additively**
 
   Replace the single version constant with exact supported identities:
 
@@ -401,7 +401,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Keep the same allocation counters for both. Unknown IDs/versions still produce `dataset_identity`; no caller chooses counts or bypasses validation.
 
-- [ ] **Step 6: Run GREEN, package check, cumulative tests, and commit**
+- [x] **Step 6: Run GREEN, package check, cumulative tests, and commit**
 
   ```powershell
   & $py -m pytest tests/evaluation/test_dataset.py tests/evaluation/test_phase4_1_dataset.py -q
@@ -435,7 +435,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 - Consumes: `_S1_PROMPT_V5`, `_Phase41RealLLMPlanner`, v1.1.0 manifest, existing slot retry, trace, score, aggregate, and bundle code.
 - Produces: private `_phase4_1_benchmark_config`, `_run_phase4_1_development_benchmark`, `_run_phase4_1_official_benchmark`, and additive CLI `--campaign`. Existing public functions and legacy private wrappers retain behavior.
 
-- [ ] **Step 1: Write failing legacy-preservation and campaign-config tests**
+- [x] **Step 1: Write failing legacy-preservation and campaign-config tests**
 
   Assert legacy `_official_benchmark_config` still records v4/v1.0.0 and its existing fingerprint. Assert Phase 4.1 config records exactly:
 
@@ -450,7 +450,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
   assert config.max_concurrency == 1
   ```
 
-- [ ] **Step 2: Write failing split and CLI tests**
+- [x] **Step 2: Write failing split and CLI tests**
 
   With a mini manifest containing two development and two held-out cases, assert the development wrapper schedules 2 x 5 Agent slots and the official wrapper schedules 2 x 5 held-out slots. The canonical v1.1.0 campaign must schedule 8 x 5 = 40 development slots and 16 x 5 = 80 official slots. Add `--campaign` choices while preserving exactly the four existing subcommand names:
 
@@ -468,7 +468,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
   attempt, completion, pending/incomplete, and no-fallback behavior. This
   proves the extracted shared loop did not preserve errors only for legacy v4.
 
-- [ ] **Step 3: Write failing split-aware aggregation tests**
+- [x] **Step 3: Write failing split-aware aggregation tests**
 
   Verify the public `aggregate_benchmark` still scores held-out only. Verify a new private helper can calculate development metrics/status from development scores without mutating case splits or the manifest. The development report must add the warning `development split; not official held-out evidence`. A complete 40-slot dev report may be `meets_target`; missing slots are `incomplete`. The official path keeps frozen status semantics.
 
@@ -478,7 +478,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
   the development warning and the exact split membership of recorded case IDs;
   do not overload provider `model_parameters` with evaluation metadata.
 
-- [ ] **Step 4: Run runner RED**
+- [x] **Step 4: Run runner RED**
 
   ```powershell
   & $py -m pytest tests/evaluation/test_runner.py tests/evaluation/test_scoring.py tests/evaluation/test_phase4_1_runner.py -q
@@ -486,7 +486,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Expected: Phase 4.1 config, wrappers, split aggregation, and campaign option are absent.
 
-- [ ] **Step 5: Refactor aggregation behind an unchanged public wrapper**
+- [x] **Step 5: Refactor aggregation behind an unchanged public wrapper**
 
   Introduce private `_aggregate_benchmark_for_split` with the same six
   positional parameters as `aggregate_benchmark` and keyword-only
@@ -496,7 +496,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   `aggregate_benchmark` delegates with `score_split="held_out"` and no extra warning. Generalize only private score filtering and expected-slot status calculation to use `score_split`. Do not change rate formulas, target bands, fingerprint logic, or the public signature.
 
-- [ ] **Step 6: Add v5 config, preflight, and planner construction**
+- [x] **Step 6: Add v5 config, preflight, and planner construction**
 
   Keep `_official_*` constants and functions semantically intact, but make their
   prompt hash and preflight checks read `_S1_PROMPT_V4` directly instead of the
@@ -514,7 +514,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Do not wrap either real planner in `_ContextBoundScriptedPlanner`.
 
-- [ ] **Step 7: Generalize only private execution plumbing**
+- [x] **Step 7: Generalize only private execution plumbing**
 
   Extract the current official loop into private
   `_run_real_benchmark_for_split`, receiving `score_split`, `planner_builder`,
@@ -529,11 +529,11 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Both reuse the frozen retry classifier, AttemptRecord semantics, trace assembly, scorer, and append-only writer. Do not catch behavioral failures as infrastructure retries.
 
-- [ ] **Step 8: Add additive CLI routing**
+- [x] **Step 8: Add additive CLI routing**
 
   `run-real --campaign phase4` selects legacy v4/v1.0.0. The two Phase 4.1 choices require the v1.1.0 manifest, construct the v5 config, and route to the corresponding wrapper. If `--manifest` conflicts with the selected campaign identity, return an invalid-configuration report; do not silently rewrite config identity.
 
-- [ ] **Step 9: Run GREEN, CLI smoke tests, cumulative tests, and commit**
+- [x] **Step 9: Run GREEN, CLI smoke tests, cumulative tests, and commit**
 
   ```powershell
   & $py -m pytest tests/evaluation/test_runner.py tests/evaluation/test_scoring.py tests/evaluation/test_phase4_1_runner.py -q
@@ -563,7 +563,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 - Consumes: Tasks 1–4.
 - Produces: deterministic Phase 4.1 implementation evidence. It does not claim real-model acceptance.
 
-- [ ] **Step 1: Add the T195 baseline check**
+- [x] **Step 1: Add the T195 baseline check**
 
   Preserve T183's `9bd01f2` check and add a separate test:
 
@@ -581,7 +581,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
       assert result.returncode == 0, result.stdout + result.stderr
   ```
 
-- [ ] **Step 2: Run all Phase 4.1 focused tests with skip details**
+- [x] **Step 2: Run all Phase 4.1 focused tests with skip details**
 
   ```powershell
   & $py -m pytest tests/agent/test_phase4_1_prompt.py tests/evaluation/test_phase4_1_acceptance.py tests/evaluation/test_phase4_1_dataset.py tests/evaluation/test_phase4_1_runner.py tests/test_architecture_boundaries.py -q -rxXs -p no:cacheprovider --basetemp .pytest_cache/phase4-1-focused
@@ -589,7 +589,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Expected: T184–T195 pass; no required skip or xfail.
 
-- [ ] **Step 3: Run the complete deterministic quality gate**
+- [x] **Step 3: Run the complete deterministic quality gate**
 
   ```powershell
   & $py -m pytest -q -rxXs -p no:cacheprovider --basetemp .pytest_cache/phase4-1-full
@@ -600,7 +600,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
 
   Expected: T001–T195 pass, zero required skip/xfail, Ruff clean, mypy clean, and diff-check clean. Record exact counts and outputs; do not reuse the previous 451-pass result.
 
-- [ ] **Step 4: Commit the deterministic cumulative gate**
+- [x] **Step 4: Commit the deterministic cumulative gate**
 
   ```powershell
   git add tests/test_architecture_boundaries.py docs/superpowers/plans/2026-08-30-phase4-1-agent-behavior-improvement.md

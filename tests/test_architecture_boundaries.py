@@ -289,3 +289,17 @@ def test_t183_diff_check_against_phase4_design_baseline() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+_PHASE4_1_BASELINE = "b68ec5e"
+
+
+def test_t195_diff_check_against_phase4_1_baseline() -> None:
+    result = subprocess.run(
+        ["git", "diff", "--check", f"{_PHASE4_1_BASELINE}..HEAD"],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
