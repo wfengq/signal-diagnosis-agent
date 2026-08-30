@@ -65,14 +65,15 @@ Read these documents before changing implementation code:
   calibration design under §52, T201–T208, D023, and resolved OQ-007. It adds
   a fresh v1.2.0 dataset and opaque Agent signal IDs rather than retrying v7 on
   the integrity-defective v1.1.0 evaluation inputs. Deterministic Tasks 2–7
-  are complete; T208 is green. v7 development gate3 is honest
+  are complete; T208 is green. v7 development gate3 at `71293a3` is honest
   `completed/below_target`; official v1.2.0 held-out was not run.
 - [`superpowers/plans/2026-08-30-phase4-2-prompt-v7-correction.md`](superpowers/plans/2026-08-30-phase4-2-prompt-v7-correction.md)
   — Task 1–10 TDD plan for dataset v1.2.0, outbound identity integrity,
   prompt v7, campaigns, and gated live evaluation. Tasks 2–7 deterministic
-  implementation is complete. Task 8 v7 development gate3 is honest
-  `completed/below_target`. Tasks 9–10 remain gated. v1.1.0 and v1.2.0
-  held-out remain unexecuted.
+  implementation is complete. Task 8 v7 development gate3 at `71293a3`
+  is honest `completed/below_target`. Task 9 official/held-out was not run.
+  Task 10 records that honest stop. v1.1.0 and v1.2.0 held-out remain
+  unexecuted. Phase 4.2 is not accepted.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -132,9 +133,12 @@ review rejected a prompt-only v7 retry because v1.1.0 leaks semantic signal IDs
 and contains hidden first-Tool/causal-identifiability requirements. The revised
 Phase 4.2 design is approved and frozen under §52, T201–T208, D023, and
 resolved OQ-007. Deterministic Tasks 2–7 are complete and T208 is green.
-Real-model Task 8 development gate3 is honest `completed/below_target`;
-official v1.2.0 held-out (Task 9) remains unauthorized because development
-missed target. Phase 4.1 is not accepted; Phase 4.2 is not accepted;
+Real-model Task 8 development gate3 at `71293a3` is honest
+`completed/below_target` (40 unique Agent slots; missed first_tool 0.75,
+replan 0.719, unnecessary_tool 0.405, required_knowledge 0.2; CLI
+`harness_status=pending`). Task 9 official v1.2.0 held-out was not run;
+`docs/evaluations/phase4_2/official/` does not exist. Task 10 records that
+honest stop. Phase 4.1 is not accepted; Phase 4.2 is not accepted;
 Phase 5 remains gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
@@ -151,23 +155,20 @@ Quality gate this session (Python
 `C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`):
 
 ```text
-python -m pytest -q -rxXs -p no:cacheprovider --basetemp <temporary-directory> tests/evaluation/test_runner.py::test_official_trace_keeps_empty_delta_planner_decisions tests/evaluation/test_scoring.py::test_t162_unnecessary_tool_scoring
-2 passed in 1.50s
-
-python -m pytest -q -rxXs -p no:cacheprovider --basetemp <temporary-directory>
-451 passed in 20.64s
+python -m pytest -q -rxXs -p no:cacheprovider --basetemp .pytest_cache/phase4-2-final
+592 passed in 36.02s
 
 python -m ruff check --no-cache src tests scripts
 All checks passed!
 
 python -m mypy --no-incremental src
-Success: no issues found in 45 source files
+Success: no issues found in 46 source files
 
-git diff --check 9bd01f2..HEAD
+git diff --check aefccba..HEAD
 (exit 0, empty output)
 ```
 
-Zero required skip/xfail were reported. The former deferred-package failure
-`test_deferred_packages_are_not_present[evaluation]` is gone. `app/` remains
-absent. Phase 2 was implemented directly from its accepted architecture,
-contracts, and test plan and has no separate plan document.
+Zero required skip/xfail were reported. `app/` remains absent. Phase 2 was
+implemented directly from its accepted architecture, contracts, and test
+plan and has no separate plan document. This deterministic gate is not
+Phase 4.2 product-quality acceptance.

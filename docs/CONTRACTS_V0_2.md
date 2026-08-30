@@ -3339,3 +3339,11 @@ acceptance and separate authorization.
 Only the written Task 1 contract freeze is authorized at this point. Tasks
 2–10, all implementation changes, all real-model execution, and every held-out
 run remain explicitly unauthorized until a later user instruction.
+
+Recorded Task 10 outcome (2026-08-30, bundle commit `71293a3`): deterministic
+T201–T208 are green. Development `bench_phase4_2_dev_v7_v12_gate3` is
+`benchmark_status=completed`, `target_status=below_target`, CLI
+`harness_status=pending`. Forty unique Agent slots; no held-out Agent runs;
+`docs/evaluations/phase4_2/official/` does not exist. Task 9 was not legally
+run. Phase 4.2 is not accepted. Phase 5 remains gated. This is not
+product-quality acceptance.

@@ -1028,3 +1028,9 @@ The v1.1.0 held-out split remains unexecuted and is not a fallback official set.
 Approval of this section freezes design and tests only. Phase 4.2 Tasks 2–10,
 all code implementation, all real-model development execution, and every
 held-out run require separate explicit authorization. Phase 5 remains gated.
+
+Recorded Task 10 outcome (2026-08-30, bundle commit `71293a3`): T201–T208
+deterministic tests are implemented and the T208 cumulative gate is green.
+The canonical 40-slot development campaign is honest `completed/below_target`.
+Official v1.2.0 held-out was not run. Phase 4.2 is not accepted. Phase 5
+remains gated.

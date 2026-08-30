@@ -306,3 +306,8 @@ remains gated until independent product-quality acceptance. This decision
 authorizes the written Task 1 contract freeze only. Tasks 2–10, code changes,
 real-model execution, and all held-out runs require a later explicit user
 instruction.
+
+Recorded Task 10 outcome (2026-08-30, bundle commit `71293a3`): Tasks 2–7 and
+T208 are complete. Development gate3 is honest `completed/below_target`.
+Official v1.2.0 held-out was not run. Phase 4.2 is not accepted. Phase 5
+remains gated.

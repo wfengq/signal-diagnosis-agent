@@ -26,9 +26,11 @@ repository, PyYAML, pytest, Ruff, mypy, DeepSeek OpenAI-compatible transport.
 
 **Implementation baseline:** `aefccba` on `phase4-evaluation-design`
 
-**Status:** Revised design approved on 2026-08-30. Task 1 documentation freeze
-is authorized; Tasks 2–10, all code changes, and all real-model/held-out runs
-remain unauthorized.
+**Status:** Tasks 2–7 deterministic implementation is complete; T208 is green.
+Task 8 v7 development gate3 at `71293a3` is honest `completed/below_target`.
+Task 9 official/held-out was not run (unauthorized after the development miss).
+Task 10 records that honest stop. Phase 4.2 is not accepted. Phase 5 remains
+gated.
 
 ## Global Constraints
 
@@ -594,6 +596,9 @@ remain unauthorized.
 
 ### Task 8: Run and freeze the v7 development gate
 
+**Status:** complete — honest `completed/below_target` at `71293a3`. Task 9
+is not authorized.
+
 **Files:**
 
 - Conditionally create:
@@ -646,6 +651,10 @@ remain unauthorized.
 
 ### Task 9: Conditionally run the one-shot v1.2 official gate
 
+**Status:** skipped — development is `completed/below_target`, so official
+v1.2.0 held-out was not legally run. `docs/evaluations/phase4_2/official/`
+does not exist.
+
 **Files:**
 
 - Conditionally create:
@@ -688,6 +697,12 @@ remain unauthorized.
 
 ### Task 10: Record final Phase 4.2 status
 
+**Status:** recording honest stop only. Task 8 already wrote
+`completed/below_target` into `AGENTS.md` / `docs/README.md`. Remaining deltas
+are the five-way status distinction, missed bands, Task 9-not-run, plan
+status line, and additive recorded-outcome notes. Commit skipped by user
+override.
+
 **Files:**
 
 - Modify: `AGENTS.md`
@@ -698,13 +713,13 @@ remain unauthorized.
 - Consumes: actual Task 7-9 evidence.
 - Produces: honest phase gate and Cursor handoff report.
 
-- [ ] **Step 1: Write only the status actually achieved**
+- [x] **Step 1: Write only the status actually achieved**
 
   Distinguish deterministic acceptance, development status, official status,
   target status, and CLI `harness_status`. Never call a below-target or unrun
   official campaign product-quality acceptance.
 
-- [ ] **Step 2: Rerun final verification**
+- [x] **Step 2: Rerun final verification**
 
   ```powershell
   python -m pytest -q -rxXs -p no:cacheprovider `
@@ -717,12 +732,14 @@ remain unauthorized.
 
 - [ ] **Step 3: Commit status, without push or merge**
 
+  **Skipped (user override).** Leave uncommitted. Do not push or merge.
+
   ```powershell
   git add AGENTS.md docs/README.md
   git commit -m "docs: record Phase 4.2 planner v7 acceptance status"
   ```
 
-- [ ] **Step 4: Report the handoff evidence**
+- [x] **Step 4: Report the handoff evidence**
 
   Include Task SHAs, T201-T208 file mapping, focused RED/GREEN commands, complete
   quality outputs, bundle paths/checksums, warnings, unsupported cases, contract
