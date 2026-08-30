@@ -32,8 +32,10 @@ bundle writer.
 T209–T215, D024, and OQ-008.
 
 **Status:** Detailed implementation plan approved as a design asset.
-Implementation and every real-model campaign still require a separate explicit
-user instruction.
+Deterministic Tasks 1–4 are implemented locally; T215 is green on uncommitted
+Task 4 work. Real-model development and official campaigns remain pending and
+still require a separate explicit user instruction. Do not treat the
+deterministic gate as a completed v8 development/official result.
 
 ## Global Constraints
 
@@ -433,7 +435,7 @@ commit. A review narrative is not test evidence.
 - Produces: T213 controller guard, T215 cumulative gate, and honest status
   `deterministic ready / real-model pending`.
 
-- [ ] **Step 1: Write T213 architecture guards**
+- [x] **Step 1: Write T213 architecture guards**
 
   Assert Runtime constructs no Tool/rule/knowledge/finish decisions; no Runtime
   branch keys off prompt version, case identity, split, or targets; v8 product
@@ -441,7 +443,7 @@ commit. A review narrative is not test evidence.
   introduced; existing retry, invalid, no-progress, max-action, and termination
   tests remain present and green.
 
-- [ ] **Step 2: Write T215 scope and cumulative guards**
+- [x] **Step 2: Write T215 scope and cumulative guards**
 
   From baseline `eb47237`, allow changes only under `AGENTS.md`, `docs/`,
   `src/signal_diag/agent/`, `src/signal_diag/evaluation/`, and `tests/`. Freeze
@@ -450,19 +452,19 @@ commit. A review narrative is not test evidence.
   unchanged TargetBands, absent app package, and `git diff --check
   eb47237..HEAD`.
 
-- [ ] **Step 3: Run RED**
+- [x] **Step 3: Run RED**
 
   ```powershell
   python -m pytest tests/test_architecture_boundaries.py -q
   ```
 
-- [ ] **Step 4: Complete the narrow gate and status docs**
+- [x] **Step 4: Complete the narrow gate and status docs**
 
   Add only tests/metadata needed for the frozen gate. Update `AGENTS.md` and
   `docs/README.md` to say deterministic Phase 4.3 implementation is ready,
   while development, official, acceptance, and Phase 5 remain pending/gated.
 
-- [ ] **Step 5: Run the complete deterministic gate**
+- [x] **Step 5: Run the complete deterministic gate**
 
   ```powershell
   python -m pytest -q -rxXs -p no:cacheprovider `
@@ -474,6 +476,12 @@ commit. A review narrative is not test evidence.
 
   Expected: all tests pass, zero required skip/xfail, and no Ruff/mypy/diff
   output indicating failure. Record exact counts and output.
+
+  Task 4 local evidence (uncommitted, HEAD `982e60a`, baseline `eb47237`):
+  `695 passed in 33.02s`, zero required skip/xfail; Ruff including I001
+  passed; mypy `Success: no issues found in 46 source files`;
+  `git diff --check eb47237..HEAD` and `git diff --check eb47237` both
+  exit 0. This is deterministic ready / real-model pending only.
 
 - [ ] **Step 6: Apply the required review protocol and commit**
 

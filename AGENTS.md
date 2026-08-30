@@ -25,8 +25,9 @@ records that honest stop. Phase 4.1 is not accepted. Phase 4.2 is not
 accepted. The written Phase 4.3 planner-v8 design is approved and frozen under
 §53, T209–T215, D024, and OQ-008. Its detailed task-level plan is complete at
 `docs/superpowers/plans/2026-08-30-phase4-3-planner-v8-behavior-calibration.md`.
-Phase 4.3 implementation and every model run remain gated pending a separate
-explicit instruction. Phase 5 remains gated.
+Deterministic Phase 4.3 implementation is ready and T215 is green. Real-model
+development, official held-out, Phase 4.3 acceptance, and Phase 5 remain
+pending/gated. That deterministic gate is not a real-model claim.
 
 The Phase 4 written specification was approved on 2026-08-29; §§41–§49 and
 T125–T183 are frozen and implemented. Deterministic status is
@@ -54,9 +55,10 @@ miss). Task 10 records that honest stop. Phase 4.2 is not accepted.
 Phase 4.3 design authority is
 `docs/superpowers/specs/2026-08-30-phase4-3-planner-v8-behavior-calibration-design.md`,
 frozen `CONTRACTS_V0_2.md` §53, `TEST_PLAN_V0_2.md` §26 (T209–T215), D024,
-and resolved OQ-008. It authorizes design and test contracts only. The detailed
-task-level plan is complete. Do not implement v8, create campaign assets, or
-run a model until a separate user execution instruction is approved.
+and resolved OQ-008. Deterministic Tasks 1–4 are implemented and T215 is green.
+Real-model development, official held-out, and Phase 4.3 acceptance remain
+pending. Do not run a live model, inspect held-out behavior, or start Phase 5
+until a separate explicit authorization exists.
 
 Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
 and accepted. Phase 3 passed Codex final acceptance at commit `a820b7f` on
@@ -119,9 +121,9 @@ target. Task 10 records that honest stop; it does not authorize Phase 5.
 
 Phase 4.3 design authority is frozen under §53, T209–T215, D024, and OQ-008.
 It permits one final prompt-only candidate with unchanged v1.2 dataset,
-Runtime, PlannerContext, scoring, targets, provider, and model. The detailed
-plan is complete; implementation and model execution remain gated until a
-separate explicit authorization exists.
+Runtime, PlannerContext, scoring, targets, provider, and model. Deterministic
+Tasks 1–4 are complete and T215 is green. Real-model development and official
+execution remain pending until a separate explicit authorization exists.
 
 These documents describe approved architecture and frozen interfaces.
 
@@ -145,9 +147,11 @@ real-model claim. Task 8 development already ran and is honest
 `completed/below_target`. Task 9 official/held-out was not legally run.
 Do not inspect v1.2.0 held-out or v1.1.0 held-out. Do not start Phase 5.
 
-Additive Phase 4.3 §53 and T209–T215 are frozen design/test authority only.
-They do not authorize code changes, a v8 development run, official held-out,
-or Phase 5.
+Additive Phase 4.3 §53 and T209–T215 are frozen. Deterministic implementation
+satisfies T001–T215, Ruff, mypy, architecture, and
+`git diff --check eb47237..HEAD`. That deterministic gate is not a real-model
+claim. Do not run v8 development or official held-out, inspect v1.2.0 held-out,
+or start Phase 5 until separately authorized.
 
 Do not redesign or rename public models, functions, modules, arguments, return
 values, or package boundaries unless the user explicitly requests a contract
@@ -222,9 +226,10 @@ gate3 is honest `completed/below_target`. Official v1.2.0 held-out was
 not run. Phase 4.1 is not accepted. Phase 4.2 is not accepted. Phase 5
 remains gated. Do not start Phase 5.
 
-Phase 4.3 is the next execution-gated phase. Its written v8 scope and detailed
-implementation plan are complete, but implementation has not started. Do not
-create v8 code or evaluation assets until the separate execution gate passes.
+Phase 4.3 deterministic implementation is ready and T215 is green. Real-model
+development, official held-out, Phase 4.3 acceptance, and Phase 5 remain
+gated. Do not treat the deterministic gate as a v8 development or official
+result.
 
 ## Completed phases (reference)
 
@@ -290,6 +295,21 @@ Bundle:
 `docs/evaluations/phase4_2/development/bench_phase4_2_dev_v7_v12_gate3/`.
 No held-out Agent slots were executed. This is not Phase 4.2 acceptance
 and is not product-quality behavior.
+
+### Phase 4.3 — planner v8 behavior calibration (deterministic ready; real-model pending)
+
+Additive §53, T209–T215, and D024. Coherent prompt `v0.2-s1-planner-8` and
+canonical v8 campaign routes are implemented. Recorded statuses (do not
+conflate them):
+
+- deterministic: T001–T215 green; not a real-model claim
+- development: pending; canonical bundle path does not exist
+- official: pending; not authorized until development is `completed/meets_target`
+- Phase 4.3 acceptance: pending
+- Phase 5: gated
+
+This is not Phase 4.3 product-quality acceptance and is not a v8
+development/official completed result.
 
 ## Development workflow
 
@@ -368,5 +388,11 @@ architecture, and `git diff --check aefccba..HEAD` with zero required
 skip/xfail. That gate is green. v7 development gate3 is honest
 `completed/below_target`. Official v1.2.0 held-out was not run. Do not treat
 either gate as Phase 4.2 acceptance.
+
+Phase 4.3 deterministic implementation must satisfy T001–T215, Ruff, mypy,
+architecture, and `git diff --check eb47237..HEAD` with zero required
+skip/xfail. That gate is green. Real-model development and official held-out
+remain pending. Do not treat the deterministic gate as Phase 4.3 acceptance
+or as a completed v8 development/official campaign.
 
 Never say that a later phase is complete if required tests are failing.

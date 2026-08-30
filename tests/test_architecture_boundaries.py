@@ -595,3 +595,272 @@ def test_t208_required_test_ids_are_present() -> None:
     assert not missing_t208, "missing T208 architecture tests:\n" + "\n".join(
         missing_t208
     )
+
+
+_PHASE4_3_BASELINE = "eb47237"
+_PHASE4_3_ALLOWED_PREFIXES = (
+    "AGENTS.md",
+    "docs/",
+    "src/signal_diag/agent/",
+    "src/signal_diag/evaluation/",
+    "tests/",
+)
+_PHASE4_3_FROZEN_PATHS = (
+    "src/signal_diag/agent/runtime.py",
+    "src/signal_diag/evaluation/models.py",
+    "src/signal_diag/evaluation/scoring.py",
+    "src/signal_diag/evaluation/dataset.py",
+    "src/signal_diag/evaluation/manifests",
+    "src/signal_diag/dsp",
+    "src/signal_diag/rules",
+    "src/signal_diag/knowledge",
+    "src/signal_diag/tools",
+    "src/signal_diag/signal",
+)
+_PHASE4_3_REQUIRED_TEST_IDS = tuple(f"T{index}" for index in range(209, 216))
+_PHASE4_3_REQUIRED_T213_TESTS = (
+    "test_t213_runtime_does_not_construct_forced_actions",
+    "test_t213_runtime_does_not_branch_on_prompt_case_split_or_targets",
+    "test_t213_v8_product_builders_use_real_llm_planner",
+    "test_t213_no_universal_pipeline_or_scripted_fallback",
+    "test_t213_existing_controller_semantics_tests_remain",
+)
+_PHASE4_3_REQUIRED_T215_TESTS = (
+    "test_t215_diff_check_against_phase4_3_baseline",
+    "test_t215_phase4_3_changes_stay_inside_allowed_boundaries",
+    "test_t215_dependency_direction_forbids_app_and_reverse_evaluation",
+    "test_t215_target_bands_are_not_reduced",
+    "test_t215_required_test_ids_are_present",
+)
+_PHASE4_3_FORCED_ACTION_CTORS = (
+    "CallToolDecision",
+    "EvaluateRulesDecision",
+    "RetrieveKnowledgeDecision",
+    "FinishDecision",
+)
+_PHASE4_3_V8_PRODUCT_BUILDERS = (
+    "_build_phase4_3_v8_planner",
+    "_run_phase4_3_v8_development_benchmark",
+    "_run_phase4_3_v8_official_benchmark",
+)
+_PHASE4_3_FORBIDDEN_RUNTIME_NAMES = frozenset(
+    {
+        "prompt_version",
+        "planner_version",
+        "prompt_id",
+        "case_id",
+        "case_identity",
+        "split",
+        "TargetBands",
+        "target_bands",
+        "scoring_targets",
+        "causal_truth",
+        "generator_truth",
+        "acceptable_tools",
+        "category",
+    }
+)
+_PHASE4_3_S1_TOOL_NAMES = frozenset(
+    {
+        "detect_clipping",
+        "analyze_harmonic_distortion",
+        "analyze_spectrum",
+        "estimate_fundamental",
+    }
+)
+_PHASE4_3_REQUIRED_CONTROLLER_TESTS = (
+    "test_t075_invalid_observation_allows_replan",
+    "test_t077_planner_output_error_is_retried_within_budget",
+    "test_t078_planner_retry_exhaustion_terminates",
+    "test_t079_tool_call_limit_is_enforced",
+    "test_t080_equivalent_call_is_rejected_and_counts_no_progress",
+    "test_t081_no_progress_termination",
+    "test_t083_unknown_evidence_reference_follows_retry_policy",
+    "test_t085_real_planner_failure_never_invokes_scripted_planner",
+)
+_PHASE4_3_TARGET_DEFAULTS = _PHASE4_2_TARGET_DEFAULTS
+
+
+def _constructed_call_names(tree: ast.AST) -> list[str]:
+    constructed: list[str] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        name: str | None = None
+        if isinstance(func, ast.Name):
+            name = func.id
+        elif isinstance(func, ast.Attribute):
+            name = func.attr
+        if name is not None:
+            constructed.append(name)
+    return constructed
+
+
+def test_t213_runtime_does_not_construct_forced_actions() -> None:
+    runtime_path = SRC_ROOT / "agent" / "runtime.py"
+    tree = ast.parse(runtime_path.read_text(encoding="utf-8"), filename=str(runtime_path))
+    constructed = [
+        name
+        for name in _constructed_call_names(tree)
+        if name in _PHASE4_3_FORCED_ACTION_CTORS
+    ]
+    assert not constructed, "runtime constructs controller-forced actions: " + ", ".join(
+        constructed
+    )
+
+
+def test_t213_runtime_does_not_branch_on_prompt_case_split_or_targets() -> None:
+    runtime_path = SRC_ROOT / "agent" / "runtime.py"
+    tree = ast.parse(runtime_path.read_text(encoding="utf-8"), filename=str(runtime_path))
+    hits: list[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and node.id in _PHASE4_3_FORBIDDEN_RUNTIME_NAMES:
+            hits.append(node.id)
+        elif (
+            isinstance(node, ast.Constant)
+            and isinstance(node.value, str)
+            and node.value in _PHASE4_3_FORBIDDEN_RUNTIME_NAMES
+        ):
+            hits.append(node.value)
+    assert not hits, "runtime branches on forbidden evaluation identity: " + ", ".join(
+        sorted(set(hits))
+    )
+
+
+def test_t213_v8_product_builders_use_real_llm_planner() -> None:
+    functions = _module_function_defs(SRC_ROOT / "evaluation" / "runner.py")
+    builder = functions["_build_phase4_3_v8_planner"]
+    builder_calls = _call_func_names(builder)
+    assert "RealLLMPlanner" in builder_calls
+    assert "_Phase4V7RealLLMPlanner" not in builder_calls
+    assert "ScriptedPlanner" not in builder_calls
+    assert "ScriptedPlanner" not in _name_ids(builder)
+    for name in _PHASE4_3_V8_PRODUCT_BUILDERS:
+        used = _name_ids(functions[name])
+        assert "ScriptedPlanner" not in used
+        assert "_ContextBoundScriptedPlanner" not in used
+    for runner_name in (
+        "_run_phase4_3_v8_development_benchmark",
+        "_run_phase4_3_v8_official_benchmark",
+    ):
+        used = _name_ids(functions[runner_name])
+        assert "_build_phase4_3_v8_planner" in used
+
+
+def test_t213_no_universal_pipeline_or_scripted_fallback() -> None:
+    planner_source = (SRC_ROOT / "agent" / "planner.py").read_text(encoding="utf-8")
+    assert "This command does not fall back to ScriptedPlanner." in planner_source
+    runtime_path = SRC_ROOT / "agent" / "runtime.py"
+    tree = ast.parse(runtime_path.read_text(encoding="utf-8"), filename=str(runtime_path))
+    pipelines: list[str] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.List, ast.Tuple)):
+            continue
+        values = [
+            elt.value
+            for elt in node.elts
+            if isinstance(elt, ast.Constant) and isinstance(elt.value, str)
+        ]
+        if len(values) >= 3 and _PHASE4_3_S1_TOOL_NAMES <= set(values):
+            pipelines.append(", ".join(values))
+    assert not pipelines, "runtime encodes a universal Tool pipeline: " + "; ".join(
+        pipelines
+    )
+
+
+def test_t213_existing_controller_semantics_tests_remain() -> None:
+    names = _collect_test_function_names()
+    missing = [
+        name for name in _PHASE4_3_REQUIRED_CONTROLLER_TESTS if name not in names
+    ]
+    assert not missing, "missing required controller semantics tests:\n" + "\n".join(
+        missing
+    )
+
+
+def test_t215_diff_check_against_phase4_3_baseline() -> None:
+    """T215 quality gate is git diff --check eb47237..HEAD."""
+    result = subprocess.run(
+        ["git", "diff", "--check", f"{_PHASE4_3_BASELINE}..HEAD"],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_t215_phase4_3_changes_stay_inside_allowed_boundaries() -> None:
+    result = _git_name_only(f"{_PHASE4_3_BASELINE}..HEAD")
+    assert result.returncode == 0, result.stderr
+    forbidden = [
+        path
+        for path in result.stdout.splitlines()
+        if path and not path.startswith(_PHASE4_3_ALLOWED_PREFIXES)
+    ]
+    assert not forbidden, "Phase 4.3 changes escaped allowed boundaries:\n" + "\n".join(
+        forbidden
+    )
+    assert not (SRC_ROOT / "app").exists()
+    frozen = _git_name_only(
+        f"{_PHASE4_3_BASELINE}..HEAD",
+        "--",
+        *_PHASE4_3_FROZEN_PATHS,
+    )
+    assert frozen.returncode == 0, frozen.stderr
+    assert frozen.stdout.strip() == ""
+
+
+def test_t215_dependency_direction_forbids_app_and_reverse_evaluation() -> None:
+    """T215: signal -> dsp -> tools -> rules/knowledge -> agent -> evaluation."""
+    assert PHASE4_UPSTREAM_LAYERS == (
+        "signal",
+        "dsp",
+        "tools",
+        "rules",
+        "knowledge",
+        "agent",
+    )
+    for layer in PHASE4_UPSTREAM_LAYERS:
+        assert "signal_diag.evaluation" in FORBIDDEN[layer]
+    assert "app" in DEFERRED_PACKAGES
+    assert not (SRC_ROOT / "app").exists()
+    violations: list[str] = []
+    for layer in PHASE4_UPSTREAM_LAYERS:
+        violations.extend(_collect_layer_violations(layer))
+        for path in _python_files_under(layer):
+            hits = _imports_evaluation(_modules_imported_from(path))
+            violations.extend(
+                f"{path.relative_to(PROJECT_ROOT)} imports {module}" for module in hits
+            )
+    assert not violations, "Forbidden architecture edges detected:\n" + "\n".join(
+        violations
+    )
+
+
+def test_t215_target_bands_are_not_reduced() -> None:
+    source = (SRC_ROOT / "evaluation" / "models.py").read_text(encoding="utf-8")
+    missing = [line for line in _PHASE4_3_TARGET_DEFAULTS if line not in source]
+    assert not missing, "TargetBands defaults drifted:\n" + "\n".join(missing)
+
+
+def test_t215_required_test_ids_are_present() -> None:
+    """T215: T209–T215 tests exist; T213/T215 architecture names are present."""
+    names = _collect_test_function_names()
+    missing_ids = [
+        test_id
+        for test_id in _PHASE4_3_REQUIRED_TEST_IDS
+        if not any(name.startswith(f"test_{test_id.lower()}_") for name in names)
+    ]
+    assert not missing_ids, "missing required Phase 4.3 tests: " + ", ".join(
+        missing_ids
+    )
+    missing_named = [
+        name
+        for name in _PHASE4_3_REQUIRED_T213_TESTS + _PHASE4_3_REQUIRED_T215_TESTS
+        if name not in names
+    ]
+    assert not missing_named, "missing T213/T215 architecture tests:\n" + "\n".join(
+        missing_named
+    )

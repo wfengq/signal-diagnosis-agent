@@ -81,8 +81,9 @@ Read these documents before changing implementation code:
   dataset 1.2.0, Runtime, PlannerContext, scoring, targets, provider, and model
   unchanged.
 - [`superpowers/plans/2026-08-30-phase4-3-planner-v8-behavior-calibration.md`](superpowers/plans/2026-08-30-phase4-3-planner-v8-behavior-calibration.md)
-  — approved task-level implementation plan. Implementation and model execution
-  remain gated pending a separate explicit instruction.
+  — approved task-level implementation plan. Deterministic Tasks 1–4 are
+  implemented and T215 is green. Real-model development, official held-out,
+  Phase 4.3 acceptance, and Phase 5 remain pending/gated.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -151,9 +152,10 @@ honest stop. Phase 4.1 is not accepted; Phase 4.2 is not accepted;
 Phase 5 remains gated.
 
 The Phase 4.3 written design is approved and frozen under §53, T209–T215,
-D024, and OQ-008. No v8 code, campaign, development run, or official run is
-authorized yet. The next design asset is the detailed Cursor implementation
-plan; Phase 5 remains gated.
+D024, and OQ-008. Deterministic Phase 4.3 implementation is ready and T215 is
+green. Real-model development, official held-out, and Phase 4.3 acceptance
+remain pending. This is not a v8 development or official completed result.
+Phase 5 remains gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model
@@ -169,8 +171,8 @@ Quality gate this session (Python
 `C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`):
 
 ```text
-python -m pytest -q -rxXs -p no:cacheprovider --basetemp .pytest_cache/phase4-2-final
-592 passed in 36.02s
+python -m pytest -q -rxXs -p no:cacheprovider --basetemp .pytest_cache/phase4-3-v8-deterministic
+695 passed in 33.02s
 
 python -m ruff check --no-cache src tests scripts
 All checks passed!
@@ -178,11 +180,12 @@ All checks passed!
 python -m mypy --no-incremental src
 Success: no issues found in 46 source files
 
-git diff --check aefccba..HEAD
+git diff --check eb47237..HEAD
 (exit 0, empty output)
 ```
 
 Zero required skip/xfail were reported. `app/` remains absent. Phase 2 was
 implemented directly from its accepted architecture, contracts, and test
 plan and has no separate plan document. This deterministic gate is not
-Phase 4.2 product-quality acceptance.
+Phase 4.3 product-quality acceptance and is not a v8 development/official
+completed result.
