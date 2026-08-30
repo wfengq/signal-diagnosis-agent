@@ -99,7 +99,7 @@ def _stable_signal_id(case_id: str) -> str:
 def _opaque_evaluation_signal_id(
     dataset_id: str, dataset_version: str, case_id: str
 ) -> str:
-    raw = f"{dataset_id}\0{dataset_version}\0{case_id}".encode("utf-8")
+    raw = f"{dataset_id}\0{dataset_version}\0{case_id}".encode()
     return f"sig_eval_{hashlib.sha256(raw).hexdigest()[:24]}"
 
 

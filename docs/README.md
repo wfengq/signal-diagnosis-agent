@@ -64,13 +64,13 @@ Read these documents before changing implementation code:
   — approved and frozen Phase 4.2 evaluation-integrity and planner v7
   calibration design under §52, T201–T208, D023, and resolved OQ-007. It adds
   a fresh v1.2.0 dataset and opaque Agent signal IDs rather than retrying v7 on
-  the integrity-defective v1.1.0 evaluation inputs. Only the Task 1
-  documentation freeze is authorized.
+  the integrity-defective v1.1.0 evaluation inputs. Deterministic Tasks 2–7
+  are complete; T208 is green. Real-model development and official remain
+  pending.
 - [`superpowers/plans/2026-08-30-phase4-2-prompt-v7-correction.md`](superpowers/plans/2026-08-30-phase4-2-prompt-v7-correction.md)
-  — revised Task 1–10 TDD plan for dataset v1.2.0, outbound identity integrity,
-  prompt v7, campaigns, and gated live evaluation. Task 1 is the approved
-  documentation freeze; Tasks 2–10 are reserved for Cursor and require a
-  separate explicit implementation instruction. v1.1.0 held-out remains
+  — Task 1–10 TDD plan for dataset v1.2.0, outbound identity integrity,
+  prompt v7, campaigns, and gated live evaluation. Tasks 2–7 deterministic
+  implementation is complete. Tasks 8–10 remain gated. v1.1.0 held-out remains
   unexecuted.
 
 Potential contract defects are recorded in
@@ -130,10 +130,10 @@ passed. Real-model development gate2 `bench_phase4_1_dev_v6_gate2` is honest
 review rejected a prompt-only v7 retry because v1.1.0 leaks semantic signal IDs
 and contains hidden first-Tool/causal-identifiability requirements. The revised
 Phase 4.2 design is approved and frozen under §52, T201–T208, D023, and
-resolved OQ-007. Task 1 is documentation only; Tasks 2–10, all code changes,
-all real-model development execution, and every held-out run remain
-unauthorized pending a separate Cursor implementation instruction. Phase 4.1
-is not accepted; Phase 5 remains gated.
+resolved OQ-007. Deterministic Tasks 2–7 are complete and T208 is green.
+Real-model development execution and every held-out run remain unauthorized
+pending a separate instruction. Phase 4.1 is not accepted; Phase 4.2 is not
+accepted; Phase 5 remains gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model

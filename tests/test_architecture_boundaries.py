@@ -368,3 +368,230 @@ def test_t200_v6_changes_stay_inside_agent_evaluation_tests_docs() -> None:
     )
     assert frozen.returncode == 0, frozen.stderr
     assert frozen.stdout.strip() == ""
+
+
+_PHASE4_2_BASELINE = "aefccba"
+_PHASE4_2_ALLOWED_PREFIXES = (
+    "AGENTS.md",
+    "docs/",
+    "src/signal_diag/agent/",
+    "src/signal_diag/evaluation/",
+    "tests/",
+)
+_PHASE4_2_FROZEN_PATHS = (
+    "src/signal_diag/agent/runtime.py",
+    "src/signal_diag/dsp",
+    "src/signal_diag/rules",
+    "src/signal_diag/knowledge",
+    "src/signal_diag/tools",
+    "src/signal_diag/signal",
+)
+_PHASE4_2_REQUIRED_TEST_IDS = tuple(f"T20{index}" for index in range(1, 9))
+_PHASE4_2_REQUIRED_T208_TESTS = (
+    "test_t208_diff_check_against_phase4_2_baseline",
+    "test_t208_phase4_2_changes_stay_inside_allowed_boundaries",
+    "test_t208_dependency_direction_forbids_app_and_reverse_evaluation",
+    "test_t208_runtime_does_not_construct_forced_actions",
+    "test_t208_product_path_does_not_fall_back_to_scripted_planner",
+    "test_t208_target_bands_are_not_reduced",
+    "test_t208_required_test_ids_are_present",
+)
+_PHASE4_2_FORCED_ACTION_CTORS = (
+    "CallToolDecision",
+    "EvaluateRulesDecision",
+    "RetrieveKnowledgeDecision",
+)
+_PHASE4_2_V7_PRODUCT_BUILDERS = (
+    "_build_phase4_2_v7_planner",
+    "_run_phase4_2_v7_development_benchmark",
+    "_run_phase4_2_v7_official_benchmark",
+)
+_PHASE4_2_TARGET_DEFAULTS = (
+    "causal_macro_f1_min: float = 0.80",
+    "first_tool_selection_min: float = 0.80",
+    "observation_driven_replan_min: float = 0.80",
+    "evidence_grounding_min: float = 1.00",
+    "unsupported_claim_rate_max: float = 0.05",
+    "unnecessary_tool_action_rate_max: float = 0.20",
+    "timely_stopping_min: float = 0.80",
+    "applicable_rule_usage_min: float = 0.80",
+    "required_knowledge_usage_min: float = 0.80",
+    "knowledge_citation_utilization_min: float = 1.00",
+    "unnecessary_knowledge_retrieval_rate_max: float = 0.20",
+)
+
+
+def _collect_test_function_names() -> set[str]:
+    names: set[str] = set()
+    tests_root = PROJECT_ROOT / "tests"
+    for path in sorted(tests_root.rglob("test_*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if (
+                isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name.startswith("test_")
+            ):
+                names.add(node.name)
+    return names
+
+
+def _module_function_defs(path: Path) -> dict[str, ast.FunctionDef | ast.AsyncFunctionDef]:
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    return {
+        node.name: node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+
+
+def _call_func_names(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
+    names: set[str] = set()
+    for node in ast.walk(function):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        if isinstance(func, ast.Name):
+            names.add(func.id)
+        elif isinstance(func, ast.Attribute):
+            names.add(func.attr)
+    return names
+
+
+def _name_ids(function: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
+    return {node.id for node in ast.walk(function) if isinstance(node, ast.Name)}
+
+
+def _git_name_only(*args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["git", "diff", "--name-only", *args],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+def test_t208_diff_check_against_phase4_2_baseline() -> None:
+    """T208 quality gate is git diff --check aefccba..HEAD."""
+    result = subprocess.run(
+        ["git", "diff", "--check", f"{_PHASE4_2_BASELINE}..HEAD"],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_t208_phase4_2_changes_stay_inside_allowed_boundaries() -> None:
+    result = _git_name_only(f"{_PHASE4_2_BASELINE}..HEAD")
+    assert result.returncode == 0, result.stderr
+    forbidden = [
+        path
+        for path in result.stdout.splitlines()
+        if path and not path.startswith(_PHASE4_2_ALLOWED_PREFIXES)
+    ]
+    assert not forbidden, "Phase 4.2 changes escaped allowed boundaries:\n" + "\n".join(
+        forbidden
+    )
+    assert not (SRC_ROOT / "app").exists()
+    frozen = _git_name_only(
+        f"{_PHASE4_2_BASELINE}..HEAD",
+        "--",
+        *_PHASE4_2_FROZEN_PATHS,
+    )
+    assert frozen.returncode == 0, frozen.stderr
+    assert frozen.stdout.strip() == ""
+
+
+def test_t208_dependency_direction_forbids_app_and_reverse_evaluation() -> None:
+    """T208: signal -> dsp -> tools -> rules/knowledge -> agent -> evaluation."""
+    assert PHASE4_UPSTREAM_LAYERS == (
+        "signal",
+        "dsp",
+        "tools",
+        "rules",
+        "knowledge",
+        "agent",
+    )
+    for layer in PHASE4_UPSTREAM_LAYERS:
+        assert "signal_diag.evaluation" in FORBIDDEN[layer]
+    assert "app" in DEFERRED_PACKAGES
+    assert not (SRC_ROOT / "app").exists()
+    violations: list[str] = []
+    for layer in PHASE4_UPSTREAM_LAYERS:
+        violations.extend(_collect_layer_violations(layer))
+        for path in _python_files_under(layer):
+            hits = _imports_evaluation(_modules_imported_from(path))
+            violations.extend(
+                f"{path.relative_to(PROJECT_ROOT)} imports {module}" for module in hits
+            )
+    assert not violations, "Forbidden architecture edges detected:\n" + "\n".join(
+        violations
+    )
+
+
+def test_t208_runtime_does_not_construct_forced_actions() -> None:
+    runtime_path = SRC_ROOT / "agent" / "runtime.py"
+    tree = ast.parse(runtime_path.read_text(encoding="utf-8"), filename=str(runtime_path))
+    constructed: list[str] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        name: str | None = None
+        if isinstance(func, ast.Name):
+            name = func.id
+        elif isinstance(func, ast.Attribute):
+            name = func.attr
+        if name in _PHASE4_2_FORCED_ACTION_CTORS:
+            constructed.append(name)
+    assert not constructed, "runtime constructs controller-forced actions: " + ", ".join(
+        constructed
+    )
+
+
+def test_t208_product_path_does_not_fall_back_to_scripted_planner() -> None:
+    planner_source = (SRC_ROOT / "agent" / "planner.py").read_text(encoding="utf-8")
+    assert "This command does not fall back to ScriptedPlanner." in planner_source
+    functions = _module_function_defs(SRC_ROOT / "evaluation" / "runner.py")
+    builder = functions["_build_phase4_2_v7_planner"]
+    builder_calls = _call_func_names(builder)
+    assert "RealLLMPlanner" in builder_calls
+    assert "ScriptedPlanner" not in builder_calls
+    assert "ScriptedPlanner" not in _name_ids(builder)
+    for name in _PHASE4_2_V7_PRODUCT_BUILDERS:
+        used = _name_ids(functions[name])
+        assert "ScriptedPlanner" not in used
+        assert "_ContextBoundScriptedPlanner" not in used
+    for runner_name in (
+        "_run_phase4_2_v7_development_benchmark",
+        "_run_phase4_2_v7_official_benchmark",
+    ):
+        used = _name_ids(functions[runner_name])
+        assert "_build_phase4_2_v7_planner" in used
+
+
+def test_t208_target_bands_are_not_reduced() -> None:
+    source = (SRC_ROOT / "evaluation" / "models.py").read_text(encoding="utf-8")
+    missing = [line for line in _PHASE4_2_TARGET_DEFAULTS if line not in source]
+    assert not missing, "TargetBands defaults drifted:\n" + "\n".join(missing)
+
+
+def test_t208_required_test_ids_are_present() -> None:
+    """T208: T201–T208 tests exist; T208 architecture names are present."""
+    names = _collect_test_function_names()
+    missing_ids = [
+        test_id
+        for test_id in _PHASE4_2_REQUIRED_TEST_IDS
+        if not any(name.startswith(f"test_{test_id.lower()}_") for name in names)
+    ]
+    assert not missing_ids, "missing required Phase 4.2 tests: " + ", ".join(
+        missing_ids
+    )
+    missing_t208 = [
+        name for name in _PHASE4_2_REQUIRED_T208_TESTS if name not in names
+    ]
+    assert not missing_t208, "missing T208 architecture tests:\n" + "\n".join(
+        missing_t208
+    )

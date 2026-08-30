@@ -18,7 +18,11 @@ from signal_diag.evaluation.dataset import (
     _opaque_evaluation_signal_id,
     load_dataset_manifest,
 )
-from signal_diag.evaluation.models import BenchmarkConfig, DatasetManifest, EvaluationCase
+from signal_diag.evaluation.models import (
+    BenchmarkConfig,
+    DatasetManifest,
+    EvaluationCase,
+)
 from signal_diag.evaluation.runner import (
     _execute_agent_slot,
     _run_agent_slot_with_retries,
@@ -73,7 +77,7 @@ _FORBIDDEN_OUTBOUND_KEYS = {
 
 
 def _expected_opaque(dataset_id: str, dataset_version: str, case_id: str) -> str:
-    raw = f"{dataset_id}\0{dataset_version}\0{case_id}".encode("utf-8")
+    raw = f"{dataset_id}\0{dataset_version}\0{case_id}".encode()
     return f"sig_eval_{hashlib.sha256(raw).hexdigest()[:24]}"
 
 
