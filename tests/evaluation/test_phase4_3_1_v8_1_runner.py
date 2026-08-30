@@ -105,9 +105,6 @@ def test_t216_historical_builders_keep_private_planners() -> None:
         _build_phase4_2_v7_planner,
         _build_phase4_3_v8_planner,
         _official_benchmark_config,
-        _phase4_1_benchmark_config,
-        _phase4_1_v6_benchmark_config,
-        _phase4_2_v7_benchmark_config,
         _phase4_3_v8_benchmark_config,
         _phase4_3_v8_prompt_sha256,
     )
@@ -620,7 +617,6 @@ async def test_t222_rejects_non_canonical_benchmark_id_and_conflicting_manifest(
     from signal_diag.evaluation import runner as runner_mod
 
     monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
-    manifest = load_dataset_manifest(PHASE4_2_MANIFEST)
     report = await runner_mod._run_phase4_3_1_v8_1_campaign(
         "phase4.3.1-v8.1-development",
         benchmark_id="bench_noncanonical_v81",

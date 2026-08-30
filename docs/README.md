@@ -88,17 +88,16 @@ Read these documents before changing implementation code:
   v8 development gate4 at `48dfb89` is honest `completed/below_target`.
   Task 6 official/held-out was not run. Task 7 records that honest stop.
   Phase 4.3 is not accepted. Phase 5 remains unauthorized.
+
 - [`superpowers/specs/2026-08-30-phase4-3-1-v8-1-compliance-correction-design.md`](superpowers/specs/2026-08-30-phase4-3-1-v8-1-compliance-correction-design.md)
-  — approved Phase 4.3.1 compliance design under §54, T216–T223, D025, and
-  OQ-009. It records the T210 clipping-specific scope defect and the
-  invalid-Evidence/NOT_APPLICABLE scoring defect, preserves all v4–v8 assets,
-  and specifies one v8.1/scoring-2.0.0 gate5 candidate. Implementation and all
-  model runs remain gated pending separate authorization.
+  — approved and frozen Phase 4.3.1 compliance correction under §54, T216–T223,
+  D025, and OQ-009. It adds prompt `v0.2-s1-planner-8.1` and scoring policy
+  `signal_diag.scoring=2.0.0` while preserving every v4–v8 asset.
 - [`superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md`](superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md)
-  — approved task-level Cursor plan for T216–T223, scoring-policy provenance,
-  deterministic product-boundary tests, gate5 development, conditional
-  official, and final independent handoff. Task 1 documentation is complete;
-  Cursor starts at Task 2 only after separate explicit authorization.
+  — Tasks 2–6 committed at `98edb48`; Task 7 T223 architecture guards and
+  T211–T212 v8 retarget added (uncommitted). T001–T223, Ruff, mypy, architecture,
+  and diff-check are green. v8.1 development gate5 and official held-out have
+  not run. Phase 4.3.1 is not accepted. Phase 5 remains gated.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -178,12 +177,16 @@ that honest stop. Phase 4.3 is not accepted. The next written choice is
 model capability versus PlannerContext (option 2), not more prompts.
 Phase 5 remains unauthorized.
 
-Phase 4.3.1 is approved and frozen as a one-time compliance correction under
-§54, T216–T223, D025, and OQ-009. It does not overwrite v8 or reopen general
-prompt tuning. Its v8.1 prompt, versioned scoring policy, and gate5 campaigns
-have an approved task-level plan but remain unimplemented until a separate
-execution authorization. Official v1.2.0 held-out remains sealed, and Phase 5
-remains unauthorized.
+The Phase 4.3.1 compliance correction is approved and frozen under §54,
+T216–T223, D025, and OQ-009.
+[`superpowers/specs/2026-08-30-phase4-3-1-v8-1-compliance-correction-design.md`](superpowers/specs/2026-08-30-phase4-3-1-v8-1-compliance-correction-design.md)
+adds prompt `v0.2-s1-planner-8.1` and scoring policy `signal_diag.scoring=2.0.0`
+while preserving every v4–v8 asset.
+[`superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md`](superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md)
+Tasks 2–6 are committed at `98edb48`; Task 7 T223 architecture guards and
+T211–T212 v8 retarget are added (uncommitted). T001–T223, Ruff, mypy,
+architecture, and diff-check are green. v8.1 development gate5 and official
+held-out have not run. Phase 4.3.1 is not accepted. Phase 5 remains gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model

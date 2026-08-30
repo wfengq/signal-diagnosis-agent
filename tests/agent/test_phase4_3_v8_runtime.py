@@ -12,7 +12,7 @@ import pytest
 
 from signal_diag.agent import prompts as prompts_mod
 from signal_diag.agent.models import AgentRunResult, CallToolDecision
-from signal_diag.agent.planner import RealLLMPlanner
+from signal_diag.agent.planner import _Phase4V8RealLLMPlanner
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.evaluation.dataset import (
     _materialize_case,
@@ -643,13 +643,13 @@ async def _run_v8_product_path(
     client: _FakeClient,
     user_request: str,
 ) -> tuple[AgentRunResult, RecordingPlanner]:
-    planner = RealLLMPlanner(
+    planner = _Phase4V8RealLLMPlanner(
         provider="deepseek",
         api_key="test-key",
         model="deepseek-v4-flash",
         client=client,
     )
-    assert type(planner) is RealLLMPlanner
+    assert type(planner) is _Phase4V8RealLLMPlanner
     recording = RecordingPlanner(planner)
     runtime = DistortionDiagnosisRuntime(
         repository=repository,

@@ -673,7 +673,7 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
 - Produces the cumulative deterministic gate and honest
   `deterministic ready / development not run` status.
 
-- [ ] **Step 1: Write T223 architecture guards**
+- [x] **Step 1: Write T223 architecture guards**
 
   Require T216–T223 names. From baseline `1b94194`, allow only `AGENTS.md`,
   `docs/`, `src/signal_diag/agent/`, `src/signal_diag/evaluation/`, and
@@ -687,13 +687,15 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
   ScriptedPlanner or a context-bound scripted planner. TargetBands defaults and
   public model fields/signatures remain unchanged.
 
-- [ ] **Step 2: Run focused RED/GREEN**
+- [x] **Step 2: Run focused RED/GREEN**
 
   ```powershell
   & 'C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -m pytest tests/test_architecture_boundaries.py -q
   ```
 
-- [ ] **Step 3: Run the complete deterministic gate**
+  Result (Task 7 implementer, uncommitted): **52 passed** in 2.08s.
+
+- [x] **Step 3: Run the complete deterministic gate**
 
   ```powershell
   & 'C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -m pytest -q -rxXs -p no:cacheprovider --basetemp .pytest_cache/phase4-3-1-deterministic
@@ -702,16 +704,26 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
   git diff --check 1b94194..HEAD
   ```
 
-  Required: all tests pass, zero required skip/xfail, Ruff/mypy/diff-check
-  clean. Record exact counts and outputs. This proves deterministic readiness,
-  not live-model acceptance.
+  Result (Task 7 REQUEST_CHANGES fix, uncommitted):
 
-- [ ] **Step 4: Update status docs without claiming a model pass**
+  | Gate | Result |
+  |---|---|
+  | pytest T001–T223 scope | **PASS** — 825 passed, 0 skip/xfail |
+  | Ruff | **PASS** — All checks passed! |
+  | mypy | **PASS** — Success: no issues found in 46 source files |
+  | architecture (`tests/test_architecture_boundaries.py`) | **PASS** — 52 passed |
+  | `git diff --check 1b94194..HEAD` | **PASS** — exit 0 |
 
-  Change `AGENTS.md`, `docs/README.md`, and this plan to say T001–T223 are
-  green at the eventual Task 7 commit, while v8.1 development, official, Phase
-  4.3.1 acceptance, and Phase 5 remain pending/gated. Do not edit frozen §54,
-  T216–T223, D025, or OQ-009.
+  T211–T212 retarget to `_Phase4V8RealLLMPlanner` preserves frozen v8 bytes
+  (`_S1_PROMPT_V8` / `v0.2-s1-planner-8`). Deterministic Tasks 2–7 are complete;
+  v8.1 development gate5 remains separately gated.
+
+- [x] **Step 4: Update status docs without claiming a model pass**
+
+  Updated `AGENTS.md`, `docs/README.md`, and this plan. T216–T223
+  architecture/scoring/runtime/runner evidence is implemented; v8.1 development,
+  official, Phase 4.3.1 acceptance, and Phase 5 remain pending/gated. Frozen
+  §54, T216–T223 contract text, D025, and OQ-009 were not edited.
 
 - [ ] **Step 5: Apply the seven-step review protocol and commit**
 

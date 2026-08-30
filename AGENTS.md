@@ -184,9 +184,13 @@ between changing the model and changing PlannerContext.
 
 Additive Phase 4.3.1 §54 and T216–T223 are frozen design/test authority. They
 record the T210 clipping-specific scope defect and the invalid-Evidence scoring
-defect. Its detailed plan is complete, but no source or test implementation,
-model run, held-out access, push, merge, or Phase 5 work is authorized without
-a separate explicit Cursor execution instruction.
+defect. Deterministic Tasks 2–7 implementation is complete at uncommitted Task
+7 work on branch `phase4-evaluation-design` (HEAD `98edb48` plus Task 7 diff).
+T001–T223, Ruff, mypy, architecture guards, and `git diff --check 1b94194..HEAD`
+are green with zero required skip/xfail. T211–T212 retarget to
+`_Phase4V8RealLLMPlanner` preserves frozen v8 bytes. v8.1 development gate5,
+official held-out, Phase 4.3.1 acceptance, push, merge, and Phase 5 remain
+unauthorized.
 
 Do not redesign or rename public models, functions, modules, arguments, return
 values, or package boundaries unless the user explicitly requests a contract
@@ -355,15 +359,18 @@ No held-out Agent slots were executed. No v9. The prompt-only route is closed
 by §53.4. The next written choice is model capability versus PlannerContext
 (option 2), not more prompts. This is not Phase 4.3 product-quality acceptance.
 
-### Phase 4.3.1 — v8.1 compliance correction (design/test frozen; implementation gated)
+### Phase 4.3.1 — v8.1 compliance correction (deterministic Tasks 2–7 complete; development not run)
 
 Additive §54, T216–T223, D025, and OQ-009 authorize a single written v8.1
 conformance design because T210 over-banned clipping-specific finish and the
 legacy scoring proxy mishandles invalid Evidence followed by NOT_APPLICABLE
 rules. It preserves every v4–v8 asset and public boundary. Prompt
 `v0.2-s1-planner-8.1`, scoring policy `signal_diag.scoring=2.0.0`, and gate5
-campaign identities are specified in the approved design and detailed plan but
-not implemented or run. Phase 5 remains gated.
+campaign identities are implemented in Tasks 2–6 at `98edb48`. Task 7 adds T223
+architecture guards, T211–T212 v8 retarget, and status docs (uncommitted).
+T001–T223, Ruff, mypy, architecture, and diff-check are green. v8.1 development
+gate5 and official held-out have not run. Phase 4.3.1 is not accepted. Phase 5
+remains gated.
 
 ## Development workflow
 
@@ -448,9 +455,10 @@ architecture, and `git diff --check eb47237..HEAD` with zero required
 skip/xfail. That gate is green at `1c70568` and is not a live-model pass.
 v8 development gate4 is honest `completed/below_target` at `48dfb89`.
 Official v1.2.0 held-out was not run. Do not treat either gate as Phase 4.3
-acceptance. Phase 4.3.1 design/test authority is frozen under §54 and
-T216–T223 and the detailed plan is complete, but implementation and model runs
-require separate authorization. Do not create v8.2 or v9. Phase 5 is
-unauthorized.
+acceptance. Phase 4.3.1 §54/T216–T223/D025/OQ-009 are frozen design/test
+authority. Deterministic Tasks 2–7 are complete (uncommitted Task 7 diff at HEAD
+`98edb48`); T001–T223, Ruff, mypy, architecture, and diff-check are green.
+v8.1 development gate5 and official have not run. Do not create v8.2 or v9.
+Phase 5 is unauthorized.
 
 Never say that a later phase is complete if required tests are failing.
