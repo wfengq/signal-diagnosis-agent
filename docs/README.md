@@ -82,8 +82,10 @@ Read these documents before changing implementation code:
   unchanged.
 - [`superpowers/plans/2026-08-30-phase4-3-planner-v8-behavior-calibration.md`](superpowers/plans/2026-08-30-phase4-3-planner-v8-behavior-calibration.md)
   — approved task-level implementation plan. Deterministic Tasks 1–4 are
-  implemented and T215 is green. Real-model development, official held-out,
-  Phase 4.3 acceptance, and Phase 5 remain pending/gated.
+  implemented and T215 is green at `1c70568` (not a live-model pass). Task 5
+  v8 development gate4 at `48dfb89` is honest `completed/below_target`.
+  Task 6 official/held-out was not run. Task 7 records that honest stop.
+  Phase 4.3 is not accepted. Phase 5 remains unauthorized.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -152,10 +154,16 @@ honest stop. Phase 4.1 is not accepted; Phase 4.2 is not accepted;
 Phase 5 remains gated.
 
 The Phase 4.3 written design is approved and frozen under §53, T209–T215,
-D024, and OQ-008. Deterministic Phase 4.3 implementation is ready and T215 is
-green. Real-model development, official held-out, and Phase 4.3 acceptance
-remain pending. This is not a v8 development or official completed result.
-Phase 5 remains gated.
+D024, and OQ-008. Deterministic T001–T215 are green at `1c70568`; that is not
+a live-model pass. Real-model development gate4
+`bench_phase4_3_dev_v8_v12_gate4` at `48dfb89` is honest
+`completed/below_target` (40 unique Agent slots; missed evidence_grounding
+0.849, timely_stopping 0.75, unsupported_claim 0.211; CLI
+`harness_status=pending`). Official v1.2.0 held-out was not run;
+`docs/evaluations/phase4_3/official/` does not exist. No v9. Task 7 records
+that honest stop. Phase 4.3 is not accepted. The next written choice is
+model capability versus PlannerContext (option 2), not more prompts.
+Phase 5 remains unauthorized.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model
@@ -171,8 +179,8 @@ Quality gate this session (Python
 `C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`):
 
 ```text
-python -m pytest -q -rxXs -p no:cacheprovider --basetemp .pytest_cache/phase4-3-v8-deterministic
-695 passed in 33.02s
+python -m pytest -q -rxXs -p no:cacheprovider --basetemp .pytest_cache/phase4-3-final
+695 passed in 29.89s
 
 python -m ruff check --no-cache src tests scripts
 All checks passed!
@@ -187,5 +195,5 @@ git diff --check eb47237..HEAD
 Zero required skip/xfail were reported. `app/` remains absent. Phase 2 was
 implemented directly from its accepted architecture, contracts, and test
 plan and has no separate plan document. This deterministic gate is not
-Phase 4.3 product-quality acceptance and is not a v8 development/official
-completed result.
+Phase 4.3 product-quality acceptance. Development is honest
+`completed/below_target`; official was not run.

@@ -31,11 +31,12 @@ bundle writer.
 **Design baseline:** `93d6d46` freezes CONTRACTS §53, TEST_PLAN §26
 T209–T215, D024, and OQ-008.
 
-**Status:** Detailed implementation plan approved as a design asset.
-Deterministic Tasks 1–4 are implemented locally; T215 is green on uncommitted
-Task 4 work. Real-model development and official campaigns remain pending and
-still require a separate explicit user instruction. Do not treat the
-deterministic gate as a completed v8 development/official result.
+**Status:** Deterministic Tasks 1–4 are implemented locally; T215 is green at
+`1c70568` (not a live-model pass). Task 5 v8 development gate4 at `48dfb89` is
+honest `completed/below_target`. Task 6 official/held-out was not run
+(unauthorized after the development miss). Task 7 records that honest stop.
+Phase 4.3 is not accepted. No v9. Phase 5 remains unauthorized. The next
+written choice is model capability versus PlannerContext, not more prompts.
 
 ## Global Constraints
 
@@ -499,6 +500,9 @@ commit. A review narrative is not test evidence.
 
 ### Task 5: Execute the one-shot v8 development campaign
 
+**Status:** complete — honest `completed/below_target` at `48dfb89`. Task 6
+is not authorized. Bundle frozen; do not mutate.
+
 **Files:**
 
 - Create once:
@@ -566,6 +570,10 @@ commit. A review narrative is not test evidence.
 
 ### Task 6: Conditionally execute the one-shot official held-out campaign
 
+**Status:** skipped — development is `completed/below_target`, so official
+v1.2.0 held-out was not legally run. `docs/evaluations/phase4_3/official/`
+does not exist. Do not start.
+
 **Files:**
 
 - Create once, only after a legal development pass:
@@ -616,6 +624,13 @@ commit. A review narrative is not test evidence.
 
 ### Task 7: Record final status and prepare independent handoff
 
+**Status:** recording honest stop only. Task 5 committed the six-file bundle at
+`48dfb89` but left `AGENTS.md` / `docs/README.md` / this plan saying
+development pending. Remaining deltas are the five-way status distinction,
+missed bands, Task 6-not-run, plan status line, T209–T215 mapping, and
+independent handoff. Commit skipped by user override. Do not upgrade to
+`meets_target`.
+
 **Files:**
 
 - Modify: `AGENTS.md`
@@ -630,15 +645,14 @@ commit. A review narrative is not test evidence.
 - Produces: honest status and independent-verification handoff; no merge/push or
   Phase 5 authorization.
 
-- [ ] **Step 1: Record exactly one state**
+- [x] **Step 1: Record exactly one state**
 
-  Choose only: development pending for external dependency; development
-  completed/below_target with official not run; development meets with official
-  below_target; or both completed/meets_target and Phase 4.3 ready for independent
-  acceptance. Never conflate deterministic harness, CLI harness status,
-  benchmark status, and target status.
+  Chosen: development `completed/below_target` with official not run.
+  Deterministic T001–T215 green at `1c70568` is not a live-model pass.
+  Never conflate deterministic harness, CLI `harness_status=pending`,
+  `benchmark_status=completed`, and `target_status=below_target`.
 
-- [ ] **Step 2: Run final independent verification**
+- [x] **Step 2: Run final independent verification**
 
   ```powershell
   python -m pytest -q -rxXs -p no:cacheprovider `
@@ -650,9 +664,11 @@ commit. A review narrative is not test evidence.
   git log --oneline 93d6d46..HEAD
   ```
 
-  `build/` may remain the only unrelated untracked path.
+  This session: `695 passed in 29.89s`, zero required skip/xfail; Ruff all
+  checks passed; mypy 46 source files clean; `git diff --check eb47237..HEAD`
+  exit 0. Unrelated untracked: `build/` only. Paste counts, not megabytes.
 
-- [ ] **Step 3: Map acceptance IDs**
+- [x] **Step 3: Map acceptance IDs**
 
   Report:
 
@@ -665,21 +681,11 @@ commit. A review narrative is not test evidence.
 
 - [ ] **Step 4: Apply final reviews and commit status docs if changed**
 
-  Run final spec and quality reviews over `eb47237..HEAD`, fix/re-review all
-  Critical/Important findings within frozen scope, and commit only if status docs
-  changed after the last campaign commit:
+  **Skipped (user override).** Parent will review then commit. Do not stage
+  `.superpowers`. Do not amend `48dfb89`.
 
-  ```powershell
-  git add AGENTS.md docs/README.md `
-    docs/superpowers/plans/2026-08-30-phase4-3-planner-v8-behavior-calibration.md
-  git commit -m "docs: record Phase 4.3 acceptance status"
-  ```
+- [x] **Step 5: Deliver the handoff**
 
-- [ ] **Step 5: Deliver the handoff**
-
-  Provide branch/HEAD, per-task commits, status, focused RED/GREEN and final gate
-  outputs, T209–T215 mapping, bundle paths/statuses, warnings, unsupported cases,
-  contract concerns, and confirmation of no push/merge/Phase 5. If development
-  misses, the next design choice is model change versus PlannerContext change.
-  If official misses, rerun/tuning is forbidden. If both meet, wait for
-  independent Codex acceptance before Phase 5.
+  Handoff is `.superpowers/sdd/phase43-handover.md` (gitignored). Development
+  missed; next design choice is model capability versus PlannerContext
+  (option 2), not more prompts. No push/merge/Phase 5/v9.
