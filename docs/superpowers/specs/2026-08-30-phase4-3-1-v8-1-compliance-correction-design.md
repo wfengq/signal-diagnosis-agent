@@ -468,6 +468,6 @@ The approved documentation sequence is:
    implementation plan;
 4. obtain separate explicit implementation authorization.
 
-Steps 1–2 are complete. Until steps 3–4 pass, this specification does not
+Steps 1–3 are complete. Until step 4 passes, this specification does not
 authorize source or test changes, model execution, development or official
 evaluation, held-out access, Phase 5, push, or merge.

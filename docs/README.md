@@ -93,7 +93,12 @@ Read these documents before changing implementation code:
   OQ-009. It records the T210 clipping-specific scope defect and the
   invalid-Evidence/NOT_APPLICABLE scoring defect, preserves all v4–v8 assets,
   and specifies one v8.1/scoring-2.0.0 gate5 candidate. Implementation and all
-  model runs remain gated pending a detailed plan and separate authorization.
+  model runs remain gated pending separate authorization.
+- [`superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md`](superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md)
+  — approved task-level Cursor plan for T216–T223, scoring-policy provenance,
+  deterministic product-boundary tests, gate5 development, conditional
+  official, and final independent handoff. Task 1 documentation is complete;
+  Cursor starts at Task 2 only after separate explicit authorization.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -176,8 +181,8 @@ Phase 5 remains unauthorized.
 Phase 4.3.1 is approved and frozen as a one-time compliance correction under
 §54, T216–T223, D025, and OQ-009. It does not overwrite v8 or reopen general
 prompt tuning. Its v8.1 prompt, versioned scoring policy, and gate5 campaigns
-are design identities only until a detailed plan and separate execution
-authorization exist. Official v1.2.0 held-out remains sealed, and Phase 5
+have an approved task-level plan but remain unimplemented until a separate
+execution authorization. Official v1.2.0 held-out remains sealed, and Phase 5
 remains unauthorized.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
