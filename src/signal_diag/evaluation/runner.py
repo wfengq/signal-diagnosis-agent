@@ -32,6 +32,7 @@ from signal_diag.agent.planner import (
     ScriptedPlanner,
     ScriptedStep,
     _Phase4V4RealLLMPlanner,
+    _Phase4V5RealLLMPlanner,
 )
 from signal_diag.agent.prompts import _S1_PROMPT_V4, _S1_PROMPT_V5
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
@@ -736,7 +737,7 @@ def _build_official_planner(inner_client: object) -> RealLLMPlanner:
 
 def _build_phase4_1_planner(inner_client: object) -> RealLLMPlanner:
     capture = _UsageCapturingClient(inner_client)  # type: ignore[arg-type]
-    return RealLLMPlanner(provider="deepseek", client=capture)
+    return _Phase4V5RealLLMPlanner(provider="deepseek", client=capture)
 
 
 def _assemble_applied_agent_trace(

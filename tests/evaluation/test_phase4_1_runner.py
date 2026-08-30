@@ -14,7 +14,11 @@ from typing import Any
 
 import pytest
 
-from signal_diag.agent.planner import RealLLMPlanner, _Phase4V4RealLLMPlanner
+from signal_diag.agent.planner import (
+    RealLLMPlanner,
+    _Phase4V4RealLLMPlanner,
+    _Phase4V5RealLLMPlanner,
+)
 from signal_diag.agent.prompts import _S1_PROMPT_V4, _S1_PROMPT_V5
 from signal_diag.evaluation.dataset import load_dataset_manifest
 from signal_diag.evaluation.models import (
@@ -650,7 +654,8 @@ def test_build_phase4_1_planner_is_active_real_llm() -> None:
     planner = _build_phase4_1_planner(
         _client_from_handler(_adaptive_success_handler)
     )
-    assert type(planner) is RealLLMPlanner
+    assert type(planner) is _Phase4V5RealLLMPlanner
+    assert isinstance(planner, RealLLMPlanner)
     assert type(planner) is not _Phase4V4RealLLMPlanner
     assert planner.prompt_version == "v0.2-s1-planner-5"
 

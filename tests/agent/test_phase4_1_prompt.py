@@ -10,7 +10,11 @@ from typing import Any
 import pytest
 
 from signal_diag.agent.models import FinishDecision, PlannerContext, TaskAssessment
-from signal_diag.agent.planner import RealLLMPlanner, _Phase4V4RealLLMPlanner
+from signal_diag.agent.planner import (
+    RealLLMPlanner,
+    _Phase4V4RealLLMPlanner,
+    _Phase4V5RealLLMPlanner,
+)
 from signal_diag.agent.prompts import _S1_PROMPT_V4, _S1_PROMPT_V5
 from signal_diag.signal.models import SignalMeta
 from signal_diag.tools.registry import get_tool_descriptors
@@ -142,7 +146,7 @@ def test_t185_v5_prompt_contains_no_evaluation_truth() -> None:
 @pytest.mark.asyncio
 async def test_t184_active_planner_user_message_identifies_v5_only() -> None:
     client = _FakeClient(json.dumps(_valid_call_tool_payload()))
-    planner = RealLLMPlanner(
+    planner = _Phase4V5RealLLMPlanner(
         provider="deepseek",
         api_key="test-key",
         model="deepseek-v4-flash",

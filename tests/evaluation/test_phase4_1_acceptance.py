@@ -12,7 +12,7 @@ from typing import Any
 import pytest
 
 from signal_diag.agent.models import AgentRunResult
-from signal_diag.agent.planner import RealLLMPlanner
+from signal_diag.agent.planner import _Phase4V5RealLLMPlanner
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.evaluation.models import (
     BenchmarkConfig,
@@ -286,7 +286,7 @@ async def _run_product_path(
     signal_id: str,
     client: _FakeClient,
 ) -> tuple[AgentRunResult, RecordingPlanner]:
-    planner = RealLLMPlanner(
+    planner = _Phase4V5RealLLMPlanner(
         provider="deepseek",
         api_key="test-key",
         model="deepseek-v4-flash",
