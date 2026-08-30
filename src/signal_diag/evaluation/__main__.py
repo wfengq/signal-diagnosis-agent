@@ -189,9 +189,7 @@ def main(argv: list[str] | None = None) -> int:
                 else "held_out"
             )
             extra = (_V6_DEV_WARNING,) if score_split == "development" else ()
-            if config.benchmark_id != canonical_id or not _campaign_identity_matches(
-                manifest, config
-            ):
+            if not _campaign_identity_matches(manifest, config):
                 report = _write_invalid_configuration_report(
                     campaign_manifest,
                     config,
@@ -209,15 +207,11 @@ def main(argv: list[str] | None = None) -> int:
                     )
                 )
             else:
-                development_bundle = (
-                    args.output_dir.parent / "development" / _V6_DEV_ID
-                )
                 report = asyncio.run(
                     _run_phase4_1_v6_official_benchmark(
                         manifest,
                         config,
                         args.output_dir,
-                        development_bundle=development_bundle,
                     )
                 )
             print(report.benchmark_status)
@@ -236,21 +230,21 @@ def main(argv: list[str] | None = None) -> int:
         if not isinstance(manifest, DatasetManifest):
             raise TypeError("expected DatasetManifest")
         if not _campaign_identity_matches(manifest, config):
-            score_split: EvaluationSplit = (
+            v5_score_split: EvaluationSplit = (
                 "development"
                 if args.campaign == "phase4.1-development"
                 else "held_out"
             )
             extra = (
                 ("development split; not official held-out evidence",)
-                if score_split == "development"
+                if v5_score_split == "development"
                 else ()
             )
             report = _write_invalid_configuration_report(
                 campaign_manifest,
                 config,
                 args.output_dir,
-                score_split=score_split,
+                score_split=v5_score_split,
                 message="--manifest does not match the selected campaign identity",
                 extra_warnings=extra,
             )

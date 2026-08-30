@@ -89,6 +89,13 @@ _PHASE4_1_V6_PROMPT_VERSION = "v0.2-s1-planner-6"
 _PHASE4_1_DEV_WARNING = "development split; not official held-out evidence"
 _PHASE4_1_V6_DEV_BENCHMARK_ID = "bench_phase4_1_dev_v6_gate2"
 _PHASE4_1_V6_OFFICIAL_BENCHMARK_ID = "bench_official_s1_v11_planner6_gate2"
+_PHASE4_1_V6_DEV_BUNDLE = (
+    Path("docs")
+    / "evaluations"
+    / "phase4_1"
+    / "development"
+    / _PHASE4_1_V6_DEV_BENCHMARK_ID
+)
 _RETRYABLE_ERROR_CODES: frozenset[AttemptErrorCode] = frozenset(
     {"timeout", "rate_limited", "provider_5xx"}
 )
@@ -699,8 +706,12 @@ def _preflight_phase4_1(
             ) from error
 
 
-def _require_v6_development_gate(development_bundle: Path) -> None:
+def _require_v6_development_gate(
+    development_bundle: Path,
+    config: BenchmarkConfig,
+) -> None:
     metrics_path = development_bundle / "metrics.json"
+    recorded_path = development_bundle / "benchmark_manifest.json"
     if not metrics_path.is_file():
         raise _PreflightFailure(
             "invalid_configuration",
@@ -721,6 +732,38 @@ def _require_v6_development_gate(development_bundle: Path) -> None:
     if (
         payload.get("benchmark_status") != "completed"
         or payload.get("target_status") != "meets_target"
+    ):
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "v6 official campaign requires a development completed/meets_target bundle",
+        )
+    if not recorded_path.is_file():
+        return
+    try:
+        recorded = json.loads(recorded_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "v6 official campaign requires a development completed/meets_target bundle",
+        ) from error
+    recorded_config = recorded.get("config") if isinstance(recorded, dict) else None
+    if not isinstance(recorded_config, dict):
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "v6 official campaign requires a development completed/meets_target bundle",
+        )
+    identity_fields = (
+        "prompt_version",
+        "prompt_sha256",
+        "dataset_id",
+        "dataset_version",
+        "rule_profile_id",
+        "rule_profile_version",
+        "provider",
+        "model",
+    )
+    if any(
+        recorded_config.get(field) != getattr(config, field) for field in identity_fields
     ):
         raise _PreflightFailure(
             "invalid_configuration",
@@ -751,6 +794,11 @@ def _preflight_phase4_1_v6(
             "invalid_configuration",
             f"prompt version must be {_PHASE4_1_V6_PROMPT_VERSION!r}",
         )
+    if config.dataset_id != _OFFICIAL_DATASET_ID:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "Phase 4.1 runner pins dataset s1-distortion-synthetic",
+        )
     if config.dataset_version != _PHASE4_1_DATASET_VERSION:
         raise _PreflightFailure(
             "invalid_configuration",
@@ -773,6 +821,11 @@ def _preflight_phase4_1_v6(
         raise _PreflightFailure(
             "invalid_configuration",
             "official execution requires max_concurrency=1",
+        )
+    if not _campaign_identity_matches(manifest, config):
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "campaign identity does not match the selected v6 route",
         )
     _require_valid_dataset(manifest)
     if not os.environ.get("DEEPSEEK_API_KEY"):
@@ -1392,6 +1445,15 @@ async def _run_phase4_1_v6_development_benchmark(
     import_openai: Callable[[], object] | None = None,
     now: Callable[[], datetime] | None = None,
 ) -> BenchmarkReport:
+    if not _campaign_identity_matches(manifest, config):
+        return _write_invalid_configuration_report(
+            load_dataset_manifest(_phase4_1_manifest_path()),
+            config,
+            output_dir,
+            score_split="development",
+            message="manifest does not match the selected campaign identity",
+            extra_warnings=(_PHASE4_1_DEV_WARNING,),
+        )
     return await _run_real_benchmark_for_split(
         manifest,
         config,
@@ -1415,19 +1477,33 @@ async def _run_phase4_1_v6_official_benchmark(
     config: BenchmarkConfig,
     output_dir: Path,
     *,
-    development_bundle: Path,
+    development_bundle: Path | None = None,
     client_factory: Callable[[], object] | None = None,
     classify_error: Callable[[BaseException], tuple[AttemptStatus, AttemptErrorCode]]
     | None = None,
     import_openai: Callable[[], object] | None = None,
     now: Callable[[], datetime] | None = None,
 ) -> BenchmarkReport:
+    if not _campaign_identity_matches(manifest, config):
+        return _write_invalid_configuration_report(
+            load_dataset_manifest(_phase4_1_manifest_path()),
+            config,
+            output_dir,
+            score_split="held_out",
+            message="manifest does not match the selected campaign identity",
+        )
+    bundle = (
+        development_bundle
+        if development_bundle is not None
+        else _PHASE4_1_V6_DEV_BUNDLE
+    )
+
     def preflight(
         preflight_manifest: DatasetManifest,
         preflight_config: BenchmarkConfig,
         **kwargs: object,
     ) -> None:
-        _require_v6_development_gate(development_bundle)
+        _require_v6_development_gate(bundle, preflight_config)
         _preflight_phase4_1_v6(
             preflight_manifest,
             preflight_config,
