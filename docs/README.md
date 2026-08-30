@@ -100,7 +100,7 @@ Read these documents before changing implementation code:
   development split; not official held-out evidence). Task 9 official held-out
   is honest `completed/meets_target` on 80 Agent held-out slots (all bands
   pass; one non-blocking per-run miss on `case_v12_held_noise_02` slot 5).
-  Phase 4.3.1 is not finally accepted — Task 10 may record acceptance.
+  Phase 4.3.1 is accepted at Task 10 (terminal evidence at `99e0bdc`).
   Phase 5 remains gated.
 
 Potential contract defects are recorded in
@@ -196,7 +196,7 @@ Task 9 official held-out `bench_official_s1_v12_planner8_1_gate5` is honest
 one non-blocking per-run miss on `case_v12_held_noise_02` slot 5:
 `required_knowledge_omitted;outcome_mismatch`). Bundle:
 `docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/`.
-Phase 4.3.1 is not finally accepted — Task 10 may record acceptance.
+Phase 4.3.1 is accepted at Task 10 (terminal evidence at `99e0bdc`).
 Phase 5 remains gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
@@ -213,8 +213,8 @@ Quality gate this session (Python
 `C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`):
 
 ```text
-python -m pytest -q -rxXs -p no:cacheprovider --basetemp .pytest_cache/phase4-3-final
-695 passed in 29.89s
+python -m pytest -q -rxXs -p no:cacheprovider --basetemp .pytest_cache/phase4-3-1-final
+825 passed in 37.61s
 
 python -m ruff check --no-cache src tests scripts
 All checks passed!
@@ -222,12 +222,10 @@ All checks passed!
 python -m mypy --no-incremental src
 Success: no issues found in 46 source files
 
-git diff --check eb47237..HEAD
+git diff --check 1b94194..HEAD
 (exit 0, empty output)
 ```
 
-Zero required skip/xfail were reported. `app/` remains absent. Phase 2 was
-implemented directly from its accepted architecture, contracts, and test
-plan and has no separate plan document. This deterministic gate is not
-Phase 4.3 product-quality acceptance. Development is honest
-`completed/below_target`; official was not run.
+Zero required skip/xfail were reported. `app/` remains absent. Phase 4.3.1 is
+accepted at Task 10 (development and official both `completed/meets_target`;
+terminal evidence at `99e0bdc`). Phase 5 remains gated.

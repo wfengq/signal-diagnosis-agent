@@ -39,8 +39,10 @@ Tasks 2–7 are complete at `083b6d9`. Real-model development gate5
 (40 unique Agent slots; all TargetBands pass). Official v1.2.0 held-out
 (Task 9) is honest `completed/meets_target` on 80 Agent held-out slots (all
 TargetBands pass; one non-blocking per-run miss on `case_v12_held_noise_02`
-slot 5: `required_knowledge_omitted;outcome_mismatch`). Phase 4.3.1 is not
-finally accepted — Task 10 may record acceptance. This is a one-time v8.1
+slot 5: `required_knowledge_omitted;outcome_mismatch`). Phase 4.3.1 is
+accepted at Task 10 (development and official both `completed/meets_target`;
+terminal evidence at `99e0bdc`).
+This is a one-time v8.1
 conformance exception to D024, not an
 unrestricted v9. Phase 5, push, and merge remain unauthorized. The detailed
 plan is
@@ -88,7 +90,8 @@ prompt `v0.2-s1-planner-8.1` and versioned scoring policy
 `signal_diag.scoring=2.0.0`. Deterministic Tasks 2–7 are complete at
 `083b6d9`. Development gate5 is honest `completed/meets_target`. Official
 held-out (Task 9) is honest `completed/meets_target` on 80 Agent held-out
-slots. Phase 4.3.1 is not finally accepted — Task 10 may record acceptance.
+slots. Phase 4.3.1 is accepted at Task 10 (terminal evidence at `99e0bdc`).
+Phase 5 remains unauthorized.
 
 Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
 and accepted. Phase 3 passed Codex final acceptance at commit `a820b7f` on
@@ -198,8 +201,9 @@ zero required skip/xfail. T211–T212 retarget to `_Phase4V8RealLLMPlanner`
 preserves frozen v8 bytes. v8.1 development gate5 is honest
 `completed/meets_target` (40 development slots; all bands pass; development
 split; not official held-out evidence). Official held-out (Task 9) is honest
-`completed/meets_target` on 80 Agent held-out slots. Phase 4.3.1 final
-acceptance, push, merge, and Phase 5 remain unauthorized until Task 10.
+`completed/meets_target` on 80 Agent held-out slots. Phase 4.3.1 is accepted
+at Task 10 (terminal evidence at `99e0bdc`). Push, merge, and Phase 5 remain
+unauthorized.
 
 Do not redesign or rename public models, functions, modules, arguments, return
 values, or package boundaries unless the user explicitly requests a contract
@@ -280,8 +284,8 @@ Phase 4.3 deterministic implementation is complete and T215 is green at
 Phase 4.3 is not accepted. Phase 4.3.1 §54/T216–T223/D025/OQ-009 are frozen.
 Deterministic Tasks 2–7 are complete at `083b6d9`. v8.1 development gate5 is
 honest `completed/meets_target`. Official v1.2.0 held-out (Task 9) is honest
-`completed/meets_target` on 80 Agent held-out slots. Phase 4.3.1 is not
-finally accepted — Task 10 may record acceptance. Phase 5 remains unauthorized.
+`completed/meets_target` on 80 Agent held-out slots. Phase 4.3.1 is accepted
+at Task 10 (terminal evidence at `99e0bdc`). Phase 5 remains unauthorized.
 Do not create v8.2 or v9.
 
 ## Completed phases (reference)
@@ -370,7 +374,7 @@ No held-out Agent slots were executed. No v9. The prompt-only route is closed
 by §53.4. The next written choice is model capability versus PlannerContext
 (option 2), not more prompts. This is not Phase 4.3 product-quality acceptance.
 
-### Phase 4.3.1 — v8.1 compliance correction (development and official meet target; Task 10 pending)
+### Phase 4.3.1 — v8.1 compliance correction (accepted at Task 10; terminal evidence at `99e0bdc`)
 
 Additive §54, T216–T223, D025, and OQ-009 authorize a single written v8.1
 conformance design because T210 over-banned clipping-specific finish and the
@@ -389,7 +393,8 @@ statuses (do not conflate them):
   (`required_knowledge_omitted;outcome_mismatch`)
 - CLI `harness_status=pending` (report-model semantics, not a harness failure)
 - Task 9 official held-out: executed; honest `completed/meets_target`
-- Phase 4.3.1 acceptance: not finally accepted — Task 10 may record acceptance
+- Phase 4.3.1 acceptance: accepted at Task 10 (development and official
+  both `completed/meets_target`; terminal evidence at `99e0bdc`)
 - Phase 5: unauthorized
 
 Development bundle:
@@ -399,8 +404,8 @@ evidence.
 
 Official bundle:
 `docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/`.
-80 Agent held-out slots (16 cases × 5 reps). This is not Phase 4.3.1 final
-acceptance.
+80 Agent held-out slots (16 cases × 5 reps). Phase 4.3.1 acceptance recorded
+at Task 10; Phase 5 remains unauthorized.
 
 ## Development workflow
 
@@ -489,8 +494,8 @@ acceptance. Phase 4.3.1 §54/T216–T223/D025/OQ-009 are frozen design/test
 authority. Deterministic Tasks 2–7 are complete at `083b6d9`; T001–T223, Ruff,
 mypy, architecture, and diff-check are green. v8.1 development gate5 is honest
 `completed/meets_target`. Official held-out (Task 9) is honest
-`completed/meets_target` on 80 Agent held-out slots. Do not treat development
-or official alone as Phase 4.3.1 final acceptance — Task 10 may record
-acceptance. Do not create v8.2 or v9. Phase 5 is unauthorized.
+`completed/meets_target` on 80 Agent held-out slots. Phase 4.3.1 is accepted
+at Task 10 (terminal evidence at `99e0bdc`). Do not create v8.2 or v9.
+Phase 5 is unauthorized.
 
 Never say that a later phase is complete if required tests are failing.

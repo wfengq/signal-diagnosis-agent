@@ -875,7 +875,7 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
 | Missed bands | none — all TargetBands pass |
 | Non-blocking per-run miss | `case_v12_held_noise_02` slot 5 (`required_knowledge_omitted;outcome_mismatch`; 1/80) |
 | Bundle | `docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/` |
-| Phase 4.3.1 acceptance | not finally accepted — Task 10 may record acceptance |
+| Phase 4.3.1 acceptance | accepted at Task 10 (`99e0bdc` terminal evidence) |
 
 Step 4 status docs updated; bundle and commit deferred per user instruction.
 
@@ -897,37 +897,31 @@ Step 4 status docs updated; bundle and commit deferred per user instruction.
 - Produces an honest final status and independent-verification handoff; no
   merge, push, or automatic Phase 5 authorization.
 
-- [ ] **Step 1: Record exactly one terminal state**
-
-  Use one of:
+- [x] **Step 1: Record exactly one terminal state**
 
   ```text
-  development completed/below_target; official not run; Phase 4.3.1 not accepted
-  development completed/meets_target; official completed/below_target; not accepted
   development completed/meets_target; official completed/meets_target; accepted
-  infrastructure/configuration incomplete; preserve evidence and report blocker
   ```
 
   Never conflate deterministic T223, CLI `harness_status`, benchmark status,
   or target status.
 
-- [ ] **Step 2: Run fresh final verification**
+- [x] **Step 2: Run fresh final verification**
 
-  ```powershell
-  & 'C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -m pytest -q -rxXs -p no:cacheprovider --basetemp .pytest_cache/phase4-3-1-final
-  & 'C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -m ruff check --no-cache src tests scripts
-  & 'C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -m mypy --no-incremental src
-  git diff --check 1b94194..HEAD
-  git status --short --branch
-  git log --oneline c20a744..HEAD
-  ```
+  Result (Task 10, uncommitted):
 
-  Report exact counts, zero/nonzero skip/xfail, all warnings, and the unchanged
-  untracked `build/` directory.
+  | Gate | Result |
+  |---|---|
+  | pytest T001–T223 scope | **PASS** — 825 passed, 0 skip/xfail |
+  | Ruff | **PASS** — All checks passed! |
+  | mypy | **PASS** — Success: no issues found in 46 source files |
+  | `git diff --check 1b94194..HEAD` | **PASS** — exit 0 |
+  | `git status --short --branch` | `## phase4-evaluation-design` + untracked `build/` |
+  | `git log --oneline c20a744..HEAD` | 9 Task commits through `99e0bdc` |
 
-- [ ] **Step 3: Map acceptance IDs to evidence**
+  Untracked `build/` preserved unchanged.
 
-  Report at minimum:
+- [x] **Step 3: Map acceptance IDs to evidence**
 
   ```text
   T216–T219  tests/agent/test_phase4_3_1_prompt_v8_1.py
@@ -939,17 +933,23 @@ Step 4 status docs updated; bundle and commit deferred per user instruction.
 
 - [ ] **Step 4: Apply final independent reviews and commit status docs**
 
-  Review the complete `1b94194..HEAD` diff and all generated bundles. Close
-  every Critical/Important finding before committing:
+  **Ready for independent review, then local commit (still uncommitted).**
+  Parent will commit after re-review.
 
-  ```powershell
-  git add AGENTS.md docs/README.md docs/superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md
-  git commit -m "docs: record Phase 4.3.1 terminal status"
-  ```
+- [x] **Step 5: Deliver the handoff without integration**
 
-- [ ] **Step 5: Deliver the handoff without integration**
+  Handoff in `.superpowers/sdd/p431-task-10-report.md`. Do not push, merge,
+  delete the worktree, or start Phase 5.
 
-  Provide branch, HEAD, per-Task commits, `git status`, focused RED/GREEN
-  commands, final pytest/Ruff/mypy/diff-check output, T216–T223 mapping,
-  campaign/bundle identities, exact metrics, warnings, unsupported cases, and
-  contract concerns. Do not push, merge, delete the worktree, or start Phase 5.
+**Task 10 result (honest):**
+
+| Field | Value |
+|---|---|
+| Terminal state | `development completed/meets_target; official completed/meets_target; accepted` |
+| deterministic | T001–T223 green; 825 passed; 0 skip/xfail |
+| development | `benchmark_status=completed`, `target_status=meets_target`, 40 Agent slots |
+| official | `benchmark_status=completed`, `target_status=meets_target`, 80 Agent held-out slots |
+| CLI `harness_status` | `pending` (report-model semantics) |
+| Phase 4.3.1 acceptance | **accepted** at Task 10 |
+| Phase 5 | unauthorized |
+| Commit | none (Step 4 pending independent review and local commit) |
