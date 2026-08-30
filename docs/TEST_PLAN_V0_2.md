@@ -2,13 +2,10 @@
 
 **Document:** `TEST_PLAN_V0_2.md`  
 **Version:** `0.2`  
-**Status:** Approved and required for Phase 1–4; Phase 4.1 T184–T195
-deterministic implementation complete at `cadc15d`; v5 development gate1 is
-honest `completed/below_target`; additive v6 T196–T200 are frozen and pending
-implementation; Phase 4.1 is not accepted
-**Scope:** Phase 1 deterministic foundation, Phase 2 hybrid Agent runtime, and
-Phase 3 rules/knowledge acceptance; frozen Phase 4 evaluation acceptance;
-additive Phase 4.1 behavior-calibration acceptance
+**Status:** Required and accepted through T223 on merged Phase 4.3.1 baseline
+`36ae7c9`; draft Phase 5 §28 T224–T285 awaits OQ-010 final written approval
+**Scope:** Deterministic and real-model acceptance through Phase 4.3.1, plus
+draft Phase 5 presentation and product-Demo acceptance
 **Contracts:** `docs/CONTRACTS_V0_2.md`  
 **Architecture:** `docs/ARCHITECTURE_V0_2.md`  
 
@@ -16,18 +13,22 @@ additive Phase 4.1 behavior-calibration acceptance
 
 ## 1. Purpose
 
-This plan verifies two distinct layers:
+This plan verifies three distinct layers:
 
-1. deterministic system acceptance using real DSP/Tool execution and an injected
-   `ScriptedPlanner`;
-2. real-model behavior evaluation using `RealLLMPlanner`, outside required CI.
+1. deterministic system and presentation acceptance using real lower-layer
+   execution with an explicitly injected `ScriptedPlanner` where Agent behavior
+   must be reproducible;
+2. real-model behavior evaluation using `RealLLMPlanner`, outside required CI;
+3. a non-CI real-model Phase 5 product-integration Demo after deterministic
+   presentation acceptance.
 
 The deterministic suite proves contracts, numerical behavior, runtime routing,
 state transitions, error handling, termination, and complete reproducible S1
 paths. It does not claim that a real model will always make a good decision.
 
 The real-model evaluation measures model behavior and records stochastic
-variation. It never determines whether CI is green.
+variation. The product Demo verifies the public service/UI/report path but does
+not replace that benchmark. Neither determines whether CI is green.
 
 ---
 
@@ -1110,3 +1111,170 @@ design and authorization.
 
 Approval of this section freezes design and tests only. It does not authorize
 implementation or any real-model campaign.
+
+---
+
+## 28. Phase 5 — Presentation Engineering
+
+**Draft status:** T224–T285 record the interactively approved Phase 5 design
+and are submitted for final written review. They do not authorize source/test
+implementation or a real-model run until the written contract and a detailed
+plan receive separate approval.
+
+All T224–T285 tests are deterministic. Tests that exercise the Agent use an
+explicit scripted/fake planner or fake transport while retaining real Signal,
+DSP, Tools, RuleEngine, KnowledgeIndex, Runtime, service, API, and report
+components. Required pytest never calls DeepSeek or depends on stochastic
+behavior.
+
+### Checkpoint U — WAV ingestion
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T224 | Standard PCM containers | valid little-endian RIFF/WAVE mono and stereo fixtures for 8-, 16-, 24-, and 32-bit integer PCM load successfully with correct metadata |
+| T225 | Extensible PCM | WAVE_FORMAT_EXTENSIBLE with PCM subtype and matching valid/container bits loads; float, non-PCM subtype, RIFX, RF64, compressed, or mismatched valid bits is rejected as unsupported |
+| T226 | Full-scale conversion | 8-bit unsigned offset, 16-/24-/32-bit signed extrema, 24-bit sign extension, interleaving, and zero map to the frozen full-scale float32 values without peak normalization |
+| T227 | Canonical record | loader output is finite, C-contiguous, immutable after repository insertion, shaped (frames, channels), source_type wav, opaque-ID, and consistent with source metadata |
+| T228 | RIFF traversal | legal unknown chunks, odd-size padding, and legal chunk ordering work; chunk sizes are checked before allocation |
+| T229 | Structural corruption | missing/duplicate-conflicting fmt or data, truncation, invalid RIFF size, inconsistent byte rate/block alignment, partial frame, and non-finite/overflow paths fail deterministically as invalid_wav |
+| T230 | Unsupported shape/encoding | more than two channels and every unsupported encoding fail as unsupported_wav without partial Signal insertion |
+| T231 | Upload-byte limit | exactly 20 MiB is eligible for parsing; the next byte stops bounded reading and maps to payload_too_large without retaining bytes or a run |
+| T232 | Signal resource limits | inclusive sample-rate bounds work; out-of-range rate, more than 2,000,000 frames, or duration above 30 seconds maps to signal_limit_exceeded with no truncation/resampling |
+| T233 | Filename and file hygiene | only a basename of at most 255 Unicode code points is retained, traversal text cannot influence paths, input is never written to a temp file, and repeated loads never reuse semantic IDs |
+
+### Checkpoint V — Demo presets and visualization preview
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T234 | Catalog identity | exactly five versioned preset IDs and stable public descriptors exist: clean_periodic, clipping, harmonic_distortion, combined_distortion, noise_inconclusive |
+| T235 | Evaluation isolation | preset modules do not import evaluation manifests or copy development/held-out case IDs; outbound PlannerContext never contains preset ID, label, or generator truth |
+| T236 | Deterministic materialization | each preset reproduces identical float32 sample bytes and explicit seed behavior while each record receives a fresh opaque non-semantic Signal ID |
+| T237 | Canonical registration | all presets satisfy accepted SignalRecord/repository contracts and use the same downstream application registration path as WAV |
+| T238 | Preview | short signals retain each sample; long signals use deterministic time-ordered min/max buckets, preserve extrema, return at most 1,000 points, reject max_points outside 2–1,000, and create no Tool call or Evidence |
+
+### Checkpoint W — Application models and bounded execution
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T239 | Frozen DTO validation | every Phase 5 model validates finite numeric fields, field bounds, exact opaque ID patterns, UTC timestamps, source/preset exclusivity, and immutable serialization |
+| T240 | Lifecycle invariants | only queued→running→completed/failed transitions are legal; timestamps, result, error, and trace fields satisfy status-specific invariants |
+| T241 | Scheduling | a FIFO executor runs at most one diagnosis, admits at most four queued runs, and starts the next run only after the active run reaches a terminal state |
+| T242 | Terminal retention | the latest twenty terminal runs remain queryable; admission evicts the oldest terminal run deterministically when required |
+| T243 | Active-run safety and cleanup | queued/running runs are never evicted; terminal eviction removes only that run's owned Signal records and never another run's data |
+| T244 | Capacity and lookup errors | no safe slot maps to capacity_exceeded; unknown IDs map to run_not_found; illegal internal state changes fail without corrupting stored snapshots |
+| T245 | In-memory scope and shutdown | independent service/store instances share no runs; restart semantics are empty; idempotent aclose stops admission, fails queued records safely, and awaits the active run; no database, filesystem persistence, user cancellation, or recovery claim is present |
+
+### Checkpoint X — Shared application service and composition
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T246 | WAV submission path | valid WAV submission performs validation, source/analysis registration, preview, atomic run reservation, and background execution through DiagnosisApplicationService |
+| T247 | Synthetic submission path | every preset reaches the same private registration/queue/execution path as WAV and produces the same application model shape |
+| T248 | Channel realization | mono/mixdown, stereo left/right/mixdown use accepted extract_segment values and a run-owned mono analysis record; mono right is rejected before queueing |
+| T249 | Request integrity | trimming and the 2,000-character limit are enforced; only factual channel context may be appended; no preset truth, expected Tool/outcome, score target, raw samples, or full FFT reaches PlannerContext |
+| T250 | Per-run isolation | each run receives fresh planner, RecordingPlanner, and Runtime instances; counters, records, observations, and references never cross run IDs |
+| T251 | Product planner boundary | product composition uses public RealLLMPlanner with DeepSeek/v8.1 defaults, records actual overrides, rejects missing credentials before reservation, and never silently constructs ScriptedPlanner |
+| T252 | Complete S1 service path | injected deterministic Planner plus real DSP, Tools, RuleEngine, KnowledgeIndex, and Runtime completes representative WAV and synthetic S1 paths with all Evidence/rule/knowledge refs resolvable in the same run |
+
+### Checkpoint Y — Generic trace and reports
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T253 | Public Agent event assembly | assemble_agent_events exposes strict chronological Planner, Observation, Rule, and Knowledge events without EvaluationCase, truth, config, slot, or scoring input |
+| T254 | Strict ordering and errors | empty-delta Planner decisions and planner errors remain recorded; non-append-only contexts, mismatched artifacts, unknown refs, grouped histories, and forbidden payloads are rejected |
+| T255 | Phase 4 compatibility | assemble_evaluation_trace delegates to the public helper and all historical Phase 4 serialized traces, fingerprints, scores, reports, and bundle checksums remain unchanged |
+| T256 | Trace projection boundary | app projection produces compact ordered TraceEventView links without duplicating chronology, exposing full PlannerContext snapshots, or inventing Tool progress |
+| T257 | Report construction | only completed snapshots with valid AgentRunResult and strict trace create schema 1.0.0 DiagnosisReport with explicit completed lifecycle, source, channel, planner identity, preview, result, warnings/errors, and references |
+| T258 | Same-run integrity | unknown Evidence, Rule, or Knowledge refs produce trace_integrity_error before JSON/HTML; valid supported, no-fault, and inconclusive reports retain every reference |
+| T259 | Canonical JSON | injected time yields stable sorted UTF-8 JSON that round-trips through DiagnosisReport without semantic loss |
+| T260 | Safe offline HTML | HTML is rendered only from the report model, is self-contained/no-CDN/no-script, escapes filename/question/LLM/Knowledge/error text, and links stable same-run anchors |
+| T261 | Forbidden data | JSON/HTML/API models contain no credentials, authorization values, stack traces, raw provider bodies, full waveform, or full FFT; existing sanitizer remains effective |
+| T262 | Honest identity and limits | report records actual provider/model/prompt, labels non-default model as uncertified by Phase 4.3.1, and labels the 1%/5% profile only as 1.0.0-demo settings |
+| T263 | Preview/report separation | report includes no more than 1,000 visualization-only points; changing preview cannot change diagnosis, Evidence, rules, Tool history, or trace ordering |
+
+### Checkpoint Z — HTTP API
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T264 | Read-only endpoints | health, five presets, accepted evaluation summary, root UI, and OpenAPI load without credentials; health reports configured=false without exposing key/base-url secrets |
+| T265 | WAV submission | bounded multipart parsing plus valid fields returns 202 queued RunSubmission; byte/format/structure/signal errors use the frozen envelope and status mapping without retaining a Signal/run |
+| T266 | Synthetic submission | valid preset JSON returns 202; unknown preset, invalid channel, empty/oversize question, and malformed body use the frozen envelope |
+| T267 | Polling lifecycle | GET run exposes monotonic queued/running/completed/failed snapshots and adds actual result/strict trace only when terminal; simultaneous polling does not mutate the run |
+| T268 | Report endpoints | completed Agent results download canonical JSON and UTF-8 HTML with opaque safe filenames; queued/running use run_not_terminal, application-failed uses report_unavailable, and unknown runs use run_not_found |
+| T269 | HTTP security defaults | CORS is off, CSP is same-origin, root/static paths cannot traverse package assets, errors have no traceback, and content types/status codes match §62 |
+| T270 | Missing credentials/provider failure | unconfigured submission returns 503 before run reservation with no fallback; provider/runtime failures after 202 appear in the polled terminal Agent result or sanitized application error, not a retroactive synchronous HTTP failure, and never change to ScriptedPlanner |
+
+### Checkpoint AA — CLI
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T271 | Command grammar | argparse exposes serve, presets, diagnose wav, and diagnose synthetic with the frozen defaults/options and rejects invalid combinations as usage errors |
+| T272 | WAV command | CLI WAV reads through the bounded path, calls the shared service, waits for terminal state, and does not require an HTTP server |
+| T273 | Synthetic command | CLI preset uses the shared service/catalog and never sends preset labels/truth to PlannerContext |
+| T274 | Output, reports, and exits | text/JSON and optional HTML derive from the canonical result; exit 0/1/2 exactly distinguishes valid diagnosis, execution failure, and usage/input/configuration failure |
+| T275 | Serve defaults | serve composes the same product service, binds 127.0.0.1 by default, accepts explicit host/port, emits the no-auth warning, and exposes no scripted planner switch |
+
+### Checkpoint AB — Web UI and evaluation presentation
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T276 | Packaged no-build UI | wheel contains native index.html/styles.css/app.js; the page uses no Node artifact, CDN, framework, analytics, or browser credential field |
+| T277 | Complete interaction | UI supports WAV/preset, question, legal channel choices, submit/poll, actual lifecycle, diagnosis, preview, trace, observations, Evidence, rules, knowledge, limitations/errors, and report downloads |
+| T278 | Safe rendering | external strings are rendered through text-safe DOM operations, no LLM/upload text reaches innerHTML, and queued/running UI never fabricates specific Tool progress |
+| T279 | Evaluation snapshot integrity | frozen AcceptedEvaluationSummary validates exact identities/counts/five source checksums against the immutable Phase 4.3.1 official manifest/metrics/report data, and wheel installation can load it without docs/ |
+| T280 | Honest evaluation panel | UI shows completed/meets_target, 80 held-out Agent slots, targets and actual Agent/fixed comparison, 2/80 behavioral-failure slots, 1/80 outcome error, and demonstration-target disclaimer without hiding failures |
+
+### Checkpoint AC — Packaging, architecture, CI, and cumulative gate
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T281 | Package metadata | explicit app/llm/dev extras and signal-diag console entry exist; core installation does not require FastAPI; static/report/evaluation assets are declared as package data |
+| T282 | Wheel smoke | sdist/wheel build cleanly; a fresh environment installs the wheel with app+llm extras, imports core/app without source-tree paths, loads assets, runs presets, and starts API composition without credentials |
+| T283 | Architecture boundary | dependency direction includes evaluation→app; signal/dsp/tools/rules/knowledge/agent do not import app; WAV imports no app/evaluation/Agent/LLM framework; API/UI do not duplicate DSP/rule/diagnosis logic |
+| T284 | Secret-free CI | committed workflow runs deterministic pytest, architecture, Ruff, mypy, build, and wheel smoke on Python 3.11 and 3.12; it uses no provider secret, network model call, required skip, or stochastic gate |
+| T285 | Phase 5 cumulative gate | T001–T285 pass with zero required skip/xfail; Ruff, mypy, architecture, wheel, clean-install, Python 3.11/3.12 CI, and git diff --check 36ae7c9..HEAD pass; Phase 1–4.3.1 contracts, prompts, datasets, scores, reports, and bundle checksums do not drift |
+
+### Phase 5 acceptance states
+
+The deterministic state is `presentation_harness_accepted`. It requires the
+entire T001–T285 gate, static quality checks, package smoke, and both supported
+Python CI jobs. Missing credentials do not block this state. ScriptedPlanner is
+legal only through explicit dependency injection in deterministic tests; the
+test still uses real deterministic lower layers.
+
+After that state is accepted, separate non-CI checks are:
+
+```text
+P5-R001  one public synthetic preset runs once through public RealLLMPlanner
+         and DiagnosisApplicationService and writes a sanitized strict Trace,
+         canonical JSON, and self-contained HTML report.
+
+P5-R002  one public Demo signal encoded as a supported PCM WAV runs once
+         through the same product path and writes the same artifact set.
+
+P5-R003  the primary Web UI displays an actual completed product run, its
+         trace/evidence/rules/knowledge/report links, and the honest accepted
+         evaluation summary; sanitized screenshots are retained.
+```
+
+These checks prove presentation integration, not stochastic behavior quality.
+Their individual diagnoses are retained honestly whether right or wrong.
+Phase 4.3.1 official remains the real-model behavior evidence. A failure never
+falls back to ScriptedPlanner. Missing credentials leave
+`real_demo_pending`; complete sanitized artifacts make it
+`real_demo_completed`.
+
+Phase 5 and V0.2 are fully accepted only when:
+
+```text
+presentation_harness_accepted
+real_demo_completed
+```
+
+Only after both may project documentation and resume text describe V0.2 as a
+complete resume-grade demonstrable product.
+
+Approval of draft §28 freezes tests and design only. It does not authorize
+implementation, real-model execution, push, merge, worktree deletion, or
+cleanup of the pre-existing untracked `build/`. A detailed implementation
+plan and separate execution choice remain required.

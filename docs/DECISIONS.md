@@ -2,7 +2,7 @@
 
 **Status:** Active  
 **Current architecture version:** V0.2  
-**Last updated:** 2026-08-30
+**Last updated:** 2026-08-31
 
 This file records approved decisions that affect implementation. Historical V0.1
 documents are preserved under `docs/archive/v0.1/`.
@@ -370,3 +370,89 @@ once. An official miss is retained and not tuned against or rerun.
 This decision freezes design and tests only. Implementation and every model
 run require a detailed plan and separate explicit authorization. Passing Phase
 4.3.1 authorizes Phase 5 design only, not implementation.
+
+## D026 — Make a thin shared application service the Phase 5 product boundary
+
+**Decision:** The Web UI is the primary V0.2 live Demo, with a versioned
+FastAPI backend and an argparse CLI. All three converge on one
+`DiagnosisApplicationService`; adapters do not independently compose or
+reimplement Signal registration, Runtime execution, diagnosis, trace, or
+reports.
+
+The UI uses native packaged HTML/CSS/JavaScript and same-origin fetch. There is
+no Node build or frontend framework. CLI calls the application service directly
+and does not require the HTTP server. Product composition uses public
+RealLLMPlanner. ScriptedPlanner is test/development injection only and never a
+fallback.
+
+This preserves the modular-monolith dependency direction and keeps Phase 5 a
+presentation layer rather than a second diagnostic implementation.
+
+## D027 — Use bounded in-process jobs and polling instead of streaming
+
+**Decision:** Real-model diagnoses run through a bounded in-process FIFO
+executor. The default permits one running and four queued jobs and retains the
+latest twenty terminal runs. Lifecycle is
+queued→running→completed/failed, state is monotonic, active jobs are never
+evicted, and process restart clears all records.
+
+The Web UI polls HTTP status. While a run is active it displays only its actual
+lifecycle state; after completion it shows the verified chronological trace.
+SSE/WebSocket semantics, cancellation, persistence, database, Redis, and task
+queues are deferred. This gives responsive local Demo behavior without
+changing the accepted Runtime into a streaming controller.
+
+## D028 — Support a strict bounded PCM WAV subset
+
+**Decision:** Phase 5 supports little-endian RIFF/WAVE integer PCM with mono or
+stereo 8-, 16-, 24-, or 32-bit samples, including extensible PCM whose subtype
+and valid/container bit widths are unambiguous. Conversion uses exact
+full-scale scaling into canonical float32 and never peak-normalizes, truncates,
+resamples, or repairs.
+
+Inputs must be no more than 20 MiB, 2,000,000 frames, and 30 seconds, with
+sample rate from 8 kHz through 192 kHz inclusive. Compressed, IEEE-float, RIFX,
+RF64, malformed, over-channel, or over-limit input is rejected explicitly.
+These are local Demo resource constraints, not industry quality limits.
+
+Five deterministic public synthetic presets remain separate from evaluation
+manifests. WAV and synthetic use the same application/runtime path after
+canonical registration and requested whole-file channel selection.
+
+## D029 — Reuse strict evaluation chronology for canonical product reports
+
+**Decision:** Phase 5 exposes the accepted Agent branch of evaluation trace
+assembly as additive public `assemble_agent_events(records, result)`.
+`assemble_evaluation_trace` delegates to it, preserving all historical Phase
+4 behavior. The product projects those events into a compact timeline rather
+than inventing a fixed pipeline or creating a fake EvaluationCase.
+
+One validated `DiagnosisReport` is the source for canonical JSON and
+self-contained escaped HTML. Same-run Evidence/Rule/Knowledge references are
+mandatory; unresolved refs fail report generation. Reports exclude secrets,
+raw provider responses, full waveform, and full FFT data. Preview data is
+bounded and marked visualization-only.
+
+The UI also shows a packageable checksum-linked snapshot of the accepted Phase
+4.3.1 official benchmark, including the two behavioral-failure slots and sole
+wrong outcome. It never rescores or selectively hides failures.
+
+## D030 — Require deterministic presentation and a separate real product Demo
+
+**Decision:** Phase 5 acceptance has two states.
+`presentation_harness_accepted` requires deterministic T001–T285, static
+quality gates, wheel/clean-install smoke, and Python 3.11/3.12 secret-free CI.
+`real_demo_completed` requires one public synthetic and one supported WAV run
+through public RealLLMPlanner plus an actual Web UI presentation, with sanitized
+strict Trace and JSON/HTML artifacts.
+
+The real Demo is an integration check, not another small stochastic quality
+benchmark; Phase 4.3.1 official remains behavior evidence. Individual Demo
+outcomes are retained honestly, no fake fallback is permitted, and missing
+credentials leave real Demo pending.
+
+V0.2 may be called a complete resume-grade demonstrable product only after both
+states pass. Interactive approval of D026–D030 authorizes written contract
+drafting only. Source/test implementation, model runs, push, and merge still
+require final written-spec approval, a detailed plan, and a separate explicit
+execution choice.

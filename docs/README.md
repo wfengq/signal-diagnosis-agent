@@ -14,15 +14,19 @@ Read these documents before changing implementation code:
    Phase 4 §41–§49 evaluation contracts, additive Phase 4.1 §§50–§51
    behavior gates, the frozen Phase 4.2 §52 evaluation-integrity gate, and the
    frozen Phase 4.3 §53 planner-v8 behavior gate plus Phase 4.3.1 §54 v8.1
-   compliance correction.
+   compliance correction; draft Phase 5 §§55–§64 await OQ-010 written review.
 3. [`TEST_PLAN_V0_2.md`](TEST_PLAN_V0_2.md) — required T001–T092 Phase 1–2
    acceptance, required T093–T124 Phase 3 acceptance, required T125–T183 Phase 4
    acceptance, additive T184–T200 Phase 4.1 acceptance, Phase 4.2 T201–T208,
-   Phase 4.3 T209–T215, Phase 4.3.1 T216–T223, and separate real-model
-   evaluation.
+   Phase 4.3 T209–T215, Phase 4.3.1 T216–T223, draft Phase 5 T224–T285,
+   and separate real-model/Demo evaluation.
 4. [`DECISIONS.md`](DECISIONS.md) — approved architectural and process decisions.
 5. [`superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`](superpowers/plans/2026-08-28-phase1-deterministic-foundation.md)
    — task-level Phase 1 TDD implementation plan covering T001–T063.
+6. [`superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`](superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md)
+   — interactively approved Phase 5 design, submitted with §§55–§64,
+   T224–T285, and D026–D030 for final written review; implementation is not
+   authorized.
 
 ## Acceptance reports and active implementation plan
 
@@ -88,7 +92,7 @@ Read these documents before changing implementation code:
   implemented and T215 is green at `1c70568` (not a live-model pass). Task 5
   v8 development gate4 at `48dfb89` is honest `completed/below_target`.
   Task 6 official/held-out was not run. Task 7 records that honest stop.
-  Phase 4.3 is not accepted. Phase 5 remains unauthorized.
+  Phase 4.3 is not accepted. Phase 5 implementation remains unauthorized.
 
 - [`superpowers/specs/2026-08-30-phase4-3-1-v8-1-compliance-correction-design.md`](superpowers/specs/2026-08-30-phase4-3-1-v8-1-compliance-correction-design.md)
   — approved and frozen Phase 4.3.1 compliance correction under §54, T216–T223,
@@ -105,7 +109,13 @@ Read these documents before changing implementation code:
   outcome correct; slot 5: `required_knowledge_omitted;outcome_mismatch`, sole
   wrong outcome at 1/80; aggregate remains `completed/meets_target`).
   Phase 4.3.1 is accepted at Task 10 (terminal evidence at `99e0bdc`).
-  Phase 5 remains gated.
+  Phase 5 implementation remains gated.
+- [`superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`](superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md)
+  — selected native Web UI + FastAPI + argparse over a shared application
+  service, bounded polling jobs, strict PCM WAV, actual Agent Trace,
+  JSON/self-contained HTML reporting, honest accepted-evaluation presentation,
+  and dual deterministic/real-Demo acceptance. OQ-010 is open pending final
+  written approval; no Phase 5 implementation plan or code is authorized.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -151,7 +161,14 @@ Non-normative project and career context is stored in [`context/`](context/):
 These files explain project motivation and truthfulness constraints. They do not
 override active engineering contracts.
 
-## Future documents
+## Current design gate and future documents
+
+Phase 4.3.1 is accepted on the merged baseline `36ae7c9`. The current task is
+Phase 5 written-design review on branch `phase5-presentation-engineering`.
+Draft §§55–§64 and T224–T285 are not implementation authority until OQ-010 is
+explicitly approved. After that approval, the next document is a Superpowers
+task-level Phase 5 implementation plan; source/test implementation and product
+model runs still require a separate execution choice.
 
 Phase 4 accepted at `b68ec5e` (`completed/below_target` official v1.0.0
 benchmark remains immutable). Phase 4.1 v5 deterministic implementation is
@@ -171,7 +188,7 @@ replan 0.719, unnecessary_tool 0.405, required_knowledge 0.2; CLI
 `harness_status=pending`). Task 9 official v1.2.0 held-out was not run;
 `docs/evaluations/phase4_2/official/` does not exist. Task 10 records that
 honest stop. Phase 4.1 is not accepted; Phase 4.2 is not accepted;
-Phase 5 remains gated.
+Phase 5 implementation remains gated.
 
 The Phase 4.3 written design is approved and frozen under §53, T209–T215,
 D024, and OQ-008. Deterministic T001–T215 are green at `1c70568`; that is not
@@ -183,7 +200,7 @@ a live-model pass. Real-model development gate4
 `docs/evaluations/phase4_3/official/` does not exist. No v9. Task 7 records
 that honest stop. Phase 4.3 is not accepted. The next written choice is
 model capability versus PlannerContext (option 2), not more prompts.
-Phase 5 remains unauthorized.
+Phase 5 implementation remains unauthorized.
 
 The Phase 4.3.1 compliance correction is approved and frozen under §54,
 T216–T223, D025, and OQ-009.
@@ -203,7 +220,7 @@ outcome correct; slot 5: `required_knowledge_omitted;outcome_mismatch`, sole
 wrong outcome at 1/80; aggregate remains `completed/meets_target`). Bundle:
 `docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/`.
 Phase 4.3.1 is accepted at Task 10 (terminal evidence at `99e0bdc`).
-Phase 5 remains gated.
+Phase 5 implementation remains gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model
@@ -234,4 +251,4 @@ git diff --check 1b94194..HEAD
 
 Zero required skip/xfail were reported. `app/` remains absent. Phase 4.3.1 is
 accepted at Task 10 (development and official both `completed/meets_target`;
-terminal evidence at `99e0bdc`). Phase 5 remains gated.
+terminal evidence at `99e0bdc`). Phase 5 implementation remains gated.

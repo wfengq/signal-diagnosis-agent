@@ -2,12 +2,11 @@
 
 **Document:** `CONTRACTS_V0_2.md`  
 **Contract version:** `0.2`  
-**Status:** Frozen for Phase 1–4; Phase 4 accepted at `b68ec5e`; Phase 4.1
-§50 deterministic implementation complete with v5 development below target;
-additive v6 correction §51 frozen and implementation-authorized
-**Scope:** Phase 1 deterministic foundation, Phase 2 hybrid Agent runtime, and
-Phase 3 rules/knowledge contracts; frozen Phase 4 evaluation contracts;
-additive Phase 4.1 behavior gate
+**Status:** Frozen through Phase 4.3.1; Phase 4.3.1 accepted on merged baseline
+`36ae7c9`; draft Phase 5 §§55–§64 await OQ-010 final written approval
+**Scope:** Frozen Phase 1 deterministic foundation, Phase 2 hybrid Agent,
+Phase 3 rules/knowledge, and Phase 4–4.3.1 evaluation/behavior contracts;
+draft Phase 5 presentation contracts
 **Architecture:** `docs/ARCHITECTURE_V0_2.md`  
 
 ---
@@ -35,6 +34,12 @@ frozen in §50. The v5 development result is immutable
 `completed/below_target`. The additive v6 correction is frozen in §51 and its
 Task 2–8 implementation is authorized; real-model execution remains subject to
 the §51 development-before-held-out gates.
+
+Additive §§52–§54 are frozen. Phase 4.3.1 is accepted on merged baseline
+`36ae7c9`. Draft Phase 5 §§55–§64 record the interactively approved design but
+remain unfrozen until OQ-010 receives explicit final written approval. Even
+after that freeze, implementation requires a detailed plan and a separate
+execution choice.
 
 ---
 
@@ -1317,6 +1322,11 @@ V0.2 does not yet freeze:
 Phase 3 rule and knowledge contracts are frozen in §32–§40. The Phase 4
 evaluation contracts are frozen in §41–§49. Phase 5 contracts remain gated and
 will be frozen immediately before implementation.
+
+Draft §§55–§64 propose the exact replacements for the Phase 5 items above.
+Until OQ-010 is explicitly approved, §29 remains controlling and those public
+interfaces are unfrozen. Embedding/vector retrieval and orchestration-framework
+integration remain unfrozen and out of Phase 5 scope in either case.
 
 ---
 
@@ -3621,3 +3631,684 @@ Phase 4.3.1 product-quality acceptance requires:
 This section freezes design and tests only. It does not authorize Phase 4.3.1
 implementation, model execution, held-out access, Phase 5, push, or merge.
 Passing Phase 4.3.1 authorizes only Phase 5 design and contract freezing.
+
+---
+
+## 55. Phase 5 Contract Status and Package Boundary
+
+**Draft status:** §§55–§64 record the interactively approved Phase 5 design and
+are submitted for final written review. They are not frozen implementation
+authority until the user explicitly approves the written contract. Phase 5
+source, tests, model runs, push, and merge remain gated.
+
+Phase 5 adds presentation engineering above the accepted core:
+
+```text
+signal -> dsp -> tools -> rules/knowledge -> agent -> evaluation -> app
+```
+
+`signal_diag.app` may depend on the accepted lower packages.
+`signal_diag.signal.wav` remains part of the Signal layer. No package below
+`app` may import `signal_diag.app`. The narrowly additive trace function in
+§60 remains owned by `evaluation`.
+
+The Web UI is the primary Demo entry point. The HTTP API and CLI are thin
+adapters to one `DiagnosisApplicationService`. No adapter may calculate DSP
+metrics, choose Tools, apply Rule thresholds, retrieve Knowledge, or assemble a
+diagnosis independently.
+
+Product composition uses public `RealLLMPlanner`, with accepted default
+identity DeepSeek / `deepseek-v4-flash` / `v0.2-s1-planner-8.1`.
+ScriptedPlanner is injectable only through explicit test/development
+composition and is never an automatic product fallback.
+
+## 56. WAV Loader
+
+Location: `signal_diag.signal.wav`, with exception exports from
+`signal_diag.signal`.
+
+```python
+class WavLoadLimits(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    max_upload_bytes: int = Field(default=20 * 1024 * 1024, ge=1)
+    max_sample_frames: int = Field(default=2_000_000, ge=1)
+    max_duration_s: float = Field(default=30.0, gt=0.0)
+    min_sample_rate_hz: int = Field(default=8_000, ge=1)
+    max_sample_rate_hz: int = Field(default=192_000, ge=1)
+
+    @model_validator(mode="after")
+    def validate_rate_interval(self) -> "WavLoadLimits":
+        ...
+
+
+class WavSourceInfo(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    filename: str | None = Field(default=None, max_length=255)
+    file_size_bytes: int = Field(ge=0)
+    format_tag: Literal["pcm", "extensible_pcm"]
+    bits_per_sample: Literal[8, 16, 24, 32]
+    sample_rate_hz: int = Field(gt=0)
+    channels: Literal[1, 2]
+    num_frames: int = Field(gt=0)
+    duration_s: float = Field(gt=0.0)
+
+
+@dataclass(frozen=True, slots=True)
+class LoadedWav:
+    record: SignalRecord
+    source_info: WavSourceInfo
+
+
+def load_wav_bytes(
+    data: bytes,
+    *,
+    filename: str | None = None,
+    limits: WavLoadLimits = WavLoadLimits(),
+) -> LoadedWav:
+    ...
+```
+
+`load_wav_bytes` accepts little-endian RIFF/WAVE integer PCM with one or two
+channels and 8-, 16-, 24-, or 32-bit samples. Standard PCM and extensible PCM
+with the PCM subtype are legal; extensible valid bits must equal container
+bits. RIFX, RF64, IEEE float, compressed data, and more than two channels raise
+`UnsupportedWavError`. Malformed, inconsistent, missing, contradictory, or
+truncated RIFF structures raise `InvalidWavError`. Valid files outside the
+configured rate, frame, or duration bounds raise
+`SignalLimitExceededError`.
+
+Conversion is exact full-scale conversion:
+
+```text
+uint8:  (x - 128) / 128
+int16:  x / 2**15
+int24:  sign_extend(x) / 2**23
+int32:  x / 2**31
+```
+
+Output is finite, C-contiguous `float32` with shape
+`(num_frames, channels)`. No input is peak-normalized, truncated, resampled,
+or repaired. The returned record uses `source_type="wav"`, an opaque Signal
+ID, and a basename bounded to 255 Unicode code points. The loader does not
+write source bytes to disk. `min_sample_rate_hz` must not exceed
+`max_sample_rate_hz`.
+
+RIFF sizes, pad bytes, block alignment, byte rate, frame divisibility, declared
+file size, and actual data length are validated before numeric allocation.
+Exactly one `fmt ` chunk and one `data` chunk are required; duplicates are
+invalid even when their bytes agree. Unknown well-formed chunks may be skipped.
+Public exception types are:
+
+```python
+class WavDecodeError(InvalidSignalError): ...
+class UnsupportedWavError(WavDecodeError): ...
+class InvalidWavError(WavDecodeError): ...
+class SignalLimitExceededError(WavDecodeError): ...
+```
+
+## 57. Demo Presets and Preview
+
+Location: `signal_diag.app.presets`, `signal_diag.app.preview`, and
+`signal_diag.app.models`.
+
+```python
+DemoPresetId = Literal[
+    "clean_periodic",
+    "clipping",
+    "harmonic_distortion",
+    "combined_distortion",
+    "noise_inconclusive",
+]
+
+
+class DemoPresetDescriptor(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    preset_id: DemoPresetId
+    label: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    sample_rate_hz: int = Field(gt=0)
+    duration_s: float = Field(gt=0.0)
+    channels: Literal[1] = 1
+
+
+class WaveformPoint(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    sample_index: int = Field(ge=0)
+    time_s: float = Field(ge=0.0)
+    amplitude: float
+
+
+class WaveformPreview(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    label: Literal["visualization_only"] = "visualization_only"
+    sample_rate_hz: int = Field(gt=0)
+    original_num_samples: int = Field(gt=0)
+    points: tuple[WaveformPoint, ...] = Field(max_length=1_000)
+
+
+def list_demo_presets() -> tuple[DemoPresetDescriptor, ...]:
+    ...
+
+
+def build_demo_preset(preset_id: DemoPresetId) -> SignalRecord:
+    ...
+
+
+def build_waveform_preview(
+    samples: np.ndarray,
+    *,
+    sample_rate_hz: int,
+    max_points: int = 1_000,
+) -> WaveformPreview:
+    ...
+```
+
+The catalog uses only accepted `signal.synthetic` generators, fixed public
+parameters, and an explicit noise seed. It neither imports evaluation manifests
+nor uses development/held-out case IDs. `build_demo_preset` returns identical
+sample bytes for the same preset but a fresh opaque Signal ID whose value does
+not contain the preset or expected diagnosis. Labels, generator truth, and
+preset IDs are presentation metadata and never enter PlannerContext.
+
+Preview input is a finite one-dimensional selected-channel array. At or below
+`max_points`, each sample is represented once. Above the limit, the function
+uses at most `floor(max_points / 2)` integer-edged buckets and emits each
+bucket's minimum and maximum in original sample-index order, collapsing equal
+indices. Output therefore contains no more than `max_points` points and is
+deterministic. `max_points` must be in the inclusive range 2–1,000. Preview
+calculation creates no Evidence and invokes no Tool.
+
+## 58. Application Models and Run Store
+
+Location: `signal_diag.app.models` and `signal_diag.app.runs`.
+
+`JsonValue` below is `pydantic.JsonValue`.
+
+```python
+AppRunStatus = Literal["queued", "running", "completed", "failed"]
+
+AppErrorCode = Literal[
+    "invalid_request",
+    "payload_too_large",
+    "unsupported_wav",
+    "invalid_wav",
+    "signal_limit_exceeded",
+    "unknown_preset",
+    "run_not_found",
+    "run_not_terminal",
+    "report_unavailable",
+    "capacity_exceeded",
+    "planner_not_configured",
+    "provider_error",
+    "runtime_error",
+    "trace_integrity_error",
+    "internal_error",
+]
+
+
+class AppErrorDetail(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    code: AppErrorCode
+    message: str = Field(min_length=1)
+    details: dict[str, JsonValue] = Field(default_factory=dict)
+
+
+class AppErrorEnvelope(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    error: AppErrorDetail
+
+
+class SourceSummary(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    source_kind: Literal["wav", "synthetic"]
+    display_name: str = Field(min_length=1, max_length=255)
+    sample_rate_hz: int = Field(gt=0)
+    channels: Literal[1, 2]
+    num_frames: int = Field(gt=0)
+    duration_s: float = Field(gt=0.0)
+    bits_per_sample: Literal[8, 16, 24, 32] | None = None
+    preset_id: DemoPresetId | None = None
+
+
+class PlannerIdentity(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    provider: str = Field(min_length=1)
+    model: str = Field(min_length=1)
+    prompt_version: str = Field(min_length=1)
+    phase4_certified_default: bool
+
+
+class TraceEventView(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    event_index: int = Field(ge=0)
+    kind: Literal["planner", "observation", "rule", "knowledge"]
+    action_name: str = Field(min_length=1)
+    status: str = Field(min_length=1)
+    purpose: str | None = None
+    reference_ids: tuple[str, ...] = ()
+    latency_ms: float | None = Field(default=None, ge=0.0)
+    provider_usage: ProviderUsage | None = None
+
+
+class RunSubmission(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    run_id: str = Field(pattern=r"^run_[0-9a-f]{32}$")
+    status: Literal["queued"] = "queued"
+
+
+class AppRunSnapshot(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    run_id: str = Field(pattern=r"^run_[0-9a-f]{32}$")
+    status: AppRunStatus
+    created_at: datetime
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    user_request: str = Field(min_length=1, max_length=2_000)
+    analyzed_channel: ChannelMode
+    source: SourceSummary
+    planner_identity: PlannerIdentity
+    waveform_preview: WaveformPreview
+    trace_events: tuple[TraceEventView, ...] = ()
+    result: AgentRunResult | None = None
+    application_error: AppErrorDetail | None = None
+```
+
+All timestamps are timezone-aware UTC. Queued snapshots have neither start nor
+finish time, running has start only, and terminal snapshots have both.
+`completed` requires a valid `AgentRunResult` and no application error.
+`failed` requires an application error and no Agent result. Trace events are
+empty until a terminal result has passed strict assembly.
+
+`SourceSummary` is discriminated by `source_kind`: WAV sources require
+`bits_per_sample` and forbid `preset_id`; synthetic sources require
+`preset_id` and forbid `bits_per_sample`. Every Phase 5 float-valued DTO field
+rejects NaN and infinity. Run IDs are UUID4 hex encoded behind the frozen
+opaque `run_` prefix and never contain source or diagnosis semantics.
+
+`InMemoryRunStore` defaults to one running run, four queued runs, and twenty
+retained terminal runs. State transitions are atomic and only
+queued→running→completed/failed are legal. The oldest terminal record may be
+evicted to admit new work; queued/running records are never evicted. If no safe
+slot exists, reservation raises `AppCapacityError`. Eviction invokes the
+injected cleanup callback for run-owned source and analysis Signal records.
+All state disappears on process restart.
+
+## 59. Application Service and Composition
+
+Location: `signal_diag.app.service` and `signal_diag.app.composition`.
+
+```python
+class PlannerFactory(Protocol):
+    def __call__(self) -> PlannerModel:
+        ...
+
+
+class DiagnosisApplicationService:
+    async def submit_wav(
+        self,
+        data: bytes,
+        *,
+        filename: str | None,
+        user_request: str,
+        channel: ChannelMode = "mixdown",
+    ) -> RunSubmission:
+        ...
+
+    async def submit_synthetic(
+        self,
+        preset_id: DemoPresetId,
+        *,
+        user_request: str,
+        channel: ChannelMode = "mixdown",
+    ) -> RunSubmission:
+        ...
+
+    def list_presets(self) -> tuple[DemoPresetDescriptor, ...]:
+        ...
+
+    def get_run(self, run_id: str) -> AppRunSnapshot:
+        ...
+
+    async def wait_for_terminal(
+        self,
+        run_id: str,
+        *,
+        timeout_s: float | None = None,
+    ) -> AppRunSnapshot:
+        ...
+
+    async def aclose(self) -> None:
+        ...
+
+
+def build_product_service(
+    *,
+    environ: Mapping[str, str] | None = None,
+) -> DiagnosisApplicationService:
+    ...
+```
+
+Both submit paths use the same private registration and queue path. WAV and
+synthetic inputs are canonical `SignalRecord` objects before selection. The
+requested whole-file channel is applied with accepted `extract_segment()`
+semantics, then stored as a fresh opaque mono analysis record. Mono right-channel
+selection is invalid. No time-range selection is exposed in V0.2.
+
+The normalized question is non-empty and at most 2,000 characters. The service
+may append only a factual analyzed-channel instruction. It never includes a
+preset ID or label, generator truth, acceptable Tool list, expected fault,
+expected outcome, scoring target, evaluation split, raw samples, or full FFT in
+PlannerContext.
+
+Each queued execution calls `PlannerFactory` once and creates fresh
+`RecordingPlanner` and `DistortionDiagnosisRuntime` objects. The Runtime is
+injected with the accepted repository/Tool service, RuleEngine, explicit
+`profile_s1_distortion` loader, and KnowledgeIndex. The service does not
+create, force, reorder, or suppress a valid Planner Tool/rule/knowledge/finish
+decision.
+
+`build_product_service` uses DeepSeek and the public RealLLMPlanner. It reads
+`DEEPSEEK_API_KEY`, `DEEPSEEK_BASE_URL`, and `DEEPSEEK_MODEL` through the
+existing planner configuration. Default identity is
+`deepseek-v4-flash` / `v0.2-s1-planner-8.1`. Missing credentials leave the
+service healthy enough for metadata/UI operations but cause submission to
+raise `PlannerNotConfiguredError` before Signal insertion or run reservation.
+No product method selects ScriptedPlanner.
+
+`aclose` stops admission, resolves queued records as failed with a sanitized
+application error, and awaits the single active run before returning. It is
+idempotent. This is service shutdown, not a user-facing run-cancellation API.
+
+## 60. Generic Agent Event Assembly
+
+Location: `signal_diag.evaluation.recording`, re-exported from
+`signal_diag.evaluation`.
+
+```python
+def assemble_agent_events(
+    records: tuple[PlannerDecisionRecord, ...],
+    result: AgentRunResult,
+) -> tuple[EvaluationEvent, ...]:
+    ...
+```
+
+This is an additive public extraction of the already accepted Agent branch of
+`assemble_evaluation_trace`. It requires no EvaluationCase, causal truth,
+BenchmarkConfig, run slot, or scoring data.
+
+The function enforces the existing strict record/result path, append-only
+context suffixes, exact chronological event order, same-run claim references,
+artifact consistency, and forbidden-payload rejection. It preserves planner
+records with empty context deltas and planner-error attempts. It returns an
+immutable tuple.
+
+`assemble_evaluation_trace` must delegate to this function for Agent traces
+and remain byte-for-byte equivalent at the serialized historical model level.
+Fixed-pipeline assembly and every Phase 4 score, fingerprint, report, and bundle
+remain unchanged. `app` projects the returned generic events into
+`TraceEventView`; it does not duplicate chronological matching.
+
+## 61. Diagnosis Reports and Accepted Evaluation Summary
+
+Location: `signal_diag.app.reporting` and a packageable read-only summary
+owned by `signal_diag.evaluation`.
+
+```python
+class DiagnosisReport(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    schema_version: Literal["1.0.0"] = "1.0.0"
+    generated_at: datetime
+    run_id: str = Field(pattern=r"^run_[0-9a-f]{32}$")
+    status: Literal["completed"] = "completed"
+    source: SourceSummary
+    analyzed_channel: ChannelMode
+    user_request: str = Field(min_length=1, max_length=2_000)
+    planner_identity: PlannerIdentity
+    waveform_preview: WaveformPreview
+    trace_events: tuple[TraceEventView, ...]
+    result: AgentRunResult
+
+
+def build_diagnosis_report(
+    snapshot: AppRunSnapshot,
+    *,
+    generated_at: datetime,
+) -> DiagnosisReport:
+    ...
+
+
+def render_report_json(report: DiagnosisReport) -> str:
+    ...
+
+
+def render_report_html(report: DiagnosisReport) -> str:
+    ...
+
+
+class AcceptedEvaluationSummary(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    schema_version: Literal["1.0.0"] = "1.0.0"
+    source_bundle_relative_path: str = Field(min_length=1)
+    source_checksums_sha256: dict[str, str]
+    benchmark_id: str = Field(pattern=r"^bench_")
+    dataset_id: str = Field(min_length=1)
+    dataset_version: str = Field(pattern=r"^[0-9]+\.[0-9]+\.[0-9]+$")
+    provider: str = Field(min_length=1)
+    model: str = Field(min_length=1)
+    prompt_version: str = Field(min_length=1)
+    prompt_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    rule_profile_id: str = Field(pattern=r"^profile_")
+    rule_profile_version: str = Field(min_length=1)
+    scoring_version: str = Field(min_length=1)
+    benchmark_status: Literal["completed"] = "completed"
+    target_status: Literal["meets_target"] = "meets_target"
+    agent_slot_count: Literal[80] = 80
+    behavioral_failure_slot_count: Literal[2] = 2
+    outcome_error_slot_count: Literal[1] = 1
+    targets: TargetBands
+    agent_metrics: AggregateMetrics
+    baseline_metrics: AggregateMetrics
+    disclaimer: Literal["demonstration_targets_not_standards_or_slas"] = (
+        "demonstration_targets_not_standards_or_slas"
+    )
+```
+
+`build_diagnosis_report` accepts only a completed snapshot with a valid
+Runtime result and strictly assembled trace. Every DiagnosisClaim Evidence,
+Rule, and Knowledge reference must resolve within the same result. Otherwise it
+raises `TraceIntegrityError`; no renderer may omit or replace the reference.
+
+JSON is the canonical sorted, UTF-8 serialization of the report model. HTML is
+rendered only from that model, escapes every external string, embeds CSS,
+contains no CDN or executable script, and remains viewable offline. Injected
+`generated_at` makes deterministic tests possible. Reports contain no secret,
+stack trace, raw provider response, full waveform, or full FFT. Preview is
+marked visualization-only, and Rule thresholds are labeled
+`profile_s1_distortion 1.0.0-demo` demonstration settings.
+
+`generated_at` is timezone-aware UTC. The accepted evaluation summary requires
+exact checksum keys for `benchmark_manifest.json`, `case_summary.csv`,
+`metrics.json`, `report.md`, and `runs.jsonl`; every checksum is lowercase
+SHA-256. `source_bundle_relative_path` is the repository-relative canonical
+Phase 4.3.1 official directory and is never interpreted as user input.
+
+The packaged snapshot must match the committed Phase 4.3.1 official bundle.
+It discloses two of 80 Agent slots with behavioral failure codes and one of 80
+with the sole outcome error, while retaining `completed/meets_target`. Targets
+are demonstration targets, not standards or SLAs. The app never rescores or
+edits the snapshot.
+
+## 62. HTTP API
+
+Location: `signal_diag.app.api`.
+
+```text
+GET  /api/v1/health
+GET  /api/v1/presets
+GET  /api/v1/evaluation-summary
+POST /api/v1/runs/wav
+POST /api/v1/runs/synthetic
+GET  /api/v1/runs/{run_id}
+GET  /api/v1/runs/{run_id}/report.json
+GET  /api/v1/runs/{run_id}/report.html
+GET  /
+```
+
+`POST /api/v1/runs/wav` accepts a bounded multipart file plus `user_request`
+and `channel`. `POST /api/v1/runs/synthetic` accepts JSON with `preset_id`,
+`user_request`, and `channel`. A valid submission returns HTTP 202 and
+`RunSubmission`; it does not wait for the model.
+
+`GET /runs/{run_id}` returns `AppRunSnapshot`. A report endpoint is available
+only for `completed` runs, including a valid Agent result whose nested status
+is error. Queued/running runs return `run_not_terminal`; application-failed
+runs return `report_unavailable`. JSON uses `application/json`; HTML uses
+UTF-8 `text/html`. Download filenames derive only from the opaque run ID.
+
+`GET /health` reports service availability, product provider/model/prompt
+identity, and a boolean `planner_configured`; it never returns a credential or
+base-URL secret. Missing credentials do not prevent health, presets, evaluation
+summary, or static UI from loading.
+
+All API failures use `AppErrorEnvelope`. Required mappings are:
+
+```text
+400/422  invalid_request, invalid_wav, signal_limit_exceeded, unknown_preset
+413      payload_too_large
+415      unsupported_wav
+404      run_not_found
+409      run_not_terminal, report_unavailable, or illegal state conflict
+429      capacity_exceeded
+503      planner_not_configured
+500      trace_integrity_error or internal_error
+```
+
+The API never emits a traceback. It reads multipart data with the same 20 MiB
+bound before passing bytes to the service. FastAPI validation is normalized to
+the common envelope. Provider or Runtime failures after HTTP 202 are returned
+inside the polled terminal snapshot as an Agent result or sanitized application
+error; they are not rewritten as a synchronous 503/500 submission response.
+
+```python
+def create_app(
+    service: DiagnosisApplicationService | None = None,
+) -> FastAPI:
+    ...
+```
+
+When no service is supplied, `create_app` uses product composition. CORS is
+off by default. Static and API responses set a same-origin Content Security
+Policy. The default server binding is `127.0.0.1`; there is no authentication
+or public-network safety claim.
+
+## 63. CLI and Web UI
+
+The console entry point is:
+
+```toml
+[project.scripts]
+signal-diag = "signal_diag.app.cli:main"
+```
+
+The `argparse` command surface is:
+
+```text
+signal-diag serve [--host HOST] [--port PORT]
+signal-diag presets
+signal-diag diagnose wav PATH
+  [--question TEXT] [--channel left|right|mixdown]
+  [--output text|json] [--html-output PATH]
+signal-diag diagnose synthetic PRESET_ID
+  [--question TEXT] [--channel left|right|mixdown]
+  [--output text|json] [--html-output PATH]
+```
+
+The default question is “Why does this signal sound distorted?” and the default
+channel is mixdown. The CLI calls the same service, then waits through
+`wait_for_terminal`. Exit code 0 means a valid completed Agent result,
+including no-supported-fault or inconclusive. Exit 1 means Agent/runtime or
+application execution failure. Exit 2 means usage, input, or configuration
+error. JSON output uses the canonical report model; HTML output uses the same
+renderer. Existing lower-level Demo scripts remain backward compatible.
+
+The root Web UI uses packaged native HTML/CSS/JavaScript and same-origin
+`fetch`. It supports WAV/preset selection, question, legal channel choices,
+submission, polling, diagnosis summary, preview, strict Trace, Observation,
+Evidence, Rule, Knowledge, limitation/warning/error views, report downloads,
+and accepted Evaluation summary.
+
+Queued/running views show only actual lifecycle state and never simulate Tool
+progress. External strings are inserted with safe DOM text APIs, not
+`innerHTML`. There is no CDN, Node runtime, analytics, credential field, or
+browser-side diagnostic calculation. The UI labels local single-user/no-auth
+scope and all demonstration-only thresholds.
+
+## 64. Phase 5 Public Surface and Acceptance Gate
+
+After written approval, the additive frozen exports are:
+
+```text
+signal_diag.signal
+    WavLoadLimits
+    WavSourceInfo
+    LoadedWav
+    load_wav_bytes
+    WavDecodeError
+    UnsupportedWavError
+    InvalidWavError
+    SignalLimitExceededError
+
+signal_diag.evaluation
+    assemble_agent_events
+
+signal_diag.app
+    application models in §§57–§58
+    DiagnosisReport, AcceptedEvaluationSummary
+    DiagnosisApplicationService
+    build_product_service
+    build_diagnosis_report
+    render_report_json
+    render_report_html
+```
+
+FastAPI-specific imports remain in `signal_diag.app.api`, so importing core
+`signal_diag.app` does not require Web extras. CLI remains in
+`signal_diag.app.cli`. Static assets and the accepted evaluation snapshot are
+wheel package data.
+
+The deterministic Phase 5 state is `presentation_harness_accepted`. It
+requires T001–T285 with zero required skip/xfail, Ruff, mypy, architecture,
+diff-check, Python 3.11/3.12 CI, wheel build, and clean wheel-install smoke.
+Deterministic integration injects ScriptedPlanner while using real Signal, DSP,
+Tools, RuleEngine, KnowledgeIndex, Runtime, ApplicationService, API, and
+reporting. CI never accesses a real provider.
+
+The separate product state is `real_demo_completed`. After deterministic
+acceptance, one public synthetic preset and one supported PCM WAV each run once
+through public RealLLMPlanner and the same application service. Both must
+produce sanitized strict Trace plus valid JSON/HTML reports. Individual
+diagnosis correctness is reported honestly and is not a replacement benchmark;
+Phase 4.3.1 official remains the behavior evidence. No fallback is legal.
+Missing credentials leave `real_demo_pending`.
+
+Phase 5 and V0.2 are fully accepted only when both states are satisfied.
+Only then may the repository claim a complete resume-grade demonstrable V0.2.
+
+Approval of draft §§55–§64 freezes design and tests only. It does not authorize
+implementation, a model run, push, merge, worktree deletion, or cleanup of the
+pre-existing untracked `build/`. A detailed implementation plan and separate
+explicit execution choice remain mandatory.
