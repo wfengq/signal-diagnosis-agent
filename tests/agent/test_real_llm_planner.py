@@ -244,7 +244,7 @@ async def test_real_llm_planner_parses_mocked_response() -> None:
         "type": "json_object",
     }
     user_content = client.chat.completions.last_kwargs["messages"][1]["content"]
-    assert "v0.2-s1-planner-8" in user_content
+    assert json.loads(user_content)["prompt_version"] == "v0.2-s1-planner-8.1"
     assert "sig_llm" in user_content
     assert "frequencies_hz" not in user_content
 
@@ -281,8 +281,8 @@ def test_missing_credentials_message_is_explicit() -> None:
     assert "ScriptedPlanner" in message
 
 
-def test_prompt_version_is_planner_8() -> None:
-    assert PROMPT_VERSION == "v0.2-s1-planner-8"
+def test_prompt_version_is_planner_8_1() -> None:
+    assert PROMPT_VERSION == "v0.2-s1-planner-8.1"
     assert _S1_PROMPT_V4.version == "v0.2-s1-planner-4"
 
 

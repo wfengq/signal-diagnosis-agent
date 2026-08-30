@@ -16,11 +16,10 @@ from signal_diag.agent import planner as planner_mod
 from signal_diag.agent import prompts as prompts_mod
 from signal_diag.agent.models import AgentDecision, PlannerContext
 from signal_diag.agent.planner import (
-    _SYSTEM_PROMPT,
-    PROMPT_VERSION,
     RealLLMPlanner,
     _Phase4V4RealLLMPlanner,
     _Phase4V7RealLLMPlanner,
+    _Phase4V8RealLLMPlanner,
 )
 from signal_diag.agent.prompts import (
     _S1_PROMPT_V4,
@@ -319,11 +318,10 @@ def test_t209_v8_prompt_identity_is_coherent_and_not_an_appendix() -> None:
     }
 
 
-def test_t209_public_planner_selects_v8_and_private_v7_keeps_frozen_v7() -> None:
-    assert RealLLMPlanner._prompt_spec is _S1_PROMPT_V8
-    assert RealLLMPlanner._prompt_spec.version == _V8_VERSION
-    assert PROMPT_VERSION == _V8_VERSION
-    assert _SYSTEM_PROMPT == _S1_PROMPT_V8.system_prompt
+def test_t209_private_v8_planner_keeps_frozen_v8_and_private_v7_keeps_frozen_v7() -> None:
+    assert _Phase4V8RealLLMPlanner._prompt_spec is _S1_PROMPT_V8
+    assert _Phase4V8RealLLMPlanner._prompt_spec.version == _V8_VERSION
+    assert issubclass(_Phase4V8RealLLMPlanner, RealLLMPlanner)
     assert _Phase4V7RealLLMPlanner._prompt_spec is prompts_mod._S1_PROMPT_V7
     assert _Phase4V7RealLLMPlanner._prompt_spec.version == _FROZEN_V7_VERSION
     v7_digest, v7_size = _utf8_sha256(_Phase4V7RealLLMPlanner._prompt_spec.system_prompt)
@@ -351,12 +349,12 @@ def test_t209_public_planner_selects_v8_and_private_v7_keeps_frozen_v7() -> None
 
 
 @pytest.mark.asyncio
-async def test_t209_public_planner_user_message_identifies_v8_only(
+async def test_t209_private_v8_planner_user_message_identifies_v8_only(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
     client = _FakeClient(json.dumps(_valid_call_tool_payload()))
-    planner = RealLLMPlanner(
+    planner = _Phase4V8RealLLMPlanner(
         provider="deepseek",
         api_key="test-key",
         model="deepseek-v4-flash",
