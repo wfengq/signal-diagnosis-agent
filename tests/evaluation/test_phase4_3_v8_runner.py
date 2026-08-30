@@ -21,6 +21,7 @@ from signal_diag.agent.planner import (
     _Phase4V5RealLLMPlanner,
     _Phase4V6RealLLMPlanner,
     _Phase4V7RealLLMPlanner,
+    _Phase4V8RealLLMPlanner,
 )
 from signal_diag.agent.prompts import (
     _S1_PROMPT_V4,
@@ -395,7 +396,8 @@ def test_t214_v8_config_and_canonical_ids() -> None:
     assert _fingerprint(development) == _fingerprint(official)
     stub = _stub_client()
     planner = _build_phase4_3_v8_planner(stub)
-    assert type(planner) is RealLLMPlanner
+    assert type(planner) is _Phase4V8RealLLMPlanner
+    assert type(planner) is not RealLLMPlanner
     assert type(planner) is not _Phase4V7RealLLMPlanner
     assert planner._prompt_spec is _S1_PROMPT_V8
     assert _PHASE4_3_V8_DEV_BUNDLE == _V8_DEV_BUNDLE

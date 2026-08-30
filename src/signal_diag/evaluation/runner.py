@@ -37,6 +37,7 @@ from signal_diag.agent.planner import (
     _Phase4V5RealLLMPlanner,
     _Phase4V6RealLLMPlanner,
     _Phase4V7RealLLMPlanner,
+    _Phase4V8RealLLMPlanner,
 )
 from signal_diag.agent.prompts import (
     _S1_PROMPT_V4,
@@ -44,6 +45,7 @@ from signal_diag.agent.prompts import (
     _S1_PROMPT_V6,
     _S1_PROMPT_V7,
     _S1_PROMPT_V8,
+    _S1_PROMPT_V8_1,
 )
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.evaluation.baseline import FixedPipelineBaseline
@@ -126,6 +128,17 @@ _PHASE4_3_V8_DEV_BUNDLE = (
     / "phase4_3"
     / "development"
     / _PHASE4_3_V8_DEV_BENCHMARK_ID
+)
+_PHASE4_3_1_PROMPT_VERSION = "v0.2-s1-planner-8.1"
+_PHASE4_3_1_SCORING_VERSIONS = {"signal_diag.scoring": "2.0.0"}
+_PHASE4_3_1_DEV_BENCHMARK_ID = "bench_phase4_3_1_dev_v8_1_v12_gate5"
+_PHASE4_3_1_OFFICIAL_BENCHMARK_ID = "bench_official_s1_v12_planner8_1_gate5"
+_PHASE4_3_1_DEV_BUNDLE = (
+    Path("docs")
+    / "evaluations"
+    / "phase4_3_1"
+    / "development"
+    / _PHASE4_3_1_DEV_BENCHMARK_ID
 )
 _IDENTITY_COMPLETE_GATE_FIELDS = (
     "benchmark_id",
@@ -459,6 +472,10 @@ def _phase4_3_v8_prompt_sha256() -> str:
     return hashlib.sha256(_S1_PROMPT_V8.system_prompt.encode("utf-8")).hexdigest()
 
 
+def _phase4_3_1_v8_1_prompt_sha256() -> str:
+    return hashlib.sha256(_S1_PROMPT_V8_1.system_prompt.encode("utf-8")).hexdigest()
+
+
 def _official_model_parameters() -> dict[str, ConfigValue]:
     return {
         "temperature": 0.0,
@@ -587,6 +604,35 @@ def _phase4_3_v8_benchmark_config(
         prompt_sha256=_phase4_3_v8_prompt_sha256(),
         model_parameters=_official_model_parameters(),
         sdk_versions={},
+        repetitions=_OFFICIAL_REPETITIONS,
+        max_infrastructure_retries=2,
+        max_concurrency=1,
+        started_at_utc=started_at_utc,
+    )
+
+
+def _phase4_3_1_v8_1_benchmark_config(
+    *,
+    benchmark_id: str,
+    started_at_utc: datetime,
+) -> BenchmarkConfig:
+    if _S1_PROMPT_V8_1.version != _PHASE4_3_1_PROMPT_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            f"prompt version must be {_PHASE4_3_1_PROMPT_VERSION!r}",
+        )
+    return BenchmarkConfig(
+        benchmark_id=benchmark_id,
+        dataset_id=_OFFICIAL_DATASET_ID,
+        dataset_version=_PHASE4_2_DATASET_VERSION,
+        rule_profile_id=_OFFICIAL_PROFILE_ID,
+        rule_profile_version=_OFFICIAL_PROFILE_VERSION,
+        provider=_OFFICIAL_PROVIDER,
+        model=_OFFICIAL_MODEL,
+        prompt_version=_PHASE4_3_1_PROMPT_VERSION,
+        prompt_sha256=_phase4_3_1_v8_1_prompt_sha256(),
+        model_parameters=_official_model_parameters(),
+        sdk_versions=dict(_PHASE4_3_1_SCORING_VERSIONS),
         repetitions=_OFFICIAL_REPETITIONS,
         max_infrastructure_retries=2,
         max_concurrency=1,
@@ -1072,6 +1118,14 @@ def _require_phase4_3_v8_development_gate(
     _require_valid_bundle_checksums(development_bundle)
 
 
+def _require_phase4_3_1_v8_1_development_gate(
+    development_bundle: Path,
+    config: BenchmarkConfig,
+) -> None:
+    _require_identity_complete_development_gate(development_bundle, config)
+    _require_valid_bundle_checksums(development_bundle)
+
+
 def _preflight_phase4_3_v8(
     manifest: DatasetManifest,
     config: BenchmarkConfig,
@@ -1127,6 +1181,88 @@ def _preflight_phase4_3_v8(
         raise _PreflightFailure(
             "invalid_configuration",
             "campaign identity does not match the selected v8 route",
+        )
+    _require_valid_dataset(manifest)
+    if not os.environ.get("DEEPSEEK_API_KEY"):
+        raise _PreflightFailure(
+            "missing_credentials",
+            "set DEEPSEEK_API_KEY before running the official real-model benchmark",
+        )
+    if client_factory is None:
+        try:
+            (import_openai or _import_openai)()
+        except ImportError as error:
+            raise _PreflightFailure(
+                "missing_dependency",
+                "RealLLMPlanner requires the optional openai dependency",
+            ) from error
+
+
+def _preflight_phase4_3_1_v8_1(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    *,
+    client_factory: Callable[[], object] | None = None,
+    import_openai: Callable[[], object] | None = None,
+) -> None:
+    if _S1_PROMPT_V8_1.version != _PHASE4_3_1_PROMPT_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            f"prompt version must be {_PHASE4_3_1_PROMPT_VERSION!r}",
+        )
+    expected_hash = _phase4_3_1_v8_1_prompt_sha256()
+    if config.prompt_sha256 != expected_hash:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "prompt SHA-256 does not match the frozen product planner prompt",
+        )
+    if config.prompt_version != _PHASE4_3_1_PROMPT_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            f"prompt version must be {_PHASE4_3_1_PROMPT_VERSION!r}",
+        )
+    if config.dataset_id != _OFFICIAL_DATASET_ID:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "Phase 4.3.1 runner pins dataset s1-distortion-synthetic",
+        )
+    if config.dataset_version != _PHASE4_2_DATASET_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "Phase 4.3.1 runner pins dataset version 1.2.0",
+        )
+    if (
+        config.rule_profile_id != _OFFICIAL_PROFILE_ID
+        or config.rule_profile_version != _OFFICIAL_PROFILE_VERSION
+    ):
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "Phase 4.3.1 runner pins profile_s1_distortion 1.0.0-demo",
+        )
+    if config.provider != _OFFICIAL_PROVIDER or config.model != _OFFICIAL_MODEL:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "official runner pins provider deepseek and model deepseek-v4-flash",
+        )
+    if config.repetitions != _OFFICIAL_REPETITIONS:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            f"Phase 4.3.1 runner pins repetitions={_OFFICIAL_REPETITIONS}",
+        )
+    if config.max_concurrency != 1:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "official execution requires max_concurrency=1",
+        )
+    if config.sdk_versions != _PHASE4_3_1_SCORING_VERSIONS:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "Phase 4.3.1 runner pins signal_diag.scoring 2.0.0",
+        )
+    if not _campaign_identity_matches(manifest, config):
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "campaign identity does not match the selected v8.1 route",
         )
     _require_valid_dataset(manifest)
     if not os.environ.get("DEEPSEEK_API_KEY"):
@@ -1233,6 +1369,11 @@ def _build_phase4_2_v7_planner(inner_client: object) -> RealLLMPlanner:
 
 
 def _build_phase4_3_v8_planner(inner_client: object) -> RealLLMPlanner:
+    capture = _UsageCapturingClient(inner_client)  # type: ignore[arg-type]
+    return _Phase4V8RealLLMPlanner(provider="deepseek", client=capture)
+
+
+def _build_phase4_3_1_v8_1_planner(inner_client: object) -> RealLLMPlanner:
     capture = _UsageCapturingClient(inner_client)  # type: ignore[arg-type]
     return RealLLMPlanner(provider="deepseek", client=capture)
 
@@ -2055,6 +2196,112 @@ async def _run_phase4_3_v8_official_benchmark(
         output_dir,
         score_split="held_out",
         planner_builder=_build_phase4_3_v8_planner,
+        preflight=preflight,
+        baseline_case_ids=tuple(case.case_id for case in manifest.cases),
+        client_factory=client_factory,
+        classify_error=classify_error,
+        import_openai=import_openai,
+        now=now,
+        signal_id_factory=_phase4_2_v7_signal_id_factory(manifest),
+    )
+
+
+async def _run_phase4_3_1_v8_1_development_benchmark(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    output_dir: Path,
+    *,
+    client_factory: Callable[[], object] | None = None,
+    classify_error: Callable[[BaseException], tuple[AttemptStatus, AttemptErrorCode]]
+    | None = None,
+    import_openai: Callable[[], object] | None = None,
+    now: Callable[[], datetime] | None = None,
+) -> BenchmarkReport:
+    if not _campaign_identity_matches(manifest, config):
+        return _write_invalid_configuration_report(
+            load_dataset_manifest(_phase4_2_manifest_path()),
+            config,
+            output_dir,
+            score_split="development",
+            message="manifest does not match the selected campaign identity",
+            extra_warnings=(_PHASE4_1_DEV_WARNING,),
+        )
+    return await _run_real_benchmark_for_split(
+        manifest,
+        config,
+        output_dir,
+        score_split="development",
+        planner_builder=_build_phase4_3_1_v8_1_planner,
+        preflight=_preflight_phase4_3_1_v8_1,
+        baseline_case_ids=tuple(
+            case.case_id for case in manifest.cases if case.split == "development"
+        ),
+        extra_warnings=(_PHASE4_1_DEV_WARNING,),
+        client_factory=client_factory,
+        classify_error=classify_error,
+        import_openai=import_openai,
+        now=now,
+        signal_id_factory=_phase4_2_v7_signal_id_factory(manifest),
+    )
+
+
+async def _run_phase4_3_1_v8_1_official_benchmark(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    output_dir: Path,
+    *,
+    development_bundle: Path | None = None,
+    client_factory: Callable[[], object] | None = None,
+    classify_error: Callable[[BaseException], tuple[AttemptStatus, AttemptErrorCode]]
+    | None = None,
+    import_openai: Callable[[], object] | None = None,
+    now: Callable[[], datetime] | None = None,
+) -> BenchmarkReport:
+    if not _campaign_identity_matches(manifest, config):
+        return _write_invalid_configuration_report(
+            load_dataset_manifest(_phase4_2_manifest_path()),
+            config,
+            output_dir,
+            score_split="held_out",
+            message="manifest does not match the selected campaign identity",
+        )
+    bundle = (
+        development_bundle
+        if development_bundle is not None
+        else _PHASE4_3_1_DEV_BUNDLE
+    )
+    development_identity = config.model_copy(
+        update={"benchmark_id": _PHASE4_3_1_DEV_BENCHMARK_ID}
+    )
+    try:
+        _require_phase4_3_1_v8_1_development_gate(bundle, development_identity)
+    except _PreflightFailure as error:
+        return _write_invalid_configuration_report(
+            manifest,
+            config,
+            output_dir,
+            score_split="held_out",
+            message=error.message,
+        )
+
+    def preflight(
+        preflight_manifest: DatasetManifest,
+        preflight_config: BenchmarkConfig,
+        **kwargs: object,
+    ) -> None:
+        _preflight_phase4_3_1_v8_1(
+            preflight_manifest,
+            preflight_config,
+            client_factory=kwargs.get("client_factory"),  # type: ignore[arg-type]
+            import_openai=kwargs.get("import_openai"),  # type: ignore[arg-type]
+        )
+
+    return await _run_real_benchmark_for_split(
+        manifest,
+        config,
+        output_dir,
+        score_split="held_out",
+        planner_builder=_build_phase4_3_1_v8_1_planner,
         preflight=preflight,
         baseline_case_ids=tuple(case.case_id for case in manifest.cases),
         client_factory=client_factory,
