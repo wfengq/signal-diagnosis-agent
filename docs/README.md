@@ -14,19 +14,18 @@ Read these documents before changing implementation code:
    Phase 4 §41–§49 evaluation contracts, additive Phase 4.1 §§50–§51
    behavior gates, the frozen Phase 4.2 §52 evaluation-integrity gate, and the
    frozen Phase 4.3 §53 planner-v8 behavior gate plus Phase 4.3.1 §54 v8.1
-   compliance correction; draft Phase 5 §§55–§64 await OQ-010 written review.
+   compliance correction; frozen Phase 5 §§55–§64 were approved under OQ-010.
 3. [`TEST_PLAN_V0_2.md`](TEST_PLAN_V0_2.md) — required T001–T092 Phase 1–2
    acceptance, required T093–T124 Phase 3 acceptance, required T125–T183 Phase 4
    acceptance, additive T184–T200 Phase 4.1 acceptance, Phase 4.2 T201–T208,
-   Phase 4.3 T209–T215, Phase 4.3.1 T216–T223, draft Phase 5 T224–T285,
+   Phase 4.3 T209–T215, Phase 4.3.1 T216–T223, frozen Phase 5 T224–T285,
    and separate real-model/Demo evaluation.
 4. [`DECISIONS.md`](DECISIONS.md) — approved architectural and process decisions.
 5. [`superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`](superpowers/plans/2026-08-28-phase1-deterministic-foundation.md)
    — task-level Phase 1 TDD implementation plan covering T001–T063.
 6. [`superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`](superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md)
-   — interactively approved Phase 5 design, submitted with §§55–§64,
-   T224–T285, and D026–D030 for final written review; implementation is not
-   authorized.
+   — approved and frozen Phase 5 design with §§55–§64, T224–T285, D026–D030,
+   and resolved OQ-010; implementation planning only is authorized.
 
 ## Acceptance reports and active implementation plan
 
@@ -114,8 +113,9 @@ Read these documents before changing implementation code:
   — selected native Web UI + FastAPI + argparse over a shared application
   service, bounded polling jobs, strict PCM WAV, actual Agent Trace,
   JSON/self-contained HTML reporting, honest accepted-evaluation presentation,
-  and dual deterministic/real-Demo acceptance. OQ-010 is open pending final
-  written approval; no Phase 5 implementation plan or code is authorized.
+  and dual deterministic/real-Demo acceptance. OQ-010 is resolved and the
+  task-level implementation plan is authorized; source/test implementation and
+  model execution are not.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -164,11 +164,11 @@ override active engineering contracts.
 ## Current design gate and future documents
 
 Phase 4.3.1 is accepted on the merged baseline `36ae7c9`. The current task is
-Phase 5 written-design review on branch `phase5-presentation-engineering`.
-Draft §§55–§64 and T224–T285 are not implementation authority until OQ-010 is
-explicitly approved. After that approval, the next document is a Superpowers
-task-level Phase 5 implementation plan; source/test implementation and product
-model runs still require a separate execution choice.
+Phase 5 implementation planning on branch `phase5-presentation-engineering`.
+Frozen §§55–§64, T224–T285, D026–D030, and resolved OQ-010 authorize a
+Superpowers task-level Phase 5 implementation plan only. Source/test
+implementation and product model runs still require a separate execution
+choice after plan review.
 
 Phase 4 accepted at `b68ec5e` (`completed/below_target` official v1.0.0
 benchmark remains immutable). Phase 4.1 v5 deterministic implementation is

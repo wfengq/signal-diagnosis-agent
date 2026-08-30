@@ -3,9 +3,10 @@
 **Document:** `TEST_PLAN_V0_2.md`  
 **Version:** `0.2`  
 **Status:** Required and accepted through T223 on merged Phase 4.3.1 baseline
-`36ae7c9`; draft Phase 5 §28 T224–T285 awaits OQ-010 final written approval
+`36ae7c9`; Phase 5 §28 T224–T285 approved and frozen under OQ-010 on
+2026-08-31
 **Scope:** Deterministic and real-model acceptance through Phase 4.3.1, plus
-draft Phase 5 presentation and product-Demo acceptance
+frozen Phase 5 presentation and product-Demo acceptance
 **Contracts:** `docs/CONTRACTS_V0_2.md`  
 **Architecture:** `docs/ARCHITECTURE_V0_2.md`  
 
@@ -1116,10 +1117,10 @@ implementation or any real-model campaign.
 
 ## 28. Phase 5 — Presentation Engineering
 
-**Draft status:** T224–T285 record the interactively approved Phase 5 design
-and are submitted for final written review. They do not authorize source/test
-implementation or a real-model run until the written contract and a detailed
-plan receive separate approval.
+**Frozen status:** T224–T285 were approved under OQ-010 on 2026-08-31. They
+authorize implementation planning only. Source/test implementation and every
+real-model run remain gated by the completed detailed plan and a separate
+explicit execution choice.
 
 All T224–T285 tests are deterministic. Tests that exercise the Agent use an
 explicit scripted/fake planner or fake transport while retaining real Signal,
@@ -1274,7 +1275,7 @@ real_demo_completed
 Only after both may project documentation and resume text describe V0.2 as a
 complete resume-grade demonstrable product.
 
-Approval of draft §28 freezes tests and design only. It does not authorize
+Approval of §28 freezes tests and design only. It does not authorize
 implementation, real-model execution, push, merge, worktree deletion, or
 cleanup of the pre-existing untracked `build/`. A detailed implementation
 plan and separate execution choice remain required.

@@ -4,15 +4,15 @@
 
 This repository implements a Signal Test and Fault Diagnosis Agent.
 
-The current phase is **Phase 5 written-design review**. Phase 4.3.1 is accepted
+The current phase is **Phase 5 implementation planning**. Phase 4.3.1 is accepted
 on the merged baseline `36ae7c9`. The interactive Phase 5 design was approved
 on 2026-08-31 and is recorded in
 `docs/superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`,
-draft `CONTRACTS_V0_2.md` §§55–§64, draft `TEST_PLAN_V0_2.md` §28
-(T224–T285), D026–D030, and open OQ-010. These written assets are awaiting
-explicit final review. Do not implement Phase 5 source/tests, create its
-detailed plan, run a Phase 5 model Demo, push, or merge until the corresponding
-separate gates pass.
+frozen `CONTRACTS_V0_2.md` §§55–§64, frozen `TEST_PLAN_V0_2.md` §28
+(T224–T285), D026–D030, and resolved OQ-010. The user authorized
+Superpowers writing-plans only. Do not implement Phase 5 source/tests, run a
+Phase 5 model Demo, push, or merge until the completed plan is separately
+reviewed and the user makes an explicit execution choice.
 
 Phase 4 accepted at `b68ec5e` (`completed/below_target` official v1.0.0 benchmark
 remains immutable). Phase 4.1 v5 deterministic implementation is complete at
@@ -105,8 +105,8 @@ prompt `v0.2-s1-planner-8.1` and versioned scoring policy
 `083b6d9`. Development gate5 is honest `completed/meets_target`. Official
 held-out (Task 9) is honest `completed/meets_target` on 80 Agent held-out
 slots. Phase 4.3.1 is accepted at Task 10 (terminal evidence at `99e0bdc`).
-Phase 5 implementation remains unauthorized pending OQ-010, a detailed plan,
-and an explicit execution choice.
+OQ-010 is resolved. Phase 5 implementation remains unauthorized pending the
+completed detailed plan and an explicit execution choice.
 
 Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
 and accepted. Phase 3 passed Codex final acceptance at commit `a820b7f` on
@@ -118,8 +118,8 @@ Before modifying code, read:
 
 - `docs/README.md`
 - `docs/ARCHITECTURE_V0_2.md` (especially §13–§18)
-- `docs/CONTRACTS_V0_2.md` (Phase 1–4 frozen; Phase 4 §41–§49; additive Phase 4.1 §§50–§51; Phase 4.2 §52; Phase 4.3 §53; Phase 4.3.1 §54; draft Phase 5 §§55–§64)
-- `docs/TEST_PLAN_V0_2.md` (Phase 1–4 required; Phase 4 §22; additive Phase 4.1 §§23–§24 T184–T200; Phase 4.2 §25 T201–T208; Phase 4.3 §26 T209–T215; Phase 4.3.1 §27 T216–T223; draft Phase 5 §28 T224–T285)
+- `docs/CONTRACTS_V0_2.md` (Phase 1–4 frozen; Phase 4 §41–§49; additive Phase 4.1 §§50–§51; Phase 4.2 §52; Phase 4.3 §53; Phase 4.3.1 §54; frozen Phase 5 §§55–§64)
+- `docs/TEST_PLAN_V0_2.md` (Phase 1–4 required; Phase 4 §22; additive Phase 4.1 §§23–§24 T184–T200; Phase 4.2 §25 T201–T208; Phase 4.3 §26 T209–T215; Phase 4.3.1 §27 T216–T223; frozen Phase 5 §28 T224–T285)
 - `docs/DECISIONS.md`
 - `docs/superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`
 - `docs/superpowers/specs/2026-08-29-phase4-evaluation-design.md`
@@ -212,7 +212,7 @@ a live-model pass. Task 5 development already ran and is honest
 Task 6 official/held-out was not legally run (historical v8 official was never
 executed). v1.2.0 held-out is inspectable only via the committed Phase 4.3.1
 official bundle. Do not create v9. Phase 5 implementation remains unauthorized
-until OQ-010, the detailed plan, and an explicit execution choice pass. Further work requires a written choice
+until the detailed plan and an explicit execution choice pass. Further work requires a written choice
 between changing the model and changing PlannerContext.
 
 Additive Phase 4.3.1 §54 and T216–T223 are frozen design/test authority. They
@@ -280,8 +280,8 @@ Rules:
 Do not add:
 
 - Phase 5 WAV loader, `app/` package, FastAPI, web frontend, CLI/report
-  adapters, T224–T285 implementation, or product Demo artifacts before OQ-010,
-  the detailed-plan gate, and an explicit execution choice
+  adapters, T224–T285 implementation, or product Demo artifacts before the
+  detailed-plan gate and an explicit execution choice
 - LangGraph (unless explicitly requested and contract-approved)
 - vector databases or embedding retrieval (initial Phase 3 uses keyword/tag only;
   see D011)
@@ -432,9 +432,10 @@ evidence.
 Official bundle:
 `docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/`.
 80 Agent held-out slots (16 cases × 5 reps). Phase 4.3.1 acceptance recorded
-at Task 10; Phase 5 implementation remains unauthorized pending OQ-010.
+at Task 10; Phase 5 implementation remains unauthorized pending the completed
+plan and a separate explicit execution choice.
 
-### Phase 5 — presentation engineering (written design pending review)
+### Phase 5 — presentation engineering (implementation planning)
 
 The interactive design selects a native Web UI as the primary Demo, FastAPI and
 argparse as thin adapters, one shared DiagnosisApplicationService, bounded
@@ -442,16 +443,16 @@ in-memory polling jobs, strict integer-PCM WAV ingestion, five public synthetic
 presets, actual chronological Agent trace display, canonical JSON/self-contained
 HTML reports, and an honest checksum-linked Phase 4.3.1 evaluation summary.
 
-Draft authority is:
+Frozen authority is:
 
 - `docs/superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`;
 - `CONTRACTS_V0_2.md` §§55–§64;
 - `TEST_PLAN_V0_2.md` §28 T224–T285;
-- D026–D030 and open OQ-010.
+- D026–D030 and resolved OQ-010.
 
-No Phase 5 source, tests, implementation plan, real-model Demo, push, or merge
-is authorized by the draft. Final written approval must close OQ-010; then a
-Superpowers task-level plan and a separate execution choice are required.
+The Superpowers task-level implementation plan is authorized. No Phase 5
+source, tests, real-model Demo, push, or merge is authorized until that plan is
+complete and the user makes a separate explicit execution choice.
 
 ## Development workflow
 

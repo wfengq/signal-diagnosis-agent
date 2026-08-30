@@ -1,7 +1,7 @@
 # Open Contract and Architecture Questions
 
 **Status:** Active register
-**Current open questions:** 1 pending (OQ-010); 9 resolved (OQ-001–OQ-009)
+**Current open questions:** 0 pending; 10 resolved (OQ-001–OQ-010)
 
 Use this file only for concrete issues that may require changing an approved
 contract or architectural boundary.
@@ -185,12 +185,12 @@ User decision: approved the complete written Phase 4.3.1 design on 2026-08-30; �
 ```text
 ID: OQ-010
 Date: 2026-08-31
-Status: open — interactive design approved; written assets pending final user review
+Status: resolved — approved and frozen
 Affected document and section: docs/superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md; docs/CONTRACTS_V0_2.md §§55–§64; docs/TEST_PLAN_V0_2.md §28 T224–T285; docs/DECISIONS.md D026–D030
 Observed problem: Architecture §15 and D012/D016 require WAV, CLI/API/UI, actual Agent trace, reporting, evaluation presentation, and a resume-grade Demo, but CONTRACTS §29 deliberately left every Phase 5 interface unfrozen.
 Why the current contract cannot represent a correct implementation: Without exact WAV bounds, application lifecycle, service boundary, trace bridge, report/API/CLI/UI schemas, security semantics, and deterministic/real acceptance states, independent implementations could duplicate diagnosis logic, leak evaluation truth, expose unsafe payloads, or claim completion without a real product path.
 Minimal proposed change: Approve the complete Phase 5 written specification, additive §§55–§64, T224–T285, and D026–D030. The selected design uses a shared DiagnosisApplicationService, bounded local polling jobs, strict integer-PCM WAV ingestion, native Web UI, canonical JSON/self-contained HTML reports, a checksum-linked accepted evaluation summary, and separate presentation_harness_accepted / real_demo_completed gates.
 Compatibility impact: Additive signal WAV loader, generic evaluation trace helper, app package, optional Web/LLM dependencies, console/API/UI/report surfaces, package assets, and CI only. Frozen Phase 1–4.3.1 numerical, Agent, scoring, target, prompt, dataset, and historical bundle behavior remains unchanged.
 Test impact: Adds deterministic T224–T285 and non-CI P5-R001–P5-R003. T001–T223 remain required and unchanged.
-User decision: interactive design and creation/review/local commit of written assets approved on 2026-08-31; final written contract freeze and implementation planning remain pending explicit review
+User decision: approved OQ-010, the complete Phase 5 written specification, Contracts §§55–§64, Test Plan §28 T224–T285, and D026–D030 on 2026-08-31; authorized Superpowers writing-plans only; source/test implementation, model execution, push, merge, worktree deletion, and build/ cleanup remain unauthorized pending the completed plan and a separate explicit execution choice
 ```

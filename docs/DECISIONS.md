@@ -452,7 +452,7 @@ outcomes are retained honestly, no fake fallback is permitted, and missing
 credentials leave real Demo pending.
 
 V0.2 may be called a complete resume-grade demonstrable product only after both
-states pass. Interactive approval of D026–D030 authorizes written contract
-drafting only. Source/test implementation, model runs, push, and merge still
-require final written-spec approval, a detailed plan, and a separate explicit
-execution choice.
+states pass. D026–D030 and the complete written contract were approved under
+OQ-010 on 2026-08-31. That approval authorizes implementation planning only;
+source/test implementation, model runs, push, and merge still require the
+completed detailed plan and a separate explicit execution choice.

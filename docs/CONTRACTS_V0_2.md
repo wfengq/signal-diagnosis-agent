@@ -2,11 +2,11 @@
 
 **Document:** `CONTRACTS_V0_2.md`  
 **Contract version:** `0.2`  
-**Status:** Frozen through Phase 4.3.1; Phase 4.3.1 accepted on merged baseline
-`36ae7c9`; draft Phase 5 §§55–§64 await OQ-010 final written approval
+**Status:** Frozen through Phase 5 design; Phase 4.3.1 accepted on merged
+baseline `36ae7c9`; Phase 5 §§55–§64 approved on 2026-08-31 under OQ-010
 **Scope:** Frozen Phase 1 deterministic foundation, Phase 2 hybrid Agent,
 Phase 3 rules/knowledge, and Phase 4–4.3.1 evaluation/behavior contracts;
-draft Phase 5 presentation contracts
+frozen Phase 5 presentation contracts
 **Architecture:** `docs/ARCHITECTURE_V0_2.md`  
 
 ---
@@ -36,10 +36,10 @@ Task 2–8 implementation is authorized; real-model execution remains subject to
 the §51 development-before-held-out gates.
 
 Additive §§52–§54 are frozen. Phase 4.3.1 is accepted on merged baseline
-`36ae7c9`. Draft Phase 5 §§55–§64 record the interactively approved design but
-remain unfrozen until OQ-010 receives explicit final written approval. Even
-after that freeze, implementation requires a detailed plan and a separate
-execution choice.
+`36ae7c9`. Phase 5 §§55–§64 were approved and frozen under OQ-010 on
+2026-08-31. Their approval authorizes implementation planning only;
+implementation requires the completed detailed plan and a separate execution
+choice.
 
 ---
 
@@ -1320,13 +1320,10 @@ V0.2 does not yet freeze:
 - orchestration framework integration.
 
 Phase 3 rule and knowledge contracts are frozen in §32–§40. The Phase 4
-evaluation contracts are frozen in §41–§49. Phase 5 contracts remain gated and
-will be frozen immediately before implementation.
-
-Draft §§55–§64 propose the exact replacements for the Phase 5 items above.
-Until OQ-010 is explicitly approved, §29 remains controlling and those public
-interfaces are unfrozen. Embedding/vector retrieval and orchestration-framework
-integration remain unfrozen and out of Phase 5 scope in either case.
+evaluation contracts are frozen in §41–§49. Approved Phase 5 §§55–§64 freeze
+the WAV/API/UI/report items formerly listed above and supersede §29 for those
+items. Embedding/vector retrieval and orchestration-framework integration
+remain unfrozen and out of Phase 5 scope.
 
 ---
 
@@ -3636,10 +3633,10 @@ Passing Phase 4.3.1 authorizes only Phase 5 design and contract freezing.
 
 ## 55. Phase 5 Contract Status and Package Boundary
 
-**Draft status:** §§55–§64 record the interactively approved Phase 5 design and
-are submitted for final written review. They are not frozen implementation
-authority until the user explicitly approves the written contract. Phase 5
-source, tests, model runs, push, and merge remain gated.
+**Frozen status:** §§55–§64 were approved under OQ-010 on 2026-08-31. They are
+the Phase 5 design and test-planning authority. Approval does not itself
+authorize source/test implementation, model execution, push, or merge; the
+detailed-plan and explicit execution-choice gates remain mandatory.
 
 Phase 5 adds presentation engineering above the accepted core:
 
@@ -4259,7 +4256,7 @@ scope and all demonstration-only thresholds.
 
 ## 64. Phase 5 Public Surface and Acceptance Gate
 
-After written approval, the additive frozen exports are:
+The additive frozen exports are:
 
 ```text
 signal_diag.signal
@@ -4308,7 +4305,7 @@ Missing credentials leave `real_demo_pending`.
 Phase 5 and V0.2 are fully accepted only when both states are satisfied.
 Only then may the repository claim a complete resume-grade demonstrable V0.2.
 
-Approval of draft §§55–§64 freezes design and tests only. It does not authorize
+Approval of §§55–§64 freezes design and tests only. It does not authorize
 implementation, a model run, push, merge, worktree deletion, or cleanup of the
-pre-existing untracked `build/`. A detailed implementation plan and separate
-explicit execution choice remain mandatory.
+pre-existing untracked `build/`. A completed detailed implementation plan and
+separate explicit execution choice remain mandatory.

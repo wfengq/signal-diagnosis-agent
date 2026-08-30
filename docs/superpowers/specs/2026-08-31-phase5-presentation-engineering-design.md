@@ -2,11 +2,11 @@
 
 **Date:** 2026-08-31
 
-**Status:** Interactive design approved on 2026-08-31. This written
-specification, draft Contracts §§55–§64, draft Test Plan §28 T224–T285, and
-D026–D030 are submitted for final written review. They do not authorize source
-or test implementation until the user explicitly freezes the written assets
-and separately authorizes an implementation plan.
+**Status:** Approved and frozen on 2026-08-31 with Contracts §§55–§64, Test
+Plan §28 T224–T285, D026–D030, and resolved OQ-010. This approval authorizes a
+Superpowers task-level implementation plan only. Source/test implementation,
+model execution, push, merge, worktree deletion, and `build/` cleanup still
+require a separate explicit execution choice.
 
 **Implementation baseline:** `36ae7c9` on the accepted Phase 4.3.1 history.
 
@@ -626,14 +626,14 @@ the pre-existing untracked `build/` directory without separate authorization.
 
 ## 18. Documentation and authorization gates
 
-This file records the approved interactive design. The next gates are:
+This file, Contracts §§55–§64, Test Plan §28 T224–T285, D026–D030, and
+OQ-010 are frozen. The remaining gates are:
 
-1. user reviews and explicitly freezes this written specification,
-   Contracts §§55–§64, Test Plan §28 T224–T285, and D026–D030;
-2. use the Superpowers writing-plans workflow to create a task-level
+1. use the Superpowers writing-plans workflow to create and review a task-level
    implementation plan;
-3. user reviews the plan and explicitly chooses an implementation workflow;
-4. only then may Phase 5 source or test implementation begin.
+2. the user explicitly chooses an implementation workflow;
+3. only then may Phase 5 source or test implementation begin.
 
-Until all four gates pass, no Phase 5 implementation, model run, push, merge,
-worktree deletion, or `build/` cleanup is authorized.
+Until the remaining plan and execution-choice gates pass, no Phase 5
+implementation, model run, push, merge, worktree deletion, or `build/` cleanup
+is authorized.
