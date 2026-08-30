@@ -48,7 +48,8 @@ Read these documents before changing implementation code:
   `target_status=below_target`.
 - [`superpowers/specs/2026-08-30-phase4-1-agent-behavior-improvement-design.md`](superpowers/specs/2026-08-30-phase4-1-agent-behavior-improvement-design.md)
   — written Phase 4.1 agent-behavior-improvement design approved on 2026-08-30;
-  additive §50 and T184–T195. Implementation pending.
+  additive §50 and T184–T195. Deterministic implementation complete at
+  `cadc15d`; real-model gates not done; Phase 4.1 not accepted.
 - [`superpowers/plans/2026-08-30-phase4-1-agent-behavior-improvement.md`](superpowers/plans/2026-08-30-phase4-1-agent-behavior-improvement.md)
   — task-level TDD implementation plan for Phase 4.1 covering T184–T195.
 
@@ -98,8 +99,11 @@ override active engineering contracts.
 
 ## Future documents
 
-Phase 4 accepted at `b68ec5e`; Phase 4.1 design approved and implementation
-pending; Phase 5 gated.
+Phase 4 accepted at `b68ec5e` (`completed/below_target` official v1.0.0
+benchmark remains immutable). Phase 4.1 deterministic implementation is complete
+at `cadc15d`; T184–T195 green (499 passed, ruff/mypy/`git diff --check
+b68ec5e..HEAD` clean). Real-model gates are not done. Phase 4.1 is not
+accepted. Phase 5 remains gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model

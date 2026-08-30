@@ -4,8 +4,12 @@
 
 This repository implements a Signal Test and Fault Diagnosis Agent.
 
-Phase 4 accepted at `b68ec5e`; Phase 4.1 design approved and implementation
-pending; Phase 5 gated.
+Phase 4 accepted at `b68ec5e` (`completed/below_target` official v1.0.0 benchmark
+remains immutable). Phase 4.1 deterministic implementation is complete at
+`cadc15d`; T184–T195 green (499 passed, ruff/mypy/`git diff --check b68ec5e..HEAD`
+clean). Real-model gates are not done: 40-slot development then, only if
+`meets_target`, one-shot 80-slot official held-out. Phase 4.1 is not accepted.
+Phase 5 remains gated.
 
 The Phase 4 written specification was approved on 2026-08-29; §§41–§49 and
 T125–T183 are frozen and implemented. Deterministic status is
@@ -62,7 +66,8 @@ D017–D020. Phase 4 is accepted at `b68ec5e`. Deterministic implementation is
 Phase 4.1 design authority is
 `docs/superpowers/specs/2026-08-30-phase4-1-agent-behavior-improvement-design.md`,
 additive `CONTRACTS_V0_2.md` §50, `TEST_PLAN_V0_2.md` §23 (T184–T195), and
-D021. Design is approved; implementation is pending.
+D021. Deterministic implementation is complete at `cadc15d`; T184–T195 green.
+Real-model gates are not done. Phase 4.1 is not accepted.
 
 These documents describe approved architecture and frozen interfaces.
 
@@ -74,7 +79,8 @@ Files under `docs/archive/v0.1/` are historical references only. Files under
 The Phase 1–4 interfaces in `docs/CONTRACTS_V0_2.md` are frozen. Phase 3
 implementation conforms to §32–§40 and the T093–T124 acceptance gate. Phase 4
 §41–§49 is implementation authority for the accepted deterministic harness.
-Additive Phase 4.1 §50 is frozen; its code remains implementation-pending.
+Additive Phase 4.1 §50 is frozen; deterministic implementation is complete at
+`cadc15d`. Real-model gates and Phase 4.1 acceptance are not done.
 
 Do not redesign or rename public models, functions, modules, arguments, return
 values, or package boundaries unless the user explicitly requests a contract
@@ -141,9 +147,10 @@ Do not add:
 unless that later phase is explicitly authorized.
 
 Phase 4 dual acceptance is satisfied at `b68ec5e`: `harness_accepted` and
-`benchmark_completed` with honest `below_target`. Phase 4.1 design is approved
-and implementation is pending. Phase 5 remains gated until Phase 4.1 is
-accepted and explicitly authorized. Do not start Phase 5.
+`benchmark_completed` with honest `below_target`. Phase 4.1 deterministic
+implementation is complete at `cadc15d`; real-model gates are not done. Phase
+4.1 is not accepted. Phase 5 remains gated until Phase 4.1 is accepted and
+explicitly authorized. Do not start Phase 5.
 
 ## Completed phases (reference)
 
@@ -183,7 +190,7 @@ scoreable held-out Agent slots, `benchmark_status=completed`,
 official result is honest `completed/below_target`; it is not a harness
 failure and is not accepted as product-quality behavior.
 
-### Phase 4.1 — agent behavior improvement (design approved; implementation pending)
+### Phase 4.1 — agent behavior improvement (deterministic implementation complete at `cadc15d`; not accepted)
 
 Additive §50, T184–T195, and D021. Prompt-only correction on a fresh v1.1.0
 held-out set. Does not change frozen §§41–§49 or T125–T183. Phase 5 remains
@@ -254,8 +261,9 @@ Do not treat `benchmark_pending` or `incomplete` as `benchmark_completed`.
 The first official benchmark at `b68ec5e` is `completed/below_target`; it is
 not a product-quality behavior pass.
 
-Phase 4.1 design is approved and implementation is pending. Phase 4.1
-acceptance requires `completed/meets_target` and T001–T195 green. Phase 5
-remains gated.
+Phase 4.1 deterministic implementation is complete at `cadc15d`; T184–T195
+green (499 passed, ruff/mypy/`git diff --check b68ec5e..HEAD` clean).
+Real-model gates are not done. Phase 4.1 is not accepted. Phase 4.1 acceptance
+requires `completed/meets_target` and T001–T195 green. Phase 5 remains gated.
 
 Never say that a later phase is complete if required tests are failing.

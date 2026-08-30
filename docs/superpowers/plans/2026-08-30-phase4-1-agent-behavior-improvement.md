@@ -607,7 +607,7 @@ Normative documentation changes stay in `AGENTS.md`, `docs/README.md`, `docs/CON
   git commit -m "test(evaluation): enforce Phase 4.1 deterministic gate"
   ```
 
-- [ ] **Step 5: Request independent code review**
+- [x] **Step 5: Request independent code review**
 
   Use `superpowers:requesting-code-review` on `b68ec5e..HEAD`. Require separate checks for legacy v4 reproducibility, no evaluation leakage, no controller-forced actions, dual-truth language, same-run refs, v1.1 fixture fairness, split isolation, private split aggregation, retry honesty, append-only reports, and T001–T183 regression. Apply accepted findings with `superpowers:receiving-code-review`, rerun Step 3, and commit fixes separately.
 

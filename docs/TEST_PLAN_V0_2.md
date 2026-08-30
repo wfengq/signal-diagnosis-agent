@@ -2,7 +2,7 @@
 
 **Document:** `TEST_PLAN_V0_2.md`  
 **Version:** `0.2`  
-**Status:** Approved and required for Phase 1–4; additive Phase 4.1 T184–T195 pending implementation
+**Status:** Approved and required for Phase 1–4; Phase 4.1 T184–T195 deterministic implementation complete at `cadc15d` (499 passed, ruff/mypy/`git diff --check b68ec5e..HEAD` clean); real-model gates not done; Phase 4.1 not accepted
 **Scope:** Phase 1 deterministic foundation, Phase 2 hybrid Agent runtime, and
 Phase 3 rules/knowledge acceptance; frozen Phase 4 evaluation acceptance;
 additive Phase 4.1 behavior-calibration acceptance

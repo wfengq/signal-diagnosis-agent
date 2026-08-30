@@ -3042,6 +3042,9 @@ diagnostic baseline. Its status is `completed/below_target`: the evaluation
 harness completed honestly, and the result is not a product-quality behavior
 pass.
 
-Phase 4.1 code remains gated on the Superpowers task-level plan and an explicit
-execution choice. Phase 5 remains gated until Phase 4.1 reaches
-`completed/meets_target` with T001–T195 green.
+Phase 4.1 deterministic implementation is complete at `cadc15d`; T184–T195
+green (499 passed, ruff/mypy/`git diff --check b68ec5e..HEAD` clean).
+Real-model gates are not done: 40-slot development then, only if
+`meets_target`, one-shot 80-slot official held-out. Phase 4.1 is not accepted.
+Phase 5 remains gated until Phase 4.1 reaches `completed/meets_target` with
+T001–T195 green.
