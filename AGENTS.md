@@ -10,8 +10,11 @@ remains immutable). Phase 4.1 v5 deterministic implementation is complete at
 `completed/below_target`. The additive prompt v6 correction (§51, T196–T200,
 D022) is approved and Task 2–8 implementation is authorized. The v1.1.0
 held-out split remains sealed until v6 development gate2 reaches
-`completed/meets_target`. The v6 deterministic gate passed; the real
-development gate2 is pending. Phase 4.1 is not accepted. Phase 5 remains gated.
+`completed/meets_target`. The v6 deterministic gate passed. Real-model
+development gate2 `bench_phase4_1_dev_v6_gate2` is honest
+`completed/below_target`, so official v6 held-out stays sealed. Report
+`harness_status=pending` is CLI semantics, not a harness failure. Phase 4.1
+is not accepted. Phase 5 remains gated.
 
 The Phase 4 written specification was approved on 2026-08-29; §§41–§49 and
 T125–T183 are frozen and implemented. Deterministic status is

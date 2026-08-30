@@ -113,8 +113,10 @@ complete at `cadc15d`; its development gate1 at `f9392c2` is honest
 `completed/below_target`. Prompt v6 Task 2–8 implementation is authorized under
 §51 and T196–T200. The v1.1.0 held-out split remains sealed until v6
 development gate2 reaches `completed/meets_target`. The v6 deterministic gate
-passed; the real development gate2 is pending. Phase 4.1 is not accepted;
-Phase 5 remains gated.
+passed. Real-model development gate2 `bench_phase4_1_dev_v6_gate2` is honest
+`completed/below_target`, so official v6 held-out stays sealed. Report
+`harness_status=pending` is CLI semantics, not a harness failure. Phase 4.1
+is not accepted; Phase 5 remains gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model
