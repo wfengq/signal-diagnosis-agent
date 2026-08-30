@@ -61,8 +61,10 @@ user separately gives the Cursor execution instruction.
 - Numerical values come only from deterministic DSP; thresholds come only from
   `profile_s1_distortion` `1.0.0-demo`. The 1% clipping and 5% THD values remain
   demonstration thresholds, not industry standards.
-- Do not push, merge, delete the worktree, open Phase 5, create v8.2/v9, or
-  inspect official held-out behavior before the exact development gate passes.
+- Do not push, merge, delete the worktree, open Phase 5, or create v8.2/v9.
+  (Historical gate: official held-out was not inspectable before development
+  gate5 passed; v1.2.0 held-out was first executed by the authorized v8.1
+  official gate5.)
 - The canonical v8.1 development identity runs once. A result other than
   `completed/meets_target` is preserved and stops before official.
 - The official identity runs once only after a committed, checksum-valid,
@@ -873,7 +875,7 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
 | Agent slots | 80 unique held-out (16 cases × 5 reps) |
 | Development Agent slots | 0 |
 | Missed bands | none — all TargetBands pass |
-| Non-blocking per-run miss | `case_v12_held_noise_02` slot 5 (`required_knowledge_omitted;outcome_mismatch`; 1/80) |
+| Non-blocking behavioral failure codes | 2/80 Agent slots on `case_v12_held_noise_02` (slot 1: `redundant_rule;inappropriate_replan`, outcome correct; slot 5: `required_knowledge_omitted;outcome_mismatch`, sole wrong outcome 1/80) |
 | Bundle | `docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/` |
 | Phase 4.3.1 acceptance | accepted at Task 10 (`99e0bdc` terminal evidence) |
 

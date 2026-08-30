@@ -75,8 +75,9 @@ Read these documents before changing implementation code:
   prompt v7, campaigns, and gated live evaluation. Tasks 2–7 deterministic
   implementation is complete. Task 8 v7 development gate3 at `71293a3`
   is honest `completed/below_target`. Task 9 official/held-out was not run.
-  Task 10 records that honest stop. v1.1.0 and v1.2.0 held-out remain
-  unexecuted. Phase 4.2 is not accepted.
+  Task 10 records that honest stop. v1.1.0 held-out remains unexecuted;
+  v1.2.0 held-out was not run under v7 (first executed under Phase 4.3.1 v8.1
+  gate5). Phase 4.2 is not accepted.
 - [`superpowers/specs/2026-08-30-phase4-3-planner-v8-behavior-calibration-design.md`](superpowers/specs/2026-08-30-phase4-3-planner-v8-behavior-calibration-design.md)
   — approved and frozen Phase 4.3 design under §53, T209–T215, D024, and
   resolved OQ-008. It permits one final prompt-only v8 candidate while keeping
@@ -99,7 +100,10 @@ Read these documents before changing implementation code:
   `completed/meets_target` on 40 unique Agent slots (all bands pass;
   development split; not official held-out evidence). Task 9 official held-out
   is honest `completed/meets_target` on 80 Agent held-out slots (all bands
-  pass; one non-blocking per-run miss on `case_v12_held_noise_02` slot 5).
+  pass; 2/80 Agent slots carry non-blocking behavioral failure codes on
+  `case_v12_held_noise_02` — slot 1: `redundant_rule;inappropriate_replan`,
+  outcome correct; slot 5: `required_knowledge_omitted;outcome_mismatch`, sole
+  wrong outcome at 1/80; aggregate remains `completed/meets_target`).
   Phase 4.3.1 is accepted at Task 10 (terminal evidence at `99e0bdc`).
   Phase 5 remains gated.
 
@@ -193,8 +197,10 @@ and diff-check are green. Real-model development gate5
 (40 unique Agent slots; all TargetBands pass; CLI `harness_status=pending`).
 Task 9 official held-out `bench_official_s1_v12_planner8_1_gate5` is honest
 `completed/meets_target` (80 Agent held-out slots; all TargetBands pass;
-one non-blocking per-run miss on `case_v12_held_noise_02` slot 5:
-`required_knowledge_omitted;outcome_mismatch`). Bundle:
+2/80 Agent slots carry non-blocking behavioral failure codes on
+`case_v12_held_noise_02` — slot 1: `redundant_rule;inappropriate_replan`,
+outcome correct; slot 5: `required_knowledge_omitted;outcome_mismatch`, sole
+wrong outcome at 1/80; aggregate remains `completed/meets_target`). Bundle:
 `docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/`.
 Phase 4.3.1 is accepted at Task 10 (terminal evidence at `99e0bdc`).
 Phase 5 remains gated.
@@ -205,9 +211,9 @@ status is `benchmark_completed` with honest `below_target` after the official
 live 80-slot DeepSeek run `bench_official_s1_20260829t162243z`, recorded at
 `b68ec5e`. That first official benchmark is complete and honestly below
 target; it is not a harness failure and is not accepted as product-quality
-behavior. Do not convert a target miss into a failure or hide it. Do not
-start Phase 5 until Phase 4.1 is accepted and Phase 5 is explicitly
-authorized.
+behavior. Do not convert a target miss into a failure or hide it. Phase 5
+remains unauthorized until separately designed, frozen, and explicitly
+authorized. Phase 4.3.1 acceptance is the final product-behavior gate.
 
 Quality gate this session (Python
 `C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`):

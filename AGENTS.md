@@ -38,8 +38,10 @@ Tasks 2–7 are complete at `083b6d9`. Real-model development gate5
 `bench_phase4_3_1_dev_v8_1_v12_gate5` is honest `completed/meets_target`
 (40 unique Agent slots; all TargetBands pass). Official v1.2.0 held-out
 (Task 9) is honest `completed/meets_target` on 80 Agent held-out slots (all
-TargetBands pass; one non-blocking per-run miss on `case_v12_held_noise_02`
-slot 5: `required_knowledge_omitted;outcome_mismatch`). Phase 4.3.1 is
+TargetBands pass; 2/80 Agent slots carry non-blocking behavioral failure codes
+on `case_v12_held_noise_02` (slot 1: `redundant_rule;inappropriate_replan`,
+outcome correct; slot 5: `required_knowledge_omitted;outcome_mismatch`, the
+sole wrong outcome at 1/80); aggregate remains `completed/meets_target`). Phase 4.3.1 is
 accepted at Task 10 (development and official both `completed/meets_target`;
 terminal evidence at `99e0bdc`).
 This is a one-time v8.1
@@ -61,7 +63,9 @@ and is not accepted as product-quality behavior.
 Phase 4.1 authority is additive `CONTRACTS_V0_2.md` §§50–§51,
 `TEST_PLAN_V0_2.md` §§23–§24 (T184–T200), and D021–D022. It does not change
 frozen §§41–§49 or T125–T183 semantics. Do not implement Phase 5 presentation
-adapters until Phase 4.1 is accepted and Phase 5 is explicitly authorized.
+adapters until Phase 5 is separately designed, frozen, and explicitly
+authorized. Phase 4.3.1 acceptance is the final product-behavior gate; it does
+not auto-authorize Phase 5.
 
 Phase 4.2 design authority is
 `docs/superpowers/specs/2026-08-30-phase4-2-prompt-v7-correction-design.md`,
@@ -181,16 +185,22 @@ Additive Phase 4.2 §52 and T201–T208 are frozen design authority.
 Deterministic implementation satisfies T001–T208, Ruff, mypy, architecture,
 and `git diff --check aefccba..HEAD`. That deterministic gate is not a
 real-model claim. Task 8 development already ran and is honest
-`completed/below_target`. Task 9 official/held-out was not legally run.
-Do not inspect v1.2.0 held-out or v1.1.0 held-out. Do not start Phase 5.
+`completed/below_target`. Task 9 official/held-out was not legally run
+(historical v6/v7 official campaigns were never executed). v1.1.0 held-out
+remains unexecuted. v1.2.0 held-out was first executed only by the authorized
+Phase 4.3.1 v8.1 official gate5. Phase 4.3.1 acceptance supersedes earlier
+failed candidates as the final product-behavior gate. Phase 5 remains
+unauthorized until separately designed, frozen, and explicitly authorized.
 
 Additive Phase 4.3 §53 and T209–T215 are frozen. Deterministic implementation
 satisfies T001–T215, Ruff, mypy, architecture, and
 `git diff --check eb47237..HEAD` at `1c70568`. That deterministic gate is not
 a live-model pass. Task 5 development already ran and is honest
 `completed/below_target` at `48dfb89` (40 unique Agent slots; 0 held-out).
-Task 6 official/held-out was not legally run. Do not inspect v1.2.0 held-out.
-Do not create v9. Do not start Phase 5. Further work requires a written choice
+Task 6 official/held-out was not legally run (historical v8 official was never
+executed). v1.2.0 held-out is inspectable only via the committed Phase 4.3.1
+official bundle. Do not create v9. Phase 5 remains unauthorized until
+separately designed, frozen, and explicitly authorized. Further work requires a written choice
 between changing the model and changing PlannerContext.
 
 Additive Phase 4.3.1 §54 and T216–T223 are frozen design/test authority. They
@@ -276,7 +286,8 @@ development gate2 are immutable `completed/below_target` results. Phase 4.2
 deterministic implementation is complete and T208 is green. v7 development
 gate3 is honest `completed/below_target`. Official v1.2.0 held-out was
 not run. Phase 4.1 is not accepted. Phase 4.2 is not accepted. Phase 5
-remains gated. Do not start Phase 5.
+remains unauthorized until separately designed, frozen, and explicitly
+authorized.
 
 Phase 4.3 deterministic implementation is complete and T215 is green at
 `1c70568`; that is not a live-model pass. v8 development gate4 is honest
@@ -388,9 +399,11 @@ statuses (do not conflate them):
 - development: `benchmark_status=completed`, `target_status=meets_target` on
   40 unique Agent slots; all TargetBands pass
 - official (Task 9): `benchmark_status=completed`, `target_status=meets_target`
-  on 80 Agent held-out slots; all TargetBands pass; one non-blocking per-run
-  miss on `case_v12_held_noise_02` slot 5
-  (`required_knowledge_omitted;outcome_mismatch`)
+  on 80 Agent held-out slots; all TargetBands pass; 2/80 Agent slots carry
+  non-blocking behavioral failure codes on `case_v12_held_noise_02` (slot 1:
+  `redundant_rule;inappropriate_replan`, outcome correct; slot 5:
+  `required_knowledge_omitted;outcome_mismatch`, sole wrong outcome at 1/80);
+  aggregate remains `completed/meets_target`
 - CLI `harness_status=pending` (report-model semantics, not a harness failure)
 - Task 9 official held-out: executed; honest `completed/meets_target`
 - Phase 4.3.1 acceptance: accepted at Task 10 (development and official
