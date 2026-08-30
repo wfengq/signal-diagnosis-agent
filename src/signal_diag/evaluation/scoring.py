@@ -78,9 +78,31 @@ FAILURE_REQUIRED_KNOWLEDGE_OMITTED = "required_knowledge_omitted"
 FAILURE_UNNECESSARY_KNOWLEDGE = "unnecessary_knowledge"
 FAILURE_IRRELEVANT_TAGS = "irrelevant_knowledge_tags"
 FAILURE_UNCITED_KNOWLEDGE = "uncited_knowledge"
+_SCORING_POLICY_KEY = "signal_diag.scoring"
+_SCORING_POLICY_V2 = "2.0.0"
 
 
 def score_evaluation_trace(case: EvaluationCase, trace: EvaluationTrace) -> RunScore:
+    policy = trace.config.sdk_versions.get(_SCORING_POLICY_KEY)
+    if policy is None:
+        include_invalid = False
+    elif policy == _SCORING_POLICY_V2:
+        include_invalid = True
+    else:
+        raise ValueError(f"unsupported scoring policy: {policy}")
+    return _score_evaluation_trace_with_policy(
+        case,
+        trace,
+        include_invalid_rule_evidence=include_invalid,
+    )
+
+
+def _score_evaluation_trace_with_policy(
+    case: EvaluationCase,
+    trace: EvaluationTrace,
+    *,
+    include_invalid_rule_evidence: bool,
+) -> RunScore:
     diagnosis = trace.result.diagnosis
     claims = diagnosis.claims if diagnosis is not None else ()
     predicted_outcome = diagnosis.outcome if diagnosis is not None else None
@@ -95,7 +117,12 @@ def score_evaluation_trace(case: EvaluationCase, trace: EvaluationTrace) -> RunS
     grounded_claims, scored_claims, grounding_failures = _ground_claims(
         case, trace, claims
     )
-    path = _score_path(case, trace, claims)
+    path = _score_path(
+        case,
+        trace,
+        claims,
+        include_invalid_rule_evidence=include_invalid_rule_evidence,
+    )
 
     failure_codes = list(path.failure_codes)
     failure_codes.extend(grounding_failures)
@@ -178,11 +205,13 @@ def _score_path(
     case: EvaluationCase,
     trace: EvaluationTrace,
     claims: tuple[DiagnosisClaim, ...],
+    *,
+    include_invalid_rule_evidence: bool,
 ) -> _PathScore:
     score = _PathScore()
     satisfied: set[str] = set()
     contradicted: set[str] = set()
-    success_evidence_ids: list[str] = []
+    rule_evidence_ids: list[str] = []
     seen_rule_states: set[frozenset[str]] = set()
     pending_delta = False
     last_status: ToolStatus | None = None
@@ -192,7 +221,12 @@ def _score_path(
     retrievals: list[KnowledgeRetrievalResult] = []
 
     if trace.execution_path == "fixed_pipeline":
-        _score_baseline_path(case, trace, score)
+        _score_baseline_path(
+            case,
+            trace,
+            score,
+            include_invalid_rule_evidence=include_invalid_rule_evidence,
+        )
         return score
 
     for event in trace.events:
@@ -219,7 +253,7 @@ def _score_path(
             elif isinstance(decision, EvaluateRulesDecision):
                 appropriate = _note_rule_decision(
                     score,
-                    success_evidence_ids,
+                    rule_evidence_ids,
                     seen_rule_states,
                 )
                 rule_decisions += 1
@@ -260,10 +294,17 @@ def _score_path(
                 pending_tool = None
             if event.observation.status == "success":
                 _apply_evidence(case, event.evidence, satisfied, contradicted)
-                success_evidence_ids.extend(
-                    item.evidence_id for item in event.evidence
-                )
+                rule_evidence_ids.extend(item.evidence_id for item in event.evidence)
                 sufficient = _any_sufficient(case, satisfied, contradicted)
+            elif (
+                include_invalid_rule_evidence
+                and event.observation.status == "invalid"
+            ):
+                rule_evidence_ids.extend(
+                    item.evidence_id
+                    for item in event.evidence
+                    if item.validity != "valid"
+                )
             last_status = event.observation.status
             pending_delta = True
         elif isinstance(event, RuleEvaluationEvent):
@@ -280,7 +321,7 @@ def _score_path(
 
     if pending_tool is not None:
         _note_unapplied_tool(score, pending_tool)
-    if success_evidence_ids and score.correct_rule_actions == 0:
+    if rule_evidence_ids and score.correct_rule_actions == 0:
         score.failure_codes.append(FAILURE_OMITTED_RULE)
         if rule_decisions == 0:
             score.rule_action_opportunities += 1
@@ -293,11 +334,13 @@ def _score_baseline_path(
     case: EvaluationCase,
     trace: EvaluationTrace,
     score: _PathScore,
+    *,
+    include_invalid_rule_evidence: bool,
 ) -> None:
     satisfied: set[str] = set()
     contradicted: set[str] = set()
     sufficient = False
-    success_evidence_ids: list[str] = []
+    rule_evidence_ids: list[str] = []
     seen_rule_states: set[frozenset[str]] = set()
     last_status: ToolStatus | None = None
     for event in trace.events:
@@ -322,14 +365,18 @@ def _score_baseline_path(
                     score.unnecessary_tool_actions += 1
                     score.failure_codes.append(FAILURE_UNNECESSARY_TOOL)
                 _apply_evidence(case, event.evidence, satisfied, contradicted)
-                success_evidence_ids.extend(
-                    item.evidence_id for item in event.evidence
-                )
+                rule_evidence_ids.extend(item.evidence_id for item in event.evidence)
                 sufficient = _any_sufficient(case, satisfied, contradicted)
+            elif include_invalid_rule_evidence and status == "invalid":
+                rule_evidence_ids.extend(
+                    item.evidence_id
+                    for item in event.evidence
+                    if item.validity != "valid"
+                )
             last_status = status
         elif isinstance(event, RuleEvaluationEvent):
-            _note_rule_decision(score, success_evidence_ids, seen_rule_states)
-    if success_evidence_ids and score.correct_rule_actions == 0:
+            _note_rule_decision(score, rule_evidence_ids, seen_rule_states)
+    if rule_evidence_ids and score.correct_rule_actions == 0:
         score.failure_codes.append(FAILURE_OMITTED_RULE)
         if score.rule_action_opportunities == 0:
             score.rule_action_opportunities += 1
@@ -344,12 +391,12 @@ def _note_unapplied_tool(score: _PathScore, pending_tool: dict[str, object]) -> 
 
 def _note_rule_decision(
     score: _PathScore,
-    success_evidence_ids: list[str],
+    rule_evidence_ids: list[str],
     seen_rule_states: set[frozenset[str]],
 ) -> bool:
     score.rule_action_opportunities += 1
-    state = frozenset(success_evidence_ids)
-    if not success_evidence_ids:
+    state = frozenset(rule_evidence_ids)
+    if not rule_evidence_ids:
         score.failure_codes.append(FAILURE_PREMATURE_RULE)
         return False
     if state in seen_rule_states:
