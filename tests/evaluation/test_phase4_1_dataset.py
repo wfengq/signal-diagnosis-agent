@@ -167,6 +167,7 @@ def test_t191_v11_manifest_identity_allocation_and_reconstruction() -> None:
         {
             ("s1-distortion-synthetic", "1.0.0"),
             ("s1-distortion-synthetic", "1.1.0"),
+            ("s1-distortion-synthetic", "1.2.0"),
         }
     )
     unknown = make_dataset_manifest(version="9.9.9")

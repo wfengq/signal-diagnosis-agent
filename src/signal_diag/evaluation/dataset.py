@@ -45,7 +45,11 @@ from signal_diag.signal.synthetic import (
     generate_sine,
     generate_white_noise,
 )
-from signal_diag.tools.contracts import ClippingInput, HarmonicDistortionInput
+from signal_diag.tools.contracts import (
+    ClippingInput,
+    FundamentalInput,
+    HarmonicDistortionInput,
+)
 from signal_diag.tools.evidence import Evidence
 from signal_diag.tools.service import SignalToolService
 
@@ -54,8 +58,10 @@ _SUPPORTED_DATASETS = frozenset(
     {
         ("s1-distortion-synthetic", "1.0.0"),
         ("s1-distortion-synthetic", "1.1.0"),
+        ("s1-distortion-synthetic", "1.2.0"),
     }
 )
+_ORDER2_RELATIVE_AMPLITUDE = "harmonic_order_2_relative_amplitude"
 _DEV_CATEGORY_COUNTS = {
     "clean": 2,
     "clipping": 2,
@@ -185,6 +191,13 @@ def _collect_evidence(
         )
         for item in harmonic_result.evidence:
             indexed[(item.source_tool, item.metric)] = item
+    if "estimate_fundamental" in needed:
+        fundamental_result = tool_service.estimate_fundamental(
+            signal_id,
+            FundamentalInput(),
+        )
+        for item in fundamental_result.evidence:
+            indexed[(item.source_tool, item.metric)] = item
     return indexed
 
 
@@ -286,11 +299,24 @@ def _observable_issues(
     return issues
 
 
+def _control_harmonic_is_valid(result: object) -> bool:
+    status = getattr(result, "status", None)
+    evidence = getattr(result, "evidence", ())
+    if status != "success":
+        return False
+    return any(
+        item.metric == "valid" and item.value is True and item.validity == "valid"
+        for item in evidence
+    )
+
+
 def _identifiability_issues(
     case: EvaluationCase,
     indexed: dict[tuple[str, str], Evidence],
     repository: SignalRepository,
     tool_service: SignalToolService,
+    *,
+    treat_absent_order_2_as_zero: bool = False,
 ) -> list[DatasetValidationIssue]:
     spec = case.signal
     ident = case.identifiability
@@ -327,24 +353,36 @@ def _identifiability_issues(
         )
     finally:
         repository.remove(control_id)
-    # Symmetric clipping often emits no even-order Evidence; absence is amplitude 0.
-    control_value = 0.0 if matched is None else matched.value
+    ident_issue = [
+        DatasetValidationIssue(
+            code="identifiability",
+            case_id=case.case_id,
+            message=(
+                "combined case does not exceed the matched clipping-only "
+                "control by the declared harmonic-signature separation"
+            ),
+        )
+    ]
+    if matched is not None:
+        control_value = matched.value
+    elif treat_absent_order_2_as_zero:
+        if (
+            ident.signature_metric == _ORDER2_RELATIVE_AMPLITUDE
+            and _control_harmonic_is_valid(result)
+        ):
+            control_value = 0.0
+        else:
+            return ident_issue
+    else:
+        # Historical v1.0/v1.1: missing matched-control component is amplitude 0.
+        control_value = 0.0
     if (
         combined is None
         or type(combined.value) is not float
         or type(control_value) is not float
         or abs(combined.value - control_value) < ident.minimum_absolute_separation
     ):
-        return [
-            DatasetValidationIssue(
-                code="identifiability",
-                case_id=case.case_id,
-                message=(
-                    "combined case does not exceed the matched clipping-only "
-                    "control by the declared harmonic-signature separation"
-                ),
-            )
-        ]
+        return ident_issue
     return []
 
 
@@ -373,7 +411,13 @@ def validate_dataset(
         indexed = _collect_evidence(case, first.meta.signal_id, tool_service)
         issues.extend(_observable_issues(case, indexed))
         issues.extend(
-            _identifiability_issues(case, indexed, repository, tool_service)
+            _identifiability_issues(
+                case,
+                indexed,
+                repository,
+                tool_service,
+                treat_absent_order_2_as_zero=manifest.version == "1.2.0",
+            )
         )
     issue_tuple = tuple(issues)
     return DatasetValidationReport(

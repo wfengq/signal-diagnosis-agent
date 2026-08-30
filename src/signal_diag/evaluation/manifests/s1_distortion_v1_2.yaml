@@ -1,0 +1,1423 @@
+schema_version: "1.0"
+dataset_id: s1-distortion-synthetic
+version: "1.2.0"
+rule_profile_id: profile_s1_distortion
+rule_profile_version: "1.0.0-demo"
+cases:
+  - case_id: case_v12_dev_clean_01
+    split: development
+    category: clean
+    user_request: Please inspect this recording for any plausible S1 distortion causes.
+    signal:
+      generator: sine
+      frequency_hz: 172.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      amplitude: 0.48
+      phase_rad: 0.0
+      dc_offset: 0.0
+    causal_faults: []
+    observable_conditions:
+      - condition_id: cond_v12_dev_clean_01_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_dev_clean_01_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: lte
+        expected_value: 0.01
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_dev_clean_01_flat_top
+        tool_name: detect_clipping
+        metric: flat_top_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_dev_clean_01_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_dev_clean_01_thd
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: lte
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [no_supported_fault]
+    acceptable_first_tools: [detect_clipping, analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_dev_clean_01_no_fault
+        condition_refs:
+          - cond_v12_dev_clean_01_clipping_detected
+          - cond_v12_dev_clean_01_clipping_ratio
+          - cond_v12_dev_clean_01_flat_top
+          - cond_v12_dev_clean_01_harmonic_valid
+          - cond_v12_dev_clean_01_thd
+        supported_claims: [no_supported_fault]
+        acceptable_outcomes: [no_supported_fault]
+    knowledge_policy: not_needed
+    knowledge_tags: []
+    acceptable_outcomes: [no_supported_fault]
+    requires_limitation: false
+    tags: [nominal]
+  - case_id: case_v12_dev_clean_02
+    split: development
+    category: clean
+    user_request: Please inspect this recording for any plausible S1 distortion causes.
+    signal:
+      generator: sine
+      frequency_hz: 205.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      amplitude: 0.55
+      phase_rad: 0.0
+      dc_offset: 0.0
+    causal_faults: []
+    observable_conditions:
+      - condition_id: cond_v12_dev_clean_02_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_dev_clean_02_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: lte
+        expected_value: 0.01
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_dev_clean_02_flat_top
+        tool_name: detect_clipping
+        metric: flat_top_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_dev_clean_02_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_dev_clean_02_thd
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: lte
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [no_supported_fault]
+    acceptable_first_tools: [detect_clipping, analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_dev_clean_02_no_fault
+        condition_refs:
+          - cond_v12_dev_clean_02_clipping_detected
+          - cond_v12_dev_clean_02_clipping_ratio
+          - cond_v12_dev_clean_02_flat_top
+          - cond_v12_dev_clean_02_harmonic_valid
+          - cond_v12_dev_clean_02_thd
+        supported_claims: [no_supported_fault]
+        acceptable_outcomes: [no_supported_fault]
+    knowledge_policy: not_needed
+    knowledge_tags: []
+    acceptable_outcomes: [no_supported_fault]
+    requires_limitation: false
+    tags: [mid-amplitude-clean]
+  - case_id: case_v12_dev_clipping_01
+    split: development
+    category: clipping
+    user_request: The peaks look flattened and the amplitude seems to hit a ceiling.
+    signal:
+      generator: clipped_sine
+      frequency_hz: 67.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      amplitude: 0.9
+      clip_level: 0.89999
+    causal_faults: [clipping]
+    observable_conditions:
+      - condition_id: cond_v12_dev_clipping_01_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+      - condition_id: cond_v12_dev_clipping_01_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: lte
+        expected_value: 0.01
+        supports_claims: [clipping]
+      - condition_id: cond_v12_dev_clipping_01_clipping_ratio_lo
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: gte
+        expected_value: 0.0095
+      - condition_id: cond_v12_dev_clipping_01_clipping_ratio_hi
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: lte
+        expected_value: 0.0105
+      - condition_id: cond_v12_dev_clipping_01_flat_top
+        tool_name: detect_clipping
+        metric: flat_top_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+    acceptable_first_tools: [detect_clipping]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_dev_clipping_01_clipping
+        condition_refs:
+          - cond_v12_dev_clipping_01_clipping_detected
+          - cond_v12_dev_clipping_01_clipping_ratio
+          - cond_v12_dev_clipping_01_flat_top
+        supported_claims: [clipping]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [clipping]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [clipping-near-0.01]
+  - case_id: case_v12_dev_clipping_02
+    split: development
+    category: clipping
+    user_request: The peaks look flattened and the amplitude seems to hit a ceiling.
+    signal:
+      generator: clipped_sine
+      frequency_hz: 108.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      amplitude: 0.92
+      clip_level: 0.7
+    causal_faults: [clipping]
+    observable_conditions:
+      - condition_id: cond_v12_dev_clipping_02_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+      - condition_id: cond_v12_dev_clipping_02_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: gt
+        expected_value: 0.01
+        supports_claims: [clipping]
+      - condition_id: cond_v12_dev_clipping_02_flat_top
+        tool_name: detect_clipping
+        metric: flat_top_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+    acceptable_first_tools: [detect_clipping]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_dev_clipping_02_clipping
+        condition_refs:
+          - cond_v12_dev_clipping_02_clipping_detected
+          - cond_v12_dev_clipping_02_clipping_ratio
+          - cond_v12_dev_clipping_02_flat_top
+        supported_claims: [clipping]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [clipping]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [strong]
+  - case_id: case_v12_dev_harmonic_01
+    split: development
+    category: harmonic
+    user_request: I hear extra tonal overtones sitting on the original tone.
+    signal:
+      generator: harmonic_sine
+      fundamental_hz: 165.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      fundamental_amplitude: 0.49
+      harmonic_ratios:
+        - order: 2
+          ratio: 0.04999999
+    causal_faults: [harmonic_distortion]
+    observable_conditions:
+      - condition_id: cond_v12_dev_harmonic_01_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+      - condition_id: cond_v12_dev_harmonic_01_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_dev_harmonic_01_thd_0
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: gte
+        expected_value: 4.999
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_dev_harmonic_01_thd_1
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: lte
+        expected_value: 5.001
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_dev_harmonic_01_thd_2
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: lte
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+    acceptable_first_tools: [analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_dev_harmonic_01_thd
+        condition_refs:
+          - cond_v12_dev_harmonic_01_harmonic_valid
+          - cond_v12_dev_harmonic_01_thd_0
+          - cond_v12_dev_harmonic_01_thd_1
+          - cond_v12_dev_harmonic_01_thd_2
+        supported_claims: [harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+      - evidence_set_id: evset_v12_dev_harmonic_01_clipping_absent_thd
+        condition_refs:
+          - cond_v12_dev_harmonic_01_clipping_detected
+          - cond_v12_dev_harmonic_01_harmonic_valid
+          - cond_v12_dev_harmonic_01_thd_0
+          - cond_v12_dev_harmonic_01_thd_1
+          - cond_v12_dev_harmonic_01_thd_2
+        supported_claims: [harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [harmonic-distortion]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [thd-at-5]
+  - case_id: case_v12_dev_harmonic_02
+    split: development
+    category: harmonic
+    user_request: I hear extra tonal overtones sitting on the original tone.
+    signal:
+      generator: harmonic_sine
+      fundamental_hz: 215.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      fundamental_amplitude: 0.51
+      harmonic_ratios:
+        - order: 2
+          ratio: 0.086
+    causal_faults: [harmonic_distortion]
+    observable_conditions:
+      - condition_id: cond_v12_dev_harmonic_02_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+      - condition_id: cond_v12_dev_harmonic_02_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_dev_harmonic_02_thd
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: gt
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+    acceptable_first_tools: [analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_dev_harmonic_02_thd
+        condition_refs:
+          - cond_v12_dev_harmonic_02_harmonic_valid
+          - cond_v12_dev_harmonic_02_thd
+        supported_claims: [harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+      - evidence_set_id: evset_v12_dev_harmonic_02_clipping_absent_thd
+        condition_refs:
+          - cond_v12_dev_harmonic_02_clipping_detected
+          - cond_v12_dev_harmonic_02_harmonic_valid
+          - cond_v12_dev_harmonic_02_thd
+        supported_claims: [harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [harmonic-distortion]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [above-thd]
+  - case_id: case_v12_dev_combo_01
+    split: development
+    category: combined
+    user_request: Please inspect this recording for any plausible S1 distortion causes.
+    signal:
+      generator: combined_distortion
+      fundamental_hz: 168.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      fundamental_amplitude: 0.86
+      harmonic_ratios:
+        - order: 2
+          ratio: 0.18
+      clip_level: 0.72
+    causal_faults: [clipping, harmonic_distortion]
+    observable_conditions:
+      - condition_id: cond_v12_dev_combo_01_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+      - condition_id: cond_v12_dev_combo_01_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: gt
+        expected_value: 0.01
+        supports_claims: [clipping]
+      - condition_id: cond_v12_dev_combo_01_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_dev_combo_01_thd
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: gt
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_dev_combo_01_order2
+        tool_name: analyze_harmonic_distortion
+        metric: harmonic_order_2_relative_amplitude
+        validity: valid
+        comparator: gte
+        expected_value: 0.08
+        supports_claims: [harmonic_distortion]
+    acceptable_first_tools: [detect_clipping, analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_dev_combo_01_both
+        condition_refs:
+          - cond_v12_dev_combo_01_clipping_detected
+          - cond_v12_dev_combo_01_harmonic_valid
+          - cond_v12_dev_combo_01_thd
+          - cond_v12_dev_combo_01_order2
+        supported_claims: [clipping, harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [clipping, harmonic-distortion]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [even-order-plus-clip]
+    identifiability:
+      signature_metric: harmonic_order_2_relative_amplitude
+      minimum_absolute_separation: 0.08
+  - case_id: case_v12_dev_noise_01
+    split: development
+    category: invalid_noise
+    user_request: The pitch feels unstable and the waveform does not sound periodic.
+    signal:
+      generator: white_noise
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      rms: 0.1
+      seed: 421
+    causal_faults: []
+    observable_conditions:
+      - condition_id: cond_v12_dev_noise_01_voiced
+        tool_name: estimate_fundamental
+        metric: voiced
+        validity: valid
+        comparator: eq
+        expected_value: false
+        supports_claims: [inconclusive]
+      - condition_id: cond_v12_dev_noise_01_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: not_applicable
+        comparator: eq
+        expected_value: false
+        supports_claims: [inconclusive]
+    acceptable_first_tools: [estimate_fundamental, analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_dev_noise_01_unvoiced
+        condition_refs:
+          - cond_v12_dev_noise_01_voiced
+        supported_claims: [inconclusive]
+        acceptable_outcomes: [inconclusive]
+      - evidence_set_id: evset_v12_dev_noise_01_invalid_harmonic
+        condition_refs:
+          - cond_v12_dev_noise_01_harmonic_valid
+        supported_claims: [inconclusive]
+        acceptable_outcomes: [inconclusive]
+    knowledge_policy: required
+    knowledge_tags: [inconclusive]
+    acceptable_outcomes: [inconclusive]
+    requires_limitation: true
+    tags: [unstable-pitch]
+  - case_id: case_v12_held_clean_01
+    split: held_out
+    category: clean
+    user_request: Could you look through this waveform for any of the usual S1 distortion problems?
+    signal:
+      generator: sine
+      frequency_hz: 178.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      amplitude: 0.42
+      phase_rad: 0.0
+      dc_offset: 0.0
+    causal_faults: []
+    observable_conditions:
+      - condition_id: cond_v12_held_clean_01_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_held_clean_01_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: lte
+        expected_value: 0.01
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_held_clean_01_flat_top
+        tool_name: detect_clipping
+        metric: flat_top_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_held_clean_01_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_held_clean_01_thd
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: lte
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [no_supported_fault]
+    acceptable_first_tools: [detect_clipping, analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_clean_01_no_fault
+        condition_refs:
+          - cond_v12_held_clean_01_clipping_detected
+          - cond_v12_held_clean_01_clipping_ratio
+          - cond_v12_held_clean_01_flat_top
+          - cond_v12_held_clean_01_harmonic_valid
+          - cond_v12_held_clean_01_thd
+        supported_claims: [no_supported_fault]
+        acceptable_outcomes: [no_supported_fault]
+    knowledge_policy: not_needed
+    knowledge_tags: []
+    acceptable_outcomes: [no_supported_fault]
+    requires_limitation: false
+    tags: [low-amplitude-clean]
+  - case_id: case_v12_held_clean_02
+    split: held_out
+    category: clean
+    user_request: Could you look through this waveform for any of the usual S1 distortion problems?
+    signal:
+      generator: sine
+      frequency_hz: 190.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      amplitude: 0.55
+      phase_rad: 0.0
+      dc_offset: 0.0
+    causal_faults: []
+    observable_conditions:
+      - condition_id: cond_v12_held_clean_02_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_held_clean_02_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: lte
+        expected_value: 0.01
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_held_clean_02_flat_top
+        tool_name: detect_clipping
+        metric: flat_top_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_held_clean_02_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_held_clean_02_thd
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: lte
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [no_supported_fault]
+    acceptable_first_tools: [detect_clipping, analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_clean_02_no_fault
+        condition_refs:
+          - cond_v12_held_clean_02_clipping_detected
+          - cond_v12_held_clean_02_clipping_ratio
+          - cond_v12_held_clean_02_flat_top
+          - cond_v12_held_clean_02_harmonic_valid
+          - cond_v12_held_clean_02_thd
+        supported_claims: [no_supported_fault]
+        acceptable_outcomes: [no_supported_fault]
+    knowledge_policy: not_needed
+    knowledge_tags: []
+    acceptable_outcomes: [no_supported_fault]
+    requires_limitation: false
+    tags: [nominal]
+  - case_id: case_v12_held_clean_03
+    split: held_out
+    category: clean
+    user_request: Could you look through this waveform for any of the usual S1 distortion problems?
+    signal:
+      generator: sine
+      frequency_hz: 232.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      amplitude: 0.48
+      phase_rad: 0.0
+      dc_offset: 0.0
+    causal_faults: []
+    observable_conditions:
+      - condition_id: cond_v12_held_clean_03_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_held_clean_03_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: lte
+        expected_value: 0.01
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_held_clean_03_flat_top
+        tool_name: detect_clipping
+        metric: flat_top_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_held_clean_03_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [no_supported_fault]
+      - condition_id: cond_v12_held_clean_03_thd
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: lte
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [no_supported_fault]
+    acceptable_first_tools: [detect_clipping, analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_clean_03_no_fault
+        condition_refs:
+          - cond_v12_held_clean_03_clipping_detected
+          - cond_v12_held_clean_03_clipping_ratio
+          - cond_v12_held_clean_03_flat_top
+          - cond_v12_held_clean_03_harmonic_valid
+          - cond_v12_held_clean_03_thd
+        supported_claims: [no_supported_fault]
+        acceptable_outcomes: [no_supported_fault]
+    knowledge_policy: not_needed
+    knowledge_tags: []
+    acceptable_outcomes: [no_supported_fault]
+    requires_limitation: false
+    tags: [mid-amplitude-clean]
+  - case_id: case_v12_held_clipping_01
+    split: held_out
+    category: clipping
+    user_request: The waveform appears to have flattened crests as if the amplitude is limited.
+    signal:
+      generator: clipped_sine
+      frequency_hz: 82.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      amplitude: 0.9
+      clip_level: 0.89999
+    causal_faults: [clipping]
+    observable_conditions:
+      - condition_id: cond_v12_held_clipping_01_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_clipping_01_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: lte
+        expected_value: 0.01
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_clipping_01_flat_top
+        tool_name: detect_clipping
+        metric: flat_top_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+    acceptable_first_tools: [detect_clipping]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_clipping_01_clipping
+        condition_refs:
+          - cond_v12_held_clipping_01_clipping_detected
+          - cond_v12_held_clipping_01_clipping_ratio
+          - cond_v12_held_clipping_01_flat_top
+        supported_claims: [clipping]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [clipping]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [clipping-below-0.01]
+  - case_id: case_v12_held_clipping_02
+    split: held_out
+    category: clipping
+    user_request: The waveform appears to have flattened crests as if the amplitude is limited.
+    signal:
+      generator: clipped_sine
+      frequency_hz: 58.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      amplitude: 0.9
+      clip_level: 0.89999
+    causal_faults: [clipping]
+    observable_conditions:
+      - condition_id: cond_v12_held_clipping_02_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_clipping_02_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: gt
+        expected_value: 0.01
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_clipping_02_flat_top
+        tool_name: detect_clipping
+        metric: flat_top_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+    acceptable_first_tools: [detect_clipping]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_clipping_02_clipping
+        condition_refs:
+          - cond_v12_held_clipping_02_clipping_detected
+          - cond_v12_held_clipping_02_clipping_ratio
+          - cond_v12_held_clipping_02_flat_top
+        supported_claims: [clipping]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [clipping]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [clipping-above-0.01]
+  - case_id: case_v12_held_clipping_03
+    split: held_out
+    category: clipping
+    user_request: The waveform appears to have flattened crests as if the amplitude is limited.
+    signal:
+      generator: clipped_sine
+      frequency_hz: 142.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      amplitude: 0.87
+      clip_level: 0.63
+    causal_faults: [clipping]
+    observable_conditions:
+      - condition_id: cond_v12_held_clipping_03_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_clipping_03_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: gt
+        expected_value: 0.01
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_clipping_03_flat_top
+        tool_name: detect_clipping
+        metric: flat_top_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+    acceptable_first_tools: [detect_clipping]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_clipping_03_clipping
+        condition_refs:
+          - cond_v12_held_clipping_03_clipping_detected
+          - cond_v12_held_clipping_03_clipping_ratio
+          - cond_v12_held_clipping_03_flat_top
+        supported_claims: [clipping]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [clipping]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [strong]
+  - case_id: case_v12_held_clipping_04
+    split: held_out
+    category: clipping
+    user_request: The waveform appears to have flattened crests as if the amplitude is limited.
+    signal:
+      generator: clipped_sine
+      frequency_hz: 198.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      amplitude: 0.89
+      clip_level: 0.66
+    causal_faults: [clipping]
+    observable_conditions:
+      - condition_id: cond_v12_held_clipping_04_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_clipping_04_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: gt
+        expected_value: 0.01
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_clipping_04_flat_top
+        tool_name: detect_clipping
+        metric: flat_top_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+    acceptable_first_tools: [detect_clipping]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_clipping_04_clipping
+        condition_refs:
+          - cond_v12_held_clipping_04_clipping_detected
+          - cond_v12_held_clipping_04_clipping_ratio
+          - cond_v12_held_clipping_04_flat_top
+        supported_claims: [clipping]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [clipping]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [strong]
+  - case_id: case_v12_held_harmonic_01
+    split: held_out
+    category: harmonic
+    user_request: There are extra ringing overtones coloring the original note.
+    signal:
+      generator: harmonic_sine
+      fundamental_hz: 245.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      fundamental_amplitude: 0.47
+      harmonic_ratios:
+        - order: 2
+          ratio: 0.038
+    causal_faults: [harmonic_distortion]
+    observable_conditions:
+      - condition_id: cond_v12_held_harmonic_01_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+      - condition_id: cond_v12_held_harmonic_01_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_held_harmonic_01_thd
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: lte
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+    acceptable_first_tools: [analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_harmonic_01_thd
+        condition_refs:
+          - cond_v12_held_harmonic_01_harmonic_valid
+          - cond_v12_held_harmonic_01_thd
+        supported_claims: [harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+      - evidence_set_id: evset_v12_held_harmonic_01_clipping_absent_thd
+        condition_refs:
+          - cond_v12_held_harmonic_01_clipping_detected
+          - cond_v12_held_harmonic_01_harmonic_valid
+          - cond_v12_held_harmonic_01_thd
+        supported_claims: [harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [harmonic-distortion]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [thd-below-5]
+  - case_id: case_v12_held_harmonic_02
+    split: held_out
+    category: harmonic
+    user_request: There are extra ringing overtones coloring the original note.
+    signal:
+      generator: harmonic_sine
+      fundamental_hz: 175.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      fundamental_amplitude: 0.49
+      harmonic_ratios:
+        - order: 2
+          ratio: 0.04999999
+    causal_faults: [harmonic_distortion]
+    observable_conditions:
+      - condition_id: cond_v12_held_harmonic_02_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+      - condition_id: cond_v12_held_harmonic_02_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_held_harmonic_02_thd_0
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: gte
+        expected_value: 4.999
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_held_harmonic_02_thd_1
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: lte
+        expected_value: 5.001
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_held_harmonic_02_thd_2
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: lte
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+    acceptable_first_tools: [analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_harmonic_02_thd
+        condition_refs:
+          - cond_v12_held_harmonic_02_harmonic_valid
+          - cond_v12_held_harmonic_02_thd_0
+          - cond_v12_held_harmonic_02_thd_1
+          - cond_v12_held_harmonic_02_thd_2
+        supported_claims: [harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+      - evidence_set_id: evset_v12_held_harmonic_02_clipping_absent_thd
+        condition_refs:
+          - cond_v12_held_harmonic_02_clipping_detected
+          - cond_v12_held_harmonic_02_harmonic_valid
+          - cond_v12_held_harmonic_02_thd_0
+          - cond_v12_held_harmonic_02_thd_1
+          - cond_v12_held_harmonic_02_thd_2
+        supported_claims: [harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [harmonic-distortion]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [thd-at-5]
+  - case_id: case_v12_held_harmonic_03
+    split: held_out
+    category: harmonic
+    user_request: There are extra ringing overtones coloring the original note.
+    signal:
+      generator: harmonic_sine
+      fundamental_hz: 125.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      fundamental_amplitude: 0.49
+      harmonic_ratios:
+        - order: 2
+          ratio: 0.082
+    causal_faults: [harmonic_distortion]
+    observable_conditions:
+      - condition_id: cond_v12_held_harmonic_03_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+      - condition_id: cond_v12_held_harmonic_03_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_held_harmonic_03_thd
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: gt
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+    acceptable_first_tools: [analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_harmonic_03_thd
+        condition_refs:
+          - cond_v12_held_harmonic_03_harmonic_valid
+          - cond_v12_held_harmonic_03_thd
+        supported_claims: [harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+      - evidence_set_id: evset_v12_held_harmonic_03_clipping_absent_thd
+        condition_refs:
+          - cond_v12_held_harmonic_03_clipping_detected
+          - cond_v12_held_harmonic_03_harmonic_valid
+          - cond_v12_held_harmonic_03_thd
+        supported_claims: [harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [harmonic-distortion]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [thd-above-5]
+  - case_id: case_v12_held_harmonic_04
+    split: held_out
+    category: harmonic
+    user_request: There are extra ringing overtones coloring the original note.
+    signal:
+      generator: harmonic_sine
+      fundamental_hz: 205.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      fundamental_amplitude: 0.46
+      harmonic_ratios:
+        - order: 2
+          ratio: 0.066
+        - order: 3
+          ratio: 0.028
+    causal_faults: [harmonic_distortion]
+    observable_conditions:
+      - condition_id: cond_v12_held_harmonic_04_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: false
+      - condition_id: cond_v12_held_harmonic_04_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_held_harmonic_04_thd
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: gt
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+    acceptable_first_tools: [analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_harmonic_04_thd
+        condition_refs:
+          - cond_v12_held_harmonic_04_harmonic_valid
+          - cond_v12_held_harmonic_04_thd
+        supported_claims: [harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+      - evidence_set_id: evset_v12_held_harmonic_04_clipping_absent_thd
+        condition_refs:
+          - cond_v12_held_harmonic_04_clipping_detected
+          - cond_v12_held_harmonic_04_harmonic_valid
+          - cond_v12_held_harmonic_04_thd
+        supported_claims: [harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [harmonic-distortion]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [multi-harmonic]
+  - case_id: case_v12_held_combo_01
+    split: held_out
+    category: combined
+    user_request: Could you look through this waveform for any of the usual S1 distortion problems?
+    signal:
+      generator: combined_distortion
+      fundamental_hz: 142.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      fundamental_amplitude: 0.86
+      harmonic_ratios:
+        - order: 2
+          ratio: 0.16
+      clip_level: 0.73
+    causal_faults: [clipping, harmonic_distortion]
+    observable_conditions:
+      - condition_id: cond_v12_held_combo_01_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_combo_01_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: gt
+        expected_value: 0.01
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_combo_01_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_held_combo_01_thd
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: gt
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_held_combo_01_order2
+        tool_name: analyze_harmonic_distortion
+        metric: harmonic_order_2_relative_amplitude
+        validity: valid
+        comparator: gte
+        expected_value: 0.08
+        supports_claims: [harmonic_distortion]
+    acceptable_first_tools: [detect_clipping, analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_combo_01_both
+        condition_refs:
+          - cond_v12_held_combo_01_clipping_detected
+          - cond_v12_held_combo_01_harmonic_valid
+          - cond_v12_held_combo_01_thd
+          - cond_v12_held_combo_01_order2
+        supported_claims: [clipping, harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [clipping, harmonic-distortion]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [even-order-plus-clip]
+    identifiability:
+      signature_metric: harmonic_order_2_relative_amplitude
+      minimum_absolute_separation: 0.08
+  - case_id: case_v12_held_combo_02
+    split: held_out
+    category: combined
+    user_request: Could you look through this waveform for any of the usual S1 distortion problems?
+    signal:
+      generator: combined_distortion
+      fundamental_hz: 198.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      fundamental_amplitude: 0.88
+      harmonic_ratios:
+        - order: 2
+          ratio: 0.18
+      clip_level: 0.75
+    causal_faults: [clipping, harmonic_distortion]
+    observable_conditions:
+      - condition_id: cond_v12_held_combo_02_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_combo_02_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: gt
+        expected_value: 0.01
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_combo_02_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_held_combo_02_thd
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: gt
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_held_combo_02_order2
+        tool_name: analyze_harmonic_distortion
+        metric: harmonic_order_2_relative_amplitude
+        validity: valid
+        comparator: gte
+        expected_value: 0.08
+        supports_claims: [harmonic_distortion]
+    acceptable_first_tools: [detect_clipping, analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_combo_02_both
+        condition_refs:
+          - cond_v12_held_combo_02_clipping_detected
+          - cond_v12_held_combo_02_harmonic_valid
+          - cond_v12_held_combo_02_thd
+          - cond_v12_held_combo_02_order2
+        supported_claims: [clipping, harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [clipping, harmonic-distortion]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [even-order-plus-clip]
+    identifiability:
+      signature_metric: harmonic_order_2_relative_amplitude
+      minimum_absolute_separation: 0.08
+  - case_id: case_v12_held_combo_03
+    split: held_out
+    category: combined
+    user_request: Could you look through this waveform for any of the usual S1 distortion problems?
+    signal:
+      generator: combined_distortion
+      fundamental_hz: 254.0
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      fundamental_amplitude: 0.85
+      harmonic_ratios:
+        - order: 2
+          ratio: 0.17
+      clip_level: 0.71
+    causal_faults: [clipping, harmonic_distortion]
+    observable_conditions:
+      - condition_id: cond_v12_held_combo_03_clipping_detected
+        tool_name: detect_clipping
+        metric: clipping_detected
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_combo_03_clipping_ratio
+        tool_name: detect_clipping
+        metric: clipping_ratio
+        validity: valid
+        comparator: gt
+        expected_value: 0.01
+        supports_claims: [clipping]
+      - condition_id: cond_v12_held_combo_03_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: valid
+        comparator: eq
+        expected_value: true
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_held_combo_03_thd
+        tool_name: analyze_harmonic_distortion
+        metric: thd_percent
+        validity: valid
+        comparator: gt
+        expected_value: 5.0
+        unit: "%"
+        supports_claims: [harmonic_distortion]
+      - condition_id: cond_v12_held_combo_03_order2
+        tool_name: analyze_harmonic_distortion
+        metric: harmonic_order_2_relative_amplitude
+        validity: valid
+        comparator: gte
+        expected_value: 0.08
+        supports_claims: [harmonic_distortion]
+    acceptable_first_tools: [detect_clipping, analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_combo_03_both
+        condition_refs:
+          - cond_v12_held_combo_03_clipping_detected
+          - cond_v12_held_combo_03_harmonic_valid
+          - cond_v12_held_combo_03_thd
+          - cond_v12_held_combo_03_order2
+        supported_claims: [clipping, harmonic_distortion]
+        acceptable_outcomes: [supported_fault]
+    knowledge_policy: optional
+    knowledge_tags: [clipping, harmonic-distortion]
+    acceptable_outcomes: [supported_fault]
+    requires_limitation: false
+    tags: [even-order-plus-clip]
+    identifiability:
+      signature_metric: harmonic_order_2_relative_amplitude
+      minimum_absolute_separation: 0.08
+  - case_id: case_v12_held_noise_01
+    split: held_out
+    category: invalid_noise
+    user_request: The pitch wanders and the sound does not stay periodic.
+    signal:
+      generator: white_noise
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      rms: 0.1
+      seed: 523
+    causal_faults: []
+    observable_conditions:
+      - condition_id: cond_v12_held_noise_01_voiced
+        tool_name: estimate_fundamental
+        metric: voiced
+        validity: valid
+        comparator: eq
+        expected_value: false
+        supports_claims: [inconclusive]
+      - condition_id: cond_v12_held_noise_01_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: not_applicable
+        comparator: eq
+        expected_value: false
+        supports_claims: [inconclusive]
+    acceptable_first_tools: [estimate_fundamental, analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_noise_01_unvoiced
+        condition_refs:
+          - cond_v12_held_noise_01_voiced
+        supported_claims: [inconclusive]
+        acceptable_outcomes: [inconclusive]
+      - evidence_set_id: evset_v12_held_noise_01_invalid_harmonic
+        condition_refs:
+          - cond_v12_held_noise_01_harmonic_valid
+        supported_claims: [inconclusive]
+        acceptable_outcomes: [inconclusive]
+    knowledge_policy: required
+    knowledge_tags: [inconclusive]
+    acceptable_outcomes: [inconclusive]
+    requires_limitation: true
+    tags: [unstable-pitch]
+  - case_id: case_v12_held_noise_02
+    split: held_out
+    category: invalid_noise
+    user_request: The pitch wanders and the sound does not stay periodic.
+    signal:
+      generator: white_noise
+      sample_rate_hz: 48000
+      duration_s: 2.0
+      rms: 0.1
+      seed: 617
+    causal_faults: []
+    observable_conditions:
+      - condition_id: cond_v12_held_noise_02_voiced
+        tool_name: estimate_fundamental
+        metric: voiced
+        validity: valid
+        comparator: eq
+        expected_value: false
+        supports_claims: [inconclusive]
+      - condition_id: cond_v12_held_noise_02_harmonic_valid
+        tool_name: analyze_harmonic_distortion
+        metric: valid
+        validity: not_applicable
+        comparator: eq
+        expected_value: false
+        supports_claims: [inconclusive]
+    acceptable_first_tools: [estimate_fundamental, analyze_harmonic_distortion]
+    sufficient_evidence_sets:
+      - evidence_set_id: evset_v12_held_noise_02_unvoiced
+        condition_refs:
+          - cond_v12_held_noise_02_voiced
+        supported_claims: [inconclusive]
+        acceptable_outcomes: [inconclusive]
+      - evidence_set_id: evset_v12_held_noise_02_invalid_harmonic
+        condition_refs:
+          - cond_v12_held_noise_02_harmonic_valid
+        supported_claims: [inconclusive]
+        acceptable_outcomes: [inconclusive]
+    knowledge_policy: required
+    knowledge_tags: [inconclusive]
+    acceptable_outcomes: [inconclusive]
+    requires_limitation: true
+    tags: [non-periodic]
