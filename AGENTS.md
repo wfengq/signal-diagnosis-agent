@@ -19,7 +19,8 @@ revised Phase 4.2 evaluation-integrity plus planner-v7 design proposes dataset
 1.2.0, opaque Agent signal IDs, T201–T208, and D023. Revised OQ-007, §52,
 T201–T208, and D023 were approved on 2026-08-30. Tasks 2–7 deterministic
 implementation is complete; the T208 cumulative gate is green. Real-model
-development (Task 8) and official held-out (Task 9) remain pending. Phase 4.1
+development gate3 `bench_phase4_2_dev_v7_v12_gate3` is honest
+`completed/below_target`, so official v1.2.0 held-out stays sealed. Phase 4.1
 is not accepted. Phase 4.2 is not accepted. Phase 5 remains gated.
 
 The Phase 4 written specification was approved on 2026-08-29; §§41–§49 and
@@ -40,9 +41,10 @@ adapters until Phase 4.1 is accepted and Phase 5 is explicitly authorized.
 Phase 4.2 design authority is
 `docs/superpowers/specs/2026-08-30-phase4-2-prompt-v7-correction-design.md`,
 frozen `CONTRACTS_V0_2.md` §52, `TEST_PLAN_V0_2.md` §25 (T201–T208), and
-D023. Deterministic Tasks 2–7 are implemented. Real-model Tasks 8–10 remain
-gated until this T208 gate is independently verified and the user explicitly
-authorizes a live campaign.
+D023. Deterministic Tasks 2–7 are implemented. Real-model Task 8
+development gate3 is honest `completed/below_target`. Tasks 9–10 remain
+gated because development missed target; official v1.2.0 held-out was
+not run.
 
 Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
 and accepted. Phase 3 passed Codex final acceptance at commit `a820b7f` on
@@ -97,8 +99,9 @@ Phase 4.2 design authority is frozen under §52, T201–T208, and D023. It
 supersedes the rejected prompt-only v7 draft by requiring dataset 1.2.0,
 opaque Agent signal IDs, visible first-Tool fairness, and single-signal
 combined identifiability. Deterministic Tasks 2–7 are complete and T208 is
-green. Real-model development and official campaigns remain unauthorized
-until a separate explicit user instruction.
+green. Real-model Task 8 development is honest `completed/below_target`.
+Official v1.2.0 held-out (Task 9) remains unauthorized because
+development missed target.
 
 These documents describe approved architecture and frozen interfaces.
 
@@ -117,9 +120,10 @@ T196–T200; official held-out and Phase 4.1 acceptance are not done.
 
 Additive Phase 4.2 §52 and T201–T208 are frozen design authority.
 Deterministic implementation satisfies T001–T208, Ruff, mypy, architecture,
-and `git diff --check aefccba..HEAD`. That is not a real-model claim. Do not
-run a live development or held-out campaign, or inspect v1.1.0 held-out, until
-the user explicitly authorizes Task 8.
+and `git diff --check aefccba..HEAD`. That deterministic gate is not a
+real-model claim. Task 8 development already ran and is honest
+`completed/below_target`. Do not run official/held-out (Task 9), inspect
+v1.2.0 held-out, or inspect v1.1.0 held-out.
 
 Do not redesign or rename public models, functions, modules, arguments, return
 values, or package boundaries unless the user explicitly requests a contract
@@ -189,10 +193,10 @@ Phase 4 dual acceptance is satisfied at `b68ec5e`: `harness_accepted` and
 `benchmark_completed` with honest `below_target`. Phase 4.1 v5 deterministic
 implementation is complete at `cadc15d`; both v5 development gate1 and v6
 development gate2 are immutable `completed/below_target` results. Phase 4.2
-deterministic implementation is complete and T208 is green. Real-model
-development and official status remain pending. No live v1.2 campaign or
-held-out run is authorized. Phase 4.1 is not accepted. Phase 4.2 is not
-accepted. Phase 5 remains gated. Do not start Phase 5.
+deterministic implementation is complete and T208 is green. v7 development
+gate3 is honest `completed/below_target`. Official v1.2.0 held-out is not
+authorized. Phase 4.1 is not accepted. Phase 4.2 is not accepted. Phase 5
+remains gated. Do not start Phase 5.
 
 ## Completed phases (reference)
 
@@ -239,13 +243,14 @@ Additive §§50–§51, T184–T200, and D021–D022. v5 gate1 is immutable
 existing v1.1.0 development split before any held-out access. It does not
 change frozen §§41–§49 or T125–T183. Phase 5 remains gated.
 
-### Phase 4.2 — evaluation integrity and planner v7 (deterministic green; real-model pending)
+### Phase 4.2 — evaluation integrity and planner v7 (development below target)
 
 Additive §52, T201–T208, and D023. Dataset `1.2.0`, opaque Agent signal IDs,
 coherent prompt `v0.2-s1-planner-7`, and canonical v7 campaigns are
-implemented. The T208 cumulative deterministic gate is green. Real-model
-development and official status remain pending. This is not Phase 4.2
-acceptance and is not a live-model claim.
+implemented. The T208 cumulative deterministic gate is green. v7 development
+gate3 `docs/evaluations/phase4_2/development/bench_phase4_2_dev_v7_v12_gate3/`
+is honest `completed/below_target`. Official v1.2.0 held-out was not run.
+This is not Phase 4.2 acceptance.
 
 ## Development workflow
 
@@ -321,7 +326,8 @@ the v6 official result to be `completed/meets_target`. Phase 5 remains gated.
 
 Phase 4.2 deterministic implementation must satisfy T001–T208, Ruff, mypy,
 architecture, and `git diff --check aefccba..HEAD` with zero required
-skip/xfail. That gate is green. Real-model development and official status
-remain pending. Do not treat the deterministic gate as Phase 4.2 acceptance.
+skip/xfail. That gate is green. v7 development gate3 is honest
+`completed/below_target`. Official v1.2.0 held-out stays sealed. Do not treat
+either gate as Phase 4.2 acceptance.
 
 Never say that a later phase is complete if required tests are failing.

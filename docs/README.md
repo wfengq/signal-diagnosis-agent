@@ -65,13 +65,14 @@ Read these documents before changing implementation code:
   calibration design under §52, T201–T208, D023, and resolved OQ-007. It adds
   a fresh v1.2.0 dataset and opaque Agent signal IDs rather than retrying v7 on
   the integrity-defective v1.1.0 evaluation inputs. Deterministic Tasks 2–7
-  are complete; T208 is green. Real-model development and official remain
-  pending.
+  are complete; T208 is green. v7 development gate3 is honest
+  `completed/below_target`; official v1.2.0 held-out was not run.
 - [`superpowers/plans/2026-08-30-phase4-2-prompt-v7-correction.md`](superpowers/plans/2026-08-30-phase4-2-prompt-v7-correction.md)
   — Task 1–10 TDD plan for dataset v1.2.0, outbound identity integrity,
   prompt v7, campaigns, and gated live evaluation. Tasks 2–7 deterministic
-  implementation is complete. Tasks 8–10 remain gated. v1.1.0 held-out remains
-  unexecuted.
+  implementation is complete. Task 8 v7 development gate3 is honest
+  `completed/below_target`. Tasks 9–10 remain gated. v1.1.0 and v1.2.0
+  held-out remain unexecuted.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -131,9 +132,10 @@ review rejected a prompt-only v7 retry because v1.1.0 leaks semantic signal IDs
 and contains hidden first-Tool/causal-identifiability requirements. The revised
 Phase 4.2 design is approved and frozen under §52, T201–T208, D023, and
 resolved OQ-007. Deterministic Tasks 2–7 are complete and T208 is green.
-Real-model development execution and every held-out run remain unauthorized
-pending a separate instruction. Phase 4.1 is not accepted; Phase 4.2 is not
-accepted; Phase 5 remains gated.
+Real-model Task 8 development gate3 is honest `completed/below_target`;
+official v1.2.0 held-out (Task 9) remains unauthorized because development
+missed target. Phase 4.1 is not accepted; Phase 4.2 is not accepted;
+Phase 5 remains gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model
