@@ -152,6 +152,9 @@ _IDENTITY_COMPLETE_GATE_FIELDS = (
     "model",
     "repetitions",
 )
+_PHASE4_3_1_V81_DEVELOPMENT_GATE_FIELDS = _IDENTITY_COMPLETE_GATE_FIELDS + (
+    "sdk_versions",
+)
 _V6_DEVELOPMENT_GATE_FIELDS = (
     "prompt_version",
     "prompt_sha256",
@@ -1122,7 +1125,11 @@ def _require_phase4_3_1_v8_1_development_gate(
     development_bundle: Path,
     config: BenchmarkConfig,
 ) -> None:
-    _require_identity_complete_development_gate(development_bundle, config)
+    _require_identity_complete_development_gate(
+        development_bundle,
+        config,
+        identity_fields=_PHASE4_3_1_V81_DEVELOPMENT_GATE_FIELDS,
+    )
     _require_valid_bundle_checksums(development_bundle)
 
 
@@ -2507,6 +2514,84 @@ async def _run_phase4_3_v8_campaign(
             score_split=route.score_split,
             message=(
                 "Phase 4.3 acceptance campaigns require the canonical "
+                "benchmark ID"
+            ),
+            extra_warnings=extra,
+        )
+    if not _campaign_identity_matches(manifest, config):
+        return _write_invalid_configuration_report(
+            campaign_manifest,
+            config,
+            output_dir,
+            score_split=route.score_split,
+            message=route.identity_mismatch_message,
+            extra_warnings=extra,
+        )
+    runner = globals()[route.runner_name]
+    return await runner(manifest, config, output_dir)
+
+
+_PHASE4_3_1_V8_1_CAMPAIGNS: dict[str, _Phase42V7Campaign] = {
+    "phase4.3.1-v8.1-development": _Phase42V7Campaign(
+        canonical_id=_PHASE4_3_1_DEV_BENCHMARK_ID,
+        score_split="development",
+        extra_warnings=(_PHASE4_1_DEV_WARNING,),
+        identity_mismatch_message=(
+            "campaign identity does not match the selected v8.1 route"
+        ),
+        require_canonical_id=True,
+        config_builder=_phase4_3_1_v8_1_benchmark_config,
+        manifest_path=_phase4_2_manifest_path,
+        runner_name="_run_phase4_3_1_v8_1_development_benchmark",
+    ),
+    "phase4.3.1-v8.1-official": _Phase42V7Campaign(
+        canonical_id=_PHASE4_3_1_OFFICIAL_BENCHMARK_ID,
+        score_split="held_out",
+        extra_warnings=(),
+        identity_mismatch_message=(
+            "campaign identity does not match the selected v8.1 route"
+        ),
+        require_canonical_id=True,
+        config_builder=_phase4_3_1_v8_1_benchmark_config,
+        manifest_path=_phase4_2_manifest_path,
+        runner_name="_run_phase4_3_1_v8_1_official_benchmark",
+    ),
+}
+
+
+async def _run_phase4_3_1_v8_1_campaign(
+    campaign: str,
+    *,
+    benchmark_id: str | None,
+    manifest_path: Path | None,
+    output_dir: Path,
+    started_at_utc: datetime,
+) -> BenchmarkReport:
+    route = _PHASE4_3_1_V8_1_CAMPAIGNS[campaign]
+    canonical_id = route.canonical_id
+    config = route.config_builder(
+        benchmark_id=benchmark_id or canonical_id,
+        started_at_utc=started_at_utc,
+    )
+    campaign_manifest = load_dataset_manifest(route.manifest_path())
+    manifest = (
+        load_dataset_manifest(manifest_path)
+        if manifest_path is not None
+        else campaign_manifest
+    )
+    extra = route.extra_warnings
+    if (
+        route.require_canonical_id
+        and benchmark_id is not None
+        and benchmark_id != canonical_id
+    ):
+        return _write_invalid_configuration_report(
+            campaign_manifest,
+            config,
+            output_dir,
+            score_split=route.score_split,
+            message=(
+                "Phase 4.3.1 acceptance campaigns require the canonical "
                 "benchmark ID"
             ),
             extra_warnings=extra,

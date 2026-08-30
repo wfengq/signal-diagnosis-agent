@@ -61,6 +61,8 @@ _V8_CAMPAIGNS = (
     "phase4.2-v7-official",
     "phase4.3-v8-development",
     "phase4.3-v8-official",
+    "phase4.3.1-v8.1-development",
+    "phase4.3.1-v8.1-official",
 )
 _V8_DEV_BUNDLE = Path("docs/evaluations/phase4_3/development") / _V8_DEV_ID
 _V7_DEV_BUNDLE = Path("docs/evaluations/phase4_2/development") / _V7_DEV_ID
@@ -321,7 +323,9 @@ def test_t214_v8_campaigns_use_single_runner_registration(
 
     parser = build_parser()
     campaign = _campaign_action(parser)
-    assert tuple(campaign.choices)[-2:] == tuple(registry)
+    choices = tuple(campaign.choices)
+    start = choices.index("phase4.3-v8-development")
+    assert choices[start : start + len(registry)] == tuple(registry)
 
     monkeypatch.setitem(registry, "phase4.3-v8-probe", development)
     probe_parser = build_parser()
