@@ -79,8 +79,10 @@ Read these documents before changing implementation code:
   — approved and frozen Phase 4.3 design under §53, T209–T215, D024, and
   resolved OQ-008. It permits one final prompt-only v8 candidate while keeping
   dataset 1.2.0, Runtime, PlannerContext, scoring, targets, provider, and model
-  unchanged. Implementation and model execution remain gated pending a
-  detailed plan and separate instruction.
+  unchanged.
+- [`superpowers/plans/2026-08-30-phase4-3-planner-v8-behavior-calibration.md`](superpowers/plans/2026-08-30-phase4-3-planner-v8-behavior-calibration.md)
+  — approved task-level implementation plan. Implementation and model execution
+  remain gated pending a separate explicit instruction.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
