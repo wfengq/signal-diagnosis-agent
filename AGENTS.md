@@ -4,7 +4,7 @@
 
 This repository implements a Signal Test and Fault Diagnosis Agent.
 
-The current phase is **Phase 5 implementation planning**. Phase 4.3.1 is accepted
+The current phase is **Phase 5 implementation-plan review**. Phase 4.3.1 is accepted
 on the merged baseline `36ae7c9`. The interactive Phase 5 design was approved
 on 2026-08-31 and is recorded in
 `docs/superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`,
@@ -122,6 +122,7 @@ Before modifying code, read:
 - `docs/TEST_PLAN_V0_2.md` (Phase 1–4 required; Phase 4 §22; additive Phase 4.1 §§23–§24 T184–T200; Phase 4.2 §25 T201–T208; Phase 4.3 §26 T209–T215; Phase 4.3.1 §27 T216–T223; frozen Phase 5 §28 T224–T285)
 - `docs/DECISIONS.md`
 - `docs/superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`
+- `docs/superpowers/plans/2026-08-31-phase5-presentation-engineering.md`
 - `docs/superpowers/specs/2026-08-29-phase4-evaluation-design.md`
 - `docs/superpowers/plans/2026-08-29-phase4-evaluation.md`
 - `docs/superpowers/specs/2026-08-30-phase4-1-agent-behavior-improvement-design.md`
@@ -435,7 +436,7 @@ Official bundle:
 at Task 10; Phase 5 implementation remains unauthorized pending the completed
 plan and a separate explicit execution choice.
 
-### Phase 5 — presentation engineering (implementation planning)
+### Phase 5 — presentation engineering (implementation-plan review)
 
 The interactive design selects a native Web UI as the primary Demo, FastAPI and
 argparse as thin adapters, one shared DiagnosisApplicationService, bounded
@@ -453,6 +454,10 @@ Frozen authority is:
 The Superpowers task-level implementation plan is authorized. No Phase 5
 source, tests, real-model Demo, push, or merge is authorized until that plan is
 complete and the user makes a separate explicit execution choice.
+
+The completed plan is
+`docs/superpowers/plans/2026-08-31-phase5-presentation-engineering.md`. It is a
+design asset submitted for review, not execution authority.
 
 ## Development workflow
 

@@ -26,6 +26,9 @@ Read these documents before changing implementation code:
 6. [`superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`](superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md)
    — approved and frozen Phase 5 design with §§55–§64, T224–T285, D026–D030,
    and resolved OQ-010; implementation planning only is authorized.
+7. [`superpowers/plans/2026-08-31-phase5-presentation-engineering.md`](superpowers/plans/2026-08-31-phase5-presentation-engineering.md)
+   — Task 1–15 TDD/SDD implementation plan submitted for review; it does not
+   authorize code, dependency installation, model execution, push, or merge.
 
 ## Acceptance reports and active implementation plan
 
@@ -164,11 +167,12 @@ override active engineering contracts.
 ## Current design gate and future documents
 
 Phase 4.3.1 is accepted on the merged baseline `36ae7c9`. The current task is
-Phase 5 implementation planning on branch `phase5-presentation-engineering`.
+Phase 5 implementation-plan review on branch `phase5-presentation-engineering`.
 Frozen §§55–§64, T224–T285, D026–D030, and resolved OQ-010 authorize a
-Superpowers task-level Phase 5 implementation plan only. Source/test
-implementation and product model runs still require a separate execution
-choice after plan review.
+Superpowers task-level Phase 5 implementation plan only. That plan now exists
+at `superpowers/plans/2026-08-31-phase5-presentation-engineering.md` and awaits
+review. Source/test implementation and product model runs still require a
+separate execution choice after plan review.
 
 Phase 4 accepted at `b68ec5e` (`completed/below_target` official v1.0.0
 benchmark remains immutable). Phase 4.1 v5 deterministic implementation is
