@@ -97,8 +97,10 @@ Read these documents before changing implementation code:
   — Tasks 2–7 committed at `083b6d9`. T001–T223, Ruff, mypy, architecture,
   and diff-check are green. v8.1 development gate5 is honest
   `completed/meets_target` on 40 unique Agent slots (all bands pass;
-  development split; not official held-out evidence). Official held-out was
-  not run. Task 9 is conditionally eligible. Phase 4.3.1 is not accepted.
+  development split; not official held-out evidence). Task 9 official held-out
+  is honest `completed/meets_target` on 80 Agent held-out slots (all bands
+  pass; one non-blocking per-run miss on `case_v12_held_noise_02` slot 5).
+  Phase 4.3.1 is not finally accepted — Task 10 may record acceptance.
   Phase 5 remains gated.
 
 Potential contract defects are recorded in
@@ -189,9 +191,13 @@ Tasks 2–7 are committed at `083b6d9`. T001–T223, Ruff, mypy, architecture,
 and diff-check are green. Real-model development gate5
 `bench_phase4_3_1_dev_v8_1_v12_gate5` is honest `completed/meets_target`
 (40 unique Agent slots; all TargetBands pass; CLI `harness_status=pending`).
-Official v1.2.0 held-out was not run;
-`docs/evaluations/phase4_3_1/official/` does not exist. Task 9 is
-conditionally eligible. Phase 4.3.1 is not accepted. Phase 5 remains gated.
+Task 9 official held-out `bench_official_s1_v12_planner8_1_gate5` is honest
+`completed/meets_target` (80 Agent held-out slots; all TargetBands pass;
+one non-blocking per-run miss on `case_v12_held_noise_02` slot 5:
+`required_knowledge_omitted;outcome_mismatch`). Bundle:
+`docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/`.
+Phase 4.3.1 is not finally accepted — Task 10 may record acceptance.
+Phase 5 remains gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model

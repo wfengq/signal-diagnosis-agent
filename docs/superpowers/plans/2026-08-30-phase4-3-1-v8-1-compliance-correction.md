@@ -827,7 +827,7 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
   `completed/meets_target` bundle and byte-identical v8.1 candidate.
 - Produces exactly one immutable 80-Agent-slot official bundle.
 
-- [ ] **Step 1: Prove eligibility before credentials or held-out scheduling**
+- [x] **Step 1: Prove eligibility before credentials or held-out scheduling**
 
   Rerun T222 and Task 7 gates. Verify the development bundle is unchanged and:
 
@@ -838,7 +838,7 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
   Expected: `False`. Any identity/checksum/status mismatch or existing
   destination stops as `invalid_configuration`.
 
-- [ ] **Step 2: Run official exactly once**
+- [x] **Step 2: Run official exactly once**
 
   ```powershell
   & 'C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -m signal_diag.evaluation run-real --campaign phase4.3.1-v8.1-official --benchmark-id bench_official_s1_v12_planner8_1_gate5 --output-dir docs/evaluations/phase4_3_1/official
@@ -846,14 +846,14 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
 
   Never tune from or rerun held-out results.
 
-- [ ] **Step 3: Validate and retain the official outcome**
+- [x] **Step 3: Validate and retain the official outcome**
 
   Verify six files, checksums, exact identity, 80 unique scoreable Agent slots,
   every target, and no secrets/raw arrays. Phase 4.3.1 is accepted only for
   exact `completed/meets_target`; every other outcome remains immutable and
   keeps Phase 5 gated.
 
-- [ ] **Step 4: Review and commit**
+- [x] **Step 4: Review and commit**
 
   Review must confirm there was no source/prompt/scorer/target/dataset change
   between development and official. Then:
@@ -862,6 +862,22 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
   git add AGENTS.md docs/README.md docs/superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5
   git commit -m "eval(phase4.3.1): record v8.1 official gate5"
   ```
+
+**Task 9 result (honest):**
+
+| Field | Value |
+|---|---|
+| `benchmark_status` | `completed` |
+| `target_status` | `meets_target` |
+| `harness_status` | `pending` |
+| Agent slots | 80 unique held-out (16 cases × 5 reps) |
+| Development Agent slots | 0 |
+| Missed bands | none — all TargetBands pass |
+| Non-blocking per-run miss | `case_v12_held_noise_02` slot 5 (`required_knowledge_omitted;outcome_mismatch`; 1/80) |
+| Bundle | `docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/` |
+| Phase 4.3.1 acceptance | not finally accepted — Task 10 may record acceptance |
+
+Step 4 status docs updated; bundle and commit deferred per user instruction.
 
 ---
 
