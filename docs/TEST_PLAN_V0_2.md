@@ -2,9 +2,10 @@
 
 **Document:** `TEST_PLAN_V0_2.md`  
 **Version:** `0.2`  
-**Status:** Approved and required for Phase 1–4
+**Status:** Approved and required for Phase 1–4; additive Phase 4.1 T184–T195 pending implementation
 **Scope:** Phase 1 deterministic foundation, Phase 2 hybrid Agent runtime, and
-Phase 3 rules/knowledge acceptance; frozen Phase 4 evaluation acceptance
+Phase 3 rules/knowledge acceptance; frozen Phase 4 evaluation acceptance;
+additive Phase 4.1 behavior-calibration acceptance
 **Contracts:** `docs/CONTRACTS_V0_2.md`  
 **Architecture:** `docs/ARCHITECTURE_V0_2.md`  
 
@@ -902,3 +903,46 @@ bundle. Real-model target misses produce `below_target` and never fail CI.
 Missing credentials leave `benchmark_pending`; exhausted infrastructure or an
 invalid evaluator leaves `incomplete`. Phase 5 remains gated until both states
 are satisfied.
+
+---
+
+## 23. Phase 4.1 — Additive Agent Behavior Calibration
+
+Phase 4.1 required tests are deterministic and additive. They do not change
+T125–T183 semantics. Deterministic tests may use `ScriptedPlanner` or a fake
+provider transport, but they must exercise the real runtime, Tools, RuleEngine,
+KnowledgeIndex, and trace assembly where those components are in scope.
+Stochastic model behavior does not enter ordinary CI.
+
+### Checkpoint P — Prompt, dual-truth, dataset, runner, and cumulative gate
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T184 | Prompt identity | prompt version, exact content hash, and benchmark configuration agree |
+| T185 | No evaluation leakage | prompt and serialized PlannerContext omit causal truth, split, knowledge policy, sufficient-Evidence sets, and scoring conditions |
+| T186 | Dual-truth expression | deterministic examples support a causal distortion claim and an independent PASS/FAIL configured judgment in the same final diagnosis |
+| T187 | Rule action propagation | applicable Evidence can drive a fake model rule decision through the real runtime, and the resulting batch reaches the next planner context and final claim |
+| T188 | Invalid knowledge path | invalid Evidence can drive knowledge retrieval, an inconclusive claim with valid references, and a non-empty limitation |
+| T189 | Same-run traceability | every final Evidence, rule, and knowledge reference resolves within the same run |
+| T190 | Dynamic route preservation | the prompt does not prescribe a fixed Tool order, and multiple scripted/fake S1 routes remain valid |
+| T191 | v1.1.0 manifest | identity, category allocation, unique IDs, deterministic parameters, seeds, and reconstruction validate |
+| T192 | Natural requests | v1.1.0 request text contains no Tool names, required order, or answer-bearing evaluation labels |
+| T193 | Split isolation | development and held-out IDs, signal parameter combinations, random seeds, and request assignments do not overlap |
+| T194 | Official runner freeze | the real runner binds the frozen prompt hash, v1.1.0 dataset, new benchmark ID, and exactly 16 x 5 held-out slots |
+| T195 | Cumulative gate | T001-T195 pass with zero required skip/xfail; Ruff, mypy, architecture boundaries, and `git diff --check b68ec5e..HEAD` remain green |
+
+### Phase 4.1 acceptance states
+
+Phase 4.1 is accepted only when the new held-out benchmark has
+`benchmark_status=completed` and `target_status=meets_target`, every existing
+target with a non-zero denominator passes, all 80 held-out Agent slots are
+scoreable, the append-only six-file official bundle validates and its checksums
+match, failures and five-run variation remain visible, the `b68ec5e` v1.0.0
+`below_target` baseline remains present and traceable, T001–T195 have no
+required skip/xfail or regression, and Ruff, mypy, architecture tests, and
+`git diff --check` pass.
+
+The first official Phase 4 benchmark at `b68ec5e` remains
+`completed/below_target`. That result is honest harness completion, not a
+failure of the evaluator and not a product-quality behavior pass. Phase 5
+remains gated until the Phase 4.1 gate is independently verified.

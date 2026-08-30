@@ -10,11 +10,13 @@ Read these documents before changing implementation code:
 1. [`ARCHITECTURE_V0_2.md`](ARCHITECTURE_V0_2.md) — approved system architecture,
    Scenario S1, phase boundaries, and Hybrid Agent design.
 2. [`CONTRACTS_V0_2.md`](CONTRACTS_V0_2.md) — frozen Phase 1–2 public Python
-   contracts, frozen Phase 3 §32–§40 rules/knowledge contracts, and frozen
-   Phase 4 §41–§49 evaluation contracts.
+   contracts, frozen Phase 3 §32–§40 rules/knowledge contracts, frozen
+   Phase 4 §41–§49 evaluation contracts, and additive Phase 4.1 §50 behavior
+   gate.
 3. [`TEST_PLAN_V0_2.md`](TEST_PLAN_V0_2.md) — required T001–T092 Phase 1–2
    acceptance, required T093–T124 Phase 3 acceptance, required T125–T183 Phase 4
-   acceptance, and separate real-model evaluation.
+   acceptance, additive T184–T195 Phase 4.1 acceptance, and separate real-model
+   evaluation.
 4. [`DECISIONS.md`](DECISIONS.md) — approved architectural and process decisions.
 5. [`superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`](superpowers/plans/2026-08-28-phase1-deterministic-foundation.md)
    — task-level Phase 1 TDD implementation plan covering T001–T063.
@@ -44,6 +46,11 @@ Read these documents before changing implementation code:
   [`evaluations/phase4/bench_official_s1_20260829t162243z/`](evaluations/phase4/bench_official_s1_20260829t162243z/):
   80 scoreable held-out Agent slots, `benchmark_status=completed`,
   `target_status=below_target`.
+- [`superpowers/specs/2026-08-30-phase4-1-agent-behavior-improvement-design.md`](superpowers/specs/2026-08-30-phase4-1-agent-behavior-improvement-design.md)
+  — written Phase 4.1 agent-behavior-improvement design approved on 2026-08-30;
+  additive §50 and T184–T195. Implementation pending.
+- [`superpowers/plans/2026-08-30-phase4-1-agent-behavior-improvement.md`](superpowers/plans/2026-08-30-phase4-1-agent-behavior-improvement.md)
+  — task-level TDD implementation plan for Phase 4.1 covering T184–T195.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -91,15 +98,18 @@ override active engineering contracts.
 
 ## Future documents
 
+Phase 4 accepted at `b68ec5e`; Phase 4.1 design approved and implementation
+pending; Phase 5 gated.
+
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
-status is `harness_accepted` on branch `phase4-evaluation-design` after the
-quality gate below (accepted implementation HEAD
-`bde2ee42d76ef97c4ef08bc6541e92945da6e3f8`).
-Real-model status is `benchmark_completed` with honest `below_target` after
-the official live 80-slot DeepSeek run
-`bench_official_s1_20260829t162243z`. Phase 4 dual acceptance is satisfied.
-Do not convert a target miss into a failure or hide it. Do not start Phase 5
-until it is explicitly authorized.
+status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model
+status is `benchmark_completed` with honest `below_target` after the official
+live 80-slot DeepSeek run `bench_official_s1_20260829t162243z`, recorded at
+`b68ec5e`. That first official benchmark is complete and honestly below
+target; it is not a harness failure and is not accepted as product-quality
+behavior. Do not convert a target miss into a failure or hide it. Do not
+start Phase 5 until Phase 4.1 is accepted and Phase 5 is explicitly
+authorized.
 
 Quality gate this session (Python
 `C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe`):

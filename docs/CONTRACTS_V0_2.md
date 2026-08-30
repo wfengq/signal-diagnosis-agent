@@ -2,9 +2,10 @@
 
 **Document:** `CONTRACTS_V0_2.md`  
 **Contract version:** `0.2`  
-**Status:** Frozen for Phase 1–4; Phase 4 implementation plan pending
+**Status:** Frozen for Phase 1–4; Phase 4 accepted at `b68ec5e`; additive Phase 4.1 §50 pending implementation
 **Scope:** Phase 1 deterministic foundation, Phase 2 hybrid Agent runtime, and
-Phase 3 rules/knowledge contracts; frozen Phase 4 evaluation contracts
+Phase 3 rules/knowledge contracts; frozen Phase 4 evaluation contracts;
+additive Phase 4.1 behavior gate
 **Architecture:** `docs/ARCHITECTURE_V0_2.md`  
 
 ---
@@ -27,8 +28,9 @@ If a genuine correctness problem is found:
 
 Private helpers remain implementation details. Phase 3 interfaces are frozen in
 §32–§40. The written-spec-approved Phase 4 contracts are frozen in §41–§49.
-Phase 4 implementation remains gated on its Superpowers task-level plan and an
-explicit execution choice.
+Phase 4 is accepted at `b68ec5e`. Additive Phase 4.1 behavior contracts are
+frozen in §50; Phase 4.1 implementation remains gated on its Superpowers
+task-level plan and an explicit execution choice.
 
 ---
 
@@ -3011,3 +3013,35 @@ acceptance.
 The written-spec review gate passed on 2026-08-29. Implementation planning is
 authorized; code changes remain gated on the completed task-level plan and an
 explicit execution choice.
+
+---
+
+## 50. Phase 4.1 Additive Behavior Gate
+
+Phase 4.1 is an additive behavior-calibration gate. It does not reopen
+§§41–§49 or T125–T183. The written design at
+`docs/superpowers/specs/2026-08-30-phase4-1-agent-behavior-improvement-design.md`
+was approved on 2026-08-30. D021 records the process rules.
+
+The following statements are normative:
+
+```text
+Phase 4.1 preserves the v4/v1.0.0 official campaign and adds a v5/v1.1.0 campaign.
+v5 changes planner instruction only; public Planner, Runtime, evaluation, scoring,
+and report interfaces remain unchanged.
+Causal distortion presence and configured rule acceptance are independent facts.
+Rule PASS never erases supported causal Evidence.
+Knowledge is selectively required by observable invalid/not-applicable state,
+never by planner-visible evaluation labels.
+Development uses 8 cases x 5 slots; official held-out uses 16 x 5 slots.
+Phase 4.1 acceptance requires completed/meets_target and T001–T195 green.
+```
+
+The first official v1.0.0 DeepSeek benchmark at `b68ec5e` remains the immutable
+diagnostic baseline. Its status is `completed/below_target`: the evaluation
+harness completed honestly, and the result is not a product-quality behavior
+pass.
+
+Phase 4.1 code remains gated on the Superpowers task-level plan and an explicit
+execution choice. Phase 5 remains gated until Phase 4.1 reaches
+`completed/meets_target` with T001–T195 green.

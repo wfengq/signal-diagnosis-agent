@@ -2,7 +2,7 @@
 
 **Status:** Active  
 **Current architecture version:** V0.2  
-**Last updated:** 2026-08-29
+**Last updated:** 2026-08-30
 
 This file records approved decisions that affect implementation. Historical V0.1
 documents are preserved under `docs/archive/v0.1/`.
@@ -210,3 +210,34 @@ Primary metrics are deterministic scorer outputs. Human review cannot edit
 them. Official report bundles are append-only, retain all failures and
 repeated-run variation, and describe V0.2 targets as demonstration targets
 rather than standards or SLAs.
+
+## D021 — Correct Phase 4.1 behavior by prompt only, on a fresh held-out set
+
+**Decision:** Phase 4.1 is an additive behavior-calibration gate. The first
+correction is prompt-only. Frozen Phase 1–4 public Planner, Runtime,
+evaluation, scoring, and report interfaces remain unchanged.
+
+The official v1.0.0 DeepSeek benchmark at `b68ec5e` remains an immutable
+diagnostic baseline. Its honest `completed/below_target` result is not a
+harness failure and is not accepted as product-quality behavior. Observed
+failures may motivate general prompt policy, but that bundle is never reused
+as proof that an improved prompt generalizes.
+
+Phase 4.1 adds dataset `s1-distortion-synthetic` `1.1.0` with new case IDs,
+signal parameters, random seeds, and request assignments. It does not copy
+v1.0.0 held-out fixtures. Development uses 8 cases × 5 slots; the official
+held-out run uses 16 × 5 slots once, after the candidate prompt is frozen.
+Do not tune against or rerun the same held-out set after inspecting results.
+A subsequent formal attempt requires a new semantic dataset version, fresh
+held-out cases, a new prompt identity where applicable, and a new benchmark
+ID.
+
+The runtime does not force rule evaluation, knowledge retrieval, or a fixed
+DSP sequence before `finish`. Causal distortion presence and configured rule
+acceptance remain independent facts; rule PASS never erases supported causal
+Evidence. Knowledge is required by observable invalid/not-applicable state,
+never by planner-visible evaluation labels.
+
+Phase 4.1 acceptance requires `completed/meets_target` on the new official
+bundle and T001–T195 green. Phase 5 remains gated until that gate is
+independently verified.
