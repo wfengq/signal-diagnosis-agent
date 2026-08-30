@@ -33,12 +33,15 @@ Official v1.2.0 held-out was not run. Phase 4.3 is not accepted. Independent
 review then found that T210 globally prohibited a legal clipping-specific
 finish and that legacy scoring mishandles the required invalid Evidence ->
 NOT_APPLICABLE rule transition. The user-approved Phase 4.3.1 compliance
-correction is frozen under §54, T216–T223, D025, and OQ-009. Its written spec
-was introduced at `45907ac`. This is a one-time v8.1 conformance exception to
-D024, not an unrestricted v9. Implementation, model execution, held-out
-access, Phase 5, push, and merge remain unauthorized. The detailed plan is
-`docs/superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md`;
-Cursor execution still requires a separate explicit instruction.
+correction is frozen under §54, T216–T223, D025, and OQ-009. Deterministic
+Tasks 2–7 are complete at `083b6d9`. Real-model development gate5
+`bench_phase4_3_1_dev_v8_1_v12_gate5` is honest `completed/meets_target`
+(40 unique Agent slots; all TargetBands pass). Official v1.2.0 held-out was
+not run. Task 9 official is conditionally eligible. Phase 4.3.1 is not
+accepted. This is a one-time v8.1 conformance exception to D024, not an
+unrestricted v9. Phase 5, push, and merge remain unauthorized. The detailed
+plan is
+`docs/superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md`.
 
 The Phase 4 written specification was approved on 2026-08-29; §§41–§49 and
 T125–T183 are frozen and implemented. Deterministic status is
@@ -79,8 +82,10 @@ Phase 4.3.1 design authority is
 frozen `CONTRACTS_V0_2.md` §54, `TEST_PLAN_V0_2.md` §27 (T216–T223), D025,
 and resolved OQ-009. It preserves dataset 1.2.0 and every v4–v8 asset, adds
 prompt `v0.2-s1-planner-8.1` and versioned scoring policy
-`signal_diag.scoring=2.0.0`, and remains implementation-gated pending a
-separate explicit execution instruction.
+`signal_diag.scoring=2.0.0`. Deterministic Tasks 2–7 are complete at
+`083b6d9`. Development gate5 is honest `completed/meets_target`. Official
+held-out was not run. Task 9 is conditionally eligible. Phase 4.3.1 is not
+accepted.
 
 Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
 and accepted. Phase 3 passed Codex final acceptance at commit `a820b7f` on
@@ -184,13 +189,14 @@ between changing the model and changing PlannerContext.
 
 Additive Phase 4.3.1 §54 and T216–T223 are frozen design/test authority. They
 record the T210 clipping-specific scope defect and the invalid-Evidence scoring
-defect. Deterministic Tasks 2–7 implementation is complete at uncommitted Task
-7 work on branch `phase4-evaluation-design` (HEAD `98edb48` plus Task 7 diff).
-T001–T223, Ruff, mypy, architecture guards, and `git diff --check 1b94194..HEAD`
-are green with zero required skip/xfail. T211–T212 retarget to
-`_Phase4V8RealLLMPlanner` preserves frozen v8 bytes. v8.1 development gate5,
-official held-out, Phase 4.3.1 acceptance, push, merge, and Phase 5 remain
-unauthorized.
+defect. Deterministic Tasks 2–7 are complete at `083b6d9`. T001–T223, Ruff,
+mypy, architecture guards, and `git diff --check 1b94194..HEAD` are green with
+zero required skip/xfail. T211–T212 retarget to `_Phase4V8RealLLMPlanner`
+preserves frozen v8 bytes. v8.1 development gate5 is honest
+`completed/meets_target` (40 development slots; all bands pass; development
+split; not official held-out evidence). Official held-out, Phase 4.3.1
+acceptance, push, merge, and Phase 5 remain unauthorized. Task 9 official is
+conditionally eligible after a separate committed bundle.
 
 Do not redesign or rename public models, functions, modules, arguments, return
 values, or package boundaries unless the user explicitly requests a contract
@@ -268,10 +274,11 @@ remains gated. Do not start Phase 5.
 Phase 4.3 deterministic implementation is complete and T215 is green at
 `1c70568`; that is not a live-model pass. v8 development gate4 is honest
 `completed/below_target` at `48dfb89`. Official v1.2.0 held-out was not run.
-Phase 4.3 is not accepted. Phase 4.3.1 §54/T216–T223/D025/OQ-009 are frozen
-for one v8.1 compliance correction and its task-level plan is complete, but
-implementation is not yet authorized.
-Phase 5 remains unauthorized. Do not create v8.2 or v9.
+Phase 4.3 is not accepted. Phase 4.3.1 §54/T216–T223/D025/OQ-009 are frozen.
+Deterministic Tasks 2–7 are complete at `083b6d9`. v8.1 development gate5 is
+honest `completed/meets_target`. Official v1.2.0 held-out was not run. Task 9
+official is conditionally eligible. Phase 4.3.1 is not accepted. Phase 5
+remains unauthorized. Do not create v8.2 or v9.
 
 ## Completed phases (reference)
 
@@ -359,18 +366,29 @@ No held-out Agent slots were executed. No v9. The prompt-only route is closed
 by §53.4. The next written choice is model capability versus PlannerContext
 (option 2), not more prompts. This is not Phase 4.3 product-quality acceptance.
 
-### Phase 4.3.1 — v8.1 compliance correction (deterministic Tasks 2–7 complete; development not run)
+### Phase 4.3.1 — v8.1 compliance correction (development meets target; official not run)
 
 Additive §54, T216–T223, D025, and OQ-009 authorize a single written v8.1
 conformance design because T210 over-banned clipping-specific finish and the
 legacy scoring proxy mishandles invalid Evidence followed by NOT_APPLICABLE
 rules. It preserves every v4–v8 asset and public boundary. Prompt
 `v0.2-s1-planner-8.1`, scoring policy `signal_diag.scoring=2.0.0`, and gate5
-campaign identities are implemented in Tasks 2–6 at `98edb48`. Task 7 adds T223
-architecture guards, T211–T212 v8 retarget, and status docs (uncommitted).
-T001–T223, Ruff, mypy, architecture, and diff-check are green. v8.1 development
-gate5 and official held-out have not run. Phase 4.3.1 is not accepted. Phase 5
-remains gated.
+campaign identities are implemented in Tasks 2–7 at `083b6d9`. Recorded
+statuses (do not conflate them):
+
+- deterministic: T001–T223 green at `083b6d9`; not official held-out evidence
+- development: `benchmark_status=completed`, `target_status=meets_target` on
+  40 unique Agent slots; all TargetBands pass
+- official: not run; `docs/evaluations/phase4_3_1/official/` does not exist
+- CLI `harness_status=pending` (report-model semantics, not a harness failure)
+- Task 9 official held-out: conditionally eligible after development pass
+- Phase 4.3.1 acceptance: not accepted (official not run)
+- Phase 5: unauthorized
+
+Bundle:
+`docs/evaluations/phase4_3_1/development/bench_phase4_3_1_dev_v8_1_v12_gate5/`.
+No held-out Agent slots were executed. Warning: development split; not official
+held-out evidence. This is not Phase 4.3.1 final acceptance.
 
 ## Development workflow
 
@@ -456,9 +474,10 @@ skip/xfail. That gate is green at `1c70568` and is not a live-model pass.
 v8 development gate4 is honest `completed/below_target` at `48dfb89`.
 Official v1.2.0 held-out was not run. Do not treat either gate as Phase 4.3
 acceptance. Phase 4.3.1 §54/T216–T223/D025/OQ-009 are frozen design/test
-authority. Deterministic Tasks 2–7 are complete (uncommitted Task 7 diff at HEAD
-`98edb48`); T001–T223, Ruff, mypy, architecture, and diff-check are green.
-v8.1 development gate5 and official have not run. Do not create v8.2 or v9.
-Phase 5 is unauthorized.
+authority. Deterministic Tasks 2–7 are complete at `083b6d9`; T001–T223, Ruff,
+mypy, architecture, and diff-check are green. v8.1 development gate5 is honest
+`completed/meets_target`. Official held-out was not run. Task 9 is
+conditionally eligible. Do not treat development as Phase 4.3.1 acceptance.
+Do not create v8.2 or v9. Phase 5 is unauthorized.
 
 Never say that a later phase is complete if required tests are failing.

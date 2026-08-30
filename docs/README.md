@@ -94,10 +94,12 @@ Read these documents before changing implementation code:
   D025, and OQ-009. It adds prompt `v0.2-s1-planner-8.1` and scoring policy
   `signal_diag.scoring=2.0.0` while preserving every v4–v8 asset.
 - [`superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md`](superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md)
-  — Tasks 2–6 committed at `98edb48`; Task 7 T223 architecture guards and
-  T211–T212 v8 retarget added (uncommitted). T001–T223, Ruff, mypy, architecture,
-  and diff-check are green. v8.1 development gate5 and official held-out have
-  not run. Phase 4.3.1 is not accepted. Phase 5 remains gated.
+  — Tasks 2–7 committed at `083b6d9`. T001–T223, Ruff, mypy, architecture,
+  and diff-check are green. v8.1 development gate5 is honest
+  `completed/meets_target` on 40 unique Agent slots (all bands pass;
+  development split; not official held-out evidence). Official held-out was
+  not run. Task 9 is conditionally eligible. Phase 4.3.1 is not accepted.
+  Phase 5 remains gated.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -183,10 +185,13 @@ T216–T223, D025, and OQ-009.
 adds prompt `v0.2-s1-planner-8.1` and scoring policy `signal_diag.scoring=2.0.0`
 while preserving every v4–v8 asset.
 [`superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md`](superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md)
-Tasks 2–6 are committed at `98edb48`; Task 7 T223 architecture guards and
-T211–T212 v8 retarget are added (uncommitted). T001–T223, Ruff, mypy,
-architecture, and diff-check are green. v8.1 development gate5 and official
-held-out have not run. Phase 4.3.1 is not accepted. Phase 5 remains gated.
+Tasks 2–7 are committed at `083b6d9`. T001–T223, Ruff, mypy, architecture,
+and diff-check are green. Real-model development gate5
+`bench_phase4_3_1_dev_v8_1_v12_gate5` is honest `completed/meets_target`
+(40 unique Agent slots; all TargetBands pass; CLI `harness_status=pending`).
+Official v1.2.0 held-out was not run;
+`docs/evaluations/phase4_3_1/official/` does not exist. Task 9 is
+conditionally eligible. Phase 4.3.1 is not accepted. Phase 5 remains gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model

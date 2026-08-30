@@ -753,7 +753,7 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
   dataset-1.2 development split, and `DEEPSEEK_API_KEY`.
 - Produces exactly one immutable 40-Agent-slot development bundle.
 
-- [ ] **Step 1: Re-establish legal preconditions**
+- [x] **Step 1: Re-establish legal preconditions**
 
   Freshly rerun all Task 7 gates. Then:
 
@@ -761,19 +761,17 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
   Test-Path 'docs/evaluations/phase4_3_1/development/bench_phase4_3_1_dev_v8_1_v12_gate5'
   ```
 
-  Expected: `False`. If true, stop; do not overwrite, delete, rename, or rerun.
-  Check credential presence without printing its value. Missing credentials
-  pauses only this live Task.
+  Result: **PASS** — pre-run `False`; Task 7 gates green at `083b6d9`.
 
-- [ ] **Step 2: Run canonical development exactly once**
+- [x] **Step 2: Run canonical development exactly once**
 
   ```powershell
   & 'C:\Users\wei\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -m signal_diag.evaluation run-real --campaign phase4.3.1-v8.1-development --benchmark-id bench_phase4_3_1_dev_v8_1_v12_gate5 --output-dir docs/evaluations/phase4_3_1/development
   ```
 
-  Do not retry a stochastic metric miss.
+  Result: **PASS** — CLI `completed`, exit 0, ~248 s.
 
-- [ ] **Step 3: Validate the entire bundle**
+- [x] **Step 3: Validate the entire bundle**
 
   Require exactly the existing six-file contract:
   `benchmark_manifest.json`, `metrics.json`, `runs.jsonl`,
@@ -781,21 +779,36 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
   exact config/scoring identity, 40 unique scoreable Agent slots (8 x 5), no
   held-out slots, no secrets/raw arrays, and every TargetBands metric.
 
-- [ ] **Step 4: Apply the terminal development gate**
+  Result: **PASS** — six files, checksums valid, 40 Agent slots, 0 held-out,
+  no secrets, all TargetBands pass.
 
-  If the result is not exactly `completed/meets_target`, preserve and commit
-  it, document every missed band, skip Task 9, do not create v8.2/v9, and go to
-  Task 10. Only an exact pass permits Task 9.
+- [x] **Step 4: Apply the terminal development gate**
 
-- [ ] **Step 5: Review and commit the immutable result**
+  Result: **PASS** — `benchmark_status=completed`, `target_status=meets_target`.
+  All 11 Agent TargetBands pass. Warning: `development split; not official
+  held-out evidence`. Task 9 official is conditionally eligible.
+
+- [x] **Step 5: Review and commit the immutable result**
 
   Independent review checks identity, slots, checksums, metrics, and absence of
-  held-out or secrets. Then:
+  held-out or secrets. Status docs updated (`AGENTS.md`, `docs/README.md`,
+  this plan) per REQUEST_CHANGES quality review; bundle remains uncommitted at
+  HEAD `083b6d9` pending separate commit instruction.
 
-  ```powershell
-  git add AGENTS.md docs/README.md docs/superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md docs/evaluations/phase4_3_1/development/bench_phase4_3_1_dev_v8_1_v12_gate5
-  git commit -m "eval(phase4.3.1): record v8.1 development gate5"
-  ```
+**Task 8 result summary (honest):**
+
+| Field | Value |
+|---|---|
+| `benchmark_status` | `completed` |
+| `target_status` | `meets_target` |
+| `harness_status` | `pending` |
+| Agent slots | 40 unique (8 development cases × 5 reps) |
+| Held-out Agent slots | 0 |
+| Missed bands | none — all TargetBands pass |
+| Warning | `development split; not official held-out evidence` |
+| Bundle | `docs/evaluations/phase4_3_1/development/bench_phase4_3_1_dev_v8_1_v12_gate5/` |
+| Task 9 | conditionally eligible; not executed |
+| Phase 4.3.1 acceptance | not accepted (official not run) |
 
 ---
 
