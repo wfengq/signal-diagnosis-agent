@@ -1,7 +1,7 @@
 # Open Contract and Architecture Questions
 
 **Status:** Active register
-**Current open questions:** 0 pending; 6 resolved (OQ-001–OQ-006)
+**Current open questions:** 1 pending (OQ-007); 6 resolved (OQ-001–OQ-006)
 
 Use this file only for concrete issues that may require changing an approved
 contract or architectural boundary.
@@ -125,4 +125,21 @@ Minimal proposed change: Keep §50 and T184–T195 unchanged; add §51 for v0.2-
 Compatibility impact: Additive prompt specification, private planner/config builders, and CLI campaign choices only. No public PlannerModel, AgentDecision, PlannerContext, Runtime, DSP, rule, knowledge, evaluation model, scorer, target, or report schema change. v4/v5 reproducibility and all committed bundles remain intact.
 Test impact: Add T196–T200 for v4/v5 immutability, v6 identity and semantic coherence, no leakage and traceability, additive campaign scheduling, and the cumulative gate. T001–T195 remain required and unchanged.
 User decision: approved OQ-006, CONTRACTS §51, TEST_PLAN §24/T196–T200, and D022 on 2026-08-30; Task 2–8 implementation is authorized, while real-model held-out execution remains gated by a v6 development completed/meets_target result
+```
+
+---
+
+## OQ-007 — Preserve frozen v6 evidence while authorizing prompt v7 calibration
+
+```text
+ID: OQ-007
+Date: 2026-08-30
+Status: open — awaiting approval of additive v7 contract; implementation not authorized
+Affected document and section: docs/CONTRACTS_V0_2.md §51; docs/TEST_PLAN_V0_2.md §24 T196–T200; docs/DECISIONS.md D022; Phase 4.1/4.2 campaign identities
+Observed problem: The immutable v6 development campaign at aefccba/808f653 is completed/below_target. Traces show two remaining prompt behaviors: (1) invalid-noise slots mix valid clipping Evidence or a sibling no_supported_fault claim into inconclusive diagnoses, producing 7 ungrounded claims; (2) two clipping-strong slots treat clipping-induced THD as an independent harmonic_distortion cause. Frozen §51 names and hashes v6, so replacing v6 bytes or rerunning bench_phase4_1_dev_v6_gate2 as a new pass would invalidate provenance. Separately, official preflight returns when benchmark_manifest.json is missing, skipping identity comparison.
+Why the current contract cannot represent a correct implementation: §51 correctly represents the completed v6 attempt but provides no separate prompt/campaign identity for a third prompt-only development candidate, and it does not require an identity-complete development bundle before official execution.
+Minimal proposed change: Keep §§50–§51 and T184–T200 unchanged; add §52 for v0.2-s1-planner-7, TEST_PLAN §25 T201–T205, and D023. Preserve existing v5/v6 routes. Add phase4.1-v7-development/official routes and new IDs bench_phase4_1_dev_v7_gate3 / bench_official_s1_v11_planner7_gate3. Require metrics.json plus identity-matching benchmark_manifest.json before any official campaign. Reuse only the v1.1.0 development split until v7 gate3 meets target; held-out remains unexecuted. Do not lower target bands, change Runtime/model, or inspect held-out.
+Compatibility impact: Additive prompt specification, private planner/config builders, CLI campaign choices, and a stricter official-bundle identity check only. No public PlannerModel, AgentDecision, PlannerContext, Runtime, DSP, rule, knowledge, evaluation model, scorer, target, or report schema change. v4/v5/v6 reproducibility and all committed bundles remain intact.
+Test impact: Add T201–T205 for legacy immutability, v7 semantic coherence, no leakage, additive campaign scheduling plus identity-complete official preflight, and the cumulative gate. T001–T200 remain required and unchanged.
+User decision: pending
 ```

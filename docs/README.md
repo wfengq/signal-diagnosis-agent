@@ -58,8 +58,14 @@ Read these documents before changing implementation code:
   — approved additive prompt v6 correction design; §51, T196–T200, and D022
   preserve v4/v5 evidence while authorizing a coherent v6 product prompt.
 - [`superpowers/plans/2026-08-30-phase4-1-prompt-v6-correction.md`](superpowers/plans/2026-08-30-phase4-1-prompt-v6-correction.md)
-  — active Task 2–8 TDD implementation plan. v6 development gate2 must meet
-  target before the one-shot official held-out campaign is permitted.
+  — completed Task 2–8 TDD plan. v6 development gate2 is honest
+  `completed/below_target` at `808f653`; official v1.1.0 held-out was not run.
+- [`superpowers/specs/2026-08-30-phase4-2-prompt-v7-correction-design.md`](superpowers/specs/2026-08-30-phase4-2-prompt-v7-correction-design.md)
+  — drafted Phase 4.2 prompt v7 calibration design; OQ-007, proposed §52 and
+  T201–T205, and D023 are pending approval. Implementation is not authorized.
+- [`superpowers/plans/2026-08-30-phase4-2-prompt-v7-correction.md`](superpowers/plans/2026-08-30-phase4-2-prompt-v7-correction.md)
+  — drafted Task 1–8 TDD plan for v7. Do not implement until the additive
+  contract is approved. v1.1.0 held-out remains sealed.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -110,13 +116,14 @@ override active engineering contracts.
 Phase 4 accepted at `b68ec5e` (`completed/below_target` official v1.0.0
 benchmark remains immutable). Phase 4.1 v5 deterministic implementation is
 complete at `cadc15d`; its development gate1 at `f9392c2` is honest
-`completed/below_target`. Prompt v6 Task 2–8 implementation is authorized under
-§51 and T196–T200. The v1.1.0 held-out split remains sealed until v6
-development gate2 reaches `completed/meets_target`. The v6 deterministic gate
+`completed/below_target`. Prompt v6 Task 2–8 completed under §51 and
+T196–T200. The v1.1.0 held-out split remains sealed. The v6 deterministic gate
 passed. Real-model development gate2 `bench_phase4_1_dev_v6_gate2` is honest
 `completed/below_target`, so official v6 held-out stays sealed. Report
-`harness_status=pending` is CLI semantics, not a harness failure. Phase 4.1
-is not accepted; Phase 5 remains gated.
+`harness_status=pending` is CLI semantics, not a harness failure. A Phase 4.2
+prompt-v7 calibration design is drafted and pending OQ-007 approval;
+implementation is not authorized. Phase 4.1 is not accepted; Phase 5 remains
+gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model
