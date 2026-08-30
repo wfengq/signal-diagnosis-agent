@@ -18,16 +18,22 @@ from signal_diag.evaluation.runner import (
     _official_manifest_path,
     _phase4_1_benchmark_config,
     _phase4_1_manifest_path,
+    _phase4_1_v6_benchmark_config,
     _run_deterministic_benchmark,
     _run_official_benchmark,
     _run_phase4_1_development_benchmark,
     _run_phase4_1_official_benchmark,
+    _run_phase4_1_v6_development_benchmark,
+    _run_phase4_1_v6_official_benchmark,
     _scripted_benchmark_config,
     _write_invalid_configuration_report,
 )
 from signal_diag.signal.repository import InMemorySignalRepository
 
 _DEFAULT_OUTPUT_DIR = Path("docs") / "evaluations" / "phase4"
+_V6_DEV_ID = "bench_phase4_1_dev_v6_gate2"
+_V6_OFFICIAL_ID = "bench_official_s1_v11_planner6_gate2"
+_V6_DEV_WARNING = "development split; not official held-out evidence"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -60,7 +66,13 @@ def build_parser() -> argparse.ArgumentParser:
     real.add_argument("--benchmark-id", type=str, default=None)
     real.add_argument(
         "--campaign",
-        choices=("phase4", "phase4.1-development", "phase4.1-official"),
+        choices=(
+            "phase4",
+            "phase4.1-development",
+            "phase4.1-official",
+            "phase4.1-v6-development",
+            "phase4.1-v6-official",
+        ),
         default="phase4",
     )
 
@@ -150,6 +162,64 @@ def main(argv: list[str] | None = None) -> int:
             report = asyncio.run(
                 _run_official_benchmark(manifest, config, args.output_dir)
             )
+            print(report.benchmark_status)
+            return 0
+
+        if args.campaign in {"phase4.1-v6-development", "phase4.1-v6-official"}:
+            canonical_id = (
+                _V6_DEV_ID
+                if args.campaign == "phase4.1-v6-development"
+                else _V6_OFFICIAL_ID
+            )
+            config = _phase4_1_v6_benchmark_config(
+                benchmark_id=args.benchmark_id or canonical_id,
+                started_at_utc=datetime.now(UTC),
+            )
+            campaign_manifest = load_dataset_manifest(_phase4_1_manifest_path())
+            manifest = (
+                load_dataset_manifest(args.manifest)
+                if args.manifest is not None
+                else campaign_manifest
+            )
+            if not isinstance(manifest, DatasetManifest):
+                raise TypeError("expected DatasetManifest")
+            score_split: EvaluationSplit = (
+                "development"
+                if args.campaign == "phase4.1-v6-development"
+                else "held_out"
+            )
+            extra = (_V6_DEV_WARNING,) if score_split == "development" else ()
+            if config.benchmark_id != canonical_id or not _campaign_identity_matches(
+                manifest, config
+            ):
+                report = _write_invalid_configuration_report(
+                    campaign_manifest,
+                    config,
+                    args.output_dir,
+                    score_split=score_split,
+                    message="campaign identity does not match the selected v6 route",
+                    extra_warnings=extra,
+                )
+                print(report.benchmark_status)
+                return 0
+            if args.campaign == "phase4.1-v6-development":
+                report = asyncio.run(
+                    _run_phase4_1_v6_development_benchmark(
+                        manifest, config, args.output_dir
+                    )
+                )
+            else:
+                development_bundle = (
+                    args.output_dir.parent / "development" / _V6_DEV_ID
+                )
+                report = asyncio.run(
+                    _run_phase4_1_v6_official_benchmark(
+                        manifest,
+                        config,
+                        args.output_dir,
+                        development_bundle=development_bundle,
+                    )
+                )
             print(report.benchmark_status)
             return 0
 

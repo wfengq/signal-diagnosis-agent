@@ -6,6 +6,7 @@ Private runner helpers. CONTRACTS §49 does not export a public runner function.
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
@@ -34,7 +35,7 @@ from signal_diag.agent.planner import (
     _Phase4V4RealLLMPlanner,
     _Phase4V5RealLLMPlanner,
 )
-from signal_diag.agent.prompts import _S1_PROMPT_V4, _S1_PROMPT_V5
+from signal_diag.agent.prompts import _S1_PROMPT_V4, _S1_PROMPT_V5, _S1_PROMPT_V6
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.evaluation.baseline import FixedPipelineBaseline
 from signal_diag.evaluation.dataset import (
@@ -84,7 +85,10 @@ _OFFICIAL_PROMPT_VERSION = "v0.2-s1-planner-4"
 _OFFICIAL_REPETITIONS = 5
 _PHASE4_1_DATASET_VERSION = "1.1.0"
 _PHASE4_1_PROMPT_VERSION = "v0.2-s1-planner-5"
+_PHASE4_1_V6_PROMPT_VERSION = "v0.2-s1-planner-6"
 _PHASE4_1_DEV_WARNING = "development split; not official held-out evidence"
+_PHASE4_1_V6_DEV_BENCHMARK_ID = "bench_phase4_1_dev_v6_gate2"
+_PHASE4_1_V6_OFFICIAL_BENCHMARK_ID = "bench_official_s1_v11_planner6_gate2"
 _RETRYABLE_ERROR_CODES: frozenset[AttemptErrorCode] = frozenset(
     {"timeout", "rate_limited", "provider_5xx"}
 )
@@ -379,6 +383,10 @@ def _phase4_1_prompt_sha256() -> str:
     return hashlib.sha256(_S1_PROMPT_V5.system_prompt.encode("utf-8")).hexdigest()
 
 
+def _phase4_1_v6_prompt_sha256() -> str:
+    return hashlib.sha256(_S1_PROMPT_V6.system_prompt.encode("utf-8")).hexdigest()
+
+
 def _official_model_parameters() -> dict[str, ConfigValue]:
     return {
         "temperature": 0.0,
@@ -418,6 +426,35 @@ def _official_benchmark_config(
         model=_OFFICIAL_MODEL,
         prompt_version=_OFFICIAL_PROMPT_VERSION,
         prompt_sha256=_official_prompt_sha256(),
+        model_parameters=_official_model_parameters(),
+        sdk_versions=_official_sdk_versions(),
+        repetitions=_OFFICIAL_REPETITIONS,
+        max_infrastructure_retries=2,
+        max_concurrency=1,
+        started_at_utc=started_at_utc,
+    )
+
+
+def _phase4_1_v6_benchmark_config(
+    *,
+    benchmark_id: str,
+    started_at_utc: datetime,
+) -> BenchmarkConfig:
+    if _S1_PROMPT_V6.version != _PHASE4_1_V6_PROMPT_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            f"prompt version must be {_PHASE4_1_V6_PROMPT_VERSION!r}",
+        )
+    return BenchmarkConfig(
+        benchmark_id=benchmark_id,
+        dataset_id=_OFFICIAL_DATASET_ID,
+        dataset_version=_PHASE4_1_DATASET_VERSION,
+        rule_profile_id=_OFFICIAL_PROFILE_ID,
+        rule_profile_version=_OFFICIAL_PROFILE_VERSION,
+        provider=_OFFICIAL_PROVIDER,
+        model=_OFFICIAL_MODEL,
+        prompt_version=_PHASE4_1_V6_PROMPT_VERSION,
+        prompt_sha256=_phase4_1_v6_prompt_sha256(),
         model_parameters=_official_model_parameters(),
         sdk_versions=_official_sdk_versions(),
         repetitions=_OFFICIAL_REPETITIONS,
@@ -662,6 +699,97 @@ def _preflight_phase4_1(
             ) from error
 
 
+def _require_v6_development_gate(development_bundle: Path) -> None:
+    metrics_path = development_bundle / "metrics.json"
+    if not metrics_path.is_file():
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "v6 official campaign requires a development completed/meets_target bundle",
+        )
+    try:
+        payload = json.loads(metrics_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "v6 official campaign requires a development completed/meets_target bundle",
+        ) from error
+    if not isinstance(payload, dict):
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "v6 official campaign requires a development completed/meets_target bundle",
+        )
+    if (
+        payload.get("benchmark_status") != "completed"
+        or payload.get("target_status") != "meets_target"
+    ):
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "v6 official campaign requires a development completed/meets_target bundle",
+        )
+
+
+def _preflight_phase4_1_v6(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    *,
+    client_factory: Callable[[], object] | None = None,
+    import_openai: Callable[[], object] | None = None,
+) -> None:
+    if _S1_PROMPT_V6.version != _PHASE4_1_V6_PROMPT_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            f"prompt version must be {_PHASE4_1_V6_PROMPT_VERSION!r}",
+        )
+    expected_hash = _phase4_1_v6_prompt_sha256()
+    if config.prompt_sha256 != expected_hash:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "prompt SHA-256 does not match the frozen product planner prompt",
+        )
+    if config.prompt_version != _PHASE4_1_V6_PROMPT_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            f"prompt version must be {_PHASE4_1_V6_PROMPT_VERSION!r}",
+        )
+    if config.dataset_version != _PHASE4_1_DATASET_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "Phase 4.1 runner pins dataset version 1.1.0",
+        )
+    if (
+        config.rule_profile_id != _OFFICIAL_PROFILE_ID
+        or config.rule_profile_version != _OFFICIAL_PROFILE_VERSION
+    ):
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "Phase 4.1 runner pins profile_s1_distortion 1.0.0-demo",
+        )
+    if config.provider != _OFFICIAL_PROVIDER or config.model != _OFFICIAL_MODEL:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "official runner pins provider deepseek and model deepseek-v4-flash",
+        )
+    if config.max_concurrency != 1:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "official execution requires max_concurrency=1",
+        )
+    _require_valid_dataset(manifest)
+    if not os.environ.get("DEEPSEEK_API_KEY"):
+        raise _PreflightFailure(
+            "missing_credentials",
+            "set DEEPSEEK_API_KEY before running the official real-model benchmark",
+        )
+    if client_factory is None:
+        try:
+            (import_openai or _import_openai)()
+        except ImportError as error:
+            raise _PreflightFailure(
+                "missing_dependency",
+                "RealLLMPlanner requires the optional openai dependency",
+            ) from error
+
+
 def _configuration_attempts(
     slots: tuple[tuple[str, int], ...],
     code: AttemptErrorCode,
@@ -738,6 +866,11 @@ def _build_official_planner(inner_client: object) -> RealLLMPlanner:
 def _build_phase4_1_planner(inner_client: object) -> RealLLMPlanner:
     capture = _UsageCapturingClient(inner_client)  # type: ignore[arg-type]
     return _Phase4V5RealLLMPlanner(provider="deepseek", client=capture)
+
+
+def _build_phase4_1_v6_planner(inner_client: object) -> RealLLMPlanner:
+    capture = _UsageCapturingClient(inner_client)  # type: ignore[arg-type]
+    return RealLLMPlanner(provider="deepseek", client=capture)
 
 
 def _assemble_applied_agent_trace(
@@ -1240,6 +1373,75 @@ async def _run_phase4_1_official_benchmark(
         score_split="held_out",
         planner_builder=_build_phase4_1_planner,
         preflight=_preflight_phase4_1,
+        baseline_case_ids=tuple(case.case_id for case in manifest.cases),
+        client_factory=client_factory,
+        classify_error=classify_error,
+        import_openai=import_openai,
+        now=now,
+    )
+
+
+async def _run_phase4_1_v6_development_benchmark(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    output_dir: Path,
+    *,
+    client_factory: Callable[[], object] | None = None,
+    classify_error: Callable[[BaseException], tuple[AttemptStatus, AttemptErrorCode]]
+    | None = None,
+    import_openai: Callable[[], object] | None = None,
+    now: Callable[[], datetime] | None = None,
+) -> BenchmarkReport:
+    return await _run_real_benchmark_for_split(
+        manifest,
+        config,
+        output_dir,
+        score_split="development",
+        planner_builder=_build_phase4_1_v6_planner,
+        preflight=_preflight_phase4_1_v6,
+        baseline_case_ids=tuple(
+            case.case_id for case in manifest.cases if case.split == "development"
+        ),
+        extra_warnings=(_PHASE4_1_DEV_WARNING,),
+        client_factory=client_factory,
+        classify_error=classify_error,
+        import_openai=import_openai,
+        now=now,
+    )
+
+
+async def _run_phase4_1_v6_official_benchmark(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    output_dir: Path,
+    *,
+    development_bundle: Path,
+    client_factory: Callable[[], object] | None = None,
+    classify_error: Callable[[BaseException], tuple[AttemptStatus, AttemptErrorCode]]
+    | None = None,
+    import_openai: Callable[[], object] | None = None,
+    now: Callable[[], datetime] | None = None,
+) -> BenchmarkReport:
+    def preflight(
+        preflight_manifest: DatasetManifest,
+        preflight_config: BenchmarkConfig,
+        **kwargs: object,
+    ) -> None:
+        _require_v6_development_gate(development_bundle)
+        _preflight_phase4_1_v6(
+            preflight_manifest,
+            preflight_config,
+            client_factory=kwargs.get("client_factory"),  # type: ignore[arg-type]
+            import_openai=kwargs.get("import_openai"),  # type: ignore[arg-type]
+        )
+
+    return await _run_real_benchmark_for_split(
+        manifest,
+        config,
+        output_dir,
+        score_split="held_out",
+        planner_builder=_build_phase4_1_v6_planner,
+        preflight=preflight,
         baseline_case_ids=tuple(case.case_id for case in manifest.cases),
         client_factory=client_factory,
         classify_error=classify_error,

@@ -71,7 +71,13 @@ from tests.evaluation.test_scoring import (
 
 _STARTED = datetime(2026, 8, 30, 1, 0, tzinfo=UTC)
 _DEV_WARNING = "development split; not official held-out evidence"
-_PHASE4_1_CAMPAIGNS = ("phase4", "phase4.1-development", "phase4.1-official")
+_PHASE4_1_CAMPAIGNS = (
+    "phase4",
+    "phase4.1-development",
+    "phase4.1-official",
+    "phase4.1-v6-development",
+    "phase4.1-v6-official",
+)
 _SUBCOMMANDS = {
     "validate-dataset",
     "run-deterministic",
