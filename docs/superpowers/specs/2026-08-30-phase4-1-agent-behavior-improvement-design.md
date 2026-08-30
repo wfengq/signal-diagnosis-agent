@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-30
 
-**Status:** Draft for written-spec review
+**Status:** Approved in written-spec review on 2026-08-30
 
 **Baseline:** `b68ec5e` (`phase4-evaluation-design`)
 
