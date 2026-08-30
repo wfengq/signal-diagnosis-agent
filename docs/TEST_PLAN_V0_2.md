@@ -1034,3 +1034,41 @@ deterministic tests are implemented and the T208 cumulative gate is green.
 The canonical 40-slot development campaign is honest `completed/below_target`.
 Official v1.2.0 held-out was not run. Phase 4.2 is not accepted. Phase 5
 remains gated.
+
+---
+
+## 26. Phase 4.3 — Planner v8 Behavior Calibration
+
+T209–T215 are deterministic and additive. They preserve T001–T208, dataset
+`1.2.0`, frozen targets and scoring, all historical prompt/campaign identities,
+and all committed bundles. Fake transports exercise the real RealLLMPlanner
+boundary in required tests; stochastic provider behavior is never a pytest
+gate.
+
+### Checkpoint S — v8 behavior, campaigns, and cumulative gate
+
+| ID | Behavior | Required result |
+|---|---|---|
+| T209 | Legacy and v8 identity | exact v4–v7 prompt bytes, hashes, private planners, campaign routes, configurations, and committed bundles remain reproducible; v8 is one complete `v0.2-s1-planner-8` prompt with an exact SHA-256/configuration identity and a private exact-v7 compatibility planner |
+| T210 | Coherent v8 policy | prompt semantics require explicit viable hypotheses, symptom-driven first-Tool choice, direct harmonic analysis without mandatory spectrum/F0, minimal Tool use, broad combined continuation, invalid-result rule/knowledge handling, and immediate stopping after all viable hypotheses close |
+| T211 | Outbound non-leakage | serialized v8 Planner messages contain no case ID, category, split, generator truth, causal truth, policy, acceptable Tools, sufficient sets, observable conditions, scoring targets, raw waveform, or full FFT and never infer behavior from opaque signal IDs |
+| T212 | Product-boundary behavior | deterministic fake transport through active RealLLMPlanner and real Runtime, DSP Tools, RuleEngine, and KnowledgeIndex proves clean, harmonic, combined, and noise routes with same-run Evidence/rule/knowledge resolution; clean avoids default spectrum/F0, harmonic starts directly, combined closes both hypotheses, and noise performs required knowledge retrieval without clipping/spectrum detours |
+| T213 | Dynamic controller boundary | Runtime does not construct, force, or reorder Tool/rule/knowledge/finish decisions; no universal pipeline or ScriptedPlanner product fallback is introduced; existing retry, invalid-decision, no-progress, max-action, and termination semantics remain unchanged |
+| T214 | Canonical campaigns and provenance | `phase4.3-v8-development` binds `bench_phase4_3_dev_v8_v12_gate4` to v1.2 development 8 x 5; `phase4.3-v8-official` binds `bench_official_s1_v12_planner8_gate4` to v1.2 held-out 16 x 5; strict preflight rejects missing, unreadable, incomplete, non-canonical, or mismatched provenance before credentials/held-out |
+| T215 | Cumulative gate | T001–T215 pass with zero required skip/xfail; Ruff, mypy, architecture boundaries, and `git diff --check eb47237..HEAD` remain green; dataset/scorer/targets, public boundaries, historical identities, Phase 5, and held-out state do not drift |
+
+### Phase 4.3 real-model acceptance states
+
+The exact v8 development identity may run once only after T001–T215 and all
+static gates pass. Development is tuning evidence. Every applicable frozen
+target must pass simultaneously before official is legal.
+
+A development miss is retained honestly, forbids official, forbids a
+prompt-only v9, and requires a new written choice between model change and
+PlannerContext change. A passing byte-identical candidate may run the official
+80-slot held-out campaign once. Phase 4.3 is accepted only when official is
+`completed/meets_target`, all slots and provenance validate, and no held-out
+tuning or rerun occurred. Phase 5 remains gated pending separate authorization.
+
+Approval of this section freezes design and tests only. It does not authorize
+implementation or any real-model campaign.

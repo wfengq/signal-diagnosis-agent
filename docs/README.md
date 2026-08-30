@@ -12,11 +12,12 @@ Read these documents before changing implementation code:
 2. [`CONTRACTS_V0_2.md`](CONTRACTS_V0_2.md) — frozen Phase 1–2 public Python
    contracts, frozen Phase 3 §32–§40 rules/knowledge contracts, frozen
    Phase 4 §41–§49 evaluation contracts, additive Phase 4.1 §§50–§51
-   behavior gates, and the frozen Phase 4.2 §52 evaluation-integrity gate.
+   behavior gates, the frozen Phase 4.2 §52 evaluation-integrity gate, and the
+   frozen Phase 4.3 §53 planner-v8 behavior gate.
 3. [`TEST_PLAN_V0_2.md`](TEST_PLAN_V0_2.md) — required T001–T092 Phase 1–2
    acceptance, required T093–T124 Phase 3 acceptance, required T125–T183 Phase 4
    acceptance, additive T184–T200 Phase 4.1 acceptance, Phase 4.2 T201–T208,
-   and separate real-model evaluation.
+   Phase 4.3 T209–T215, and separate real-model evaluation.
 4. [`DECISIONS.md`](DECISIONS.md) — approved architectural and process decisions.
 5. [`superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`](superpowers/plans/2026-08-28-phase1-deterministic-foundation.md)
    — task-level Phase 1 TDD implementation plan covering T001–T063.
@@ -74,6 +75,12 @@ Read these documents before changing implementation code:
   is honest `completed/below_target`. Task 9 official/held-out was not run.
   Task 10 records that honest stop. v1.1.0 and v1.2.0 held-out remain
   unexecuted. Phase 4.2 is not accepted.
+- [`superpowers/specs/2026-08-30-phase4-3-planner-v8-behavior-calibration-design.md`](superpowers/specs/2026-08-30-phase4-3-planner-v8-behavior-calibration-design.md)
+  — approved and frozen Phase 4.3 design under §53, T209–T215, D024, and
+  resolved OQ-008. It permits one final prompt-only v8 candidate while keeping
+  dataset 1.2.0, Runtime, PlannerContext, scoring, targets, provider, and model
+  unchanged. Implementation and model execution remain gated pending a
+  detailed plan and separate instruction.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -140,6 +147,11 @@ replan 0.719, unnecessary_tool 0.405, required_knowledge 0.2; CLI
 `docs/evaluations/phase4_2/official/` does not exist. Task 10 records that
 honest stop. Phase 4.1 is not accepted; Phase 4.2 is not accepted;
 Phase 5 remains gated.
+
+The Phase 4.3 written design is approved and frozen under §53, T209–T215,
+D024, and OQ-008. No v8 code, campaign, development run, or official run is
+authorized yet. The next design asset is the detailed Cursor implementation
+plan; Phase 5 remains gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model

@@ -311,3 +311,24 @@ Recorded Task 10 outcome (2026-08-30, bundle commit `71293a3`): Tasks 2–7 and
 T208 are complete. Development gate3 is honest `completed/below_target`.
 Official v1.2.0 held-out was not run. Phase 4.2 is not accepted. Phase 5
 remains gated.
+
+## D024 — Make planner v8 the final prompt-only calibration attempt
+
+**Decision:** Phase 4.3 preserves the integrity-corrected v1.2 dataset,
+PlannerContext, Runtime, DSP, Tools, rules, knowledge, scoring, targets,
+provider, and model. It adds one coherent `v0.2-s1-planner-8` prompt and new
+canonical development/official identities to correct the stable v7 behavior
+misses in Tool efficiency, viable-hypothesis maintenance, combined-cause
+coverage, and required invalid-result knowledge retrieval.
+
+The controller does not force actions and ScriptedPlanner does not become a
+product fallback. v4–v7 identities and bundles remain immutable. The v8
+development identity runs once after deterministic gates. A development miss
+stops before held-out and closes the prompt-only route; further work requires a
+new written choice between changing the model and changing PlannerContext. A
+passing candidate may run official once, and an official miss is not tuned
+against or rerun. Phase 5 remains gated until product-quality acceptance and
+separate authorization.
+
+This decision freezes the written design only. Implementation and all model
+runs require a detailed plan and separate explicit user authorization.

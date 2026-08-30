@@ -2,9 +2,9 @@
 
 **Date:** 2026-08-30
 
-**Status:** In-chat design approved on 2026-08-30; written specification
-awaiting user review. This document does not freeze §53, T209–T215, or D024
-and does not authorize implementation or any real-model run.
+**Status:** Approved in writing on 2026-08-30. §53, T209–T215, D024, and
+OQ-008 are frozen as design/test authority. Implementation and every real-model
+run remain gated pending a detailed plan and separate explicit instruction.
 
 **Implementation baseline:** `eb47237` on `phase4-evaluation-design`
 

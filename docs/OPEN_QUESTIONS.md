@@ -1,7 +1,7 @@
 # Open Contract and Architecture Questions
 
 **Status:** Active register
-**Current open questions:** 0 pending; 7 resolved (OQ-001–OQ-007)
+**Current open questions:** 0 pending; 8 resolved (OQ-001–OQ-008)
 
 Use this file only for concrete issues that may require changing an approved
 contract or architectural boundary.
@@ -142,4 +142,21 @@ Minimal proposed change: Keep §§41–§51, T125–T200, v4/v5/v6 prompts/route
 Compatibility impact: Additive v1.2 manifest, private optional signal-ID materialization, private v7 planner/config/campaign builders, stricter shared official-bundle validation, and deterministic tests. Historical default materialization and all v4/v5/v6 identities remain reproducible. RealLLMPlanner becomes v7 only after the deterministic gate; a private v6 planner preserves historical campaigns.
 Test impact: Add T201–T208 for legacy identity, outbound value-level leakage, v1.2 freshness/request fairness, real-DSP combined identifiability, coherent v7 semantics, product-boundary traces, canonical campaign/provenance validation, and the cumulative gate. T001–T200 remain required and unchanged.
 User decision: approved revised OQ-007, CONTRACTS §52, TEST_PLAN §25/T201–T208, and D023 on 2026-08-30; authorized Task 1 documentation freeze and local commit only; Tasks 2–10, code implementation, real-model development execution, and every held-out run remain unauthorized
+```
+
+---
+
+## OQ-008 — Authorize one final prompt-only planner calibration
+
+```text
+ID: OQ-008
+Date: 2026-08-30
+Status: approved/resolved — written Phase 4.3 design approved; design/test contract frozen; implementation not authorized
+Affected document and section: docs/CONTRACTS_V0_2.md §53; docs/TEST_PLAN_V0_2.md §26 T209–T215; docs/DECISIONS.md D024; Phase 4.3 prompt and campaign identities
+Observed problem: The integrity-corrected v7 development campaign is completed/below_target. Failures are stable: clean and harmonic cases overuse spectrum/F0, harmonic cases choose spectrum first, the combined case stops after clipping, the noise case omits required knowledge in four of five runs, and all initial hypothesis lists are empty.
+Why the current contract cannot represent a correct implementation: §52 freezes v7 and its one-shot development identity. It provides no new identity or semantic contract for another candidate, and silently replacing or rerunning v7 would invalidate provenance. Further prompt-only attempts also need an explicit terminal condition to prevent endless benchmark-driven prompt iteration.
+Minimal proposed change: Preserve §§41–§52, T001–T208, dataset 1.2.0, Runtime, PlannerContext, DSP/Tools/rules/knowledge, scoring, targets, provider/model, and every historical asset. Add §53, T209–T215, and D024 for one complete v0.2-s1-planner-8 prompt, explicit viable hypotheses, minimal dynamic Tool use, combined continuation, invalid-result knowledge handling, canonical phase4.3-v8-development/official identities, and strict one-shot gates. A v8 development miss closes the prompt-only route and requires a new model-vs-PlannerContext decision.
+Compatibility impact: Additive prompt, private planner/config/campaign bindings, tests, and optional evaluation bundles only. No public interface or deterministic numerical behavior changes.
+Test impact: Add deterministic T209–T215. Existing T001–T208 and all historical assets remain required and unchanged. Real-model development/official gates remain outside CI.
+User decision: approved the complete written Phase 4.3 design on 2026-08-30; §53, §26/T209–T215, D024, and this OQ resolution are frozen as design authority only; implementation, model execution, held-out access, Phase 5, push, and merge remain unauthorized pending a detailed plan and separate instruction
 ```

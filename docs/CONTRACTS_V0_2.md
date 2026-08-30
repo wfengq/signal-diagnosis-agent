@@ -3347,3 +3347,125 @@ T201–T208 are green. Development `bench_phase4_2_dev_v7_v12_gate3` is
 `docs/evaluations/phase4_2/official/` does not exist. Task 9 was not legally
 run. Phase 4.2 is not accepted. Phase 5 remains gated. This is not
 product-quality acceptance.
+
+---
+
+## 53. Phase 4.3 Planner v8 Behavior Calibration
+
+Phase 4.3 is the final authorized prompt-only calibration attempt for the S1
+real-model Planner. It consumes the integrity-corrected dataset and evaluation
+contracts from §52 without changing them. Phase 4.2 and its v7 development
+bundle remain immutable `completed/below_target` evidence.
+
+### 53.1 Frozen scope and identity
+
+Phase 4.3 keeps dataset `s1-distortion-synthetic` `1.2.0`, PlannerContext,
+AgentDecision, Runtime, DSP, Tools, rules, knowledge, evaluation models,
+scoring, failure codes, TargetBands, provider, model, parameters, rule profile,
+and repetitions unchanged. It adds exactly one complete prompt:
+
+```text
+v0.2-s1-planner-8
+```
+
+The v8 prompt is byte-frozen with an exact SHA-256 after implementation. It is
+not a suffix appended to v7. Private historical planners preserve exact v4–v7
+behavior. RealLLMPlanner remains the product boundary; ScriptedPlanner and fake
+transports remain deterministic test doubles and never become fallbacks.
+
+### 53.2 Planner policy
+
+The Planner records the current still-viable S1 hypotheses in the existing
+`task_assessment.hypotheses` field. A broad S1 request keeps clipping and
+harmonic distortion viable until each is supported, ruled out, or explicitly
+unobservable. A supported result for one family does not close another viable
+family. A symptom-specific request may prioritize its visible symptom, and an
+observation may reopen another family for an evidence-based reason.
+
+Tool choice remains dynamic and observation-driven:
+
+- flattened peaks or an amplitude ceiling make `detect_clipping` informative;
+- audible overtones or harmonic coloration make
+  `analyze_harmonic_distortion` informative;
+- unstable pitch or a non-periodic waveform make `estimate_fundamental` or
+  harmonic analysis informative;
+- a broad request may begin with clipping or harmonic analysis.
+
+`analyze_harmonic_distortion` may run without a supplied `fundamental_hz`.
+Spectrum and standalone F0 are not mandatory prerequisites. The Planner uses
+them only when pitch/voicing is itself diagnostic or existing observations
+justify additional frequency evidence. It does not call Tools to decorate a
+report or repeat a rule batch over equivalent Evidence.
+
+A broad combined path does not finish after clipping while harmonic distortion
+remains viable. A separate harmonic claim requires its own reportable order-2
+Evidence under the §52 symmetric-synthetic contract. An invalid/noise path
+obtains only the invalid harmonic Evidence needed for applicable
+NOT_APPLICABLE rules, retrieves explanatory knowledge, and produces one
+traceable inconclusive claim with a non-empty limitation. It does not detour
+through clipping or spectrum without a new observation-driven reason.
+
+The Runtime does not construct, force, or reorder Tool, rule, knowledge, or
+finish decisions. No universal Tool sequence is introduced. Raw waveform,
+full FFT, case identity, category, split, generator truth, causal truth,
+acceptable Tools, sufficient sets, policy, conditions, and targets remain
+absent from Planner outbound messages.
+
+### 53.3 Canonical campaigns and provenance
+
+Phase 4.3 adds exactly:
+
+```text
+phase4.3-v8-development
+phase4.3-v8-official
+```
+
+with canonical benchmark IDs:
+
+```text
+bench_phase4_3_dev_v8_v12_gate4
+bench_official_s1_v12_planner8_gate4
+```
+
+Development uses the unchanged v1.2 development split for 8 x 5 Agent slots.
+Official uses the unchanged sealed v1.2 held-out split for 16 x 5 Agent slots.
+Every bundle uses the existing six-file format and identity-complete
+provenance. Readable `metrics.json`, `benchmark_manifest.json`, and valid
+checksums are mandatory. Missing, incomplete, non-canonical, unreadable, or
+mismatched provenance is `invalid_configuration` before credentials or
+official scheduling.
+
+### 53.4 Development and official stop gates
+
+The canonical v8 development identity may run once only after T001–T215 and all
+static gates pass. Every applicable frozen TargetBands metric must pass
+simultaneously. A result other than `completed/meets_target` is retained
+honestly and stops before official. The same identity is not rerun or mutated.
+
+If v8 development remains below target, no prompt-only v9 is authorized. A new
+written decision must choose between changing the model and changing
+PlannerContext before further behavior work.
+
+Official may run exactly once only for a byte-identical v8 candidate whose
+canonical development bundle is `completed/meets_target` and passes strict
+identity preflight. An official miss remains immutable, is not used for
+same-held-out tuning, and is not rerun.
+
+### 53.5 Acceptance and authorization
+
+Phase 4.3 product-quality acceptance requires:
+
+- T001–T215 with zero required skip/xfail plus Ruff, mypy, architecture, and
+  `git diff --check eb47237..HEAD`;
+- canonical development `completed/meets_target`;
+- canonical official `completed/meets_target` with all 80 Agent slots
+  scoreable;
+- valid prompt, dataset, profile, provider/model, repetition, benchmark,
+  provenance, and checksum identities;
+- no leakage, target reduction, forced controller action, historical drift,
+  held-out tuning, or rerun.
+
+This section freezes design and tests only. It does not authorize Phase 4.3
+implementation, real-model development, official held-out access, Phase 5,
+push, or merge. Those require a detailed plan and separate explicit user
+authorization.

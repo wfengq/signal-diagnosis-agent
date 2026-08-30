@@ -22,7 +22,10 @@ implementation is complete; the T208 cumulative gate is green. Real-model
 development gate3 `bench_phase4_2_dev_v7_v12_gate3` at `71293a3` is honest
 `completed/below_target`, so official v1.2.0 held-out stays sealed. Task 10
 records that honest stop. Phase 4.1 is not accepted. Phase 4.2 is not
-accepted. Phase 5 remains gated.
+accepted. The written Phase 4.3 planner-v8 design is approved and frozen under
+§53, T209–T215, D024, and OQ-008. Phase 4.3 implementation and every model run
+remain gated pending a detailed plan and separate instruction. Phase 5 remains
+gated.
 
 The Phase 4 written specification was approved on 2026-08-29; §§41–§49 and
 T125–T183 are frozen and implemented. Deterministic status is
@@ -47,6 +50,13 @@ development gate3 at `71293a3` is honest `completed/below_target`. Task 9
 official v1.2.0 held-out was not run (unauthorized after the development
 miss). Task 10 records that honest stop. Phase 4.2 is not accepted.
 
+Phase 4.3 design authority is
+`docs/superpowers/specs/2026-08-30-phase4-3-planner-v8-behavior-calibration-design.md`,
+frozen `CONTRACTS_V0_2.md` §53, `TEST_PLAN_V0_2.md` §26 (T209–T215), D024,
+and resolved OQ-008. It authorizes design and test contracts only. Do not
+implement v8, create campaign assets, or run a model until the detailed plan
+and a separate user execution instruction are approved.
+
 Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
 and accepted. Phase 3 passed Codex final acceptance at commit `a820b7f` on
 branch `phase3-rules-knowledge`.
@@ -57,8 +67,8 @@ Before modifying code, read:
 
 - `docs/README.md`
 - `docs/ARCHITECTURE_V0_2.md` (especially §13–§18)
-- `docs/CONTRACTS_V0_2.md` (Phase 1–4 frozen; Phase 4 §41–§49; additive Phase 4.1 §§50–§51; Phase 4.2 §52)
-- `docs/TEST_PLAN_V0_2.md` (Phase 1–4 required; Phase 4 §22; additive Phase 4.1 §§23–§24 T184–T200; Phase 4.2 §25 T201–T208)
+- `docs/CONTRACTS_V0_2.md` (Phase 1–4 frozen; Phase 4 §41–§49; additive Phase 4.1 §§50–§51; Phase 4.2 §52; Phase 4.3 §53)
+- `docs/TEST_PLAN_V0_2.md` (Phase 1–4 required; Phase 4 §22; additive Phase 4.1 §§23–§24 T184–T200; Phase 4.2 §25 T201–T208; Phase 4.3 §26 T209–T215)
 - `docs/DECISIONS.md`
 - `docs/superpowers/specs/2026-08-29-phase4-evaluation-design.md`
 - `docs/superpowers/plans/2026-08-29-phase4-evaluation.md`
@@ -68,6 +78,7 @@ Before modifying code, read:
 - `docs/superpowers/plans/2026-08-30-phase4-1-prompt-v6-correction.md`
 - `docs/superpowers/specs/2026-08-30-phase4-2-prompt-v7-correction-design.md`
 - `docs/superpowers/plans/2026-08-30-phase4-2-prompt-v7-correction.md`
+- `docs/superpowers/specs/2026-08-30-phase4-3-planner-v8-behavior-calibration-design.md`
 - `docs/superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`
 - `docs/superpowers/plans/2026-08-29-phase3-rules-knowledge.md`
 
@@ -104,6 +115,12 @@ green. Real-model Task 8 development is honest `completed/below_target`.
 Official v1.2.0 held-out (Task 9) was not run because development missed
 target. Task 10 records that honest stop; it does not authorize Phase 5.
 
+Phase 4.3 design authority is frozen under §53, T209–T215, D024, and OQ-008.
+It permits one final prompt-only candidate with unchanged v1.2 dataset,
+Runtime, PlannerContext, scoring, targets, provider, and model. Implementation
+and model execution remain gated until a detailed plan and separate explicit
+authorization exist.
+
 These documents describe approved architecture and frozen interfaces.
 
 Files under `docs/archive/v0.1/` are historical references only. Files under
@@ -125,6 +142,10 @@ and `git diff --check aefccba..HEAD`. That deterministic gate is not a
 real-model claim. Task 8 development already ran and is honest
 `completed/below_target`. Task 9 official/held-out was not legally run.
 Do not inspect v1.2.0 held-out or v1.1.0 held-out. Do not start Phase 5.
+
+Additive Phase 4.3 §53 and T209–T215 are frozen design/test authority only.
+They do not authorize code changes, a v8 development run, official held-out,
+or Phase 5.
 
 Do not redesign or rename public models, functions, modules, arguments, return
 values, or package boundaries unless the user explicitly requests a contract
@@ -198,6 +219,10 @@ deterministic implementation is complete and T208 is green. v7 development
 gate3 is honest `completed/below_target`. Official v1.2.0 held-out was
 not run. Phase 4.1 is not accepted. Phase 4.2 is not accepted. Phase 5
 remains gated. Do not start Phase 5.
+
+Phase 4.3 is the next design-gated phase. Its written v8 scope is frozen, but
+implementation has not started. Do not create v8 code or evaluation assets
+until the detailed implementation plan and separate execution gate pass.
 
 ## Completed phases (reference)
 
