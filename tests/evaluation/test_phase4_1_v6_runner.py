@@ -13,7 +13,11 @@ from typing import Any
 
 import pytest
 
-from signal_diag.agent.planner import RealLLMPlanner, _Phase4V5RealLLMPlanner
+from signal_diag.agent.planner import (
+    RealLLMPlanner,
+    _Phase4V5RealLLMPlanner,
+    _Phase4V6RealLLMPlanner,
+)
 from signal_diag.agent.prompts import _S1_PROMPT_V5, _S1_PROMPT_V6
 from signal_diag.evaluation.dataset import load_dataset_manifest
 from tests.evaluation.conftest import CANONICAL_MANIFEST, PHASE4_1_MANIFEST
@@ -157,7 +161,8 @@ def test_t199_v6_config_and_canonical_ids() -> None:
         {"chat": type("Chat", (), {"completions": object()})()},
     )()
     planner = _build_phase4_1_v6_planner(stub)
-    assert type(planner) is RealLLMPlanner
+    assert type(planner) is _Phase4V6RealLLMPlanner
+    assert type(planner) is not RealLLMPlanner
     assert type(planner) is not _Phase4V5RealLLMPlanner
     assert planner._prompt_spec is _S1_PROMPT_V6
     from signal_diag.evaluation.runner import (
