@@ -18,6 +18,7 @@ from signal_diag.agent.planner import (
     RealLLMPlanner,
     _Phase4V5RealLLMPlanner,
     _Phase4V6RealLLMPlanner,
+    _Phase4V7RealLLMPlanner,
 )
 from signal_diag.agent.prompts import _S1_PROMPT_V5, _S1_PROMPT_V6, _S1_PROMPT_V7
 from signal_diag.evaluation.dataset import (
@@ -41,6 +42,8 @@ _V7_CAMPAIGNS = (
     "phase4.1-v6-official",
     "phase4.2-v7-development",
     "phase4.2-v7-official",
+    "phase4.3-v8-development",
+    "phase4.3-v8-official",
 )
 _DEV_WARNING = "development split; not official held-out evidence"
 _V7_DEV_BUNDLE = Path("docs/evaluations/phase4_2/development") / _V7_DEV_ID
@@ -201,7 +204,7 @@ def test_t207_v7_campaigns_use_single_runner_registration(
     campaign = next(
         action for action in real._actions if "--campaign" in action.option_strings
     )
-    assert tuple(campaign.choices)[-2:] == tuple(registry)
+    assert all(name in tuple(campaign.choices) for name in registry)
 
     monkeypatch.setitem(
         registry,
@@ -319,7 +322,8 @@ def test_t207_v7_config_and_canonical_ids() -> None:
     assert _fingerprint(development) == _fingerprint(official)
     stub = _stub_client()
     planner = _build_phase4_2_v7_planner(stub)
-    assert type(planner) is RealLLMPlanner
+    assert type(planner) is _Phase4V7RealLLMPlanner
+    assert type(planner) is not RealLLMPlanner
     assert type(planner) is not _Phase4V6RealLLMPlanner
     assert type(planner) is not _Phase4V5RealLLMPlanner
     assert planner._prompt_spec is _S1_PROMPT_V7

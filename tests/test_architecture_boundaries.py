@@ -557,7 +557,7 @@ def test_t208_product_path_does_not_fall_back_to_scripted_planner() -> None:
     functions = _module_function_defs(SRC_ROOT / "evaluation" / "runner.py")
     builder = functions["_build_phase4_2_v7_planner"]
     builder_calls = _call_func_names(builder)
-    assert "RealLLMPlanner" in builder_calls
+    assert "_Phase4V7RealLLMPlanner" in builder_calls
     assert "ScriptedPlanner" not in builder_calls
     assert "ScriptedPlanner" not in _name_ids(builder)
     for name in _PHASE4_2_V7_PRODUCT_BUILDERS:
