@@ -15,7 +15,7 @@ from typing import Any
 import pytest
 
 from signal_diag.agent.models import CallToolDecision
-from signal_diag.agent.planner import _SYSTEM_PROMPT, PROMPT_VERSION
+from signal_diag.agent.prompts import _S1_PROMPT_V4
 from signal_diag.evaluation.models import (
     AttemptErrorCode,
     BenchmarkConfig,
@@ -339,8 +339,8 @@ def dummy_deepseek_key(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_t175_official_configuration_fingerprint_records_pins() -> None:
-    assert PROMPT_VERSION == "v0.2-s1-planner-4"
-    expected_hash = hashlib.sha256(_SYSTEM_PROMPT.encode("utf-8")).hexdigest()
+    assert _S1_PROMPT_V4.version == "v0.2-s1-planner-4"
+    expected_hash = hashlib.sha256(_S1_PROMPT_V4.system_prompt.encode("utf-8")).hexdigest()
     assert _official_prompt_sha256() == expected_hash
     config = _official_benchmark_config(
         benchmark_id="bench_task10_official",

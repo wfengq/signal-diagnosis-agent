@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import os
 from collections.abc import Sequence
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, ClassVar, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError
 
@@ -15,123 +15,15 @@ from .models import (
     PlannerOutputError,
     ScriptExhaustedError,
 )
+from .prompts import _S1_PROMPT_V4, _S1_PROMPT_V5, _PlannerPromptSpec
 
 # DeepSeek V4 Flash official API model ID (OpenAI-compatible endpoint).
 DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
-PROMPT_VERSION = "v0.2-s1-planner-4"
+PROMPT_VERSION = _S1_PROMPT_V5.version
+_SYSTEM_PROMPT = _S1_PROMPT_V5.system_prompt
 
 _AGENT_DECISION_ADAPTER: TypeAdapter[AgentDecision] = TypeAdapter(AgentDecision)
-
-_SYSTEM_PROMPT = """You are a signal distortion diagnosis planner for Scenario S1.
-
-You receive compact structured context: signal metadata, prior tool observations,
-deterministic evidence records, tool descriptors, and runtime limits. You never
-receive raw waveform samples or full FFT arrays.
-
-Return exactly one JSON object. Required top-level discriminator: decision_type.
-Do NOT wrap the decision in a call_tool or finish key. Do NOT use name for tools;
-always use call.tool_name.
-
-call_tool shape (first step example — include task_assessment.objective):
-{
-  "decision_type": "call_tool",
-  "task_assessment": {
-    "task_type": "distortion_analysis",
-    "objective": "Determine whether clipping or harmonic distortion explains the signal.",
-    "hypotheses": ["clipping", "harmonic_distortion"]
-  },
-  "call": {
-    "tool_name": "detect_clipping",
-    "args": {}
-  },
-  "purpose": "Obtain clipping evidence before further distortion analysis."
-}
-
-finish shape — supported_fault (positive fault evidence; every claim must cite evidence_refs):
-{
-  "decision_type": "finish",
-  "outcome": "supported_fault",
-  "claims": [
-    {
-      "claim_id": "claim_clip_1",
-      "fault_type": "clipping",
-      "statement": "Clipping metrics exceed the supported threshold.",
-      "evidence_refs": ["ev_clip_001"],
-      "rule_refs": ["ruleval_clip_001"]
-    }
-  ],
-  "confidence_label": "high"
-}
-
-finish shape — no_supported_fault (negative evidence rules out faults; outcome MUST be no_supported_fault):
-{
-  "decision_type": "finish",
-  "outcome": "no_supported_fault",
-  "claims": [
-    {
-      "claim_id": "claim_clean_1",
-      "fault_type": "no_supported_fault",
-      "statement": "Clipping and harmonic metrics show no supported fault.",
-      "evidence_refs": ["ev_clip_neg_001", "ev_thd_neg_001"]
-    }
-  ],
-  "confidence_label": "high"
-}
-
-finish shape — inconclusive (invalid/unreliable metrics; claims may be empty; limitations REQUIRED):
-{
-  "decision_type": "finish",
-  "outcome": "inconclusive",
-  "claims": [],
-  "confidence_label": "low",
-  "limitations": [
-    "Fundamental frequency estimate is invalid; harmonic distortion metrics are not applicable."
-  ]
-}
-
-evaluate_rules shape — apply configured profile thresholds to existing evidence:
-{
-  "decision_type": "evaluate_rules",
-  "profile_id": "profile_s1_distortion",
-  "evidence_refs": ["ev_clip_001", "ev_thd_001"],
-  "purpose": "Apply configured clipping and THD limits."
-}
-
-retrieve_knowledge shape — explanatory corpus lookup (not numerical evidence):
-{
-  "decision_type": "retrieve_knowledge",
-  "query_text": "clipping harmonic distortion",
-  "tags": ["clipping", "harmonic-distortion"],
-  "purpose": "Explain clipping and THD findings for the final diagnosis."
-}
-
-Exact field names (required):
-- decision_type: "call_tool", "evaluate_rules", "retrieve_knowledge", or "finish"
-- task_assessment.objective: non-empty string on the first decision
-- call.tool_name: registered tool name (never "name")
-- call.args: tool input object (use {} when defaults apply)
-- purpose: non-empty string explaining why the tool is called
-- claims[].evidence_refs: array of evidence_id strings from context
-- claims[].rule_refs: array of ruleval_* evaluation IDs from rule_evaluation_batches
-- claims[].knowledge_refs: array of know_* retrieval IDs from knowledge_retrievals
-- limitations: non-empty array of strings when outcome is inconclusive
-
-Rules:
-- Never invent or calculate DSP metrics; only reference evidence already in context.
-- Use profile_s1_distortion for configured S1 clipping and harmonic rule evaluation.
-- Knowledge retrieval explains claims; it does not replace evidence_refs for numeric claims.
-- Cite only evidence_id, ruleval_*, and know_* IDs present in planner context.
-- On the first decision, include task_assessment with task_type distortion_analysis.
-- When finishing, every claim evidence_refs must reference existing evidence_id values.
-- Prefer stopping once supported evidence is sufficient; avoid redundant tool calls.
-- Ruling out clipping/harmonic with negative evidence is NOT supported_fault; use no_supported_fault.
-- When outcome is inconclusive, limitations array is REQUIRED and must not be empty.
-- If recoverable_errors mention missing limitation, next finish must include limitations.
-- If metrics are invalid or not applicable, finish with inconclusive when justified.
-- Use only tool names and argument fields from available_tools input schemas.
-- Respond with a single JSON object only (no markdown fences or commentary).
-"""
 
 
 def _deepseek_response_format() -> dict[str, str]:
@@ -243,9 +135,13 @@ def _resolve_deepseek_config(
     return resolved_key, resolved_base_url, resolved_model
 
 
-def _build_user_message(context: PlannerContext) -> str:
+def _build_user_message(
+    context: PlannerContext,
+    *,
+    prompt_version: str,
+) -> str:
     payload = {
-        "prompt_version": PROMPT_VERSION,
+        "prompt_version": prompt_version,
         "planner_context": context.model_dump(mode="json"),
     }
     return json.dumps(payload, indent=2, sort_keys=True)
@@ -468,6 +364,8 @@ class RealLLMPlanner:
     ScriptedPlanner.
     """
 
+    _prompt_spec: ClassVar[_PlannerPromptSpec] = _S1_PROMPT_V5
+
     def __init__(
         self,
         *,
@@ -485,7 +383,7 @@ class RealLLMPlanner:
 
     @property
     def prompt_version(self) -> str:
-        return PROMPT_VERSION
+        return self._prompt_spec.version
 
     @property
     def model_id(self) -> str | None:
@@ -523,8 +421,14 @@ class RealLLMPlanner:
         response = await client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": _SYSTEM_PROMPT},
-                {"role": "user", "content": _build_user_message(context)},
+                {"role": "system", "content": self._prompt_spec.system_prompt},
+                {
+                    "role": "user",
+                    "content": _build_user_message(
+                        context,
+                        prompt_version=self.prompt_version,
+                    ),
+                },
             ],
             response_format=_deepseek_response_format(),
             temperature=0.0,
@@ -535,6 +439,10 @@ class RealLLMPlanner:
         if not raw_content:
             raise PlannerOutputError("planner returned empty content")
         return _parse_agent_decision(raw_content)
+
+
+class _Phase4V4RealLLMPlanner(RealLLMPlanner):
+    _prompt_spec: ClassVar[_PlannerPromptSpec] = _S1_PROMPT_V4
 
 
 def _create_async_openai_client(*, api_key: str, base_url: str) -> _ChatClient:

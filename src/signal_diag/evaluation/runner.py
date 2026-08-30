@@ -28,12 +28,12 @@ from signal_diag.agent.models import (
     TaskAssessment,
 )
 from signal_diag.agent.planner import (
-    _SYSTEM_PROMPT,
-    PROMPT_VERSION,
     RealLLMPlanner,
     ScriptedPlanner,
     ScriptedStep,
+    _Phase4V4RealLLMPlanner,
 )
+from signal_diag.agent.prompts import _S1_PROMPT_V4
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.evaluation.baseline import FixedPipelineBaseline
 from signal_diag.evaluation.dataset import (
@@ -359,7 +359,7 @@ def _usage_field(raw: object, *names: str) -> int | float | None:
 
 
 def _official_prompt_sha256() -> str:
-    return hashlib.sha256(_SYSTEM_PROMPT.encode("utf-8")).hexdigest()
+    return hashlib.sha256(_S1_PROMPT_V4.system_prompt.encode("utf-8")).hexdigest()
 
 
 def _official_model_parameters() -> dict[str, ConfigValue]:
@@ -386,7 +386,7 @@ def _official_benchmark_config(
     benchmark_id: str,
     started_at_utc: datetime,
 ) -> BenchmarkConfig:
-    if PROMPT_VERSION != _OFFICIAL_PROMPT_VERSION:
+    if _S1_PROMPT_V4.version != _OFFICIAL_PROMPT_VERSION:
         raise _PreflightFailure(
             "invalid_configuration",
             f"prompt version must be {_OFFICIAL_PROMPT_VERSION!r}",
@@ -504,7 +504,7 @@ def _preflight_official(
     client_factory: Callable[[], object] | None = None,
     import_openai: Callable[[], object] | None = None,
 ) -> None:
-    if PROMPT_VERSION != _OFFICIAL_PROMPT_VERSION:
+    if _S1_PROMPT_V4.version != _OFFICIAL_PROMPT_VERSION:
         raise _PreflightFailure(
             "invalid_configuration",
             f"prompt version must be {_OFFICIAL_PROMPT_VERSION!r}",
@@ -616,7 +616,7 @@ def _attempt_record(
 
 def _build_official_planner(inner_client: object) -> RealLLMPlanner:
     capture_client = _UsageCapturingClient(inner_client)  # type: ignore[arg-type]
-    return RealLLMPlanner(provider="deepseek", client=capture_client)
+    return _Phase4V4RealLLMPlanner(provider="deepseek", client=capture_client)
 
 
 def _assemble_applied_agent_trace(

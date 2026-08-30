@@ -26,6 +26,7 @@ from signal_diag.agent.planner import (
     _normalize_agent_decision_payload,
     _parse_agent_decision,
 )
+from signal_diag.agent.prompts import _S1_PROMPT_V4
 from signal_diag.signal.models import SignalMeta
 from signal_diag.tools.registry import get_tool_descriptors
 
@@ -243,7 +244,7 @@ async def test_real_llm_planner_parses_mocked_response() -> None:
         "type": "json_object",
     }
     user_content = client.chat.completions.last_kwargs["messages"][1]["content"]
-    assert "v0.2-s1-planner-4" in user_content
+    assert "v0.2-s1-planner-5" in user_content
     assert "sig_llm" in user_content
     assert "frequencies_hz" not in user_content
 
@@ -280,8 +281,9 @@ def test_missing_credentials_message_is_explicit() -> None:
     assert "ScriptedPlanner" in message
 
 
-def test_prompt_version_is_planner_4() -> None:
-    assert PROMPT_VERSION == "v0.2-s1-planner-4"
+def test_prompt_version_is_planner_5() -> None:
+    assert PROMPT_VERSION == "v0.2-s1-planner-5"
+    assert _S1_PROMPT_V4.version == "v0.2-s1-planner-4"
 
 
 @pytest.mark.parametrize(
