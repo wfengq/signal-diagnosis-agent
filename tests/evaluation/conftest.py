@@ -32,6 +32,14 @@ CANONICAL_MANIFEST = (
     / "manifests"
     / "s1_distortion_v1.yaml"
 )
+PHASE4_1_MANIFEST = (
+    Path(__file__).resolve().parents[2]
+    / "src"
+    / "signal_diag"
+    / "evaluation"
+    / "manifests"
+    / "s1_distortion_v1_1.yaml"
+)
 
 _CATEGORY_DEFAULTS: dict[str, dict[str, Any]] = {
     "clean": {

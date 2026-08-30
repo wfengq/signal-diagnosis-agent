@@ -50,7 +50,12 @@ from signal_diag.tools.evidence import Evidence
 from signal_diag.tools.service import SignalToolService
 
 _OFFICIAL_DATASET_ID = "s1-distortion-synthetic"
-_OFFICIAL_VERSION = "1.0.0"
+_SUPPORTED_DATASETS = frozenset(
+    {
+        ("s1-distortion-synthetic", "1.0.0"),
+        ("s1-distortion-synthetic", "1.1.0"),
+    }
+)
 _DEV_CATEGORY_COUNTS = {
     "clean": 2,
     "clipping": 2,
@@ -183,11 +188,24 @@ def _collect_evidence(
     return indexed
 
 
+def _identity_issues(manifest: DatasetManifest) -> list[DatasetValidationIssue]:
+    if manifest.dataset_id != _OFFICIAL_DATASET_ID:
+        return []
+    if (manifest.dataset_id, manifest.version) in _SUPPORTED_DATASETS:
+        return []
+    return [
+        DatasetValidationIssue(
+            code="dataset_identity",
+            message=(
+                "unsupported dataset identity: "
+                f"{manifest.dataset_id} {manifest.version}"
+            ),
+        )
+    ]
+
+
 def _allocation_issues(manifest: DatasetManifest) -> list[DatasetValidationIssue]:
-    if (
-        manifest.dataset_id != _OFFICIAL_DATASET_ID
-        or manifest.version != _OFFICIAL_VERSION
-    ):
+    if (manifest.dataset_id, manifest.version) not in _SUPPORTED_DATASETS:
         return []
     development = [case for case in manifest.cases if case.split == "development"]
     held_out = [case for case in manifest.cases if case.split == "held_out"]
@@ -201,7 +219,7 @@ def _allocation_issues(manifest: DatasetManifest) -> list[DatasetValidationIssue
             DatasetValidationIssue(
                 code="allocation",
                 message=(
-                    "official s1-distortion-synthetic 1.0.0 allocation must be "
+                    "official s1-distortion-synthetic allocation must be "
                     "8 development and 16 held-out cases with frozen category counts"
                 ),
             )
@@ -338,6 +356,7 @@ def validate_dataset(
     profile_loader: RuleProfileLoader,
 ) -> DatasetValidationReport:
     issues: list[DatasetValidationIssue] = []
+    issues.extend(_identity_issues(manifest))
     issues.extend(_allocation_issues(manifest))
     issues.extend(_profile_issues(manifest, rule_engine, profile_loader))
     for case in manifest.cases:
