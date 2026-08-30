@@ -292,6 +292,22 @@ def test_t183_diff_check_against_phase4_design_baseline() -> None:
 
 
 _PHASE4_1_BASELINE = "b68ec5e"
+_PHASE4_1_V6_BASELINE = "f9392c2"
+_PHASE4_1_V6_ALLOWED_PREFIXES = (
+    "AGENTS.md",
+    "docs/",
+    "src/signal_diag/agent/",
+    "src/signal_diag/evaluation/",
+    "tests/",
+)
+_PHASE4_1_V6_FROZEN_PATHS = (
+    "src/signal_diag/agent/runtime.py",
+    "src/signal_diag/dsp",
+    "src/signal_diag/rules",
+    "src/signal_diag/knowledge",
+    "src/signal_diag/tools",
+    "src/signal_diag/signal",
+)
 
 
 def test_t195_diff_check_against_phase4_1_baseline() -> None:
@@ -303,3 +319,52 @@ def test_t195_diff_check_against_phase4_1_baseline() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_t200_diff_check_against_v6_baseline() -> None:
+    """T200 quality gate is git diff --check f9392c2..HEAD."""
+    result = subprocess.run(
+        ["git", "diff", "--check", f"{_PHASE4_1_V6_BASELINE}..HEAD"],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_t200_v6_changes_stay_inside_agent_evaluation_tests_docs() -> None:
+    result = subprocess.run(
+        ["git", "diff", "--name-only", f"{_PHASE4_1_V6_BASELINE}..HEAD"],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    forbidden = [
+        path
+        for path in result.stdout.splitlines()
+        if path and not path.startswith(_PHASE4_1_V6_ALLOWED_PREFIXES)
+    ]
+    assert not forbidden, "v6 changes escaped allowed boundaries:\n" + "\n".join(
+        forbidden
+    )
+    app_root = PROJECT_ROOT / "src" / "signal_diag" / "app"
+    assert not app_root.exists()
+    frozen = subprocess.run(
+        [
+            "git",
+            "diff",
+            "--name-only",
+            f"{_PHASE4_1_V6_BASELINE}..HEAD",
+            "--",
+            *_PHASE4_1_V6_FROZEN_PATHS,
+        ],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert frozen.returncode == 0, frozen.stderr
+    assert frozen.stdout.strip() == ""
