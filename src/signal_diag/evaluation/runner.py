@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from importlib.resources import files
 from pathlib import Path
@@ -36,12 +37,18 @@ from signal_diag.agent.planner import (
     _Phase4V5RealLLMPlanner,
     _Phase4V6RealLLMPlanner,
 )
-from signal_diag.agent.prompts import _S1_PROMPT_V4, _S1_PROMPT_V5, _S1_PROMPT_V6
+from signal_diag.agent.prompts import (
+    _S1_PROMPT_V4,
+    _S1_PROMPT_V5,
+    _S1_PROMPT_V6,
+    _S1_PROMPT_V7,
+)
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.evaluation.baseline import FixedPipelineBaseline
 from signal_diag.evaluation.dataset import (
     _condition_matches,
     _materialize_case,
+    _opaque_evaluation_signal_id,
     load_dataset_manifest,
     validate_dataset,
 )
@@ -97,6 +104,39 @@ _PHASE4_1_V6_DEV_BUNDLE = (
     / "development"
     / _PHASE4_1_V6_DEV_BENCHMARK_ID
 )
+_PHASE4_2_DATASET_VERSION = "1.2.0"
+_PHASE4_2_PROMPT_VERSION = "v0.2-s1-planner-7"
+_PHASE4_2_V7_DEV_BENCHMARK_ID = "bench_phase4_2_dev_v7_v12_gate3"
+_PHASE4_2_V7_OFFICIAL_BENCHMARK_ID = "bench_official_s1_v12_planner7_gate3"
+_PHASE4_2_V7_DEV_BUNDLE = (
+    Path("docs")
+    / "evaluations"
+    / "phase4_2"
+    / "development"
+    / _PHASE4_2_V7_DEV_BENCHMARK_ID
+)
+_IDENTITY_COMPLETE_GATE_FIELDS = (
+    "benchmark_id",
+    "prompt_version",
+    "prompt_sha256",
+    "dataset_id",
+    "dataset_version",
+    "rule_profile_id",
+    "rule_profile_version",
+    "provider",
+    "model",
+    "repetitions",
+)
+_V6_DEVELOPMENT_GATE_FIELDS = (
+    "prompt_version",
+    "prompt_sha256",
+    "dataset_id",
+    "dataset_version",
+    "rule_profile_id",
+    "rule_profile_version",
+    "provider",
+    "model",
+)
 _RETRYABLE_ERROR_CODES: frozenset[AttemptErrorCode] = frozenset(
     {"timeout", "rate_limited", "provider_5xx"}
 )
@@ -130,6 +170,10 @@ def _official_manifest_path() -> Path:
 
 def _phase4_1_manifest_path() -> Path:
     return _package_path("evaluation", "manifests", "s1_distortion_v1_1.yaml")
+
+
+def _phase4_2_manifest_path() -> Path:
+    return _package_path("evaluation", "manifests", "s1_distortion_v1_2.yaml")
 
 
 def _official_profile_path() -> Path:
@@ -395,6 +439,10 @@ def _phase4_1_v6_prompt_sha256() -> str:
     return hashlib.sha256(_S1_PROMPT_V6.system_prompt.encode("utf-8")).hexdigest()
 
 
+def _phase4_2_v7_prompt_sha256() -> str:
+    return hashlib.sha256(_S1_PROMPT_V7.system_prompt.encode("utf-8")).hexdigest()
+
+
 def _official_model_parameters() -> dict[str, ConfigValue]:
     return {
         "temperature": 0.0,
@@ -463,6 +511,35 @@ def _phase4_1_v6_benchmark_config(
         model=_OFFICIAL_MODEL,
         prompt_version=_PHASE4_1_V6_PROMPT_VERSION,
         prompt_sha256=_phase4_1_v6_prompt_sha256(),
+        model_parameters=_official_model_parameters(),
+        sdk_versions=_official_sdk_versions(),
+        repetitions=_OFFICIAL_REPETITIONS,
+        max_infrastructure_retries=2,
+        max_concurrency=1,
+        started_at_utc=started_at_utc,
+    )
+
+
+def _phase4_2_v7_benchmark_config(
+    *,
+    benchmark_id: str,
+    started_at_utc: datetime,
+) -> BenchmarkConfig:
+    if _S1_PROMPT_V7.version != _PHASE4_2_PROMPT_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            f"prompt version must be {_PHASE4_2_PROMPT_VERSION!r}",
+        )
+    return BenchmarkConfig(
+        benchmark_id=benchmark_id,
+        dataset_id=_OFFICIAL_DATASET_ID,
+        dataset_version=_PHASE4_2_DATASET_VERSION,
+        rule_profile_id=_OFFICIAL_PROFILE_ID,
+        rule_profile_version=_OFFICIAL_PROFILE_VERSION,
+        provider=_OFFICIAL_PROVIDER,
+        model=_OFFICIAL_MODEL,
+        prompt_version=_PHASE4_2_PROMPT_VERSION,
+        prompt_sha256=_phase4_2_v7_prompt_sha256(),
         model_parameters=_official_model_parameters(),
         sdk_versions=_official_sdk_versions(),
         repetitions=_OFFICIAL_REPETITIONS,
@@ -707,69 +784,56 @@ def _preflight_phase4_1(
             ) from error
 
 
-def _require_v6_development_gate(
+def _require_identity_complete_development_gate(
     development_bundle: Path,
     config: BenchmarkConfig,
+    *,
+    message: str = (
+        "official campaign requires a development completed/meets_target "
+        "bundle with matching identity"
+    ),
+    identity_fields: tuple[str, ...] = _IDENTITY_COMPLETE_GATE_FIELDS,
 ) -> None:
     metrics_path = development_bundle / "metrics.json"
     recorded_path = development_bundle / "benchmark_manifest.json"
-    if not metrics_path.is_file():
-        raise _PreflightFailure(
-            "invalid_configuration",
-            "v6 official campaign requires a development completed/meets_target bundle",
-        )
+    if not metrics_path.is_file() or not recorded_path.is_file():
+        raise _PreflightFailure("invalid_configuration", message)
     try:
         payload = json.loads(metrics_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
-        raise _PreflightFailure(
-            "invalid_configuration",
-            "v6 official campaign requires a development completed/meets_target bundle",
-        ) from error
+        raise _PreflightFailure("invalid_configuration", message) from error
     if not isinstance(payload, dict):
-        raise _PreflightFailure(
-            "invalid_configuration",
-            "v6 official campaign requires a development completed/meets_target bundle",
-        )
+        raise _PreflightFailure("invalid_configuration", message)
     if (
         payload.get("benchmark_status") != "completed"
         or payload.get("target_status") != "meets_target"
     ):
-        raise _PreflightFailure(
-            "invalid_configuration",
-            "v6 official campaign requires a development completed/meets_target bundle",
-        )
-    if not recorded_path.is_file():
-        return
+        raise _PreflightFailure("invalid_configuration", message)
     try:
         recorded = json.loads(recorded_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
-        raise _PreflightFailure(
-            "invalid_configuration",
-            "v6 official campaign requires a development completed/meets_target bundle",
-        ) from error
+        raise _PreflightFailure("invalid_configuration", message) from error
     recorded_config = recorded.get("config") if isinstance(recorded, dict) else None
     if not isinstance(recorded_config, dict):
-        raise _PreflightFailure(
-            "invalid_configuration",
-            "v6 official campaign requires a development completed/meets_target bundle",
-        )
-    identity_fields = (
-        "prompt_version",
-        "prompt_sha256",
-        "dataset_id",
-        "dataset_version",
-        "rule_profile_id",
-        "rule_profile_version",
-        "provider",
-        "model",
-    )
+        raise _PreflightFailure("invalid_configuration", message)
     if any(
         recorded_config.get(field) != getattr(config, field) for field in identity_fields
     ):
-        raise _PreflightFailure(
-            "invalid_configuration",
-            "v6 official campaign requires a development completed/meets_target bundle",
-        )
+        raise _PreflightFailure("invalid_configuration", message)
+
+
+def _require_v6_development_gate(
+    development_bundle: Path,
+    config: BenchmarkConfig,
+) -> None:
+    _require_identity_complete_development_gate(
+        development_bundle,
+        config,
+        message=(
+            "v6 official campaign requires a development completed/meets_target bundle"
+        ),
+        identity_fields=_V6_DEVELOPMENT_GATE_FIELDS,
+    )
 
 
 def _preflight_phase4_1_v6(
@@ -827,6 +891,78 @@ def _preflight_phase4_1_v6(
         raise _PreflightFailure(
             "invalid_configuration",
             "campaign identity does not match the selected v6 route",
+        )
+    _require_valid_dataset(manifest)
+    if not os.environ.get("DEEPSEEK_API_KEY"):
+        raise _PreflightFailure(
+            "missing_credentials",
+            "set DEEPSEEK_API_KEY before running the official real-model benchmark",
+        )
+    if client_factory is None:
+        try:
+            (import_openai or _import_openai)()
+        except ImportError as error:
+            raise _PreflightFailure(
+                "missing_dependency",
+                "RealLLMPlanner requires the optional openai dependency",
+            ) from error
+
+
+def _preflight_phase4_2_v7(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    *,
+    client_factory: Callable[[], object] | None = None,
+    import_openai: Callable[[], object] | None = None,
+) -> None:
+    if _S1_PROMPT_V7.version != _PHASE4_2_PROMPT_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            f"prompt version must be {_PHASE4_2_PROMPT_VERSION!r}",
+        )
+    expected_hash = _phase4_2_v7_prompt_sha256()
+    if config.prompt_sha256 != expected_hash:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "prompt SHA-256 does not match the frozen product planner prompt",
+        )
+    if config.prompt_version != _PHASE4_2_PROMPT_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            f"prompt version must be {_PHASE4_2_PROMPT_VERSION!r}",
+        )
+    if config.dataset_id != _OFFICIAL_DATASET_ID:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "Phase 4.2 runner pins dataset s1-distortion-synthetic",
+        )
+    if config.dataset_version != _PHASE4_2_DATASET_VERSION:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "Phase 4.2 runner pins dataset version 1.2.0",
+        )
+    if (
+        config.rule_profile_id != _OFFICIAL_PROFILE_ID
+        or config.rule_profile_version != _OFFICIAL_PROFILE_VERSION
+    ):
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "Phase 4.2 runner pins profile_s1_distortion 1.0.0-demo",
+        )
+    if config.provider != _OFFICIAL_PROVIDER or config.model != _OFFICIAL_MODEL:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "official runner pins provider deepseek and model deepseek-v4-flash",
+        )
+    if config.max_concurrency != 1:
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "official execution requires max_concurrency=1",
+        )
+    if not _campaign_identity_matches(manifest, config):
+        raise _PreflightFailure(
+            "invalid_configuration",
+            "campaign identity does not match the selected v7 route",
         )
     _require_valid_dataset(manifest)
     if not os.environ.get("DEEPSEEK_API_KEY"):
@@ -925,6 +1061,22 @@ def _build_phase4_1_planner(inner_client: object) -> RealLLMPlanner:
 def _build_phase4_1_v6_planner(inner_client: object) -> RealLLMPlanner:
     capture = _UsageCapturingClient(inner_client)  # type: ignore[arg-type]
     return _Phase4V6RealLLMPlanner(provider="deepseek", client=capture)
+
+
+def _build_phase4_2_v7_planner(inner_client: object) -> RealLLMPlanner:
+    capture = _UsageCapturingClient(inner_client)  # type: ignore[arg-type]
+    return RealLLMPlanner(provider="deepseek", client=capture)
+
+
+def _phase4_2_v7_signal_id_factory(
+    manifest: DatasetManifest,
+) -> Callable[[EvaluationCase], str]:
+    def factory(case: EvaluationCase) -> str:
+        return _opaque_evaluation_signal_id(
+            manifest.dataset_id, manifest.version, case.case_id
+        )
+
+    return factory
 
 
 def _assemble_applied_agent_trace(
@@ -1541,6 +1693,103 @@ async def _run_phase4_1_v6_official_benchmark(
     )
 
 
+async def _run_phase4_2_v7_development_benchmark(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    output_dir: Path,
+    *,
+    client_factory: Callable[[], object] | None = None,
+    classify_error: Callable[[BaseException], tuple[AttemptStatus, AttemptErrorCode]]
+    | None = None,
+    import_openai: Callable[[], object] | None = None,
+    now: Callable[[], datetime] | None = None,
+) -> BenchmarkReport:
+    if not _campaign_identity_matches(manifest, config):
+        return _write_invalid_configuration_report(
+            load_dataset_manifest(_phase4_2_manifest_path()),
+            config,
+            output_dir,
+            score_split="development",
+            message="manifest does not match the selected campaign identity",
+            extra_warnings=(_PHASE4_1_DEV_WARNING,),
+        )
+    return await _run_real_benchmark_for_split(
+        manifest,
+        config,
+        output_dir,
+        score_split="development",
+        planner_builder=_build_phase4_2_v7_planner,
+        preflight=_preflight_phase4_2_v7,
+        baseline_case_ids=tuple(
+            case.case_id for case in manifest.cases if case.split == "development"
+        ),
+        extra_warnings=(_PHASE4_1_DEV_WARNING,),
+        client_factory=client_factory,
+        classify_error=classify_error,
+        import_openai=import_openai,
+        now=now,
+        signal_id_factory=_phase4_2_v7_signal_id_factory(manifest),
+    )
+
+
+async def _run_phase4_2_v7_official_benchmark(
+    manifest: DatasetManifest,
+    config: BenchmarkConfig,
+    output_dir: Path,
+    *,
+    development_bundle: Path | None = None,
+    client_factory: Callable[[], object] | None = None,
+    classify_error: Callable[[BaseException], tuple[AttemptStatus, AttemptErrorCode]]
+    | None = None,
+    import_openai: Callable[[], object] | None = None,
+    now: Callable[[], datetime] | None = None,
+) -> BenchmarkReport:
+    if not _campaign_identity_matches(manifest, config):
+        return _write_invalid_configuration_report(
+            load_dataset_manifest(_phase4_2_manifest_path()),
+            config,
+            output_dir,
+            score_split="held_out",
+            message="manifest does not match the selected campaign identity",
+        )
+    bundle = (
+        development_bundle
+        if development_bundle is not None
+        else _PHASE4_2_V7_DEV_BUNDLE
+    )
+
+    def preflight(
+        preflight_manifest: DatasetManifest,
+        preflight_config: BenchmarkConfig,
+        **kwargs: object,
+    ) -> None:
+        development_identity = preflight_config.model_copy(
+            update={"benchmark_id": _PHASE4_2_V7_DEV_BENCHMARK_ID}
+        )
+        _require_identity_complete_development_gate(bundle, development_identity)
+        _preflight_phase4_2_v7(
+            preflight_manifest,
+            preflight_config,
+            client_factory=kwargs.get("client_factory"),  # type: ignore[arg-type]
+            import_openai=kwargs.get("import_openai"),  # type: ignore[arg-type]
+        )
+
+    return await _run_real_benchmark_for_split(
+        manifest,
+        config,
+        output_dir,
+        score_split="held_out",
+        planner_builder=_build_phase4_2_v7_planner,
+        preflight=preflight,
+        baseline_case_ids=tuple(case.case_id for case in manifest.cases),
+        client_factory=client_factory,
+        classify_error=classify_error,
+        import_openai=import_openai,
+        now=now,
+        signal_id_factory=_phase4_2_v7_signal_id_factory(manifest),
+    )
+
+
 def _campaign_identity_matches(
     manifest: DatasetManifest, config: BenchmarkConfig
 ) -> bool:
@@ -1583,6 +1832,96 @@ def _write_invalid_configuration_report(
     )
     write_benchmark_bundle(report, output_dir)
     return report
+
+
+@dataclass(frozen=True)
+class _Phase42V7Campaign:
+    canonical_id: str
+    score_split: EvaluationSplit
+    extra_warnings: tuple[str, ...]
+    identity_mismatch_message: str
+    require_canonical_id: bool
+    config_builder: Callable[..., BenchmarkConfig]
+    manifest_path: Callable[[], Path]
+    runner_name: str
+
+
+_PHASE4_2_V7_CAMPAIGNS: dict[str, _Phase42V7Campaign] = {
+    "phase4.2-v7-development": _Phase42V7Campaign(
+        canonical_id=_PHASE4_2_V7_DEV_BENCHMARK_ID,
+        score_split="development",
+        extra_warnings=(_PHASE4_1_DEV_WARNING,),
+        identity_mismatch_message=(
+            "campaign identity does not match the selected v7 route"
+        ),
+        require_canonical_id=True,
+        config_builder=_phase4_2_v7_benchmark_config,
+        manifest_path=_phase4_2_manifest_path,
+        runner_name="_run_phase4_2_v7_development_benchmark",
+    ),
+    "phase4.2-v7-official": _Phase42V7Campaign(
+        canonical_id=_PHASE4_2_V7_OFFICIAL_BENCHMARK_ID,
+        score_split="held_out",
+        extra_warnings=(),
+        identity_mismatch_message=(
+            "campaign identity does not match the selected v7 route"
+        ),
+        require_canonical_id=True,
+        config_builder=_phase4_2_v7_benchmark_config,
+        manifest_path=_phase4_2_manifest_path,
+        runner_name="_run_phase4_2_v7_official_benchmark",
+    ),
+}
+
+
+async def _run_phase4_2_v7_campaign(
+    campaign: str,
+    *,
+    benchmark_id: str | None,
+    manifest_path: Path | None,
+    output_dir: Path,
+    started_at_utc: datetime,
+) -> BenchmarkReport:
+    route = _PHASE4_2_V7_CAMPAIGNS[campaign]
+    canonical_id = route.canonical_id
+    config = route.config_builder(
+        benchmark_id=benchmark_id or canonical_id,
+        started_at_utc=started_at_utc,
+    )
+    campaign_manifest = load_dataset_manifest(route.manifest_path())
+    manifest = (
+        load_dataset_manifest(manifest_path)
+        if manifest_path is not None
+        else campaign_manifest
+    )
+    extra = route.extra_warnings
+    if (
+        route.require_canonical_id
+        and benchmark_id is not None
+        and benchmark_id != canonical_id
+    ):
+        return _write_invalid_configuration_report(
+            campaign_manifest,
+            config,
+            output_dir,
+            score_split=route.score_split,
+            message=(
+                "Phase 4.2 acceptance campaigns require the canonical "
+                "benchmark ID"
+            ),
+            extra_warnings=extra,
+        )
+    if not _campaign_identity_matches(manifest, config):
+        return _write_invalid_configuration_report(
+            campaign_manifest,
+            config,
+            output_dir,
+            score_split=route.score_split,
+            message=route.identity_mismatch_message,
+            extra_warnings=extra,
+        )
+    runner = globals()[route.runner_name]
+    return await runner(manifest, config, output_dir)
 
 
 async def _run_deterministic_benchmark(

@@ -12,6 +12,7 @@ from signal_diag.evaluation.dataset import load_dataset_manifest, validate_datas
 from signal_diag.evaluation.models import BenchmarkReport
 from signal_diag.evaluation.reporting import write_benchmark_bundle
 from signal_diag.evaluation.runner import (
+    _PHASE4_2_V7_CAMPAIGNS,
     _campaign_identity_matches,
     _official_benchmark_config,
     _official_dependencies,
@@ -25,6 +26,7 @@ from signal_diag.evaluation.runner import (
     _run_phase4_1_official_benchmark,
     _run_phase4_1_v6_development_benchmark,
     _run_phase4_1_v6_official_benchmark,
+    _run_phase4_2_v7_campaign,
     _scripted_benchmark_config,
     _write_invalid_configuration_report,
 )
@@ -34,6 +36,13 @@ _DEFAULT_OUTPUT_DIR = Path("docs") / "evaluations" / "phase4"
 _V6_DEV_ID = "bench_phase4_1_dev_v6_gate2"
 _V6_OFFICIAL_ID = "bench_official_s1_v11_planner6_gate2"
 _V6_DEV_WARNING = "development split; not official held-out evidence"
+_HISTORICAL_RUN_REAL_CAMPAIGNS = (
+    "phase4",
+    "phase4.1-development",
+    "phase4.1-official",
+    "phase4.1-v6-development",
+    "phase4.1-v6-official",
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -66,13 +75,7 @@ def build_parser() -> argparse.ArgumentParser:
     real.add_argument("--benchmark-id", type=str, default=None)
     real.add_argument(
         "--campaign",
-        choices=(
-            "phase4",
-            "phase4.1-development",
-            "phase4.1-official",
-            "phase4.1-v6-development",
-            "phase4.1-v6-official",
-        ),
+        choices=(*_HISTORICAL_RUN_REAL_CAMPAIGNS, *_PHASE4_2_V7_CAMPAIGNS),
         default="phase4",
     )
 
@@ -161,6 +164,19 @@ def main(argv: list[str] | None = None) -> int:
                 )
             report = asyncio.run(
                 _run_official_benchmark(manifest, config, args.output_dir)
+            )
+            print(report.benchmark_status)
+            return 0
+
+        if args.campaign in _PHASE4_2_V7_CAMPAIGNS:
+            report = asyncio.run(
+                _run_phase4_2_v7_campaign(
+                    args.campaign,
+                    benchmark_id=args.benchmark_id,
+                    manifest_path=args.manifest,
+                    output_dir=args.output_dir,
+                    started_at_utc=datetime.now(UTC),
+                )
             )
             print(report.benchmark_status)
             return 0

@@ -33,6 +33,8 @@ _V6_CAMPAIGNS = (
     "phase4.1-official",
     "phase4.1-v6-development",
     "phase4.1-v6-official",
+    "phase4.2-v7-development",
+    "phase4.2-v7-official",
 )
 _DEV_WARNING = "development split; not official held-out evidence"
 _V6_DEV_BUNDLE = Path("docs/evaluations/phase4_1/development") / _V6_DEV_ID

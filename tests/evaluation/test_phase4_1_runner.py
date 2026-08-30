@@ -77,6 +77,8 @@ _PHASE4_1_CAMPAIGNS = (
     "phase4.1-official",
     "phase4.1-v6-development",
     "phase4.1-v6-official",
+    "phase4.2-v7-development",
+    "phase4.2-v7-official",
 )
 _SUBCOMMANDS = {
     "validate-dataset",
