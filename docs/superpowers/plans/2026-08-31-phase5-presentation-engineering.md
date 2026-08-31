@@ -1852,7 +1852,12 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
 - Produces either `presentation_harness_accepted` after both CI matrix jobs pass,
   or the exact honest pending state that blocks Task 14.
 
-- [ ] **Step 1: Write the T285 cumulative guard**
+**Local status after Steps 1–5 (commit deferred to parent; hosted CI not run):**
+
+Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+
+- [x] **Step 1: Write the T285 cumulative guard**
 
   Add one test that names every Phase 5 checkpoint file and freezes forbidden
   historical paths/hashes. It must prove no required test marker is skip/xfail,
@@ -1868,7 +1873,7 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
       assert "real_demo_completed" in test_plan
   ```
 
-- [ ] **Step 2: Run focused architecture and Phase 5 suites**
+- [x] **Step 2: Run focused architecture and Phase 5 suites**
 
   ```powershell
   & $Phase5Python -m pytest tests/signal/test_wav.py tests/app tests/evaluation/test_recording.py tests/test_architecture_boundaries.py -q -rxXs -p no:cacheprovider
@@ -1876,7 +1881,7 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
 
   Expected: zero failed, skipped, or xfailed tests.
 
-- [ ] **Step 3: Run the complete local deterministic gate**
+- [x] **Step 3: Run the complete local deterministic gate**
 
   ```powershell
   $Phase5Temp = Join-Path $env:TEMP ('signal-diag-phase5-pytest-' + [guid]::NewGuid().ToString('N'))
@@ -1890,7 +1895,7 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
   system Temp directory. Required result: T001–T285, zero skip/xfail, Ruff,
   mypy, architecture, and diff-check green.
 
-- [ ] **Step 4: Repeat build and clean-install smoke from Task 12**
+- [x] **Step 4: Repeat build and clean-install smoke from Task 12**
 
   Run `& $Phase5Python scripts/verify_phase5_wheel.py`. Require a fresh
   system-Temp source copy and venv, both sdist and wheel, installation from the
@@ -1898,7 +1903,7 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
   repository, the installed smoke, complete package-data inspection, and
   reported artifact hashes.
 
-- [ ] **Step 5: Record local readiness without inventing CI success**
+- [x] **Step 5: Record local readiness without inventing CI success**
 
   If local gates pass, update status to exactly:
 

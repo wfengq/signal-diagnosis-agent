@@ -6,11 +6,13 @@ This repository implements a Signal Test and Fault Diagnosis Agent.
 
 The current phase is **Phase 5 presentation implementation** on branch
 `phase5-presentation-engineering`. Phase 4.3.1 is accepted on the merged
-baseline `36ae7c9`. Phase 5 source through Task 12 (packaging, architecture
-guards, CI, product docs) is implemented but **not CI-accepted**. Do not claim
-`presentation_harness_accepted` (Task 13) or `real_demo_completed` (Tasks
-14–15). Do not run a real-model Demo, push, or merge until those later gates
-pass. Frozen authority remains
+baseline `36ae7c9`.
+
+Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+
+Do not run a real-model Demo, push, or merge until hosted CI and Task 14–15
+gates pass. Frozen authority remains
 `docs/superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`,
 `CONTRACTS_V0_2.md` §§55–§64, `TEST_PLAN_V0_2.md` §28 (T224–T285), D026–D030,
 resolved OQ-010, and
@@ -58,7 +60,9 @@ accepted at Task 10 (development and official both `completed/meets_target`;
 terminal evidence at `99e0bdc`).
 This is a one-time v8.1
 conformance exception to D024, not an
-unrestricted v9. Phase 5 implementation is in progress and is not yet CI-accepted.
+unrestricted v9.
+Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 Push and merge remain unauthorized. The detailed
 plan is
 `docs/superpowers/plans/2026-08-30-phase4-3-1-v8-1-compliance-correction.md`.
@@ -78,7 +82,8 @@ Phase 4.1 authority is additive `CONTRACTS_V0_2.md` §§50–§51,
 frozen §§41–§49 or T125–T183 semantics. Phase 5 written contract, plan, and
 execution choice were separate gates from Phase 4.3.1. Phase 4.3.1 acceptance
 is the final product-behavior gate; it did not itself auto-authorize Phase 5.
-Phase 5 implementation is now in progress and is not yet CI-accepted.
+Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 Phase 4.2 design authority is
 `docs/superpowers/specs/2026-08-30-phase4-2-prompt-v7-correction-design.md`,
@@ -94,8 +99,10 @@ frozen `CONTRACTS_V0_2.md` §53, `TEST_PLAN_V0_2.md` §26 (T209–T215), D024,
 and resolved OQ-008. Deterministic Tasks 1–4 are implemented and T215 is green
 at `1c70568`; that is not a live-model pass. Task 5 development gate4 at
 `48dfb89` is honest `completed/below_target`. Task 6 official was not run.
-No v9. Phase 4.3 is not accepted. Phase 5 implementation is in progress and is not yet CI-accepted. Further behavior
-work normally requires a new written choice between model capability and
+No v9. Phase 4.3 is not accepted.
+Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+Further behavior work normally requires a new written choice between model capability and
 PlannerContext. Phase 4.3.1 is the sole approved compliance exception because
 the v8 implementation and scorer did not faithfully enforce §53.
 
@@ -108,7 +115,8 @@ prompt `v0.2-s1-planner-8.1` and versioned scoring policy
 `083b6d9`. Development gate5 is honest `completed/meets_target`. Official
 held-out (Task 9) is honest `completed/meets_target` on 80 Agent held-out
 slots. Phase 4.3.1 is accepted at Task 10 (terminal evidence at `99e0bdc`).
-OQ-010 is resolved. Phase 5 implementation is in progress and is not yet CI-accepted.
+OQ-010 is resolved. Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 Phase 1 (T001–T063), Phase 2 (T064–T092), and Phase 3 (T093–T124) are complete
 and accepted. Phase 3 passed Codex final acceptance at commit `a820b7f` on
@@ -179,7 +187,8 @@ Runtime, PlannerContext, scoring, targets, provider, and model. Deterministic
 Tasks 1–4 are complete and T215 is green at `1c70568` (not a live-model pass).
 v8 development is honest `completed/below_target` at `48dfb89`. Official was
 not run. No prompt-only v9 is authorized. The next design choice is model
-capability versus PlannerContext. Phase 5 implementation is in progress and is not yet CI-accepted.
+capability versus PlannerContext. Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 These documents describe approved architecture and frozen interfaces.
 
@@ -204,8 +213,9 @@ real-model claim. Task 8 development already ran and is honest
 (historical v6/v7 official campaigns were never executed). v1.1.0 held-out
 remains unexecuted. v1.2.0 held-out was first executed only by the authorized
 Phase 4.3.1 v8.1 official gate5. Phase 4.3.1 acceptance supersedes earlier
-failed candidates as the final product-behavior gate. Phase 5 implementation
-is in progress and is not yet CI-accepted.
+failed candidates as the final product-behavior gate.
+Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 Additive Phase 4.3 §53 and T209–T215 are frozen. Deterministic implementation
 satisfies T001–T215, Ruff, mypy, architecture, and
@@ -214,7 +224,8 @@ a live-model pass. Task 5 development already ran and is honest
 `completed/below_target` at `48dfb89` (40 unique Agent slots; 0 held-out).
 Task 6 official/held-out was not legally run (historical v8 official was never
 executed). v1.2.0 held-out is inspectable only via the committed Phase 4.3.1
-official bundle. Do not create v9. Phase 5 implementation is in progress and is not yet CI-accepted.
+official bundle. Do not create v9. Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 Further work requires a written choice
 between changing the model and changing PlannerContext.
 
@@ -228,7 +239,8 @@ preserves frozen v8 bytes. v8.1 development gate5 is honest
 split; not official held-out evidence). Official held-out (Task 9) is honest
 `completed/meets_target` on 80 Agent held-out slots. Phase 4.3.1 is accepted
 at Task 10 (terminal evidence at `99e0bdc`). Push and merge remain unauthorized
-until later Phase 5 gates. Phase 5 implementation is in progress and is not yet CI-accepted.
+until later Phase 5 gates. Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 Do not redesign or rename public models, functions, modules, arguments, return
 values, or package boundaries unless the user explicitly requests a contract
@@ -257,7 +269,7 @@ Rules:
 - `knowledge/` owns curated corpus storage and deterministic keyword/tag retrieval.
 - `agent/` owns Planner integration and deterministic runtime control.
 - `evaluation/` owns deterministic and real-model evaluation.
-- `app/` owns CLI/API/UI/report adapters (Phase 5; not yet CI-accepted).
+- `app/` owns CLI/API/UI/report adapters (Phase 5; hosted CI pending).
 - `signal/`, `dsp/`, `tools/`, `rules/`, and `knowledge/` must not depend on
   Agent or LLM frameworks.
 - `rules/` and `knowledge/` must not depend on `agent/`.
@@ -303,8 +315,9 @@ implementation is complete at `cadc15d`; both v5 development gate1 and v6
 development gate2 are immutable `completed/below_target` results. Phase 4.2
 deterministic implementation is complete and T208 is green. v7 development
 gate3 is honest `completed/below_target`. Official v1.2.0 held-out was
-not run. Phase 4.1 is not accepted. Phase 4.2 is not accepted. Phase 5
-implementation is in progress and is not yet CI-accepted.
+not run. Phase 4.1 is not accepted. Phase 4.2 is not accepted.
+Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 Phase 4.3 deterministic implementation is complete and T215 is green at
 `1c70568`; that is not a live-model pass. v8 development gate4 is honest
@@ -313,7 +326,8 @@ Phase 4.3 is not accepted. Phase 4.3.1 §54/T216–T223/D025/OQ-009 are frozen.
 Deterministic Tasks 2–7 are complete at `083b6d9`. v8.1 development gate5 is
 honest `completed/meets_target`. Official v1.2.0 held-out (Task 9) is honest
 `completed/meets_target` on 80 Agent held-out slots. Phase 4.3.1 is accepted
-at Task 10 (terminal evidence at `99e0bdc`). Phase 5 implementation is in progress and is not yet CI-accepted.
+at Task 10 (terminal evidence at `99e0bdc`). Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 Do not create v8.2 or v9.
 
 ## Completed phases (reference)
@@ -359,7 +373,8 @@ failure and is not accepted as product-quality behavior.
 Additive §§50–§51, T184–T200, and D021–D022. v5 gate1 is immutable
 `completed/below_target`; v6 is a coherent prompt-only correction using the
 existing v1.1.0 development split before any held-out access. It does not
-change frozen §§41–§49 or T125–T183. Phase 5 implementation is in progress and is not yet CI-accepted.
+change frozen §§41–§49 or T125–T183. Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 ### Phase 4.2 — evaluation integrity and planner v7 (development below target)
 
@@ -394,7 +409,8 @@ canonical v8 campaign routes are implemented. Recorded statuses at `48dfb89`
   `timely_stopping_rate` 0.75, `unsupported_claim_rate` 0.211)
 - CLI `harness_status=pending` (report-model semantics, not a harness failure)
 - Phase 4.3 acceptance: not accepted
-- Phase 5 implementation: in progress; not CI-accepted
+- Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+  CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 Bundle:
 `docs/evaluations/phase4_3/development/bench_phase4_3_dev_v8_v12_gate4/`.
@@ -425,7 +441,8 @@ statuses (do not conflate them):
 - Task 9 official held-out: executed; honest `completed/meets_target`
 - Phase 4.3.1 acceptance: accepted at Task 10 (development and official
   both `completed/meets_target`; terminal evidence at `99e0bdc`)
-- Phase 5 implementation: in progress; not CI-accepted
+- Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+  CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 Development bundle:
 `docs/evaluations/phase4_3_1/development/bench_phase4_3_1_dev_v8_1_v12_gate5/`.
@@ -435,9 +452,11 @@ evidence.
 Official bundle:
 `docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/`.
 80 Agent held-out slots (16 cases × 5 reps). Phase 4.3.1 acceptance recorded
-at Task 10. Phase 5 implementation is in progress and is not yet CI-accepted.
+at Task 10.
+Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
-### Phase 5 — presentation engineering (implemented, not CI-accepted)
+### Phase 5 — presentation engineering (local deterministic green; hosted CI pending)
 
 The interactive design selects a native Web UI as the primary Demo, FastAPI and
 argparse as thin adapters, one shared DiagnosisApplicationService, bounded
@@ -454,11 +473,13 @@ Frozen authority is:
 - `docs/superpowers/plans/2026-08-31-phase5-presentation-engineering.md`.
 
 Phase 5 source, tests, packaging, architecture guards, secret-free CI, and
-root README are implemented on `phase5-presentation-engineering`. This is
-**not** `presentation_harness_accepted`. Hosted Python 3.11/3.12 CI and the
-T285 cumulative gate remain Task 13. Real-model Demo runs remain Tasks 14–15.
-Do not fabricate Demo WAV/report/screenshot files under
-`docs/demo/phase5/v0_2_acceptance`.
+root README are implemented on `phase5-presentation-engineering`.
+
+Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+
+Real-model Demo runs remain Tasks 14–15. Do not fabricate Demo
+WAV/report/screenshot files under `docs/demo/phase5/v0_2_acceptance`.
 
 ## Development workflow
 
@@ -530,7 +551,8 @@ were green before its honest `completed/below_target` development gate1 at
 `f9392c2`. v6 implementation must satisfy T001–T200, Ruff, mypy, architecture,
 and `git diff --check f9392c2..HEAD`; its 40-slot development gate2 must meet
 target before the one-shot 80-slot official run. Phase 4.1 acceptance requires
-the v6 official result to be `completed/meets_target`. Phase 5 implementation is in progress and is not yet CI-accepted.
+the v6 official result to be `completed/meets_target`. Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 Phase 4.2 deterministic implementation must satisfy T001–T208, Ruff, mypy,
 architecture, and `git diff --check aefccba..HEAD` with zero required
@@ -549,6 +571,7 @@ mypy, architecture, and diff-check are green. v8.1 development gate5 is honest
 `completed/meets_target`. Official held-out (Task 9) is honest
 `completed/meets_target` on 80 Agent held-out slots. Phase 4.3.1 is accepted
 at Task 10 (terminal evidence at `99e0bdc`). Do not create v8.2 or v9.
-Phase 5 implementation is in progress and is not yet CI-accepted.
+Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
+CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 Never say that a later phase is complete if required tests are failing.

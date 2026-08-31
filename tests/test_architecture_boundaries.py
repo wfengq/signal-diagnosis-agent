@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import ast
+import hashlib
+import json
 import subprocess
 from pathlib import Path
 
@@ -1219,3 +1221,320 @@ def test_boundary_helper_detects_app_reverse_imports_in_memory() -> None:
         source,
         "fake_evaluation_module.py",
     ) == ["signal_diag.app"]
+
+
+REPO_ROOT = PROJECT_ROOT
+_PHASE5_CHECKPOINT_FILES = (
+    "tests/signal/test_wav.py",
+    "tests/app/test_presets_preview.py",
+    "tests/app/test_models.py",
+    "tests/app/test_runs.py",
+    "tests/app/test_service.py",
+    "tests/evaluation/test_recording.py",
+    "tests/app/test_reporting.py",
+    "tests/app/test_api.py",
+    "tests/app/test_ui.py",
+    "tests/app/test_cli.py",
+    "tests/app/test_packaging.py",
+    "tests/test_architecture_boundaries.py",
+    ".github/workflows/ci.yml",
+)
+_PHASE5_OFFICIAL_SUMMARY = (
+    SRC_ROOT / "evaluation" / "assets" / "phase4_3_1_official_summary.json"
+)
+_PHASE5_OFFICIAL_BUNDLE = (
+    PROJECT_ROOT
+    / "docs"
+    / "evaluations"
+    / "phase4_3_1"
+    / "official"
+    / "bench_official_s1_v12_planner8_1_gate5"
+)
+_PHASE5_OFFICIAL_CHECKSUMS = {
+    "benchmark_manifest.json": (
+        "355fc75eab5d4580606fb3eb31a71566cc4b2a8303d412aa309df5b3c9ae71a7"
+    ),
+    "case_summary.csv": (
+        "3699061f726cf8de1b8d6eff9bcf3bd8487431d64f23944dbf0c95ce87bcaeae"
+    ),
+    "metrics.json": (
+        "e60aa63de6f030bf88fd7154cd0f7b72fd7bf36589ad769a234ee02fd6e956d0"
+    ),
+    "report.md": "8f2f47e34731254ae45987445076e041f8675da17f56cc0463530c412ec1b4f0",
+    "runs.jsonl": "cff5a41ea8ed6f7838cc72e25b678d7b11eb97976e27a039e80d877d781ac35d",
+}
+_PHASE5_ALLOWED_UPSTREAM_PATHS = {
+    "src/signal_diag/signal/__init__.py",
+    "src/signal_diag/signal/wav.py",
+    "src/signal_diag/evaluation/__init__.py",
+    "src/signal_diag/evaluation/recording.py",
+    "src/signal_diag/evaluation/assets/__init__.py",
+    "src/signal_diag/evaluation/assets/phase4_3_1_official_summary.json",
+}
+_PHASE3_SKIP_TEMPLATES = frozenset({"Phase 3 package {}/ not created yet"})
+_PHASE3_SKIP_SOURCE_SNIPPETS = (
+    'pytest.skip(f"Phase 3 package {layer}/ not created yet")',
+    'pytest.skip(f"Phase 3 package {package_name}/ not created yet")',
+)
+
+
+def _test_python_files() -> list[Path]:
+    tests_root = PROJECT_ROOT / "tests"
+    return sorted(path for path in tests_root.rglob("*.py") if path.is_file())
+
+
+def _call_attr_name(func: ast.AST) -> str:
+    if isinstance(func, ast.Name):
+        return func.id
+    if isinstance(func, ast.Attribute):
+        return func.attr
+    return ""
+
+
+def _joined_string_template(node: ast.JoinedStr) -> str:
+    parts: list[str] = []
+    for value in node.values:
+        if isinstance(value, ast.Constant) and isinstance(value.value, str):
+            parts.append(value.value)
+        elif isinstance(value, ast.FormattedValue):
+            parts.append("{}")
+    return "".join(parts)
+
+
+def _skip_call_template(call: ast.Call) -> str:
+    if not call.args:
+        return ""
+    argument = call.args[0]
+    if isinstance(argument, ast.Constant) and isinstance(argument.value, str):
+        return argument.value
+    if isinstance(argument, ast.JoinedStr):
+        return _joined_string_template(argument)
+    return ""
+
+
+def _pytest_skip_xfail_kind(node: ast.AST) -> str | None:
+    target = node.func if isinstance(node, ast.Call) else node
+    if not isinstance(target, ast.Attribute):
+        return None
+    if target.attr not in {"skip", "xfail", "skipif", "importorskip"}:
+        return None
+    value = target.value
+    if isinstance(value, ast.Name) and value.id == "pytest":
+        return f"pytest.{target.attr}"
+    if (
+        isinstance(value, ast.Attribute)
+        and value.attr == "mark"
+        and isinstance(value.value, ast.Name)
+        and value.value.id == "pytest"
+    ):
+        return f"pytest.mark.{target.attr}"
+    return None
+
+
+def _is_empty_collection(node: ast.AST) -> bool:
+    if isinstance(node, (ast.List, ast.Tuple, ast.Set)) and not node.elts:
+        return True
+    if isinstance(node, ast.Dict) and not node.keys:
+        return True
+    if isinstance(node, ast.Call) and _call_attr_name(node.func) in {
+        "list",
+        "tuple",
+        "set",
+        "frozenset",
+        "dict",
+    }:
+        return not node.args and not node.keywords
+    return False
+
+
+def _module_assign_map(tree: ast.AST) -> dict[str, ast.AST]:
+    values: dict[str, ast.AST] = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    values[target.id] = node.value
+        elif (
+            isinstance(node, ast.AnnAssign)
+            and isinstance(node.target, ast.Name)
+            and node.value is not None
+        ):
+            values[node.target.id] = node.value
+    return values
+
+
+def _parametrize_values_node(call: ast.Call) -> ast.AST | None:
+    if len(call.args) >= 2:
+        return call.args[1]
+    for keyword in call.keywords:
+        if keyword.arg in {"argvalues", "values"}:
+            return keyword.value
+    return None
+
+
+def _is_blank_constant(node: ast.AST) -> bool:
+    return isinstance(node, ast.Constant) and not node.value
+
+
+def _is_openai_module(name: str) -> bool:
+    return name == "openai" or name.startswith("openai.")
+
+
+def _planner_ctor_has_live_credentials(call: ast.Call) -> bool:
+    keywords = {kw.arg: kw.value for kw in call.keywords if kw.arg is not None}
+    if "client" in keywords:
+        return False
+    provider = keywords.get("provider")
+    api_key = keywords.get("api_key")
+    if provider is None or api_key is None:
+        return False
+    return not _is_blank_constant(provider) and not _is_blank_constant(api_key)
+
+
+def test_t285_phase5_cumulative_contract_is_registered() -> None:
+    test_plan = (REPO_ROOT / "docs" / "TEST_PLAN_V0_2.md").read_text("utf-8")
+    for number in range(224, 286):
+        assert f"| T{number} |" in test_plan
+    assert "presentation_harness_accepted" in test_plan
+    assert "real_demo_completed" in test_plan
+
+    for relative in _PHASE5_CHECKPOINT_FILES:
+        path = PROJECT_ROOT / relative
+        assert path.is_file(), f"missing Phase 5 checkpoint file: {relative}"
+
+    names = _collect_test_function_names()
+    missing_ids = [
+        f"T{number}"
+        for number in range(224, 286)
+        if not any(name.startswith(f"test_t{number}_") for name in names)
+    ]
+    assert not missing_ids, "missing Phase 5 test ids: " + ", ".join(missing_ids)
+
+    summary = json.loads(_PHASE5_OFFICIAL_SUMMARY.read_text(encoding="utf-8"))
+    assert summary["benchmark_id"] == "bench_official_s1_v12_planner8_1_gate5"
+    assert summary["scoring_version"] == "2.0.0"
+    assert summary["agent_slot_count"] == 80
+    assert summary["behavioral_failure_slot_count"] == 2
+    assert summary["outcome_error_slot_count"] == 1
+    assert summary["source_bundle_relative_path"] == (
+        "docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5"
+    )
+    assert summary["source_checksums_sha256"] == _PHASE5_OFFICIAL_CHECKSUMS
+    for name, digest in _PHASE5_OFFICIAL_CHECKSUMS.items():
+        payload = (_PHASE5_OFFICIAL_BUNDLE / name).read_bytes().replace(b"\r\n", b"\n")
+        assert hashlib.sha256(payload).hexdigest() == digest
+
+    architecture_source = Path(__file__).read_text(encoding="utf-8")
+    for snippet in _PHASE3_SKIP_SOURCE_SNIPPETS:
+        assert snippet in architecture_source
+    assert PHASE3_PACKAGES == ("rules", "knowledge")
+    for package_name in PHASE3_PACKAGES:
+        package_dir = SRC_ROOT / package_name
+        assert package_dir.is_dir(), f"Phase 3 skip would fire: missing {package_name}/"
+
+    skip_hits: list[str] = []
+    empty_parametrize: list[str] = []
+    network_hits: list[str] = []
+    openai_imports: list[str] = []
+    for path in _test_python_files():
+        source = path.read_text(encoding="utf-8")
+        tree = ast.parse(source, filename=str(path))
+        relative = str(path.relative_to(PROJECT_ROOT)).replace("\\", "/")
+        assignments = _module_assign_map(tree)
+        candidates: list[ast.AST] = [
+            node for node in ast.walk(tree) if isinstance(node, ast.Call)
+        ]
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                continue
+            for decorator in node.decorator_list:
+                if isinstance(decorator, ast.Attribute):
+                    candidates.append(decorator)
+        for node in candidates:
+            kind = _pytest_skip_xfail_kind(node)
+            if kind is None:
+                continue
+            if (
+                kind == "pytest.skip"
+                and isinstance(node, ast.Call)
+                and relative == "tests/test_architecture_boundaries.py"
+                and _skip_call_template(node) in _PHASE3_SKIP_TEMPLATES
+            ):
+                continue
+            skip_hits.append(f"{relative}: {kind}")
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            if _call_attr_name(node.func) != "parametrize":
+                continue
+            values = _parametrize_values_node(node)
+            if values is None:
+                continue
+            resolved = values
+            if isinstance(values, ast.Name) and values.id in assignments:
+                resolved = assignments[values.id]
+            if _is_empty_collection(resolved):
+                empty_parametrize.append(relative)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if _is_openai_module(alias.name):
+                        openai_imports.append(f"{relative} imports {alias.name}")
+            elif (
+                isinstance(node, ast.ImportFrom)
+                and node.module is not None
+                and _is_openai_module(node.module)
+            ):
+                openai_imports.append(f"{relative} imports {node.module}")
+            if not isinstance(node, ast.Call):
+                continue
+            if _call_attr_name(node.func) == "_create_async_openai_client":
+                network_hits.append(f"{relative} calls _create_async_openai_client")
+            if (
+                _call_attr_name(node.func).endswith("RealLLMPlanner")
+                and _planner_ctor_has_live_credentials(node)
+            ):
+                network_hits.append(
+                    f"{relative} constructs RealLLMPlanner with live credentials and no client"
+                )
+    assert not skip_hits, "required tests must not skip/xfail:\n" + "\n".join(skip_hits)
+    assert not empty_parametrize, "empty parametrize would skip:\n" + "\n".join(
+        empty_parametrize
+    )
+    assert not openai_imports, "required tests import openai:\n" + "\n".join(
+        openai_imports
+    )
+    assert not network_hits, "required tests open a RealLLMPlanner network path:\n" + "\n".join(
+        network_hits
+    )
+
+    workflow = (PROJECT_ROOT / ".github" / "workflows" / "ci.yml").read_text("utf-8")
+    assert "3.11" in workflow
+    assert "3.12" in workflow
+    assert "DEEPSEEK_API_KEY" not in workflow
+
+    diff_check = subprocess.run(
+        ["git", "diff", "--check", f"{_PHASE4_3_1_MERGED_BASELINE}..HEAD"],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert diff_check.returncode == 0, diff_check.stdout + diff_check.stderr
+
+    changed = _git_name_only(f"{_PHASE4_3_1_MERGED_BASELINE}..HEAD")
+    assert changed.returncode == 0, changed.stderr
+    frozen_hits: list[str] = []
+    for path in changed.stdout.splitlines():
+        if path.startswith("docs/evaluations/phase4_3_1/"):
+            frozen_hits.append(path)
+        if not path.startswith("src/signal_diag/"):
+            continue
+        if path.startswith("src/signal_diag/app/"):
+            continue
+        if path in _PHASE5_ALLOWED_UPSTREAM_PATHS:
+            continue
+        frozen_hits.append(path)
+    assert not frozen_hits, "frozen Phase 1–4.3.1 paths drifted:\n" + "\n".join(
+        frozen_hits
+    )
