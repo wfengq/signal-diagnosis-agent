@@ -59,26 +59,25 @@ shell was stripped; the JSON object was not rewritten.
 
 ## P5-R003 UI
 
-The primary Web UI submitted the `clipping` preset once. After completion it
-showed lifecycle `completed`, diagnosis `supported_fault` / clipping,
-chronological trace, Evidence, rule judgments, “No knowledge retrievals,”
-JSON/HTML download links, and the packaged Evaluation panel:
+The primary Web UI submitted the `clipping` preset once for app run
+`run_02841350c97647f6953466efb22ead64`. Three sanitized PNGs document the
+same completed page. No new diagnosis was submitted; supplemental captures
+restored the still-available completed run from the original `:8765` serve
+process (run state verified via `/api/v1/runs/{run_id}` before capture).
 
-- `completed/meets_target`
-- 80 held-out Agent slots
-- 2/80 behavioral-failure slots
-- 1/80 outcome error
-- demonstration-target wording (not standards or SLAs)
+| File | Shows |
+|---|---|
+| `ui_completed.png` | Input form, download links, lifecycle `completed` |
+| `ui_diagnosis_sections.png` | Lifecycle `completed`, diagnosis (`supported_fault` / clipping), waveform preview, trace (7 events), observations, evidence (12), rules (5), knowledge (0 retrievals) |
+| `ui_evaluation_panel.png` | Accepted evaluation summary: `completed/meets_target`, 80 slots, 2/80 behavioral-failure slots, 1/80 outcome error, demonstration-target disclaimer |
 
-`ui_completed.png` is a sanitized screenshot of that same completed page
-(2171×1208). The captured viewport shows the clipping form, default question,
-mixdown, report download links, and lifecycle `completed`. It does **not**
-include the Evaluation panel, diagnosis, trace, Evidence, rules, or
-knowledge lists. Those sections were inspected live on the same completed
-page (accessibility tree) and are in the synthetic JSON/HTML. The packaged
-Evaluation summary still discloses `completed/meets_target`, 80 slots, 2/80,
-and 1/80. The PNG does not contain a credential, local username path, raw
-provider body, or unsanitized stack.
+`ui_completed.png` remains the original Task 14 viewport capture. The two
+supplemental PNGs were added because that viewport alone did not satisfy
+independent P5-R003 review of diagnosis/trace/evidence/rules/knowledge and
+Evaluation disclosure.
+
+None of the PNGs contain a credential, local username path, raw provider body,
+or unsanitized stack trace.
 
 ## Files (SHA-256 of committed bytes)
 
@@ -90,6 +89,8 @@ provider body, or unsanitized stack.
 | `wav_report.json` | `4de2f827e0e073abb359a34bfcb45c6dba10ea653a0195fcd41a9746db292962` | 87664 |
 | `wav_report.html` | `68f95681fa6ffc3556c2d4a8bcb5ab988714fbd23e598a528c7c262e0a06a8d4` | 9061 |
 | `ui_completed.png` | `0bc394ac1eb08274bd015c7a3e94819ffc0de71443ab9ae65bd487bbb23e312d` | 87213 |
+| `ui_diagnosis_sections.png` | `b450b4d84d93cffa7e5183351374697e5c60793940bda9c02ce4a558819e5acd` | 271574 |
+| `ui_evaluation_panel.png` | `34d9997711d8c475ccdb8f01bc6c73d3cf8ac138b32210158211725906c658be` | 17372 |
 
 WAV metadata: 48 kHz, mono, 16-bit PCM, 48,000 frames, 1.0 s. The file is the
 public Demo clipping encoder output; the digest matches the Task 12 encoder
