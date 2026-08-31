@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
+from importlib.resources import files
 from typing import Any, cast
 
 from fastapi import FastAPI, Request
@@ -40,6 +41,10 @@ from signal_diag.signal.models import ChannelMode
 
 _CSP = "default-src 'self'; object-src 'none'; base-uri 'none'"
 _MAX_FILE_BYTES = WavLoadLimits().max_upload_bytes
+_STATIC_MEDIA_TYPES = {
+    "styles.css": "text/css; charset=utf-8",
+    "app.js": "text/javascript; charset=utf-8",
+}
 _STATUS_BY_CODE = {
     "invalid_request": 422,
     "invalid_wav": 422,
@@ -55,10 +60,6 @@ _STATUS_BY_CODE = {
     "trace_integrity_error": 500,
     "internal_error": 500,
 }
-_ROOT_HTML = (
-    "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">"
-    "<title>Signal Diagnosis Agent</title></head><body>ok</body></html>"
-)
 
 
 class _SyntheticSubmitBody(BaseModel):
@@ -83,6 +84,36 @@ def _json_error(detail: AppErrorDetail, status_code: int) -> JSONResponse:
 
 def _service(request: Request) -> DiagnosisApplicationService:
     return cast(DiagnosisApplicationService, request.app.state.service)
+
+
+def _has_unsafe_static_path(name: str) -> bool:
+    if not name:
+        return True
+    if "/" in name or "\\" in name:
+        return True
+    if ".." in name:
+        return True
+    parts = name.replace("\\", "/").split("/")
+    return any(part in {".", "..", ""} for part in parts)
+
+
+def _packaged_static(filename: str, media_type: str) -> Response:
+    payload = files("signal_diag.app.static").joinpath(filename).read_bytes()
+    return Response(
+        content=payload,
+        media_type=media_type,
+        headers={"Content-Security-Policy": _CSP},
+    )
+
+
+def _static_asset_response(filename: str) -> Response:
+    if _has_unsafe_static_path(filename) or filename not in _STATIC_MEDIA_TYPES:
+        return Response(
+            status_code=404,
+            content=b"",
+            headers={"Content-Security-Policy": _CSP},
+        )
+    return _packaged_static(filename, _STATIC_MEDIA_TYPES[filename])
 
 
 def _completed_snapshot(request: Request, run_id: str) -> AppRunSnapshot:
@@ -248,10 +279,10 @@ def create_app(
 
     @app.get("/")
     async def root() -> Response:
-        return Response(
-            content=_ROOT_HTML,
-            media_type="text/html; charset=utf-8",
-            headers={"Content-Security-Policy": _CSP},
-        )
+        return _packaged_static("index.html", "text/html; charset=utf-8")
+
+    @app.get("/static/{filename:path}")
+    async def static_asset(filename: str) -> Response:
+        return _static_asset_response(filename)
 
     return app

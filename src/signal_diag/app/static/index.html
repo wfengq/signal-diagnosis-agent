@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Signal Diagnosis Agent</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header>
+    <p class="banner">
+      Warning: local single-user/no-auth service. Do not expose this server
+      to an untrusted network.
+    </p>
+    <p class="banner">
+      Rule thresholds are profile_s1_distortion 1.0.0-demo demonstration
+      settings (1% clipping, 5% THD), not industry standards or SLAs.
+    </p>
+  </header>
+  <main>
+    <section id="input-panel" aria-labelledby="input-heading">
+      <h1 id="input-heading">Diagnose a signal</h1>
+      <form id="diagnose-form">
+        <fieldset>
+          <legend>Source</legend>
+          <p>
+            <input id="source-mode-wav" name="source-mode" type="radio" value="wav" checked>
+            <label for="source-mode-wav">WAV file</label>
+          </p>
+          <p>
+            <label for="wav-file">WAV upload</label>
+            <input id="wav-file" name="file" type="file" accept=".wav,audio/wav">
+          </p>
+          <p>
+            <input id="source-mode-preset" name="source-mode" type="radio" value="preset">
+            <label for="source-mode-preset">Demo preset</label>
+          </p>
+          <p>
+            <label for="preset-id">Preset</label>
+            <select id="preset-id" name="preset_id"></select>
+          </p>
+        </fieldset>
+        <p>
+          <label for="question">Question</label>
+          <textarea id="question" name="user_request" rows="3">Why does this signal sound distorted?</textarea>
+        </p>
+        <p>
+          <label for="channel">Channel</label>
+          <select id="channel" name="channel">
+            <option value="left">left</option>
+            <option value="right">right</option>
+            <option value="mixdown" selected>mixdown</option>
+          </select>
+        </p>
+        <p>
+          <button type="submit" id="submit-run">Run diagnosis</button>
+        </p>
+      </form>
+      <p>
+        <a id="report-json" hidden>Download JSON report</a>
+        <a id="report-html" hidden>Download HTML report</a>
+      </p>
+    </section>
+    <section id="lifecycle-panel" aria-live="polite">
+      <h2>Lifecycle</h2>
+      <p>No run yet.</p>
+    </section>
+    <section id="diagnosis-panel">
+      <h2>Diagnosis</h2>
+    </section>
+    <section id="waveform-panel">
+      <h2>Waveform preview</h2>
+    </section>
+    <section id="trace-panel">
+      <h2>Trace</h2>
+    </section>
+    <section id="evidence-panel">
+      <h2>Evidence</h2>
+    </section>
+    <section id="rules-panel">
+      <h2>Rules</h2>
+    </section>
+    <section id="knowledge-panel">
+      <h2>Knowledge</h2>
+    </section>
+    <section id="evaluation-panel">
+      <h2>Accepted evaluation</h2>
+    </section>
+  </main>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

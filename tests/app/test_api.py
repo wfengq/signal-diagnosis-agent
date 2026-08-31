@@ -23,7 +23,7 @@ from signal_diag.agent.models import (
     PlannerError,
     TaskAssessment,
 )
-from signal_diag.app.api import create_app
+from signal_diag.app.api import _static_asset_response, create_app
 from signal_diag.app.errors import AppCapacityError
 from signal_diag.app.models import (
     AcceptedEvaluationSummary,
@@ -334,6 +334,21 @@ async def test_t264_readonly_endpoints_load_without_credentials(
         assert root.status_code == 200
         _assert_csp(root)
         assert "text/html" in root.headers["content-type"]
+        assert 'id="input-panel"' in root.text
+        assert 'href="/static/styles.css"' in root.text
+        assert 'src="/static/app.js"' in root.text
+
+        css = await client.get("/static/styles.css")
+        assert css.status_code == 200
+        _assert_csp(css)
+        _assert_no_cors(css)
+        assert css.headers["content-type"].startswith("text/css")
+
+        script = await client.get("/static/app.js")
+        assert script.status_code == 200
+        _assert_csp(script)
+        _assert_no_cors(script)
+        assert "javascript" in script.headers["content-type"]
 
         openapi = await client.get("/openapi.json")
         assert openapi.status_code == 200
@@ -800,6 +815,26 @@ async def test_t269_http_security_defaults_and_normalized_errors(
         escaped = await client.get("/static/%2e%2e/%2e%2e/src/signal_diag/app/service.py")
         assert escaped.status_code in {404, 422}
         assert "BoundedRunExecutor" not in escaped.text
+        for path in (
+            "/static/index.html",
+            "/static/secret.js",
+            "/static/foo/styles.css",
+            "/static/styles.css/extra.js",
+        ):
+            rejected = await client.get(path)
+            assert rejected.status_code in {404, 422}
+            assert "DiagnosisApplicationService" not in rejected.text
+        css = await client.get("/static/styles.css")
+        js = await client.get("/static/app.js")
+        assert css.status_code == 200
+        assert js.status_code == 200
+        assert css.headers["content-type"].startswith("text/css")
+        assert "javascript" in js.headers["content-type"]
+        _assert_csp(css)
+        _assert_csp(js)
+        for name in ("./app.js", "../styles.css", "styles.css/../app.js", r"..\app.js"):
+            denied = _static_asset_response(name)
+            assert denied.status_code in {404, 422}
         bad = await client.post(
             "/api/v1/runs/synthetic",
             json={"preset_id": "clipping", "user_request": "", "channel": "mixdown"},
@@ -826,6 +861,8 @@ async def test_t269_http_security_defaults_and_normalized_errors(
         assert "SpooledTemporaryFile" not in source
         assert "NamedTemporaryFile" not in source
     assert "CORSMiddleware" not in api_source
+    assert "StaticFiles" not in api_source
+    assert 'files("signal_diag.app.static")' in api_source
 
 
 @pytest.mark.asyncio
