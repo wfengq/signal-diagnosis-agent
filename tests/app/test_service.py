@@ -608,16 +608,16 @@ async def test_t249_request_integrity_and_forbidden_planner_payload() -> None:
 async def test_t250_each_run_gets_fresh_planner_runtime_and_recorder(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    planners: list[int] = []
-    runtimes: list[int] = []
-    recorders: list[int] = []
-    tools: list[int] = []
+    planners: list[object] = []
+    runtimes: list[object] = []
+    recorders: list[object] = []
+    tools: list[object] = []
     original_runtime = DistortionDiagnosisRuntime.__init__
     original_recorder = RecordingPlanner.__init__
     original_tools = SignalToolService.__init__
 
     def tracking_runtime(self: DistortionDiagnosisRuntime, **kwargs: Any) -> None:
-        runtimes.append(id(self))
+        runtimes.append(self)
         original_runtime(self, **kwargs)
 
     def tracking_recorder(
@@ -625,11 +625,11 @@ async def test_t250_each_run_gets_fresh_planner_runtime_and_recorder(
         planner: Any,
         **kwargs: Any,
     ) -> None:
-        recorders.append(id(self))
+        recorders.append(self)
         original_recorder(self, planner, **kwargs)
 
     def tracking_tools(self: SignalToolService, *args: Any, **kwargs: Any) -> None:
-        tools.append(id(self))
+        tools.append(self)
         original_tools(self, *args, **kwargs)
 
     monkeypatch.setattr(DistortionDiagnosisRuntime, "__init__", tracking_runtime)
@@ -638,7 +638,7 @@ async def test_t250_each_run_gets_fresh_planner_runtime_and_recorder(
 
     def factory() -> _ImmediateFinishPlanner:
         planner = _ImmediateFinishPlanner()
-        planners.append(id(planner))
+        planners.append(planner)
         return planner
 
     service = _make_service(factory)
@@ -657,13 +657,13 @@ async def test_t250_each_run_gets_fresh_planner_runtime_and_recorder(
         second_obs = {item.observation_id for item in second_done.result.observations}
         assert first_obs.isdisjoint(second_obs)
         assert len(planners) == 2
-        assert len(set(planners)) == 2
+        assert planners[0] is not planners[1]
         assert len(runtimes) == 2
-        assert len(set(runtimes)) == 2
+        assert runtimes[0] is not runtimes[1]
         assert len(recorders) == 2
-        assert len(set(recorders)) == 2
+        assert recorders[0] is not recorders[1]
         assert len(tools) == 2
-        assert len(set(tools)) == 2
+        assert tools[0] is not tools[1]
     finally:
         await service.aclose()
 
