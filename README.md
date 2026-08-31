@@ -45,9 +45,10 @@ OpenAI-compatible DeepSeek client uses the `llm` extra.
 |---|---|
 | Phase 1–3 deterministic foundation | accepted |
 | Phase 4.3.1 official held-out (80 Agent slots) | `completed/meets_target` with 2/80 and 1/80 disclosure below |
-| Phase 5 presentation implementation | implemented on `phase5-presentation-engineering` |
+| Phase 5 presentation implementation | **accepted** on `phase5-presentation-engineering` |
 | `presentation_harness_accepted` | **accepted** after local CPython 3.11/3.12 clean-environment verification |
 | Real product Demo (`real_demo_completed`) | **completed** — two honest public `RealLLMPlanner` runs; see `docs/demo/phase5/v0_2_acceptance` |
+| Terminal V0.2 status | `presentation_harness_accepted` / `real_demo_completed` / Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice |
 
 Do not treat this README as a production-readiness statement.
 
@@ -213,5 +214,7 @@ chip-acceptance criteria.
   application service, with packaged wheel assets and secret-free CI.
 - Recorded two honest real-model product Demo runs (Web UI `clipping` preset
   and one supported PCM WAV) under `docs/demo/phase5/v0_2_acceptance`.
+- Recorded terminal V0.2 status: Phase 5 accepted as a resume-grade
+  demonstrable vertical slice. Push and merge remain unauthorized.
 - Did **not** claim production audio QA, chip validation, or standard-setting
   thresholds.

@@ -2118,7 +2118,7 @@ verification; real Demo gated.
 - Produces an honest terminal status and independent-verification handoff; no
   automatic push, merge, worktree deletion, or `build/` cleanup.
 
-- [ ] **Step 1: Record exactly one terminal state**
+- [x] **Step 1: Record exactly one terminal state**
 
   If and only if both gates passed, record:
 
@@ -2131,7 +2131,7 @@ verification; real Demo gated.
   Otherwise record the exact pending/failed gate and do not claim Phase 5 or
   V0.2 completion.
 
-- [ ] **Step 2: Run fresh final verification**
+- [x] **Step 2: Run fresh final verification**
 
   ```powershell
   $Phase5FinalTemp = Join-Path $env:TEMP ('signal-diag-phase5-final-' + [guid]::NewGuid().ToString('N'))
@@ -2146,13 +2146,13 @@ verification; real Demo gated.
   clean-environment evidence for the same commit. Worktree status may contain only the pre-existing untracked
   `build/` before the final status-doc commit.
 
-- [ ] **Step 3: Map T224–T285 and P5-R001–P5-R003 to evidence**
+- [x] **Step 3: Map T224–T285 and P5-R001–P5-R003 to evidence**
 
   Include the matrix below, every task commit SHA, focused RED/GREEN commands,
   cumulative outputs, CI URLs/status, wheel name/hash, Demo artifact hashes,
   warnings, unsupported cases, and contract concerns in the handoff.
 
-- [ ] **Step 4: Apply final independent reviews and commit status docs**
+- [x] **Step 4: Apply final independent reviews and commit status docs**
 
   Review the entire `07619fb..HEAD` diff against §§55–§64 and the frozen spec.
   Close every Critical/Important issue before commit:
@@ -2162,7 +2162,7 @@ verification; real Demo gated.
   git commit -m "docs: record Phase 5 terminal acceptance"
   ```
 
-- [ ] **Step 5: Deliver handoff without integration**
+- [x] **Step 5: Deliver handoff without integration**
 
   Report branch, HEAD, commits, status, full verification, T/P5 mapping,
   artifact paths/checksums, warnings, and remaining limits. Do not push, merge,
@@ -2257,6 +2257,90 @@ verification; real Demo gated.
 | T283 | 12 | architecture dependency boundary |
 | T284 | 12 / A | secret-free local Python 3.11/3.12 clean-environment verification |
 | T285 | 13 / A | cumulative deterministic/static/build/install/local dual-version gate |
+
+## Task 15 recorded handoff (036eef5 + this status commit)
+
+Terminal state:
+
+```text
+presentation_harness_accepted
+real_demo_completed
+Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
+```
+
+Branch: `phase5-presentation-engineering`. Task 14 HEAD `036eef5`. No push,
+merge, worktree deletion, or `build/` cleanup.
+
+### Phase 5 commits (`cab18b9` draft through Task 14)
+
+| Task | SHA | Subject |
+|---:|---|---|
+| 1 draft | `cab18b9` | docs: draft phase 5 presentation engineering contracts |
+| 1 freeze | `07619fb` | docs: freeze phase 5 presentation contracts |
+| 1 plan | `6a0d8dc` | docs: add phase 5 presentation implementation plan |
+| 2 | `17306ef` | feat(evaluation): expose strict Agent event assembly |
+| 3 | `d99b5b1` | feat(signal): add strict bounded PCM WAV loading |
+| 4 | `5f549c9` | feat(app): add frozen Phase 5 application models |
+| 5 | `c9ee641` | feat(app): add public Demo presets and bounded preview |
+| 6 | `14803a7` | feat(app): add bounded local diagnosis execution |
+| 7 | `444c9f7` | feat(app): add traceable reports and evaluation summary |
+| 8 | `c6e710b` | feat(app): add shared diagnosis application service |
+| 8 fix | `d3ca104` | test(app): keep T250 object references to avoid id reuse |
+| 9 | `c784d25` | feat(app): add bounded FastAPI diagnosis API |
+| 10 | `31c752e` | feat(app): add direct-service diagnosis CLI |
+| 11 | `f44b934` | feat(app): add native distortion diagnosis Web UI |
+| 12 | `beb26f4` | build: package and verify Phase 5 application |
+| 13 | `c5133a5` | test(app): enforce Phase 5 deterministic gate |
+| CI | `c4d9458` | ci: fetch full history for architecture git gates |
+| OQ-011 freeze | `37763b2` | docs: freeze local dual-version Phase 5 acceptance |
+| OQ-011 accept | `a7ace6b` | test(app): accept Phase 5 on local 3.11/3.12 |
+| 14 | `036eef5` | docs: record Phase 5 real product Demo |
+
+T224–T285 map to the table above this section. Focused RED/GREEN commands are
+the per-task pytest files in that table. Cumulative Task 15 verification at
+`036eef5`:
+
+- pytest: **1006 passed**, 0 skipped, 0 xfailed, 46.10s (`--basetemp` under
+  system Temp, then deleted)
+- ruff: all checks passed
+- mypy: success, 61 source files
+- `git diff --check 36ae7c9..HEAD`: empty
+- wheel smoke: `signal_diagnosis_agent-0.2.0.tar.gz`
+  `sha256=95cb7ec383bad4a25b670f834117fb13bcba47b3c64736d718e2a5398812318b`;
+  `signal_diagnosis_agent-0.2.0-py3-none-any.whl`
+  `sha256=e605e46d42539a9592b784afb7b909a94b899952999bd74c463990302026ae19`
+
+Local dual-version evidence is retained from `a7ace6b` (OQ-011 / D031): both
+CPython 3.11 and 3.12 clean environments were **1006 passed / 0 skipped /
+0 xfailed**, plus ruff, mypy, and wheel. Hosted GitHub Actions was **not**
+run and is **not** an acceptance input.
+
+P5-R001–P5-R003: `docs/demo/phase5/v0_2_acceptance/` at `036eef5`. Worktree
+SHA-256:
+
+| File | SHA-256 |
+|---|---|
+| `input_clipping_16bit.wav` | `970c37cc879b32fea80f66cdbc31305b45d04c654b53fbf0633e4ed4dcdf416e` |
+| `synthetic_report.json` | `824fce315601f3c6ecf050641dbd823cac2c4a5af56eeac1bb433dec95000895` |
+| `synthetic_report.html` | `f943f36643bfcad0a4712a434197ff523e8dc7776b770d9353a7569ce8f04bc0` |
+| `wav_report.json` | `4de2f827e0e073abb359a34bfcb45c6dba10ea653a0195fcd41a9746db292962` |
+| `wav_report.html` | `68f95681fa6ffc3556c2d4a8bcb5ab988714fbd23e598a528c7c262e0a06a8d4` |
+| `ui_completed.png` | `0bc394ac1eb08274bd015c7a3e94819ffc0de71443ab9ae65bd487bbb23e312d` |
+
+### Warnings and remaining limits
+
+- Default serve `:8000` hit Windows `WinError 10013`; Demo used explicit
+  `--port 8765`.
+- `ui_completed.png` shows the completed clipping form and lifecycle
+  `completed`. It does not include the Evaluation panel; 80 / 2/80 / 1/80
+  were inspected live and remain in the packaged summary.
+- Both Demo runs reported 0 knowledge retrievals. Diagnoses are retained
+  honestly and are not a new official benchmark.
+- Rule profile `1.0.0-demo` is demonstration settings, not an SLA.
+- Phase 4.3.1 official still discloses 2/80 behavioral-failure slots and
+  1/80 outcome error.
+- S1 distortion only; local no-auth Demo; no Docker/DB/vector/multi-agent.
+- No contract contradiction was opened in `docs/OPEN_QUESTIONS.md`.
 
 ## Execution Stop
 
