@@ -1,5 +1,6 @@
 """Local presentation application layer."""
 
+from signal_diag.app.composition import build_product_service
 from signal_diag.app.models import (
     AcceptedEvaluationSummary,
     AppErrorCode,
@@ -26,6 +27,7 @@ from signal_diag.app.reporting import (
     render_report_html,
     render_report_json,
 )
+from signal_diag.app.service import DiagnosisApplicationService
 
 __all__ = [
     "AcceptedEvaluationSummary",
@@ -36,6 +38,7 @@ __all__ = [
     "AppRunStatus",
     "DemoPresetDescriptor",
     "DemoPresetId",
+    "DiagnosisApplicationService",
     "DiagnosisReport",
     "PlannerIdentity",
     "RunSubmission",
@@ -45,6 +48,7 @@ __all__ = [
     "WaveformPreview",
     "build_demo_preset",
     "build_diagnosis_report",
+    "build_product_service",
     "build_waveform_preview",
     "list_demo_presets",
     "load_accepted_evaluation_summary",
