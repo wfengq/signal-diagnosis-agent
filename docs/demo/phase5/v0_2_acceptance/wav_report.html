@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Diagnosis report run_93042771d3204fb7813795a330ae40a7</title>
+<style>
+body{font-family:sans-serif;margin:1.5rem;color:#111;background:#fff}
+section{margin-bottom:1.5rem}h1,h2{margin:0 0 .75rem}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:.25rem 1rem}
+dt{font-weight:600}table{border-collapse:collapse;width:100%}
+th,td{border:1px solid #ccc;padding:.35rem;text-align:left}
+.preview-note{font-style:italic}
+</style>
+</head>
+<body>
+<h1 id="report-run_93042771d3204fb7813795a330ae40a7">Diagnosis report</h1>
+<section id="identity">
+<h2>Run identity</h2>
+<dl>
+<dt>schema</dt><dd>1.0.0</dd>
+<dt>generated_at</dt><dd>2026-08-31T05:09:28.861286Z</dd>
+<dt>run_id</dt><dd>run_93042771d3204fb7813795a330ae40a7</dd>
+<dt>status</dt><dd>completed</dd>
+<dt>channel</dt><dd>mixdown</dd>
+<dt>question</dt><dd>Why does this signal sound distorted?</dd>
+</dl>
+</section>
+<section id="source">
+<h2>Source</h2>
+<dl>
+<dt>kind</dt><dd>wav</dd>
+<dt>filename</dt><dd>input_clipping_16bit.wav</dd>
+<dt>sample_rate_hz</dt><dd>48000</dd>
+<dt>channels</dt><dd>1</dd>
+</dl>
+</section>
+<section id="planner">
+<h2>Planner identity</h2>
+<dl>
+<dt>provider</dt><dd>deepseek</dd>
+<dt>model</dt><dd>deepseek-v4-flash</dd>
+<dt>prompt</dt><dd>v0.2-s1-planner-8.1</dd>
+</dl>
+</section>
+<section id="preview">
+<h2>Waveform preview</h2>
+<p class="preview-note">visualization only</p>
+<p>points: 1000 / 48000 samples at 48000 Hz</p>
+</section>
+<section id="trace">
+<h2>Trace</h2>
+<table><thead><tr><th>index</th><th>kind</th><th>action</th><th>status</th><th>refs</th></tr></thead><tbody>
+<tr id="event-0"><td>0</td><td>planner</td><td>call_tool</td><td>decision</td><td></td></tr>
+<tr id="event-1"><td>1</td><td>observation</td><td>detect_clipping</td><td>success</td><td><a href="#evidence-ev_detect_clipping_detect_clipping_000000_000">ev_detect_clipping_detect_clipping_000000_000</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_001">ev_detect_clipping_detect_clipping_000000_001</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_002">ev_detect_clipping_detect_clipping_000000_002</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_003">ev_detect_clipping_detect_clipping_000000_003</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_004">ev_detect_clipping_detect_clipping_000000_004</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_005">ev_detect_clipping_detect_clipping_000000_005</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_006">ev_detect_clipping_detect_clipping_000000_006</a></td></tr>
+<tr id="event-2"><td>2</td><td>planner</td><td>call_tool</td><td>decision</td><td></td></tr>
+<tr id="event-3"><td>3</td><td>observation</td><td>analyze_harmonic_distortion</td><td>success</td><td><a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000</a>, <a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001</a>, <a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002</a>, <a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003</a>, <a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004</a></td></tr>
+<tr id="event-4"><td>4</td><td>planner</td><td>evaluate_rules</td><td>decision</td><td></td></tr>
+<tr id="event-5"><td>5</td><td>rule</td><td>profile_s1_distortion</td><td>completed</td><td><a href="#rule-ruleval_d1b39be5d86c7bb3">ruleval_d1b39be5d86c7bb3</a>, <a href="#rule-ruleval_5c7415219e9c21d1">ruleval_5c7415219e9c21d1</a>, <a href="#rule-ruleval_2a7ff09ac5dab5fc">ruleval_2a7ff09ac5dab5fc</a>, <a href="#rule-ruleval_894c03c944d04c9b">ruleval_894c03c944d04c9b</a>, <a href="#rule-ruleval_de814eb54c4cee54">ruleval_de814eb54c4cee54</a></td></tr>
+<tr id="event-6"><td>6</td><td>planner</td><td>finish</td><td>decision</td><td></td></tr>
+</tbody></table>
+</section>
+<section id="diagnosis">
+<h2>Diagnosis</h2>
+<dl>
+<dt>outcome</dt><dd>supported_fault</dd>
+<dt>termination</dt><dd>planner_finished</dd>
+</dl>
+<article id="claim-claim_clip_odd_1">
+<h3>claim_clip_odd_1</h3>
+<p>Clipping is affirmatively supported. Odd-order components at orders 3 and 5 are clipping products. The THD rule is FAIL and does not create an independent harmonic_distortion cause without reportable order-2 Evidence.</p>
+<p>fault: clipping</p>
+<p>evidence: <a href="#evidence-ev_detect_clipping_detect_clipping_000000_000">ev_detect_clipping_detect_clipping_000000_000</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_001">ev_detect_clipping_detect_clipping_000000_001</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_006">ev_detect_clipping_detect_clipping_000000_006</a>, <a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003</a>, <a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004</a></p>
+<p>rules: <a href="#rule-ruleval_d1b39be5d86c7bb3">ruleval_d1b39be5d86c7bb3</a>, <a href="#rule-ruleval_5c7415219e9c21d1">ruleval_5c7415219e9c21d1</a>, <a href="#rule-ruleval_2a7ff09ac5dab5fc">ruleval_2a7ff09ac5dab5fc</a>, <a href="#rule-ruleval_de814eb54c4cee54">ruleval_de814eb54c4cee54</a></p>
+<p>knowledge: </p>
+</article>
+</section>
+<section id="evidence">
+<h2>Evidence</h2>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_000"><p>ev_detect_clipping_detect_clipping_000000_000 clipping_detected True</p></article>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_001"><p>ev_detect_clipping_detect_clipping_000000_001 clipping_ratio 0.6358333333333334</p></article>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_002"><p>ev_detect_clipping_detect_clipping_000000_002 clipped_samples 30520</p></article>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_003"><p>ev_detect_clipping_detect_clipping_000000_003 clipping_events 440</p></article>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_004"><p>ev_detect_clipping_detect_clipping_000000_004 peak_abs 0.649993896484375</p></article>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_005"><p>ev_detect_clipping_detect_clipping_000000_005 full_scale_detected False</p></article>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_006"><p>ev_detect_clipping_detect_clipping_000000_006 flat_top_detected True</p></article>
+<article id="evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"><p>ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000 valid True</p></article>
+<article id="evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001"><p>ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001 fundamental_frequency_hz 220.1834862385321</p></article>
+<article id="evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"><p>ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002 thd_percent 21.046988962131188</p></article>
+<article id="evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003"><p>ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003 harmonic_order_3_relative_amplitude 0.20869856617696228</p></article>
+<article id="evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004"><p>ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004 harmonic_order_5_relative_amplitude 0.027248539646875163</p></article>
+</section>
+<section id="rules">
+<h2>Rule evaluations</h2>
+<article id="rule-ruleval_d1b39be5d86c7bb3"><p>ruleval_d1b39be5d86c7bb3 profile_s1_distortion 1.0.0-demo fail</p></article>
+<article id="rule-ruleval_5c7415219e9c21d1"><p>ruleval_5c7415219e9c21d1 profile_s1_distortion 1.0.0-demo fail</p></article>
+<article id="rule-ruleval_2a7ff09ac5dab5fc"><p>ruleval_2a7ff09ac5dab5fc profile_s1_distortion 1.0.0-demo fail</p></article>
+<article id="rule-ruleval_894c03c944d04c9b"><p>ruleval_894c03c944d04c9b profile_s1_distortion 1.0.0-demo pass</p></article>
+<article id="rule-ruleval_de814eb54c4cee54"><p>ruleval_de814eb54c4cee54 profile_s1_distortion 1.0.0-demo fail</p></article>
+</section>
+<section id="knowledge">
+<h2>Knowledge</h2>
+</section>
+<section id="notes">
+<h2>Warnings and errors</h2>
+</section>
+<section id="limits">
+<h2>Limits</h2>
+<p>profile_s1_distortion 1.0.0-demo demonstration settings (1% clipping, 5% THD), not industry standards or SLAs.</p>
+</section>
+</body>
+</html>

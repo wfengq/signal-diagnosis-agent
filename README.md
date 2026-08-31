@@ -47,7 +47,7 @@ OpenAI-compatible DeepSeek client uses the `llm` extra.
 | Phase 4.3.1 official held-out (80 Agent slots) | `completed/meets_target` with 2/80 and 1/80 disclosure below |
 | Phase 5 presentation implementation | implemented on `phase5-presentation-engineering` |
 | `presentation_harness_accepted` | **accepted** after local CPython 3.11/3.12 clean-environment verification |
-| Real product Demo (`real_demo_completed`) | **not run** (Tasks 14–15) |
+| Real product Demo (`real_demo_completed`) | **completed** — two honest public `RealLLMPlanner` runs; see `docs/demo/phase5/v0_2_acceptance` |
 
 Do not treat this README as a production-readiness statement.
 
@@ -173,16 +173,18 @@ and 1/80 disclosures. It must not hide failures.
   optional and is not required.
 - **Real product Demo** (`real_demo_completed`) is a separate non-CI gate:
   one public synthetic preset and one supported PCM WAV, each once, through
-  public `RealLLMPlanner`. That gate is **not** run yet.
+  public `RealLLMPlanner`. That gate is **recorded** after the two honest
+  Task 14 runs. Individual diagnoses are retained as produced and are not a
+  new official benchmark.
 
-Future real-Demo files, if and when they exist, will be written under:
+Recorded artifacts:
 
 ```text
 docs/demo/phase5/v0_2_acceptance
 ```
 
-That directory is not present in this tree. This README does not link to
-WAV, JSON, HTML, or screenshot files that have not been produced.
+See [`docs/demo/phase5/v0_2_acceptance/README.md`](docs/demo/phase5/v0_2_acceptance/README.md)
+for run identities, honest outcomes, sanitization notes, and file hashes.
 
 ## Demo thresholds disclaimer
 
@@ -209,5 +211,7 @@ chip-acceptance criteria.
   honest 2/80 behavioral-failure and 1/80 outcome-error disclosure.
 - Added a local FastAPI + native Web UI + CLI presentation layer over one
   application service, with packaged wheel assets and secret-free CI.
+- Recorded two honest real-model product Demo runs (Web UI `clipping` preset
+  and one supported PCM WAV) under `docs/demo/phase5/v0_2_acceptance`.
 - Did **not** claim production audio QA, chip validation, or standard-setting
   thresholds.

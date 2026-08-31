@@ -2018,7 +2018,7 @@ verification; real Demo gated.
   pending/failed state. It never changes prompt, model, Runtime, dataset,
   targets, or product code after seeing results.
 
-- [ ] **Step 1: Prove legal preconditions and credentials**
+- [x] **Step 1: Prove legal preconditions and credentials**
 
   Require clean committed deterministic tree, `presentation_harness_accepted`,
   no existing
@@ -2036,7 +2036,7 @@ verification; real Demo gated.
   `real_demo_pending`. A pre-existing artifact directory blocks execution so
   no previous result can be overwritten or mistaken for this two-run gate.
 
-- [ ] **Step 2: Generate and validate the public WAV input**
+- [x] **Step 2: Generate and validate the public WAV input**
 
   ```powershell
   New-Item -ItemType Directory -Path 'docs/demo/phase5/v0_2_acceptance'
@@ -2047,7 +2047,7 @@ verification; real Demo gated.
   The printed metadata must be 48,000 Hz, mono, 16-bit, 48,000 frames, one
   second. Do not print waveform samples.
 
-- [ ] **Step 3: Use the Web UI for P5-R001 and P5-R003**
+- [x] **Step 3: Use the Web UI for P5-R001 and P5-R003**
 
   Start `signal-diag serve` on localhost. In the primary Web UI select the
   public `clipping` preset and default question, submit once, wait for actual
@@ -2062,7 +2062,7 @@ verification; real Demo gated.
   This one real run satisfies P5-R001 and the completed-run portion of P5-R003.
   Do not submit the preset a second time to improve its diagnosis.
 
-- [ ] **Step 4: Use the CLI once for P5-R002**
+- [x] **Step 4: Use the CLI once for P5-R002**
 
   ```powershell
   $WavJsonTemp = Join-Path $env:TEMP ('phase5-wav-report-' + [guid]::NewGuid().ToString('N') + '.json')
@@ -2074,7 +2074,7 @@ verification; real Demo gated.
   This is the second and final required real-model run. Do not rerun it to
   change the outcome.
 
-- [ ] **Step 5: Validate and sanitize both artifact sets**
+- [x] **Step 5: Validate and sanitize both artifact sets**
 
   Parse both JSON files as `DiagnosisReport`, require strict trace events and
   resolvable same-run refs, confirm HTML is self-contained/escaped, and scan all
@@ -2083,7 +2083,7 @@ verification; real Demo gated.
   result status/outcome, limitations, and any errors honestly in the artifact
   README.
 
-- [ ] **Step 6: Apply independent product-Demo review and commit**
+- [x] **Step 6: Apply independent product-Demo review and commit**
 
   Spec review verifies exactly two real product runs and P5-R001–P5-R003.
   Quality review validates sanitization, report parity, screenshot truth, no
