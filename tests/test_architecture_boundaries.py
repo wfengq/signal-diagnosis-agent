@@ -1511,6 +1511,9 @@ def test_t285_phase5_cumulative_contract_is_registered() -> None:
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "ci.yml").read_text("utf-8")
     assert "3.11" in workflow
     assert "3.12" in workflow
+    assert "uses: actions/checkout@v4" in workflow
+    checkout_at = workflow.index("uses: actions/checkout@v4")
+    assert "fetch-depth: 0" in workflow[checkout_at : checkout_at + 160]
     assert "DEEPSEEK_API_KEY" not in workflow
 
     diff_check = subprocess.run(

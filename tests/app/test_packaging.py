@@ -137,6 +137,9 @@ def test_t284_ci_runs_secret_free_python_matrix() -> None:
     assert "python -m ruff check --no-cache src tests scripts" in text
     assert "python -m mypy --no-incremental src" in text
     assert "python scripts/verify_phase5_wheel.py" in text
+    assert "uses: actions/checkout@v4" in text
+    checkout_at = text.index("uses: actions/checkout@v4")
+    assert "fetch-depth: 0" in text[checkout_at : checkout_at + 160]
     assert "DEEPSEEK_API_KEY" not in text
     assert "secrets:" not in text
     assert "docker" not in text.lower()
