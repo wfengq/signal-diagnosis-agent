@@ -1238,6 +1238,7 @@ _PHASE5_CHECKPOINT_FILES = (
     "tests/app/test_packaging.py",
     "tests/test_architecture_boundaries.py",
     ".github/workflows/ci.yml",
+    "scripts/verify_phase5_local_matrix.py",
 )
 _PHASE5_OFFICIAL_SUMMARY = (
     SRC_ROOT / "evaluation" / "assets" / "phase4_3_1_official_summary.json"
@@ -1508,12 +1509,17 @@ def test_t285_phase5_cumulative_contract_is_registered() -> None:
         network_hits
     )
 
+    matrix = (PROJECT_ROOT / "scripts" / "verify_phase5_local_matrix.py").read_text(
+        encoding="utf-8"
+    )
+    assert "--python-3.11" in matrix
+    assert "--python-3.12" in matrix
+    assert "[app,llm,dev]" in matrix or ".[app,llm,dev]" in matrix
+    assert "python -m pytest -q -rxXs -p no:cacheprovider" in matrix
+    assert "DEEPSEEK_API_KEY=" not in matrix
     workflow = (PROJECT_ROOT / ".github" / "workflows" / "ci.yml").read_text("utf-8")
     assert "3.11" in workflow
     assert "3.12" in workflow
-    assert "uses: actions/checkout@v4" in workflow
-    checkout_at = workflow.index("uses: actions/checkout@v4")
-    assert "fetch-depth: 0" in workflow[checkout_at : checkout_at + 160]
     assert "DEEPSEEK_API_KEY" not in workflow
 
     diff_check = subprocess.run(

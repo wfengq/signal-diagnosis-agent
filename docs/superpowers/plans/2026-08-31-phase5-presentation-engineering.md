@@ -1856,8 +1856,8 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
 
 **Local status after Steps 1–5 (historical; dual-version gate is Amendment A):**
 
-Phase 5 OQ-011 dual-version acceptance frozen; local 3.11/3.12 clean-environment
-verification pending; presentation_harness_accepted not yet granted; real Demo gated.
+presentation_harness_accepted after local Python 3.11/3.12 clean-environment
+verification; real Demo gated.
 
 - [x] **Step 1: Write the T285 cumulative guard**
 
@@ -1964,7 +1964,7 @@ verification pending; presentation_harness_accepted not yet granted; real Demo g
   docs: freeze local dual-version Phase 5 acceptance
   ```
 
-- [ ] **Step 2: Implement the committed verifier and retarget T284/T285**
+- [x] **Step 2: Implement the committed verifier and retarget T284/T285**
 
   `scripts/verify_phase5_local_matrix.py` takes `--python-3.11` and
   `--python-3.12`. For each interpreter it asserts the exact minor version,
@@ -1982,7 +1982,7 @@ verification pending; presentation_harness_accepted not yet granted; real Demo g
   `git diff --check 36ae7c9..HEAD` once. Never use repository `build/`.
   T284/T285 tests lock the script contract and must not require hosted jobs.
 
-- [ ] **Step 3: Run both clean environments and record the honest result**
+- [x] **Step 3: Run both clean environments and record the honest result**
 
   If both jobs and every other T285 gate are green, record
   `presentation_harness_accepted` locally. Otherwise keep the pending state.

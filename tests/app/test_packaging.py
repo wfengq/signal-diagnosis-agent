@@ -17,6 +17,7 @@ CI_WORKFLOW_PATH = PROJECT_ROOT / ".github" / "workflows" / "ci.yml"
 CREATE_WAV_PATH = PROJECT_ROOT / "scripts" / "create_phase5_demo_wav.py"
 SMOKE_PATH = PROJECT_ROOT / "scripts" / "smoke_installed_phase5.py"
 VERIFY_PATH = PROJECT_ROOT / "scripts" / "verify_phase5_wheel.py"
+MATRIX_PATH = PROJECT_ROOT / "scripts" / "verify_phase5_local_matrix.py"
 DEMO_WAV_SHA256 = "970c37cc879b32fea80f66cdbc31305b45d04c654b53fbf0633e4ed4dcdf416e"
 EXPECTED_PACKAGE_DATA = {
     "signal_diag.app": ["static/*.html", "static/*.css", "static/*.js"],
@@ -56,6 +57,7 @@ def test_t281_console_entry_and_extras_exist() -> None:
     assert "openai" in llm_extra
     assert "pytest" in dev_extra
     assert "build" in dev_extra
+    assert "setuptools" in dev_extra
 
 
 def test_t281_core_install_does_not_require_fastapi() -> None:
@@ -148,3 +150,24 @@ def test_t284_ci_runs_secret_free_python_matrix() -> None:
     assert "pytest.skip" not in text
     assert "xfail" not in text
     assert "allow_skip" not in text
+
+
+def test_t284_local_matrix_verifier_is_secret_free_dual_version() -> None:
+    assert MATRIX_PATH.is_file()
+    text = MATRIX_PATH.read_text(encoding="utf-8")
+    assert "--python-3.11" in text
+    assert "--python-3.12" in text
+    assert "[app,llm,dev]" in text or ".[app,llm,dev]" in text
+    assert "python -m pytest -q -rxXs -p no:cacheprovider" in text
+    assert "python -m ruff check --no-cache src tests scripts" in text
+    assert "python -m mypy --no-incremental src" in text
+    assert "scripts/verify_phase5_wheel.py" in text
+    assert "git diff --check" in text
+    assert "36ae7c9" in text
+    assert "venv" in text
+    assert "DEEPSEEK_API_KEY=" not in text
+    assert "secrets:" not in text
+    assert "run_phase3_real_model_eval" not in text
+    assert "run_real_model_eval" not in text
+    assert "github.com" not in text.lower()
+    assert "actions/checkout" not in text
