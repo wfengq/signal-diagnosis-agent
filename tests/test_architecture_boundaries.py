@@ -16,6 +16,7 @@ FORBIDDEN = {
         "signal_diag.rules",
         "signal_diag.knowledge",
         "signal_diag.evaluation",
+        "signal_diag.app",
     },
     "dsp": {
         "signal_diag.tools",
@@ -23,12 +24,14 @@ FORBIDDEN = {
         "signal_diag.rules",
         "signal_diag.knowledge",
         "signal_diag.evaluation",
+        "signal_diag.app",
     },
     "tools": {
         "signal_diag.agent",
         "signal_diag.rules",
         "signal_diag.knowledge",
         "signal_diag.evaluation",
+        "signal_diag.app",
     },
     "rules": {
         "signal_diag.agent",
@@ -49,10 +52,13 @@ FORBIDDEN = {
         "signal_diag.evaluation",
         "signal_diag.app",
     },
+    "evaluation": {
+        "signal_diag.app",
+    },
 }
 
-# app/ remains deferred until Phase 5. evaluation/ is a Phase 4 hard gate (T182).
-DEFERRED_PACKAGES = ("app",)
+# evaluation/ and app/ are implemented. No remaining deferred product packages.
+DEFERRED_PACKAGES: tuple[str, ...] = ()
 
 # rules/ and knowledge/ are authorized by the approved Phase 3 contract (OQ-001).
 # Pre-implementation: absence is valid. Post-implementation: dependency direction
@@ -115,12 +121,10 @@ def test_layers_do_not_import_forbidden_modules(layer: str) -> None:
     assert not violations, "Forbidden imports detected:\n" + "\n".join(violations)
 
 
-@pytest.mark.parametrize("package_name", DEFERRED_PACKAGES)
-def test_deferred_packages_are_not_present(package_name: str) -> None:
-    package_dir = SRC_ROOT / package_name
-    assert not package_dir.exists(), (
-        f"Deferred package src/signal_diag/{package_name}/ must not exist yet"
-    )
+def test_deferred_packages_are_not_present() -> None:
+    """T283: app left deferred packages; no remaining deferred product packages."""
+    assert "app" not in DEFERRED_PACKAGES
+    assert DEFERRED_PACKAGES == ()
 
 
 @pytest.mark.parametrize("package_name", PHASE3_PACKAGES)
@@ -199,6 +203,35 @@ PHASE1_3_PACKAGES = (
     "signal_diag.agent",
 )
 EVALUATION_PREFIX = "signal_diag.evaluation"
+APP_PREFIX = "signal_diag.app"
+_PHASE4_3_1_MERGED_BASELINE = "36ae7c9"
+WAV_FORBIDDEN_PREFIXES = (
+    "signal_diag.app",
+    "signal_diag.evaluation",
+    "signal_diag.agent",
+    "fastapi",
+    "openai",
+    "langchain",
+    "langgraph",
+)
+ADAPTER_FORBIDDEN_PREFIXES = (
+    "signal_diag.dsp",
+    "signal_diag.tools",
+    "signal_diag.rules",
+    "signal_diag.knowledge",
+    "signal_diag.agent",
+)
+STATIC_FORBIDDEN_TOKENS = (
+    "detect_clipping",
+    "analyze_harmonic_distortion",
+    "analyze_spectrum",
+    "estimate_fundamental",
+    "numpy.fft",
+    "autocorrelation",
+    "RuleEngine",
+    "KnowledgeIndex",
+    "DistortionDiagnosisRuntime",
+)
 
 
 def _python_files_under(layer: str) -> list[Path]:
@@ -217,6 +250,24 @@ def _imports_evaluation(modules: set[str]) -> list[str]:
     )
 
 
+def _imports_app(modules: set[str]) -> list[str]:
+    return sorted(
+        module
+        for module in modules
+        if module == APP_PREFIX or module.startswith(f"{APP_PREFIX}.")
+    )
+
+
+def _modules_match_prefixes(modules: set[str], prefixes: tuple[str, ...]) -> list[str]:
+    hits: list[str] = []
+    for module in sorted(modules):
+        for prefix in prefixes:
+            if module == prefix or module.startswith(f"{prefix}."):
+                hits.append(module)
+                break
+    return hits
+
+
 def test_t182_evaluation_package_exists() -> None:
     """T182 hard gate: evaluation/ exists once Phase 4 is implemented."""
     assert (SRC_ROOT / "evaluation").is_dir()
@@ -227,10 +278,10 @@ def test_t182_evaluation_is_not_deferred() -> None:
     assert "evaluation" not in DEFERRED_PACKAGES
 
 
-def test_t182_app_remains_deferred_and_absent() -> None:
-    """T182: Phase 5 app/ remains absent."""
-    assert "app" in DEFERRED_PACKAGES
-    assert not (SRC_ROOT / "app").exists()
+def test_t182_app_is_not_deferred_and_present() -> None:
+    """T182 retarget / T283: Phase 5 app/ exists and is no longer deferred."""
+    assert "app" not in DEFERRED_PACKAGES
+    assert (SRC_ROOT / "app").is_dir()
 
 
 def test_t182_upstream_layers_forbid_evaluation() -> None:
@@ -335,7 +386,12 @@ def test_t200_diff_check_against_v6_baseline() -> None:
 
 def test_t200_v6_changes_stay_inside_agent_evaluation_tests_docs() -> None:
     result = subprocess.run(
-        ["git", "diff", "--name-only", f"{_PHASE4_1_V6_BASELINE}..HEAD"],
+        [
+            "git",
+            "diff",
+            "--name-only",
+            f"{_PHASE4_1_V6_BASELINE}..{_PHASE4_3_1_MERGED_BASELINE}",
+        ],
         cwd=PROJECT_ROOT,
         capture_output=True,
         text=True,
@@ -351,13 +407,13 @@ def test_t200_v6_changes_stay_inside_agent_evaluation_tests_docs() -> None:
         forbidden
     )
     app_root = PROJECT_ROOT / "src" / "signal_diag" / "app"
-    assert not app_root.exists()
+    assert app_root.is_dir()
     frozen = subprocess.run(
         [
             "git",
             "diff",
             "--name-only",
-            f"{_PHASE4_1_V6_BASELINE}..HEAD",
+            f"{_PHASE4_1_V6_BASELINE}..{_PHASE4_3_1_MERGED_BASELINE}",
             "--",
             *_PHASE4_1_V6_FROZEN_PATHS,
         ],
@@ -484,7 +540,7 @@ def test_t208_diff_check_against_phase4_2_baseline() -> None:
 
 
 def test_t208_phase4_2_changes_stay_inside_allowed_boundaries() -> None:
-    result = _git_name_only(f"{_PHASE4_2_BASELINE}..HEAD")
+    result = _git_name_only(f"{_PHASE4_2_BASELINE}..{_PHASE4_3_1_MERGED_BASELINE}")
     assert result.returncode == 0, result.stderr
     forbidden = [
         path
@@ -494,9 +550,9 @@ def test_t208_phase4_2_changes_stay_inside_allowed_boundaries() -> None:
     assert not forbidden, "Phase 4.2 changes escaped allowed boundaries:\n" + "\n".join(
         forbidden
     )
-    assert not (SRC_ROOT / "app").exists()
+    assert (SRC_ROOT / "app").is_dir()
     frozen = _git_name_only(
-        f"{_PHASE4_2_BASELINE}..HEAD",
+        f"{_PHASE4_2_BASELINE}..{_PHASE4_3_1_MERGED_BASELINE}",
         "--",
         *_PHASE4_2_FROZEN_PATHS,
     )
@@ -516,8 +572,9 @@ def test_t208_dependency_direction_forbids_app_and_reverse_evaluation() -> None:
     )
     for layer in PHASE4_UPSTREAM_LAYERS:
         assert "signal_diag.evaluation" in FORBIDDEN[layer]
-    assert "app" in DEFERRED_PACKAGES
-    assert not (SRC_ROOT / "app").exists()
+        assert "signal_diag.app" in FORBIDDEN[layer]
+    assert "app" not in DEFERRED_PACKAGES
+    assert (SRC_ROOT / "app").is_dir()
     violations: list[str] = []
     for layer in PHASE4_UPSTREAM_LAYERS:
         violations.extend(_collect_layer_violations(layer))
@@ -525,6 +582,11 @@ def test_t208_dependency_direction_forbids_app_and_reverse_evaluation() -> None:
             hits = _imports_evaluation(_modules_imported_from(path))
             violations.extend(
                 f"{path.relative_to(PROJECT_ROOT)} imports {module}" for module in hits
+            )
+            app_hits = _imports_app(_modules_imported_from(path))
+            violations.extend(
+                f"{path.relative_to(PROJECT_ROOT)} imports {module}"
+                for module in app_hits
             )
     assert not violations, "Forbidden architecture edges detected:\n" + "\n".join(
         violations
@@ -793,7 +855,7 @@ def test_t215_diff_check_against_phase4_3_baseline() -> None:
 
 
 def test_t215_phase4_3_changes_stay_inside_allowed_boundaries() -> None:
-    result = _git_name_only(f"{_PHASE4_3_BASELINE}..HEAD")
+    result = _git_name_only(f"{_PHASE4_3_BASELINE}..{_PHASE4_3_1_MERGED_BASELINE}")
     assert result.returncode == 0, result.stderr
     forbidden = [
         path
@@ -803,7 +865,7 @@ def test_t215_phase4_3_changes_stay_inside_allowed_boundaries() -> None:
     assert not forbidden, "Phase 4.3 changes escaped allowed boundaries:\n" + "\n".join(
         forbidden
     )
-    assert not (SRC_ROOT / "app").exists()
+    assert (SRC_ROOT / "app").is_dir()
     frozen = _git_name_only(
         f"{_PHASE4_3_BASELINE}..{_PHASE4_3_1_IMPLEMENTATION_BASELINE}",
         "--",
@@ -825,8 +887,9 @@ def test_t215_dependency_direction_forbids_app_and_reverse_evaluation() -> None:
     )
     for layer in PHASE4_UPSTREAM_LAYERS:
         assert "signal_diag.evaluation" in FORBIDDEN[layer]
-    assert "app" in DEFERRED_PACKAGES
-    assert not (SRC_ROOT / "app").exists()
+        assert "signal_diag.app" in FORBIDDEN[layer]
+    assert "app" not in DEFERRED_PACKAGES
+    assert (SRC_ROOT / "app").is_dir()
     violations: list[str] = []
     for layer in PHASE4_UPSTREAM_LAYERS:
         violations.extend(_collect_layer_violations(layer))
@@ -834,6 +897,11 @@ def test_t215_dependency_direction_forbids_app_and_reverse_evaluation() -> None:
             hits = _imports_evaluation(_modules_imported_from(path))
             violations.extend(
                 f"{path.relative_to(PROJECT_ROOT)} imports {module}" for module in hits
+            )
+            app_hits = _imports_app(_modules_imported_from(path))
+            violations.extend(
+                f"{path.relative_to(PROJECT_ROOT)} imports {module}"
+                for module in app_hits
             )
     assert not violations, "Forbidden architecture edges detected:\n" + "\n".join(
         violations
@@ -914,7 +982,7 @@ def test_t223_diff_check_against_phase4_3_1_baseline() -> None:
 
 
 def test_t223_phase4_3_1_changes_stay_inside_allowed_boundaries() -> None:
-    result = _git_name_only(f"{_PHASE4_3_1_BASELINE}..HEAD")
+    result = _git_name_only(f"{_PHASE4_3_1_BASELINE}..{_PHASE4_3_1_MERGED_BASELINE}")
     assert result.returncode == 0, result.stderr
     forbidden = [
         path
@@ -924,9 +992,9 @@ def test_t223_phase4_3_1_changes_stay_inside_allowed_boundaries() -> None:
     assert not forbidden, (
         "Phase 4.3.1 changes escaped allowed boundaries:\n" + "\n".join(forbidden)
     )
-    assert not (SRC_ROOT / "app").exists()
+    assert (SRC_ROOT / "app").is_dir()
     frozen = _git_name_only(
-        f"{_PHASE4_3_1_BASELINE}..HEAD",
+        f"{_PHASE4_3_1_BASELINE}..{_PHASE4_3_1_MERGED_BASELINE}",
         "--",
         *_PHASE4_3_1_FROZEN_PATHS,
     )
@@ -961,8 +1029,9 @@ def test_t223_dependency_direction_forbids_app_and_reverse_evaluation() -> None:
     )
     for layer in PHASE4_UPSTREAM_LAYERS:
         assert "signal_diag.evaluation" in FORBIDDEN[layer]
-    assert "app" in DEFERRED_PACKAGES
-    assert not (SRC_ROOT / "app").exists()
+        assert "signal_diag.app" in FORBIDDEN[layer]
+    assert "app" not in DEFERRED_PACKAGES
+    assert (SRC_ROOT / "app").is_dir()
     violations: list[str] = []
     for layer in PHASE4_UPSTREAM_LAYERS:
         violations.extend(_collect_layer_violations(layer))
@@ -970,6 +1039,11 @@ def test_t223_dependency_direction_forbids_app_and_reverse_evaluation() -> None:
             hits = _imports_evaluation(_modules_imported_from(path))
             violations.extend(
                 f"{path.relative_to(PROJECT_ROOT)} imports {module}" for module in hits
+            )
+            app_hits = _imports_app(_modules_imported_from(path))
+            violations.extend(
+                f"{path.relative_to(PROJECT_ROOT)} imports {module}"
+                for module in app_hits
             )
     assert not violations, "Forbidden architecture edges detected:\n" + "\n".join(
         violations
@@ -1071,3 +1145,77 @@ def test_t223_required_test_ids_are_present() -> None:
     assert not missing_named, "missing T223 architecture tests:\n" + "\n".join(
         missing_named
     )
+
+
+def test_t283_app_exists_and_is_bounded() -> None:
+    """T283: app/ exists, is not deferred, and evaluation may not import it."""
+    assert "app" not in DEFERRED_PACKAGES
+    assert DEFERRED_PACKAGES == ()
+    assert (SRC_ROOT / "app").is_dir()
+    assert "evaluation" in FORBIDDEN
+    assert "signal_diag.app" in FORBIDDEN["evaluation"]
+    for layer in PHASE4_UPSTREAM_LAYERS:
+        assert "signal_diag.app" in FORBIDDEN[layer]
+        assert "signal_diag.evaluation" in FORBIDDEN[layer]
+
+
+def test_t283_upstream_sources_do_not_import_app() -> None:
+    violations: list[str] = []
+    for layer in PHASE4_UPSTREAM_LAYERS:
+        for path in _python_files_under(layer):
+            hits = _imports_app(_modules_imported_from(path))
+            violations.extend(
+                f"{path.relative_to(PROJECT_ROOT)} imports {module}" for module in hits
+            )
+    for path in _python_files_under("evaluation"):
+        hits = _imports_app(_modules_imported_from(path))
+        violations.extend(
+            f"{path.relative_to(PROJECT_ROOT)} imports {module}" for module in hits
+        )
+    assert not violations, "Forbidden app imports detected:\n" + "\n".join(violations)
+
+
+def test_t283_wav_imports_no_app_evaluation_agent_or_llm() -> None:
+    wav_path = SRC_ROOT / "signal" / "wav.py"
+    assert wav_path.is_file()
+    modules = _modules_imported_from(wav_path)
+    hits = _modules_match_prefixes(modules, WAV_FORBIDDEN_PREFIXES)
+    assert not hits, "signal.wav imports forbidden modules: " + ", ".join(hits)
+
+
+def test_t283_api_cli_static_contain_no_dsp_rule_or_diagnosis_impl() -> None:
+    adapter_py = (
+        SRC_ROOT / "app" / "api.py",
+        SRC_ROOT / "app" / "cli.py",
+    )
+    violations: list[str] = []
+    for path in adapter_py:
+        modules = _modules_imported_from(path)
+        hits = _modules_match_prefixes(modules, ADAPTER_FORBIDDEN_PREFIXES)
+        violations.extend(
+            f"{path.relative_to(PROJECT_ROOT)} imports {module}" for module in hits
+        )
+    static_dir = SRC_ROOT / "app" / "static"
+    for path in sorted(static_dir.glob("*")):
+        if path.suffix not in {".html", ".css", ".js"}:
+            continue
+        text = path.read_text(encoding="utf-8")
+        for token in STATIC_FORBIDDEN_TOKENS:
+            if token in text:
+                violations.append(f"{path.relative_to(PROJECT_ROOT)} contains {token}")
+    assert not violations, "Adapters implement lower-layer logic:\n" + "\n".join(
+        violations
+    )
+
+
+def test_boundary_helper_detects_app_reverse_imports_in_memory() -> None:
+    source = "from signal_diag.app import build_product_service\n"
+    for layer in PHASE4_UPSTREAM_LAYERS:
+        assert find_forbidden_imports(layer, source, f"fake_{layer}_module.py") == [
+            "signal_diag.app"
+        ]
+    assert find_forbidden_imports(
+        "evaluation",
+        source,
+        "fake_evaluation_module.py",
+    ) == ["signal_diag.app"]

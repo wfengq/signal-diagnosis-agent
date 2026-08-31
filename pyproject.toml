@@ -31,13 +31,17 @@ dev = [
   "types-PyYAML>=6.0.12",
 ]
 
+[project.scripts]
+signal-diag = "signal_diag.app.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-"signal_diag.rules" = ["profiles/*.yaml"]
+"signal_diag.app" = ["static/*.html", "static/*.css", "static/*.js"]
+"signal_diag.evaluation" = ["manifests/*.yaml", "assets/*.json"]
 "signal_diag.knowledge" = ["corpus/*.md"]
-"signal_diag.evaluation" = ["manifests/*.yaml"]
+"signal_diag.rules" = ["profiles/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
