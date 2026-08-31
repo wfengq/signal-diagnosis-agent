@@ -1,0 +1,237 @@
+"""Direct-service argparse CLI for local diagnosis and serving."""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import sys
+from collections.abc import Callable, Sequence
+from datetime import UTC, datetime
+from pathlib import Path
+
+from signal_diag.app.composition import build_product_service
+from signal_diag.app.errors import ApplicationError, sanitize_application_error
+from signal_diag.app.models import AppErrorDetail, DiagnosisReport
+from signal_diag.app.reporting import (
+    build_diagnosis_report,
+    render_report_html,
+    render_report_json,
+)
+from signal_diag.app.service import DiagnosisApplicationService
+from signal_diag.signal import WavLoadLimits
+
+_DEFAULT_QUESTION = "Why does this signal sound distorted?"
+_SERVE_WARNING = (
+    "Warning: local single-user/no-auth service. "
+    "Do not expose this server to an untrusted network."
+)
+_USAGE_OR_CONFIG_CODES = frozenset(
+    {
+        "invalid_request",
+        "payload_too_large",
+        "unsupported_wav",
+        "invalid_wav",
+        "signal_limit_exceeded",
+        "unknown_preset",
+        "planner_not_configured",
+    }
+)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="signal-diag")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    serve = subparsers.add_parser("serve")
+    serve.add_argument("--host", default="127.0.0.1")
+    serve.add_argument("--port", type=int, default=8000)
+
+    subparsers.add_parser("presets")
+
+    diagnose_options = argparse.ArgumentParser(add_help=False)
+    diagnose_options.add_argument("--question", default=_DEFAULT_QUESTION)
+    diagnose_options.add_argument(
+        "--channel",
+        choices=("left", "right", "mixdown"),
+        default="mixdown",
+    )
+    diagnose_options.add_argument(
+        "--output",
+        choices=("text", "json"),
+        default="text",
+    )
+    diagnose_options.add_argument("--html-output", type=Path, default=None)
+
+    diagnose = subparsers.add_parser("diagnose")
+    sources = diagnose.add_subparsers(dest="source_kind", required=True)
+    wav = sources.add_parser("wav", parents=[diagnose_options])
+    wav.add_argument("path", type=Path)
+    synthetic = sources.add_parser("synthetic", parents=[diagnose_options])
+    synthetic.add_argument("preset_id")
+    return parser
+
+
+def _read_wav_path(path: Path, max_bytes: int) -> bytes:
+    with path.open("rb") as stream:
+        data = stream.read(max_bytes + 1)
+    if len(data) > max_bytes:
+        raise ApplicationError(
+            AppErrorDetail(
+                code="payload_too_large",
+                message=f"WAV exceeds {max_bytes} bytes",
+            )
+        )
+    return data
+
+
+def _print_error(code: str, message: str) -> None:
+    print(f"error: {code}: {message}", file=sys.stderr)
+
+
+def _exit_for_application_error(error: ApplicationError) -> int:
+    return 2 if error.detail.code in _USAGE_OR_CONFIG_CODES else 1
+
+
+def _print_text_report(report: DiagnosisReport) -> None:
+    result = report.result
+    diagnosis = result.diagnosis
+    if diagnosis is None:
+        print(f"outcome: {result.status}")
+        print("confidence: n/a")
+        print(f"termination: {result.termination_reason}")
+        for item in result.errors:
+            print(f"error: {item}")
+        return
+    print(f"outcome: {diagnosis.outcome}")
+    print(f"confidence: {diagnosis.confidence_label}")
+    print(f"termination: {diagnosis.termination_reason}")
+    for claim in diagnosis.claims:
+        print(f"claim {claim.claim_id}: {claim.statement}")
+        print(f"  evidence: {', '.join(claim.evidence_refs)}")
+        print(f"  rules: {', '.join(claim.rule_refs)}")
+        print(f"  knowledge: {', '.join(claim.knowledge_refs)}")
+
+
+def _emit_outputs(args: argparse.Namespace, report: DiagnosisReport) -> None:
+    if args.output == "json":
+        sys.stdout.write(render_report_json(report))
+    else:
+        _print_text_report(report)
+    if args.html_output is not None:
+        Path(args.html_output).write_bytes(render_report_html(report).encode("utf-8"))
+
+
+def _serve(args: argparse.Namespace) -> int:
+    print(_SERVE_WARNING, file=sys.stderr)
+    import uvicorn
+
+    from signal_diag.app.api import create_app
+
+    uvicorn.run(
+        create_app(),
+        host=args.host,
+        port=args.port,
+        log_level="info",
+    )
+    return 0
+
+
+async def _presets(
+    service_factory: Callable[[], DiagnosisApplicationService],
+) -> int:
+    service = service_factory()
+    try:
+        for item in service.list_presets():
+            print(item.preset_id)
+        return 0
+    finally:
+        await service.aclose()
+
+
+async def _diagnose(
+    args: argparse.Namespace,
+    service_factory: Callable[[], DiagnosisApplicationService],
+) -> int:
+    wav_bytes: bytes | None = None
+    if args.source_kind == "wav":
+        try:
+            wav_bytes = _read_wav_path(Path(args.path), WavLoadLimits().max_upload_bytes)
+        except ApplicationError as error:
+            _print_error(error.detail.code, error.detail.message)
+            return _exit_for_application_error(error)
+        except OSError as error:
+            _print_error("invalid_request", str(error))
+            return 2
+    service = service_factory()
+    try:
+        if args.source_kind == "wav":
+            if wav_bytes is None:
+                raise ApplicationError(
+                    AppErrorDetail(
+                        code="invalid_request",
+                        message="WAV path produced no bytes",
+                    )
+                )
+            submission = await service.submit_wav(
+                wav_bytes,
+                filename=Path(args.path).name,
+                user_request=args.question,
+                channel=args.channel,
+            )
+        else:
+            submission = await service.submit_synthetic(
+                args.preset_id,
+                user_request=args.question,
+                channel=args.channel,
+            )
+        snapshot = await service.wait_for_terminal(submission.run_id)
+        if snapshot.status == "completed":
+            report = build_diagnosis_report(
+                snapshot, generated_at=datetime.now(UTC)
+            )
+            _emit_outputs(args, report)
+            if snapshot.result is not None and snapshot.result.status == "error":
+                return 1
+            return 0
+        if snapshot.application_error is not None:
+            _print_error(
+                snapshot.application_error.code,
+                snapshot.application_error.message,
+            )
+        else:
+            _print_error("internal_error", "diagnosis execution failed")
+        return 1
+    except ApplicationError as error:
+        _print_error(error.detail.code, error.detail.message)
+        return _exit_for_application_error(error)
+    except Exception as error:  # noqa: BLE001
+        detail = sanitize_application_error(error)
+        _print_error(detail.code, detail.message)
+        return 1
+    finally:
+        await service.aclose()
+
+
+def main(
+    argv: Sequence[str] | None = None,
+    *,
+    service_factory: Callable[[], DiagnosisApplicationService] = build_product_service,
+) -> int:
+    parser = build_parser()
+    try:
+        args = parser.parse_args(None if argv is None else list(argv))
+    except SystemExit as exc:
+        if exc.code in (0, None):
+            return 0
+        return 2
+    if args.command == "serve":
+        return _serve(args)
+    if args.command == "presets":
+        return asyncio.run(_presets(service_factory))
+    if args.command == "diagnose":
+        return asyncio.run(_diagnose(args, service_factory))
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
