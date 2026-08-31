@@ -17,6 +17,8 @@ from signal_diag.app.models import (
     WaveformPoint,
     WaveformPreview,
 )
+from signal_diag.app.presets import build_demo_preset, list_demo_presets
+from signal_diag.app.preview import build_waveform_preview
 
 __all__ = [
     "AcceptedEvaluationSummary",
@@ -34,4 +36,7 @@ __all__ = [
     "TraceEventView",
     "WaveformPoint",
     "WaveformPreview",
+    "build_demo_preset",
+    "build_waveform_preview",
+    "list_demo_presets",
 ]
