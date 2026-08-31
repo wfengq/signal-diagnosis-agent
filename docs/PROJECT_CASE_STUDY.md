@@ -264,3 +264,12 @@ the accepted result.
 - [Accepted official v8.1 bundle](evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/)
 - [Real product Demo](demo/phase5/v0_2_acceptance/README.md)
 - [Formal specs and implementation plans](superpowers/)
+
+### Demo checksum portability note
+
+The retained Demo README records JSON/HTML hashes from the Windows acceptance
+worktree. Git stores those text blobs with LF line endings while a Windows
+checkout may materialize CRLF, so raw text-file hashes can differ by checkout.
+The WAV and PNG hashes are byte-stable. Official evaluation-bundle validation
+uses its frozen LF-normalized checksum policy and is unaffected. The accepted
+Demo files and their original table remain unchanged.
