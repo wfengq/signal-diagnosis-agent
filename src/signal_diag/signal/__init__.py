@@ -28,6 +28,16 @@ from .synthetic import (
     generate_sine,
     generate_white_noise,
 )
+from .wav import (
+    InvalidWavError,
+    LoadedWav,
+    SignalLimitExceededError,
+    UnsupportedWavError,
+    WavDecodeError,
+    WavLoadLimits,
+    WavSourceInfo,
+    load_wav_bytes,
+)
 
 __all__ = [
     "ChannelMode",
@@ -36,7 +46,10 @@ __all__ = [
     "InMemorySignalRepository",
     "InvalidSignalError",
     "InvalidTimeRangeError",
+    "InvalidWavError",
+    "LoadedWav",
     "SignalError",
+    "SignalLimitExceededError",
     "SignalMeta",
     "SignalNotFoundError",
     "SignalRecord",
@@ -46,6 +59,10 @@ __all__ = [
     "SyntheticGroundTruth",
     "TimeRange",
     "UnsupportedChannelError",
+    "UnsupportedWavError",
+    "WavDecodeError",
+    "WavLoadLimits",
+    "WavSourceInfo",
     "build_signal_record",
     "extract_segment",
     "generate_clipped_sine",
@@ -53,4 +70,5 @@ __all__ = [
     "generate_harmonic_sine",
     "generate_sine",
     "generate_white_noise",
+    "load_wav_bytes",
 ]
