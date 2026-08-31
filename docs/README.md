@@ -27,14 +27,8 @@ Read these documents before changing implementation code:
 6. [`superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`](superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md)
    — approved and frozen Phase 5 design with §§55–§64, T224–T285, D026–D031,
    resolved OQ-010, and OQ-011.
-   presentation_harness_accepted
-   real_demo_completed
-Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
 7. [`superpowers/plans/2026-08-31-phase5-presentation-engineering.md`](superpowers/plans/2026-08-31-phase5-presentation-engineering.md)
    — Task 1–15 TDD/SDD implementation plan.
-   presentation_harness_accepted
-   real_demo_completed
-Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
 
 ## Acceptance reports and active implementation plan
 
@@ -101,9 +95,6 @@ Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
   v8 development gate4 at `48dfb89` is honest `completed/below_target`.
   Task 6 official/held-out was not run. Task 7 records that honest stop.
   Phase 4.3 is not accepted.
-  presentation_harness_accepted
-  real_demo_completed
-Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
 
 - [`superpowers/specs/2026-08-30-phase4-3-1-v8-1-compliance-correction-design.md`](superpowers/specs/2026-08-30-phase4-3-1-v8-1-compliance-correction-design.md)
   — approved and frozen Phase 4.3.1 compliance correction under §54, T216–T223,
@@ -120,17 +111,12 @@ Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
   outcome correct; slot 5: `required_knowledge_omitted;outcome_mismatch`, sole
   wrong outcome at 1/80; aggregate remains `completed/meets_target`).
   Phase 4.3.1 is accepted at Task 10 (terminal evidence at `99e0bdc`).
-  presentation_harness_accepted
-  real_demo_completed
-Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
+
 - [`superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`](superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md)
   — selected native Web UI + FastAPI + argparse over a shared application
   service, bounded polling jobs, strict PCM WAV, actual Agent Trace,
   JSON/self-contained HTML reporting, honest accepted-evaluation presentation,
   and dual deterministic/real-Demo acceptance. OQ-010 is resolved.
-  presentation_harness_accepted
-  real_demo_completed
-Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -182,9 +168,11 @@ Phase 4.3.1 is accepted on the merged baseline `36ae7c9`. Phase 5 presentation
 engineering on `phase5-presentation-engineering` is accepted as a resume-grade
 demonstrable vertical slice.
 
+```text
 presentation_harness_accepted
 real_demo_completed
 Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
+```
 
 Task 14 recorded `real_demo_completed`. Honest artifacts are under
 [`demo/phase5/v0_2_acceptance/`](demo/phase5/v0_2_acceptance/). Push and merge
@@ -207,10 +195,7 @@ Real-model Task 8 development gate3 at `71293a3` is honest
 replan 0.719, unnecessary_tool 0.405, required_knowledge 0.2; CLI
 `harness_status=pending`). Task 9 official v1.2.0 held-out was not run;
 `docs/evaluations/phase4_2/official/` does not exist. Task 10 records that
-honest stop. Phase 4.1 is not accepted; Phase 4.2 is not accepted;
-presentation_harness_accepted
-real_demo_completed
-Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
+honest stop. Phase 4.1 is not accepted; Phase 4.2 is not accepted.
 
 The Phase 4.3 written design is approved and frozen under §53, T209–T215,
 D024, and OQ-008. Deterministic T001–T215 are green at `1c70568`; that is not
@@ -222,9 +207,6 @@ a live-model pass. Real-model development gate4
 `docs/evaluations/phase4_3/official/` does not exist. No v9. Task 7 records
 that honest stop. Phase 4.3 is not accepted. The next written choice is
 model capability versus PlannerContext (option 2), not more prompts.
-presentation_harness_accepted
-real_demo_completed
-Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
 
 The Phase 4.3.1 compliance correction is approved and frozen under §54,
 T216–T223, D025, and OQ-009.
@@ -244,9 +226,6 @@ outcome correct; slot 5: `required_knowledge_omitted;outcome_mismatch`, sole
 wrong outcome at 1/80; aggregate remains `completed/meets_target`). Bundle:
 `docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/`.
 Phase 4.3.1 is accepted at Task 10 (terminal evidence at `99e0bdc`).
-presentation_harness_accepted
-real_demo_completed
-Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model
@@ -255,9 +234,6 @@ live 80-slot DeepSeek run `bench_official_s1_20260829t162243z`, recorded at
 `b68ec5e`. That first official benchmark is complete and honestly below
 target; it is not a harness failure and is not accepted as product-quality
 behavior. Do not convert a target miss into a failure or hide it.
-presentation_harness_accepted
-real_demo_completed
-Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
 Phase 4.3.1 acceptance is the final product-behavior gate.
 
 Quality gate this session (Python
@@ -278,10 +254,6 @@ git diff --check 1b94194..HEAD
 ```
 
 Zero required skip/xfail were reported. `app/` now exists as the Phase 5
-presentation layer.
-presentation_harness_accepted
-real_demo_completed
-Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
-Phase 4.3.1 is accepted at Task
+presentation layer. Phase 4.3.1 is accepted at Task
 10 (development and official both `completed/meets_target`; terminal evidence
 at `99e0bdc`).

@@ -2326,14 +2326,18 @@ SHA-256:
 | `wav_report.json` | `4de2f827e0e073abb359a34bfcb45c6dba10ea653a0195fcd41a9746db292962` |
 | `wav_report.html` | `68f95681fa6ffc3556c2d4a8bcb5ab988714fbd23e598a528c7c262e0a06a8d4` |
 | `ui_completed.png` | `0bc394ac1eb08274bd015c7a3e94819ffc0de71443ab9ae65bd487bbb23e312d` |
+| `ui_diagnosis_sections.png` | `b450b4d84d93cffa7e5183351374697e5c60793940bda9c02ce4a558819e5acd` |
+| `ui_evaluation_panel.png` | `34d9997711d8c475ccdb8f01bc6c73d3cf8ac138b32210158211725906c658be` |
 
 ### Warnings and remaining limits
 
 - Default serve `:8000` hit Windows `WinError 10013`; Demo used explicit
   `--port 8765`.
 - `ui_completed.png` shows the completed clipping form and lifecycle
-  `completed`. It does not include the Evaluation panel; 80 / 2/80 / 1/80
-  were inspected live and remain in the packaged summary.
+  `completed`. Supplemental `ui_diagnosis_sections.png` and
+  `ui_evaluation_panel.png` capture diagnosis/trace/evidence/rules/knowledge
+  and Evaluation 80 / 2/80 / 1/80 from the still-available original serve
+  run (no new model call).
 - Both Demo runs reported 0 knowledge retrievals. Diagnoses are retained
   honestly and are not a new official benchmark.
 - Rule profile `1.0.0-demo` is demonstration settings, not an SLA.
