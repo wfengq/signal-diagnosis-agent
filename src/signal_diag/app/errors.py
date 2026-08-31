@@ -72,3 +72,9 @@ class PlannerNotConfiguredError(ApplicationError):
 
 class TraceIntegrityError(ApplicationError):
     _expected_code = "trace_integrity_error"
+
+
+def sanitize_application_error(error: Exception) -> AppErrorDetail:
+    if isinstance(error, ApplicationError):
+        return error.detail
+    return AppErrorDetail(code="internal_error", message="diagnosis execution failed")
