@@ -200,6 +200,18 @@ _FORBIDDEN_PAYLOAD_KEYS = frozenset(
 )
 
 
+def assemble_agent_events(
+    records: tuple[PlannerDecisionRecord, ...],
+    result: AgentRunResult,
+) -> tuple[EvaluationEvent, ...]:
+    _validate_path("agent", result, records)
+    events = _assemble_agent_events(records, result)
+    _validate_result_artifacts(result, events)
+    _validate_claim_refs(records, result, events)
+    _reject_forbidden_payloads(records, events)
+    return tuple(events)
+
+
 def assemble_evaluation_trace(
     case: EvaluationCase,
     records: tuple[PlannerDecisionRecord, ...],
@@ -215,14 +227,14 @@ def assemble_evaluation_trace(
             raise ValueError("fixed_pipeline execution_path requires BaselineRunResult")
         events = _assemble_baseline_events(result)
         usage = None
+        _validate_result_artifacts(result, events)
+        _validate_claim_refs(records, result, events)
+        _reject_forbidden_payloads(records, events)
     else:
         if not isinstance(result, AgentRunResult):
             raise ValueError("agent execution_path requires AgentRunResult")
-        events = _assemble_agent_events(records, result)
+        events = list(assemble_agent_events(records, result))
         usage = _aggregate_provider_usage(records)
-    _validate_result_artifacts(result, events)
-    _validate_claim_refs(records, result, events)
-    _reject_forbidden_payloads(records, events)
     return EvaluationTrace(
         trace_id=f"trace_{execution_path}_{case.case_id}_{run_slot:02d}",
         case_id=case.case_id,

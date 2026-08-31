@@ -28,6 +28,7 @@ from signal_diag.agent.models import (
 )
 from signal_diag.agent.planner import ScriptedPlanner, ScriptedStep
 from signal_diag.agent.policies import normalize_tool_arguments
+from signal_diag.evaluation import assemble_agent_events
 from signal_diag.evaluation.models import (
     BaselineDiagnosis,
     BaselineRunResult,
@@ -1055,3 +1056,190 @@ def test_official_assembly_keeps_rejected_then_accepted_finish() -> None:
     assert finishes == [rejected_finish, _finish_decision()]
     assert result.diagnosis is not None
     assert result.diagnosis.claims == _finish_decision().claims
+
+
+def test_t253_public_agent_event_assembly() -> None:
+    from signal_diag.evaluation.recording import assemble_agent_events as recording_fn
+
+    _case, records, result, _config = _full_agent_chain()
+    events = assemble_agent_events(records, result)
+    assert assemble_agent_events is recording_fn
+    assert isinstance(events, tuple)
+    assert [event.event_index for event in events] == list(range(len(events)))
+    assert [event.event_type for event in events] == [
+        "planner_call",
+        "observation",
+        "planner_call",  # planner_error remains
+        "planner_call",
+        "rule_evaluation",
+        "planner_call",
+        "knowledge_retrieval",
+        "planner_call",
+    ]
+
+
+def test_t254_empty_delta_and_planner_error_remain() -> None:
+    empty = _empty_context()
+    empty_claim = DiagnosisClaim(
+        claim_id="claim_001",
+        fault_type="no_supported_fault",
+        statement="No supported clipping fault.",
+        evidence_refs=(),
+        rule_refs=(),
+        knowledge_refs=(),
+    )
+    finish = FinishDecision(
+        task_assessment=_task_assessment(),
+        outcome="no_supported_fault",
+        claims=(empty_claim,),
+        confidence_label="high",
+    )
+    records = (
+        _decision_record(0, empty, _clipping_decision()),
+        _decision_record(1, empty, finish),
+    )
+    result = _agent_result(
+        observations=(),
+        evidence=(),
+        batches=(),
+        retrievals=(),
+        claims=(empty_claim,),
+    )
+    events = assemble_agent_events(records, result)
+    assert [event.event_type for event in events] == ["planner_call", "planner_call"]
+    assert all(event.event_type == "planner_call" for event in events)
+
+    _case, error_records, error_result, _config = _full_agent_chain()
+    error_events = assemble_agent_events(error_records, error_result)
+    statuses = [
+        event.record.status
+        for event in error_events
+        if event.event_type == "planner_call"
+    ]
+    assert "planner_error" in statuses
+
+
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "missing_observation",
+        "duplicate_observation",
+        "reordered_observation",
+        "evidence_ref_mismatch",
+        "two_rule_batches",
+        "unresolved_claim_ref",
+        "grouped_history",
+    ],
+)
+def test_t254_ambiguity_rejection(kind: str) -> None:
+    _case, records, result, _config = _full_agent_chain()
+    if kind == "missing_observation":
+        empty = records[0].context
+        records = (
+            records[0],
+            _decision_record(1, empty, _finish_decision()),
+        )
+    elif kind == "duplicate_observation":
+        extra = records[1].context.observations[0].model_copy(
+            update={"observation_id": "obs_clip_002", "call_id": "call_clip_002"}
+        )
+        duplicated = records[1].context.model_copy(
+            update={"observations": records[1].context.observations + (extra,)}
+        )
+        records = (records[0], records[1].model_copy(update={"context": duplicated})) + records[2:]
+    elif kind == "reordered_observation":
+        first = records[1].context.observations[0]
+        second = first.model_copy(
+            update={"observation_id": "obs_clip_000", "call_id": "call_clip_000"}
+        )
+        after_first = records[1].context.model_copy(update={"observations": (first,)})
+        after_second = records[3].context.model_copy(
+            update={"observations": (second, first)}
+        )
+        second_tool = CallToolDecision(
+            task_assessment=_task_assessment(),
+            call=_clipping_call(),
+            purpose="inspect clipping again",
+        )
+        records = (
+            records[0],
+            _decision_record(1, after_first, second_tool),
+            records[2].model_copy(update={"context": after_second}),
+        )
+    elif kind == "evidence_ref_mismatch":
+        mismatched = records[1].context.observations[0].model_copy(
+            update={"evidence_refs": ("ev_other_001",)}
+        )
+        updated = records[1].context.model_copy(update={"observations": (mismatched,)})
+        records = (records[0], records[1].model_copy(update={"context": updated})) + records[2:]
+        result = result.model_copy(update={"observations": (mismatched,)})
+    elif kind == "two_rule_batches":
+        extra_batch = records[3].context.rule_evaluation_batches[0].model_copy(
+            update={"batch_id": "rulebatch_clip_002"}
+        )
+        doubled = records[3].context.model_copy(
+            update={
+                "rule_evaluation_batches": records[3].context.rule_evaluation_batches
+                + (extra_batch,)
+            }
+        )
+        records = records[:3] + (records[3].model_copy(update={"context": doubled}),) + records[4:]
+    elif kind == "unresolved_claim_ref":
+        bad_claim = _claim().model_copy(update={"evidence_refs": ("ev_missing_001",)})
+        finish = FinishDecision(
+            task_assessment=_task_assessment(),
+            outcome="no_supported_fault",
+            claims=(bad_claim,),
+            confidence_label="high",
+        )
+        records = records[:-1] + (_decision_record(4, records[-1].context, finish),)
+        result = result.model_copy(
+            update={
+                "diagnosis": result.diagnosis.model_copy(update={"claims": (bad_claim,)})
+                if result.diagnosis is not None
+                else None
+            }
+        )
+    elif kind == "grouped_history":
+        records = ()
+    with pytest.raises(ValueError):
+        assemble_agent_events(records, result)
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"samples": [0.1, -0.2, 0.3]},
+        {"waveform": [0.0, 1.0]},
+        {"fft": [float(index) for index in range(64)]},
+        {"magnitudes": [0.01] * 32},
+        {"api_key": "sk-leaked-credential"},
+        {"authorization": "Bearer secret-token"},
+        {"raw_response": {"choices": [{"text": "provider body"}]}},
+        {"provider_response": "<raw provider body>"},
+    ],
+)
+def test_t254_forbidden_payloads(payload: dict[str, Any]) -> None:
+    _case, records, result, _config = _full_agent_chain()
+    leaked_context = records[1].context.model_copy(
+        update={"tool_history": (_history_with_payload(payload),)}
+    )
+    leaked_records = (records[0], records[1].model_copy(update={"context": leaked_context})) + records[
+        2:
+    ]
+    with pytest.raises(ValueError):
+        assemble_agent_events(leaked_records, result)
+
+
+def test_t255_evaluation_trace_delegates_without_drift() -> None:
+    case, records, result, config = _full_agent_chain()
+    events = assemble_agent_events(records, result)
+    trace = assemble_evaluation_trace(
+        case,
+        records,
+        result,
+        config,
+        run_slot=1,
+        execution_path="agent",
+    )
+    assert trace.events == events
