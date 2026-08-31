@@ -12,9 +12,16 @@ never a silent product fallback.
 > V0.2 is a resume-grade demonstrable vertical slice, not a production audio-QA,
 > chip-validation, or standards-compliance product.
 
-![Completed diagnosis with trace, evidence, and rules](docs/demo/phase5/v0_2_acceptance/ui_diagnosis_sections.png)
+![Completed local Web UI run](docs/demo/phase5/v0_2_acceptance/ui_completed.png)
 
 ![Accepted evaluation with disclosed failures](docs/demo/phase5/v0_2_acceptance/ui_evaluation_panel.png)
+
+<details>
+<summary>Open the full diagnosis, trace, Evidence, rules, and knowledge screenshot</summary>
+
+![Full diagnosis with trace, evidence, and rules](docs/demo/phase5/v0_2_acceptance/ui_diagnosis_sections.png)
+
+</details>
 
 ## What is implemented
 
@@ -66,7 +73,7 @@ Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
 Deterministic acceptance:
 
 - T001–T285: **1006 passed**, zero required skip/xfail.
-- Local clean-environment matrix: CPython **3.11.16** and **3.12.13**.
+- Local clean-environment matrix: CPython **3.11** and **3.12**.
 - Ruff, mypy, architecture checks, diff-check, and wheel smoke passed.
 - Hosted GitHub Actions is optional and was not used as an acceptance input.
 
@@ -75,6 +82,9 @@ Official real-model behavior evaluation:
 - DeepSeek `deepseek-v4-flash`, public `RealLLMPlanner`, prompt
   `v0.2-s1-planner-8.1`.
 - Dataset `s1-distortion-synthetic` 1.2.0, scoring 2.0.0.
+- Development gate: 40 Agent slots, 40/40 correct outcomes, all 11 target
+  bands passed. This split was used for behavior development and is not
+  held-out evidence.
 - 80 held-out Agent slots: `completed/meets_target`.
 - Causal macro F1 1.0; evidence grounding 1.0; first-tool selection 1.0;
   timely stopping 1.0; unnecessary Tool action rate 0.0; unsupported claim

@@ -15,9 +15,9 @@ interactive.
 
 ## Why the architecture is hybrid
 
-A real LLM is necessary to demonstrate dynamic Tool selection. It is not a
-reliable CI oracle. The design therefore separates the model boundary from the
-controller:
+The product claim specifically requires a real LLM to demonstrate dynamic Tool
+selection on the public path. A real LLM is not a reliable CI oracle, so the
+design separates the model boundary from the controller:
 
 ```text
 PlannerModel
@@ -62,27 +62,46 @@ story after the fact.
 
 ### 1. The first official run showed that “callable” is not “used”
 
-**Symptom.** The first 80-slot official Phase 4 run was
-`completed/below_target`. Causal macro F1 was 0.840, but applicable-rule usage
-was 0.513, required-knowledge usage was 0, and evidence grounding was 0.895.
+**Phenomenon.** The first official Agent could diagnose several cases while
+rarely choosing the newly implemented rule and knowledge actions.
 
-**Root cause.** Phase 3 had implemented correct rule and knowledge actions, but
-the real planner did not consistently choose them. Deterministic availability
-did not prove product-path behavior.
+**Evidence.** The immutable
+[80-slot Phase 4 bundle](evaluations/phase4/bench_official_s1_20260829t162243z/)
+was `completed/below_target`: causal macro F1 0.840, applicable-rule usage
+0.513, required-knowledge usage 0, and evidence grounding 0.895.
+
+**Root cause.** Phase 3 proved that rule and knowledge actions were callable and
+correct, but the real planner did not consistently choose them. Deterministic
+availability did not prove product-path behavior.
 
 **Decision.** Keep the official bundle immutable, separate harness completion
 from target achievement, and add behavior-development gates before a new
 held-out run.
+
+**Fix.** Freeze an additive Phase 4.1 behavior gate with explicit rule,
+knowledge, grounding, replanning, and stopping metrics; tune only on a
+development split.
+
+**Verification.** The original bundle stayed byte-for-byte historical evidence.
+Later campaigns report separate development/official identities instead of
+overwriting this run.
 
 **Lesson.** Tool existence, controller correctness, and model behavior are
 different claims and need different evidence.
 
 ### 2. Prompt additions fixed usage but created contradictory behavior
 
-**Symptom.** v5 raised rule usage to 0.854 and required-knowledge usage to 1.0,
-yet causal F1 fell to 0.75, grounding to 0.789, and knowledge-citation
-utilization to 0.2. v6 improved causal F1 to 0.969 and citation utilization to
-1.0, but grounding remained 0.857 and unsupported claims reached 0.0625.
+**Phenomenon.** The planner began using rules and knowledge, but boundary,
+combined, and inconclusive cases became internally inconsistent.
+
+**Evidence.** The
+[v5 development bundle](evaluations/phase4_1/development/bench_phase4_1_dev_v5_gate1/)
+raised rule usage to 0.854 and required-knowledge usage to 1.0, yet causal F1
+fell to 0.75, grounding to 0.789, and knowledge-citation utilization to 0.2.
+The
+[v6 development bundle](evaluations/phase4_1/development/bench_phase4_1_dev_v6_gate2/)
+improved causal F1 to 0.969 and citation utilization to 1.0, but grounding
+remained 0.857 and unsupported claims reached 0.0625.
 
 **Root cause.** Additive prompt text competed with older examples. A 5% THD
 boundary could be treated as “no fault” even when harmonic evidence existed;
@@ -93,14 +112,25 @@ finish with empty claims and uncited knowledge.
 freeze every prior prompt identity, and stop each campaign honestly when its
 development gate missed.
 
+**Fix.** v6 became one coherent prompt rather than a v4/v5 appendix, with
+explicit boundary, combined-hypothesis, and inconclusive-citation policy.
+
+**Verification.** v6 improved the targeted metrics but still missed the frozen
+grounding and unsupported-claim bands, so official v1.1.0 held-out was not run
+and the `below_target` development bundle was retained.
+
 **Lesson.** Prompt text is executable policy. Examples and prose must express
 one consistent state machine.
 
 ### 3. Evaluation integrity had to be repaired before more prompt tuning
 
-**Symptom.** Review found that semantic signal IDs could expose labels such as
-`clipping_strong`, visible request metadata did not fully justify different
-first-Tool expectations, and combined cases relied on hidden matched controls.
+**Phenomenon.** A prompt-only v7 could appear to improve behavior while using
+information that was unavailable in a genuine user request.
+
+**Evidence.** Independent review found semantic IDs such as
+`clipping_strong`, different first-Tool expectations for otherwise equivalent
+visible contexts, and combined cases whose causal distinction depended on a
+hidden matched control.
 
 **Root cause.** The evaluator knew distinctions that the planner could not
 legitimately observe. A better score under those conditions would not establish
@@ -112,10 +142,16 @@ distortion with visible generation parameters. Official gates also require a
 complete, identity-matched development bundle before loading held-out inputs or
 creating the SDK client.
 
-**Verification.** v7 used the repaired dataset but still missed first-Tool
-selection (0.75), observation-driven replanning (0.719), unnecessary Tool rate
-(0.405), and required-knowledge usage (0.2). Because evaluation integrity was
-now credible, those failures could be attributed to behavior rather than label
+**Fix.** Implement Dataset 1.2.0 and the v7 campaigns under the frozen
+[Phase 4.2 design](superpowers/specs/2026-08-30-phase4-2-prompt-v7-correction-design.md),
+including preflight identity validation before any official model/client work.
+
+**Verification.** The
+[v7 development bundle](evaluations/phase4_2/development/bench_phase4_2_dev_v7_v12_gate3/)
+still missed first-Tool selection (0.75), observation-driven replanning
+(0.719), unnecessary Tool rate (0.405), and required-knowledge usage (0.2).
+Official held-out remained unopened. Because evaluation integrity was now
+credible, these failures could be attributed to behavior rather than label
 leakage.
 
 **Lesson.** A held-out score is meaningful only when the model cannot infer the
@@ -123,9 +159,13 @@ answer from identifiers or invisible evaluator assumptions.
 
 ### 4. A failed v8 run exposed a contract/scoring mismatch, not just a model miss
 
-**Symptom.** v8 achieved first-Tool selection 1.0 and knowledge usage 1.0 but
-missed evidence grounding (0.849), timely stopping (0.75), and unsupported
-claim rate (0.211).
+**Phenomenon.** v8 selected the first Tool and knowledge correctly but still
+received systematic grounding, stopping, and unsupported-claim failures.
+
+**Evidence.** The
+[v8 development bundle](evaluations/phase4_3/development/bench_phase4_3_dev_v8_v12_gate4/)
+recorded first-Tool selection 1.0 and knowledge usage 1.0 but evidence grounding
+0.849, timely stopping 0.75, and unsupported claim rate 0.211.
 
 **Root cause.** T210 globally prohibited a clipping-specific finish that was
 legal under the scenario, while the legacy scoring proxy mishandled the
@@ -135,6 +175,15 @@ required invalid-Evidence -> NOT_APPLICABLE rule transition.
 compliance correction: v8.1 clarified the legal finish scope, and scoring 2.0.0
 recognized the frozen invalid-Evidence semantics. Runtime, PlannerContext,
 dataset, target bands, provider, and model stayed unchanged.
+
+**Fix.** Implement the frozen
+[Phase 4.3.1 correction](superpowers/specs/2026-08-30-phase4-3-1-v8-1-compliance-correction-design.md):
+the coherent v8.1 policy plus versioned scoring 2.0.0, with historical v4–v8
+identities unchanged.
+
+**Verification.** v8.1 passed all 11 target bands on 40 development slots before
+the one-time 80-slot official run was authorized. Both accepted bundles remain
+separate from every failed predecessor.
 
 **Lesson.** When evaluation disagrees with a frozen contract, fix the evaluator
 or written policy explicitly; do not train the model to game a faulty proxy.
