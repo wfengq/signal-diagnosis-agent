@@ -6,3 +6,7 @@ __pycache__/
 .ruff_cache/
 *.egg-info/
 real_model_eval_output/
+/build/
+/dist/
+/.superpowers/
+/.sdd-*.md
