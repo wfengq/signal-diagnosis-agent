@@ -64,8 +64,9 @@ authorizes Task 2 until the user separately chooses an execution workflow.
 - No Node build, frontend framework, CDN, database, Redis, Celery, Docker,
   authentication, cancellation, SSE/WebSocket, PDF, vector database, LangGraph,
   or multi-Agent product architecture.
-- Required CI is deterministic and secret-free. Do not call DeepSeek from
-  pytest or CI.
+- Required dual-version verification is deterministic and secret-free. Do not
+  call DeepSeek from pytest or the local 3.11/3.12 verifier. Hosted GitHub
+  Actions is optional and is not an acceptance input (OQ-011 / D031).
 - Do not run P5-R001–P5-R003 until T001–T285 and all deterministic gates are
   committed and independently green.
 - Do not push, merge, delete the worktree, or clean `build/` without separate
@@ -1849,13 +1850,14 @@ Cursor must not redo, amend, squash, or reinterpret Task 1.
 **Interfaces:**
 
 - Consumes Tasks 2–12 and all T001–T284.
-- Produces either `presentation_harness_accepted` after both CI matrix jobs pass,
-  or the exact honest pending state that blocks Task 14.
+- Produces either `presentation_harness_accepted` after both local 3.11/3.12
+  clean-environment jobs pass, or the exact honest pending state that blocks
+  Task 14. Hosted GitHub Actions is not required (OQ-011).
 
-**Local status after Steps 1–5 (commit deferred to parent; hosted CI not run):**
+**Local status after Steps 1–5 (historical; dual-version gate is Amendment A):**
 
-Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
-CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+Phase 5 OQ-011 dual-version acceptance frozen; local 3.11/3.12 clean-environment
+verification pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 - [x] **Step 1: Write the T285 cumulative guard**
 
@@ -1921,18 +1923,70 @@ CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 - [ ] **Step 6: Stop for explicit push/CI authorization**
 
-  This plan does not authorize push. Return the local evidence to the user.
-  Only after the user separately authorizes a push/PR or another accepted hosted
-  CI trigger may both Python jobs run. Inspect their complete logs; do not rerun
-  a failed job without diagnosing and fixing the deterministic cause through
-  the review protocol.
+  **Superseded by OQ-011 / D031.** Hosted GitHub Actions is optional and is
+  not an acceptance input. Do not push. Dual-version acceptance is Amendment A.
 
 - [ ] **Step 7: Record deterministic acceptance only after hosted CI passes**
 
-  When both Python 3.11/3.12 jobs, wheel smoke, and all local gates are current
-  and green, record `presentation_harness_accepted` in AGENTS/README/this plan
-  and commit locally. If CI is unavailable or fails, retain the pending state
-  and do not start Task 14.
+  **Superseded by OQ-011 / D031.** Record `presentation_harness_accepted` only
+  after both local Python 3.11/3.12 clean-environment jobs, wheel smoke, and
+  all other T285 gates are current and green. If a labeled interpreter is
+  missing or a job fails, retain the pending state and do not start Task 14.
+
+---
+
+### Amendment A: Local dual-version acceptance (OQ-011 / D031)
+
+**Files (freeze first, then implement):**
+
+- Modify: `docs/CONTRACTS_V0_2.md`, `docs/TEST_PLAN_V0_2.md`,
+  `docs/DECISIONS.md`, `docs/OPEN_QUESTIONS.md`,
+  `docs/superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`,
+  this plan, `AGENTS.md`, `docs/README.md`
+- Create after freeze: `scripts/verify_phase5_local_matrix.py`
+- Modify after freeze: `tests/app/test_packaging.py`,
+  `tests/test_architecture_boundaries.py`
+
+**Interfaces:**
+
+- Does not lower T001–T283, Ruff, mypy, architecture, wheel, clean-install,
+  or `git diff --check 36ae7c9..HEAD`.
+- Replaces hosted GitHub Actions as the dual-interpreter acceptance input.
+- Does not authorize push, merge, or a real-model Demo.
+
+- [x] **Step 1: Freeze the written amendment**
+
+  Record OQ-011 / D031 and retarget §64, T284, T285, and design §§15–16 so
+  `presentation_harness_accepted` requires local CPython 3.11 and 3.12
+  clean-environment full verification. Commit only documentation:
+
+  ```text
+  docs: freeze local dual-version Phase 5 acceptance
+  ```
+
+- [ ] **Step 2: Implement the committed verifier and retarget T284/T285**
+
+  `scripts/verify_phase5_local_matrix.py` takes `--python-3.11` and
+  `--python-3.12`. For each interpreter it asserts the exact minor version,
+  creates a fresh system-Temp venv, installs `.[app,llm,dev]` with no
+  provider secret, and runs:
+
+  ```text
+  python -m pytest -q -rxXs -p no:cacheprovider
+  python -m ruff check --no-cache src tests scripts
+  python -m mypy --no-incremental src
+  python scripts/verify_phase5_wheel.py
+  ```
+
+  Require zero failed/skipped/xfailed tests per environment. Run
+  `git diff --check 36ae7c9..HEAD` once. Never use repository `build/`.
+  T284/T285 tests lock the script contract and must not require hosted jobs.
+
+- [ ] **Step 3: Run both clean environments and record the honest result**
+
+  If both jobs and every other T285 gate are green, record
+  `presentation_harness_accepted` locally. Otherwise keep the pending state.
+  Do not start Task 14. Do not push.
 
 ---
 
@@ -1966,7 +2020,8 @@ CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 - [ ] **Step 1: Prove legal preconditions and credentials**
 
-  Require clean committed deterministic tree, accepted hosted CI, no existing
+  Require clean committed deterministic tree, `presentation_harness_accepted`,
+  no existing
   artifact directory, and locally configured `DEEPSEEK_API_KEY` without
   printing its value:
 
@@ -2087,8 +2142,8 @@ CI pending; presentation_harness_accepted not yet granted; real Demo gated.
   git status --short --branch
   ```
 
-  Repeat the fresh wheel install smoke and verify hosted CI logs still point to
-  the same commit. Worktree status may contain only the pre-existing untracked
+  Repeat the fresh wheel install smoke and retain the local 3.11/3.12
+  clean-environment evidence for the same commit. Worktree status may contain only the pre-existing untracked
   `build/` before the final status-doc commit.
 
 - [ ] **Step 3: Map T224–T285 and P5-R001–P5-R003 to evidence**
@@ -2130,7 +2185,7 @@ CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 | T264–T270 | 9 and 11 | `tests/app/test_api.py`, `tests/app/test_ui.py` |
 | T271–T275 | 10 | `tests/app/test_cli.py` |
 | T276–T280 | 11 and 7 | `tests/app/test_ui.py`, `tests/app/test_reporting.py` |
-| T281–T284 | 12 | `tests/app/test_packaging.py`, `tests/test_architecture_boundaries.py`, CI |
+| T281–T284 | 12 / A | `tests/app/test_packaging.py`, `tests/test_architecture_boundaries.py`, local dual-version verifier |
 | T285 | 13 | full deterministic/static/build/install/CI gate |
 | P5-R001 | 14 | one Web-UI public synthetic RealLLMPlanner report set |
 | P5-R002 | 14 | one CLI supported-WAV RealLLMPlanner report set |
@@ -2200,8 +2255,8 @@ CI pending; presentation_harness_accepted not yet granted; real Demo gated.
 | T281 | 12 | extras, console entry, and package data |
 | T282 | 12 | sdist/wheel clean-install smoke |
 | T283 | 12 | architecture dependency boundary |
-| T284 | 12 | secret-free Python 3.11/3.12 CI |
-| T285 | 13 | cumulative deterministic/static/build/install/CI gate |
+| T284 | 12 / A | secret-free local Python 3.11/3.12 clean-environment verification |
+| T285 | 13 / A | cumulative deterministic/static/build/install/local dual-version gate |
 
 ## Execution Stop
 

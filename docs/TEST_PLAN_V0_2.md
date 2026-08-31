@@ -4,6 +4,7 @@
 **Version:** `0.2`  
 **Status:** Required and accepted through T223 on merged Phase 4.3.1 baseline
 `36ae7c9`; Phase 5 §28 T224–T285 approved and frozen under OQ-010 on
+2026-08-31; T284–T285 dual-interpreter input amended under OQ-011 / D031 on
 2026-08-31
 **Scope:** Deterministic and real-model acceptance through Phase 4.3.1, plus
 frozen Phase 5 presentation and product-Demo acceptance
@@ -1117,10 +1118,11 @@ implementation or any real-model campaign.
 
 ## 28. Phase 5 — Presentation Engineering
 
-**Frozen status:** T224–T285 were approved under OQ-010 on 2026-08-31. They
-authorize implementation planning only. Source/test implementation and every
-real-model run remain gated by the completed detailed plan and a separate
-explicit execution choice.
+**Frozen status:** T224–T285 were approved under OQ-010 on 2026-08-31. OQ-011 /
+D031 on 2026-08-31 amends only T284–T285 and the deterministic acceptance
+state: the dual-interpreter input is local clean-environment full verification
+on Python 3.11 and 3.12. Hosted GitHub Actions is not required. No other
+T224–T283 result is reduced.
 
 All T224–T285 tests are deterministic. Tests that exercise the Agent use an
 explicit scripted/fake planner or fake transport while retaining real Signal,
@@ -1232,14 +1234,15 @@ behavior.
 | T281 | Package metadata | explicit app/llm/dev extras and signal-diag console entry exist; core installation does not require FastAPI; static/report/evaluation assets are declared as package data |
 | T282 | Wheel smoke | sdist/wheel build cleanly; a fresh environment installs the wheel with app+llm extras, imports core/app without source-tree paths, loads assets, runs presets, and starts API composition without credentials |
 | T283 | Architecture boundary | dependency direction includes evaluation→app; signal/dsp/tools/rules/knowledge/agent do not import app; WAV imports no app/evaluation/Agent/LLM framework; API/UI do not duplicate DSP/rule/diagnosis logic |
-| T284 | Secret-free CI | committed workflow runs deterministic pytest, architecture, Ruff, mypy, build, and wheel smoke on Python 3.11 and 3.12; it uses no provider secret, network model call, required skip, or stochastic gate |
-| T285 | Phase 5 cumulative gate | T001–T285 pass with zero required skip/xfail; Ruff, mypy, architecture, wheel, clean-install, Python 3.11/3.12 CI, and git diff --check 36ae7c9..HEAD pass; Phase 1–4.3.1 contracts, prompts, datasets, scores, reports, and bundle checksums do not drift |
+| T284 | Secret-free dual-version verification | a committed local verifier creates a fresh venv for CPython 3.11 and for CPython 3.12, installs `.[app,llm,dev]` with no provider secret, and runs deterministic pytest, architecture, Ruff, mypy, build, and wheel smoke in each environment; it uses no network model call, required skip, or stochastic gate. Hosted GitHub Actions is optional and is not an acceptance input |
+| T285 | Phase 5 cumulative gate | T001–T285 pass with zero required skip/xfail; Ruff, mypy, architecture, wheel, clean-install, Python 3.11/3.12 local clean-environment full verification, and git diff --check 36ae7c9..HEAD pass; Phase 1–4.3.1 contracts, prompts, datasets, scores, reports, and bundle checksums do not drift |
 
 ### Phase 5 acceptance states
 
 The deterministic state is `presentation_harness_accepted`. It requires the
 entire T001–T285 gate, static quality checks, package smoke, and both supported
-Python CI jobs. Missing credentials do not block this state. ScriptedPlanner is
+Python local clean-environment jobs (3.11 and 3.12). Missing credentials do
+not block this state. Hosted GitHub Actions is not required. ScriptedPlanner is
 legal only through explicit dependency injection in deterministic tests; the
 test still uses real deterministic lower layers.
 

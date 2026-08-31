@@ -45,8 +45,8 @@ OpenAI-compatible DeepSeek client uses the `llm` extra.
 |---|---|
 | Phase 1–3 deterministic foundation | accepted |
 | Phase 4.3.1 official held-out (80 Agent slots) | `completed/meets_target` with 2/80 and 1/80 disclosure below |
-| Phase 5 presentation implementation | implemented on `phase5-presentation-engineering`; **not** CI-accepted |
-| `presentation_harness_accepted` | **not claimed** (Task 13) |
+| Phase 5 presentation implementation | implemented on `phase5-presentation-engineering`; OQ-011 local dual-version verification pending |
+| `presentation_harness_accepted` | **not claimed** |
 | Real product Demo (`real_demo_completed`) | **not run** (Tasks 14–15) |
 
 Do not treat this README as a production-readiness statement.
@@ -168,7 +168,8 @@ and 1/80 disclosures. It must not hide failures.
 
 - **Deterministic presentation harness** (`presentation_harness_accepted`)
   requires T001–T285, Ruff, mypy, architecture, wheel smoke, and Python
-  3.11/3.12 CI. That state is **not** recorded yet.
+  3.11/3.12 local clean-environment verification. That state is **not**
+  recorded yet. Hosted GitHub Actions is optional and is not required.
 - **Real product Demo** (`real_demo_completed`) is a separate non-CI gate:
   one public synthetic preset and one supported PCM WAV, each once, through
   public `RealLLMPlanner`. That gate is **not** run yet.

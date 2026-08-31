@@ -456,3 +456,28 @@ states pass. D026–D030 and the complete written contract were approved under
 OQ-010 on 2026-08-31. That approval authorizes implementation planning only;
 source/test implementation, model runs, push, and merge still require the
 completed detailed plan and a separate explicit execution choice.
+
+## D031 — Accept local dual-version clean environments instead of hosted CI
+
+**Decision:** D030's dual-interpreter requirement is satisfied by reproducible
+local clean-environment full verification on CPython 3.11 and CPython 3.12.
+Hosted GitHub Actions is optional automation and is **not** an input to
+`presentation_harness_accepted`.
+
+The committed verifier must, for each labeled interpreter:
+
+1. prove `sys.version_info[:2]` is exactly `(3, 11)` or `(3, 12)`;
+2. create a fresh virtual environment in system Temp;
+3. install the project extras `[app,llm,dev]` with no provider secret;
+4. from the repository working tree, run the same commands previously required
+   of CI: `pytest -q -rxXs -p no:cacheprovider`, `ruff check --no-cache src
+   tests scripts`, `mypy --no-incremental src`, and
+   `scripts/verify_phase5_wheel.py`;
+5. require zero failed, skipped, and xfailed tests.
+
+`git diff --check 36ae7c9..HEAD` runs once against the repository. The
+verifier never uses repository `build/` and never calls a real model.
+No other D026–D030, T001–T283, wheel, architecture, or honesty requirement
+is reduced.
+
+Approved under OQ-011 on 2026-08-31.

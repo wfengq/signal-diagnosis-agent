@@ -1,7 +1,7 @@
 # Open Contract and Architecture Questions
 
 **Status:** Active register
-**Current open questions:** 0 pending; 10 resolved (OQ-001–OQ-010)
+**Current open questions:** 0 pending; 11 resolved (OQ-001–OQ-011)
 
 Use this file only for concrete issues that may require changing an approved
 contract or architectural boundary.
@@ -193,4 +193,21 @@ Minimal proposed change: Approve the complete Phase 5 written specification, add
 Compatibility impact: Additive signal WAV loader, generic evaluation trace helper, app package, optional Web/LLM dependencies, console/API/UI/report surfaces, package assets, and CI only. Frozen Phase 1–4.3.1 numerical, Agent, scoring, target, prompt, dataset, and historical bundle behavior remains unchanged.
 Test impact: Adds deterministic T224–T285 and non-CI P5-R001–P5-R003. T001–T223 remain required and unchanged.
 User decision: approved OQ-010, the complete Phase 5 written specification, Contracts §§55–§64, Test Plan §28 T224–T285, and D026–D030 on 2026-08-31; authorized Superpowers writing-plans only; source/test implementation, model execution, push, merge, worktree deletion, and build/ cleanup remain unauthorized pending the completed plan and a separate explicit execution choice
+```
+
+---
+
+## OQ-011 — Replace hosted CI with local dual-version clean-environment verification
+
+```text
+ID: OQ-011
+Date: 2026-08-31
+Status: resolved — approved and frozen
+Affected document and section: docs/CONTRACTS_V0_2.md §64; docs/TEST_PLAN_V0_2.md §28 T284–T285 and acceptance states; docs/DECISIONS.md D030/D031; docs/superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md §§15–16
+Observed problem: presentation_harness_accepted currently requires hosted GitHub Actions Python 3.11/3.12 jobs. Push and hosted CI remain unauthorized, so an otherwise complete local deterministic harness cannot close the dual-interpreter gate.
+Why the current contract cannot represent a correct implementation: Treating an unauthorized remote workflow as a mandatory acceptance input blocks the frozen dual-version requirement without reducing any other T001–T285, Ruff, mypy, architecture, wheel, clean-install, or diff-check duty. Silent omission of 3.11 would lower the gate; waiting on push would couple acceptance to an unauthorized integration action.
+Minimal proposed change: Keep every other Phase 5 gate. Redefine the dual-interpreter input as a committed, secret-free local verifier that creates a fresh venv for CPython 3.11 and for CPython 3.12, installs .[app,llm,dev], and runs the same full pytest / Ruff / mypy / wheel-smoke commands in each environment, plus one repository git diff --check 36ae7c9..HEAD. Hosted GitHub Actions may remain as optional automation and is not required for presentation_harness_accepted.
+Compatibility impact: Additive process/test amendment only. No product API, DSP, Runtime, prompt, dataset, scoring, target, or historical bundle change.
+Test impact: Retarget T284/T285 from hosted-job success to the local dual-version verifier. T001–T283 and P5-R001–P5-R003 semantics are unchanged. Zero skip/xfail remains required.
+User decision: approved the Phase 5 local dual-version acceptance revision on 2026-08-31; freeze written contracts and the test plan first; then implement and run the local 3.11/3.12 clean-environment verifier; do not push, merge, or run a real model
 ```

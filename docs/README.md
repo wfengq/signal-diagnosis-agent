@@ -14,7 +14,8 @@ Read these documents before changing implementation code:
    Phase 4 §41–§49 evaluation contracts, additive Phase 4.1 §§50–§51
    behavior gates, the frozen Phase 4.2 §52 evaluation-integrity gate, and the
    frozen Phase 4.3 §53 planner-v8 behavior gate plus Phase 4.3.1 §54 v8.1
-   compliance correction; frozen Phase 5 §§55–§64 were approved under OQ-010.
+   compliance correction; frozen Phase 5 §§55–§64 were approved under OQ-010
+   and the dual-interpreter input was amended under OQ-011 / D031.
 3. [`TEST_PLAN_V0_2.md`](TEST_PLAN_V0_2.md) — required T001–T092 Phase 1–2
    acceptance, required T093–T124 Phase 3 acceptance, required T125–T183 Phase 4
    acceptance, additive T184–T200 Phase 4.1 acceptance, Phase 4.2 T201–T208,
@@ -24,14 +25,14 @@ Read these documents before changing implementation code:
 5. [`superpowers/plans/2026-08-28-phase1-deterministic-foundation.md`](superpowers/plans/2026-08-28-phase1-deterministic-foundation.md)
    — task-level Phase 1 TDD implementation plan covering T001–T063.
 6. [`superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`](superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md)
-   — approved and frozen Phase 5 design with §§55–§64, T224–T285, D026–D030,
-   and resolved OQ-010.
-   Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
-   CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+   — approved and frozen Phase 5 design with §§55–§64, T224–T285, D026–D031,
+   resolved OQ-010, and OQ-011.
+   Phase 5 OQ-011 dual-version acceptance frozen; local 3.11/3.12 clean-environment
+   verification pending; presentation_harness_accepted not yet granted; real Demo gated.
 7. [`superpowers/plans/2026-08-31-phase5-presentation-engineering.md`](superpowers/plans/2026-08-31-phase5-presentation-engineering.md)
    — Task 1–15 TDD/SDD implementation plan.
-   Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
-   CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+   Phase 5 OQ-011 dual-version acceptance frozen; local 3.11/3.12 clean-environment
+   verification pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 ## Acceptance reports and active implementation plan
 
@@ -98,8 +99,8 @@ Read these documents before changing implementation code:
   v8 development gate4 at `48dfb89` is honest `completed/below_target`.
   Task 6 official/held-out was not run. Task 7 records that honest stop.
   Phase 4.3 is not accepted.
-  Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
-  CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+  Phase 5 OQ-011 dual-version acceptance frozen; local 3.11/3.12 clean-environment
+  verification pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 - [`superpowers/specs/2026-08-30-phase4-3-1-v8-1-compliance-correction-design.md`](superpowers/specs/2026-08-30-phase4-3-1-v8-1-compliance-correction-design.md)
   — approved and frozen Phase 4.3.1 compliance correction under §54, T216–T223,
@@ -116,15 +117,15 @@ Read these documents before changing implementation code:
   outcome correct; slot 5: `required_knowledge_omitted;outcome_mismatch`, sole
   wrong outcome at 1/80; aggregate remains `completed/meets_target`).
   Phase 4.3.1 is accepted at Task 10 (terminal evidence at `99e0bdc`).
-  Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
-  CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+  Phase 5 OQ-011 dual-version acceptance frozen; local 3.11/3.12 clean-environment
+  verification pending; presentation_harness_accepted not yet granted; real Demo gated.
 - [`superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md`](superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md)
   — selected native Web UI + FastAPI + argparse over a shared application
   service, bounded polling jobs, strict PCM WAV, actual Agent Trace,
   JSON/self-contained HTML reporting, honest accepted-evaluation presentation,
   and dual deterministic/real-Demo acceptance. OQ-010 is resolved.
-  Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
-  CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+  Phase 5 OQ-011 dual-version acceptance frozen; local 3.11/3.12 clean-environment
+  verification pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 Potential contract defects are recorded in
 [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). An open entry does not override a
@@ -174,12 +175,12 @@ override active engineering contracts.
 
 Phase 4.3.1 is accepted on the merged baseline `36ae7c9`. The current work is
 Phase 5 presentation implementation on branch `phase5-presentation-engineering`.
-Frozen §§55–§64, T224–T285, D026–D030, resolved OQ-010, and
+Frozen §§55–§64, T224–T285, D026–D031, resolved OQ-010 / OQ-011, and
 `superpowers/plans/2026-08-31-phase5-presentation-engineering.md` are the
 implementation authority.
 
-Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
-CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+Phase 5 OQ-011 dual-version acceptance frozen; local 3.11/3.12 clean-environment
+verification pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 Do not run a real-model Demo or write `docs/demo/phase5/v0_2_acceptance` until
 Tasks 14–15.
@@ -202,8 +203,8 @@ replan 0.719, unnecessary_tool 0.405, required_knowledge 0.2; CLI
 `harness_status=pending`). Task 9 official v1.2.0 held-out was not run;
 `docs/evaluations/phase4_2/official/` does not exist. Task 10 records that
 honest stop. Phase 4.1 is not accepted; Phase 4.2 is not accepted;
-Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
-CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+Phase 5 OQ-011 dual-version acceptance frozen; local 3.11/3.12 clean-environment
+verification pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 The Phase 4.3 written design is approved and frozen under §53, T209–T215,
 D024, and OQ-008. Deterministic T001–T215 are green at `1c70568`; that is not
@@ -215,8 +216,8 @@ a live-model pass. Real-model development gate4
 `docs/evaluations/phase4_3/official/` does not exist. No v9. Task 7 records
 that honest stop. Phase 4.3 is not accepted. The next written choice is
 model capability versus PlannerContext (option 2), not more prompts.
-Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
-CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+Phase 5 OQ-011 dual-version acceptance frozen; local 3.11/3.12 clean-environment
+verification pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 The Phase 4.3.1 compliance correction is approved and frozen under §54,
 T216–T223, D025, and OQ-009.
@@ -236,8 +237,8 @@ outcome correct; slot 5: `required_knowledge_omitted;outcome_mismatch`, sole
 wrong outcome at 1/80; aggregate remains `completed/meets_target`). Bundle:
 `docs/evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/`.
 Phase 4.3.1 is accepted at Task 10 (terminal evidence at `99e0bdc`).
-Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
-CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+Phase 5 OQ-011 dual-version acceptance frozen; local 3.11/3.12 clean-environment
+verification pending; presentation_harness_accepted not yet granted; real Demo gated.
 
 Phase 3 passed final Codex acceptance at `a820b7f`. Phase 4 deterministic
 status is `harness_accepted` on branch `phase4-evaluation-design`. Real-model
@@ -246,8 +247,8 @@ live 80-slot DeepSeek run `bench_official_s1_20260829t162243z`, recorded at
 `b68ec5e`. That first official benchmark is complete and honestly below
 target; it is not a harness failure and is not accepted as product-quality
 behavior. Do not convert a target miss into a failure or hide it.
-Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
-CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+Phase 5 OQ-011 dual-version acceptance frozen; local 3.11/3.12 clean-environment
+verification pending; presentation_harness_accepted not yet granted; real Demo gated.
 Phase 4.3.1 acceptance is the final product-behavior gate.
 
 Quality gate this session (Python
@@ -269,8 +270,8 @@ git diff --check 1b94194..HEAD
 
 Zero required skip/xfail were reported. `app/` now exists as the Phase 5
 presentation layer.
-Phase 5 deterministic implementation locally green; Python 3.11/3.12 hosted
-CI pending; presentation_harness_accepted not yet granted; real Demo gated.
+Phase 5 OQ-011 dual-version acceptance frozen; local 3.11/3.12 clean-environment
+verification pending; presentation_harness_accepted not yet granted; real Demo gated.
 Phase 4.3.1 is accepted at Task
 10 (development and official both `completed/meets_target`; terminal evidence
 at `99e0bdc`).

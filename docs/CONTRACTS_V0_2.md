@@ -3,7 +3,8 @@
 **Document:** `CONTRACTS_V0_2.md`  
 **Contract version:** `0.2`  
 **Status:** Frozen through Phase 5 design; Phase 4.3.1 accepted on merged
-baseline `36ae7c9`; Phase 5 §§55–§64 approved on 2026-08-31 under OQ-010
+baseline `36ae7c9`; Phase 5 §§55–§64 approved on 2026-08-31 under OQ-010;
+§64 dual-interpreter gate amended under OQ-011 / D031 on 2026-08-31
 **Scope:** Frozen Phase 1 deterministic foundation, Phase 2 hybrid Agent,
 Phase 3 rules/knowledge, and Phase 4–4.3.1 evaluation/behavior contracts;
 frozen Phase 5 presentation contracts
@@ -37,9 +38,10 @@ the §51 development-before-held-out gates.
 
 Additive §§52–§54 are frozen. Phase 4.3.1 is accepted on merged baseline
 `36ae7c9`. Phase 5 §§55–§64 were approved and frozen under OQ-010 on
-2026-08-31. Their approval authorizes implementation planning only;
-implementation requires the completed detailed plan and a separate execution
-choice.
+2026-08-31. OQ-011 / D031 on 2026-08-31 amends only the §64 dual-interpreter
+acceptance input: local clean-environment full verification on Python 3.11 and
+3.12 replaces hosted GitHub Actions. No other frozen Phase 5 requirement is
+reduced.
 
 ---
 
@@ -3633,10 +3635,11 @@ Passing Phase 4.3.1 authorizes only Phase 5 design and contract freezing.
 
 ## 55. Phase 5 Contract Status and Package Boundary
 
-**Frozen status:** §§55–§64 were approved under OQ-010 on 2026-08-31. They are
-the Phase 5 design and test-planning authority. Approval does not itself
-authorize source/test implementation, model execution, push, or merge; the
-detailed-plan and explicit execution-choice gates remain mandatory.
+**Frozen status:** §§55–§64 were approved under OQ-010 on 2026-08-31. OQ-011 /
+D031 on 2026-08-31 amends only the dual-interpreter acceptance input in §64
+(local Python 3.11/3.12 clean-environment full verification instead of hosted
+GitHub Actions). No other §55–§64 product, security, or honesty requirement is
+reduced.
 
 Phase 5 adds presentation engineering above the accepted core:
 
@@ -4289,10 +4292,19 @@ wheel package data.
 
 The deterministic Phase 5 state is `presentation_harness_accepted`. It
 requires T001–T285 with zero required skip/xfail, Ruff, mypy, architecture,
-diff-check, Python 3.11/3.12 CI, wheel build, and clean wheel-install smoke.
-Deterministic integration injects ScriptedPlanner while using real Signal, DSP,
-Tools, RuleEngine, KnowledgeIndex, Runtime, ApplicationService, API, and
-reporting. CI never accesses a real provider.
+diff-check, Python 3.11/3.12 local clean-environment full verification, wheel
+build, and clean wheel-install smoke. Deterministic integration injects
+ScriptedPlanner while using real Signal, DSP, Tools, RuleEngine,
+KnowledgeIndex, Runtime, ApplicationService, API, and reporting. The
+dual-version verifier never accesses a real provider. Hosted GitHub Actions is
+optional automation and is not required for this state.
+
+The dual-version verifier creates one fresh virtual environment for CPython
+3.11 and one for CPython 3.12, installs extras `[app,llm,dev]` without a
+provider secret, and in each environment runs the full deterministic pytest
+suite (`-q -rxXs -p no:cacheprovider`), Ruff, mypy, and the existing wheel
+build / clean-install smoke. It requires zero failed, skipped, and xfailed
+tests. `git diff --check 36ae7c9..HEAD` runs once against the repository.
 
 The separate product state is `real_demo_completed`. After deterministic
 acceptance, one public synthetic preset and one supported PCM WAV each run once

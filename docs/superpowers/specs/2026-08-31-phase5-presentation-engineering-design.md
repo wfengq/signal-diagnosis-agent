@@ -3,10 +3,10 @@
 **Date:** 2026-08-31
 
 **Status:** Approved and frozen on 2026-08-31 with Contracts §§55–§64, Test
-Plan §28 T224–T285, D026–D030, and resolved OQ-010. This approval authorizes a
-Superpowers task-level implementation plan only. Source/test implementation,
-model execution, push, merge, worktree deletion, and `build/` cleanup still
-require a separate explicit execution choice.
+Plan §28 T224–T285, D026–D030, and resolved OQ-010. OQ-011 / D031 on
+2026-08-31 amends only the dual-interpreter acceptance input: local
+clean-environment full verification on Python 3.11 and 3.12 replaces hosted
+GitHub Actions. No other frozen requirement is reduced.
 
 **Implementation baseline:** `36ae7c9` on the accepted Phase 4.3.1 history.
 
@@ -528,10 +528,14 @@ installed through explicit optional groups. The core DSP package remains
 installable without Web dependencies. `signal-diag` and all static/report
 assets are included in the wheel.
 
-The repository adds a secret-free CI workflow for Python 3.11 and 3.12. CI
-runs the full deterministic suite, Ruff, mypy, architecture checks, wheel
-build, clean wheel-install smoke, and diff validation. CI never calls a real
-LLM and never requires `DEEPSEEK_API_KEY`.
+The repository requires a secret-free local dual-version verifier for Python
+3.11 and 3.12. For each interpreter the verifier creates a fresh virtual
+environment, installs `.[app,llm,dev]`, and runs the full deterministic suite,
+Ruff, mypy, architecture checks, wheel build, and clean wheel-install smoke.
+`git diff --check 36ae7c9..HEAD` runs once against the repository. The
+verifier never calls a real LLM and never requires `DEEPSEEK_API_KEY`. A
+GitHub Actions workflow may remain as optional automation and is not an
+acceptance input.
 
 The root README must include scope, architecture, install/configuration,
 one-command local startup, CLI examples, UI screenshots, report examples,
@@ -557,14 +561,15 @@ committed.
 
 Draft T224–T285 in Test Plan §28 cover WAV, presets, preview, application
 models, RunStore, service, composition, trace bridge, reports, API, CLI, UI,
-evaluation summary, packaging, architecture, CI, and the cumulative gate.
+evaluation summary, packaging, architecture, dual-version verification, and
+the cumulative gate.
 
 Acceptance requires:
 
 - T001–T285 pass with zero required skip or xfail;
 - Ruff, mypy, architecture, and `git diff --check` pass;
 - wheel build and clean-install smoke pass;
-- Python 3.11 and 3.12 CI pass;
+- Python 3.11 and 3.12 local clean-environment full verification pass;
 - all Phase 1–4.3.1 semantics and immutable assets remain unchanged;
 - deterministic API integration uses ScriptedPlanner injection with real DSP,
   Tools, RuleEngine, KnowledgeIndex, Runtime, service, and report rendering;
@@ -626,8 +631,8 @@ the pre-existing untracked `build/` directory without separate authorization.
 
 ## 18. Documentation and authorization gates
 
-This file, Contracts §§55–§64, Test Plan §28 T224–T285, D026–D030, and
-OQ-010 are frozen. The remaining gates are:
+This file, Contracts §§55–§64, Test Plan §28 T224–T285, D026–D031, OQ-010,
+and OQ-011 are frozen. The remaining gates are:
 
 1. use the Superpowers writing-plans workflow to create and review a task-level
    implementation plan;
