@@ -431,12 +431,14 @@ def _validate_global_transform_config(
     tail_values: set[float] = set()
     alpha_values: set[float] = set()
     post_gain_values: set[float] = set()
+    transform_versions: set[str] = set()
     for case in cases:
         if case.source_group != "B" or case.transform is None:
             continue
         if case.external_class == "clean":
             continue
         transform = case.transform
+        transform_versions.add(transform.transform_version)
         if (
             case.external_class in {"clipping", "combined"}
             and transform.tail_proportion is not None
@@ -467,6 +469,13 @@ def _validate_global_transform_config(
             _issue(
                 "global_transform_config_mismatch",
                 "B harmonic/combined transforms must share one frozen post_gain",
+            )
+        )
+    if len(transform_versions) > 1:
+        issues.append(
+            _issue(
+                "global_transform_config_mismatch",
+                "B degraded transforms must share one frozen transform_version",
             )
         )
     return issues

@@ -42,7 +42,14 @@ ExternalClass = Literal[
     "ambiguous",
 ]
 TransformKind = Literal["none", "clipping", "second_harmonic", "combined"]
+ExternalTransformVersion = Literal["1.0.0", "1.1.0"]
 ExternalTargetStatus = Literal["not_evaluated", "meets_target", "below_target"]
+
+EXTERNAL_TRANSFORM_ID: Literal["signal_diag.external_transform"] = (
+    "signal_diag.external_transform"
+)
+EXTERNAL_TRANSFORM_VERSION_EVEN_ORDER: Literal["1.0.0"] = "1.0.0"
+EXTERNAL_TRANSFORM_VERSION_AMPNORM: Literal["1.1.0"] = "1.1.0"
 
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 _CASE_ID_PATTERN = re.compile(r"^[0-9a-f]{16}$")
@@ -82,6 +89,8 @@ class TransformConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
 
     kind: TransformKind
+    transform_id: Literal["signal_diag.external_transform"] = EXTERNAL_TRANSFORM_ID
+    transform_version: ExternalTransformVersion = EXTERNAL_TRANSFORM_VERSION_EVEN_ORDER
     tail_proportion: float | None = Field(default=None, gt=0.0, lt=1.0)
     alpha: float | None = Field(default=None, gt=0.0)
     post_gain: float | None = Field(default=None, gt=0.0)

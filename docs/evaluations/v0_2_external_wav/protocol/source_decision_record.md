@@ -120,6 +120,21 @@ Failure reports:
 - `validation/pilot_failure_report.json` (v1)
 - `validation/pilot_failure_report_v2.json` (v2)
 
+## Pilot v3 (OQ-012 option 3 — blocked)
+
+Transform `signal_diag.external_transform` `1.1.0` implemented and pilot v3
+re-ran on the same SMARD sinus_tones validation master window as v1/v2.
+
+| parameter | candidates | result |
+|---|---|---|
+| harmonic `alpha` | 0.10, 0.15, 0.20 | **FAILED** under 1.1.0 — THD remains 0.30–0.59% on validation master (flat-top at 0.10) |
+| transform version | 1.1.0 | amplitude-normalized even-order (additive) |
+| `post_gain` | 0.8 | unchanged |
+
+Failure report: `validation/pilot_failure_report_v3.json` (does not overwrite v1/v2).
+
+**Status: BLOCKED — pilot v3 failed alpha selection under transform 1.1.0.**
+
 ## Explicit non-actions
 
 - No `final_external_test` download, manifest, or audio inspection.

@@ -1,0 +1,49 @@
+{
+  "alpha_candidates_tested": [
+    0.1,
+    0.15,
+    0.2
+  ],
+  "alpha_selection": "failed",
+  "cases_materialized": 0,
+  "final_external_test_accessed": false,
+  "oq_012_options_executed": [
+    "3"
+  ],
+  "pilot_status": "blocked_alpha_selection",
+  "pilot_version": 3,
+  "real_model_calls": false,
+  "reason": "Pilot v3 re-ran development parameter selection under signal_diag.external_transform 1.1.0 (amplitude-normalized even-order injection) on the same SMARD sinus_tones validation master windows used in v1/v2 (master_val_01 ch5 frames 416000-432000). Clean-master gate passes (THD 0.022%, valid F0). Under 1.1.0, alpha 0.10 triggers flat-top; alpha 0.15-0.20 avoid flat-top/clipping but THD remains 0.44-0.59% (< 5% demo threshold) with reportable order-2 present. Even-order 1.0.0 remains unchanged as reference; v1/v2 failure reports preserved.",
+  "recorded_at_utc": "2026-09-01T13:15:00+00:00",
+  "scan_summary": {
+    "alpha_pass_windows": 0,
+    "eligible_clean_windows": 3,
+    "material_classes_scanned": [
+      "sinus_tones_48kHz"
+    ],
+    "transform_id": "signal_diag.external_transform",
+    "transform_version": "1.1.0",
+    "validation_master_candidate": {
+      "alpha_0.10": {
+        "clipping_ratio": 0.000375,
+        "flat_top_detected": true,
+        "thd_percent": 0.2997231074164144
+      },
+      "alpha_0.15": {
+        "clipping_ratio": 0.0,
+        "flat_top_detected": false,
+        "thd_percent": 0.4444714957340491
+      },
+      "alpha_0.20": {
+        "clipping_ratio": 0.0,
+        "flat_top_detected": false,
+        "thd_percent": 0.5894385869900233
+      },
+      "clean_thd_percent": 0.021741758275303672,
+      "f0_hz": 905.6603773584906,
+      "parent_master_id": "master_val_01",
+      "source_id": "smard_cfg_0010_sinus_tones_48kHz_ch5_ULA_5A"
+    }
+  },
+  "would_select_q": 0.03
+}

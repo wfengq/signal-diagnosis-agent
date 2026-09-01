@@ -83,6 +83,7 @@ from signal_diag.evaluation.external.transforms import (
     apply_combined,
     hard_clip,
     inject_second_harmonic,
+    inject_second_harmonic_amplitude_normalized,
 )
 from signal_diag.evaluation.external.validation import validate_external_manifest
 
@@ -138,6 +139,7 @@ __all__ = (
     "evaluate_external_targets",
     "hard_clip",
     "inject_second_harmonic",
+    "inject_second_harmonic_amplitude_normalized",
     "load_external_manifest",
     "manifest_sha256",
     "read_pcm_window",

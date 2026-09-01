@@ -9,7 +9,13 @@ from typing import Literal
 
 import numpy as np
 
-from signal_diag.evaluation.external.models import TransformConfig, TransformKind
+from signal_diag.evaluation.external.models import (
+    EXTERNAL_TRANSFORM_ID,
+    EXTERNAL_TRANSFORM_VERSION_AMPNORM,
+    EXTERNAL_TRANSFORM_VERSION_EVEN_ORDER,
+    TransformConfig,
+    TransformKind,
+)
 
 _QuantileMethod = Literal[
     "inverted_cdf",
@@ -72,12 +78,42 @@ def hard_clip(
     )
 
 
+def harmonic_parameters_identity(
+    transform_version: str,
+    *,
+    alpha: float,
+    post_gain: float,
+) -> str:
+    if transform_version == EXTERNAL_TRANSFORM_VERSION_AMPNORM:
+        kind = "second_harmonic_ampnorm"
+    else:
+        kind = "second_harmonic"
+    return (
+        f"{EXTERNAL_TRANSFORM_ID}/{transform_version}/{kind}/"
+        f"a{alpha}/pg{post_gain}"
+    )
+
+
+def combined_parameters_identity(
+    transform_version: str,
+    *,
+    tail_proportion: float,
+    alpha: float,
+    post_gain: float,
+    quantile_method: _QuantileMethod,
+) -> str:
+    return (
+        f"{EXTERNAL_TRANSFORM_ID}/{transform_version}/combined/"
+        f"q{tail_proportion}/a{alpha}/pg{post_gain}/{quantile_method}"
+    )
+
+
 def inject_second_harmonic(
     samples: np.ndarray,
     alpha: float,
     post_gain: float,
 ) -> TransformResult:
-    """Inject even-order harmonic distortion using the frozen nonlinearity."""
+    """Inject even-order harmonic distortion using the frozen 1.0.0 nonlinearity."""
     values = _validated_1d(samples)
     if alpha <= 0.0:
         msg = "alpha must be positive"
@@ -93,7 +129,50 @@ def inject_second_harmonic(
     return _checked_result(
         transformed.astype(np.float32),
         kind="second_harmonic",
-        parameters={"alpha": alpha, "post_gain": post_gain},
+        parameters={
+            "alpha": alpha,
+            "post_gain": post_gain,
+            "transform_id": EXTERNAL_TRANSFORM_ID,
+            "transform_version": EXTERNAL_TRANSFORM_VERSION_EVEN_ORDER,
+        },
+        input_samples=values,
+    )
+
+
+def inject_second_harmonic_amplitude_normalized(
+    samples: np.ndarray,
+    alpha: float,
+    post_gain: float,
+) -> TransformResult:
+    """Inject even-order harmonics using the frozen 1.1.0 amplitude-normalized form."""
+    values = _validated_1d(samples)
+    if alpha <= 0.0:
+        msg = "alpha must be positive"
+        raise ValueError(msg)
+    if post_gain <= 0.0:
+        msg = "post_gain must be positive"
+        raise ValueError(msg)
+
+    working = values.astype(np.float64)
+    peak = float(np.max(np.abs(working)))
+    if peak <= 0.0:
+        msg = "peak amplitude must be positive"
+        raise ValueError(msg)
+    normalized = working / peak
+    normalized_squared = normalized**2
+    transformed = (
+        working + alpha * peak * (normalized_squared - float(np.mean(normalized_squared)))
+    ) * post_gain
+    return _checked_result(
+        transformed.astype(np.float32),
+        kind="second_harmonic",
+        parameters={
+            "alpha": alpha,
+            "post_gain": post_gain,
+            "a_ref": peak,
+            "transform_id": EXTERNAL_TRANSFORM_ID,
+            "transform_version": EXTERNAL_TRANSFORM_VERSION_AMPNORM,
+        },
         input_samples=values,
     )
 
@@ -112,7 +191,14 @@ def apply_combined(samples: np.ndarray, config: TransformConfig) -> TransformRes
         raise ValueError(msg)
 
     values = _validated_1d(samples)
-    harmonic = inject_second_harmonic(values, config.alpha, config.post_gain)
+    if config.transform_version == EXTERNAL_TRANSFORM_VERSION_AMPNORM:
+        harmonic = inject_second_harmonic_amplitude_normalized(
+            values,
+            config.alpha,
+            config.post_gain,
+        )
+    else:
+        harmonic = inject_second_harmonic(values, config.alpha, config.post_gain)
     clipped = hard_clip(
         harmonic.samples,
         config.tail_proportion,
@@ -127,6 +213,8 @@ def apply_combined(samples: np.ndarray, config: TransformConfig) -> TransformRes
             "post_gain": config.post_gain,
             "quantile_method": "lower",
             "threshold": clipped.parameters["threshold"],
+            "transform_id": EXTERNAL_TRANSFORM_ID,
+            "transform_version": config.transform_version,
         },
         input_sha256=_sample_digest(values),
         output_sha256=clipped.output_sha256,

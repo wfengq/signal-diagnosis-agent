@@ -183,6 +183,49 @@ for clipping tail proportions are exactly `0.03`, `0.05`, and `0.10`; alpha
 candidates are exactly `0.10`, `0.15`, and `0.20`. Final values come only from
 the frozen validation selection rule.
 
+Transform identity for EV-C010:
+
+```text
+transform_id:      signal_diag.external_transform
+transform_version: 1.0.0
+```
+
+Public function: `inject_second_harmonic(samples, alpha, post_gain)`.
+
+### EV-C010A — Additive amplitude-normalized harmonic transform (OQ-012 option 3)
+
+Approved 2026-09-01. This section is additive; EV-C010 and transform `1.0.0`
+remain frozen and must not be rewritten.
+
+B-group harmonic and combined assets materialized after pilot v3 authorization use:
+
+```text
+transform_id:      signal_diag.external_transform
+transform_version: 1.1.0
+```
+
+Amplitude-normalized second-harmonic injection:
+
+```text
+a_ref = max(abs(x))
+u[n]  = x[n] / a_ref
+y_pre[n] = x[n] + alpha * a_ref * (u[n]^2 - mean(u^2))
+y[n] = y_pre[n] * post_gain
+```
+
+Combined `1.1.0` applies harmonic `1.1.0` first and EV-C010 clipping second.
+Alpha candidates, validation gates (THD > 5%, valid F0, reportable order-2, no
+flat-top/clipping), clipping tail candidates, globally fixed `post_gain`, and
+`signal_diag.external_reference` `1.0.0` are unchanged from the baseline design.
+
+Public function: `inject_second_harmonic_amplitude_normalized(samples, alpha, post_gain)`.
+
+Pilot failure reports referencing transform `1.0.0` (`pilot_failure_report.json`,
+`pilot_failure_report_v2.json`) remain immutable evidence and must not be
+overwritten when recording pilot v3+ outcomes.
+
+Design authority: `docs/superpowers/specs/2026-09-01-v0-2-external-harmonic-transform-amendment.md`.
+
 ### EV-C011 — Parent-master pairing
 
 Each B master produces exactly four variants: clean/base, clipping, second
@@ -335,6 +378,8 @@ validation bundle:    study_v0_2_external_wav_validation_1
 final bundle:         study_v0_2_external_wav_final_1
 external scoring:     signal_diag.external_scoring 1.0.0
 reference analyzer:   signal_diag.external_reference 1.0.0
+external transform:   signal_diag.external_transform 1.0.0 (legacy even-order)
+                      signal_diag.external_transform 1.1.0 (amplitude-normalized; OQ-012 option 3)
 ```
 
 Public analysis filenames are truth-free:

@@ -143,6 +143,10 @@ git diff --check 605c8a8
 | EV-T024 | Transforms do not normalize each master | lower-amplitude masters remain lower after identical parameters |
 | EV-T025 | Four-variant B family completeness | each master yields clean, clipping, harmonic, and combined variants |
 | EV-T026 | Transform digests are reproducible | identical inputs/parameters produce identical output digests |
+| EV-T027A | Amplitude-normalized harmonic formula | `inject_second_harmonic_amplitude_normalized` matches frozen 1.1.0 identity |
+| EV-T027B | Amplitude invariance on scaled masters | identical shape at half and full amplitude yields comparable THD under 1.1.0 |
+| EV-T027C | Combined 1.1.0 order | combined output equals clip(harmonic_1.1.0(base)) |
+| EV-T027D | Transform version metadata | `TransformConfig` stamps `signal_diag.external_transform` version and reproducible `parameters_identity` |
 
 ---
 
