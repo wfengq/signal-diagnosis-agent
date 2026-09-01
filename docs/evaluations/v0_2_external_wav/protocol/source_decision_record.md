@@ -1,8 +1,8 @@
 # Source Decision Record — Phase B/C Pilot (Task 11)
 
-**Study:** `v0.2-external-wav-validity-1`  
-**Catalog:** `v0.2-external-wav-dev-validation-pilot-1` `1.0.2`  
-**Recorded:** 2026-09-01T13:30:00Z (pilot v2)  
+**Study:** `v0.2-external-wav-validity-1`
+**Catalog:** `v0.2-external-wav-dev-validation-pilot-1` `1.0.2`
+**Recorded:** 2026-09-01T13:30:00Z (pilot v2)
 **Scope:** development + validation pilot only (no `final_external_test`)
 
 ## Production host policy (OQ-012 option 1 — approved 2026-09-01)
@@ -132,6 +132,8 @@ re-ran on the same SMARD sinus_tones validation master window as v1/v2.
 | `post_gain` | 0.8 | unchanged |
 
 Failure report: `validation/pilot_failure_report_v3.json` (does not overwrite v1/v2).
+
+Extrapolation: THD > 5% would require alpha ~0.9, outside frozen candidate set {0.10, 0.15, 0.20}.
 
 **Status: BLOCKED — pilot v3 failed alpha selection under transform 1.1.0.**
 
