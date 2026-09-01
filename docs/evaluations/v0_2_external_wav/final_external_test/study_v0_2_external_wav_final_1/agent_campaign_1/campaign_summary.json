@@ -1,0 +1,23 @@
+{
+  "agent_attempts": 28,
+  "agent_behavior_results": 28,
+  "agent_outcome_accuracy": {
+    "denominator": 24,
+    "numerator": 15,
+    "value": 0.625
+  },
+  "baseline_attempts": 28,
+  "baseline_behavior_results": 28,
+  "baseline_outcome_accuracy": {
+    "denominator": 24,
+    "numerator": 15,
+    "value": 0.625
+  },
+  "bundle_dir": "C:/Users/wei/Desktop/\u62db\u8058/signal-diagnosis-agent/docs/evaluations/v0_2_external_wav/final_external_test/study_v0_2_external_wav_final_1/bundle_agent_campaign_1",
+  "generated_at_utc": "2026-09-01T14:27:58.142755+00:00",
+  "harness_status": "external_validation_completed/below_target",
+  "manifest_sha256": "5d8e74437eac2fc856405ef2c3abd8b5288c965c37b0ee71f581e479f0e147a2",
+  "seal_id": "bc22266e58076ab9c94ef76ed08e2d2fbba5efa62bcc42d1b1cfac290282f778",
+  "target_status": "below_target",
+  "token_cost_captured": false
+}
