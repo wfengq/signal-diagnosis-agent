@@ -1,0 +1,115 @@
+{
+  "checked_case_ids": [
+    "680d1aa239495d2b",
+    "00188e688654643a",
+    "dfbf79820d3110c1",
+    "6905772fe16abc1d",
+    "cf7e5997f59c5973",
+    "1b54772259d33d4e",
+    "67cbcf3fcd91d990",
+    "17dd6f3aa9162df5",
+    "7692837703f1e457",
+    "ae9716a35bcb6bf1",
+    "8037d7f72706db4b",
+    "01a737b603b36e3b",
+    "93bd71f36c5fc85f",
+    "a452168915cb1af6",
+    "2fffb3b33e8f6b24",
+    "f16194166736aa43",
+    "5bbd8a46f1794588",
+    "775707bef7406e7b",
+    "4d1a81c6bceab70f",
+    "28514bbad330d16f",
+    "9a7969d0084e717d",
+    "b825a2867dea0a56",
+    "825ff3ae6d90208e",
+    "c2f5e9cabdd329c5",
+    "44a46f8dce3f542a",
+    "db0c39deb5f4cf41",
+    "434c5990588735db",
+    "6835e3e208700159",
+    "a520a772bdec5df0",
+    "d8eba2819932574e",
+    "2b630a2bed8958d2",
+    "47c80600574ae5fd",
+    "3f611cfc10787fce",
+    "d27b29274ed169a7",
+    "f9d80cc87653365a",
+    "80aca0c87b8be8c6",
+    "30ae08019c74113d",
+    "6d199be44df9c65e",
+    "f7d93705456ad192",
+    "ca334631279c6e8f",
+    "8ab326560e377caa",
+    "75113f441016f80d",
+    "9d5d3b032711558a",
+    "8dd281551761fc67",
+    "393d9fdfce4b1cd3",
+    "d5873d22729d5e70",
+    "9fe5dfd277178ac4",
+    "abcd9560dfa9347b",
+    "8545838a65511e90",
+    "f8270277cef256c0",
+    "7491cfa81a54dee9",
+    "76e6b9b67483371a"
+  ],
+  "coverage": {
+    "acoustic_environment": {
+      "documented_values": [
+        "anechoic",
+        "semi_anechoic"
+      ],
+      "meets_target": true,
+      "unavailable": false
+    },
+    "distance": {
+      "documented_values": [
+        "2m",
+        "3m",
+        "4m"
+      ],
+      "meets_target": true,
+      "unavailable": false
+    },
+    "f0_band": {
+      "documented_values": [
+        "100-300",
+        "1200-3000",
+        "400-1000"
+      ],
+      "meets_target": true,
+      "unavailable": false
+    },
+    "loudspeaker": {
+      "documented_values": [
+        "spk_low",
+        "spk_mid"
+      ],
+      "meets_target": true,
+      "unavailable": false
+    },
+    "microphone_position": {
+      "documented_values": [
+        "mic_array",
+        "mic_near",
+        "mic_side"
+      ],
+      "meets_target": true,
+      "unavailable": false
+    },
+    "playback_level": {
+      "documented_values": [
+        "playback_high",
+        "playback_low",
+        "playback_nominal"
+      ],
+      "meets_target": true,
+      "unavailable": false
+    }
+  },
+  "dataset_id": "s1-distortion-external-wav",
+  "dataset_version": "1.0.0",
+  "issues": [],
+  "stage": "final_preflight",
+  "valid": true
+}

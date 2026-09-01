@@ -1,0 +1,32 @@
+{
+  "details": [
+    {
+      "case_id": null,
+      "code": "coverage_dimension_insufficient",
+      "message": "coverage dimension loudspeaker has 1 documented values"
+    },
+    {
+      "case_id": null,
+      "code": "coverage_dimension_insufficient",
+      "message": "coverage dimension microphone_position has 1 documented values"
+    },
+    {
+      "case_id": null,
+      "code": "coverage_dimension_insufficient",
+      "message": "coverage dimension distance has 1 documented values"
+    },
+    {
+      "case_id": null,
+      "code": "coverage_dimension_insufficient",
+      "message": "coverage dimension playback_level has 1 documented values"
+    },
+    {
+      "case_id": null,
+      "code": "coverage_dimension_insufficient",
+      "message": "coverage dimension acoustic_environment has 1 documented values"
+    }
+  ],
+  "error": "coverage dimension loudspeaker has 1 documented values",
+  "recorded_at_utc": "2026-09-01T14:05:37.119238+00:00",
+  "stage": "final_preflight"
+}
