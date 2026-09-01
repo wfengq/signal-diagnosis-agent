@@ -154,28 +154,45 @@ Success report: `validation/pilot_success_report_v4.json` (does not overwrite v1
 
 Candidates 0.10–0.25 fail THD > 5% on the validation master; 0.50–1.00 pass.
 
-**Status: alpha gate cleared — materialization still gated on remaining Task 11 checks.**
+**Status: alpha gate cleared — 14 development + 10 validation cases materialized (2026-09-01).**
+
+### Frozen global transform configuration (materialized)
+
+| parameter | value |
+|---|---|
+| `transform_id` | `signal_diag.external_transform` |
+| `transform_version` | `1.1.0` |
+| harmonic `alpha` | `0.50` |
+| clipping `q` | `0.03` |
+| `post_gain` | `0.8` |
+| `attenuation` | `0.85` |
+| `quantile_method` | `lower` |
+
+Recorded in `validation/study_v0_2_external_wav_validation_1/transform_config.json`.
+
+### Materialized study bundles
+
+| stage | path | cases |
+|---|---|---:|
+| development | `development/study_v0_2_external_wav_dev_1/` | 14 |
+| validation | `validation/study_v0_2_external_wav_validation_1/` | 10 validation-only (+ 14 dev copy in manifest) |
+
+B-group: 2 development masters × 4 variants + 1 validation master × 4 variants (clean/clipping/harmonic/combined). Group isolation preserved per EV contracts.
+
+Deterministic gates passed: manifest validation (development + validation), external pytest (128), fixed-pipeline baseline harness, preservation checksums.
 
 ## Explicit non-actions
 
 - No `final_external_test` download, manifest, or audio inspection.
 - No `run-agent` / `RealLLMPlanner` calls.
-- No fabricated 14+10 sealed study bundles while alpha selection is blocked.
+- No fabricated cases beyond approved transform provenance.
 
 ## Round 1 review / blind package
 
-Not generated (blocked before case materialization).
+Generated under `validation/study_v0_2_external_wav_validation_1/` (`round1_review.json`, `blind_review_package.json`). Round 2 earliest: 14 days after Round 1.
 
 ## Commit recommendation
 
-**Do not commit yet** unless the user explicitly requests it after reviewing gates.
-Staged artifacts for review:
-
-- `docs/OPEN_QUESTIONS.md` (OQ-012 reopened with v2 outcome)
-- `docs/evaluations/v0_2_external_wav/protocol/source_catalog.json` `1.0.2`
-- `docs/evaluations/v0_2_external_wav/protocol/source_decision_record.md`
-- `docs/evaluations/v0_2_external_wav/validation/pilot_failure_report_v2.json`
-- `src/signal_diag/evaluation/external/source.py` (production host allowlist)
-- `private/task11_materialize_studies.py` (operator script; keep under `private/`)
+Materialization complete; commit authorized when gates pass.
 
 Raw audio remains in `private/external_wav/` (gitignored).

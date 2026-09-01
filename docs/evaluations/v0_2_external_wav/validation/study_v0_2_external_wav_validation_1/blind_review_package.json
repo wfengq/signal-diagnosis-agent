@@ -1,0 +1,366 @@
+{
+  "cases": [
+    {
+      "analysis_wav_path": "audio/review_fa40cc8ddbdb2942.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 148.14814814814815,
+        "flat_top_detected": false,
+        "input_sha256": "8b7912c42dc99ab2c5a757b8fe27eaa9bfc57afba258772ae9ce26564fbad572",
+        "order_2_relative_amplitude": 1.3863431391832846,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 230.46351904522095
+      },
+      "review_alias": "review_fa40cc8ddbdb2942"
+    },
+    {
+      "analysis_wav_path": "audio/review_dfc8be2a295ef3d2.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 181.8181818181818,
+        "flat_top_detected": false,
+        "input_sha256": "328d8658ce787791757987c500c73f16b8a735c5153fd2268f6e2ef16f0a227a",
+        "order_2_relative_amplitude": 2.778882289057275,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 684.4441005801924
+      },
+      "review_alias": "review_dfc8be2a295ef3d2"
+    },
+    {
+      "analysis_wav_path": "audio/review_961ed589c9b3b610.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 105.26315789473684,
+        "flat_top_detected": false,
+        "input_sha256": "07798f67a49118f52aee2b7c531819838b40f7809784a216f40ee962b908e153",
+        "order_2_relative_amplitude": 2.743441175457727,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 720.4990709297923
+      },
+      "review_alias": "review_961ed589c9b3b610"
+    },
+    {
+      "analysis_wav_path": "audio/review_749b1a7a7fc3fb03.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 695.6521739130435,
+        "flat_top_detected": false,
+        "input_sha256": "cbf57ef9411e47aa681edcf61749c5a20fd83c0c2b39753d39e09671bae8d937",
+        "order_2_relative_amplitude": 3.26426584997203e-05,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 0.005096526218591912
+      },
+      "review_alias": "review_749b1a7a7fc3fb03"
+    },
+    {
+      "analysis_wav_path": "audio/review_85ad7cd9497182b0.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0300625,
+        "f0_hz": 695.6521739130435,
+        "flat_top_detected": true,
+        "input_sha256": "a7e75f7be6919b78821bf17b1355a803d485e5684148fd77ba557644c8e110ca",
+        "order_2_relative_amplitude": 0.0006835622642661866,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 0.15269388271071407
+      },
+      "review_alias": "review_85ad7cd9497182b0"
+    },
+    {
+      "analysis_wav_path": "audio/review_5ed6541626a366dd.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 695.6521739130435,
+        "flat_top_detected": false,
+        "input_sha256": "1012d9d27c86e7dd798b3f402df87d6e1c4210ba31c26de2dda988395933b4c5",
+        "order_2_relative_amplitude": 0.032730614117844045,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 3.2730658122417937
+      },
+      "review_alias": "review_5ed6541626a366dd"
+    },
+    {
+      "analysis_wav_path": "audio/review_98e9f0c4caead8d0.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0304375,
+        "f0_hz": 695.6521739130435,
+        "flat_top_detected": true,
+        "input_sha256": "8ee742ac79b423c8d6fb2a0dfc158012ccaa49973ca153210c7c7e8f1c2df4ed",
+        "order_2_relative_amplitude": 0.03197346808882711,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 3.220429318187552
+      },
+      "review_alias": "review_98e9f0c4caead8d0"
+    },
+    {
+      "analysis_wav_path": "audio/review_b50833ee783afd9d.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 905.6603773584906,
+        "flat_top_detected": false,
+        "input_sha256": "111c48cf436d6955fe2e4684200f2c2a2928231e5d583939721b6527624257fd",
+        "order_2_relative_amplitude": 3.077963887620157e-05,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 0.005854728309210667
+      },
+      "review_alias": "review_b50833ee783afd9d"
+    },
+    {
+      "analysis_wav_path": "audio/review_b812dec5b937a8e1.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.02875,
+        "f0_hz": 905.6603773584906,
+        "flat_top_detected": true,
+        "input_sha256": "41b6c4c90bf381e4e02c3ff12c739040bd25cd1fec601cdbce95f98581cd8f8e",
+        "order_2_relative_amplitude": 0.002794725619698648,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 0.37721456668631004
+      },
+      "review_alias": "review_b812dec5b937a8e1"
+    },
+    {
+      "analysis_wav_path": "audio/review_86d43f98bb6c9bd8.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 905.6603773584906,
+        "flat_top_detected": false,
+        "input_sha256": "bbee8ecda5cc2397fb061491ec8a61af466be79c671660a67fc0bec070d62962",
+        "order_2_relative_amplitude": 0.00011717688511654059,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 0.0152352370722989
+      },
+      "review_alias": "review_86d43f98bb6c9bd8"
+    },
+    {
+      "analysis_wav_path": "audio/review_5f51c2612ec30173.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0293125,
+        "f0_hz": 905.6603773584906,
+        "flat_top_detected": true,
+        "input_sha256": "4f94feef8270834285bc48c814d0f2c8e866533510ac9c9f5b08eb925fcd3afa",
+        "order_2_relative_amplitude": 0.006187479142858951,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 0.9587823108397951
+      },
+      "review_alias": "review_5f51c2612ec30173"
+    },
+    {
+      "analysis_wav_path": "audio/review_e6ce0eefafadc405.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 816.6666666666666,
+        "flat_top_detected": false,
+        "input_sha256": "9b7478833041af51c26075977b319c84063997c0cfa375968ac9ec7324fe23bf",
+        "order_2_relative_amplitude": 1.3303284314596802,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 138.7327088153609
+      },
+      "review_alias": "review_e6ce0eefafadc405"
+    },
+    {
+      "analysis_wav_path": "audio/review_d44e04eb3ff6ba29.wav",
+      "reference_summary": {
+        "applicable": false,
+        "clipping_ratio": null,
+        "f0_hz": null,
+        "flat_top_detected": null,
+        "input_sha256": "a8026f875d97587887ae989c4ca045f6d2c2535c9eba98a2018ea98d16248280",
+        "order_2_relative_amplitude": null,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": null
+      },
+      "review_alias": "review_d44e04eb3ff6ba29"
+    },
+    {
+      "analysis_wav_path": "audio/review_9c7acc999c891056.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 105.26315789473684,
+        "flat_top_detected": false,
+        "input_sha256": "766d1b6ec98e41846793cc871e5aa6c601de8525a38c4cdde7eedade7f902d2b",
+        "order_2_relative_amplitude": 2.4718710927475356,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 620.156089289145
+      },
+      "review_alias": "review_9c7acc999c891056"
+    },
+    {
+      "analysis_wav_path": "audio/review_69a03f152affa679.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 262.2950819672131,
+        "flat_top_detected": false,
+        "input_sha256": "0e61c5d9b98ae6f1ed8f0247e99392271c276330005bb4c5b59108240ad802cc",
+        "order_2_relative_amplitude": 0.8658922596834746,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 191.5884966447326
+      },
+      "review_alias": "review_69a03f152affa679"
+    },
+    {
+      "analysis_wav_path": "audio/review_46abbb894c883ea2.wav",
+      "reference_summary": {
+        "applicable": false,
+        "clipping_ratio": null,
+        "f0_hz": null,
+        "flat_top_detected": null,
+        "input_sha256": "a91d62bf2773e20a4c6d8f64a2bb27f6854c95060e52daacd7ecad49d8029ba5",
+        "order_2_relative_amplitude": null,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": null
+      },
+      "review_alias": "review_46abbb894c883ea2"
+    },
+    {
+      "analysis_wav_path": "audio/review_171f1c9d53443531.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 177.77777777777777,
+        "flat_top_detected": false,
+        "input_sha256": "77ea9d287683ae18645256f3f663cbec72a2d16cbaec22cb92f04cf2b3407f10",
+        "order_2_relative_amplitude": 3.627640331278873,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 499.33468661701824
+      },
+      "review_alias": "review_171f1c9d53443531"
+    },
+    {
+      "analysis_wav_path": "audio/review_bba32641303d5392.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 695.6521739130435,
+        "flat_top_detected": false,
+        "input_sha256": "f112572dd695417e850a0f6a44a20dcc5c6c469e599c497e0a42efccc7aacb7b",
+        "order_2_relative_amplitude": 2.3330081204734748e-05,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 0.0033863462101614084
+      },
+      "review_alias": "review_bba32641303d5392"
+    },
+    {
+      "analysis_wav_path": "audio/review_37ed962f64b31fd0.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0308125,
+        "f0_hz": 695.6521739130435,
+        "flat_top_detected": true,
+        "input_sha256": "4b8504f16c66c6536d613a572f7c16beb58e3f455b0329259e3b28bb9ad91760",
+        "order_2_relative_amplitude": 0.0006511026836497454,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 0.14390649155013158
+      },
+      "review_alias": "review_37ed962f64b31fd0"
+    },
+    {
+      "analysis_wav_path": "audio/review_84ca9b61c0df94c9.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 350.3649635036496,
+        "flat_top_detected": false,
+        "input_sha256": "19c9a400c431121ba77a7ced2c88902e3a1d240f0ea4a3cafe2ccd39e8443513",
+        "order_2_relative_amplitude": 71460.80979957104,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 7335772.261144314
+      },
+      "review_alias": "review_84ca9b61c0df94c9"
+    },
+    {
+      "analysis_wav_path": "audio/review_2056c139216fa8fd.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0298125,
+        "f0_hz": 350.3649635036496,
+        "flat_top_detected": true,
+        "input_sha256": "c2c7cc52b51bc30b1a46f80213bebbc3f971d842434d449e4136e44bc7e8b53b",
+        "order_2_relative_amplitude": 48700.484504363725,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 4996095.807469615
+      },
+      "review_alias": "review_2056c139216fa8fd"
+    },
+    {
+      "analysis_wav_path": "audio/review_2018ccefcc8b51e8.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0025759637188208615,
+        "f0_hz": 142.71844660194174,
+        "flat_top_detected": true,
+        "input_sha256": "3799cd021eee5d3112aa0c901ecb7eb7d592a93b8030301d76fb0ada008d96c3",
+        "order_2_relative_amplitude": 0.48302855929896554,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 50.51536773882366
+      },
+      "review_alias": "review_2018ccefcc8b51e8"
+    },
+    {
+      "analysis_wav_path": "audio/review_238b3c88c7821bbf.wav",
+      "reference_summary": {
+        "applicable": false,
+        "clipping_ratio": null,
+        "f0_hz": null,
+        "flat_top_detected": null,
+        "input_sha256": "45a2d767c6fe8b22b0542885df0f5d015a6bed45d5e55da618f47d2cd2ed7728",
+        "order_2_relative_amplitude": null,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": null
+      },
+      "review_alias": "review_238b3c88c7821bbf"
+    },
+    {
+      "analysis_wav_path": "audio/review_d97e007f6deb64c4.wav",
+      "reference_summary": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 1000.0,
+        "flat_top_detected": false,
+        "input_sha256": "171e9cf942d6486cab33c069d7154f3857fc30758c7c828cca7d428cdecfa1a6",
+        "order_2_relative_amplitude": 0.9195523631394483,
+        "reference_analyzer_id": "signal_diag.external_reference",
+        "reference_analyzer_version": "1.0.0",
+        "thd_percent": 93.87137879705092
+      },
+      "review_alias": "review_d97e007f6deb64c4"
+    }
+  ],
+  "created_at_utc": "2026-09-01T12:00:00Z",
+  "package_id": "983cf6cec8d376d3dfad93fee1cc9af3dbbe2109a2202221bb927247a03f5382"
+}

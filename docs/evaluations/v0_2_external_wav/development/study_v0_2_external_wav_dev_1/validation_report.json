@@ -1,0 +1,67 @@
+{
+  "checked_case_ids": [
+    "680d1aa239495d2b",
+    "00188e688654643a",
+    "dfbf79820d3110c1",
+    "6905772fe16abc1d",
+    "cf7e5997f59c5973",
+    "1b54772259d33d4e",
+    "67cbcf3fcd91d990",
+    "17dd6f3aa9162df5",
+    "7692837703f1e457",
+    "ae9716a35bcb6bf1",
+    "8037d7f72706db4b",
+    "01a737b603b36e3b",
+    "93bd71f36c5fc85f",
+    "a452168915cb1af6"
+  ],
+  "coverage": {
+    "acoustic_environment": {
+      "documented_values": [
+        "anechoic"
+      ],
+      "meets_target": false,
+      "unavailable": false
+    },
+    "distance": {
+      "documented_values": [
+        "4m"
+      ],
+      "meets_target": false,
+      "unavailable": false
+    },
+    "f0_band": {
+      "documented_values": [
+        "400-1000"
+      ],
+      "meets_target": false,
+      "unavailable": false
+    },
+    "loudspeaker": {
+      "documented_values": [
+        "spk_mid"
+      ],
+      "meets_target": false,
+      "unavailable": false
+    },
+    "microphone_position": {
+      "documented_values": [
+        "mic_array"
+      ],
+      "meets_target": false,
+      "unavailable": false
+    },
+    "playback_level": {
+      "documented_values": [
+        "playback_nominal"
+      ],
+      "meets_target": false,
+      "unavailable": false
+    }
+  },
+  "dataset_id": "s1-distortion-external-wav",
+  "dataset_version": "1.0.0",
+  "issues": [],
+  "stage": "development",
+  "valid": true
+}

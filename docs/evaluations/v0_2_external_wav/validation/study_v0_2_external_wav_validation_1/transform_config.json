@@ -1,0 +1,10 @@
+{
+  "alpha": 0.5,
+  "attenuation": 0.85,
+  "frozen_at_utc": "2026-09-01T13:34:21.245893+00:00",
+  "post_gain": 0.8,
+  "quantile_method": "lower",
+  "tail_proportion": 0.03,
+  "transform_id": "signal_diag.external_transform",
+  "transform_version": "1.1.0"
+}
