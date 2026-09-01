@@ -50,6 +50,7 @@ from signal_diag.evaluation.external.reporting import (
     write_external_bundle,
 )
 from signal_diag.evaluation.external.review import (
+    audit_single_reviewer_provenance,
     build_blind_package,
     resolve_adjudicated_confidence,
     score_delayed_review,
@@ -132,6 +133,7 @@ __all__ = (
     "aggregate_external_scores",
     "analyze_reference",
     "apply_combined",
+    "audit_single_reviewer_provenance",
     "build_blind_package",
     "canonical_json_bytes",
     "derive_analysis_wav",

@@ -9,17 +9,24 @@ from pathlib import Path
 import pytest
 
 from signal_diag.evaluation.external.models import (
+    SINGLE_REVIEWER_DISCLOSURE,
     ExternalCase,
+    ExternalDatasetManifest,
     ReferenceSummary,
     ReviewRecord,
     ReviewRound,
 )
 from signal_diag.evaluation.external.review import (
+    audit_single_reviewer_provenance,
     build_blind_package,
     resolve_adjudicated_confidence,
     score_delayed_review,
 )
-from tests.evaluation.external.conftest import make_external_case, make_transform
+from tests.evaluation.external.conftest import (
+    make_external_case,
+    make_external_manifest,
+    make_transform,
+)
 from tests.evaluation.external.test_validation import (
     build_valid_manifest,
     materialize_manifest_assets,
@@ -175,6 +182,18 @@ def test_ev_t037_round2_before_fourteen_days_is_rejected(
     )
     with pytest.raises(ValueError, match="14 complete days"):
         score_delayed_review(round1, round2)
+
+
+def test_ev_t037_single_reviewer_mode_does_not_require_round2(
+    final_manifest,
+    round1: ReviewRound,
+) -> None:
+    agreement = audit_single_reviewer_provenance(final_manifest, round1)
+    assert agreement.evaluation_status == "not_evaluated"
+    assert agreement.review_mode == "single_reviewer_provenance_audit"
+    assert agreement.raw_outcome_agreement is None
+    assert agreement.outcome_cohen_kappa is None
+    assert agreement.disclosure == SINGLE_REVIEWER_DISCLOSURE
 
 
 def test_round2_after_fourteen_days_is_accepted(
@@ -376,6 +395,64 @@ def test_ev_t039_agreement_statistics_match_deterministic_fixture() -> None:
     assert agreement.causal_set_agreement == pytest.approx(1 / 2)
     assert agreement.outcome_cohen_kappa == pytest.approx(0.4)
     assert agreement.confidence_quadratic_kappa == pytest.approx(0.5)
+
+
+def test_ev_t039a_b_strong_truth_requires_transform_sha_pairing() -> None:
+    case = make_external_case(
+        source_group="B",
+        external_class="clipping",
+        confidence="strong_ground_truth",
+        transform=make_transform(),
+    )
+    round1 = ReviewRound(
+        round_number=1,
+        records=(
+            _review_record(
+                case_id=case.case_id,
+                round_number=1,
+                outcome="supported_fault",
+                causal_faults=("clipping",),
+                confidence="strong_ground_truth",
+            ),
+        ),
+        reference_summaries={case.case_id: _reference_summary()},
+    )
+    manifest = make_external_manifest(cases=(case,))
+    agreement = audit_single_reviewer_provenance(manifest, round1)
+    assert agreement.evaluation_status == "not_evaluated"
+
+
+def test_ev_t039b_a_group_strong_truth_rejected() -> None:
+    case = make_external_case(
+        source_group="A",
+        external_class="clean",
+        confidence="reference_supported",
+        acceptable_outcomes=("no_supported_fault",),
+        causal_faults=(),
+        parent_master_id=None,
+        transform=None,
+    )
+    invalid = ExternalCase.model_construct(
+        **{
+            **case.model_dump(),
+            "confidence": "strong_ground_truth",
+        }
+    )
+    round1 = ReviewRound(
+        round_number=1,
+        records=(
+            _review_record(
+                case_id=invalid.case_id,
+                round_number=1,
+                outcome="no_supported_fault",
+                causal_faults=(),
+                confidence="strong_ground_truth",
+            ),
+        ),
+    )
+    manifest = ExternalDatasetManifest.model_construct(cases=(invalid,))
+    with pytest.raises(ValueError, match="A/C case"):
+        audit_single_reviewer_provenance(manifest, round1)
 
 
 def test_ev_t039_undefined_kappa_returns_none_with_reason() -> None:

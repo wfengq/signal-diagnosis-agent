@@ -18,6 +18,7 @@ from signal_diag.evaluation.external.manifest import (
     manifest_sha256,
 )
 from signal_diag.evaluation.external.models import (
+    SINGLE_REVIEWER_DISCLOSURE,
     ExternalAttemptRecord,
     ExternalProtectedAssetsAudit,
     ExternalProvenanceRecord,
@@ -427,3 +428,20 @@ def test_ev_t047_report_markdown_sections_and_metrics(tmp_path: Path) -> None:
     assert {"dimension", "value", "metric_name", "numerator", "denominator"}.issubset(
         rows[0].keys()
     )
+
+
+def test_ev_t039c_report_discloses_single_reviewer_limitation(tmp_path: Path) -> None:
+    report = _make_external_study_report().model_copy(
+        update={
+            "review_agreement": ReviewAgreement(
+                review_mode="single_reviewer_provenance_audit",
+                evaluation_status="not_evaluated",
+                disclosure=SINGLE_REVIEWER_DISCLOSURE,
+            ),
+        }
+    )
+    write_external_bundle(report, tmp_path / "bundle")
+    markdown = _read_text(tmp_path / "bundle" / "report.md")
+    assert "single reviewer" in markdown.lower()
+    assert "not evaluated" in markdown.lower()
+    assert SINGLE_REVIEWER_DISCLOSURE in markdown

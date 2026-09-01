@@ -295,12 +295,7 @@ def _report_markdown(report: ExternalStudyReport) -> str:
         ),
         (
             "Review Agreement",
-            (
-                f"- raw_outcome_agreement: {report.review_agreement.raw_outcome_agreement}",
-                f"- causal_set_agreement: {report.review_agreement.causal_set_agreement}",
-                f"- outcome_cohen_kappa: {report.review_agreement.outcome_cohen_kappa}",
-                f"- confidence_quadratic_kappa: {report.review_agreement.confidence_quadratic_kappa}",
-            ),
+            _review_agreement_lines(report.review_agreement),
         ),
         (
             "Agent versus Fixed Pipeline",
@@ -328,6 +323,30 @@ def _report_markdown(report: ExternalStudyReport) -> str:
         lines.extend(body)
         lines.append("")
     return _sanitize_text("\n".join(lines).rstrip("\n") + "\n")
+
+
+def _review_agreement_lines(agreement: object) -> tuple[str, ...]:
+    from signal_diag.evaluation.external.models import ReviewAgreement
+
+    if not isinstance(agreement, ReviewAgreement):
+        raise TypeError("expected ReviewAgreement")
+    lines = [
+        f"- review_mode: {agreement.review_mode}",
+        f"- evaluation_status: {agreement.evaluation_status}",
+    ]
+    if agreement.evaluation_status == "not_evaluated":
+        if agreement.disclosure:
+            lines.append(f"- disclosure: {agreement.disclosure}")
+        return tuple(lines)
+    lines.extend(
+        (
+            f"- raw_outcome_agreement: {agreement.raw_outcome_agreement}",
+            f"- causal_set_agreement: {agreement.causal_set_agreement}",
+            f"- outcome_cohen_kappa: {agreement.outcome_cohen_kappa}",
+            f"- confidence_quadratic_kappa: {agreement.confidence_quadratic_kappa}",
+        )
+    )
+    return tuple(lines)
 
 
 def _aggregate_metric_lines(aggregate: object) -> tuple[str, ...]:

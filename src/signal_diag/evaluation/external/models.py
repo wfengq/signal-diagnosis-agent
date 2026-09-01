@@ -44,6 +44,14 @@ ExternalClass = Literal[
 TransformKind = Literal["none", "clipping", "second_harmonic", "combined"]
 ExternalTransformVersion = Literal["1.0.0", "1.1.0"]
 ExternalTargetStatus = Literal["not_evaluated", "meets_target", "below_target"]
+ReviewMode = Literal["delayed_blind_review", "single_reviewer_provenance_audit"]
+ReviewAgreementEvaluationStatus = Literal["evaluated", "not_evaluated"]
+
+SINGLE_REVIEWER_DISCLOSURE = (
+    "This study used a single reviewer with provenance audit only. No delayed "
+    "blind re-review was performed. Inter-rater agreement and Cohen kappa were "
+    "not evaluated."
+)
 
 EXTERNAL_TRANSFORM_ID: Literal["signal_diag.external_transform"] = (
     "signal_diag.external_transform"
@@ -427,11 +435,38 @@ class BlindPackage(BaseModel):
 class ReviewAgreement(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    raw_outcome_agreement: float = Field(ge=0.0, le=1.0)
+    review_mode: ReviewMode = "delayed_blind_review"
+    evaluation_status: ReviewAgreementEvaluationStatus = "evaluated"
+    raw_outcome_agreement: float | None = Field(default=None, ge=0.0, le=1.0)
     causal_set_agreement: float | None = Field(default=None, ge=0.0, le=1.0)
     outcome_cohen_kappa: float | None = None
     confidence_quadratic_kappa: float | None = None
     undefined_kappa_reason: str | None = None
+    disclosure: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_evaluation_fields(self) -> ReviewAgreement:
+        if self.evaluation_status == "not_evaluated":
+            if self.review_mode != "single_reviewer_provenance_audit":
+                raise ValueError(
+                    "not_evaluated agreement requires single_reviewer_provenance_audit"
+                )
+            if any(
+                value is not None
+                for value in (
+                    self.raw_outcome_agreement,
+                    self.causal_set_agreement,
+                    self.outcome_cohen_kappa,
+                    self.confidence_quadratic_kappa,
+                )
+            ):
+                raise ValueError("not_evaluated agreement forbids numeric statistics")
+            if self.disclosure is None:
+                raise ValueError("not_evaluated agreement requires disclosure text")
+            return self
+        if self.raw_outcome_agreement is None:
+            raise ValueError("evaluated agreement requires raw_outcome_agreement")
+        return self
 
 
 class ReviewRound(BaseModel):
@@ -469,13 +504,23 @@ class FinalSealInputs(BaseModel):
     repo_root: Path
     checksum_file: Path
     round1: ReviewRound
-    round2: ReviewRound
+    review_mode: ReviewMode = "delayed_blind_review"
+    round2: ReviewRound | None = None
     review_targets: ReviewTargets
     sealed_at_utc: datetime
 
     @model_validator(mode="after")
     def _validate_sealed_at(self) -> FinalSealInputs:
         _require_utc(self.sealed_at_utc, "sealed_at_utc")
+        if self.review_mode == "delayed_blind_review" and self.round2 is None:
+            raise ValueError("delayed_blind_review requires round2")
+        if (
+            self.review_mode == "single_reviewer_provenance_audit"
+            and self.round2 is not None
+        ):
+            raise ValueError(
+                "single_reviewer_provenance_audit must not supply round2"
+            )
         return self
 
 

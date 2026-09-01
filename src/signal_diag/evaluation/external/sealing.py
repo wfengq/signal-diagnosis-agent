@@ -14,7 +14,10 @@ from signal_diag.evaluation.external.manifest import (
     manifest_sha256,
 )
 from signal_diag.evaluation.external.models import FinalSeal, FinalSealInputs
-from signal_diag.evaluation.external.review import score_delayed_review
+from signal_diag.evaluation.external.review import (
+    audit_single_reviewer_provenance,
+    score_delayed_review,
+)
 from signal_diag.evaluation.external.validation import validate_external_manifest
 
 _FILE_RECORD_PATTERN = re.compile(r"^([0-9a-f]{64})  (.+)$")
@@ -100,12 +103,18 @@ def seal_final_external_test(inputs: FinalSealInputs, destination: Path) -> Fina
     )
     if not report.valid:
         raise ValueError(f"final preflight failed: {report.issues[0].message}")
-    agreement = score_delayed_review(inputs.round1, inputs.round2)
-    if (
-        agreement.raw_outcome_agreement
-        < inputs.review_targets.minimum_raw_outcome_agreement
-    ):
-        raise ValueError("review target not met")
+    if inputs.review_mode == "single_reviewer_provenance_audit":
+        agreement = audit_single_reviewer_provenance(inputs.manifest, inputs.round1)
+    else:
+        if inputs.round2 is None:
+            raise ValueError("delayed_blind_review requires round2")
+        agreement = score_delayed_review(inputs.round1, inputs.round2)
+        if (
+            agreement.raw_outcome_agreement is not None
+            and agreement.raw_outcome_agreement
+            < inputs.review_targets.minimum_raw_outcome_agreement
+        ):
+            raise ValueError("review target not met")
     verify_protected_assets(inputs.repo_root, inputs.checksum_file)
     final_cases = tuple(
         c for c in inputs.manifest.cases if c.split == "final_external_test"

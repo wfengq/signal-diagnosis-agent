@@ -168,7 +168,12 @@ def build_parser() -> argparse.ArgumentParser:
     seal_final.add_argument("--repo-root", type=Path, required=True)
     seal_final.add_argument("--checksum-file", type=Path, required=True)
     seal_final.add_argument("--round1", type=Path, required=True)
-    seal_final.add_argument("--round2", type=Path, required=True)
+    seal_final.add_argument(
+        "--review-mode",
+        choices=("delayed_blind_review", "single_reviewer_provenance_audit"),
+        default="delayed_blind_review",
+    )
+    seal_final.add_argument("--round2", type=Path, required=False)
     seal_final.add_argument("--review-targets", type=Path, required=True)
     seal_final.add_argument("--destination", type=Path, required=True)
     seal_final.add_argument("--sealed-at", type=str, default=None)
@@ -332,7 +337,12 @@ def main(argv: list[str] | None = None) -> int:
                 repo_root=args.repo_root,
                 checksum_file=args.checksum_file,
                 round1=_load_json_model(args.round1, ReviewRound),  # type: ignore[arg-type]
-                round2=_load_json_model(args.round2, ReviewRound),  # type: ignore[arg-type]
+                review_mode=args.review_mode,
+                round2=(
+                    _load_json_model(args.round2, ReviewRound)  # type: ignore[arg-type]
+                    if args.round2 is not None
+                    else None
+                ),
                 review_targets=_load_json_model(args.review_targets, ReviewTargets),  # type: ignore[arg-type]
                 sealed_at_utc=_parse_timestamp(args.sealed_at),
             )

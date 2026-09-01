@@ -8,6 +8,7 @@ from collections.abc import Hashable, Sequence
 from datetime import datetime, timedelta
 
 from signal_diag.evaluation.external.models import (
+    SINGLE_REVIEWER_DISCLOSURE,
     BlindPackage,
     BlindPackageCase,
     ExternalCase,
@@ -92,11 +93,60 @@ def score_delayed_review(round1: ReviewRound, round2: ReviewRound) -> ReviewAgre
     if outcome_kappa is None or confidence_kappa is None:
         undefined = "kappa is undefined when expected disagreement is zero"
     return ReviewAgreement(
+        review_mode="delayed_blind_review",
+        evaluation_status="evaluated",
         raw_outcome_agreement=raw,
         causal_set_agreement=causal,
         outcome_cohen_kappa=outcome_kappa,
         confidence_quadratic_kappa=confidence_kappa,
         undefined_kappa_reason=undefined,
+    )
+
+
+def audit_single_reviewer_provenance(
+    manifest: ExternalDatasetManifest,
+    round1: ReviewRound,
+) -> ReviewAgreement:
+    if round1.round_number != 1:
+        raise ValueError("provenance audit requires round 1")
+    records = {record.case_id: record for record in round1.records}
+    if set(records) != {case.case_id for case in manifest.cases}:
+        raise ValueError("round 1 must cover every manifest case")
+    masters = {
+        case.parent_master_id: case.wav_sha256
+        for case in manifest.cases
+        if case.source_group == "B" and case.external_class == "clean"
+    }
+    for case in manifest.cases:
+        if case.source_group in {"A", "C"} and case.confidence == "strong_ground_truth":
+            raise ValueError(
+                f"A/C case {case.case_id} cannot be strong_ground_truth"
+            )
+        if case.confidence == "strong_ground_truth":
+            if case.source_group != "B" or case.transform is None:
+                raise ValueError(
+                    f"strong_ground_truth requires B transform provenance for {case.case_id}"
+                )
+            if case.transform.output_sha256 != case.wav_sha256:
+                raise ValueError(
+                    f"transform output_sha256 must match wav_sha256 for {case.case_id}"
+                )
+            master_digest = masters.get(case.parent_master_id)
+            if (
+                master_digest is not None
+                and case.transform.input_sha256 != master_digest
+            ):
+                raise ValueError(
+                    f"transform input_sha256 must match clean parent for {case.case_id}"
+                )
+            if not case.transform.parameters_identity:
+                raise ValueError(
+                    f"transform parameters_identity required for {case.case_id}"
+                )
+    return ReviewAgreement(
+        review_mode="single_reviewer_provenance_audit",
+        evaluation_status="not_evaluated",
+        disclosure=SINGLE_REVIEWER_DISCLOSURE,
     )
 
 

@@ -257,8 +257,11 @@ def evaluate_external_targets(
         >= _INCONCLUSIVE_APPROPRIATENESS_MIN,
         aggregate.inconclusive_appropriateness.denominator
         >= _INCONCLUSIVE_APPROPRIATENESS_DENOMINATOR,
-        review.raw_outcome_agreement >= _RAW_OUTCOME_AGREEMENT_MIN,
     ]
+    if review.evaluation_status == "not_evaluated":
+        pass
+    elif review.raw_outcome_agreement is not None:
+        checks.append(review.raw_outcome_agreement >= _RAW_OUTCOME_AGREEMENT_MIN)
     if review.outcome_cohen_kappa is not None:
         checks.append(review.outcome_cohen_kappa >= _OUTCOME_KAPPA_MIN)
     if review.confidence_quadratic_kappa is not None:

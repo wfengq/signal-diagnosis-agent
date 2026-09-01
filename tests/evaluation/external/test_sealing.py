@@ -172,6 +172,27 @@ def test_seal_requires_final_preflight_validity(
         seal_final_external_test(bad_inputs, destination)
 
 
+def test_seal_single_reviewer_mode_without_round2(
+    sealed_inputs: FinalSealInputs,
+    tmp_path: Path,
+) -> None:
+    single_inputs = sealed_inputs.model_copy(
+        update={
+            "review_mode": "single_reviewer_provenance_audit",
+            "round2": None,
+        }
+    )
+    destination = tmp_path / "single_reviewer_seal"
+    seal = seal_final_external_test(single_inputs, destination)
+    assert seal.case_count == 52
+    agreement = json.loads(
+        (destination / "review_agreement.json").read_text(encoding="utf-8")
+    )
+    assert agreement["evaluation_status"] == "not_evaluated"
+    assert agreement["review_mode"] == "single_reviewer_provenance_audit"
+    assert agreement["raw_outcome_agreement"] is None
+
+
 def test_seal_writes_canonical_manifest_and_checksum(
     sealed_inputs: FinalSealInputs,
     tmp_path: Path,
