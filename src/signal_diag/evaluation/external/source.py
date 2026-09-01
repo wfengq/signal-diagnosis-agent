@@ -20,6 +20,7 @@ _CHUNK_SIZE_BYTES = 1024 * 1024
 _APPROVED_HOSTS = frozenset(
     {
         "www.es.aau.dk",
+        "shares01.portal.aau.dk",
         "github.com",
         "raw.githubusercontent.com",
         "magenta.withgoogle.com",

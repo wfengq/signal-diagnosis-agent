@@ -1,0 +1,38 @@
+{
+  "alpha_candidates_tested": [
+    0.1,
+    0.15,
+    0.2
+  ],
+  "alpha_selection": "failed",
+  "cases_materialized": 0,
+  "final_external_test_accessed": false,
+  "oq_012_options_executed": [
+    "1",
+    "2"
+  ],
+  "oq_012_reopened": true,
+  "pilot_status": "blocked_alpha_selection",
+  "pilot_version": 2,
+  "real_model_calls": false,
+  "reason": "Pilot v2 re-scanned SMARD cfg 0010 periodic material classes (harm_sinus_48kHz, sinus_tones_48kHz, exp_swept_sinus_10Hz_24kHz) under the frozen clean-master gate. harm_sinus captures fail cleanliness (natural THD >> 5%). 42 eligible windows remain on sinus_tones and exp_swept_sinus, but no frozen alpha candidate passes validation.",
+  "recorded_at_utc": "2026-09-01T12:58:38.853707+00:00",
+  "scan_summary": {
+    "alpha_pass_windows": 0,
+    "eligible_clean_windows": 42,
+    "harm_sinus_eligible_windows": 0,
+    "material_classes_scanned": [
+      "harm_sinus_48kHz",
+      "sinus_tones_48kHz",
+      "exp_swept_sinus_10Hz_24kHz"
+    ],
+    "validation_master_candidate": {
+      "clean_thd_percent": 0.0037375352738360126,
+      "f0_band": "400-1000",
+      "f0_hz": 695.6521739130435,
+      "parent_master_id": "master_val_01",
+      "source_id": "smard_cfg_0010_sinus_tones_48kHz_ch10_ULA_2B"
+    }
+  },
+  "would_select_q": 0.03
+}
