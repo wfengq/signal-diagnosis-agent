@@ -310,6 +310,36 @@ strong only when deterministic provenance and independent reference checks pass;
 all other unresolved disagreement is downgraded to weak or unknown. Final review
 outputs and the scoreability mask are frozen before any final Agent call.
 
+### EV-C025 — Single-reviewer provenance audit mode (2026-09-01 amendment)
+
+Approved 2026-09-01. This section is additive; EV-C015 delayed blind review
+remains frozen for preservation tests and historical bundles.
+
+`review_mode` is either `delayed_blind_review` or
+`single_reviewer_provenance_audit`.
+
+Under `single_reviewer_provenance_audit`:
+
+- Round 1 review records are required for every manifest case before sealing;
+- Round 2 and the 14-day delay are **not** mandatory sealing gates;
+- `audit_single_reviewer_provenance(manifest, round1)` validates label
+  provenance and returns `ReviewAgreement` with
+  `evaluation_status=not_evaluated`;
+- B `strong_ground_truth` requires deterministic clean/degraded pairing:
+  transform identity, parameters, `input_sha256` matching the clean parent
+  master, and `output_sha256` matching `wav_sha256`;
+- A and C must never be `strong_ground_truth`; insufficient reference keeps
+  `weak_observation` or `unknown`;
+- `raw_outcome_agreement`, causal-set agreement, and Cohen kappa fields are
+  `null` with `evaluation_status=not_evaluated`; fabricating agreement
+  statistics is forbidden;
+- append-only `report.md` must disclose single-reviewer limitation and that
+  inter-rater agreement was not evaluated.
+
+`seal_final_external_test` accepts `review_mode=single_reviewer_provenance_audit`
+without Round 2. Agreement targets apply only when
+`evaluation_status=evaluated`.
+
 ---
 
 ## 6. Grouped Splits, Final Sealing, Attempt Consumption, and No Fallback
@@ -330,10 +360,13 @@ cross splits.
 
 ### EV-C018 — Write-once final sealing
 
-Final sealing requires final-preflight validity, elapsed review delay, 28 final
-cases, 24 scoreable labels, review targets, protected-asset validity, absent
-destination, and no existing run output. Sealed outputs use create-new semantics.
-After sealing, cases are not replaced or relabeled based on Agent output.
+Final sealing requires final-preflight validity, 28 final cases, 24 scoreable
+labels, protected-asset validity, absent destination, and no existing run
+output. Under `delayed_blind_review`, sealing also requires elapsed review
+delay and review-target agreement. Under
+`single_reviewer_provenance_audit`, provenance audit passes instead of delayed
+review agreement. Sealed outputs use create-new semantics. After sealing, cases
+are not replaced or relabeled based on Agent output.
 
 ### EV-C019 — One consumed attempt per final slot
 

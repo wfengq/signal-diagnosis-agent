@@ -198,7 +198,13 @@ Pilot v4 success: `validation/pilot_success_report_v4.json`.
 | Earliest Round 2 timestamp | `2026-09-15T12:00:00+00:00` (`blind_review_earliest_round2.txt`) |
 
 Round 1 completed 2026-09-01 for all 24 manifest cases (14 development +
-10 validation). Round 2 may not begin before the 14-day waiting period.
+10 validation).
+
+**Superseded (2026-09-01):** The mandatory 14-day Round 2 wait is cancelled for
+sealing and experiment completion. The study adopts
+`single_reviewer_provenance_audit` per
+`docs/superpowers/specs/2026-09-01-v0-2-external-single-reviewer-amendment.md`.
+Agreement statistics are `not_evaluated`; see EV-C025.
 
 ---
 
@@ -218,8 +224,8 @@ Round 1 completed 2026-09-01 for all 24 manifest cases (14 development +
 
 Before proceeding:
 
-1. **Round 1 review** — human review of `round1_review.json` labels.
-2. **14-day wait** — earliest Round 2: `2026-09-15T12:00:00+00:00`.
+1. **Round 1 review** — human review of `round1_review.json` labels (complete).
+2. ~~**14-day wait**~~ — **cancelled**; `single_reviewer_provenance_audit` adopted.
 3. **Final-data authorization** — explicit approval to acquire and materialize
    28 unseen `final_external_test` cases from approved unseen group keys.
 4. **Real-model authorization** (separate) — required before any Agent campaign

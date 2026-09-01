@@ -171,19 +171,22 @@ git diff --check 605c8a8
 | EV-T031 | Planned split counts | whole study 14/10/28 and A/B/C 12/28/12 are enforced at final preflight |
 | EV-T032 | Seven complete B families | four variants per master; missing variant fails the family |
 | EV-T033 | Parent family cannot cross splits | parent/child lineage leakage is reported and blocks sealing |
-| EV-T034 | Confidence distributions | whole 21/23/4/4 and final 12/12/2/2 distributions are validated at seal time |
-| EV-T035 | Final seal is write-once | existing destination or run output blocks `seal_final_external_test` |
+| EV-T034 | Confidence distributions | whole 21/23/4/4 and final 12/12/2/2 distributions are validated at seal time; under `single_reviewer_provenance_audit`, agreement fields may be `not_evaluated` |
+| EV-T035 | Final seal is write-once | existing destination or run output blocks `seal_final_external_test`; single-reviewer mode seals without Round 2 delay |
 
 ---
 
-## 11. Checkpoint H — Delayed Blind Review
+## 11. Checkpoint H — Delayed Blind Review and Single-Reviewer Audit
 
 | ID | Behavior | Required result |
 |---|---|---|
 | EV-T036 | Blind package excludes truth and source fields | forbidden tokens such as source names, transforms, and split labels are absent |
-| EV-T037 | Round 2 before fourteen days is rejected | review scoring enforces 14 complete-day delay |
+| EV-T037 | Round 2 before fourteen days is rejected | `score_delayed_review` enforces 14 complete-day delay only under `delayed_blind_review`; not required for `single_reviewer_provenance_audit` |
 | EV-T038 | Disagreement never upgrades confidence | unresolved disagreement downgrades to weak or unknown except transform-proven strong B labels |
-| EV-T039 | Agreement statistics | raw outcome agreement and Cohen kappa values match deterministic fixtures; undefined kappa returns `None` with reason |
+| EV-T039 | Agreement statistics | under `delayed_blind_review`, raw outcome agreement and Cohen kappa values match deterministic fixtures; undefined kappa returns `None` with reason |
+| EV-T039A | Single-reviewer provenance audit | `audit_single_reviewer_provenance` returns `evaluation_status=not_evaluated` with null agreement fields and passes when B strong labels have transform+SHA pairing |
+| EV-T039B | A/C cannot upgrade to strong | provenance audit rejects A or C cases labeled `strong_ground_truth` |
+| EV-T039C | Single-reviewer report disclosure | `report.md` includes single-reviewer limitation text when `evaluation_status=not_evaluated` |
 
 ---
 

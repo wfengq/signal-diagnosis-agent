@@ -189,7 +189,15 @@ Deterministic gates passed: manifest validation (development + validation), exte
 
 ## Round 1 review / blind package
 
-Generated under `validation/study_v0_2_external_wav_validation_1/` (`round1_review.json`, `blind_review_package.json`). Round 2 earliest: 14 days after Round 1.
+Generated under `validation/study_v0_2_external_wav_validation_1/` (`round1_review.json`, `blind_review_package.json`).
+
+### Protocol amendment (2026-09-01)
+
+User authorization supersedes the mandatory 14-day Round 2 gate. The study adopts
+`single_reviewer_provenance_audit` mode per
+`docs/superpowers/specs/2026-09-01-v0-2-external-single-reviewer-amendment.md`.
+Round 1 labels remain authoritative; inter-rater agreement and Cohen kappa are
+`not_evaluated`. Historical blind package artifacts are retained for audit only.
 
 ## Commit recommendation
 
