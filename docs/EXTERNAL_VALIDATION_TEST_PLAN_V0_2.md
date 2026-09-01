@@ -147,6 +147,9 @@ git diff --check 605c8a8
 | EV-T027B | Amplitude invariance on scaled masters | identical shape at half and full amplitude yields comparable THD under 1.1.0 |
 | EV-T027C | Combined 1.1.0 order | combined output equals clip(harmonic_1.1.0(base)) |
 | EV-T027D | Transform version metadata | `TransformConfig` stamps `signal_diag.external_transform` version and reproducible `parameters_identity` |
+| EV-T027E | Amplitude-normalized alpha monotonicity | injected harmonic severity (THD / order-2) is non-decreasing across the frozen 1.1.0 alpha candidate set on a synthetic periodic fixture |
+| EV-T027F | Amplitude-normalized output bounds | every 1.1.0 alpha candidate yields finite float32 samples with bounded peak amplitude on a synthetic fixture |
+| EV-T027G | Full candidate reference metrics | `evaluate_alpha_candidates` records applicable/THD/flat-top/clipping/order-2/F0/pass for **every** 1.1.0 alpha candidate on each validation master |
 
 ---
 

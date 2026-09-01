@@ -214,9 +214,10 @@ y[n] = y_pre[n] * post_gain
 ```
 
 Combined `1.1.0` applies harmonic `1.1.0` first and EV-C010 clipping second.
-Alpha candidates, validation gates (THD > 5%, valid F0, reportable order-2, no
-flat-top/clipping), clipping tail candidates, globally fixed `post_gain`, and
-`signal_diag.external_reference` `1.0.0` are unchanged from the baseline design.
+Under EV-C010A alone, alpha candidates remain `{0.10, 0.15, 0.20}`. Validation
+gates (THD > 5%, valid F0, reportable order-2, no flat-top/clipping), clipping
+tail candidates, globally fixed `post_gain`, and `signal_diag.external_reference`
+`1.0.0` are unchanged from the baseline design.
 
 Public function: `inject_second_harmonic_amplitude_normalized(samples, alpha, post_gain)`.
 
@@ -225,6 +226,34 @@ Pilot failure reports referencing transform `1.0.0` (`pilot_failure_report.json`
 overwritten when recording pilot v3+ outcomes.
 
 Design authority: `docs/superpowers/specs/2026-09-01-v0-2-external-harmonic-transform-amendment.md`.
+
+### EV-C010B — Expanded alpha candidates for transform 1.1.0 only (OQ-012 option 1)
+
+Approved 2026-09-01. This section is additive; EV-C010, EV-C010A, and transform
+`1.0.0` remain frozen and must not be rewritten.
+
+Transform `1.1.0` harmonic alpha candidates for development validation and
+materialization after pilot v4 authorization are exactly:
+
+```text
+{0.10, 0.15, 0.20, 0.25, 0.50, 0.75, 1.00}
+```
+
+Transform `1.0.0` alpha candidates remain exactly `{0.10, 0.15, 0.20}`. The
+amplitude-normalized formula, validation gates, clipping tail candidates,
+globally fixed `post_gain` (`0.8`), attenuation bounds, and
+`signal_diag.external_reference` `1.0.0` are unchanged.
+
+Selection rule (unchanged): choose the **smallest** alpha in the version-specific
+candidate set passing on **every** eligible validation master. Pilot v4 evidence
+records full per-candidate reference metrics for each validation master regardless
+of pass/fail.
+
+Pilot v4 outcome (2026-09-01): selected `alpha=0.50` under transform `1.1.0` on
+SMARD validation master `master_val_01`. Evidence:
+`docs/evaluations/v0_2_external_wav/validation/pilot_success_report_v4.json`.
+
+Pilot failure reports v1/v2/v3 remain immutable and must not be overwritten.
 
 ### EV-C011 — Parent-master pairing
 

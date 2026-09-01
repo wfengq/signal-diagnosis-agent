@@ -137,6 +137,25 @@ Extrapolation: THD > 5% would require alpha ~0.9, outside frozen candidate set {
 
 **Status: BLOCKED — pilot v3 failed alpha selection under transform 1.1.0.**
 
+## Pilot v4 (OQ-012 option 1 — alpha selected)
+
+Transform `1.1.0` with EV-C010B expanded alpha candidates
+`{0.10, 0.15, 0.20, 0.25, 0.50, 0.75, 1.00}` re-ran on 42 eligible SMARD
+periodic windows. Validation master `master_val_01`
+(`sinus_tones_48kHz_ch10_ULA_2B`, frames 320000–336000).
+
+| parameter | candidates | result |
+|---|---|---|
+| harmonic `alpha` | 0.10–1.00 (7 candidates) | **PASSED at `alpha=0.50`** — smallest candidate passing every gate |
+| transform version | 1.1.0 | amplitude-normalized even-order (additive) |
+| `post_gain` | 0.8 | unchanged |
+
+Success report: `validation/pilot_success_report_v4.json` (does not overwrite v1/v2/v3).
+
+Candidates 0.10–0.25 fail THD > 5% on the validation master; 0.50–1.00 pass.
+
+**Status: alpha gate cleared — materialization still gated on remaining Task 11 checks.**
+
 ## Explicit non-actions
 
 - No `final_external_test` download, manifest, or audio inspection.

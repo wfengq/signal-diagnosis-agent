@@ -21,7 +21,7 @@ transform that preserves validation gates.
 The following remain unchanged by this amendment:
 
 - demonstration thresholds in `profile_s1_distortion` `1.0.0-demo` (1% clipping, 5% THD);
-- alpha candidate set `{0.10, 0.15, 0.20}` unless a future pilot explicitly fails under 1.1.0;
+- transform `1.0.0` alpha candidate set `{0.10, 0.15, 0.20}`;
 - validation rule: smallest global alpha that on **every** eligible validation master produces reportable order-2, THD > 5%, no flat-top/clipping, and valid F0;
 - clipping quantile method, tail candidates `{0.03, 0.05, 0.10}`, and combined order (harmonic then clipping);
 - reference analyzer `signal_diag.external_reference` `1.0.0`;
@@ -94,8 +94,11 @@ eligible validation master.
 
 ## 6. Alpha candidates and validation gates
 
-Alpha candidates remain exactly `{0.10, 0.15, 0.20}`. No extension is authorized
-by this amendment.
+Transform `1.0.0` alpha candidates remain exactly `{0.10, 0.15, 0.20}`.
+
+Transform `1.1.0` alpha candidates were expanded under OQ-012 option 1 on
+2026-09-01 (EV-C010B) to exactly `{0.10, 0.15, 0.20, 0.25, 0.50, 0.75, 1.00}`.
+No further extension is authorized by this amendment.
 
 For each candidate `alpha`, a validation master passes the harmonic gate when
 `analyze_reference` on the transformed window reports:
@@ -153,7 +156,33 @@ Evidence: `docs/evaluations/v0_2_external_wav/validation/pilot_failure_report_v3
 Materialization remains blocked at 0/14+0/10. Transform `1.0.0` and v1/v2
 failure reports remain preserved.
 
-## 12. Explicit non-actions
+## 12. Pilot v4 outcome (2026-09-01, OQ-012 option 1)
+
+Development pilot v4 executed under transform `1.1.0` with EV-C010B expanded
+alpha candidates `{0.10, 0.15, 0.20, 0.25, 0.50, 0.75, 1.00}` on 42 eligible
+SMARD periodic windows (`sinus_tones_48kHz`, `exp_swept_sinus_10Hz_24kHz`;
+`harm_sinus_48kHz` still fails clean gate).
+
+Validation master: `master_val_01` (`sinus_tones_48kHz_ch10_ULA_2B.flac`,
+frames 320000–336000, clean THD 0.0037%, F0 695.7 Hz).
+
+| alpha | THD % | flat-top | clipping | gate |
+|---:|---:|:---:|:---:|---|
+| 0.10 | 0.65 | no | 0 | fail |
+| 0.15 | 0.98 | no | 0 | fail |
+| 0.20 | 1.31 | no | 0 | fail |
+| 0.25 | 1.63 | no | 0 | fail |
+| **0.50** | **selected** | no | 0 | **pass** |
+| 0.75 | — | no | 0 | pass |
+| 1.00 | — | no | 0 | pass |
+
+**Alpha selection: passed** at `alpha=0.50` (smallest passing candidate).
+Evidence: `docs/evaluations/v0_2_external_wav/validation/pilot_success_report_v4.json`.
+
+Case materialization remains gated on remaining Task 11 checks. v1/v2/v3 failure
+reports remain preserved.
+
+## 13. Explicit non-actions
 
 - no `final_external_test` access;
 - no real model calls;

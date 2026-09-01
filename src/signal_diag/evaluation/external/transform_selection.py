@@ -21,13 +21,47 @@ from signal_diag.evaluation.external.transforms import (
     inject_second_harmonic_amplitude_normalized,
 )
 
-ALPHA_CANDIDATES: tuple[float, ...] = (0.10, 0.15, 0.20)
+ALPHA_CANDIDATES_EVEN_ORDER: tuple[float, ...] = (0.10, 0.15, 0.20)
+ALPHA_CANDIDATES_AMPNORM: tuple[float, ...] = (
+    0.10,
+    0.15,
+    0.20,
+    0.25,
+    0.50,
+    0.75,
+    1.00,
+)
+# Backward-compatible alias for transform 1.0.0 callers and tests.
+ALPHA_CANDIDATES: tuple[float, ...] = ALPHA_CANDIDATES_EVEN_ORDER
 THD_DEMO_THRESHOLD_PERCENT = 5.0
 CLIPPING_DEMO_THRESHOLD = 0.01
 DEFAULT_POST_GAIN = 0.8
 PREEXISTING_ORDER2_THRESHOLD = 0.001
 
 HarmonicInjector = Callable[[np.ndarray, float, float], TransformResult]
+
+
+def alpha_candidates_for_version(
+    transform_version: ExternalTransformVersion,
+) -> tuple[float, ...]:
+    if transform_version == EXTERNAL_TRANSFORM_VERSION_AMPNORM:
+        return ALPHA_CANDIDATES_AMPNORM
+    if transform_version == EXTERNAL_TRANSFORM_VERSION_EVEN_ORDER:
+        return ALPHA_CANDIDATES_EVEN_ORDER
+    msg = f"unsupported transform version: {transform_version}"
+    raise ValueError(msg)
+
+
+@dataclass(frozen=True, slots=True)
+class CandidateReferenceMetrics:
+    alpha: float
+    applicable: bool
+    thd_percent: float | None
+    flat_top_detected: bool | None
+    clipping_ratio: float | None
+    order_2_relative_amplitude: float | None
+    f0_hz: float | None
+    passed_gate: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -37,6 +71,7 @@ class AlphaSelectionResult:
     selected_alpha: float | None
     alpha_selection: Literal["passed", "failed"]
     validation_master_results: tuple[tuple[str, bool], ...]
+    candidate_metrics: tuple[tuple[str, tuple[CandidateReferenceMetrics, ...]], ...]
 
 
 def harmonic_injector_for_version(
@@ -88,6 +123,53 @@ def passes_harmonic_alpha_gate(summary: ReferenceSummary) -> bool:
     )
 
 
+def _metrics_from_summary(
+    *,
+    alpha: float,
+    summary: ReferenceSummary,
+) -> CandidateReferenceMetrics:
+    return CandidateReferenceMetrics(
+        alpha=alpha,
+        applicable=summary.applicable,
+        thd_percent=summary.thd_percent,
+        flat_top_detected=summary.flat_top_detected,
+        clipping_ratio=summary.clipping_ratio,
+        order_2_relative_amplitude=summary.order_2_relative_amplitude,
+        f0_hz=summary.f0_hz,
+        passed_gate=passes_harmonic_alpha_gate(summary),
+    )
+
+
+def evaluate_alpha_candidates(
+    validation_masters: Sequence[tuple[str, np.ndarray, int]],
+    *,
+    transform_version: ExternalTransformVersion,
+    post_gain: float = DEFAULT_POST_GAIN,
+    sample_rate_hz: int = 48_000,
+    fmin_hz: float = 50.0,
+    fmax_hz: float = 1000.0,
+) -> tuple[tuple[str, tuple[CandidateReferenceMetrics, ...]], ...]:
+    """Record full reference metrics for every alpha on every validation master."""
+    injector = harmonic_injector_for_version(transform_version)
+    candidates = alpha_candidates_for_version(transform_version)
+    per_master: list[tuple[str, tuple[CandidateReferenceMetrics, ...]]] = []
+
+    for master_id, samples, _rate in validation_masters:
+        metrics: list[CandidateReferenceMetrics] = []
+        for alpha in candidates:
+            transformed = injector(samples, alpha, post_gain).samples
+            summary = analyze_reference(
+                transformed,
+                sample_rate_hz,
+                fmin_hz=fmin_hz,
+                fmax_hz=fmax_hz,
+            )
+            metrics.append(_metrics_from_summary(alpha=alpha, summary=summary))
+        per_master.append((master_id, tuple(metrics)))
+
+    return tuple(per_master)
+
+
 def select_smallest_passing_alpha(
     validation_masters: Sequence[tuple[str, np.ndarray, int]],
     *,
@@ -98,22 +180,24 @@ def select_smallest_passing_alpha(
     fmax_hz: float = 1000.0,
 ) -> AlphaSelectionResult:
     """Choose the smallest global alpha passing every validation master."""
-    injector = harmonic_injector_for_version(transform_version)
-    per_master: list[tuple[str, bool]] = []
+    candidates = alpha_candidates_for_version(transform_version)
+    candidate_metrics = evaluate_alpha_candidates(
+        validation_masters,
+        transform_version=transform_version,
+        post_gain=post_gain,
+        sample_rate_hz=sample_rate_hz,
+        fmin_hz=fmin_hz,
+        fmax_hz=fmax_hz,
+    )
     selected: float | None = None
+    per_master: list[tuple[str, bool]] = []
 
-    for alpha in ALPHA_CANDIDATES:
+    for alpha in candidates:
         all_pass = True
         per_master.clear()
-        for master_id, samples, _rate in validation_masters:
-            transformed = injector(samples, alpha, post_gain).samples
-            summary = analyze_reference(
-                transformed,
-                sample_rate_hz,
-                fmin_hz=fmin_hz,
-                fmax_hz=fmax_hz,
-            )
-            passed = passes_harmonic_alpha_gate(summary)
+        for master_id, metrics in candidate_metrics:
+            row = next(item for item in metrics if item.alpha == alpha)
+            passed = row.passed_gate
             per_master.append((master_id, passed))
             if not passed:
                 all_pass = False
@@ -121,10 +205,15 @@ def select_smallest_passing_alpha(
             selected = alpha
             break
 
+    if selected is None and per_master == []:
+        for master_id, metrics in candidate_metrics:
+            per_master.append((master_id, False))
+
     return AlphaSelectionResult(
         transform_version=transform_version,
-        alpha_candidates_tested=ALPHA_CANDIDATES,
+        alpha_candidates_tested=candidates,
         selected_alpha=selected,
         alpha_selection="passed" if selected is not None else "failed",
         validation_master_results=tuple(per_master),
+        candidate_metrics=candidate_metrics,
     )

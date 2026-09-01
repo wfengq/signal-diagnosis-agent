@@ -1,0 +1,115 @@
+{
+  "alpha_candidates_tested": [
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "alpha_selection": "passed",
+  "attenuation": 0.85,
+  "cases_materialized": 0,
+  "final_external_test_accessed": false,
+  "oq_012_options_executed": [
+    "1"
+  ],
+  "pilot_status": "alpha_selected",
+  "pilot_version": 4,
+  "post_gain": 0.8,
+  "real_model_calls": false,
+  "reason": "Pilot v4 selected alpha=0.5 under transform 1.1.0 for validation master master_val_01. Materialization remains gated on all Task 11 checks.",
+  "recorded_at_utc": "2026-09-01T13:28:00.405937+00:00",
+  "scan_summary": {
+    "candidate_reference_metrics": {
+      "alpha_0.10": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 695.6521739130435,
+        "flat_top_detected": false,
+        "order_2_relative_amplitude": 0.0065127713092702775,
+        "passed_gate": false,
+        "thd_percent": 0.6512810727950574
+      },
+      "alpha_0.15": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 695.6521739130435,
+        "flat_top_detected": false,
+        "order_2_relative_amplitude": 0.009783471055028083,
+        "passed_gate": false,
+        "thd_percent": 0.9783496132294617
+      },
+      "alpha_0.20": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 695.6521739130435,
+        "flat_top_detected": false,
+        "order_2_relative_amplitude": 0.013054225832579371,
+        "passed_gate": false,
+        "thd_percent": 1.3054243981926161
+      },
+      "alpha_0.25": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 695.6521739130435,
+        "flat_top_detected": false,
+        "order_2_relative_amplitude": 0.016325033986568302,
+        "passed_gate": false,
+        "thd_percent": 1.6325048428910258
+      },
+      "alpha_0.50": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 350.3649635036496,
+        "flat_top_detected": false,
+        "order_2_relative_amplitude": 63782.58840202249,
+        "passed_gate": true,
+        "thd_percent": 6547573.878318345
+      },
+      "alpha_0.75": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 350.3649635036496,
+        "flat_top_detected": false,
+        "order_2_relative_amplitude": 49946.60353303498,
+        "passed_gate": true,
+        "thd_percent": 5288501.982406901
+      },
+      "alpha_1.00": {
+        "applicable": true,
+        "clipping_ratio": 0.0,
+        "f0_hz": 350.3649635036496,
+        "flat_top_detected": false,
+        "order_2_relative_amplitude": 40915.764408961644,
+        "passed_gate": true,
+        "thd_percent": 4510789.6472746
+      }
+    },
+    "eligible_clean_windows": 42,
+    "material_classes_scanned": [
+      "harm_sinus_48kHz",
+      "sinus_tones_48kHz",
+      "exp_swept_sinus_10Hz_24kHz"
+    ],
+    "validation_master_details": {
+      "clean_thd_percent": 0.003737524003547875,
+      "f0_band": "400-1000",
+      "f0_hz": 695.6521739130435,
+      "material": "sinus_tones_48kHz",
+      "member": "sinus_tones_48kHz_ch10_ULA_2B.flac",
+      "parent_master_id": "master_val_01",
+      "source_id": "smard_cfg_0010_sinus_tones_48kHz_ch10_ULA_2B",
+      "start_frame": 320000,
+      "stop_frame": 336000
+    },
+    "validation_masters_tested": [
+      "master_val_01"
+    ]
+  },
+  "selected_alpha": 0.5,
+  "transform_id": "signal_diag.external_transform",
+  "transform_version": "1.1.0",
+  "would_select_q": 0.03
+}
