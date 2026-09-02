@@ -1,12 +1,12 @@
 # Signal Diagnosis Agent — External Validation Test Plan V0.2
 
-**Document:** `EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md`  
-**Version:** `external-validation-0.2`  
+**Document:** `EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md`
+**Version:** `external-validation-0.2`
 **Status:** Approved for Phase A protocol freeze on branch
-`codex/v0.2-real-world-validation`  
-**Scope:** Deterministic external WAV validity study acceptance  
-**Contracts:** `docs/EXTERNAL_VALIDATION_CONTRACTS_V0_2.md`  
-**Design:** `docs/superpowers/specs/2026-09-01-v0-2-real-world-validation-design.md`  
+`codex/v0.2-real-world-validation`
+**Scope:** Deterministic external WAV validity study acceptance
+**Contracts:** `docs/EXTERNAL_VALIDATION_CONTRACTS_V0_2.md`
+**Design:** `docs/superpowers/specs/2026-09-01-v0-2-real-world-validation-design.md`
 **Frozen product contracts:** `docs/CONTRACTS_V0_2.md`, `docs/TEST_PLAN_V0_2.md`
 
 ---

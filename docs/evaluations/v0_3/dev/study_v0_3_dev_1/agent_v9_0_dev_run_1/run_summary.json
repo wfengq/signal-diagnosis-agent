@@ -1,0 +1,300 @@
+{
+  "planner_version": "v0.3-s1-planner-9.0",
+  "prompt_sha256": "bbc6ec4c8f2b7fbe27872188c7f8bb1a64241d48dd87d02841736641f3d1c59a",
+  "code_sha": "0261499fdc92ba7db1df202a558400a8d4063658",
+  "started_at_utc": "2026-09-02T14:21:09.841289+00:00",
+  "finished_at_utc": "2026-09-02T14:23:21.599387+00:00",
+  "case_count": 12,
+  "outcomes": {
+    "inconclusive": 1,
+    "no_supported_fault": 2,
+    "supported_fault": 3,
+    "None": 6
+  },
+  "harmonic_distortion_claims": 2,
+  "inconclusive_count": 1,
+  "prompt_iteration_history": [
+    {
+      "planner_version": "v0.3-s1-planner-9.0",
+      "prompt_sha256": "bbc6ec4c8f2b7fbe27872188c7f8bb1a64241d48dd87d02841736641f3d1c59a",
+      "code_sha": "0261499fdc92ba7db1df202a558400a8d4063658",
+      "note": "Initial v9.0 dev validation run; no prompt wording changes."
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "a1f3c9e2b804d716",
+      "category": "single_tone_periodic",
+      "outcome": "no_supported_fault",
+      "confidence_label": "high",
+      "limitations": [],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "claims": [
+        {
+          "claim_id": "claim_clean_1",
+          "fault_type": "no_supported_fault",
+          "statement": "Clipping and harmonic distortion are both closed by sufficient Evidence; the supported cause set is empty.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+          ],
+          "rule_refs": [
+            "ruleval_237883d67b741c3e",
+            "ruleval_894c03c944d04c9b",
+            "ruleval_6a23051f2e98be68"
+          ]
+        }
+      ],
+      "causal_faults": [
+        "no_supported_fault"
+      ],
+      "supported_harmonic_distortion": false,
+      "supported_clipping": false,
+      "inconclusive": false
+    },
+    {
+      "case_id": "b2e4d0f3c915e827",
+      "category": "injected_harmonic",
+      "outcome": "supported_fault",
+      "confidence_label": "high",
+      "limitations": [],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "claims": [
+        {
+          "claim_id": "claim_harm_supported_1",
+          "fault_type": "harmonic_distortion",
+          "statement": "Harmonic distortion is affirmatively supported by valid harmonic evidence with a reportable order-2 component; the THD rule is FAIL, consistent with elevated harmonic content.",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003"
+          ],
+          "rule_refs": [
+            "ruleval_7d5c942fa760a4d4"
+          ]
+        }
+      ],
+      "causal_faults": [
+        "harmonic_distortion"
+      ],
+      "supported_harmonic_distortion": true,
+      "supported_clipping": false,
+      "inconclusive": false
+    },
+    {
+      "case_id": "c3f5e1a4d026f938",
+      "category": "clipping",
+      "outcome": "no_supported_fault",
+      "confidence_label": "high",
+      "limitations": [],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "claims": [
+        {
+          "claim_id": "claim_clean_1",
+          "fault_type": "no_supported_fault",
+          "statement": "Clipping is absent and harmonic distortion is within acceptable limits; the supported cause set is empty.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+          ],
+          "rule_refs": [
+            "ruleval_237883d67b741c3e",
+            "ruleval_5b09759648d908c5"
+          ]
+        }
+      ],
+      "causal_faults": [
+        "no_supported_fault"
+      ],
+      "supported_harmonic_distortion": false,
+      "supported_clipping": false,
+      "inconclusive": false
+    },
+    {
+      "case_id": "d4a6f2b5e1370a49",
+      "category": "combined",
+      "outcome": "supported_fault",
+      "confidence_label": "high",
+      "limitations": [],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "claims": [
+        {
+          "claim_id": "claim_clip_combined_1",
+          "fault_type": "clipping",
+          "statement": "Clipping is affirmatively supported by same-run Evidence: flat-top clipping detected with clipping ratio above the configured threshold.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000",
+            "ev_detect_clipping_detect_clipping_000000_001",
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ],
+          "rule_refs": [
+            "ruleval_d1b39be5d86c7bb3",
+            "ruleval_b73d5fb147e8321e",
+            "ruleval_2a7ff09ac5dab5fc"
+          ]
+        },
+        {
+          "claim_id": "claim_harm_combined_1",
+          "fault_type": "harmonic_distortion",
+          "statement": "A reportable even-order (order-2) component supports an independent harmonic_distortion claim; THD is elevated and the configured rule is FAIL.",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003"
+          ],
+          "rule_refs": [
+            "ruleval_894c03c944d04c9b",
+            "ruleval_b56229578f9d4793"
+          ]
+        }
+      ],
+      "causal_faults": [
+        "clipping",
+        "harmonic_distortion"
+      ],
+      "supported_harmonic_distortion": true,
+      "supported_clipping": true,
+      "inconclusive": false
+    },
+    {
+      "case_id": "e5b7a3c6f2481b5a",
+      "category": "multi_tone",
+      "outcome": "inconclusive",
+      "confidence_label": "low",
+      "limitations": [
+        "THD rule FAIL establishes elevated harmonic content relative to the configured threshold, not causal harmonic_distortion without additional distortion-mechanism Evidence."
+      ],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "claims": [
+        {
+          "claim_id": "claim_thd_fail_no_mechanism",
+          "fault_type": "inconclusive",
+          "statement": "Harmonic measurement is valid and the THD rule is FAIL, but no same-run Evidence establishes a causal S1 distortion mechanism.",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+          ],
+          "rule_refs": [
+            "ruleval_03d3b3debb4b7238"
+          ]
+        }
+      ],
+      "causal_faults": [],
+      "supported_harmonic_distortion": false,
+      "supported_clipping": false,
+      "inconclusive": true
+    },
+    {
+      "case_id": "f6c8b4d7a3592c6b",
+      "category": "speech",
+      "outcome": null,
+      "status": "error",
+      "errors": [
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+      ]
+    },
+    {
+      "case_id": "07d9c5e8b46a3d7c",
+      "category": "musical_instrument",
+      "outcome": null,
+      "status": "error",
+      "errors": [
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...PPLICABLE rule result.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...lid harmonic evidence.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+      ]
+    },
+    {
+      "case_id": "18ea06f9c57b4e8d",
+      "category": "environmental_non_periodic",
+      "outcome": null,
+      "status": "error",
+      "errors": [
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+      ]
+    },
+    {
+      "case_id": "29fb17a0d68c5f9e",
+      "category": "low_snr_periodic",
+      "outcome": "supported_fault",
+      "confidence_label": "high",
+      "limitations": [],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "claims": [
+        {
+          "claim_id": "claim_clip_supported_1",
+          "fault_type": "clipping",
+          "statement": "Clipping is affirmatively supported by same-run Evidence: full-scale detection is true and clipping is detected.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000",
+            "ev_detect_clipping_detect_clipping_000000_005"
+          ],
+          "rule_refs": [
+            "ruleval_d1b39be5d86c7bb3"
+          ]
+        }
+      ],
+      "causal_faults": [
+        "clipping"
+      ],
+      "supported_harmonic_distortion": false,
+      "supported_clipping": true,
+      "inconclusive": false
+    },
+    {
+      "case_id": "3a0c28b1e79d60af",
+      "category": "controlled_distorted_periodic",
+      "outcome": null,
+      "status": "error",
+      "errors": [
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+      ]
+    },
+    {
+      "case_id": "4b1d39c2f8ae71b0",
+      "category": "environmental_non_periodic",
+      "outcome": null,
+      "status": "error",
+      "errors": [
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...PPLICABLE rule result.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...PPLICABLE rule result.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...PPLICABLE rule result.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+      ]
+    },
+    {
+      "case_id": "5c2e4ad309bf82c1",
+      "category": "environmental_non_periodic",
+      "outcome": null,
+      "status": "error",
+      "errors": [
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+        "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+      ]
+    }
+  ]
+}

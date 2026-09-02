@@ -1,0 +1,241 @@
+{
+  "study_id": "v0.3-real-dev-validation-1",
+  "split": "development",
+  "schema_version": "1.0",
+  "created_at_utc": "2026-09-02T14:06:29.787637+00:00",
+  "reference_analyzer_version": "1.1.0",
+  "category_coverage": [
+    "clipping",
+    "combined",
+    "controlled_distorted_periodic",
+    "environmental_non_periodic",
+    "injected_harmonic",
+    "low_snr_periodic",
+    "multi_tone",
+    "musical_instrument",
+    "single_tone_periodic",
+    "speech"
+  ],
+  "case_count": 12,
+  "v02_source_overlap": [],
+  "cases": [
+    {
+      "case_id": "a1f3c9e2b804d716",
+      "category": "single_tone_periodic",
+      "wav_path": "wav/v03dev_a1f3c9e2b804d716.wav",
+      "wav_sha256": "aed186844b5b128f3dee81014eb6187bbabaf402d99f4e10ae6701b2487c7127",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "v03_repo_synthesized",
+      "source_recording_key": "v03_repo_synthesized_periodic",
+      "license_classification": "repository-generated",
+      "attribution": "Generated locally in signal-diagnosis-agent V0.3 dev split builder; no upstream recording",
+      "citation": "N/A (deterministic synthesis)",
+      "notes": "Pure 440 Hz sine",
+      "build_meta": {
+        "builder": "sine_440"
+      }
+    },
+    {
+      "case_id": "b2e4d0f3c915e827",
+      "category": "injected_harmonic",
+      "wav_path": "wav/v03dev_b2e4d0f3c915e827.wav",
+      "wav_sha256": "69507af129fc985c9cc4fc6c49e0faab5decb4129694492b368be9c4b2863815",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "v03_repo_synthesized",
+      "source_recording_key": "v03_repo_synthesized_periodic",
+      "license_classification": "repository-generated",
+      "attribution": "Generated locally in signal-diagnosis-agent V0.3 dev split builder; no upstream recording",
+      "citation": "N/A (deterministic synthesis)",
+      "notes": "Second harmonic injection on sine master",
+      "build_meta": {
+        "builder": "inj_h2",
+        "transform": "second_harmonic",
+        "input_sha256": "aa50be0df5e6d3cbac58d0dd22205780bd4c7740568ec855fce861e7b60d9a4f",
+        "output_sha256": "12b6cbd9edaa216cf7e8a09f073d01e4d6074afa3bc14407816eee74cf6dfcc4"
+      }
+    },
+    {
+      "case_id": "c3f5e1a4d026f938",
+      "category": "clipping",
+      "wav_path": "wav/v03dev_c3f5e1a4d026f938.wav",
+      "wav_sha256": "6c12949c1c5357420c1546b2f9312845c465bbd3f9ff9d25d1ace2781303610a",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "v03_repo_synthesized",
+      "source_recording_key": "v03_repo_synthesized_periodic",
+      "license_classification": "repository-generated",
+      "attribution": "Generated locally in signal-diagnosis-agent V0.3 dev split builder; no upstream recording",
+      "citation": "N/A (deterministic synthesis)",
+      "notes": "Hard clip on sine master",
+      "build_meta": {
+        "builder": "clip",
+        "transform": "clipping",
+        "input_sha256": "aa50be0df5e6d3cbac58d0dd22205780bd4c7740568ec855fce861e7b60d9a4f",
+        "output_sha256": "ec5b46ccaa7ff6df73bd965d11a536da98c32d8e772f2f547961b203cdffa457"
+      }
+    },
+    {
+      "case_id": "d4a6f2b5e1370a49",
+      "category": "combined",
+      "wav_path": "wav/v03dev_d4a6f2b5e1370a49.wav",
+      "wav_sha256": "b6e2c390194c3bed564c8c3d9a6dfe98b6f90abb2f93205ac101a6381d0e9ab5",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "v03_repo_synthesized",
+      "source_recording_key": "v03_repo_synthesized_periodic",
+      "license_classification": "repository-generated",
+      "attribution": "Generated locally in signal-diagnosis-agent V0.3 dev split builder; no upstream recording",
+      "citation": "N/A (deterministic synthesis)",
+      "notes": "Combined clip + H2 on sine master",
+      "build_meta": {
+        "builder": "combined",
+        "transform": "combined",
+        "input_sha256": "aa50be0df5e6d3cbac58d0dd22205780bd4c7740568ec855fce861e7b60d9a4f",
+        "output_sha256": "fb5da5ba358cb4d5efaf6c075c4718a4b7a9a1709e51f2a23609c4dc23f7f5a1"
+      }
+    },
+    {
+      "case_id": "e5b7a3c6f2481b5a",
+      "category": "multi_tone",
+      "wav_path": "wav/v03dev_e5b7a3c6f2481b5a.wav",
+      "wav_sha256": "c5675e6acbf3b11aeabc2697f3250a46c4b2391313ead7d70260bd5d59006c45",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "v03_repo_synthesized",
+      "source_recording_key": "v03_repo_synthesized_periodic",
+      "license_classification": "repository-generated",
+      "attribution": "Generated locally in signal-diagnosis-agent V0.3 dev split builder; no upstream recording",
+      "citation": "N/A (deterministic synthesis)",
+      "notes": "200 Hz + 400 Hz",
+      "build_meta": {
+        "builder": "two_tone"
+      }
+    },
+    {
+      "case_id": "f6c8b4d7a3592c6b",
+      "category": "speech",
+      "wav_path": "wav/v03dev_f6c8b4d7a3592c6b.wav",
+      "wav_sha256": "74d317ca92f32d6931e1d7ba8aaa3bcc6ba40ce767813c5d1427b7086a2d74f4",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "esc10_187207_a20",
+      "source_recording_key": "esc_src_file:187207",
+      "license_classification": "CC-BY-4.0 (ESC-10 subset)",
+      "attribution": "ESC-50 / ESC-10 (Karol J. Piczak), CC BY for ESC-10 subset",
+      "citation": "Piczak, K. J. (2015). ESC: Dataset for Environmental Sound Classification.",
+      "notes": "ESC-10 crying baby (human vocal proxy)",
+      "build_meta": {
+        "builder": "download",
+        "upstream_sha256": "ddf5bf45f73bc73d1838bf0cb6af530584f324aef513112ee15c210e83ecbd6b"
+      }
+    },
+    {
+      "case_id": "07d9c5e8b46a3d7c",
+      "category": "musical_instrument",
+      "wav_path": "wav/v03dev_07d9c5e8b46a3d7c.wav",
+      "wav_sha256": "8db003fa089a011d313eba5e8d29adf8bb3002c85a6175728dd4be595213bce9",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "esc10_21934_a38",
+      "source_recording_key": "esc_src_file:21934",
+      "license_classification": "CC-BY-4.0 (ESC-10 subset)",
+      "attribution": "ESC-50 / ESC-10 (Karol J. Piczak), CC BY for ESC-10 subset",
+      "citation": "Piczak, K. J. (2015). ESC: Dataset for Environmental Sound Classification.",
+      "notes": "ESC-10 clock tick (quasi-musical periodic)",
+      "build_meta": {
+        "builder": "download",
+        "upstream_sha256": "8d26e40e0e382b0d2d7f6dafcb132cfe703ee3f7f32780e878fdb5a1aaffcc28"
+      }
+    },
+    {
+      "case_id": "18ea06f9c57b4e8d",
+      "category": "environmental_non_periodic",
+      "wav_path": "wav/v03dev_18ea06f9c57b4e8d.wav",
+      "wav_sha256": "c4046959c96630377bc2cb4efb21d305595d84f02c5ce1dc523ef0084c4c3f82",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "esc10_172649_a40",
+      "source_recording_key": "esc_src_file:172649",
+      "license_classification": "CC-BY-4.0 (ESC-10 subset)",
+      "attribution": "ESC-50 / ESC-10 (Karol J. Piczak), CC BY for ESC-10 subset",
+      "citation": "Piczak, K. J. (2015). ESC: Dataset for Environmental Sound Classification.",
+      "notes": "ESC-10 helicopter",
+      "build_meta": {
+        "builder": "download",
+        "upstream_sha256": "23ad50d792907e1caa894e6e31bb623938ae0417606b830b433da11ca2ecb2f4"
+      }
+    },
+    {
+      "case_id": "29fb17a0d68c5f9e",
+      "category": "low_snr_periodic",
+      "wav_path": "wav/v03dev_29fb17a0d68c5f9e.wav",
+      "wav_sha256": "371cb053eebf9b005fdebac05cc03d4e301cb714d296dc54638f7aa91a8cf656",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "v03_repo_synthesized",
+      "source_recording_key": "v03_repo_synthesized_periodic",
+      "license_classification": "repository-generated",
+      "attribution": "Generated locally in signal-diagnosis-agent V0.3 dev split builder; no upstream recording",
+      "citation": "N/A (deterministic synthesis)",
+      "notes": "440 Hz + noise SNR 5 dB",
+      "build_meta": {
+        "builder": "low_snr"
+      }
+    },
+    {
+      "case_id": "3a0c28b1e79d60af",
+      "category": "controlled_distorted_periodic",
+      "wav_path": "wav/v03dev_3a0c28b1e79d60af.wav",
+      "wav_sha256": "5e57af6f3bc2bb3de303a370fd86a9fb972a084544e4fdefe57eacdfc40f12eb",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "v03_repo_synthesized",
+      "source_recording_key": "v03_repo_synthesized_periodic",
+      "license_classification": "repository-generated",
+      "attribution": "Generated locally in signal-diagnosis-agent V0.3 dev split builder; no upstream recording",
+      "citation": "N/A (deterministic synthesis)",
+      "notes": "700 Hz subharmonic-lock probe",
+      "build_meta": {
+        "builder": "sine_700"
+      }
+    },
+    {
+      "case_id": "4b1d39c2f8ae71b0",
+      "category": "environmental_non_periodic",
+      "wav_path": "wav/v03dev_4b1d39c2f8ae71b0.wav",
+      "wav_sha256": "7a5688c41df4f9edfd02a04b558c29134ffe5bf6f9756e136ac693063662d5e4",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "esc10_21189_a10",
+      "source_recording_key": "esc_src_file:21189",
+      "license_classification": "CC-BY-4.0 (ESC-10 subset)",
+      "attribution": "ESC-50 / ESC-10 (Karol J. Piczak), CC BY for ESC-10 subset",
+      "citation": "Piczak, K. J. (2015). ESC: Dataset for Environmental Sound Classification.",
+      "notes": "ESC-10 rain",
+      "build_meta": {
+        "builder": "download",
+        "upstream_sha256": "5f15ab2d8f6ef9932909b1b75c8ac254cbea46c93b4b2f0f3542abdf09b9abc0"
+      }
+    },
+    {
+      "case_id": "5c2e4ad309bf82c1",
+      "category": "environmental_non_periodic",
+      "wav_path": "wav/v03dev_5c2e4ad309bf82c1.wav",
+      "wav_sha256": "a9b521517b8fe8f198363b8ef3ae3edbbc28b3e321a53fea5b0f9909e7c0c109",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "esc10_39901_a11",
+      "source_recording_key": "esc_src_file:39901",
+      "license_classification": "CC-BY-4.0 (ESC-10 subset)",
+      "attribution": "ESC-50 / ESC-10 (Karol J. Piczak), CC BY for ESC-10 subset",
+      "citation": "Piczak, K. J. (2015). ESC: Dataset for Environmental Sound Classification.",
+      "notes": "ESC-10 sea waves",
+      "build_meta": {
+        "builder": "download",
+        "upstream_sha256": "b1e33d5fe73bc31317fa9fa4e70d0fcaf761346f8a908c89cec50c6c23f41603"
+      }
+    }
+  ]
+}

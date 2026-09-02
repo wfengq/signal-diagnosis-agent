@@ -1,9 +1,9 @@
 # V0.2 External Harmonic Transform Amendment (OQ-012 Option 3)
 
-**Date:** 2026-09-01  
-**Status:** Approved and frozen with OQ-012 option 3 on 2026-09-01  
-**Baseline design:** `docs/superpowers/specs/2026-09-01-v0-2-real-world-validation-design.md`  
-**Contracts:** additive EV-C010A in `docs/EXTERNAL_VALIDATION_CONTRACTS_V0_2.md`  
+**Date:** 2026-09-01
+**Status:** Approved and frozen with OQ-012 option 3 on 2026-09-01
+**Baseline design:** `docs/superpowers/specs/2026-09-01-v0-2-real-world-validation-design.md`
+**Contracts:** additive EV-C010A in `docs/EXTERNAL_VALIDATION_CONTRACTS_V0_2.md`
 **Pilot evidence preserved:** `pilot_failure_report.json` (v1), `pilot_failure_report_v2.json` (v2)
 
 ## 1. Problem statement

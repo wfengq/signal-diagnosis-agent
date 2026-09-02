@@ -7,10 +7,15 @@ import hashlib
 import numpy as np
 
 from signal_diag.dsp.clipping import analyze_clipping
-from signal_diag.dsp.harmonics import analyze_harmonic_distortion
-from signal_diag.dsp.models import HarmonicComponent
-from signal_diag.dsp.pitch import estimate_f0_autocorrelation
-from signal_diag.evaluation.external.reference_models import ReferenceSummary
+from signal_diag.evaluation.external.reference_harmonics import (
+    analyze_harmonic_reference,
+)
+from signal_diag.evaluation.external.reference_models import (
+    REFERENCE_ANALYZER_VERSION_V02,
+    REFERENCE_ANALYZER_VERSION_V03,
+    ReferenceAnalyzerVersion,
+    ReferenceSummary,
+)
 
 
 def analyze_reference(
@@ -20,46 +25,65 @@ def analyze_reference(
     fmin_hz: float = 50.0,
     fmax_hz: float = 1000.0,
 ) -> ReferenceSummary:
-    """Measure clipping, F0, THD, and order-2 amplitude for one analysis WAV."""
+    """Measure clipping, F0, THD, and order-2 amplitude (V0.2 identity 1.0.0)."""
+    return _analyze_reference_impl(
+        samples,
+        sample_rate_hz,
+        fmin_hz=fmin_hz,
+        fmax_hz=fmax_hz,
+        reference_analyzer_version=REFERENCE_ANALYZER_VERSION_V02,
+    )
+
+
+def analyze_reference_v03(
+    samples: np.ndarray,
+    sample_rate_hz: int,
+    *,
+    fmin_hz: float = 50.0,
+    fmax_hz: float = 1000.0,
+) -> ReferenceSummary:
+    """Independent reference path for V0.3 dev/val qualification (identity 1.1.0)."""
+    return _analyze_reference_impl(
+        samples,
+        sample_rate_hz,
+        fmin_hz=fmin_hz,
+        fmax_hz=fmax_hz,
+        reference_analyzer_version=REFERENCE_ANALYZER_VERSION_V03,
+    )
+
+
+def _analyze_reference_impl(
+    samples: np.ndarray,
+    sample_rate_hz: int,
+    *,
+    fmin_hz: float,
+    fmax_hz: float,
+    reference_analyzer_version: ReferenceAnalyzerVersion,
+) -> ReferenceSummary:
     values = _validated_1d(samples)
     input_digest = _sample_digest(values)
 
     clipping = analyze_clipping(values)
-    f0 = estimate_f0_autocorrelation(
+    harmonic = analyze_harmonic_reference(
         values,
         sample_rate_hz,
         fmin_hz=fmin_hz,
         fmax_hz=fmax_hz,
     )
-    harmonic = analyze_harmonic_distortion(
-        values,
-        sample_rate_hz,
-        fundamental_hz=f0.f0_hz if f0.voiced else None,
-        fmin_hz=fmin_hz,
-        fmax_hz=fmax_hz,
-    )
 
-    applicable = bool(f0.voiced and harmonic.valid)
-    order_2_relative_amplitude = _order_2_relative_amplitude(harmonic.components)
-
+    applicable = bool(harmonic.f0_voiced and harmonic.valid)
     return ReferenceSummary(
+        reference_analyzer_version=reference_analyzer_version,
         input_sha256=input_digest,
         applicable=applicable,
         clipping_ratio=clipping.clipping_ratio if applicable else None,
         flat_top_detected=clipping.flat_top_detected if applicable else None,
-        f0_hz=f0.f0_hz if applicable else None,
+        f0_hz=harmonic.f0_hz if applicable else None,
         thd_percent=harmonic.thd_percent if applicable else None,
-        order_2_relative_amplitude=(order_2_relative_amplitude if applicable else None),
+        order_2_relative_amplitude=(
+            harmonic.order_2_relative_amplitude if applicable else None
+        ),
     )
-
-
-def _order_2_relative_amplitude(
-    components: tuple[HarmonicComponent, ...],
-) -> float | None:
-    for component in components:
-        if component.order == 2:
-            return float(component.relative_amplitude)
-    return None
 
 
 def _validated_1d(samples: np.ndarray) -> np.ndarray:

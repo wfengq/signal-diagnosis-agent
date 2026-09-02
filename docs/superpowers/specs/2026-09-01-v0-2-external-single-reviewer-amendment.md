@@ -1,9 +1,9 @@
 # V0.2 External Single-Reviewer Provenance Audit Amendment
 
-**Date:** 2026-09-01  
-**Status:** Approved by explicit user authorization on 2026-09-01  
-**Baseline design:** `docs/superpowers/specs/2026-09-01-v0-2-real-world-validation-design.md`  
-**Contracts:** additive EV-C025 in `docs/EXTERNAL_VALIDATION_CONTRACTS_V0_2.md`  
+**Date:** 2026-09-01
+**Status:** Approved by explicit user authorization on 2026-09-01
+**Baseline design:** `docs/superpowers/specs/2026-09-01-v0-2-real-world-validation-design.md`
+**Contracts:** additive EV-C025 in `docs/EXTERNAL_VALIDATION_CONTRACTS_V0_2.md`
 **Supersedes:** mandatory 14-day Round 2 gate for sealing and experiment completion
 
 ## 1. Problem statement

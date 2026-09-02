@@ -1,11 +1,11 @@
 # Signal Diagnosis Agent — Additive External Validation Contracts V0.2
 
-**Document:** `EXTERNAL_VALIDATION_CONTRACTS_V0_2.md`  
-**Contract version:** `external-validation-0.2`  
+**Document:** `EXTERNAL_VALIDATION_CONTRACTS_V0_2.md`
+**Contract version:** `external-validation-0.2`
 **Status:** Approved for Phase A protocol freeze on branch
-`codex/v0.2-real-world-validation`  
-**Scope:** Additive contracts for the V0.2 external WAV validity study only  
-**Design:** `docs/superpowers/specs/2026-09-01-v0-2-real-world-validation-design.md`  
+`codex/v0.2-real-world-validation`
+**Scope:** Additive contracts for the V0.2 external WAV validity study only
+**Design:** `docs/superpowers/specs/2026-09-01-v0-2-real-world-validation-design.md`
 **Baseline:** Git commit `605c8a8`; release tag `v0.2.0` on peeled commit `ff16e2a`
 
 ---

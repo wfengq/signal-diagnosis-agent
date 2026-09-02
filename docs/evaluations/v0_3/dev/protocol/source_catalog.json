@@ -1,0 +1,74 @@
+{
+  "catalog_id": "v0.3-external-wav-dev-1",
+  "schema_version": "1.0",
+  "version": "1.0.0",
+  "reference_analyzer_version": "1.1.0",
+  "sources": [
+    {
+      "source_id": "v03_repo_synthesized",
+      "source_recording_key": "v03_repo_synthesized_periodic",
+      "official_name": "Repository-synthesized periodic masters",
+      "license_classification": "repository-generated",
+      "attribution": "Generated locally in signal-diagnosis-agent V0.3 dev split builder; no upstream recording",
+      "citation": "N/A (deterministic synthesis)",
+      "terms_url": "https://github.com/",
+      "direct_asset_url": null,
+      "upstream_asset_id": "v03_synth_master"
+    },
+    {
+      "source_id": "esc10_172649_a40",
+      "source_recording_key": "esc_src_file:172649",
+      "official_name": "ESC-10",
+      "license_classification": "CC-BY-4.0 (ESC-10 subset)",
+      "attribution": "ESC-50 / ESC-10 (Karol J. Piczak), CC BY for ESC-10 subset",
+      "citation": "Piczak, K. J. (2015). ESC: Dataset for Environmental Sound Classification.",
+      "terms_url": "https://github.com/karolpiczak/ESC-50",
+      "direct_asset_url": "https://raw.githubusercontent.com/karolpiczak/ESC-50/master/audio/1-172649-A-40.wav",
+      "upstream_asset_id": "1-172649-A-40.wav"
+    },
+    {
+      "source_id": "esc10_21934_a38",
+      "source_recording_key": "esc_src_file:21934",
+      "official_name": "ESC-10",
+      "license_classification": "CC-BY-4.0 (ESC-10 subset)",
+      "attribution": "ESC-50 / ESC-10 (Karol J. Piczak), CC BY for ESC-10 subset",
+      "citation": "Piczak, K. J. (2015). ESC: Dataset for Environmental Sound Classification.",
+      "terms_url": "https://github.com/karolpiczak/ESC-50",
+      "direct_asset_url": "https://raw.githubusercontent.com/karolpiczak/ESC-50/master/audio/1-21934-A-38.wav",
+      "upstream_asset_id": "1-21934-A-38.wav"
+    },
+    {
+      "source_id": "esc10_21189_a10",
+      "source_recording_key": "esc_src_file:21189",
+      "official_name": "ESC-10",
+      "license_classification": "CC-BY-4.0 (ESC-10 subset)",
+      "attribution": "ESC-50 / ESC-10 (Karol J. Piczak), CC BY for ESC-10 subset",
+      "citation": "Piczak, K. J. (2015). ESC: Dataset for Environmental Sound Classification.",
+      "terms_url": "https://github.com/karolpiczak/ESC-50",
+      "direct_asset_url": "https://raw.githubusercontent.com/karolpiczak/ESC-50/master/audio/1-21189-A-10.wav",
+      "upstream_asset_id": "1-21189-A-10.wav"
+    },
+    {
+      "source_id": "esc10_187207_a20",
+      "source_recording_key": "esc_src_file:187207",
+      "official_name": "ESC-10",
+      "license_classification": "CC-BY-4.0 (ESC-10 subset)",
+      "attribution": "ESC-50 / ESC-10 (Karol J. Piczak), CC BY for ESC-10 subset",
+      "citation": "Piczak, K. J. (2015). ESC: Dataset for Environmental Sound Classification.",
+      "terms_url": "https://github.com/karolpiczak/ESC-50",
+      "direct_asset_url": "https://raw.githubusercontent.com/karolpiczak/ESC-50/master/audio/1-187207-A-20.wav",
+      "upstream_asset_id": "1-187207-A-20.wav"
+    },
+    {
+      "source_id": "esc10_39901_a11",
+      "source_recording_key": "esc_src_file:39901",
+      "official_name": "ESC-10",
+      "license_classification": "CC-BY-4.0 (ESC-10 subset)",
+      "attribution": "ESC-50 / ESC-10 (Karol J. Piczak), CC BY for ESC-10 subset",
+      "citation": "Piczak, K. J. (2015). ESC: Dataset for Environmental Sound Classification.",
+      "terms_url": "https://github.com/karolpiczak/ESC-50",
+      "direct_asset_url": "https://raw.githubusercontent.com/karolpiczak/ESC-50/master/audio/1-39901-A-11.wav",
+      "upstream_asset_id": "1-39901-A-11.wav"
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "reference_analyzer_version": "1.1.0",
+  "qualified_at_utc": "2026-09-02T14:06:29.787637+00:00",
+  "cases": [
+    {
+      "case_id": "a1f3c9e2b804d716",
+      "reference_analyzer_id": "signal_diag.external_reference",
+      "reference_analyzer_version": "1.1.0",
+      "input_sha256": "aa50be0df5e6d3cbac58d0dd22205780bd4c7740568ec855fce861e7b60d9a4f",
+      "applicable": true,
+      "f0_hz": 440.3669724770642,
+      "thd_percent": 9.369345203201496e-08,
+      "clipping_ratio": 0.0,
+      "order_2_relative_amplitude": 9.568235650347921e-11
+    },
+    {
+      "case_id": "b2e4d0f3c915e827",
+      "reference_analyzer_id": "signal_diag.external_reference",
+      "reference_analyzer_version": "1.1.0",
+      "input_sha256": "12b6cbd9edaa216cf7e8a09f073d01e4d6074afa3bc14407816eee74cf6dfcc4",
+      "applicable": true,
+      "f0_hz": 440.3669724770642,
+      "thd_percent": 12.499999947523175,
+      "clipping_ratio": 0.0,
+      "order_2_relative_amplitude": 0.12499999947523174
+    },
+    {
+      "case_id": "c3f5e1a4d026f938",
+      "reference_analyzer_id": "signal_diag.external_reference",
+      "reference_analyzer_version": "1.1.0",
+      "input_sha256": "ec5b46ccaa7ff6df73bd965d11a536da98c32d8e772f2f547961b203cdffa457",
+      "applicable": true,
+      "f0_hz": 440.3669724770642,
+      "thd_percent": 0.004936199064347748,
+      "clipping_ratio": 0.0,
+      "order_2_relative_amplitude": 9.567927502804148e-11
+    },
+    {
+      "case_id": "d4a6f2b5e1370a49",
+      "reference_analyzer_id": "signal_diag.external_reference",
+      "reference_analyzer_version": "1.1.0",
+      "input_sha256": "fb5da5ba358cb4d5efaf6c075c4718a4b7a9a1709e51f2a23609c4dc23f7f5a1",
+      "applicable": true,
+      "f0_hz": 440.3669724770642,
+      "thd_percent": 24.973594736684895,
+      "clipping_ratio": 0.030833333333333334,
+      "order_2_relative_amplitude": 0.24973539540302409
+    },
+    {
+      "case_id": "e5b7a3c6f2481b5a",
+      "reference_analyzer_id": "signal_diag.external_reference",
+      "reference_analyzer_version": "1.1.0",
+      "input_sha256": "071f755849df723316267a0372cf588e11908db5c5e9a55e786769efaf18d1d9",
+      "applicable": true,
+      "f0_hz": 200.0,
+      "thd_percent": 99.99999922861815,
+      "clipping_ratio": 0.0,
+      "order_2_relative_amplitude": 0.9999999922861815
+    },
+    {
+      "case_id": "f6c8b4d7a3592c6b",
+      "reference_analyzer_id": "signal_diag.external_reference",
+      "reference_analyzer_version": "1.1.0",
+      "input_sha256": "f56081ded2b44aded9f8916899148355530febe0e7c20f06f50d450cc11237af",
+      "applicable": true,
+      "f0_hz": 705.8823529411765,
+      "thd_percent": 7.29402899893248,
+      "clipping_ratio": 0.0,
+      "order_2_relative_amplitude": 0.028396064880517134
+    },
+    {
+      "case_id": "07d9c5e8b46a3d7c",
+      "reference_analyzer_id": "signal_diag.external_reference",
+      "reference_analyzer_version": "1.1.0",
+      "input_sha256": "d15b3c11d26ff551c30f04c47b48acb6ee36fe552451c5df89a86fd79426df27",
+      "applicable": true,
+      "f0_hz": 842.1052631578947,
+      "thd_percent": 2311.37793088548,
+      "clipping_ratio": 0.0,
+      "order_2_relative_amplitude": 23.11158428707026
+    },
+    {
+      "case_id": "18ea06f9c57b4e8d",
+      "reference_analyzer_id": "signal_diag.external_reference",
+      "reference_analyzer_version": "1.1.0",
+      "input_sha256": "59eeb20e14dee83bbd48952d7b8af349d57c096ba52e18f8cea74b376bfe398f",
+      "applicable": true,
+      "f0_hz": 941.1764705882352,
+      "thd_percent": 448.37082861787104,
+      "clipping_ratio": 0.0,
+      "order_2_relative_amplitude": 1.9386523999500405
+    },
+    {
+      "case_id": "29fb17a0d68c5f9e",
+      "reference_analyzer_id": "signal_diag.external_reference",
+      "reference_analyzer_version": "1.1.0",
+      "input_sha256": "360578761dc4418977eb92110ba72d8df65a3ab30b8756d436a05ae06cbe5bdf",
+      "applicable": true,
+      "f0_hz": 87.91208791208791,
+      "thd_percent": 15724.765206292062,
+      "clipping_ratio": 4.1666666666666665e-05,
+      "order_2_relative_amplitude": 0.8573823549132805
+    },
+    {
+      "case_id": "3a0c28b1e79d60af",
+      "reference_analyzer_id": "signal_diag.external_reference",
+      "reference_analyzer_version": "1.1.0",
+      "input_sha256": "48d22244d54e51d0b10b276f6a5e64a5eb5b35b5b4464e8c677ecc57455f61a2",
+      "applicable": true,
+      "f0_hz": 350.3649635036496,
+      "thd_percent": 656671131692.2318,
+      "clipping_ratio": 0.0,
+      "order_2_relative_amplitude": 6566711316.9223175
+    },
+    {
+      "case_id": "4b1d39c2f8ae71b0",
+      "reference_analyzer_id": "signal_diag.external_reference",
+      "reference_analyzer_version": "1.1.0",
+      "input_sha256": "8ba549d5fa5b89949b73eec05e542725080ebbef90ee35923ee422f8f87f1755",
+      "applicable": false,
+      "f0_hz": null,
+      "thd_percent": null,
+      "clipping_ratio": null,
+      "order_2_relative_amplitude": null
+    },
+    {
+      "case_id": "5c2e4ad309bf82c1",
+      "reference_analyzer_id": "signal_diag.external_reference",
+      "reference_analyzer_version": "1.1.0",
+      "input_sha256": "a17f437878fd1b3d4790ab310d2dc2ee4ae4e785db689be86f0a1b86469d1930",
+      "applicable": false,
+      "f0_hz": null,
+      "thd_percent": null,
+      "clipping_ratio": null,
+      "order_2_relative_amplitude": null
+    }
+  ]
+}
