@@ -1,16 +1,20 @@
 {
-  "amendment_id": "code_identity_after_b339dcf_typing",
+  "amendment_id": "code_identity_after_v9_7_shadow_replay",
   "amendment_kind": "append_only_code_identity",
-  "created_at_utc": "2026-09-04T12:05:00+00:00",
+  "created_at_utc": "2026-09-05T00:00:00+00:00",
   "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
-  "current_implementation_sha256": "5e3dc82dd443f84b400c683d40012ba31e8ff2a2833e7a5e71286f4ca035c694",
+  "current_implementation_sha256": "51b65779a0ef7797b512e527f2757edfd0fdb99f7dc3302786309d7d40fca470",
+  "prior_bridge_current_implementation_sha256": "5e3dc82dd443f84b400c683d40012ba31e8ff2a2833e7a5e71286f4ca035c694",
+  "intermediate_bridge_after_shadow_replay_sha256": "69f4c1a2c1ddcc8772beb9c3f34d89c6c048bf56b869ce32b3c90ec02e25f6a5",
   "commits": {
     "rematerialize": "def199f17898a7deaed241e4f350c302ec637a1e",
-    "typing_only": "b339dcf1fb81ab2ed53a355cf7199917596a87f5"
+    "typing_only": "b339dcf1fb81ab2ed53a355cf7199917596a87f5",
+    "shadow_replay": "e710c08"
   },
   "b339dcf_scope": "typing annotation only (ClippingAnalysis for _clipping_causal_ok); no algorithmic or threshold change",
+  "v9_7_scope": "append-only offline shadow_replay.py plus CLI registration in evaluation/contextual; no DSP, threshold, WAV, label, or scoring change",
   "qualification_recompute_unchanged": true,
   "calibration_recompute_unchanged": true,
   "selected_threshold_percent_unchanged": 5.0,
-  "notes": "Provenance-only bridge after b339dcf (typing-only) plus the append-only freeze-identity resolver in calibration.py. Does not rematerialize WAVs, reselect thresholds, or authorize model runs. Recomputed qualification gates and calibration confusion tables match the on-disk reports; selected threshold remains 5.0%. Active freeze identity resolves via profile_freeze_record.code_sha256 or this amendment to the current implementation tree."
+  "notes": "Provenance-only bridge after v9.7 shadow-replay harness files landed under evaluation/contextual/. Does not rematerialize WAVs, reselect thresholds, or authorize model runs. Selected threshold remains 5.0%. Active freeze identity resolves via profile_freeze_record.code_sha256 or this amendment to the current implementation tree. Prior bridge current SHA 5e3dc82d... is retained under prior_bridge_current_implementation_sha256."
 }

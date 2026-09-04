@@ -75,7 +75,9 @@ def build_replay_row(
 
 def _rule_judgments(row: dict[str, object]) -> dict[str, str]:
     judgments: dict[str, str] = {}
-    for item in row["evaluations"]:  # type: ignore[assignment]
+    evaluations = row["evaluations"]
+    assert isinstance(evaluations, list)
+    for item in evaluations:
         assert isinstance(item, dict)
         judgments[str(item["rule_id"])] = str(item["judgment"])
     return judgments
@@ -107,22 +109,27 @@ def build_replay_report(
                 if row["profile_id"] == "profile_s1_contextual_comparison":
                     mode = str(row["mode"])
                     break
-        if mode == "paired_reference" and (
-            judgments.get("rule_even_harmonic_growth_acceptable") == "fail"
-        ):
-            contextual_positive_fail.append(case_id)
-        elif mode == "nominal_single_tone" and (
-            judgments.get("rule_nominal_thd_acceptable") == "fail"
-        ):
+        growth_fail = (
+            mode == "paired_reference"
+            and judgments.get("rule_even_harmonic_growth_acceptable") == "fail"
+        )
+        nominal_fail = (
+            mode == "nominal_single_tone"
+            and judgments.get("rule_nominal_thd_acceptable") == "fail"
+        )
+        if growth_fail or nominal_fail:
             contextual_positive_fail.append(case_id)
         required: frozenset[str] | None = None
         if mode == "paired_reference":
             required = _PAIRED_CONTEXTUAL_PASS_RULES | _CLIPPING_PASS_RULES
         elif mode == "nominal_single_tone":
             required = _NOMINAL_CONTEXTUAL_PASS_RULES | _CLIPPING_PASS_RULES
-        if required is not None and _all_pass(judgments, required):
-            if "profile_s1_contextual_comparison" in profiles:
-                contextual_complete_pass.append(case_id)
+        if (
+            required is not None
+            and _all_pass(judgments, required)
+            and "profile_s1_contextual_comparison" in profiles
+        ):
+            contextual_complete_pass.append(case_id)
 
     return {
         "source_case_count": len(trace_hashes),
