@@ -20,6 +20,7 @@ threshold reselection, no real-model run.
 | Identity | Value |
 |---|---|
 | Pre-report HEAD (Task 11 tip) | `745674cddd67a8914daf32570ddf841aa824f979` |
+| Gate tree commit | `41c9489cf92132dc0407f40f7ae08ae396706f78` |
 | Prompt version | `v0.3-s1-planner-9.5` |
 | Prompt system UTF-8 SHA-256 | `a4f4d260adb45a2af088961c77586b08d8279cd1bc4f3780474c3b0a6bd7cb02` |
 | `prompts_v03.py` file SHA-256 | `d97524eeb91d9f8c58569ab742da5e4b5274632771779ffefa357115d1481a90` |
@@ -39,15 +40,16 @@ Freeze identity resolves via `profile_freeze_record.json` or append-only
 python -m pytest tests/signal/test_context.py tests/dsp/test_contextual.py \
   tests/tools/test_contextual_tools.py tests/rules/test_contextual_profile.py \
   tests/agent/test_v03_contextual_runtime.py tests/agent/test_v03_prompt_v9_5.py \
-  tests/app/test_contextual_*.py tests/evaluation/contextual -v
+  tests/app/test_contextual_models.py tests/app/test_contextual_reporting.py \
+  tests/app/test_contextual_runs.py tests/app/test_contextual_service.py \
+  tests/evaluation/contextual -v
 ```
 
-**Result:** **116 passed**, 0 skipped, 0 xfailed  
+**Result:** **116 passed**, 0 skipped, 0 xfailed
 **Interpreter:** CPython 3.11.15 (`.venv`)
 
 Note: plan path `tests/tools/test_contextual.py` maps to repository file
-`tests/tools/test_contextual_tools.py`; app paths are the four
-`tests/app/test_contextual_*.py` modules.
+`tests/tools/test_contextual_tools.py`.
 
 ## Step 2 — Cumulative quality gates (T-CX141–T-CX145)
 
@@ -77,7 +79,7 @@ Required contextual/static assets present:
 - `signal_diag/rules/profiles/s1_distortion_v1.yaml`
 - `signal_diag/app/static/{index.html,app.js,styles.css}`
 
-Forbidden content absent: no `.wav`/`.flac`/`.mp3`, no `private/` or `acquired/` paths  
+Forbidden content absent: no `.wav`/`.flac`/`.mp3`, no `private/` or `acquired/` paths
 (member_count=112).
 
 ### Dual-version matrix
