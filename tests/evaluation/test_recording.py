@@ -34,6 +34,7 @@ from signal_diag.evaluation.models import (
     BaselineRunResult,
     BenchmarkConfig,
     EvaluationCase,
+    EvaluationTrace,
     PlannerDecisionRecord,
     ProviderUsage,
 )
@@ -1243,3 +1244,275 @@ def test_t255_evaluation_trace_delegates_without_drift() -> None:
         execution_path="agent",
     )
     assert trace.events == events
+
+
+def test_t_cx179_tool_delta_can_include_one_automatic_rule_batch() -> None:
+    empty = _empty_context()
+    observation = _clipping_observation()
+    evidence = _clipping_evidence()
+    batch = _rule_batch()
+    after = _advance(
+        empty,
+        observations=(observation,),
+        evidence=(evidence,),
+        rule_evaluation_batches=(batch,),
+    )
+    claim = DiagnosisClaim(
+        claim_id="claim_auto_rule",
+        fault_type="no_supported_fault",
+        statement="Automatic rule batch is traceable.",
+        evidence_refs=("ev_clip_001",),
+        rule_refs=("ruleval_clip_001",),
+    )
+    finish = FinishDecision(
+        task_assessment=_task_assessment(),
+        outcome="no_supported_fault",
+        claims=(claim,),
+        confidence_label="high",
+    )
+    records = (
+        _decision_record(0, empty, _clipping_decision()),
+        _decision_record(1, after, finish),
+    )
+    result = _agent_result(
+        observations=(observation,),
+        evidence=(evidence,),
+        batches=(batch,),
+        retrievals=(),
+        claims=(claim,),
+    )
+    trace = _assemble_agent(records, result)
+    assert [event.event_type for event in trace.events[:3]] == [
+        "planner_call",
+        "observation",
+        "rule_evaluation",
+    ]
+    assert trace.events[1].caused_by_decision_index == 0
+    assert trace.events[2].caused_by_decision_index == 0
+
+
+def test_t_cx179_rejects_two_automatic_batches_after_one_tool() -> None:
+    empty = _empty_context()
+    observation = _clipping_observation()
+    evidence = _clipping_evidence()
+    batch_a = _rule_batch()
+    batch_b = batch_a.model_copy(update={"batch_id": "rulebatch_clip_002"})
+    after = _advance(
+        empty,
+        observations=(observation,),
+        evidence=(evidence,),
+        rule_evaluation_batches=(batch_a, batch_b),
+    )
+    records = (
+        _decision_record(0, empty, _clipping_decision()),
+        _decision_record(1, after, FinishDecision(
+            task_assessment=_task_assessment(),
+            outcome="inconclusive",
+            claims=(),
+            confidence_label="low",
+            limitations=("stop",),
+        )),
+    )
+    result = _agent_result(
+        observations=(observation,),
+        evidence=(evidence,),
+        batches=(batch_a, batch_b),
+        retrievals=(),
+    )
+    with pytest.raises(ValueError, match="at most one automatic rule batch"):
+        assemble_agent_events(records, result)
+
+
+def test_t_cx179_rejects_batch_after_errored_tool() -> None:
+    empty = _empty_context()
+    observation = _clipping_observation().model_copy(
+        update={"status": "error", "result": None, "error_message": "boom", "evidence_refs": ()}
+    )
+    batch = _rule_batch()
+    after = _advance(
+        empty,
+        observations=(observation,),
+        evidence=(),
+        rule_evaluation_batches=(batch,),
+    )
+    records = (
+        _decision_record(0, empty, _clipping_decision()),
+        _decision_record(
+            1,
+            after,
+            FinishDecision(
+                task_assessment=_task_assessment(),
+                outcome="inconclusive",
+                claims=(),
+                confidence_label="low",
+                limitations=("stop",),
+            ),
+        ),
+    )
+    result = _agent_result(
+        observations=(observation,),
+        evidence=(),
+        batches=(batch,),
+        retrievals=(),
+    )
+    with pytest.raises(ValueError, match="errored Tool cannot produce automatic rules"):
+        assemble_agent_events(records, result)
+
+
+def test_t_cx179_rejects_batch_after_spectrum_tool() -> None:
+    from signal_diag.agent.models import AnalyzeSpectrumCall, SpectrumInput
+
+    empty = _empty_context()
+    call = AnalyzeSpectrumCall(args=SpectrumInput())
+    observation = Observation(
+        observation_id="obs_spec_001",
+        call_id="call_spec_001",
+        tool_name="analyze_spectrum",
+        normalized_arguments=normalize_tool_arguments(call),
+        purpose="spectrum",
+        status="success",
+        result=None,
+        evidence_refs=("ev_spec_001",),
+    )
+    # bypass ToolResult success invariant via Observation-only fixture
+    observation = observation.model_copy(
+        update={
+            "result": {"kind": "spectrum"},
+        }
+    )
+    evidence = Evidence(
+        evidence_id="ev_spec_001",
+        source_tool="analyze_spectrum",
+        call_id="call_spec_001",
+        metric="peak_frequency_hz",
+        value=200.0,
+        unit="Hz",
+        validity="valid",
+        confidence=None,
+        time_range=None,
+        channel="mixdown",
+    )
+    batch = _rule_batch()
+    after = _advance(
+        empty,
+        observations=(observation,),
+        evidence=(evidence,),
+        rule_evaluation_batches=(batch,),
+    )
+    decision = CallToolDecision(
+        task_assessment=_task_assessment(),
+        call=call,
+        purpose="spectrum",
+    )
+    records = (
+        _decision_record(0, empty, decision),
+        _decision_record(
+            1,
+            after,
+            FinishDecision(
+                task_assessment=_task_assessment(),
+                outcome="inconclusive",
+                claims=(),
+                confidence_label="low",
+                limitations=("stop",),
+            ),
+        ),
+    )
+    result = _agent_result(
+        observations=(observation,),
+        evidence=(evidence,),
+        batches=(batch,),
+        retrievals=(),
+    )
+    with pytest.raises(ValueError, match="automatic rule batch does not match Tool"):
+        assemble_agent_events(records, result)
+
+
+def test_t_cx179_rejects_profile_inconsistent_with_tool() -> None:
+    empty = _empty_context()
+    observation = _clipping_observation()
+    evidence = _clipping_evidence()
+    batch = _rule_batch().model_copy(
+        update={"profile_id": "profile_s1_contextual_comparison"}
+    )
+    after = _advance(
+        empty,
+        observations=(observation,),
+        evidence=(evidence,),
+        rule_evaluation_batches=(batch,),
+    )
+    records = (
+        _decision_record(0, empty, _clipping_decision()),
+        _decision_record(
+            1,
+            after,
+            FinishDecision(
+                task_assessment=_task_assessment(),
+                outcome="inconclusive",
+                claims=(),
+                confidence_label="low",
+                limitations=("stop",),
+            ),
+        ),
+    )
+    result = _agent_result(
+        observations=(observation,),
+        evidence=(evidence,),
+        batches=(batch,),
+        retrievals=(),
+    )
+    with pytest.raises(ValueError, match="automatic rule batch does not match Tool"):
+        assemble_agent_events(records, result)
+
+
+def test_t_cx180_historical_and_automatic_traces_round_trip() -> None:
+    _case, records, result, _config = _full_agent_chain()
+    historical = assemble_evaluation_trace(
+        _case,
+        records,
+        result,
+        _config,
+        run_slot=1,
+        execution_path="agent",
+    )
+    restored = EvaluationTrace.model_validate_json(historical.model_dump_json())
+    assert restored == historical
+
+    empty = _empty_context()
+    observation = _clipping_observation()
+    evidence = _clipping_evidence()
+    batch = _rule_batch()
+    after = _advance(
+        empty,
+        observations=(observation,),
+        evidence=(evidence,),
+        rule_evaluation_batches=(batch,),
+    )
+    claim = DiagnosisClaim(
+        claim_id="claim_auto_rule",
+        fault_type="no_supported_fault",
+        statement="Automatic rule batch is traceable.",
+        evidence_refs=("ev_clip_001",),
+        rule_refs=("ruleval_clip_001",),
+    )
+    finish = FinishDecision(
+        task_assessment=_task_assessment(),
+        outcome="no_supported_fault",
+        claims=(claim,),
+        confidence_label="high",
+    )
+    auto_records = (
+        _decision_record(0, empty, _clipping_decision()),
+        _decision_record(1, after, finish),
+    )
+    auto_result = _agent_result(
+        observations=(observation,),
+        evidence=(evidence,),
+        batches=(batch,),
+        retrievals=(),
+        claims=(claim,),
+    )
+    automatic = _assemble_agent(auto_records, auto_result)
+    restored_auto = EvaluationTrace.model_validate_json(automatic.model_dump_json())
+    assert restored_auto == automatic
+    assert any(event.event_type == "rule_evaluation" for event in automatic.events)

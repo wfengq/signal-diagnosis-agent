@@ -23,6 +23,7 @@ from signal_diag.agent.models import (
 )
 from signal_diag.agent.planner import PlannerModel
 from signal_diag.agent.policies import normalize_tool_arguments
+from signal_diag.agent.rule_closure import automatic_profile_for_tool
 from signal_diag.evaluation.models import (
     BaselineRunResult,
     BenchmarkConfig,
@@ -301,9 +302,15 @@ def _assemble_agent_events(
         )
         decision = record.decision
         if isinstance(decision, CallToolDecision):
-            if rule_delta or knowledge_delta:
-                raise ValueError("CallToolDecision produced unexpected artifacts")
-            if not obs_delta and not evidence_delta:
+            if knowledge_delta:
+                raise ValueError(
+                    "CallToolDecision produced unexpected knowledge artifacts"
+                )
+            if len(rule_delta) > 1:
+                raise ValueError(
+                    "CallToolDecision permits at most one automatic rule batch"
+                )
+            if not obs_delta and not evidence_delta and not rule_delta:
                 continue
             if len(obs_delta) != 1:
                 raise ValueError("CallToolDecision requires exactly one Observation")
@@ -324,6 +331,21 @@ def _assemble_agent_events(
                 )
             )
             event_index += 1
+            if rule_delta:
+                batch = rule_delta[0]
+                expected_profile = automatic_profile_for_tool(observation.tool_name)
+                if observation.status == "error":
+                    raise ValueError("errored Tool cannot produce automatic rules")
+                if expected_profile is None or batch.profile_id != expected_profile:
+                    raise ValueError("automatic rule batch does not match Tool")
+                events.append(
+                    RuleEvaluationEvent(
+                        event_index=event_index,
+                        caused_by_decision_index=record.decision_index,
+                        batch=batch,
+                    )
+                )
+                event_index += 1
             continue
         if isinstance(decision, EvaluateRulesDecision):
             if obs_delta or evidence_delta or knowledge_delta:
