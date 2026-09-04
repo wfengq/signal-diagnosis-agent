@@ -1,0 +1,34 @@
+{
+  "case_id": "04f4068ec91d2621",
+  "mode": "paired_reference",
+  "role": "natural_even_control",
+  "scoreable": true,
+  "expected_outcome": "no_supported_fault",
+  "expected_causal_set": [],
+  "outcome": null,
+  "causal_faults": [],
+  "claims": [],
+  "evidence_refs": [],
+  "rule_refs": [],
+  "evidence_refs_complete": true,
+  "causal_gate": null,
+  "limitations": [],
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_contextual_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [
+    "missing contextual analysis PASS",
+    "missing contextual analysis PASS",
+    "missing contextual analysis PASS"
+  ],
+  "termination_reason": "max_planner_retries",
+  "status": "error",
+  "infrastructure_failure": false,
+  "correct_outcome": false,
+  "correct_causal": true,
+  "started_at_utc": "2026-09-04T16:32:50.111299+00:00",
+  "finished_at_utc": "2026-09-04T16:33:05.244352+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_6_dev_confirmation_1/cases/04f4068ec91d2621"
+}

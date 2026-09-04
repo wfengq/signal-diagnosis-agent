@@ -1,0 +1,37 @@
+{
+  "case_id": "aa9b4a91b0253c33",
+  "mode": "paired_reference",
+  "role": "combined",
+  "scoreable": true,
+  "expected_outcome": "supported_fault",
+  "expected_causal_set": [
+    "clipping",
+    "harmonic_distortion"
+  ],
+  "outcome": null,
+  "causal_faults": [],
+  "claims": [],
+  "evidence_refs": [],
+  "rule_refs": [],
+  "evidence_refs_complete": true,
+  "causal_gate": null,
+  "limitations": [],
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_contextual_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [
+    "missing contextual analysis PASS",
+    "missing contextual analysis PASS",
+    "missing contextual analysis PASS"
+  ],
+  "termination_reason": "max_planner_retries",
+  "status": "error",
+  "infrastructure_failure": false,
+  "correct_outcome": false,
+  "correct_causal": false,
+  "started_at_utc": "2026-09-04T16:32:01.068505+00:00",
+  "finished_at_utc": "2026-09-04T16:32:27.149196+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_6_dev_confirmation_1/cases/aa9b4a91b0253c33"
+}

@@ -1,0 +1,66 @@
+{
+  "case_id": "43bbc0fb08d88ec3",
+  "mode": "single_signal",
+  "role": "clipping",
+  "scoreable": true,
+  "expected_outcome": "supported_fault",
+  "expected_causal_set": [
+    "clipping"
+  ],
+  "outcome": "supported_fault",
+  "causal_faults": [
+    "clipping"
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_supported_1",
+      "fault_type": "clipping",
+      "statement": "Clipping is affirmatively supported by same-run Evidence: clipping_mechanism is true and the clipping ratio rule FAILs.",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "rule_refs": [
+        "ruleval_34beb5bd8d8930e5"
+      ],
+      "knowledge_refs": []
+    }
+  ],
+  "evidence_refs": [
+    "ev_detect_clipping_detect_clipping_000000_000",
+    "ev_detect_clipping_detect_clipping_000000_001",
+    "ev_detect_clipping_detect_clipping_000000_007"
+  ],
+  "rule_refs": [
+    "ruleval_34beb5bd8d8930e5"
+  ],
+  "evidence_refs_complete": true,
+  "causal_gate": {
+    "outcome": "supported_fault",
+    "causal_faults": [
+      "clipping"
+    ],
+    "claim_count": 1,
+    "limitations": [
+      "Harmonic distortion is not independently supported because the THD rule PASSes and no reportable even-order distortion mechanism is established; clipping remains the sole supported cause."
+    ]
+  },
+  "limitations": [
+    "Harmonic distortion is not independently supported because the THD rule PASSes and no reportable even-order distortion mechanism is established; clipping remains the sole supported cause."
+  ],
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_harmonic_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [],
+  "termination_reason": "planner_finished",
+  "status": "success",
+  "infrastructure_failure": false,
+  "correct_outcome": true,
+  "correct_causal": true,
+  "started_at_utc": "2026-09-04T16:34:16.806496+00:00",
+  "finished_at_utc": "2026-09-04T16:34:24.675788+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_6_dev_confirmation_1/cases/43bbc0fb08d88ec3"
+}
