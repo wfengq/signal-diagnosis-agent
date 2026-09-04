@@ -10,11 +10,13 @@ from signal_diag.knowledge.index import KnowledgeIndex
 from signal_diag.rules.engine import RuleEngine
 from signal_diag.rules.models import RuleProfileLoader
 from signal_diag.signal import SignalNotFoundError, SignalRepository
+from signal_diag.signal.context import StimulusContext
 from signal_diag.tools import SignalToolService, ToolResult, get_tool_descriptors
 
-from .diagnosis import validate_finish_decision
+from .diagnosis import CausalPolicyVersion, validate_finish_decision
 from .models import (
     AgentRunResult,
+    AnalyzeContextualDistortionCall,
     AnalyzeHarmonicDistortionCall,
     AnalyzeSpectrumCall,
     CallToolDecision,
@@ -63,6 +65,7 @@ class DistortionDiagnosisRuntime:
         rule_engine: RuleEngine | None = None,
         rule_profile_loader: RuleProfileLoader | None = None,
         knowledge_index: KnowledgeIndex | None = None,
+        causal_policy_version: CausalPolicyVersion = "v9_4_legacy",
     ) -> None:
         self._repository = repository
         self._tool_service = tool_service
@@ -71,6 +74,7 @@ class DistortionDiagnosisRuntime:
         self._rule_engine = rule_engine
         self._rule_profile_loader = rule_profile_loader
         self._knowledge_index = knowledge_index
+        self._causal_policy_version = causal_policy_version
         self._observation_sequence = 0
 
     async def run(
@@ -78,6 +82,7 @@ class DistortionDiagnosisRuntime:
         *,
         signal_id: str,
         user_request: str,
+        stimulus_context: StimulusContext | None = None,
     ) -> AgentRunResult:
         try:
             record = self._repository.get(signal_id)
@@ -88,11 +93,44 @@ class DistortionDiagnosisRuntime:
                 termination_reason="runtime_error",
             )
 
+        if stimulus_context is None:
+            resolved_context = StimulusContext(
+                mode="single_signal",
+                test_signal_id=signal_id,
+                assertion_source="user_supplied",
+            )
+        elif stimulus_context.test_signal_id != signal_id:
+            return self._error_result(
+                run_id=self._new_run_id(),
+                message=(
+                    "stimulus_context.test_signal_id must match runtime signal_id"
+                ),
+                termination_reason="runtime_error",
+            )
+        else:
+            resolved_context = stimulus_context
+
+        reference_meta = None
+        if resolved_context.mode == "paired_reference":
+            assert resolved_context.reference_signal_id is not None
+            try:
+                reference_meta = self._repository.get(
+                    resolved_context.reference_signal_id
+                ).meta
+            except SignalNotFoundError as error:
+                return self._error_result(
+                    run_id=self._new_run_id(),
+                    message=str(error),
+                    termination_reason="runtime_error",
+                )
+
         state = self._initial_state(
             run_id=self._new_run_id(),
             signal_id=signal_id,
             user_request=user_request,
             signal_meta=record.meta,
+            stimulus_context=resolved_context,
+            reference_signal_meta=reference_meta,
         )
         planner_retries_remaining = self._limits.max_planner_retries
         recoverable_errors: list[str] = []
@@ -217,6 +255,8 @@ class DistortionDiagnosisRuntime:
         signal_id: str,
         user_request: str,
         signal_meta: object,
+        stimulus_context: StimulusContext,
+        reference_signal_meta: object | None = None,
     ) -> DiagnosisState:
         from signal_diag.signal.models import SignalMeta
 
@@ -225,6 +265,8 @@ class DistortionDiagnosisRuntime:
             signal_id=signal_id,
             user_request=user_request,
             signal_meta=cast(SignalMeta, signal_meta),
+            stimulus_context=stimulus_context,
+            reference_signal_meta=cast(SignalMeta | None, reference_signal_meta),
             task_assessment=None,
             observations=[],
             evidence=[],
@@ -265,6 +307,8 @@ class DistortionDiagnosisRuntime:
             run_id=state["run_id"],
             user_request=state["user_request"],
             signal_meta=state["signal_meta"],
+            stimulus_context=state["stimulus_context"],
+            reference_signal_meta=state.get("reference_signal_meta"),
             task_assessment=state["task_assessment"],
             observations=tuple(state["observations"]),
             evidence=tuple(state["evidence"]),
@@ -355,7 +399,7 @@ class DistortionDiagnosisRuntime:
                 return "terminated", planner_retries_remaining, recoverable_errors
             return "continue", planner_retries_remaining, recoverable_errors
 
-        tool_result = self._execute_tool(signal_id, decision.call)
+        tool_result = self._execute_tool(state, decision.call)
         self._record_tool_execution(
             state,
             decision=decision,
@@ -595,6 +639,8 @@ class DistortionDiagnosisRuntime:
                     for batch in state["rule_evaluation_batches"]
                     for evaluation in batch.evaluations
                 ),
+                stimulus_context=state["stimulus_context"],
+                causal_policy_version=self._causal_policy_version,
             )
         except DiagnosisValidationError as error:
             handled, planner_retries_remaining, recoverable_errors = (
@@ -631,9 +677,10 @@ class DistortionDiagnosisRuntime:
 
     def _execute_tool(
         self,
-        signal_id: str,
+        state: DiagnosisState,
         call: ToolInvocation,
     ) -> ToolResult[ToolOutput]:
+        signal_id = state["signal_id"]
         if isinstance(call, DetectClippingCall):
             return cast(
                 ToolResult[ToolOutput],
@@ -653,6 +700,14 @@ class DistortionDiagnosisRuntime:
             return cast(
                 ToolResult[ToolOutput],
                 self._tool_service.analyze_harmonic_distortion(signal_id, call.args),
+            )
+        if isinstance(call, AnalyzeContextualDistortionCall):
+            return cast(
+                ToolResult[ToolOutput],
+                self._tool_service.analyze_contextual_distortion(
+                    state["stimulus_context"],
+                    call.args,
+                ),
             )
         raise RuntimeError(f"unsupported tool invocation: {call.tool_name}")
 

@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import Literal
 
 from signal_diag.rules.models import RuleEvaluation
+from signal_diag.signal.context import StimulusContext
 from signal_diag.tools.evidence import Evidence
 
 from .models import (
@@ -15,6 +17,8 @@ from .models import (
     TaskAssessment,
     TaskType,
 )
+
+CausalPolicyVersion = Literal["v9_4_legacy", "v9_5_contextual"]
 
 _SUBSTANTIAL_CLIPPING_RULE_IDS = frozenset(
     {
@@ -37,6 +41,18 @@ def _cited_evidence(
     cited: list[Evidence] = []
     for evidence_id in claim.evidence_refs:
         item = evidence_by_id.get(evidence_id)
+        if item is not None:
+            cited.append(item)
+    return cited
+
+
+def _cited_evaluations(
+    claim: DiagnosisClaim,
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> list[RuleEvaluation]:
+    cited: list[RuleEvaluation] = []
+    for evaluation_id in claim.rule_refs:
+        item = evaluations_by_id.get(evaluation_id)
         if item is not None:
             cited.append(item)
     return cited
@@ -68,15 +84,264 @@ def _has_substantial_clipping_rule_fail(
     claim: DiagnosisClaim,
     evaluations_by_id: dict[str, RuleEvaluation],
 ) -> bool:
-    for rule_id in claim.rule_refs:
-        evaluation = evaluations_by_id.get(rule_id)
+    for evaluation in _cited_evaluations(claim, evaluations_by_id):
         if (
-            evaluation is not None
-            and evaluation.rule_id in _SUBSTANTIAL_CLIPPING_RULE_IDS
+            evaluation.rule_id in _SUBSTANTIAL_CLIPPING_RULE_IDS
             and evaluation.judgment == "fail"
         ):
             return True
     return False
+
+
+def _require_metric(
+    claim: DiagnosisClaim,
+    evidence_by_id: dict[str, Evidence],
+    metric: str,
+    value: object,
+    *,
+    gate_name: str,
+) -> None:
+    for item in _cited_evidence(claim, evidence_by_id):
+        if (
+            item.metric == metric
+            and item.value == value
+            and item.validity == "valid"
+        ):
+            return
+    raise DiagnosisValidationError(f"missing {gate_name}")
+
+
+def _require_rule_judgment(
+    claim: DiagnosisClaim,
+    evaluations_by_id: dict[str, RuleEvaluation],
+    rule_id: str,
+    judgment: Literal["pass", "fail"],
+    *,
+    gate_name: str,
+) -> None:
+    for evaluation in _cited_evaluations(claim, evaluations_by_id):
+        if evaluation.rule_id == rule_id and evaluation.judgment == judgment:
+            return
+    raise DiagnosisValidationError(f"missing {gate_name}")
+
+
+def _require_rule_pass(
+    claim: DiagnosisClaim,
+    evaluations_by_id: dict[str, RuleEvaluation],
+    rule_id: str,
+    *,
+    gate_name: str,
+) -> None:
+    _require_rule_judgment(
+        claim,
+        evaluations_by_id,
+        rule_id,
+        "pass",
+        gate_name=gate_name,
+    )
+
+
+def _require_rule_fail(
+    claim: DiagnosisClaim,
+    evaluations_by_id: dict[str, RuleEvaluation],
+    rule_id: str,
+    *,
+    gate_name: str,
+) -> None:
+    _require_rule_judgment(
+        claim,
+        evaluations_by_id,
+        rule_id,
+        "fail",
+        gate_name=gate_name,
+    )
+
+
+def _validate_clipping_supported(
+    claim: DiagnosisClaim,
+    evidence_by_id: dict[str, Evidence],
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> None:
+    if not _has_clipping_mechanism(claim, evidence_by_id):
+        raise DiagnosisValidationError(
+            "clipping supported_fault requires clipping_mechanism=true Evidence"
+        )
+    if not _has_substantial_clipping_rule_fail(claim, evaluations_by_id):
+        raise DiagnosisValidationError(
+            "clipping supported_fault requires a same-run substantial "
+            "clipping rule FAIL (rule_clipping_ratio_acceptable or "
+            "rule_flat_top_absent)"
+        )
+
+
+def _validate_v95_harmonic_supported(
+    claim: DiagnosisClaim,
+    context: StimulusContext,
+    evidence_by_id: dict[str, Evidence],
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> None:
+    if context.mode == "single_signal":
+        raise DiagnosisValidationError(
+            "harmonic_distortion supported_fault lacks contextual support"
+        )
+    if context.mode == "paired_reference":
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_contextual_analysis_valid",
+            gate_name="contextual analysis PASS",
+        )
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_contextual_f0_compatible",
+            gate_name="contextual F0 compatibility PASS",
+        )
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_reference_clipping_ratio_acceptable",
+            gate_name="reference clipping ratio PASS",
+        )
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_reference_flat_top_absent",
+            gate_name="reference flat-top PASS",
+        )
+        _require_rule_fail(
+            claim,
+            evaluations_by_id,
+            "rule_even_harmonic_growth_acceptable",
+            gate_name="harmonic growth FAIL",
+        )
+        return
+    # nominal_single_tone
+    _require_rule_pass(
+        claim,
+        evaluations_by_id,
+        "rule_contextual_analysis_valid",
+        gate_name="contextual analysis PASS",
+    )
+    _require_rule_pass(
+        claim,
+        evaluations_by_id,
+        "rule_contextual_f0_compatible",
+        gate_name="contextual F0 compatibility PASS",
+    )
+    _require_metric(
+        claim,
+        evidence_by_id,
+        "test_series_kind",
+        "even_order_present",
+        gate_name="test_series_kind=even_order_present",
+    )
+    _require_rule_fail(
+        claim,
+        evaluations_by_id,
+        "rule_nominal_thd_acceptable",
+        gate_name="nominal THD FAIL",
+    )
+
+
+def _validate_v95_no_supported_fault(
+    claim: DiagnosisClaim,
+    context: StimulusContext,
+    evidence_by_id: dict[str, Evidence],
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> None:
+    _require_metric(
+        claim,
+        evidence_by_id,
+        "clipping_mechanism",
+        False,
+        gate_name="clipping_mechanism=false",
+    )
+    _require_rule_pass(
+        claim,
+        evaluations_by_id,
+        "rule_clipping_ratio_acceptable",
+        gate_name="clipping ratio PASS",
+    )
+    _require_rule_pass(
+        claim,
+        evaluations_by_id,
+        "rule_flat_top_absent",
+        gate_name="flat-top absent PASS",
+    )
+    if context.mode == "paired_reference":
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_contextual_analysis_valid",
+            gate_name="contextual analysis PASS",
+        )
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_contextual_f0_compatible",
+            gate_name="contextual F0 compatibility PASS",
+        )
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_reference_clipping_ratio_acceptable",
+            gate_name="reference clipping ratio PASS",
+        )
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_reference_flat_top_absent",
+            gate_name="reference flat-top PASS",
+        )
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_even_harmonic_growth_acceptable",
+            gate_name="harmonic growth PASS",
+        )
+    elif context.mode == "nominal_single_tone":
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_contextual_analysis_valid",
+            gate_name="contextual analysis PASS",
+        )
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_contextual_f0_compatible",
+            gate_name="contextual F0 compatibility PASS",
+        )
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_nominal_thd_acceptable",
+            gate_name="nominal THD PASS",
+        )
+    else:
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_harmonic_analysis_valid",
+            gate_name="harmonic analysis PASS",
+        )
+        _require_rule_pass(
+            claim,
+            evaluations_by_id,
+            "rule_thd_acceptable",
+            gate_name="THD PASS",
+        )
+
+
+def _require_inconclusive_grounding(decision: FinishDecision) -> None:
+    for claim in decision.claims:
+        if claim.evidence_refs or claim.rule_refs:
+            return
+    if decision.claims:
+        raise DiagnosisValidationError(
+            "inconclusive finish requires at least one same-run Evidence or rule ref"
+        )
 
 
 def validate_finish_decision(
@@ -88,6 +353,8 @@ def validate_finish_decision(
     known_knowledge_retrieval_ids: frozenset[str] = frozenset(),
     evidence: Sequence[Evidence] | None = None,
     rule_evaluations: Sequence[RuleEvaluation] | None = None,
+    stimulus_context: StimulusContext | None = None,
+    causal_policy_version: CausalPolicyVersion = "v9_4_legacy",
 ) -> None:
     """Validate finish semantics before accepting a terminal diagnosis."""
     assessment = decision.task_assessment or task_assessment
@@ -119,6 +386,8 @@ def validate_finish_decision(
             raise DiagnosisValidationError(
                 "inconclusive finish requires at least one limitation"
             )
+        if causal_policy_version == "v9_5_contextual":
+            _require_inconclusive_grounding(decision)
         return
 
     if not decision.claims:
@@ -147,13 +416,45 @@ def validate_finish_decision(
                     f"unknown evidence reference: {evidence_id}"
                 )
 
-    if evidence is None or decision.outcome != "supported_fault":
+    if evidence is None:
         return
 
     evidence_by_id = {item.evidence_id: item for item in evidence}
     evaluations_by_id = {
         item.evaluation_id: item for item in (rule_evaluations or ())
     }
+
+    if causal_policy_version == "v9_5_contextual":
+        if stimulus_context is None:
+            raise DiagnosisValidationError(
+                "v9_5_contextual finish requires stimulus_context"
+            )
+        for claim in decision.claims:
+            if decision.outcome == "supported_fault":
+                if claim.fault_type == "clipping":
+                    _validate_clipping_supported(
+                        claim, evidence_by_id, evaluations_by_id
+                    )
+                elif claim.fault_type == "harmonic_distortion":
+                    _validate_v95_harmonic_supported(
+                        claim,
+                        stimulus_context,
+                        evidence_by_id,
+                        evaluations_by_id,
+                    )
+            elif decision.outcome == "no_supported_fault":
+                if claim.fault_type == "no_supported_fault":
+                    _validate_v95_no_supported_fault(
+                        claim,
+                        stimulus_context,
+                        evidence_by_id,
+                        evaluations_by_id,
+                    )
+        return
+
+    if decision.outcome != "supported_fault":
+        return
+
     for claim in decision.claims:
         if (
             claim.fault_type == "harmonic_distortion"
@@ -164,16 +465,7 @@ def validate_finish_decision(
                 "even_order_present Evidence"
             )
         if claim.fault_type == "clipping":
-            if not _has_clipping_mechanism(claim, evidence_by_id):
-                raise DiagnosisValidationError(
-                    "clipping supported_fault requires clipping_mechanism=true Evidence"
-                )
-            if not _has_substantial_clipping_rule_fail(claim, evaluations_by_id):
-                raise DiagnosisValidationError(
-                    "clipping supported_fault requires a same-run substantial "
-                    "clipping rule FAIL (rule_clipping_ratio_acceptable or "
-                    "rule_flat_top_absent)"
-                )
+            _validate_clipping_supported(claim, evidence_by_id, evaluations_by_id)
 
 
 def build_task_type(decision: FinishDecision, assessment: TaskAssessment) -> TaskType:

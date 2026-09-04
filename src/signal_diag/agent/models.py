@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from signal_diag.knowledge.models import KnowledgeRetrievalResult
 from signal_diag.rules.models import RuleEvaluationBatch
+from signal_diag.signal.context import StimulusContext
 from signal_diag.signal.models import SignalMeta
 from signal_diag.tools.contracts import (
     ClippingInput,
@@ -237,6 +238,8 @@ class PlannerContext(BaseModel):
     run_id: str = Field(pattern=r"^run_")
     user_request: str = Field(min_length=1)
     signal_meta: SignalMeta
+    stimulus_context: StimulusContext | None = None
+    reference_signal_meta: SignalMeta | None = None
     task_assessment: TaskAssessment | None
     observations: tuple[Observation, ...]
     evidence: tuple[Evidence, ...]
