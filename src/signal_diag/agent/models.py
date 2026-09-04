@@ -10,6 +10,8 @@ from signal_diag.signal.models import SignalMeta
 from signal_diag.tools.contracts import (
     ClippingInput,
     ClippingOutput,
+    ContextualDistortionInput,
+    ContextualDistortionOutput,
     FundamentalInput,
     FundamentalOutput,
     HarmonicDistortionInput,
@@ -55,7 +57,8 @@ ToolOutput = Annotated[
     ClippingOutput
     | SpectrumOutput
     | FundamentalOutput
-    | HarmonicDistortionOutput,
+    | HarmonicDistortionOutput
+    | ContextualDistortionOutput,
     Field(discriminator="kind"),
 ]
 
@@ -118,11 +121,21 @@ class AnalyzeHarmonicDistortionCall(BaseModel):
     args: HarmonicDistortionInput
 
 
+class AnalyzeContextualDistortionCall(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    tool_name: Literal["analyze_contextual_distortion"] = (
+        "analyze_contextual_distortion"
+    )
+    args: ContextualDistortionInput
+
+
 ToolInvocation = Annotated[
     DetectClippingCall
     | AnalyzeSpectrumCall
     | EstimateFundamentalCall
-    | AnalyzeHarmonicDistortionCall,
+    | AnalyzeHarmonicDistortionCall
+    | AnalyzeContextualDistortionCall,
     Field(discriminator="tool_name"),
 ]
 

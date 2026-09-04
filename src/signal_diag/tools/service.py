@@ -9,10 +9,12 @@ import numpy as np
 
 from signal_diag.dsp import (
     analyze_clipping,
+    analyze_contextual_distortion,
     analyze_fft,
     analyze_harmonic_distortion,
     estimate_f0_autocorrelation,
 )
+from signal_diag.dsp.contextual import ContextualAnalysisConfig
 from signal_diag.dsp.models import HarmonicComponent, SpectrumPeak
 from signal_diag.signal import (
     InvalidTimeRangeError,
@@ -22,10 +24,13 @@ from signal_diag.signal import (
     UnsupportedChannelError,
     extract_segment,
 )
+from signal_diag.signal.context import StimulusContext
 
 from .contracts import (
     ClippingInput,
     ClippingOutput,
+    ContextualDistortionInput,
+    ContextualDistortionOutput,
     FundamentalInput,
     FundamentalOutput,
     HarmonicComponentOutput,
@@ -37,6 +42,7 @@ from .contracts import (
     SpectrumPeakOutput,
     ToolName,
 )
+from .contextual import analysis_to_output, build_contextual_evidence
 from .evidence import Evidence
 from .results import ToolResult
 
@@ -100,6 +106,97 @@ class SignalToolService:
             signal_id,
             args,
             self._analyze_harmonic_distortion,
+        )
+
+    def analyze_contextual_distortion(
+        self,
+        context: StimulusContext,
+        args: ContextualDistortionInput,
+    ) -> ToolResult[ContextualDistortionOutput]:
+        call_id = self._next_call_id("analyze_contextual_distortion")
+        if context.mode == "single_signal":
+            return ToolResult(
+                call_id=call_id,
+                tool_name="analyze_contextual_distortion",
+                status="error",
+                error_message=(
+                    "analyze_contextual_distortion is unavailable in single_signal mode"
+                ),
+            )
+        try:
+            test_record, test_samples = self._load_selected(
+                context.test_signal_id,
+                args,
+            )
+            reference_samples = None
+            reference_rate: int | None = None
+            if context.mode == "paired_reference":
+                if context.reference_signal_id is None:
+                    return ToolResult(
+                        call_id=call_id,
+                        tool_name="analyze_contextual_distortion",
+                        status="error",
+                        error_message="paired_reference requires reference_signal_id",
+                    )
+                ref_record, reference_samples = self._load_selected(
+                    context.reference_signal_id,
+                    args,
+                )
+                reference_rate = ref_record.meta.sample_rate_hz
+        except (
+            SignalNotFoundError,
+            InvalidTimeRangeError,
+            UnsupportedChannelError,
+        ) as error:
+            return ToolResult(
+                call_id=call_id,
+                tool_name="analyze_contextual_distortion",
+                status="error",
+                error_message=str(error),
+            )
+
+        config = ContextualAnalysisConfig(max_harmonic_order=args.max_harmonic_order)
+        if context.mode == "paired_reference":
+            analysis = analyze_contextual_distortion(
+                test_samples,
+                test_record.meta.sample_rate_hz,
+                mode="paired_reference",
+                reference_samples=reference_samples,
+                reference_sample_rate_hz=reference_rate,
+                config=config,
+            )
+        else:
+            analysis = analyze_contextual_distortion(
+                test_samples,
+                test_record.meta.sample_rate_hz,
+                mode="nominal_single_tone",
+                nominal_fundamental_hz=context.nominal_fundamental_hz,
+                config=config,
+            )
+
+        output = analysis_to_output(analysis)
+        evidence = build_contextual_evidence(
+            call_id=call_id,
+            selection=args,
+            output=output,
+            build_evidence=self._build_evidence,
+        )
+        if not analysis.valid:
+            warning = analysis.invalid_reason or "contextual distortion analysis invalid"
+            return ToolResult(
+                call_id=call_id,
+                tool_name="analyze_contextual_distortion",
+                status="invalid",
+                result=output,
+                evidence=evidence,
+                warnings=(warning,),
+            )
+        return ToolResult(
+            call_id=call_id,
+            tool_name="analyze_contextual_distortion",
+            status="success",
+            result=output,
+            evidence=evidence,
         )
 
     def _next_call_id(self, tool_name: ToolName) -> str:

@@ -6,6 +6,7 @@ from pydantic import ValidationError
 from signal_diag.tools.contracts import (
     ClippingInput,
     ClippingOutput,
+    ContextualDistortionInput,
     FundamentalInput,
     HarmonicDistortionInput,
     SpectrumInput,
@@ -41,6 +42,7 @@ EXPECTED_TOOL_NAMES: frozenset[ToolName] = frozenset(
         "analyze_spectrum",
         "estimate_fundamental",
         "analyze_harmonic_distortion",
+        "analyze_contextual_distortion",
     }
 )
 
@@ -104,7 +106,7 @@ def test_t062_tool_result_accepts_valid_status_combinations(
 def test_t063_get_tool_descriptors_exact_set_and_json_schemas() -> None:
     descriptors = get_tool_descriptors()
 
-    assert len(descriptors) == 4
+    assert len(descriptors) == 5
     assert {descriptor.name for descriptor in descriptors} == EXPECTED_TOOL_NAMES
 
     for descriptor in descriptors:
@@ -139,4 +141,8 @@ def test_registry_input_schemas_match_pydantic_models() -> None:
     assert (
         schema_by_tool["analyze_harmonic_distortion"]
         == HarmonicDistortionInput.model_json_schema()
+    )
+    assert (
+        schema_by_tool["analyze_contextual_distortion"]
+        == ContextualDistortionInput.model_json_schema()
     )

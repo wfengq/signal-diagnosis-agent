@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict
 
 from .contracts import (
     ClippingInput,
+    ContextualDistortionInput,
     FundamentalInput,
     HarmonicDistortionInput,
     SpectrumInput,
@@ -34,6 +35,12 @@ _TOOL_REGISTRY: tuple[tuple[ToolName, type[BaseModel], str, str], ...] = (
         HarmonicDistortionInput,
         "Measure harmonic components and total harmonic distortion (THD).",
         "Use when harmonic distortion metrics are required for diagnosis evidence.",
+    ),
+    (
+        "analyze_contextual_distortion",
+        ContextualDistortionInput,
+        "Compare test harmonics against a trusted reference or declared single-tone context.",
+        "Use in nominal_single_tone or paired_reference modes for causal harmonic growth evidence.",
     ),
 )
 

@@ -11,6 +11,7 @@ ToolName = Literal[
     "analyze_spectrum",
     "estimate_fundamental",
     "analyze_harmonic_distortion",
+    "analyze_contextual_distortion",
 ]
 
 
@@ -117,3 +118,43 @@ class HarmonicDistortionOutput(BaseModel):
     thd_percent: float | None
     components: tuple[HarmonicComponentOutput, ...]
     series_kind: str | None = None
+
+
+class ContextualDistortionInput(SignalSelection):
+    max_harmonic_order: int = Field(default=5, ge=2, le=10)
+    window: Literal["hann", "boxcar"] = "hann"
+
+
+class HarmonicGrowthComponentOutput(BaseModel):
+    model_config = ConfigDict(frozen=True, allow_inf_nan=False)
+
+    order: int = Field(ge=2)
+    reference_relative_amplitude: float = Field(ge=0.0)
+    test_relative_amplitude: float = Field(ge=0.0)
+    positive_growth: float = Field(ge=0.0)
+
+
+class ContextualDistortionOutput(BaseModel):
+    model_config = ConfigDict(frozen=True, allow_inf_nan=False)
+
+    kind: Literal["contextual_distortion"] = "contextual_distortion"
+    algorithm_version: Literal["1.0.0"] = "1.0.0"
+    mode: Literal["nominal_single_tone", "paired_reference"]
+    valid: bool
+    invalid_reason: str | None
+    test_f0_hz: float | None
+    comparison_f0_hz: float | None
+    f0_relative_delta: float | None
+    alignment_lag_samples: int | None
+    alignment_correlation: float | None
+    gain_ratio: float | None
+    reference_thd_percent: float | None
+    test_thd_percent: float | None
+    thd_delta_percent: float | None
+    even_harmonic_growth_percent: float | None
+    test_series_kind: str | None
+    components: tuple[HarmonicGrowthComponentOutput, ...]
+    reference_clipping_ratio: float | None
+    reference_flat_top_detected: bool | None
+    test_clipping_ratio: float
+    test_flat_top_detected: bool
