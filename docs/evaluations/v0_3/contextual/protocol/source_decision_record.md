@@ -1,8 +1,11 @@
 # Source Decision Record — V0.3 Contextual Development (Task 11)
 
-**Study:** `study_v0_3_contextual_dev_1`  
-**Catalog:** `v0.3-contextual-dev-1` `1.0.0`  
-**Recorded:** 2026-09-04  
+**Study:** `study_v0_3_contextual_dev_1`
+
+**Catalog:** `v0.3-contextual-dev-1` `1.0.0`
+
+**Recorded:** 2026-09-04
+
 **Scope:** contextual **development** only (no validation / final test; no real-model run)
 
 ## Step 1 review (before acquisition)
