@@ -6,7 +6,11 @@ import numpy as np
 import pytest
 
 from signal_diag.dsp.contextual import analyze_contextual_distortion
-from signal_diag.signal.synthetic import generate_clipped_sine, generate_harmonic_sine, generate_sine
+from signal_diag.signal.synthetic import (
+    generate_clipped_sine,
+    generate_harmonic_sine,
+    generate_sine,
+)
 
 
 def _tone(hz: float = 440.0, seconds: float = 1.0, sr: int = 48_000, amp: float = 0.5) -> np.ndarray:

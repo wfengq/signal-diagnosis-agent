@@ -18,7 +18,6 @@ from signal_diag.app.contextual_runs import (
 )
 from signal_diag.app.errors import AppCapacityError, RunNotFoundError
 from signal_diag.app.models import (
-    AppErrorDetail,
     PlannerIdentity,
     SourceSummary,
     WaveformPoint,

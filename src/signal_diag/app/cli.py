@@ -345,7 +345,7 @@ async def _diagnose(
                         message="WAV path produced no bytes",
                     )
                 )
-            submission = await service.submit_contextual_wav(
+            contextual_submission = await service.submit_contextual_wav(
                 wav_bytes,
                 test_filename=Path(args.path).name,
                 mode=args.mode,
@@ -358,19 +358,24 @@ async def _diagnose(
                 user_request=args.question,
                 channel=args.channel,
             )
-            snapshot = await service.wait_for_contextual_terminal(submission.run_id)
-            if snapshot.status == "completed":
-                report = build_contextual_diagnosis_report(
-                    snapshot, generated_at=datetime.now(UTC)
+            contextual_snapshot = await service.wait_for_contextual_terminal(
+                contextual_submission.run_id
+            )
+            if contextual_snapshot.status == "completed":
+                contextual_report = build_contextual_diagnosis_report(
+                    contextual_snapshot, generated_at=datetime.now(UTC)
                 )
-                _emit_contextual_outputs(args, report)
-                if snapshot.result is not None and snapshot.result.status == "error":
+                _emit_contextual_outputs(args, contextual_report)
+                if (
+                    contextual_snapshot.result is not None
+                    and contextual_snapshot.result.status == "error"
+                ):
                     return 1
                 return 0
-            if snapshot.application_error is not None:
+            if contextual_snapshot.application_error is not None:
                 _print_error(
-                    snapshot.application_error.code,
-                    snapshot.application_error.message,
+                    contextual_snapshot.application_error.code,
+                    contextual_snapshot.application_error.message,
                 )
             else:
                 _print_error("internal_error", "diagnosis execution failed")

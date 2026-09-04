@@ -1,7 +1,9 @@
 # TEST_PLAN_V0_3_CONTEXTUAL.md
 
-**Status:** additive V0.3 contextual test registry  
-**Does not replace:** `docs/TEST_PLAN_V0_2.md` (T001–T285)  
+**Status:** additive V0.3 contextual test registry
+
+**Does not replace:** `docs/TEST_PLAN_V0_2.md` (T001–T285)
+
 **Contracts:** `docs/CONTRACTS_V0_3_CONTEXTUAL.md`
 
 ## ID allocation

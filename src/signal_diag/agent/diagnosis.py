@@ -442,14 +442,15 @@ def validate_finish_decision(
                         evidence_by_id,
                         evaluations_by_id,
                     )
-            elif decision.outcome == "no_supported_fault":
-                if claim.fault_type == "no_supported_fault":
-                    _validate_v95_no_supported_fault(
-                        claim,
-                        stimulus_context,
-                        evidence_by_id,
-                        evaluations_by_id,
-                    )
+            elif decision.outcome == "no_supported_fault" and (
+                claim.fault_type == "no_supported_fault"
+            ):
+                _validate_v95_no_supported_fault(
+                    claim,
+                    stimulus_context,
+                    evidence_by_id,
+                    evaluations_by_id,
+                )
         return
 
     if decision.outcome != "supported_fault":

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 
 import python_multipart as multipart
@@ -248,7 +249,7 @@ def _parse_nominal_hz(raw: bytes) -> float:
         value = float(text)
     except ValueError as error:
         raise _invalid("nominal_fundamental_hz must be a finite positive number") from error
-    if not (value > 0.0) or value != value or value in (float("inf"), float("-inf")):
+    if not math.isfinite(value) or value <= 0.0:
         raise _invalid("nominal_fundamental_hz must be a finite positive number")
     return value
 

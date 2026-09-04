@@ -49,7 +49,7 @@ def _loader() -> YamlRuleProfileLoader:
 def _evidence(
     *,
     metric: str,
-    value: bool | int | float | str,
+    value: bool | float | str,
     unit: str | None = None,
     validity: str = "valid",
     evidence_id: str = "ev_cx_001",

@@ -9,8 +9,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Literal, Protocol, runtime_checkable
 
-from signal_diag.agent.planner import PlannerModel
 from signal_diag.agent.diagnosis import CausalPolicyVersion
+from signal_diag.agent.planner import PlannerModel
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.app.contextual_models import (
     ContextualAppRunSnapshot,

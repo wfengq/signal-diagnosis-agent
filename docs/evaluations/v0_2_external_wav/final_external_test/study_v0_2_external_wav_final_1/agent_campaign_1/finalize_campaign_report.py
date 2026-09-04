@@ -3,30 +3,34 @@
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from signal_diag.evaluation.external.manifest import load_external_manifest, manifest_sha256
+from signal_diag.evaluation.external.manifest import (
+    manifest_sha256,
+)
 from signal_diag.evaluation.external.models import (
     ExternalAttemptRecord,
-    ExternalProvenanceRecord,
     ExternalProtectedAssetsAudit,
+    ExternalProvenanceRecord,
     ExternalStudyReport,
     ReferenceSummary,
     ReviewAgreement,
 )
-from signal_diag.evaluation.external.reporting import verify_external_bundle, write_external_bundle
+from signal_diag.evaluation.external.reporting import (
+    verify_external_bundle,
+    write_external_bundle,
+)
 from signal_diag.evaluation.external.runner import (
     _agent_config,
     _baseline_config,
+    _build_production_planner,
+    _default_client_factory,
     _execute_agent_slot,
     _execute_baseline_slot,
     _load_sealed_study,
     _reject_scripted_planner,
-    _build_production_planner,
-    _default_client_factory,
 )
 from signal_diag.evaluation.external.scoring import (
     aggregate_external_scores,

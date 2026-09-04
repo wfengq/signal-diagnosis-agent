@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
+from signal_diag.agent.models import AgentRunResult
 from signal_diag.app.contextual_models import (
     ContextualAppRunSnapshot,
     ContextualDiagnosisReport,
@@ -19,7 +20,6 @@ from signal_diag.app.models import (
     WaveformPoint,
     WaveformPreview,
 )
-from signal_diag.agent.models import AgentRunResult
 from signal_diag.signal.context import EffectiveCapabilities, StimulusContext
 
 NOW = datetime(2026, 9, 4, 12, 0, tzinfo=UTC)

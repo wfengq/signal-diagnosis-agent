@@ -26,6 +26,7 @@ from signal_diag.signal import (
 )
 from signal_diag.signal.context import StimulusContext
 
+from .contextual import analysis_to_output, build_contextual_evidence
 from .contracts import (
     ClippingInput,
     ClippingOutput,
@@ -42,7 +43,6 @@ from .contracts import (
     SpectrumPeakOutput,
     ToolName,
 )
-from .contextual import analysis_to_output, build_contextual_evidence
 from .evidence import Evidence
 from .results import ToolResult
 

@@ -24,11 +24,11 @@ from signal_diag.agent.models import (
     TaskAssessment,
 )
 from signal_diag.app.api import _static_asset_response, create_app
-from signal_diag.app.errors import AppCapacityError
 from signal_diag.app.contextual_models import (
     ContextualAppRunSnapshot,
     ContextualRunSubmission,
 )
+from signal_diag.app.errors import AppCapacityError
 from signal_diag.app.models import (
     AcceptedEvaluationSummary,
     AppErrorEnvelope,

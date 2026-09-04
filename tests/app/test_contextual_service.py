@@ -234,7 +234,7 @@ async def test_t_cx097_paired_mode_registers_two_sources_and_four_signals(
     assert queued.test_source.display_name == "test.wav"
     assert queued.reference_source is not None
     assert queued.reference_source.display_name == "ref.wav"
-    assert queued.test_source != queued.reference_source or True
+    assert queued.test_source != queued.reference_source
     assert queued.stimulus_context.mode == "paired_reference"
     assert queued.effective_capabilities.paired_harmonic_attribution is True
     assert len(_owned(finish_service, submission.run_id)) == 4

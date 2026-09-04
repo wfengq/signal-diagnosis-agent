@@ -90,7 +90,7 @@ def _invalid(
 
 def _as_1d(samples: np.ndarray, *, name: str) -> np.ndarray:
     if not isinstance(samples, np.ndarray):
-        raise ValueError(f"{name} must be a numpy array")
+        raise TypeError(f"{name} must be a numpy array")
     values = np.asarray(samples, dtype=np.float64)
     if values.ndim != 1:
         raise ValueError(f"{name} must be one-dimensional")
@@ -285,7 +285,7 @@ def analyze_contextual_distortion(
                 reference_flat_top_detected=ref_clip.flat_top_detected,
             )
 
-        max_lag = int(round(cfg.max_lag_s * rate))
+        max_lag = round(cfg.max_lag_s * rate)
         lag, correlation = _bounded_xcorr_lag(reference, test, max_lag=max_lag)
         if correlation < cfg.min_alignment_correlation:
             return _invalid(

@@ -1,8 +1,11 @@
 # CONTRACTS_V0_3_CONTEXTUAL.md
 
-**Status:** additive V0.3 contracts  
-**Extends:** `docs/CONTRACTS_V0_2.md` (does **not** edit or supersede frozen §§1–64)  
-**Design:** `docs/superpowers/specs/2026-09-04-v0-3-contextual-reference-diagnosis-design.md`  
+**Status:** additive V0.3 contracts
+
+**Extends:** `docs/CONTRACTS_V0_2.md` (does **not** edit or supersede frozen §§1–64)
+
+**Design:** `docs/superpowers/specs/2026-09-04-v0-3-contextual-reference-diagnosis-design.md`
+
 **Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX145)
 
 ## 1. Scope
@@ -68,10 +71,13 @@ submit_contextual_wav(
 ) -> ContextualRunSnapshot
 ```
 
-API: `POST /api/v1/contextual-runs/wav`  
-Snapshot/report: `/api/v1/contextual-runs/{run_id}` (+ report subroute)  
+API: `POST /api/v1/contextual-runs/wav`
+
+Snapshot/report: `/api/v1/contextual-runs/{run_id}` (+ report subroute)
+
 CLI: `signal-diag diagnose contextual TEST_PATH` with `--mode`, `--reference`,
-`--nominal-fundamental-hz`, `--stimulus-kind`  
+`--nominal-fundamental-hz`, `--stimulus-kind`
+
 Web UI: optional mode selector; default remains one-file flow.
 
 Per-file WAV limits unchanged; multipart also enforces a bounded aggregate
