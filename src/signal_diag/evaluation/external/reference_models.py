@@ -23,3 +23,5 @@ class ReferenceSummary(BaseModel):
     f0_hz: float | None = Field(default=None, gt=0.0)
     thd_percent: float | None = Field(default=None, ge=0.0)
     order_2_relative_amplitude: float | None = Field(default=None, ge=0.0)
+    series_kind: str | None = None
+    clipping_mechanism: bool | None = None

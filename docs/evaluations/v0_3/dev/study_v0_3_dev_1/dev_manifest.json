@@ -5,6 +5,7 @@
   "created_at_utc": "2026-09-02T14:06:29.787637+00:00",
   "reference_analyzer_version": "1.1.0",
   "category_coverage": [
+    "ambiguous_boundary",
     "clipping",
     "combined",
     "controlled_distorted_periodic",
@@ -16,7 +17,7 @@
     "single_tone_periodic",
     "speech"
   ],
-  "case_count": 12,
+  "case_count": 14,
   "v02_source_overlap": [],
   "cases": [
     {
@@ -60,7 +61,7 @@
       "case_id": "c3f5e1a4d026f938",
       "category": "clipping",
       "wav_path": "wav/v03dev_c3f5e1a4d026f938.wav",
-      "wav_sha256": "6c12949c1c5357420c1546b2f9312845c465bbd3f9ff9d25d1ace2781303610a",
+      "wav_sha256": "fc85748562510df4cb893c0de683fcc3b643bab9659bf0d45b49ee19c0e9b407",
       "sample_rate_hz": 48000,
       "frames": 48000,
       "source_id": "v03_repo_synthesized",
@@ -68,19 +69,19 @@
       "license_classification": "repository-generated",
       "attribution": "Generated locally in signal-diagnosis-agent V0.3 dev split builder; no upstream recording",
       "citation": "N/A (deterministic synthesis)",
-      "notes": "Hard clip on sine master",
+      "notes": "Overdriven sine clipped to \u00b10.99 FS (P1 dataset semantics fix)",
       "build_meta": {
-        "builder": "clip",
-        "transform": "clipping",
-        "input_sha256": "aa50be0df5e6d3cbac58d0dd22205780bd4c7740568ec855fce861e7b60d9a4f",
-        "output_sha256": "ec5b46ccaa7ff6df73bd965d11a536da98c32d8e772f2f547961b203cdffa457"
+        "builder": "clip_fullscale",
+        "clip_level": 0.99,
+        "input_peak": 1.2,
+        "peak_abs": 0.9900000095367432
       }
     },
     {
       "case_id": "d4a6f2b5e1370a49",
       "category": "combined",
       "wav_path": "wav/v03dev_d4a6f2b5e1370a49.wav",
-      "wav_sha256": "b6e2c390194c3bed564c8c3d9a6dfe98b6f90abb2f93205ac101a6381d0e9ab5",
+      "wav_sha256": "4f445187fca462b8e9ae08b051ee0d8c9a1b875ad2e9844423ef7a2a9b8fb914",
       "sample_rate_hz": 48000,
       "frames": 48000,
       "source_id": "v03_repo_synthesized",
@@ -88,12 +89,18 @@
       "license_classification": "repository-generated",
       "attribution": "Generated locally in signal-diagnosis-agent V0.3 dev split builder; no upstream recording",
       "citation": "N/A (deterministic synthesis)",
-      "notes": "Combined clip + H2 on sine master",
+      "notes": "Combined full-scale clip (\u00b10.99) + injected H2 (semantic freeze rematerialize)",
       "build_meta": {
-        "builder": "combined",
-        "transform": "combined",
-        "input_sha256": "aa50be0df5e6d3cbac58d0dd22205780bd4c7740568ec855fce861e7b60d9a4f",
-        "output_sha256": "fb5da5ba358cb4d5efaf6c075c4718a4b7a9a1709e51f2a23609c4dc23f7f5a1"
+        "builder": "combined_fullscale_h2",
+        "fundamental_hz": 440.0,
+        "fundamental_amplitude": 1.2,
+        "clip_level": 1.0,
+        "harmonic_ratios": {
+          "2": 0.25
+        },
+        "duration_s": 1.0,
+        "rematerialized_at_utc": "2026-09-04T06:17:01.947269+00:00",
+        "previous_wav_sha256": "b6e2c390194c3bed564c8c3d9a6dfe98b6f90abb2f93205ac101a6381d0e9ab5"
       }
     },
     {
@@ -236,6 +243,41 @@
         "builder": "download",
         "upstream_sha256": "b1e33d5fe73bc31317fa9fa4e70d0fcaf761346f8a908c89cec50c6c23f41603"
       }
+    },
+    {
+      "case_id": "6d3f5be41ac093d2",
+      "category": "ambiguous_boundary",
+      "wav_path": "wav/v03dev_6d3f5be41ac093d2.wav",
+      "wav_sha256": "908d0a6d7cee391657328b721bea137c3267dece50b460d83ff964f288c85c55",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "v03_repo_synthesized",
+      "source_recording_key": "v03_repo_synthesized_periodic",
+      "license_classification": "repository-generated",
+      "attribution": "Generated locally; natural harmonic-rich periodic",
+      "citation": "N/A",
+      "notes": "Square wave 200 Hz \u2014 natural harmonic-rich, no injection",
+      "build_meta": {
+        "builder": "square_200"
+      }
+    },
+    {
+      "case_id": "7e4a6cf52bd1a4e3",
+      "category": "ambiguous_boundary",
+      "wav_path": "wav/v03dev_7e4a6cf52bd1a4e3.wav",
+      "wav_sha256": "22c8c24555835ae8f0ea885aeb5ca54c392fd125cacb848380f62ae339f826f1",
+      "sample_rate_hz": 48000,
+      "frames": 48000,
+      "source_id": "v03_repo_synthesized",
+      "source_recording_key": "v03_repo_synthesized_periodic",
+      "license_classification": "repository-generated",
+      "attribution": "Generated locally; natural harmonic-rich periodic",
+      "citation": "N/A",
+      "notes": "Triangle wave 250 Hz \u2014 natural harmonic-rich, no injection",
+      "build_meta": {
+        "builder": "triangle_250"
+      }
     }
-  ]
+  ],
+  "round2_expanded_at_utc": "2026-09-02T14:52:23.381731+00:00"
 }

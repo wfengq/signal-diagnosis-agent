@@ -68,6 +68,7 @@ class ClippingOutput(BaseModel):
     peak_abs: float
     full_scale_detected: bool
     flat_top_detected: bool
+    clipping_mechanism: bool = False
 
 
 class SpectrumPeakOutput(BaseModel):
@@ -115,3 +116,4 @@ class HarmonicDistortionOutput(BaseModel):
     fundamental_frequency_hz: float | None
     thd_percent: float | None
     components: tuple[HarmonicComponentOutput, ...]
+    series_kind: str | None = None

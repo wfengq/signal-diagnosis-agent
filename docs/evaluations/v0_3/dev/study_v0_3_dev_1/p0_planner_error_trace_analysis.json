@@ -1,0 +1,67 @@
+{
+  "round": "round_1_v9_0",
+  "prompt_version": "v0.3-s1-planner-9.0",
+  "prompt_sha256": "bbc6ec4c8f2b7fbe27872188c7f8bb1a64241d48dd87d02841736641f3d1c59a",
+  "planner_error_case_count": 6,
+  "root_cause_classification": "prompt_root_cause",
+  "mechanism": "Real model emitted retrieve_knowledge decisions without required query_text field when harmonic analysis was invalid/unvoiced. Runtime _parse_agent_decision raised PlannerOutputError; error entered recoverable_errors; three retries repeated same structural failure; termination max_planner_retries with status error.",
+  "not_runtime_schema_bug": true,
+  "query_text_state": "field absent (not empty string)",
+  "recommended_fix": "Option B — allow direct inconclusive without retrieve_knowledge (v9.1)",
+  "cases": [
+    {
+      "case_id": "f6c8b4d7a3592c6b",
+      "category": "speech",
+      "status": "error",
+      "error_count": 3,
+      "all_errors_missing_query_text": true,
+      "all_errors_schema_validation": true,
+      "sample_error": "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+    },
+    {
+      "case_id": "07d9c5e8b46a3d7c",
+      "category": "musical_instrument",
+      "status": "error",
+      "error_count": 3,
+      "all_errors_missing_query_text": true,
+      "all_errors_schema_validation": true,
+      "sample_error": "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+    },
+    {
+      "case_id": "18ea06f9c57b4e8d",
+      "category": "environmental_non_periodic",
+      "status": "error",
+      "error_count": 3,
+      "all_errors_missing_query_text": true,
+      "all_errors_schema_validation": true,
+      "sample_error": "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+    },
+    {
+      "case_id": "3a0c28b1e79d60af",
+      "category": "controlled_distorted_periodic",
+      "status": "error",
+      "error_count": 3,
+      "all_errors_missing_query_text": true,
+      "all_errors_schema_validation": true,
+      "sample_error": "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+    },
+    {
+      "case_id": "4b1d39c2f8ae71b0",
+      "category": "environmental_non_periodic",
+      "status": "error",
+      "error_count": 3,
+      "all_errors_missing_query_text": true,
+      "all_errors_schema_validation": true,
+      "sample_error": "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...PPLICABLE rule result.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+    },
+    {
+      "case_id": "5c2e4ad309bf82c1",
+      "category": "environmental_non_periodic",
+      "status": "error",
+      "error_count": 3,
+      "all_errors_missing_query_text": true,
+      "all_errors_schema_validation": true,
+      "sample_error": "planner returned invalid AgentDecision: 1 validation error for tagged-union[CallToolDecision,EvaluateRulesDecision,RetrieveKnowledgeDecision,FinishDecision]\nretrieve_knowledge.query_text\n  Field required [type=missing, input_value={'decision_type': 'retrie...t support a diagnosis.'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+    }
+  ]
+}

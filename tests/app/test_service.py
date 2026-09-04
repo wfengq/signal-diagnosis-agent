@@ -722,7 +722,7 @@ async def test_t251_product_defaults_and_missing_credentials_before_reservation(
         defaults = build_product_service(environ={"DEEPSEEK_API_KEY": "sk-test"})
         assert defaults._dependencies.planner_identity.model == DEFAULT_DEEPSEEK_MODEL
         assert defaults._dependencies.planner_identity.prompt_version == (
-            "v0.2-s1-planner-8.1"
+            "v0.3-s1-planner-9.4"
         )
         assert defaults._dependencies.planner_identity.phase4_certified_default is True
         service_source = SERVICE_PATH.read_text(encoding="utf-8")

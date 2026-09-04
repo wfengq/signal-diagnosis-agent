@@ -1,0 +1,100 @@
+{
+  "algorithm": "upper_octave_partner_peak_ratio",
+  "octave_ratio_tolerance": 0.08,
+  "recommended_octave_ambiguity_tolerance": 0.95,
+  "recommended_basis": "At 0.95, pure sines and two-tone remain unflagged while 700 Hz subharmonic-lock (F0\u2248350 Hz) is flagged; coarser 0.90 still passes validation table.",
+  "rows": [
+    {
+      "name": "pure_200hz",
+      "expected": "no_ambiguity",
+      "f0_hz": 200.0,
+      "primary_lag": 240,
+      "tolerance_results": {
+        "0.9": false,
+        "0.92": false,
+        "0.95": false,
+        "0.97": false,
+        "0.98": false
+      }
+    },
+    {
+      "name": "pure_440hz",
+      "expected": "no_ambiguity",
+      "f0_hz": 440.3669724770642,
+      "primary_lag": 109,
+      "tolerance_results": {
+        "0.9": false,
+        "0.92": false,
+        "0.95": false,
+        "0.97": false,
+        "0.98": false
+      }
+    },
+    {
+      "name": "pure_700hz_subharmonic_lock",
+      "expected": "ambiguity",
+      "f0_hz": 350.3649635036496,
+      "primary_lag": 137,
+      "tolerance_results": {
+        "0.9": true,
+        "0.92": true,
+        "0.95": true,
+        "0.97": true,
+        "0.98": true
+      }
+    },
+    {
+      "name": "two_tone_200_400",
+      "expected": "no_ambiguity",
+      "f0_hz": 200.0,
+      "primary_lag": 240,
+      "tolerance_results": {
+        "0.9": false,
+        "0.92": false,
+        "0.95": false,
+        "0.97": false,
+        "0.98": false
+      }
+    },
+    {
+      "name": "high_thd_valid",
+      "expected": "no_ambiguity",
+      "f0_hz": 200.0,
+      "primary_lag": 240,
+      "tolerance_results": {
+        "0.9": false,
+        "0.92": false,
+        "0.95": false,
+        "0.97": false,
+        "0.98": false
+      }
+    }
+  ],
+  "validation_at_recommended": [
+    {
+      "name": "pure_200hz",
+      "pass": true,
+      "detected": false
+    },
+    {
+      "name": "pure_440hz",
+      "pass": true,
+      "detected": false
+    },
+    {
+      "name": "pure_700hz_subharmonic_lock",
+      "pass": true,
+      "detected": true
+    },
+    {
+      "name": "two_tone_200_400",
+      "pass": true,
+      "detected": false
+    },
+    {
+      "name": "high_thd_valid",
+      "pass": true,
+      "detected": false
+    }
+  ]
+}

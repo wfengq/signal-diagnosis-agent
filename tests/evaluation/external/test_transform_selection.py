@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from signal_diag.evaluation.external.models import (
     EXTERNAL_TRANSFORM_VERSION_AMPNORM,

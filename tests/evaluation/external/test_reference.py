@@ -8,12 +8,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from signal_diag.dsp import (
-    analyze_clipping,
-    analyze_harmonic_distortion,
-    estimate_f0_autocorrelation,
-)
+from signal_diag.dsp import analyze_clipping
+from signal_diag.dsp.pitch import estimate_f0_autocorrelation
 from signal_diag.evaluation.external.reference import analyze_reference
+from signal_diag.evaluation.external.reference_harmonics import (
+    analyze_harmonic_reference,
+)
 from signal_diag.signal import (
     SyntheticCase,
     extract_segment,
@@ -115,7 +115,7 @@ def test_ev_t029_clipped_and_harmonic_fixtures_match_deterministic_expectations(
         fmin_hz=_FMIN_HZ,
         fmax_hz=_FMAX_HZ,
     )
-    expected_harmonic = analyze_harmonic_distortion(
+    expected_harmonic = analyze_harmonic_reference(
         harmonic_samples,
         _SAMPLE_RATE_HZ,
         fmin_hz=_FMIN_HZ,
@@ -127,13 +127,8 @@ def test_ev_t029_clipped_and_harmonic_fixtures_match_deterministic_expectations(
         rel=0.0,
         abs=1e-4,
     )
-    order_2 = next(
-        component.relative_amplitude
-        for component in expected_harmonic.components
-        if component.order == 2
-    )
     assert harmonic_summary.order_2_relative_amplitude == pytest.approx(
-        order_2,
+        expected_harmonic.order_2_relative_amplitude,
         rel=0.0,
         abs=1e-6,
     )

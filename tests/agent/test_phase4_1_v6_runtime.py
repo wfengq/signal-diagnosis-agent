@@ -207,6 +207,17 @@ def _call_tool_payload(tool_name: str, *, first: bool) -> dict[str, Any]:
     return payload
 
 
+
+def _ids_for_metric(evidence: list[dict[str, Any]], metric: str, value: object | None = None) -> list[str]:
+    ids: list[str] = []
+    for item in evidence:
+        if item.get("metric") != metric:
+            continue
+        if value is not None and item.get("value") != value:
+            continue
+        ids.append(item["evidence_id"])
+    return ids
+
 def _v6_finish(context: dict[str, Any]) -> dict[str, Any]:
     evidence = list(context.get("evidence") or [])
     evaluations = _flatten_evaluations(context)
@@ -241,7 +252,9 @@ def _v6_finish(context: dict[str, Any]) -> dict[str, Any]:
     ]
     thd_present = bool(_valid_thd_values(evidence))
     thd_pass = any(item.get("judgment") == "pass" for item in thd_evals)
-    clipping_present = _clipping_detected(evidence) or bool(clip_fail)
+    clipping_present = (_clipping_detected(evidence) or bool(clip_fail)) and bool(
+        _ids_for_metric(evidence, "clipping_mechanism", True)
+    )
 
     if _has_invalid_harmonic(evidence):
         na_or_applicable = [
@@ -278,11 +291,11 @@ def _v6_finish(context: dict[str, Any]) -> dict[str, Any]:
                 "claim_id": "claim_clip",
                 "fault_type": "clipping",
                 "statement": "Clipping evidence supports a clipping diagnosis.",
-                "evidence_refs": clip_ids,
+                "evidence_refs": clip_ids + _ids_for_metric(evidence, "clipping_mechanism", True),
                 "rule_refs": [item["evaluation_id"] for item in clip_fail],
             }
         )
-    if thd_present:
+    if thd_present and _ids_for_metric(evidence, "series_kind", "even_order_present"):
         harm_rule_ids = [
             item["evaluation_id"] for item in thd_evals + harmonic_valid_evals
         ]
@@ -301,7 +314,7 @@ def _v6_finish(context: dict[str, Any]) -> dict[str, Any]:
                 "claim_id": "claim_harm",
                 "fault_type": "harmonic_distortion",
                 "statement": statement,
-                "evidence_refs": harm_refs,
+                "evidence_refs": harm_refs + _ids_for_metric(evidence, "series_kind", "even_order_present"),
                 "rule_refs": harm_rule_ids,
             }
         )
@@ -450,11 +463,11 @@ def _boundary_harmonic_case() -> SyntheticCase:
 def _combined_case() -> SyntheticCase:
     return generate_combined_distortion(
         fundamental_hz=150.0,
-        harmonic_ratios={3: 0.16},
-        clip_level=0.70,
+        harmonic_ratios={2: 0.10, 3: 0.05},
+        clip_level=1.0,
         sample_rate_hz=48_000,
         duration_s=2.0,
-        fundamental_amplitude=0.88,
+        fundamental_amplitude=1.2,
     )
 
 

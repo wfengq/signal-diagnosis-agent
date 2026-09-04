@@ -23,7 +23,11 @@ from signal_diag.evaluation.recording import RecordingPlanner
 from signal_diag.knowledge.index import KnowledgeIndex
 from signal_diag.rules.engine import RuleEngine
 from signal_diag.rules.loader import YamlRuleProfileLoader
-from signal_diag.signal import generate_harmonic_sine
+from signal_diag.signal import (
+    generate_clipped_sine,
+    generate_combined_distortion,
+    generate_harmonic_sine,
+)
 from signal_diag.signal.repository import InMemorySignalRepository
 from signal_diag.tools.service import SignalToolService
 from tests.conftest import store_synthetic_case
@@ -374,6 +378,17 @@ def _inconclusive_finish(
     }
 
 
+
+def _ids_for_metric(evidence: list[dict[str, Any]], metric: str, value: object | None = None) -> list[str]:
+    ids: list[str] = []
+    for item in evidence:
+        if item.get("metric") != metric:
+            continue
+        if value is not None and item.get("value") != value:
+            continue
+        ids.append(item["evidence_id"])
+    return ids
+
 def _v7_finish(context: dict[str, Any]) -> dict[str, Any]:
     evidence = list(context.get("evidence") or [])
     evaluations = _flatten_evaluations(context)
@@ -408,7 +423,9 @@ def _v7_finish(context: dict[str, Any]) -> dict[str, Any]:
     ]
     thd_present = bool(_valid_thd_values(evidence))
     thd_pass = any(item.get("judgment") == "pass" for item in thd_evals)
-    clipping_present = _clipping_detected(evidence) or bool(clip_fail)
+    clipping_present = (_clipping_detected(evidence) or bool(clip_fail)) and bool(
+        _ids_for_metric(evidence, "clipping_mechanism", True)
+    )
 
     if _has_invalid_harmonic(evidence):
         return _inconclusive_finish(
@@ -448,11 +465,13 @@ def _v7_finish(context: dict[str, Any]) -> dict[str, Any]:
                 "claim_id": "claim_clip",
                 "fault_type": "clipping",
                 "statement": statement,
-                "evidence_refs": clip_ids,
+                "evidence_refs": clip_ids + _ids_for_metric(evidence, "clipping_mechanism", True),
                 "rule_refs": [item["evaluation_id"] for item in clip_fail],
             }
         )
-    independent_harmonic = bool(order2_ids) or (thd_present and not clipping_present)
+    independent_harmonic = (bool(order2_ids) or (thd_present and not clipping_present)) and bool(
+        _ids_for_metric(evidence, "series_kind", "even_order_present")
+    )
     if independent_harmonic:
         harm_rule_ids = [
             item["evaluation_id"] for item in thd_evals + harmonic_valid_evals
@@ -479,7 +498,7 @@ def _v7_finish(context: dict[str, Any]) -> dict[str, Any]:
                 "claim_id": "claim_harm",
                 "fault_type": "harmonic_distortion",
                 "statement": statement,
-                "evidence_refs": harm_refs,
+                "evidence_refs": harm_refs + _ids_for_metric(evidence, "series_kind", "even_order_present"),
                 "rule_refs": harm_rule_ids,
             }
         )
@@ -657,6 +676,28 @@ def _assert_no_unrelated_evidence(result: AgentRunResult) -> None:
                     assert item.validity == "not_applicable"
                 if item.source_tool == "estimate_fundamental":
                     assert item.source_tool == "estimate_fundamental"
+
+
+
+def _full_scale_clipped_case():
+    return generate_clipped_sine(
+        frequency_hz=200.0,
+        sample_rate_hz=48_000,
+        duration_s=2.0,
+        amplitude=1.2,
+        clip_level=1.0,
+    )
+
+
+def _full_scale_combined_case():
+    return generate_combined_distortion(
+        fundamental_hz=168.0,
+        harmonic_ratios={2: 0.18},
+        clip_level=1.0,
+        sample_rate_hz=48_000,
+        duration_s=2.0,
+        fundamental_amplitude=1.2,
+    )
 
 
 def _v12_store(
@@ -855,10 +896,13 @@ async def test_t206_unvoiced_fundamental_is_pure_inconclusive(
 async def test_t206_clipping_only_odd_harmonics_are_not_independent_fault(
     repository: InMemorySignalRepository,
 ) -> None:
-    signal_id, user_request = _v12_store(repository, "case_v12_dev_clipping_02")
+    signal_id = store_synthetic_case(repository, _full_scale_clipped_case())
     client = _v7_client(first_tool="detect_clipping", collect_other_family=True)
     result, recording = await _run_v7_product_path(
-        repository, signal_id, client, user_request
+        repository,
+        signal_id,
+        client,
+        "The peaks look flattened and the amplitude seems to hit a ceiling.",
     )
     assert result.status == "success"
     assert result.diagnosis is not None
@@ -908,10 +952,13 @@ async def test_t206_clipping_only_odd_harmonics_are_not_independent_fault(
 async def test_t206_combined_even_order_has_separate_same_run_claims(
     repository: InMemorySignalRepository,
 ) -> None:
-    signal_id, user_request = _v12_store(repository, "case_v12_dev_combo_01")
+    signal_id = store_synthetic_case(repository, _full_scale_combined_case())
     client = _v7_client(first_tool="detect_clipping", collect_other_family=True)
     result, recording = await _run_v7_product_path(
-        repository, signal_id, client, user_request
+        repository,
+        signal_id,
+        client,
+        "Please inspect this recording for any plausible S1 distortion causes.",
     )
     assert result.status == "success"
     assert result.diagnosis is not None

@@ -15,6 +15,7 @@ class ClippingAnalysis:
     peak_abs: float
     full_scale_detected: bool
     flat_top_detected: bool
+    clipping_mechanism: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,6 +41,8 @@ class F0Estimate:
     confidence: float
     voiced: bool
     method: str
+    f0_reliability: str | None = None
+    octave_ambiguity_detected: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -61,3 +64,6 @@ class HarmonicAnalysis:
     max_harmonic_order: int
     frequency_resolution_hz: float
     components: tuple[HarmonicComponent, ...]
+    fundamental_relative_energy: float | None = None
+    octave_ambiguity_detected: bool = False
+    series_kind: str | None = None

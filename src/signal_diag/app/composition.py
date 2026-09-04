@@ -30,7 +30,7 @@ from signal_diag.rules.loader import YamlRuleProfileLoader
 from signal_diag.signal.repository import InMemorySignalRepository
 
 _PROFILE_ID = "profile_s1_distortion"
-_CERTIFIED_PROMPT_VERSION = "v0.2-s1-planner-8.1"
+_CERTIFIED_PROMPT_VERSION = "v0.3-s1-planner-9.4"
 
 
 def _packaged_path(*parts: str) -> Path:

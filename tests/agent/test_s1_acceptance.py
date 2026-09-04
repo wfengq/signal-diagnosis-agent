@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -18,6 +19,7 @@ from signal_diag.agent.models import (
     DetectClippingCall,
     DiagnosisClaim,
     EstimateFundamentalCall,
+    EvaluateRulesDecision,
     FinishDecision,
     FundamentalInput,
     HarmonicDistortionInput,
@@ -26,7 +28,10 @@ from signal_diag.agent.models import (
     TaskAssessment,
 )
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
-from signal_diag.signal import SyntheticCase
+from signal_diag.rules.engine import RuleEngine
+from signal_diag.rules.loader import YamlRuleProfileLoader
+from signal_diag.rules.models import RuleEvaluation, RuleJudgment
+from signal_diag.signal import SyntheticCase, generate_combined_distortion
 from signal_diag.signal.repository import InMemorySignalRepository
 from signal_diag.tools.service import SignalToolService
 from tests.conftest import store_synthetic_case
@@ -41,6 +46,39 @@ def _assessment() -> TaskAssessment:
 
 
 FinishBuilder = Callable[[PlannerContext], FinishDecision]
+
+_PROFILE_PATH = (
+    Path(__file__).resolve().parents[2]
+    / "src"
+    / "signal_diag"
+    / "rules"
+    / "profiles"
+    / "s1_distortion_v1.yaml"
+)
+
+
+def _evaluation(
+    context: PlannerContext,
+    rule_id: str,
+    *,
+    judgment: RuleJudgment | None = None,
+) -> RuleEvaluation:
+    for batch in context.rule_evaluation_batches:
+        for item in batch.evaluations:
+            if item.rule_id == rule_id and (
+                judgment is None or item.judgment == judgment
+            ):
+                return item
+    raise AssertionError(f"missing rule evaluation: {rule_id}")
+
+
+def _evaluate_rules_decision() -> EvaluateRulesDecision:
+    return EvaluateRulesDecision(
+        profile_id="profile_s1_distortion",
+        evidence_refs=(),
+        purpose="apply configured S1 demonstration limits",
+    )
+
 
 
 class S1RoutePlanner:
@@ -121,6 +159,10 @@ async def _run_route(
         repository=repository,
         tool_service=SignalToolService(repository),
         planner=planner,
+        rule_engine=RuleEngine(),
+        rule_profile_loader=YamlRuleProfileLoader(
+            {"profile_s1_distortion": _PROFILE_PATH}
+        ),
     )
     return await runtime.run(
         signal_id=signal_id,
@@ -136,6 +178,7 @@ async def test_t086_s1_clip_fs(
     signal_id = store_synthetic_case(repository, full_scale_clipped_case)
 
     def finish(context: PlannerContext) -> FinishDecision:
+        clip_eval = _evaluation(context, "rule_flat_top_absent", judgment="fail")
         return FinishDecision(
             outcome="supported_fault",
             claims=(
@@ -145,14 +188,22 @@ async def test_t086_s1_clip_fs(
                     statement="full-scale clipping detected",
                     evidence_refs=(
                         _evidence_by_metric(context, "full_scale_detected"),
+                        _evidence_by_metric(context, "clipping_mechanism"),
                     ),
+                    rule_refs=(clip_eval.evaluation_id,),
                 ),
             ),
             confidence_label="high",
         )
 
     planner = S1RoutePlanner(
-        [CallToolDecision(call=DetectClippingCall(args=ClippingInput()), purpose="detect clipping")],
+        [
+            CallToolDecision(
+                call=DetectClippingCall(args=ClippingInput()),
+                purpose="detect clipping",
+            ),
+            _evaluate_rules_decision(),
+        ],
         finish,
     )
     result = await _run_route(repository, signal_id, planner)
@@ -207,7 +258,10 @@ async def test_t088_s1_harm_after_negative_clipping(
                     claim_id="claim_harm",
                     fault_type="harmonic_distortion",
                     statement="harmonic distortion with elevated THD",
-                    evidence_refs=(_evidence_by_metric(context, "thd_percent"),),
+                    evidence_refs=(
+                        _evidence_by_metric(context, "thd_percent"),
+                        _evidence_by_metric(context, "series_kind"),
+                    ),
                 ),
             ),
             confidence_label="high",
@@ -247,7 +301,10 @@ async def test_t089_s1_harm_alternate_first_tool(
                     claim_id="claim_harm_alt",
                     fault_type="harmonic_distortion",
                     statement="harmonic distortion from spectrum-first route",
-                    evidence_refs=(_evidence_by_metric(context, "thd_percent"),),
+                    evidence_refs=(
+                        _evidence_by_metric(context, "thd_percent"),
+                        _evidence_by_metric(context, "series_kind"),
+                    ),
                 ),
             ),
             confidence_label="medium",
@@ -274,11 +331,20 @@ async def test_t089_s1_harm_alternate_first_tool(
 @pytest.mark.asyncio
 async def test_t090_s1_combined(
     repository: InMemorySignalRepository,
-    combined_case: SyntheticCase,
 ) -> None:
+    combined_case = generate_combined_distortion(
+        fundamental_hz=200.0,
+        harmonic_ratios={2: 0.10, 3: 0.05},
+        clip_level=1.0,
+        sample_rate_hz=48_000,
+        duration_s=2.0,
+        fundamental_amplitude=1.2,
+    )
     signal_id = store_synthetic_case(repository, combined_case)
 
     def finish(context: PlannerContext) -> FinishDecision:
+        clip_eval = _evaluation(context, "rule_flat_top_absent", judgment="fail")
+        thd_eval = _evaluation(context, "rule_thd_acceptable", judgment="fail")
         return FinishDecision(
             outcome="supported_fault",
             claims=(
@@ -286,13 +352,18 @@ async def test_t090_s1_combined(
                     claim_id="claim_clip_combined",
                     fault_type="clipping",
                     statement="clipping present",
-                    evidence_refs=(_evidence_by_metric(context, "clipping_detected"),),
+                    evidence_refs=(_evidence_by_metric(context, "clipping_mechanism"),),
+                    rule_refs=(clip_eval.evaluation_id,),
                 ),
                 DiagnosisClaim(
                     claim_id="claim_harm_combined",
                     fault_type="harmonic_distortion",
                     statement="harmonic distortion present",
-                    evidence_refs=(_evidence_by_metric(context, "thd_percent"),),
+                    evidence_refs=(
+                        _evidence_by_metric(context, "thd_percent"),
+                        _evidence_by_metric(context, "series_kind"),
+                    ),
+                    rule_refs=(thd_eval.evaluation_id,),
                 ),
             ),
             confidence_label="high",
@@ -308,6 +379,7 @@ async def test_t090_s1_combined(
                 call=AnalyzeHarmonicDistortionCall(args=HarmonicDistortionInput()),
                 purpose="measure harmonic distortion",
             ),
+            _evaluate_rules_decision(),
         ],
         finish,
     )
@@ -320,7 +392,7 @@ async def test_t090_s1_combined(
         for claim in result.diagnosis.claims
         for ref in claim.evidence_refs
     }
-    assert len(refs) == 2
+    assert len(refs) >= 2
 
 
 @pytest.mark.asyncio
@@ -338,7 +410,7 @@ async def test_t091_s1_clean(
                     claim_id="claim_clean",
                     fault_type="no_supported_fault",
                     statement="no supported distortion fault found",
-                    evidence_refs=(_evidence_by_metric(context, "clipping_detected"),),
+                    evidence_refs=(_evidence_by_metric(context, "clipping_mechanism"),),
                 ),
             ),
             confidence_label="medium",

@@ -9,6 +9,18 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+
+def _ids_for_metric(evidence: list[dict[str, Any]], metric: str, value: object | None = None) -> list[str]:
+    ids: list[str] = []
+    for item in evidence:
+        if item.get("metric") != metric:
+            continue
+        if value is not None and item.get("value") != value:
+            continue
+        ids.append(item["evidence_id"])
+    return ids
+
+
 import pytest
 
 from signal_diag.agent.models import AgentRunResult
@@ -178,7 +190,7 @@ def _finish_with_only_live_ids(context: dict[str, Any]) -> dict[str, Any]:
         for item in fail_evals
         if item.get("rule_id") in {"rule_thd_acceptable", "rule_harmonic_analysis_valid"}
     ]
-    if clipping_fail:
+    if clipping_fail and _ids_for_metric(evidence, "clipping_mechanism", True):
         clip_ids = [
             item["evidence_id"]
             for item in evidence
@@ -192,13 +204,13 @@ def _finish_with_only_live_ids(context: dict[str, Any]) -> dict[str, Any]:
                     "claim_id": "claim_clip",
                     "fault_type": "clipping",
                     "statement": "Clipping evidence supports a clipping diagnosis.",
-                    "evidence_refs": clip_ids,
+                    "evidence_refs": clip_ids + _ids_for_metric(evidence, "clipping_mechanism", True),
                     "rule_refs": [item["evaluation_id"] for item in clipping_fail],
                 }
             ],
             "confidence_label": "high",
         }
-    if harmonic_fail:
+    if harmonic_fail and _ids_for_metric(evidence, "series_kind", "even_order_present"):
         harm_ids = [
             item["evidence_id"]
             for item in evidence
@@ -213,7 +225,7 @@ def _finish_with_only_live_ids(context: dict[str, Any]) -> dict[str, Any]:
                     "claim_id": "claim_harm",
                     "fault_type": "harmonic_distortion",
                     "statement": "Harmonic evidence supports a harmonic-distortion diagnosis.",
-                    "evidence_refs": harm_ids,
+                    "evidence_refs": harm_ids + _ids_for_metric(evidence, "series_kind", "even_order_present"),
                     "rule_refs": [item["evaluation_id"] for item in harmonic_fail],
                 }
             ],
@@ -324,9 +336,9 @@ def _dsp_tool_names(result: AgentRunResult) -> tuple[str, ...]:
 @pytest.mark.asyncio
 async def test_t187_applicable_evidence_reaches_rules_and_final_rule_refs(
     repository: InMemorySignalRepository,
-    clipped_case: SyntheticCase,
+    full_scale_clipped_case: SyntheticCase,
 ) -> None:
-    signal_id = store_synthetic_case(repository, clipped_case)
+    signal_id = store_synthetic_case(repository, full_scale_clipped_case)
     client = _policy_client(first_tool="detect_clipping")
     result, recording = await _run_product_path(repository, signal_id, client)
     assert result.status == "success"
@@ -427,10 +439,10 @@ async def test_t189_same_run_refs_resolve_in_assembled_trace(
 @pytest.mark.asyncio
 async def test_t190_clipping_first_and_harmonic_first_are_not_a_fixed_sequence(
     repository: InMemorySignalRepository,
-    clipped_case: SyntheticCase,
+    full_scale_clipped_case: SyntheticCase,
     harmonic_case: SyntheticCase,
 ) -> None:
-    clip_id = store_synthetic_case(repository, clipped_case)
+    clip_id = store_synthetic_case(repository, full_scale_clipped_case)
     clip_client = _policy_client(first_tool="detect_clipping")
     clip_result, _clip_recording = await _run_product_path(
         repository, clip_id, clip_client

@@ -37,6 +37,7 @@ from signal_diag.agent.planner import (
     _Phase4V5RealLLMPlanner,
     _Phase4V6RealLLMPlanner,
     _Phase4V7RealLLMPlanner,
+    _Phase4V8_1RealLLMPlanner,
     _Phase4V8RealLLMPlanner,
 )
 from signal_diag.agent.prompts import (
@@ -262,6 +263,25 @@ def _evidence_refs_for_claim(
                 refs.append(item.evidence_id)
                 seen.add(item.evidence_id)
                 break
+    if fault_type == "clipping":
+        for item in context.evidence:
+            if (
+                item.evidence_id not in seen
+                and item.metric == "clipping_mechanism"
+                and item.value is True
+            ):
+                refs.append(item.evidence_id)
+                seen.add(item.evidence_id)
+    if fault_type == "harmonic_distortion":
+        for item in context.evidence:
+            if (
+                item.evidence_id not in seen
+                and item.metric == "series_kind"
+                and item.value == "even_order_present"
+                and item.validity == "valid"
+            ):
+                refs.append(item.evidence_id)
+                seen.add(item.evidence_id)
     return tuple(refs)
 
 
@@ -298,11 +318,71 @@ def _bind_finish(
     context: PlannerContext,
     case: EvaluationCase,
 ) -> FinishDecision:
+    bound_claims = tuple(
+        _bind_claim(claim, context, case) for claim in decision.claims
+    )
+    if decision.outcome != "supported_fault":
+        return decision.model_copy(update={"claims": bound_claims})
+    evidence_by_id = {item.evidence_id: item for item in context.evidence}
+    kept: list[DiagnosisClaim] = []
+    for claim in bound_claims:
+        cited = [
+            evidence_by_id[ref]
+            for ref in claim.evidence_refs
+            if ref in evidence_by_id
+        ]
+        if claim.fault_type == "clipping":
+            has_mechanism = any(
+                item.metric == "clipping_mechanism" and item.value is True
+                for item in cited
+            )
+            if not has_mechanism:
+                continue
+            rule_by_id = {
+                evaluation.evaluation_id: evaluation
+                for batch in context.rule_evaluation_batches
+                for evaluation in batch.evaluations
+            }
+            substantial = {"rule_clipping_ratio_acceptable", "rule_flat_top_absent"}
+            has_substantial_fail = False
+            for rule_ref in claim.rule_refs:
+                evaluation = rule_by_id.get(rule_ref)
+                if (
+                    evaluation is not None
+                    and evaluation.rule_id in substantial
+                    and evaluation.judgment == "fail"
+                ):
+                    has_substantial_fail = True
+                    break
+            if not has_substantial_fail:
+                continue
+        if claim.fault_type == "harmonic_distortion" and not any(
+            item.metric == "series_kind"
+            and item.value == "even_order_present"
+            and item.validity == "valid"
+            for item in cited
+        ):
+            continue
+        kept.append(claim)
+    if kept:
+        return decision.model_copy(update={"claims": tuple(kept)})
+    live_ids = tuple(item.evidence_id for item in context.evidence)
     return decision.model_copy(
         update={
-            "claims": tuple(
-                _bind_claim(claim, context, case) for claim in decision.claims
-            )
+            "outcome": "no_supported_fault",
+            "claims": (
+                DiagnosisClaim(
+                    claim_id="claim_clean",
+                    fault_type="no_supported_fault",
+                    statement=(
+                        "Clipping mechanism and injected harmonic series are "
+                        "both absent on this signal."
+                    ),
+                    evidence_refs=live_ids,
+                    rule_refs=_all_rule_ids(context),
+                    knowledge_refs=_all_knowledge_ids(context),
+                ),
+            ),
         }
     )
 
@@ -1382,7 +1462,7 @@ def _build_phase4_3_v8_planner(inner_client: object) -> RealLLMPlanner:
 
 def _build_phase4_3_1_v8_1_planner(inner_client: object) -> RealLLMPlanner:
     capture = _UsageCapturingClient(inner_client)  # type: ignore[arg-type]
-    return RealLLMPlanner(provider="deepseek", client=capture)
+    return _Phase4V8_1RealLLMPlanner(provider="deepseek", client=capture)
 
 
 def _phase4_2_v7_signal_id_factory(

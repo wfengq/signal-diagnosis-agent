@@ -1,0 +1,172 @@
+{
+  "dev_split_cases": [
+    {
+      "case_id": "dev_pure_200",
+      "category": "pure_sine",
+      "should_remain_valid_if_voiced": true,
+      "voiced": true,
+      "f0_hz": 200.0,
+      "fundamental_relative_energy": 0.6666527776042354
+    },
+    {
+      "case_id": "dev_pure_440",
+      "category": "pure_sine",
+      "should_remain_valid_if_voiced": true,
+      "voiced": true,
+      "f0_hz": 440.3669724770642,
+      "fundamental_relative_energy": 0.6666527777419855
+    },
+    {
+      "case_id": "dev_two_tone_200_400",
+      "category": "multi_partial",
+      "should_remain_valid_if_voiced": true,
+      "voiced": true,
+      "f0_hz": 200.0,
+      "fundamental_relative_energy": 0.3333263867259275
+    },
+    {
+      "case_id": "dev_high_thd_h2_gt_h1",
+      "category": "high_thd_valid",
+      "should_remain_valid_if_voiced": true,
+      "voiced": true,
+      "f0_hz": 200.0,
+      "fundamental_relative_energy": 0.1713760357467104
+    },
+    {
+      "case_id": "dev_injected_h2_alpha50",
+      "category": "injected_harmonic",
+      "should_remain_valid_if_voiced": true,
+      "voiced": true,
+      "f0_hz": 440.3669724770642,
+      "fundamental_relative_energy": 0.6274379087551542
+    },
+    {
+      "case_id": "dev_subharmonic_lock_700",
+      "category": "unreliable_lock",
+      "should_remain_valid_if_voiced": false,
+      "voiced": true,
+      "f0_hz": 350.3649635036496,
+      "fundamental_relative_energy": 1.525506955932797e-20
+    },
+    {
+      "case_id": "dev_snr0_mislock",
+      "category": "unreliable_noise",
+      "should_remain_valid_if_voiced": false,
+      "voiced": true,
+      "f0_hz": 87.91208791208791,
+      "fundamental_relative_energy": 2.2349593516291685e-05
+    },
+    {
+      "case_id": "dev_v02_sine",
+      "category": "v02_regression",
+      "should_remain_valid_if_voiced": true,
+      "voiced": true,
+      "f0_hz": 200.0,
+      "fundamental_relative_energy": 0.6666597222005299
+    },
+    {
+      "case_id": "dev_v02_harmonic",
+      "category": "v02_regression",
+      "should_remain_valid_if_voiced": true,
+      "voiced": true,
+      "f0_hz": 200.0,
+      "fundamental_relative_energy": 0.6584293560537576
+    },
+    {
+      "case_id": "dev_v02_clipped",
+      "category": "v02_regression",
+      "should_remain_valid_if_voiced": true,
+      "voiced": true,
+      "f0_hz": 200.0,
+      "fundamental_relative_energy": 0.6394268381069608
+    },
+    {
+      "case_id": "dev_white_noise",
+      "category": "unvoiced",
+      "should_remain_valid_if_voiced": false,
+      "voiced": false,
+      "f0_hz": null,
+      "fundamental_relative_energy": null
+    },
+    {
+      "case_id": "dev_low_amp_440",
+      "category": "pure_sine",
+      "should_remain_valid_if_voiced": true,
+      "voiced": true,
+      "f0_hz": 440.3669724770642,
+      "fundamental_relative_energy": 0.6666527777419852
+    }
+  ],
+  "calibration": {
+    "theoretical_equal_noise_floor_2_over_n": 4.1666666666666665e-05,
+    "candidate_scan": [
+      {
+        "threshold": 0.001,
+        "false_invalid_count": 0,
+        "false_invalid_cases": [],
+        "missed_unreliable_count": 0,
+        "missed_unreliable_cases": []
+      },
+      {
+        "threshold": 0.005,
+        "false_invalid_count": 0,
+        "false_invalid_cases": [],
+        "missed_unreliable_count": 0,
+        "missed_unreliable_cases": []
+      },
+      {
+        "threshold": 0.01,
+        "false_invalid_count": 0,
+        "false_invalid_cases": [],
+        "missed_unreliable_count": 0,
+        "missed_unreliable_cases": []
+      },
+      {
+        "threshold": 0.02,
+        "false_invalid_count": 0,
+        "false_invalid_cases": [],
+        "missed_unreliable_count": 0,
+        "missed_unreliable_cases": []
+      },
+      {
+        "threshold": 0.05,
+        "false_invalid_count": 0,
+        "false_invalid_cases": [],
+        "missed_unreliable_count": 0,
+        "missed_unreliable_cases": []
+      },
+      {
+        "threshold": 0.08,
+        "false_invalid_count": 0,
+        "false_invalid_cases": [],
+        "missed_unreliable_count": 0,
+        "missed_unreliable_cases": []
+      },
+      {
+        "threshold": 0.1,
+        "false_invalid_count": 0,
+        "false_invalid_cases": [],
+        "missed_unreliable_count": 0,
+        "missed_unreliable_cases": []
+      },
+      {
+        "threshold": 0.15,
+        "false_invalid_count": 0,
+        "false_invalid_cases": [],
+        "missed_unreliable_count": 0,
+        "missed_unreliable_cases": []
+      },
+      {
+        "threshold": 0.2,
+        "false_invalid_count": 1,
+        "false_invalid_cases": [
+          "dev_high_thd_h2_gt_h1"
+        ],
+        "missed_unreliable_count": 0,
+        "missed_unreliable_cases": []
+      }
+    ],
+    "recommended_default": 0.15,
+    "recommended_basis": "Highest threshold in dev scan with zero false-invalid and zero missed-unreliable on synthesized dev split. Separates unreliable regime (~2e-5) from multi-partial minimum (~0.33). Not derived from V0.2 failure cases."
+  }
+}

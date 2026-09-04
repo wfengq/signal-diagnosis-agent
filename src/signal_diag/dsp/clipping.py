@@ -100,6 +100,12 @@ def analyze_clipping(
     clipped_mask = np.logical_or(full_scale_mask, flat_top_mask)
     event_runs = _runs(clipped_mask)
     clipped_samples = int(np.count_nonzero(clipped_mask))
+    full_scale_detected = bool(np.any(full_scale_mask))
+    flat_top_detected = bool(np.any(flat_top_mask))
+    clipping_mechanism = bool(
+        full_scale_detected
+        or (flat_top_detected and peak >= float(full_scale_threshold))
+    )
 
     return ClippingAnalysis(
         detected=bool(clipped_samples),
@@ -111,6 +117,7 @@ def analyze_clipping(
             default=0,
         ),
         peak_abs=peak,
-        full_scale_detected=bool(np.any(full_scale_mask)),
-        flat_top_detected=bool(np.any(flat_top_mask)),
+        full_scale_detected=full_scale_detected,
+        flat_top_detected=flat_top_detected,
+        clipping_mechanism=clipping_mechanism,
     )

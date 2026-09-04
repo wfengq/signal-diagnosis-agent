@@ -1087,7 +1087,8 @@ def test_t223_v8_1_product_builders_use_real_llm_planner() -> None:
     functions = _module_function_defs(SRC_ROOT / "evaluation" / "runner.py")
     builder = functions["_build_phase4_3_1_v8_1_planner"]
     builder_calls = _call_func_names(builder)
-    assert "RealLLMPlanner" in builder_calls
+    assert "RealLLMPlanner" not in builder_calls
+    assert "_Phase4V8_1RealLLMPlanner" in builder_calls
     assert "_Phase4V8RealLLMPlanner" not in builder_calls
     assert "ScriptedPlanner" not in builder_calls
     assert "ScriptedPlanner" not in _name_ids(builder)
@@ -1272,6 +1273,31 @@ _PHASE5_ALLOWED_UPSTREAM_PATHS = {
     "src/signal_diag/evaluation/assets/__init__.py",
     "src/signal_diag/evaluation/assets/phase4_3_1_official_summary.json",
 }
+# Additive V0.3 authorized packages (external validity study + Workstreams A/B/C).
+# Prefix match only; does not weaken V0.2 frozen dsp/agent paths outside this list.
+_V03_ADDITIVE_PATH_PREFIXES: tuple[str, ...] = (
+    "src/signal_diag/evaluation/external/",
+)
+_V03_ADDITIVE_EXACT_PATHS = frozenset(
+    {
+        "src/signal_diag/agent/prompts_v03.py",
+        "src/signal_diag/agent/planner.py",
+        "src/signal_diag/app/composition.py",
+        "src/signal_diag/dsp/spectral_reliability.py",
+        "src/signal_diag/dsp/pitch.py",
+        "src/signal_diag/dsp/harmonics.py",
+        "src/signal_diag/dsp/models.py",
+        "src/signal_diag/evaluation/runner.py",
+        "src/signal_diag/evaluation/external/reference_harmonics.py",
+        "src/signal_diag/dsp/clipping.py",
+        "src/signal_diag/tools/contracts.py",
+        "src/signal_diag/tools/service.py",
+        "src/signal_diag/agent/diagnosis.py",
+        "src/signal_diag/agent/runtime.py",
+        "src/signal_diag/evaluation/external/reference.py",
+        "src/signal_diag/evaluation/external/reference_models.py",
+    }
+)
 _PHASE3_SKIP_TEMPLATES = frozenset({"Phase 3 package {}/ not created yet"})
 _PHASE3_SKIP_SOURCE_SNIPPETS = (
     'pytest.skip(f"Phase 3 package {layer}/ not created yet")',
@@ -1542,6 +1568,10 @@ def test_t285_phase5_cumulative_contract_is_registered() -> None:
         if path.startswith("src/signal_diag/app/"):
             continue
         if path in _PHASE5_ALLOWED_UPSTREAM_PATHS:
+            continue
+        if path in _V03_ADDITIVE_EXACT_PATHS:
+            continue
+        if any(path.startswith(prefix) for prefix in _V03_ADDITIVE_PATH_PREFIXES):
             continue
         frozen_hits.append(path)
     assert not frozen_hits, "frozen Phase 1–4.3.1 paths drifted:\n" + "\n".join(

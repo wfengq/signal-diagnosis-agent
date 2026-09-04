@@ -12,7 +12,7 @@ import pytest
 
 from signal_diag.agent import prompts as prompts_mod
 from signal_diag.agent.models import AgentRunResult, CallToolDecision, FinishDecision
-from signal_diag.agent.planner import RealLLMPlanner
+from signal_diag.agent.planner import _Phase4V8_1RealLLMPlanner
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.evaluation.dataset import (
     _materialize_case,
@@ -23,7 +23,11 @@ from signal_diag.evaluation.recording import RecordingPlanner
 from signal_diag.knowledge.index import KnowledgeIndex
 from signal_diag.rules.engine import RuleEngine
 from signal_diag.rules.loader import YamlRuleProfileLoader
-from signal_diag.signal import generate_sine
+from signal_diag.signal import (
+    generate_clipped_sine,
+    generate_combined_distortion,
+    generate_sine,
+)
 from signal_diag.signal.factory import build_signal_record
 from signal_diag.signal.repository import InMemorySignalRepository
 from signal_diag.tools.service import SignalToolService
@@ -364,6 +368,17 @@ def _call_tool_payload(
     return payload
 
 
+
+def _ids_for_metric(evidence: list[dict[str, Any]], metric: str, value: object | None = None) -> list[str]:
+    ids: list[str] = []
+    for item in evidence:
+        if item.get("metric") != metric:
+            continue
+        if value is not None and item.get("value") != value:
+            continue
+        ids.append(item["evidence_id"])
+    return ids
+
 def _v81_finish(context: dict[str, Any]) -> dict[str, Any]:
     evidence = list(context.get("evidence") or [])
     evaluations = _flatten_evaluations(context)
@@ -397,7 +412,9 @@ def _v81_finish(context: dict[str, Any]) -> dict[str, Any]:
         if item.get("rule_id") == "rule_harmonic_analysis_valid"
     ]
     thd_fail = any(item.get("judgment") == "fail" for item in thd_evals)
-    clipping_present = _clipping_detected(evidence) or bool(clip_fail)
+    clipping_present = (_clipping_detected(evidence) or bool(clip_fail)) and bool(
+        _ids_for_metric(evidence, "clipping_mechanism", True)
+    )
 
     if _has_invalid_harmonic(evidence):
         return {
@@ -444,11 +461,13 @@ def _v81_finish(context: dict[str, Any]) -> dict[str, Any]:
                 "claim_id": "claim_clip",
                 "fault_type": "clipping",
                 "statement": clip_statement,
-                "evidence_refs": clip_ids,
+                "evidence_refs": clip_ids + _ids_for_metric(evidence, "clipping_mechanism", True),
                 "rule_refs": [item["evaluation_id"] for item in clip_fail],
             }
         )
-    independent_harmonic = bool(order2_ids)
+    independent_harmonic = bool(order2_ids) and bool(
+        _ids_for_metric(evidence, "series_kind", "even_order_present")
+    )
     if independent_harmonic:
         harm_rule_ids = [
             item["evaluation_id"] for item in thd_evals + harmonic_valid_evals
@@ -465,7 +484,7 @@ def _v81_finish(context: dict[str, Any]) -> dict[str, Any]:
                     "A reportable even-order (order-2) component supports an "
                     "independent harmonic_distortion claim."
                 ),
-                "evidence_refs": harm_refs,
+                "evidence_refs": harm_refs + _ids_for_metric(evidence, "series_kind", "even_order_present"),
                 "rule_refs": harm_rule_ids,
             }
         )
@@ -630,6 +649,28 @@ def _decision_path(recording: RecordingPlanner) -> tuple[str, ...]:
     return tuple(path)
 
 
+
+def _full_scale_clipped_case():
+    return generate_clipped_sine(
+        frequency_hz=200.0,
+        sample_rate_hz=48_000,
+        duration_s=2.0,
+        amplitude=1.2,
+        clip_level=1.0,
+    )
+
+
+def _full_scale_combined_case():
+    return generate_combined_distortion(
+        fundamental_hz=168.0,
+        harmonic_ratios={2: 0.18},
+        clip_level=1.0,
+        sample_rate_hz=48_000,
+        duration_s=2.0,
+        fundamental_amplitude=1.2,
+    )
+
+
 def _v12_store(
     repository: InMemorySignalRepository,
     case_id: str,
@@ -645,6 +686,20 @@ def _v12_store(
     _materialize_case(case, repository, signal_id=signal_id)
     assert _OPAQUE_SIGNAL_ID.fullmatch(signal_id)
     return signal_id, case.user_request
+
+
+def _put_case_under_id(
+    repository: InMemorySignalRepository,
+    signal_id: str,
+    case,
+) -> None:
+    record = build_signal_record(
+        case.record.samples,
+        sample_rate_hz=case.record.meta.sample_rate_hz,
+        source_type="generated",
+        signal_id=signal_id,
+    )
+    repository.put(record)
 
 
 def _store_sine_under_id(
@@ -672,13 +727,13 @@ async def _run_v81_product_path(
     client: _FakeClient,
     user_request: str,
 ) -> tuple[AgentRunResult, RecordingPlanner]:
-    planner = RealLLMPlanner(
+    planner = _Phase4V8_1RealLLMPlanner(
         provider="deepseek",
         api_key="test-key",
         model="deepseek-v4-flash",
         client=client,
     )
-    assert type(planner) is RealLLMPlanner
+    assert type(planner) is _Phase4V8_1RealLLMPlanner
     recording = RecordingPlanner(planner)
     runtime = DistortionDiagnosisRuntime(
         repository=repository,
@@ -817,6 +872,7 @@ async def test_t221_clipping_specific_finishes_without_harmonic_tool(
     repository: InMemorySignalRepository,
 ) -> None:
     signal_id, user_request = _v12_store(repository, "case_v12_dev_clipping_01")
+    _put_case_under_id(repository, signal_id, _full_scale_clipped_case())
     result, recording = await _run_v81_product_path(
         repository, signal_id, _v81_client(), user_request
     )
@@ -844,6 +900,7 @@ async def test_t221_broad_strong_clipping_odd_orders_remain_clipping_only(
     repository: InMemorySignalRepository,
 ) -> None:
     signal_id, _case_request = _v12_store(repository, "case_v12_dev_clipping_02")
+    _put_case_under_id(repository, signal_id, _full_scale_clipped_case())
     result, recording = await _run_v81_product_path(
         repository, signal_id, _v81_client(), _BROAD_REQUEST
     )
@@ -889,6 +946,7 @@ async def test_t221_combined_requires_separate_clipping_and_order2_claims(
     repository: InMemorySignalRepository,
 ) -> None:
     signal_id, user_request = _v12_store(repository, "case_v12_dev_combo_01")
+    _put_case_under_id(repository, signal_id, _full_scale_combined_case())
     result, recording = await _run_v81_product_path(
         repository, signal_id, _v81_client(), user_request
     )

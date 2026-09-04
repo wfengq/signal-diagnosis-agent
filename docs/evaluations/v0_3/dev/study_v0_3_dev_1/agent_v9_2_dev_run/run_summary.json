@@ -1,0 +1,356 @@
+{
+  "planner_version": "v0.3-s1-planner-9.2",
+  "wired_prompt_version": "v0.3-s1-planner-9.2",
+  "prompt_sha256": "8fc065ba0776970a7d4737e71b0f71637ca0064d574514475861491b75cce45a",
+  "prior_prompt_sha256_v9_1": "2193c8e221cf5e1abd3abe98105745c5685912f14fb7e76c7aa033b4c1568672",
+  "prior_prompt_sha256_v9_0": "bbc6ec4c8f2b7fbe27872188c7f8bb1a64241d48dd87d02841736641f3d1c59a",
+  "code_sha": "be9468217dceab644ffcdba7876468d824cfda08",
+  "started_at_utc": "2026-09-03T02:16:44.104215+00:00",
+  "finished_at_utc": "2026-09-03T02:19:25.048454+00:00",
+  "complete": true,
+  "cases_done": 14,
+  "per_case_table": [
+    {
+      "case_id": "a1f3c9e2b804d716",
+      "signal_category": "single_tone_periodic",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "no_supported_fault",
+      "outcome": "no_supported_fault",
+      "expected_outcome": "no_supported_fault",
+      "causal_faults": [
+        "no_supported_fault"
+      ],
+      "limitations": [],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "success",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "b2e4d0f3c915e827",
+      "signal_category": "injected_harmonic",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "supported_fault",
+      "causal_faults": [],
+      "limitations": [
+        "THD rule FAIL establishes elevated harmonic content relative to the configured threshold, not causal harmonic_distortion without additional distortion-mechanism Evidence."
+      ],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "failure_class": "wrong_outcome",
+      "correct": false
+    },
+    {
+      "case_id": "c3f5e1a4d026f938",
+      "signal_category": "clipping",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "supported_fault",
+      "outcome": "supported_fault",
+      "expected_outcome": "supported_fault",
+      "causal_faults": [
+        "clipping"
+      ],
+      "limitations": [],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "success",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "d4a6f2b5e1370a49",
+      "signal_category": "combined",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "supported_fault",
+      "outcome": "supported_fault",
+      "expected_outcome": "supported_fault",
+      "causal_faults": [
+        "clipping",
+        "no_supported_fault"
+      ],
+      "limitations": [],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "success",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "e5b7a3c6f2481b5a",
+      "signal_category": "multi_tone",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "supported_harmonic",
+      "outcome": "supported_fault",
+      "expected_outcome": "inconclusive",
+      "causal_faults": [
+        "harmonic_distortion"
+      ],
+      "limitations": [],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "success",
+      "failure_class": "wrong_outcome",
+      "correct": false
+    },
+    {
+      "case_id": "f6c8b4d7a3592c6b",
+      "signal_category": "speech",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "causal_faults": [],
+      "limitations": [
+        "Harmonic distortion analysis is invalid because the fundamental bin energy is below the reliability threshold; causal S1 distortion attribution is not supported."
+      ],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "07d9c5e8b46a3d7c",
+      "signal_category": "musical_instrument",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "causal_faults": [],
+      "limitations": [
+        "Harmonic distortion analysis is invalid because the fundamental bin energy is below the reliability threshold; causal S1 distortion attribution is not supported."
+      ],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "18ea06f9c57b4e8d",
+      "signal_category": "environmental_non_periodic",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "causal_faults": [],
+      "limitations": [
+        "Harmonic distortion analysis is invalid because the fundamental bin energy is below the reliability threshold; causal S1 distortion attribution is not supported."
+      ],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "29fb17a0d68c5f9e",
+      "signal_category": "low_snr_periodic",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "supported_fault",
+      "outcome": "supported_fault",
+      "expected_outcome": "inconclusive",
+      "causal_faults": [
+        "clipping"
+      ],
+      "limitations": [
+        "Harmonic distortion analysis is invalid because the fundamental bin energy is below the reliability threshold; therefore harmonic distortion cannot be assessed and remains unresolved."
+      ],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "success",
+      "failure_class": "wrong_outcome",
+      "correct": false
+    },
+    {
+      "case_id": "3a0c28b1e79d60af",
+      "signal_category": "controlled_distorted_periodic",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "causal_faults": [],
+      "limitations": [
+        "Harmonic distortion analysis is invalid because the fundamental bin energy is below the reliability threshold; causal S1 distortion attribution is not supported."
+      ],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "4b1d39c2f8ae71b0",
+      "signal_category": "environmental_non_periodic",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "causal_faults": [],
+      "limitations": [
+        "Harmonic distortion analysis is invalid because the fundamental frequency could not be estimated reliably; causal S1 distortion attribution is not supported."
+      ],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "5c2e4ad309bf82c1",
+      "signal_category": "environmental_non_periodic",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "causal_faults": [],
+      "limitations": [
+        "Harmonic distortion analysis is invalid because the fundamental frequency could not be estimated reliably; causal S1 distortion attribution cannot be established."
+      ],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "6d3f5be41ac093d2",
+      "signal_category": "ambiguous_boundary",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "supported_fault",
+      "outcome": "supported_fault",
+      "expected_outcome": "inconclusive",
+      "causal_faults": [
+        "clipping"
+      ],
+      "limitations": [],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "success",
+      "failure_class": "wrong_outcome",
+      "correct": false
+    },
+    {
+      "case_id": "7e4a6cf52bd1a4e3",
+      "signal_category": "ambiguous_boundary",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "causal_faults": [],
+      "limitations": [
+        "THD rule FAIL establishes elevated harmonic content relative to the configured threshold, not causal harmonic_distortion without additional distortion-mechanism Evidence."
+      ],
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "failure_class": "correct",
+      "correct": true
+    }
+  ],
+  "planner_success_rate": 1.0,
+  "prompt_iteration_history": [
+    {
+      "version": "v0.3-s1-planner-9.0",
+      "note": "Round 1 dev validation"
+    },
+    {
+      "version": "v0.3-s1-planner-9.1",
+      "prompt_sha256": "2193c8e221cf5e1abd3abe98105745c5685912f14fb7e76c7aa033b4c1568672",
+      "note": "Option B invalid/unvoiced direct inconclusive"
+    },
+    {
+      "version": "v0.3-s1-planner-9.2",
+      "prompt_sha256": "8fc065ba0776970a7d4737e71b0f71637ca0064d574514475861491b75cce45a",
+      "note": "C-policy: THD FAIL / native square / invalid harmonic not causal faults"
+    }
+  ]
+}

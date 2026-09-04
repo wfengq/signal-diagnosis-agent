@@ -2,20 +2,27 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from signal_diag.agent.models import (
+    AgentDecision,
     CallToolDecision,
     ClippingInput,
     DetectClippingCall,
     DiagnosisClaim,
+    EvaluateRulesDecision,
     FinishDecision,
+    PlannerContext,
     PlannerOutputError,
     TaskAssessment,
 )
 from signal_diag.agent.planner import RealLLMPlanner, ScriptedPlanner, ScriptedStep
 from signal_diag.agent.policies import AgentLimits
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
+from signal_diag.rules.engine import RuleEngine
+from signal_diag.rules.loader import YamlRuleProfileLoader
 from signal_diag.signal import SyntheticCase
 from signal_diag.signal.repository import InMemorySignalRepository
 from signal_diag.tools.service import SignalToolService
@@ -29,7 +36,7 @@ def _assessment() -> TaskAssessment:
     )
 
 
-def _clipping_finish(evidence_id: str) -> FinishDecision:
+def _clipping_finish(evidence_id: str, rule_id: str = "ruleval_placeholder") -> FinishDecision:
     return FinishDecision(
         outcome="supported_fault",
         claims=(
@@ -38,6 +45,7 @@ def _clipping_finish(evidence_id: str) -> FinishDecision:
                 fault_type="clipping",
                 statement="clipping detected",
                 evidence_refs=(evidence_id,),
+                rule_refs=(rule_id,) if rule_id != "ruleval_placeholder" else (),
             ),
         ),
         confidence_label="high",
@@ -269,35 +277,81 @@ async def test_t081_no_progress_termination(
 @pytest.mark.asyncio
 async def test_t082_valid_finish_with_evidence_succeeds(
     repository: InMemorySignalRepository,
-    clipped_case: SyntheticCase,
+    full_scale_clipped_case: SyntheticCase,
 ) -> None:
-    signal_id = store_synthetic_case(repository, clipped_case)
-    evidence_id = "ev_detect_clipping_detect_clipping_000000_000"
-    steps = [
-        ScriptedStep(
-            expected_observation_count=0,
-            decision=CallToolDecision(
-                task_assessment=_assessment(),
-                call=DetectClippingCall(args=ClippingInput()),
-                purpose="check clipping",
-            ),
-        ),
-        ScriptedStep(
-            expected_observation_count=1,
-            required_evidence_metrics=("clipping_detected",),
-            decision=_clipping_finish(evidence_id),
-        ),
-    ]
+    signal_id = store_synthetic_case(repository, full_scale_clipped_case)
+    evidence_id = "ev_detect_clipping_detect_clipping_000000_007"
+    profile = (
+        Path(__file__).resolve().parents[2]
+        / "src"
+        / "signal_diag"
+        / "rules"
+        / "profiles"
+        / "s1_distortion_v1.yaml"
+    )
+
+    class _FinishPlanner:
+        def __init__(self) -> None:
+            self._index = 0
+
+        async def decide(self, context: PlannerContext) -> AgentDecision:
+            if self._index == 0:
+                self._index += 1
+                return CallToolDecision(
+                    task_assessment=_assessment(),
+                    call=DetectClippingCall(args=ClippingInput()),
+                    purpose="check clipping",
+                )
+            if self._index == 1:
+                self._index += 1
+                return EvaluateRulesDecision(
+                    profile_id="profile_s1_distortion",
+                    evidence_refs=(),
+                    purpose="apply clipping rules",
+                )
+            clip_mech = next(
+                item.evidence_id
+                for item in context.evidence
+                if item.metric == "clipping_mechanism" and item.value is True
+            )
+            rule_id = next(
+                item.evaluation_id
+                for batch in context.rule_evaluation_batches
+                for item in batch.evaluations
+                if item.rule_id == "rule_flat_top_absent" and item.judgment == "fail"
+            )
+            return FinishDecision(
+                outcome="supported_fault",
+                claims=(
+                    DiagnosisClaim(
+                        claim_id="claim_clip",
+                        fault_type="clipping",
+                        statement="clipping detected",
+                        evidence_refs=(clip_mech,),
+                        rule_refs=(rule_id,),
+                    ),
+                ),
+                confidence_label="high",
+            )
+
     runtime = DistortionDiagnosisRuntime(
         repository=repository,
         tool_service=SignalToolService(repository),
-        planner=ScriptedPlanner(steps),
+        planner=_FinishPlanner(),
+        rule_engine=RuleEngine(),
+        rule_profile_loader=YamlRuleProfileLoader(
+            {"profile_s1_distortion": profile}
+        ),
     )
     result = await runtime.run(signal_id=signal_id, user_request="Why distorted?")
     assert result.status == "success"
     assert result.termination_reason == "planner_finished"
     assert result.diagnosis is not None
-    assert result.diagnosis.claims[0].evidence_refs == (evidence_id,)
+    assert evidence_id in result.diagnosis.claims[0].evidence_refs or any(
+        item.metric == "clipping_mechanism"
+        for item in result.evidence
+        if item.evidence_id in result.diagnosis.claims[0].evidence_refs
+    )
 
 
 @pytest.mark.asyncio

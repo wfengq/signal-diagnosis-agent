@@ -27,7 +27,7 @@ from signal_diag.knowledge.index import KnowledgeIndex
 from signal_diag.rules.engine import RuleEngine
 from signal_diag.rules.loader import YamlRuleProfileLoader
 from signal_diag.rules.models import RuleEvaluation, RuleJudgment
-from signal_diag.signal import SyntheticCase
+from signal_diag.signal import SyntheticCase, generate_combined_distortion
 from signal_diag.signal.repository import InMemorySignalRepository
 from signal_diag.tools.service import SignalToolService
 from tests.conftest import store_synthetic_case
@@ -225,9 +225,9 @@ async def test_t121_s1_clean_rules_branch(
 @pytest.mark.asyncio
 async def test_t122_s1_clip_rules_branch(
     repository: InMemorySignalRepository,
-    clipped_case: SyntheticCase,
+    full_scale_clipped_case: SyntheticCase,
 ) -> None:
-    signal_id = store_synthetic_case(repository, clipped_case)
+    signal_id = store_synthetic_case(repository, full_scale_clipped_case)
 
     def finish(context: PlannerContext) -> FinishDecision:
         return FinishDecision(
@@ -240,6 +240,7 @@ async def test_t122_s1_clip_rules_branch(
                     evidence_refs=(
                         _evidence_by_metric(context, "flat_top_detected"),
                         _evidence_by_metric(context, "clipping_ratio"),
+                        _evidence_by_metric(context, "clipping_mechanism"),
                     ),
                     rule_refs=(
                         _evaluation(
@@ -299,7 +300,10 @@ async def test_t123_s1_harm_rules_branch(
                     claim_id="claim_harm",
                     fault_type="harmonic_distortion",
                     statement="Configured THD limit fails on harmonic distortion evidence.",
-                    evidence_refs=(_evidence_by_metric(context, "thd_percent"),),
+                    evidence_refs=(
+                        _evidence_by_metric(context, "thd_percent"),
+                        _evidence_by_metric(context, "series_kind"),
+                    ),
                     rule_refs=(thd_eval.evaluation_id,),
                 ),
             ),
@@ -344,8 +348,15 @@ async def test_t123_s1_harm_rules_branch(
 @pytest.mark.asyncio
 async def test_t124_s1_combined_rules_and_knowledge(
     repository: InMemorySignalRepository,
-    combined_case: SyntheticCase,
 ) -> None:
+    combined_case = generate_combined_distortion(
+        fundamental_hz=200.0,
+        harmonic_ratios={2: 0.10, 3: 0.05},
+        clip_level=1.0,
+        sample_rate_hz=48_000,
+        duration_s=2.0,
+        fundamental_amplitude=1.2,
+    )
     signal_id = store_synthetic_case(repository, combined_case)
 
     def finish(context: PlannerContext) -> FinishDecision:
@@ -357,7 +368,10 @@ async def test_t124_s1_combined_rules_and_knowledge(
                     claim_id="claim_clip",
                     fault_type="clipping",
                     statement="Configured clipping limits fail on combined distortion.",
-                    evidence_refs=(_evidence_by_metric(context, "clipping_ratio"),),
+                    evidence_refs=(
+                        _evidence_by_metric(context, "clipping_ratio"),
+                        _evidence_by_metric(context, "clipping_mechanism"),
+                    ),
                     rule_refs=(
                         _evaluation(
                             context, "rule_clipping_ratio_acceptable", judgment="fail"
@@ -369,7 +383,10 @@ async def test_t124_s1_combined_rules_and_knowledge(
                     claim_id="claim_harm",
                     fault_type="harmonic_distortion",
                     statement="Configured THD limit fails on combined distortion.",
-                    evidence_refs=(_evidence_by_metric(context, "thd_percent"),),
+                    evidence_refs=(
+                        _evidence_by_metric(context, "thd_percent"),
+                        _evidence_by_metric(context, "series_kind"),
+                    ),
                     rule_refs=(
                         _evaluation(
                             context, "rule_thd_acceptable", judgment="fail"

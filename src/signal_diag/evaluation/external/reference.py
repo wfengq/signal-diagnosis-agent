@@ -70,6 +70,12 @@ def _analyze_reference_impl(
         fmin_hz=fmin_hz,
         fmax_hz=fmax_hz,
     )
+    # Local one-liner from existing clipping flags; do not import dsp.harmonics.
+    full_scale_threshold = 0.99
+    clipping_mechanism = bool(
+        clipping.full_scale_detected
+        or (clipping.flat_top_detected and clipping.peak_abs >= full_scale_threshold)
+    )
 
     applicable = bool(harmonic.f0_voiced and harmonic.valid)
     return ReferenceSummary(
@@ -83,6 +89,8 @@ def _analyze_reference_impl(
         order_2_relative_amplitude=(
             harmonic.order_2_relative_amplitude if applicable else None
         ),
+        series_kind=harmonic.series_kind,
+        clipping_mechanism=clipping_mechanism if applicable else None,
     )
 
 

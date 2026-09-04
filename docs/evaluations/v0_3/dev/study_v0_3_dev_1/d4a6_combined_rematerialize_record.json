@@ -1,0 +1,21 @@
+{
+  "case_id": "d4a6f2b5e1370a49",
+  "reason": "clipping_mechanism=false incompatible with combined ground truth",
+  "classification": "dev_dataset_qualification",
+  "archived_previous_bytes_path": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/wav/archive/v03dev_d4a6f2b5e1370a49.wav.pre_rematerialize_semantic_freeze.bin",
+  "previous_wav_sha256": "b6e2c390194c3bed564c8c3d9a6dfe98b6f90abb2f93205ac101a6381d0e9ab5",
+  "new_wav_sha256": "4f445187fca462b8e9ae08b051ee0d8c9a1b875ad2e9844423ef7a2a9b8fb914",
+  "product_probe": {
+    "clipping_mechanism": true,
+    "full_scale_detected": true,
+    "flat_top_detected": true,
+    "clipping_ratio": 0.39166666666666666,
+    "peak_abs": 0.999969482421875,
+    "harmonic_valid": true,
+    "series_kind": "even_order_present",
+    "thd_percent": 22.191751114656324
+  },
+  "frozen_at_utc": "2026-09-04T06:17:01.947269+00:00",
+  "intermediate_failed_write_sha256": "72084574ffe4b125caa2bcd8dd59eb618ac4f2036b475a65596ddc030b6c1913",
+  "note": "Archive bytes are the true pre-freeze WAV (b6e2...). Intermediate 7208... was a failed PCM16 0.99 write."
+}

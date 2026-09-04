@@ -1,0 +1,22 @@
+{
+  "case_id": "c3f5e1a4d026f938",
+  "hard_clip_tail_proportion": 0.03,
+  "clip_threshold": 0.4994449317455292,
+  "peak_abs_after_transform": 0.4994449317455292,
+  "clip_threshold_over_peak_abs": 1.0,
+  "product_full_scale_threshold": 0.99,
+  "product_clipping_ratio": 0.0,
+  "product_flat_top_detected": false,
+  "product_full_scale_detected": false,
+  "reference_clipping_ratio": 0.0,
+  "reference_flat_top_detected": false,
+  "classification": "C",
+  "classification_labels": {
+    "A": "transform did not produce product-detectable clipping",
+    "B": "dev qualification mismatch",
+    "C": "product detector false negative",
+    "D": "semantic mismatch transform/reference/product"
+  },
+  "rationale": "Peak reaches threshold but product clipping_ratio still low.",
+  "recommended_action": "Revise dev clip case to use stronger clip (lower tail_proportion or explicit scale-to-threshold) for study semantics; do not change product full_scale_threshold."
+}

@@ -1,0 +1,156 @@
+{
+  "n_samples": 48000,
+  "sample_rate_hz": 48000,
+  "theoretical_equal_noise_fre": 4.1666666666666665e-05,
+  "scenarios": [
+    {
+      "name": "pure_200hz",
+      "f0_est_hz": 200.0,
+      "f0_confidence": 0.9998355132410489,
+      "harmonic_valid": true,
+      "thd_percent": 3.277233540366287e-07,
+      "fundamental_amplitude": 0.49999999895170194,
+      "fundamental_relative_energy": 0.6666527776042354,
+      "acf_octave": {
+        "acf_f0": 0.9998355132410489,
+        "acf_2f0": -0.9999588757791844,
+        "ratio_2f0_over_f0": -1.0001233828329779
+      }
+    },
+    {
+      "name": "pure_400hz_only",
+      "f0_est_hz": 400.0,
+      "f0_confidence": 0.9999588757795582,
+      "harmonic_valid": true,
+      "thd_percent": 3.60024087728893e-07,
+      "fundamental_amplitude": 0.49999999951557433,
+      "fundamental_relative_energy": 0.6666527777344523,
+      "acf_octave": {
+        "acf_f0": 0.9999588757795582,
+        "acf_2f0": -0.9999897187865134,
+        "ratio_2f0_over_f0": -1.000030844275402
+      }
+    },
+    {
+      "name": "pure_440hz",
+      "f0_est_hz": 440.3669724770642,
+      "f0_confidence": 0.9999523622529553,
+      "harmonic_valid": true,
+      "thd_percent": 9.369345203201496e-08,
+      "fundamental_amplitude": 0.4999999989769168,
+      "fundamental_relative_energy": 0.6666527777419855,
+      "acf_octave": {
+        "acf_f0": 0.9999523622529553,
+        "acf_2f0": -0.9994982366839437,
+        "ratio_2f0_over_f0": -0.9995458527964388
+      }
+    },
+    {
+      "name": "two_tone_200_400",
+      "f0_est_hz": 200.0,
+      "f0_confidence": 0.9998355132539276,
+      "harmonic_valid": true,
+      "thd_percent": 99.99999922861815,
+      "fundamental_amplitude": 0.3500000010020838,
+      "fundamental_relative_energy": 0.33332639171457124,
+      "acf_octave": {
+        "acf_f0": 0.9998355132539276,
+        "acf_2f0": -7.810974341888373e-09,
+        "ratio_2f0_over_f0": -7.812259355009153e-09
+      }
+    },
+    {
+      "name": "subharmonic_lock_target",
+      "f0_est_hz": 400.0,
+      "f0_confidence": 0.9999588757795582,
+      "harmonic_valid": true,
+      "thd_percent": 3.60024087728893e-07,
+      "fundamental_amplitude": 0.49999999951557433,
+      "fundamental_relative_energy": 0.6666527777344523,
+      "acf_octave": {
+        "acf_f0": 0.9999588757795582,
+        "acf_2f0": -0.9999897187865134,
+        "ratio_2f0_over_f0": -1.000030844275402
+      }
+    },
+    {
+      "name": "low_peak_440",
+      "f0_est_hz": 440.3669724770642,
+      "f0_confidence": 0.9999523622529553,
+      "harmonic_valid": true,
+      "thd_percent": 1.4144660266233108e-07,
+      "fundamental_amplitude": 0.011999999995817894,
+      "fundamental_relative_energy": 0.6666527777419852,
+      "acf_octave": {
+        "acf_f0": 0.9999523622529553,
+        "acf_2f0": -0.9994982366839437,
+        "ratio_2f0_over_f0": -0.9995458527964388
+      }
+    },
+    {
+      "name": "sine_440_snr_40db",
+      "f0_est_hz": 440.3669724770642,
+      "f0_confidence": 0.9998523498614407,
+      "harmonic_valid": true,
+      "thd_percent": 0.022229658048181746,
+      "fundamental_amplitude": 0.5000327788243675,
+      "fundamental_relative_energy": 0.6665145694866833,
+      "acf_octave": {
+        "acf_f0": 0.9998523498614407,
+        "acf_2f0": -0.999397800867496,
+        "ratio_2f0_over_f0": -0.9995453838819225
+      }
+    },
+    {
+      "name": "sine_440_snr_20db",
+      "f0_est_hz": 440.3669724770642,
+      "f0_confidence": 0.9900718688529431,
+      "harmonic_valid": true,
+      "thd_percent": 0.2221654883642152,
+      "fundamental_amplitude": 0.5003278304384221,
+      "fundamental_relative_energy": 0.6593139183343981,
+      "acf_octave": {
+        "acf_f0": 0.9900718688529431,
+        "acf_2f0": -0.9895761809691831,
+        "ratio_2f0_over_f0": -0.9994993415131224
+      }
+    },
+    {
+      "name": "sine_440_snr_10db",
+      "f0_est_hz": 440.3669724770642,
+      "f0_confidence": 0.9096945870376125,
+      "harmonic_valid": true,
+      "thd_percent": 0.7015546861146528,
+      "fundamental_amplitude": 0.5010369455735404,
+      "fundamental_relative_energy": 0.6039957315613156,
+      "acf_octave": {
+        "acf_f0": 0.9096945870376125,
+        "acf_2f0": -0.908860979203673,
+        "ratio_2f0_over_f0": -0.9990836398876967
+      }
+    },
+    {
+      "name": "sine_440_snr_0db",
+      "f0_est_hz": 87.91208791208791,
+      "f0_confidence": 0.5089462635724324,
+      "harmonic_valid": true,
+      "thd_percent": 8481.618498996473,
+      "fundamental_amplitude": 0.005935089838527373,
+      "fundamental_relative_energy": 2.2349593516291685e-05,
+      "acf_octave": {
+        "acf_f0": 0.5089462635724324,
+        "acf_2f0": -0.5015511970305053,
+        "ratio_2f0_over_f0": -0.9854698480542541
+      }
+    }
+  ],
+  "two_tone_acf_at_selected_f0": {
+    "acf_f0": 0.9998355132539276,
+    "acf_2f0": -7.810974341888373e-09,
+    "ratio_2f0_over_f0": -7.812259355009153e-09
+  },
+  "fre_summary": {
+    "pure_sines_min": 0.6666527776042354,
+    "subharmonic_lock_fre": 0.6666527777344523
+  }
+}

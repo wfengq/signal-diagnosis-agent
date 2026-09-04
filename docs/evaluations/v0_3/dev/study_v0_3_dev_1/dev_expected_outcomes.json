@@ -1,0 +1,68 @@
+{
+  "study_id": "v0.3-real-dev-validation-1",
+  "frozen_at_utc": "2026-09-04T06:17:00+00:00",
+  "prompt_version_for_confirmation": "v0.3-s1-planner-9.4",
+  "notes": "Development expected outcomes for unambiguous 14-case confirmation. Not a validation/test split.",
+  "cases": {
+    "a1f3c9e2b804d716": {
+      "category": "single_tone_periodic",
+      "expected_outcome": "no_supported_fault"
+    },
+    "b2e4d0f3c915e827": {
+      "category": "injected_harmonic",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": ["harmonic_distortion"]
+    },
+    "c3f5e1a4d026f938": {
+      "category": "clipping",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": ["clipping"]
+    },
+    "d4a6f2b5e1370a49": {
+      "category": "combined",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": ["clipping", "harmonic_distortion"]
+    },
+    "e5b7a3c6f2481b5a": {
+      "category": "multi_tone",
+      "expected_outcome": "inconclusive"
+    },
+    "f6c8b4d7a3592c6b": {
+      "category": "speech",
+      "expected_outcome": "inconclusive"
+    },
+    "07d9c5e8b46a3d7c": {
+      "category": "musical_instrument",
+      "expected_outcome": "inconclusive"
+    },
+    "18ea06f9c57b4e8d": {
+      "category": "environmental_non_periodic",
+      "expected_outcome": "inconclusive"
+    },
+    "29fb17a0d68c5f9e": {
+      "category": "low_snr_periodic",
+      "expected_outcome": "inconclusive",
+      "rationale": "Two isolated full-scale samples yield clipping_mechanism=true but not substantial clipping rule FAIL; harmonic valid=false. Frozen inconclusive."
+    },
+    "3a0c28b1e79d60af": {
+      "category": "controlled_distorted_periodic",
+      "expected_outcome": "inconclusive"
+    },
+    "4b1d39c2f8ae71b0": {
+      "category": "environmental_non_periodic",
+      "expected_outcome": "inconclusive"
+    },
+    "5c2e4ad309bf82c1": {
+      "category": "environmental_non_periodic",
+      "expected_outcome": "inconclusive"
+    },
+    "6d3f5be41ac093d2": {
+      "category": "ambiguous_boundary",
+      "expected_outcome": "inconclusive"
+    },
+    "7e4a6cf52bd1a4e3": {
+      "category": "ambiguous_boundary",
+      "expected_outcome": "inconclusive"
+    }
+  }
+}

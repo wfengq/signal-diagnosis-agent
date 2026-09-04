@@ -20,6 +20,7 @@ from signal_diag.agent.planner import (
     _Phase4V5RealLLMPlanner,
     _Phase4V6RealLLMPlanner,
     _Phase4V7RealLLMPlanner,
+    _Phase4V8_1RealLLMPlanner,
     _Phase4V8RealLLMPlanner,
 )
 from signal_diag.agent.prompts import (
@@ -187,7 +188,8 @@ def test_v81_identity_config_fields_and_slots() -> None:
 
     stub = _stub_client()
     planner = _build_phase4_3_1_v8_1_planner(stub)
-    assert type(planner) is RealLLMPlanner
+    assert type(planner) is _Phase4V8_1RealLLMPlanner
+    assert type(planner) is not RealLLMPlanner
     assert type(planner) is not _Phase4V8RealLLMPlanner
     assert planner._prompt_spec is _S1_PROMPT_V8_1
 

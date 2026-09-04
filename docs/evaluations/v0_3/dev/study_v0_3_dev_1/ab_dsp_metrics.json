@@ -14,7 +14,7 @@
     {
       "case_id": "c3f5e1a4d026f938",
       "category": "clipping",
-      "fre": 0.6666527527599077
+      "fre": 0.6666527776352777
     },
     {
       "case_id": "d4a6f2b5e1370a49",
@@ -50,6 +50,16 @@
       "case_id": "3a0c28b1e79d60af",
       "category": "controlled_distorted_periodic",
       "fre": 1.5255070795320823e-20
+    },
+    {
+      "case_id": "6d3f5be41ac093d2",
+      "category": "ambiguous_boundary",
+      "fre": 0.5403073690257558
+    },
+    {
+      "case_id": "7e4a6cf52bd1a4e3",
+      "category": "ambiguous_boundary",
+      "fre": 0.6569838803962292
     }
   ],
   "gate_metrics": [
@@ -83,8 +93,8 @@
       "f0_reliability": "reliable",
       "octave_ambiguity_detected": false,
       "harmonic_valid": true,
-      "fundamental_relative_energy": 0.6666527527599077,
-      "thd_percent": 0.004935143912288649
+      "fundamental_relative_energy": 0.6666527776352777,
+      "thd_percent": 0.00017842079607205093
     },
     {
       "case_id": "d4a6f2b5e1370a49",
@@ -184,6 +194,28 @@
       "harmonic_valid": false,
       "fundamental_relative_energy": null,
       "thd_percent": null
+    },
+    {
+      "case_id": "6d3f5be41ac093d2",
+      "category": "ambiguous_boundary",
+      "f0_hz": 200.0,
+      "f0_voiced": true,
+      "f0_reliability": "reliable",
+      "octave_ambiguity_detected": false,
+      "harmonic_valid": true,
+      "fundamental_relative_energy": 0.5403073690257558,
+      "thd_percent": 38.84634163085572
+    },
+    {
+      "case_id": "7e4a6cf52bd1a4e3",
+      "category": "ambiguous_boundary",
+      "f0_hz": 250.0,
+      "f0_voiced": true,
+      "f0_reliability": "reliable",
+      "octave_ambiguity_detected": false,
+      "harmonic_valid": true,
+      "fundamental_relative_energy": 0.6569838803962292,
+      "thd_percent": 11.819556715128916
     }
   ],
   "octave_ambiguity_cases": [

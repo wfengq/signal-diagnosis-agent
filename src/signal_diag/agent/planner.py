@@ -24,12 +24,13 @@ from .prompts import (
     _S1_PROMPT_V8_1,
     _PlannerPromptSpec,
 )
+from .prompts_v03 import _S1_PROMPT_V9_4
 
 # DeepSeek V4 Flash official API model ID (OpenAI-compatible endpoint).
 DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
-PROMPT_VERSION = _S1_PROMPT_V8_1.version
-_SYSTEM_PROMPT = _S1_PROMPT_V8_1.system_prompt
+PROMPT_VERSION = _S1_PROMPT_V9_4.version
+_SYSTEM_PROMPT = _S1_PROMPT_V9_4.system_prompt
 
 _AGENT_DECISION_ADAPTER: TypeAdapter[AgentDecision] = TypeAdapter(AgentDecision)
 
@@ -372,7 +373,7 @@ class RealLLMPlanner:
     ScriptedPlanner.
     """
 
-    _prompt_spec: ClassVar[_PlannerPromptSpec] = _S1_PROMPT_V8_1
+    _prompt_spec: ClassVar[_PlannerPromptSpec] = _S1_PROMPT_V9_4
 
     def __init__(
         self,
@@ -467,6 +468,10 @@ class _Phase4V7RealLLMPlanner(RealLLMPlanner):
 
 class _Phase4V8RealLLMPlanner(RealLLMPlanner):
     _prompt_spec: ClassVar[_PlannerPromptSpec] = _S1_PROMPT_V8
+
+
+class _Phase4V8_1RealLLMPlanner(RealLLMPlanner):
+    _prompt_spec: ClassVar[_PlannerPromptSpec] = _S1_PROMPT_V8_1
 
 
 def _create_async_openai_client(*, api_key: str, base_url: str) -> _ChatClient:

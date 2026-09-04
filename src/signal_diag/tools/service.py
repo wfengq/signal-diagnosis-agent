@@ -192,6 +192,7 @@ class SignalToolService:
             peak_abs=analysis.peak_abs,
             full_scale_detected=analysis.full_scale_detected,
             flat_top_detected=analysis.flat_top_detected,
+            clipping_mechanism=analysis.clipping_mechanism,
         )
         evidence = (
             self._build_evidence(
@@ -249,6 +250,14 @@ class SignalToolService:
                 metric="flat_top_detected",
                 value=output.flat_top_detected,
                 ordinal=6,
+            ),
+            self._build_evidence(
+                call_id=call_id,
+                tool_name="detect_clipping",
+                selection=args,
+                metric="clipping_mechanism",
+                value=output.clipping_mechanism,
+                ordinal=7,
             ),
         )
         return ToolResult(
@@ -447,6 +456,7 @@ class SignalToolService:
             fundamental_frequency_hz=analysis.fundamental_frequency_hz,
             thd_percent=analysis.thd_percent,
             components=self._filter_harmonic_components(analysis.components),
+            series_kind=analysis.series_kind,
         )
         if not analysis.valid:
             evidence = (
@@ -458,6 +468,15 @@ class SignalToolService:
                     value=False,
                     validity="not_applicable",
                     ordinal=0,
+                ),
+                self._build_evidence(
+                    call_id=call_id,
+                    tool_name="analyze_harmonic_distortion",
+                    selection=args,
+                    metric="series_kind",
+                    value=analysis.series_kind or "not_applicable",
+                    validity="not_applicable",
+                    ordinal=1,
                 ),
             )
             warning = analysis.invalid_reason or "harmonic distortion analysis invalid"
@@ -499,6 +518,18 @@ class SignalToolService:
             ),
         ]
         ordinal = 3
+        if output.series_kind is not None:
+            evidence_items.append(
+                self._build_evidence(
+                    call_id=call_id,
+                    tool_name="analyze_harmonic_distortion",
+                    selection=args,
+                    metric="series_kind",
+                    value=output.series_kind,
+                    ordinal=ordinal,
+                )
+            )
+            ordinal += 1
         for component in output.components:
             evidence_items.append(
                 self._build_evidence(

@@ -589,6 +589,12 @@ class DistortionDiagnosisRuntime:
                 known_rule_evaluation_ids=known_rule_evaluation_ids,
                 known_knowledge_retrieval_ids=known_knowledge_retrieval_ids,
                 task_assessment=assessment,
+                evidence=tuple(state["evidence"]),
+                rule_evaluations=tuple(
+                    evaluation
+                    for batch in state["rule_evaluation_batches"]
+                    for evaluation in batch.evaluations
+                ),
             )
         except DiagnosisValidationError as error:
             handled, planner_retries_remaining, recoverable_errors = (

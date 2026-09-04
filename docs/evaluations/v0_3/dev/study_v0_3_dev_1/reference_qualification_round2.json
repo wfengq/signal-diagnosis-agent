@@ -1,0 +1,28 @@
+{
+  "reference_analyzer_version": "1.1.0",
+  "qualified_at_utc": "2026-09-02T14:52:23.382735+00:00",
+  "new_cases": [
+    "6d3f5be41ac093d2",
+    "7e4a6cf52bd1a4e3"
+  ],
+  "qualification_probe": [
+    {
+      "case_id": "6d3f5be41ac093d2",
+      "reference_analyzer_version": "1.1.0",
+      "applicable": true,
+      "product_valid": true,
+      "product_f0_reliability": "reliable",
+      "product_fre": 0.5403073690257558,
+      "product_thd_percent": 38.84634163085572
+    },
+    {
+      "case_id": "7e4a6cf52bd1a4e3",
+      "reference_analyzer_version": "1.1.0",
+      "applicable": true,
+      "product_valid": true,
+      "product_f0_reliability": "reliable",
+      "product_fre": 0.6569838806404313,
+      "product_thd_percent": 11.81955663340572
+    }
+  ]
+}

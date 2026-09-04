@@ -1,0 +1,30 @@
+{
+  "case_id": "29fb17a0d68c5f9e",
+  "signal_category": "low_snr_periodic",
+  "final_adjudication_at_utc": "2026-09-04T06:17:00+00:00",
+  "expected_outcome_frozen": "inconclusive",
+  "profile_clipping_ratio_threshold_unchanged": 0.01,
+  "observations": {
+    "qualified_full_scale_samples": [8209, 8210],
+    "clipping_mechanism": true,
+    "flat_top_detected": false,
+    "clipping_ratio": 4.1666666666666665e-05,
+    "rule_clipping_ratio_acceptable": "pass",
+    "rule_flat_top_absent": "pass",
+    "harmonic_valid": false
+  },
+  "final_classification": "A_label_freeze_with_B_detector_boundary",
+  "causal_gate": {
+    "clipping_mechanism_alone_sufficient": false,
+    "requires_substantial_rule_fail": [
+      "rule_clipping_ratio_acceptable",
+      "rule_flat_top_absent"
+    ]
+  },
+  "rationale": [
+    "Two consecutive full-scale samples make clipping_mechanism=true under product defaults, but clipping_ratio remains far below the demo 1% rule and flat-top is absent.",
+    "Sparse isolated full-scale samples are insufficient for causal clipping on a periodic low-SNR signal.",
+    "expected_outcome is frozen to inconclusive; profile threshold 0.01 is not modified.",
+    "harmonic valid=false still must not auto-negate truly sufficient clipping Evidence (mechanism + substantial rule FAIL) on other cases."
+  ]
+}

@@ -21,6 +21,7 @@ from signal_diag.agent.planner import (
     RealLLMPlanner,
     _Phase4V4RealLLMPlanner,
     _Phase4V7RealLLMPlanner,
+    _Phase4V8_1RealLLMPlanner,
     _Phase4V8RealLLMPlanner,
 )
 from signal_diag.agent.prompts import (
@@ -28,6 +29,12 @@ from signal_diag.agent.prompts import (
     _S1_PROMPT_V5,
     _S1_PROMPT_V8,
     _S1_PROMPT_V8_1,
+)
+from signal_diag.agent.prompts_v03 import (
+    _S1_PROMPT_V9_1,
+    _S1_PROMPT_V9_2,
+    _S1_PROMPT_V9_3,
+    _S1_PROMPT_V9_4,
 )
 from signal_diag.signal.models import SignalMeta
 from signal_diag.tools.registry import get_tool_descriptors
@@ -319,11 +326,16 @@ def test_t216_v8_1_prompt_identity_is_coherent_and_not_an_appendix() -> None:
     }
 
 
-def test_t216_public_planner_selects_v8_1_and_private_v8_keeps_frozen_v8() -> None:
+def test_t216_public_planner_selects_v9_and_private_v8_1_keeps_frozen_v8_1() -> None:
     assert _S1_PROMPT_V8_1.version == "v0.2-s1-planner-8.1"
-    assert RealLLMPlanner._prompt_spec is _S1_PROMPT_V8_1
-    assert PROMPT_VERSION == "v0.2-s1-planner-8.1"
-    assert _SYSTEM_PROMPT == _S1_PROMPT_V8_1.system_prompt
+    assert _S1_PROMPT_V9_1.version == "v0.3-s1-planner-9.1"
+    assert _S1_PROMPT_V9_2.version == "v0.3-s1-planner-9.2"
+    assert _S1_PROMPT_V9_3.version == "v0.3-s1-planner-9.3"
+    assert _S1_PROMPT_V9_4.version == "v0.3-s1-planner-9.4"
+    assert RealLLMPlanner._prompt_spec is _S1_PROMPT_V9_4
+    assert _Phase4V8_1RealLLMPlanner._prompt_spec is _S1_PROMPT_V8_1
+    assert PROMPT_VERSION == "v0.3-s1-planner-9.4"
+    assert _SYSTEM_PROMPT == _S1_PROMPT_V9_4.system_prompt
     assert _Phase4V8RealLLMPlanner._prompt_spec is _S1_PROMPT_V8
     assert _Phase4V8RealLLMPlanner._prompt_spec.version == _FROZEN_V8_VERSION
     v8_digest, v8_size = _utf8_sha256(_Phase4V8RealLLMPlanner._prompt_spec.system_prompt)
@@ -347,12 +359,12 @@ def test_t216_public_planner_selects_v8_1_and_private_v8_keeps_frozen_v8() -> No
 
 
 @pytest.mark.asyncio
-async def test_t216_public_planner_user_message_identifies_v8_1_only(
+async def test_t216_v8_1_pinned_planner_user_message_identifies_v8_1_only(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
     client = _FakeClient(json.dumps(_valid_call_tool_payload()))
-    planner = RealLLMPlanner(
+    planner = _Phase4V8_1RealLLMPlanner(
         provider="deepseek",
         api_key="test-key",
         model="deepseek-v4-flash",

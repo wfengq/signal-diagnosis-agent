@@ -10,7 +10,6 @@ import pytest
 from signal_diag.evaluation.external.models import (
     EXTERNAL_TRANSFORM_ID,
     EXTERNAL_TRANSFORM_VERSION_AMPNORM,
-    EXTERNAL_TRANSFORM_VERSION_EVEN_ORDER,
     TransformConfig,
 )
 from signal_diag.evaluation.external.transforms import (
