@@ -139,7 +139,9 @@ async def test_ev_t044_shared_wav_materialization(
     one_case_seal: Path,
     fixture_root: Path,
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
     output_base = tmp_path / "runs"
     baseline = await run_external_baseline(
         one_case_seal,
@@ -173,7 +175,9 @@ async def test_ev_t045_provider_failure_consumes_slot_without_fallback(
     one_case_seal: Path,
     fixture_root: Path,
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
     factory = CountingFactory(_FailingPlanner())
     output = tmp_path / "agent"
     report = await run_external_agent(

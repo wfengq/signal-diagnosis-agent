@@ -168,7 +168,7 @@ def test_t_cx_engine_evaluates_contextual_growth_fail_independently() -> None:
                 evidence_id="ev_growth",
                 source_tool="analyze_contextual_distortion",
                 metric="even_harmonic_growth_percent",
-                value=1.5,
+                value=6.5,
                 unit="%",
             )
         ],
