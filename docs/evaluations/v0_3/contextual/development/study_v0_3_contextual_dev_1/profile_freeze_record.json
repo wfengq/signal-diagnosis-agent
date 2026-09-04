@@ -1,0 +1,9 @@
+{
+  "old_sha256": "b0f95d7d76044910108a80a20227d48513d0530990185254ba6f544f7ea57eb5",
+  "new_sha256": "c79865caf913b2a1a5f6f50fccd8c37d6f2828e72feb1f80d9c9c7b4b7d9eb58",
+  "version": "1.0.0",
+  "selected_threshold_percent": 5.0,
+  "code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+  "manifest_sha256": "cca0ee24d8574435761d2d057fd4341c5e015ee7d5337826f796ea832cf047dd",
+  "created_at_utc": "2026-09-04T11:52:20.269162+00:00"
+}

@@ -1,0 +1,171 @@
+{
+  "study_dir": "C:\\Users\\wei\\Desktop\\\u62db\u8058\\signal-diagnosis-agent\\docs\\evaluations\\v0_3\\contextual\\development\\study_v0_3_contextual_dev_1",
+  "growth_threshold_percent": 5.0,
+  "case_count": 20,
+  "all_gates_passed": true,
+  "failures": [],
+  "rows": [
+    {
+      "case_id": "8b57b4a24fbc51a1",
+      "role": "clean",
+      "mode": "paired_reference",
+      "valid": true,
+      "invalid_reason": null,
+      "even_harmonic_growth_percent": 0.0,
+      "gate_ok": true
+    },
+    {
+      "case_id": "79a70f02190738fc",
+      "role": "clipping",
+      "mode": "paired_reference",
+      "valid": true,
+      "invalid_reason": null,
+      "even_harmonic_growth_percent": 0.0,
+      "gate_ok": true
+    },
+    {
+      "case_id": "da987201b431de30",
+      "role": "clipping",
+      "mode": "paired_reference",
+      "valid": true,
+      "invalid_reason": null,
+      "even_harmonic_growth_percent": 0.0,
+      "gate_ok": true
+    },
+    {
+      "case_id": "3fc39ae70761089d",
+      "role": "harmonic",
+      "mode": "paired_reference",
+      "valid": true,
+      "invalid_reason": null,
+      "even_harmonic_growth_percent": 5.15808256901565,
+      "gate_ok": true
+    },
+    {
+      "case_id": "88c30f8a7b6e4e7d",
+      "role": "harmonic",
+      "mode": "paired_reference",
+      "valid": true,
+      "invalid_reason": null,
+      "even_harmonic_growth_percent": 6.889721963044264,
+      "gate_ok": true
+    },
+    {
+      "case_id": "a97de111278f6294",
+      "role": "combined",
+      "mode": "paired_reference",
+      "valid": true,
+      "invalid_reason": null,
+      "even_harmonic_growth_percent": 8.584441161676814,
+      "gate_ok": true
+    },
+    {
+      "case_id": "b1747db1743a6132",
+      "role": "combined",
+      "mode": "paired_reference",
+      "valid": true,
+      "invalid_reason": null,
+      "even_harmonic_growth_percent": 5.60395997423895,
+      "gate_ok": true
+    },
+    {
+      "case_id": "6833b21ff8aa4272",
+      "role": "natural_even_control",
+      "mode": "paired_reference",
+      "valid": true,
+      "invalid_reason": null,
+      "even_harmonic_growth_percent": 0.0,
+      "gate_ok": true
+    },
+    {
+      "case_id": "5ccaede2ae44fb11",
+      "role": "natural_even_control",
+      "mode": "paired_reference",
+      "valid": true,
+      "invalid_reason": null,
+      "even_harmonic_growth_percent": 0.0,
+      "gate_ok": true
+    },
+    {
+      "case_id": "213a25e2a70a3de4",
+      "role": "invalid_comparison",
+      "mode": "paired_reference",
+      "valid": false,
+      "invalid_reason": "fundamental_incompatible",
+      "even_harmonic_growth_percent": null,
+      "gate_ok": true
+    },
+    {
+      "case_id": "bb1d7e517157752f",
+      "role": "clean",
+      "mode": "nominal_single_tone",
+      "valid": true,
+      "invalid_reason": null,
+      "even_harmonic_growth_percent": 0.11065333061076037,
+      "gate_ok": true
+    },
+    {
+      "case_id": "824406bf96fc6807",
+      "role": "clipping",
+      "mode": "nominal_single_tone",
+      "valid": true,
+      "invalid_reason": null,
+      "even_harmonic_growth_percent": 0.5111331721876943,
+      "gate_ok": true
+    },
+    {
+      "case_id": "fe7d2f3fbd1f160a",
+      "role": "harmonic",
+      "mode": "nominal_single_tone",
+      "valid": true,
+      "invalid_reason": null,
+      "even_harmonic_growth_percent": 7.321857642546769,
+      "gate_ok": true
+    },
+    {
+      "case_id": "8e3fe2627ceb014e",
+      "role": "frequency_mismatch",
+      "mode": "nominal_single_tone",
+      "valid": false,
+      "invalid_reason": "fundamental_incompatible_with_declaration",
+      "even_harmonic_growth_percent": null,
+      "gate_ok": true
+    },
+    {
+      "case_id": "1e6779aaf38fc3c5",
+      "role": "clean",
+      "mode": "single_signal",
+      "gate_ok": true
+    },
+    {
+      "case_id": "9d3fd93de0c07c66",
+      "role": "clipping",
+      "mode": "single_signal",
+      "gate_ok": true
+    },
+    {
+      "case_id": "1944637f7bffe88a",
+      "role": "controlled_inconclusive",
+      "mode": "single_signal",
+      "gate_ok": true
+    },
+    {
+      "case_id": "cb52b33ba66ed39b",
+      "role": "domain_out_inconclusive",
+      "mode": "single_signal",
+      "gate_ok": true
+    },
+    {
+      "case_id": "576843a58393a184",
+      "role": "domain_out_inconclusive",
+      "mode": "single_signal",
+      "gate_ok": true
+    },
+    {
+      "case_id": "fa1f8413027d6ac1",
+      "role": "domain_out_inconclusive",
+      "mode": "single_signal",
+      "gate_ok": true
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from hashlib import sha256
+from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -90,5 +91,37 @@ def calibrate_even_growth_threshold(
     )
 
 
+def product_package_sha256(*relative_paths: str) -> str:
+    """SHA-256 over sorted relative paths and file bytes under ``signal_diag``."""
+    package_root = Path(__file__).resolve().parents[2]
+    digest = sha256()
+    for relative in sorted(relative_paths):
+        path = package_root / relative
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(path.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def contextual_implementation_sha256() -> str:
+    """Identity of the contextual calibration-relevant implementation tree."""
+    package_root = Path(__file__).resolve().parents[2]
+    paths: list[str] = []
+    contextual_dir = package_root / "evaluation" / "contextual"
+    for path in sorted(contextual_dir.glob("*.py")):
+        paths.append(str(path.relative_to(package_root)).replace("\\", "/"))
+    paths.extend(
+        [
+            "dsp/contextual.py",
+            "dsp/clipping.py",
+            "dsp/harmonics.py",
+            "rules/profiles/s1_contextual_comparison_v1.yaml",
+        ]
+    )
+    return product_package_sha256(*paths)
+
+
 def stable_code_sha(text: str) -> str:
+    """Deprecated alias retained for older tests; prefer ``contextual_implementation_sha256``."""
     return sha256(text.encode("utf-8")).hexdigest()

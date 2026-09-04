@@ -5,6 +5,7 @@ from __future__ import annotations
 from signal_diag.evaluation.contextual.calibration import (
     CONTEXTUAL_GROWTH_CANDIDATES,
     calibrate_even_growth_threshold,
+    contextual_implementation_sha256,
     stable_code_sha,
 )
 from signal_diag.evaluation.contextual.models import ContextualManifest
@@ -37,3 +38,9 @@ def test_t_cx138b_blocks_when_no_candidate_qualifies(
     )
     assert report.calibration_status == "blocked"
     assert report.selected_threshold_percent is None
+
+
+def test_t_cx138c_implementation_sha_tracks_package_bytes() -> None:
+    digest = contextual_implementation_sha256()
+    assert len(digest) == 64
+    assert digest != stable_code_sha("signal_diag.evaluation.contextual")

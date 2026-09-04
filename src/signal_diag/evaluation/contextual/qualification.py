@@ -13,11 +13,22 @@ from signal_diag.evaluation.contextual.manifest import (
 )
 from signal_diag.signal.wav import load_wav_bytes
 
+_CLIPPING_RATIO_FAIL = 0.01
+
+
+def _clipping_causal_ok(clip: object) -> bool:
+    mechanism = bool(clip.clipping_mechanism)
+    ratio = float(clip.clipping_ratio)
+    flat = bool(clip.flat_top_detected)
+    substantial = ratio > _CLIPPING_RATIO_FAIL or flat
+    return mechanism and substantial
+
 
 def qualify_development_study(
     *,
     study_dir: Path,
     growth_threshold_percent: float,
+    min_natural_even_reference_thd_percent: float = 5.0,
 ) -> dict[str, object]:
     """Re-run deterministic gates for an on-disk development study."""
     study_dir = study_dir.resolve()
@@ -42,12 +53,18 @@ def qualify_development_study(
         }
         if case.mode == "single_signal":
             clip = analyze_clipping(test)
+            row["clipping_mechanism"] = clip.clipping_mechanism
+            row["test_clipping_ratio"] = clip.clipping_ratio
+            row["test_flat_top"] = clip.flat_top_detected
             ok = True
             if case.role == "clipping":
-                ok = clip.clipping_ratio > 0.01 or clip.flat_top_detected
+                ok = _clipping_causal_ok(clip)
             row["gate_ok"] = ok
             if not ok:
-                failures.append(f"{case.case_id}: single clipping gate failed")
+                failures.append(
+                    f"{case.case_id}: single clipping gate failed "
+                    f"(mechanism={clip.clipping_mechanism}, ratio={clip.clipping_ratio})"
+                )
             rows.append(row)
             continue
         reference = None
@@ -69,32 +86,39 @@ def qualify_development_study(
                 reference_samples=reference,
                 reference_sample_rate_hz=rate,
             )
+        test_clip = analyze_clipping(test)
         growth = analysis.even_harmonic_growth_percent
         ok = True
         if case.role == "clean":
             ok = bool(
                 analysis.valid
                 and (growth or 0.0) <= growth_threshold_percent
-                and analysis.test_clipping_ratio <= 0.01
+                and not _clipping_causal_ok(test_clip)
             )
         elif case.role == "clipping":
-            ok = analysis.test_clipping_ratio > 0.01 or bool(
-                analysis.test_flat_top_detected
-            )
+            ok = _clipping_causal_ok(test_clip)
+            if case.mode == "paired_reference":
+                ok = ok and bool(analysis.valid)
         elif case.role == "harmonic":
             ok = bool(
                 analysis.valid
                 and (growth or 0.0) > growth_threshold_percent
-                and analysis.test_clipping_ratio <= 0.01
+                and not _clipping_causal_ok(test_clip)
             )
         elif case.role == "combined":
             ok = bool(
                 analysis.valid
-                and (analysis.test_clipping_ratio > 0.01 or analysis.test_flat_top_detected)
+                and _clipping_causal_ok(test_clip)
                 and (growth or 0.0) > growth_threshold_percent
             )
         elif case.role == "natural_even_control":
-            ok = bool(analysis.valid and (growth or 0.0) <= growth_threshold_percent)
+            ref_thd = analysis.reference_thd_percent
+            ok = bool(
+                analysis.valid
+                and (growth or 0.0) <= growth_threshold_percent
+                and ref_thd is not None
+                and ref_thd >= min_natural_even_reference_thd_percent
+            )
         elif case.role in {"invalid_comparison", "frequency_mismatch"}:
             ok = not analysis.valid
         row.update(
@@ -102,15 +126,20 @@ def qualify_development_study(
                 "valid": analysis.valid,
                 "invalid_reason": analysis.invalid_reason,
                 "even_harmonic_growth_percent": growth,
+                "reference_thd_percent": analysis.reference_thd_percent,
+                "clipping_mechanism": test_clip.clipping_mechanism,
+                "test_clipping_ratio": test_clip.clipping_ratio,
+                "test_flat_top": test_clip.flat_top_detected,
                 "gate_ok": ok,
             }
         )
         if not ok:
-            failures.append(f"{case.case_id}: gate failed")
+            failures.append(f"{case.case_id}: gate failed role={case.role}")
         rows.append(row)
     return {
         "study_dir": str(study_dir),
         "growth_threshold_percent": growth_threshold_percent,
+        "min_natural_even_reference_thd_percent": min_natural_even_reference_thd_percent,
         "case_count": len(manifest.cases),
         "all_gates_passed": len(failures) == 0,
         "failures": failures,

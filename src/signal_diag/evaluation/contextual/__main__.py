@@ -9,7 +9,7 @@ from pathlib import Path
 
 from signal_diag.evaluation.contextual.calibration import (
     calibrate_even_growth_threshold,
-    stable_code_sha,
+    contextual_implementation_sha256,
 )
 from signal_diag.evaluation.contextual.manifest import (
     load_contextual_manifest,
@@ -108,7 +108,7 @@ def main(argv: list[str] | None = None) -> int:
             manifest=manifest,
             control_growth_percents=controls,
             positive_growth_percents=positives,
-            code_sha256=stable_code_sha("signal_diag.evaluation.contextual"),
+            code_sha256=contextual_implementation_sha256(),
         )
         args.output.write_text(
             calibration_report.model_dump_json(indent=2) + "\n", encoding="utf-8"
