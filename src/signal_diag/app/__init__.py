@@ -1,6 +1,16 @@
 """Local presentation application layer."""
 
 from signal_diag.app.composition import build_product_service
+from signal_diag.app.contextual_models import (
+    ContextualAppRunSnapshot,
+    ContextualDiagnosisReport,
+    ContextualRunSubmission,
+)
+from signal_diag.app.contextual_reporting import (
+    build_contextual_diagnosis_report,
+    render_contextual_report_html,
+    render_contextual_report_json,
+)
 from signal_diag.app.models import (
     AcceptedEvaluationSummary,
     AppErrorCode,
@@ -36,6 +46,9 @@ __all__ = [
     "AppErrorEnvelope",
     "AppRunSnapshot",
     "AppRunStatus",
+    "ContextualAppRunSnapshot",
+    "ContextualDiagnosisReport",
+    "ContextualRunSubmission",
     "DemoPresetDescriptor",
     "DemoPresetId",
     "DiagnosisApplicationService",
@@ -46,6 +59,7 @@ __all__ = [
     "TraceEventView",
     "WaveformPoint",
     "WaveformPreview",
+    "build_contextual_diagnosis_report",
     "build_demo_preset",
     "build_diagnosis_report",
     "build_product_service",
@@ -53,6 +67,8 @@ __all__ = [
     "list_demo_presets",
     "load_accepted_evaluation_summary",
     "project_agent_events",
+    "render_contextual_report_html",
+    "render_contextual_report_json",
     "render_report_html",
     "render_report_json",
 ]

@@ -12,6 +12,16 @@ from typing import Literal, Protocol, runtime_checkable
 from signal_diag.agent.planner import PlannerModel
 from signal_diag.agent.diagnosis import CausalPolicyVersion
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
+from signal_diag.app.contextual_models import (
+    ContextualAppRunSnapshot,
+    ContextualRunSubmission,
+)
+from signal_diag.app.contextual_runs import (
+    BoundedContextualRunExecutor,
+    ContextualRunExecutionResult,
+    ContextualRunWorkItem,
+    InMemoryContextualRunStore,
+)
 from signal_diag.app.errors import (
     ApplicationError,
     InvalidRequestError,
@@ -51,6 +61,8 @@ from signal_diag.signal import (
     extract_segment,
     load_wav_bytes,
 )
+from signal_diag.signal.context import EffectiveCapabilities, StimulusContext
+from signal_diag.tools.evidence import Evidence
 from signal_diag.tools.service import SignalToolService
 
 _MAX_USER_REQUEST_CHARS = 2_000
@@ -115,6 +127,47 @@ def _new_run_id() -> str:
     return f"run_{uuid.uuid4().hex}"
 
 
+def _queued_capabilities(
+    mode: Literal["nominal_single_tone", "paired_reference"],
+) -> EffectiveCapabilities:
+    if mode == "nominal_single_tone":
+        return EffectiveCapabilities(nominal_harmonic_attribution=True)
+    return EffectiveCapabilities(paired_harmonic_attribution=True)
+
+
+def _context_valid_value(evidence: tuple[Evidence, ...]) -> bool | None:
+    for item in evidence:
+        if item.metric == "context_valid":
+            return bool(item.value)
+    return None
+
+
+def _terminal_capabilities(
+    *,
+    mode: Literal["nominal_single_tone", "paired_reference"],
+    queued: EffectiveCapabilities,
+    evidence: tuple[Evidence, ...],
+) -> EffectiveCapabilities:
+    context_valid = _context_valid_value(evidence)
+    if mode == "paired_reference":
+        paired = bool(queued.paired_harmonic_attribution and context_valid is True)
+        return EffectiveCapabilities(
+            clipping=True,
+            absolute_harmonic_description=True,
+            nominal_harmonic_attribution=queued.nominal_harmonic_attribution,
+            paired_harmonic_attribution=paired,
+        )
+    nominal = bool(
+        queued.nominal_harmonic_attribution and context_valid is not False
+    )
+    return EffectiveCapabilities(
+        clipping=True,
+        absolute_harmonic_description=True,
+        nominal_harmonic_attribution=nominal,
+        paired_harmonic_attribution=False,
+    )
+
+
 class DiagnosisApplicationService:
     def __init__(
         self,
@@ -123,11 +176,20 @@ class DiagnosisApplicationService:
         clock: Callable[[], datetime] | None = None,
         store: InMemoryRunStore | None = None,
         executor: BoundedRunExecutor | None = None,
+        contextual_store: InMemoryContextualRunStore | None = None,
+        contextual_executor: BoundedContextualRunExecutor | None = None,
     ) -> None:
         self._dependencies = dependencies
         self._clock = clock or _utc_now
         self._store = store or InMemoryRunStore(cleanup=self._cleanup_owned_signals)
         self._executor = executor or BoundedRunExecutor(self._store, clock=self._clock)
+        self._contextual_store = contextual_store or InMemoryContextualRunStore(
+            cleanup=self._cleanup_owned_signals
+        )
+        self._contextual_executor = contextual_executor or BoundedContextualRunExecutor(
+            self._contextual_store,
+            clock=self._clock,
+        )
 
     async def submit_wav(
         self,
@@ -173,8 +235,189 @@ class DiagnosisApplicationService:
             return await waiter
         return await asyncio.wait_for(waiter, timeout=timeout_s)
 
+    async def submit_contextual_wav(
+        self,
+        test_data: bytes,
+        *,
+        test_filename: str | None,
+        mode: Literal["nominal_single_tone", "paired_reference"],
+        reference_data: bytes | None,
+        reference_filename: str | None,
+        nominal_fundamental_hz: float | None,
+        stimulus_kind: Literal["single_tone"] | None,
+        user_request: str,
+        channel: ChannelMode = "mixdown",
+    ) -> ContextualRunSubmission:
+        if not self._dependencies.planner_configured:
+            raise PlannerNotConfiguredError(_planner_not_configured_detail())
+        question = _normalize_question(user_request)
+        if mode == "nominal_single_tone":
+            if reference_data is not None or reference_filename is not None:
+                raise _invalid_request(
+                    "nominal_single_tone rejects a reference WAV"
+                )
+            if stimulus_kind != "single_tone":
+                raise _invalid_request(
+                    "nominal_single_tone requires stimulus_kind=single_tone"
+                )
+            if nominal_fundamental_hz is None:
+                raise _invalid_request(
+                    "nominal_single_tone requires nominal_fundamental_hz"
+                )
+        else:
+            if reference_data is None:
+                raise _invalid_request("paired_reference requires a reference WAV")
+            if stimulus_kind == "single_tone" and nominal_fundamental_hz is None:
+                raise _invalid_request(
+                    "paired_reference with stimulus_kind=single_tone requires "
+                    "nominal_fundamental_hz"
+                )
+
+        test_source_record, test_source_summary = self._load_wav_source(
+            test_data, filename=test_filename
+        )
+        reference_source_record: SignalRecord | None = None
+        reference_source_summary: SourceSummary | None = None
+        if mode == "paired_reference":
+            assert reference_data is not None
+            reference_source_record, reference_source_summary = self._load_wav_source(
+                reference_data, filename=reference_filename
+            )
+
+        try:
+            test_selected = extract_segment(test_source_record, channel=channel)
+        except UnsupportedChannelError as error:
+            raise _invalid_request(str(error)) from error
+        test_analysis_record = build_signal_record(
+            test_selected,
+            sample_rate_hz=test_source_record.meta.sample_rate_hz,
+            source_type=test_source_record.meta.source_type,
+            filename=test_source_record.meta.filename,
+        )
+        test_preview = build_waveform_preview(
+            test_selected,
+            sample_rate_hz=test_analysis_record.meta.sample_rate_hz,
+        )
+
+        reference_analysis_record: SignalRecord | None = None
+        if reference_source_record is not None:
+            try:
+                reference_selected = extract_segment(
+                    reference_source_record, channel=channel
+                )
+            except UnsupportedChannelError as error:
+                raise _invalid_request(str(error)) from error
+            reference_analysis_record = build_signal_record(
+                reference_selected,
+                sample_rate_hz=reference_source_record.meta.sample_rate_hz,
+                source_type=reference_source_record.meta.source_type,
+                filename=reference_source_record.meta.filename,
+            )
+
+        test_analysis_id = test_analysis_record.meta.signal_id
+        reference_analysis_id = (
+            reference_analysis_record.meta.signal_id
+            if reference_analysis_record is not None
+            else None
+        )
+        stimulus_context = StimulusContext(
+            mode=mode,
+            test_signal_id=test_analysis_id,
+            reference_signal_id=reference_analysis_id,
+            nominal_fundamental_hz=nominal_fundamental_hz,
+            stimulus_kind=stimulus_kind,
+            assertion_source="user_supplied",
+        )
+        queued_caps = _queued_capabilities(mode)
+        run_id = _new_run_id()
+        snapshot = ContextualAppRunSnapshot(
+            run_id=run_id,
+            status="queued",
+            created_at=self._clock(),
+            user_request=question,
+            analyzed_channel=channel,
+            test_source=test_source_summary,
+            reference_source=reference_source_summary,
+            stimulus_context=stimulus_context,
+            effective_capabilities=queued_caps,
+            test_preview=test_preview,
+            planner_identity=self._dependencies.planner_identity,
+        )
+
+        async def execute() -> ContextualRunExecutionResult:
+            inner = self._dependencies.planner_factory()
+            recorder = RecordingPlanner(inner)
+            runtime = DistortionDiagnosisRuntime(
+                repository=self._dependencies.repository,
+                tool_service=SignalToolService(self._dependencies.repository),
+                planner=recorder,
+                rule_engine=self._dependencies.rule_engine,
+                rule_profile_loader=self._dependencies.rule_profile_loader,
+                knowledge_index=self._dependencies.knowledge_index,
+                causal_policy_version=self._dependencies.causal_policy_version,
+            )
+            result = await runtime.run(
+                signal_id=test_analysis_id,
+                user_request=f"{question}\nAnalyzed channel: {channel}.",
+                stimulus_context=stimulus_context,
+            )
+            events = assemble_agent_events(recorder.records, result)
+            return ContextualRunExecutionResult(
+                result=result,
+                trace_events=project_agent_events(events),
+                effective_capabilities=_terminal_capabilities(
+                    mode=mode,
+                    queued=queued_caps,
+                    evidence=result.evidence,
+                ),
+            )
+
+        repository = self._dependencies.repository
+        inserted: list[str] = []
+        owned: list[str] = []
+        try:
+            repository.put(test_source_record)
+            inserted.append(test_source_record.meta.signal_id)
+            owned.append(test_source_record.meta.signal_id)
+            repository.put(test_analysis_record)
+            inserted.append(test_analysis_id)
+            owned.append(test_analysis_id)
+            if reference_source_record is not None and reference_analysis_record is not None:
+                repository.put(reference_source_record)
+                inserted.append(reference_source_record.meta.signal_id)
+                owned.append(reference_source_record.meta.signal_id)
+                repository.put(reference_analysis_record)
+                inserted.append(reference_analysis_id)  # type: ignore[arg-type]
+                owned.append(reference_analysis_id)  # type: ignore[arg-type]
+            await self._contextual_executor.submit(
+                ContextualRunWorkItem(run_id=run_id, execute=execute),
+                snapshot=snapshot,
+                owned_signal_ids=tuple(owned),
+            )
+        except Exception:
+            for signal_id in inserted:
+                if repository.exists(signal_id):
+                    repository.remove(signal_id)
+            raise
+        return ContextualRunSubmission(run_id=run_id, status="queued")
+
+    def get_contextual_run(self, run_id: str) -> ContextualAppRunSnapshot:
+        return self._contextual_store.get(run_id)
+
+    async def wait_for_contextual_terminal(
+        self,
+        run_id: str,
+        *,
+        timeout_s: float | None = None,
+    ) -> ContextualAppRunSnapshot:
+        waiter = self._contextual_store.wait_for_terminal(run_id)
+        if timeout_s is None:
+            return await waiter
+        return await asyncio.wait_for(waiter, timeout=timeout_s)
+
     async def aclose(self) -> None:
         await self._executor.aclose()
+        await self._contextual_executor.aclose()
 
     def _cleanup_owned_signals(self, signal_ids: tuple[str, ...]) -> None:
         repository = self._dependencies.repository
