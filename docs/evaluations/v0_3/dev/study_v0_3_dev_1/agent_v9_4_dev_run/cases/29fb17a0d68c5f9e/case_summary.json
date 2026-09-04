@@ -1,0 +1,57 @@
+{
+  "case_id": "29fb17a0d68c5f9e",
+  "signal_category": "low_snr_periodic",
+  "valid": false,
+  "B_gate_fired": true,
+  "C_policy_path": "inconclusive",
+  "outcome": "inconclusive",
+  "expected_outcome": "inconclusive",
+  "expected_causal_faults": null,
+  "causal_faults": [],
+  "claims": [
+    {
+      "claim_id": "claim_inconclusive_broad_1",
+      "fault_type": "inconclusive",
+      "statement": "Clipping is not supported because the clipping ratio rule PASS and flat-top rule PASS indicate no substantial clipping, despite clipping_mechanism=true. Harmonic analysis is invalid because the fundamental bin energy is below the reliability threshold, so harmonic distortion cannot be established.",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+      ],
+      "rule_refs": [
+        "ruleval_0adbe73438c45702",
+        "ruleval_a670d5d62d79c436",
+        "ruleval_3218b9baf7883009"
+      ],
+      "knowledge_refs": []
+    }
+  ],
+  "evidence_refs": [
+    "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+    "ev_detect_clipping_detect_clipping_000000_001",
+    "ev_detect_clipping_detect_clipping_000000_006"
+  ],
+  "rule_refs": [
+    "ruleval_0adbe73438c45702",
+    "ruleval_3218b9baf7883009",
+    "ruleval_a670d5d62d79c436"
+  ],
+  "limitations": [
+    "Harmonic distortion analysis is invalid because the fundamental bin energy is below the reliability threshold; causal S1 distortion attribution is not supported.",
+    "Clipping is not supported because the clipping ratio is below the configured threshold and no flat-top is detected, so the sparse full-scale samples do not constitute substantial clipping."
+  ],
+  "confidence_label": "low",
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_harmonic_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [],
+  "termination_reason": "planner_finished",
+  "status": "inconclusive",
+  "started_at_utc": "2026-09-04T06:47:10.551250+00:00",
+  "finished_at_utc": "2026-09-04T06:47:19.470356+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/29fb17a0d68c5f9e",
+  "failure_class": "correct",
+  "correct": true
+}

@@ -1,0 +1,52 @@
+{
+  "case_id": "07d9c5e8b46a3d7c",
+  "signal_category": "musical_instrument",
+  "valid": false,
+  "B_gate_fired": true,
+  "C_policy_path": "inconclusive",
+  "outcome": "inconclusive",
+  "expected_outcome": "inconclusive",
+  "expected_causal_faults": null,
+  "causal_faults": [],
+  "claims": [
+    {
+      "claim_id": "claim_inconclusive_invalid_harmonic",
+      "fault_type": "inconclusive",
+      "statement": "Clipping is ruled out by valid evidence, but harmonic distortion analysis is invalid (fundamental bin energy below reliability threshold), so causal S1 distortion attribution cannot be established.",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+      ],
+      "rule_refs": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_3218b9baf7883009"
+      ],
+      "knowledge_refs": []
+    }
+  ],
+  "evidence_refs": [
+    "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+    "ev_detect_clipping_detect_clipping_000000_000"
+  ],
+  "rule_refs": [
+    "ruleval_237883d67b741c3e",
+    "ruleval_3218b9baf7883009"
+  ],
+  "limitations": [
+    "Harmonic distortion analysis is invalid because the fundamental bin energy is below the reliability threshold; causal S1 distortion attribution is not supported."
+  ],
+  "confidence_label": "low",
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_harmonic_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [],
+  "termination_reason": "planner_finished",
+  "status": "inconclusive",
+  "started_at_utc": "2026-09-04T06:46:54.825168+00:00",
+  "finished_at_utc": "2026-09-04T06:47:02.548701+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/07d9c5e8b46a3d7c",
+  "failure_class": "correct",
+  "correct": true
+}

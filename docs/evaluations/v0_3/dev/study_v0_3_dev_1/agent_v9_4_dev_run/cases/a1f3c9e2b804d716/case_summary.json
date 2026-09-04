@@ -1,0 +1,52 @@
+{
+  "case_id": "a1f3c9e2b804d716",
+  "signal_category": "single_tone_periodic",
+  "valid": true,
+  "B_gate_fired": false,
+  "C_policy_path": "no_supported_fault",
+  "outcome": "no_supported_fault",
+  "expected_outcome": "no_supported_fault",
+  "expected_causal_faults": null,
+  "causal_faults": [
+    "no_supported_fault"
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clean_1",
+      "fault_type": "no_supported_fault",
+      "statement": "Clipping and harmonic distortion are both closed by sufficient Evidence; the supported cause set is empty.",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+      ],
+      "rule_refs": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_6a23051f2e98be68"
+      ],
+      "knowledge_refs": []
+    }
+  ],
+  "evidence_refs": [
+    "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+    "ev_detect_clipping_detect_clipping_000000_000"
+  ],
+  "rule_refs": [
+    "ruleval_237883d67b741c3e",
+    "ruleval_6a23051f2e98be68"
+  ],
+  "limitations": [],
+  "confidence_label": "high",
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_harmonic_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [],
+  "termination_reason": "planner_finished",
+  "status": "success",
+  "started_at_utc": "2026-09-04T06:45:47.181278+00:00",
+  "finished_at_utc": "2026-09-04T06:46:00.378176+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/a1f3c9e2b804d716",
+  "failure_class": "correct",
+  "correct": true
+}

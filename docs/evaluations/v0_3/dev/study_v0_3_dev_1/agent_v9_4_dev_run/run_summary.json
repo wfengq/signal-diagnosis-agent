@@ -1,0 +1,817 @@
+{
+  "study_id": "v0.3-real-dev-validation-1",
+  "run_id": "agent_v9_4_dev_run",
+  "authorization": "one-shot 14-case development confirmation after v9.4 semantic freeze; no validation/test access; no ScriptedPlanner fallback; no slot retries",
+  "planner_version": "v0.3-s1-planner-9.4",
+  "wired_prompt_version": "v0.3-s1-planner-9.4",
+  "prompt_sha256": "a29c9cda17bd4bf1d922880610609e32f0670b3eecb984a1e3afa16671e806af",
+  "prior_prompt_sha256": {
+    "v9_0": "bbc6ec4c8f2b7fbe27872188c7f8bb1a64241d48dd87d02841736641f3d1c59a",
+    "v9_1": "2193c8e221cf5e1abd3abe98105745c5685912f14fb7e76c7aa033b4c1568672",
+    "v9_2": "4dc9716099d7dd37e35949aa11325f096f5f5213a0b0067c1119affc95545984",
+    "v9_3": "9fd0436e57b0d7db57abdfa3e2a87aca4e704d7c1f70adf781b1af967776554a"
+  },
+  "code_sha": "e7258f236b77329ff7fcb4382ae52e35ab4d3062",
+  "manifest_sha256": "8ed0a1db6884d60d60523c9719dfabb9f1eccb3d71ba9ef84dc2479ba262f85b",
+  "manifest_path": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/dev_manifest.json",
+  "expected_outcomes_path": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/dev_expected_outcomes.json",
+  "model_provider": "deepseek",
+  "model_id": "deepseek-v4-flash",
+  "planner_class": "RealLLMPlanner",
+  "scripted_planner_fallback": false,
+  "started_at_utc": "2026-09-04T06:45:47.166875+00:00",
+  "finished_at_utc": "2026-09-04T06:48:00.371110+00:00",
+  "complete": true,
+  "cases_done": 14,
+  "correct_count": 14,
+  "correct_rate": 1.0,
+  "planner_success_rate": 1.0,
+  "historical_runs_preserved": [
+    "agent_v9_0_dev_run_1",
+    "agent_v9_1_dev_run_round2",
+    "agent_v9_2_dev_run"
+  ],
+  "prompt_iteration_history": [
+    {
+      "version": "v0.3-s1-planner-9.3",
+      "prompt_sha256": "9fd0436e57b0d7db57abdfa3e2a87aca4e704d7c1f70adf781b1af967776554a",
+      "note": "Frozen prior product identity before semantic freeze."
+    },
+    {
+      "version": "v0.3-s1-planner-9.4",
+      "prompt_sha256": "a29c9cda17bd4bf1d922880610609e32f0670b3eecb984a1e3afa16671e806af",
+      "note": "Semantic freeze: clipping needs substantial rule FAIL; series_kind=even_order_present; low_snr expected inconclusive; combined d4a6 rematerialized."
+    }
+  ],
+  "per_case_table": [
+    {
+      "case_id": "a1f3c9e2b804d716",
+      "signal_category": "single_tone_periodic",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "no_supported_fault",
+      "outcome": "no_supported_fault",
+      "expected_outcome": "no_supported_fault",
+      "expected_causal_faults": null,
+      "causal_faults": [
+        "no_supported_fault"
+      ],
+      "claims": [
+        {
+          "claim_id": "claim_clean_1",
+          "fault_type": "no_supported_fault",
+          "statement": "Clipping and harmonic distortion are both closed by sufficient Evidence; the supported cause set is empty.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+          ],
+          "rule_refs": [
+            "ruleval_237883d67b741c3e",
+            "ruleval_6a23051f2e98be68"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+        "ev_detect_clipping_detect_clipping_000000_000"
+      ],
+      "rule_refs": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_6a23051f2e98be68"
+      ],
+      "limitations": [],
+      "confidence_label": "high",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "success",
+      "started_at_utc": "2026-09-04T06:45:47.181278+00:00",
+      "finished_at_utc": "2026-09-04T06:46:00.378176+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/a1f3c9e2b804d716",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "b2e4d0f3c915e827",
+      "signal_category": "injected_harmonic",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "supported_harmonic",
+      "outcome": "supported_fault",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": [
+        "harmonic_distortion"
+      ],
+      "causal_faults": [
+        "harmonic_distortion"
+      ],
+      "claims": [
+        {
+          "claim_id": "claim_harmonic_supported_1",
+          "fault_type": "harmonic_distortion",
+          "statement": "Harmonic distortion is affirmatively supported by same-run Evidence: valid harmonic analysis with even-order components present and THD rule FAIL.",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004"
+          ],
+          "rule_refs": [
+            "ruleval_894c03c944d04c9b",
+            "ruleval_7d5c942fa760a4d4"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004"
+      ],
+      "rule_refs": [
+        "ruleval_7d5c942fa760a4d4",
+        "ruleval_894c03c944d04c9b"
+      ],
+      "limitations": [],
+      "confidence_label": "high",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "success",
+      "started_at_utc": "2026-09-04T06:46:00.408596+00:00",
+      "finished_at_utc": "2026-09-04T06:46:14.171506+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/b2e4d0f3c915e827",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "c3f5e1a4d026f938",
+      "signal_category": "clipping",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "supported_fault",
+      "outcome": "supported_fault",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": [
+        "clipping"
+      ],
+      "causal_faults": [
+        "clipping"
+      ],
+      "claims": [
+        {
+          "claim_id": "claim_clip_odd_1",
+          "fault_type": "clipping",
+          "statement": "Clipping is affirmatively supported by same-run Evidence. The harmonic analysis shows only odd-order components (orders 3 and 5) consistent with clipping products, so no independent harmonic_distortion cause is established.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000",
+            "ev_detect_clipping_detect_clipping_000000_001",
+            "ev_detect_clipping_detect_clipping_000000_006",
+            "ev_detect_clipping_detect_clipping_000000_007",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003"
+          ],
+          "rule_refs": [
+            "ruleval_a71147cc93b0f7a2",
+            "ruleval_2a7ff09ac5dab5fc",
+            "ruleval_5a362b950031e2af"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "rule_refs": [
+        "ruleval_2a7ff09ac5dab5fc",
+        "ruleval_5a362b950031e2af",
+        "ruleval_a71147cc93b0f7a2"
+      ],
+      "limitations": [],
+      "confidence_label": "high",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "success",
+      "started_at_utc": "2026-09-04T06:46:14.205869+00:00",
+      "finished_at_utc": "2026-09-04T06:46:27.512726+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/c3f5e1a4d026f938",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "d4a6f2b5e1370a49",
+      "signal_category": "combined",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "supported_harmonic",
+      "outcome": "supported_fault",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": [
+        "clipping",
+        "harmonic_distortion"
+      ],
+      "causal_faults": [
+        "clipping",
+        "harmonic_distortion"
+      ],
+      "claims": [
+        {
+          "claim_id": "claim_clip_supported_1",
+          "fault_type": "clipping",
+          "statement": "Clipping is affirmatively supported by same-run Evidence: clipping_mechanism is true and the clipping ratio rule is FAIL.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000",
+            "ev_detect_clipping_detect_clipping_000000_001",
+            "ev_detect_clipping_detect_clipping_000000_007"
+          ],
+          "rule_refs": [
+            "ruleval_985fc0e93262f415"
+          ],
+          "knowledge_refs": []
+        },
+        {
+          "claim_id": "claim_harmonic_supported_1",
+          "fault_type": "harmonic_distortion",
+          "statement": "Harmonic distortion is affirmatively supported by same-run Evidence: series_kind is even_order_present and the THD rule is FAIL.",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004"
+          ],
+          "rule_refs": [
+            "ruleval_206e753c952727ff"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004",
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "rule_refs": [
+        "ruleval_206e753c952727ff",
+        "ruleval_985fc0e93262f415"
+      ],
+      "limitations": [],
+      "confidence_label": "high",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "success",
+      "started_at_utc": "2026-09-04T06:46:27.542196+00:00",
+      "finished_at_utc": "2026-09-04T06:46:37.732717+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/d4a6f2b5e1370a49",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "e5b7a3c6f2481b5a",
+      "signal_category": "multi_tone",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": null,
+      "causal_faults": [],
+      "claims": [
+        {
+          "claim_id": "claim_inconclusive_harmonic_1",
+          "fault_type": "inconclusive",
+          "statement": "Harmonic measurement is valid and the THD rule is FAIL, but no same-run Evidence establishes a causal S1 distortion mechanism.",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003"
+          ],
+          "rule_refs": [
+            "ruleval_03d3b3debb4b7238"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003"
+      ],
+      "rule_refs": [
+        "ruleval_03d3b3debb4b7238"
+      ],
+      "limitations": [
+        "THD rule FAIL establishes elevated harmonic content relative to the configured threshold, but series_kind is multi_partial, not even_order_present, so causal harmonic_distortion cannot be established without additional distortion-mechanism Evidence."
+      ],
+      "confidence_label": "low",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "started_at_utc": "2026-09-04T06:46:37.769135+00:00",
+      "finished_at_utc": "2026-09-04T06:46:47.147191+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/e5b7a3c6f2481b5a",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "f6c8b4d7a3592c6b",
+      "signal_category": "speech",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": null,
+      "causal_faults": [],
+      "claims": [
+        {
+          "claim_id": "claim_inconclusive_broad_1",
+          "fault_type": "inconclusive",
+          "statement": "Clipping is ruled out by sufficient Evidence, but harmonic distortion cannot be established because the harmonic measurement is invalid and the rule result is NOT_APPLICABLE.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ],
+          "rule_refs": [
+            "ruleval_237883d67b741c3e",
+            "ruleval_3218b9baf7883009"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_detect_clipping_detect_clipping_000000_000"
+      ],
+      "rule_refs": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_3218b9baf7883009"
+      ],
+      "limitations": [
+        "Harmonic distortion analysis is invalid because the fundamental bin energy is below the reliability threshold; causal S1 distortion attribution is not supported."
+      ],
+      "confidence_label": "low",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "started_at_utc": "2026-09-04T06:46:47.181737+00:00",
+      "finished_at_utc": "2026-09-04T06:46:54.795736+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/f6c8b4d7a3592c6b",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "07d9c5e8b46a3d7c",
+      "signal_category": "musical_instrument",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": null,
+      "causal_faults": [],
+      "claims": [
+        {
+          "claim_id": "claim_inconclusive_invalid_harmonic",
+          "fault_type": "inconclusive",
+          "statement": "Clipping is ruled out by valid evidence, but harmonic distortion analysis is invalid (fundamental bin energy below reliability threshold), so causal S1 distortion attribution cannot be established.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ],
+          "rule_refs": [
+            "ruleval_237883d67b741c3e",
+            "ruleval_3218b9baf7883009"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_detect_clipping_detect_clipping_000000_000"
+      ],
+      "rule_refs": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_3218b9baf7883009"
+      ],
+      "limitations": [
+        "Harmonic distortion analysis is invalid because the fundamental bin energy is below the reliability threshold; causal S1 distortion attribution is not supported."
+      ],
+      "confidence_label": "low",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "started_at_utc": "2026-09-04T06:46:54.825168+00:00",
+      "finished_at_utc": "2026-09-04T06:47:02.548701+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/07d9c5e8b46a3d7c",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "18ea06f9c57b4e8d",
+      "signal_category": "environmental_non_periodic",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": null,
+      "causal_faults": [],
+      "claims": [
+        {
+          "claim_id": "claim_invalid_harmonic_no_attribution",
+          "fault_type": "inconclusive",
+          "statement": "Same-run harmonic measurement is invalid or unreliable; causal S1 distortion attribution is not supported.",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ],
+          "rule_refs": [
+            "ruleval_3218b9baf7883009"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+      ],
+      "rule_refs": [
+        "ruleval_3218b9baf7883009"
+      ],
+      "limitations": [
+        "Harmonic distortion analysis is invalid or unreliable on this signal; finish is inconclusive because causal attribution requires valid same-run harmonic Evidence."
+      ],
+      "confidence_label": "low",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "started_at_utc": "2026-09-04T06:47:02.580095+00:00",
+      "finished_at_utc": "2026-09-04T06:47:10.520103+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/18ea06f9c57b4e8d",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "29fb17a0d68c5f9e",
+      "signal_category": "low_snr_periodic",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": null,
+      "causal_faults": [],
+      "claims": [
+        {
+          "claim_id": "claim_inconclusive_broad_1",
+          "fault_type": "inconclusive",
+          "statement": "Clipping is not supported because the clipping ratio rule PASS and flat-top rule PASS indicate no substantial clipping, despite clipping_mechanism=true. Harmonic analysis is invalid because the fundamental bin energy is below the reliability threshold, so harmonic distortion cannot be established.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001",
+            "ev_detect_clipping_detect_clipping_000000_006",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ],
+          "rule_refs": [
+            "ruleval_0adbe73438c45702",
+            "ruleval_a670d5d62d79c436",
+            "ruleval_3218b9baf7883009"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_006"
+      ],
+      "rule_refs": [
+        "ruleval_0adbe73438c45702",
+        "ruleval_3218b9baf7883009",
+        "ruleval_a670d5d62d79c436"
+      ],
+      "limitations": [
+        "Harmonic distortion analysis is invalid because the fundamental bin energy is below the reliability threshold; causal S1 distortion attribution is not supported.",
+        "Clipping is not supported because the clipping ratio is below the configured threshold and no flat-top is detected, so the sparse full-scale samples do not constitute substantial clipping."
+      ],
+      "confidence_label": "low",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "started_at_utc": "2026-09-04T06:47:10.551250+00:00",
+      "finished_at_utc": "2026-09-04T06:47:19.470356+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/29fb17a0d68c5f9e",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "3a0c28b1e79d60af",
+      "signal_category": "controlled_distorted_periodic",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": null,
+      "causal_faults": [],
+      "claims": [
+        {
+          "claim_id": "claim_inconclusive_invalid_harmonic",
+          "fault_type": "inconclusive",
+          "statement": "Clipping is ruled out by evidence, but harmonic distortion analysis is invalid (fundamental bin energy below reliability threshold), so causal S1 distortion attribution cannot be established.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ],
+          "rule_refs": [
+            "ruleval_237883d67b741c3e",
+            "ruleval_3218b9baf7883009"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_detect_clipping_detect_clipping_000000_000"
+      ],
+      "rule_refs": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_3218b9baf7883009"
+      ],
+      "limitations": [
+        "Harmonic distortion analysis is invalid because the fundamental bin energy is below the reliability threshold; causal S1 distortion attribution is not supported."
+      ],
+      "confidence_label": "low",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "started_at_utc": "2026-09-04T06:47:19.510299+00:00",
+      "finished_at_utc": "2026-09-04T06:47:27.416626+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/3a0c28b1e79d60af",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "4b1d39c2f8ae71b0",
+      "signal_category": "environmental_non_periodic",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": null,
+      "causal_faults": [],
+      "claims": [
+        {
+          "claim_id": "claim_inconclusive_broad_1",
+          "fault_type": "inconclusive",
+          "statement": "Clipping is ruled out by sufficient Evidence, but harmonic distortion cannot be established because the harmonic measurement is invalid and the rule result is NOT_APPLICABLE.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ],
+          "rule_refs": [
+            "ruleval_237883d67b741c3e",
+            "ruleval_3218b9baf7883009"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_detect_clipping_detect_clipping_000000_000"
+      ],
+      "rule_refs": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_3218b9baf7883009"
+      ],
+      "limitations": [
+        "Harmonic distortion analysis is invalid because the fundamental frequency could not be estimated reliably; causal S1 distortion attribution is not supported."
+      ],
+      "confidence_label": "low",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "started_at_utc": "2026-09-04T06:47:27.452572+00:00",
+      "finished_at_utc": "2026-09-04T06:47:35.589382+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/4b1d39c2f8ae71b0",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "5c2e4ad309bf82c1",
+      "signal_category": "environmental_non_periodic",
+      "valid": false,
+      "B_gate_fired": true,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": null,
+      "causal_faults": [],
+      "claims": [
+        {
+          "claim_id": "claim_inconclusive_invalid_harmonic",
+          "fault_type": "inconclusive",
+          "statement": "Clipping is ruled out by valid evidence, but harmonic distortion analysis is invalid because the fundamental frequency could not be estimated reliably, so no supported or no-fault conclusion can be established.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ],
+          "rule_refs": [
+            "ruleval_237883d67b741c3e",
+            "ruleval_3218b9baf7883009"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_detect_clipping_detect_clipping_000000_000"
+      ],
+      "rule_refs": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_3218b9baf7883009"
+      ],
+      "limitations": [
+        "Harmonic distortion analysis is invalid because the fundamental frequency could not be estimated reliably; causal S1 distortion attribution is not supported."
+      ],
+      "confidence_label": "low",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "started_at_utc": "2026-09-04T06:47:35.624618+00:00",
+      "finished_at_utc": "2026-09-04T06:47:43.721612+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/5c2e4ad309bf82c1",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "6d3f5be41ac093d2",
+      "signal_category": "ambiguous_boundary",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": null,
+      "causal_faults": [],
+      "claims": [
+        {
+          "claim_id": "claim_inconclusive_clip_harm",
+          "fault_type": "inconclusive",
+          "statement": "Clipping is not supported because clipping_mechanism is false despite substantial clipping ratio and flat-top rule FAILs. Harmonic distortion is not supported because series_kind is native_odd_series without reportable even-order presence, and THD rule FAIL alone does not establish causal harmonic distortion.",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_007",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003"
+          ],
+          "rule_refs": [
+            "ruleval_f4cea8cc4c11cb54",
+            "ruleval_2a7ff09ac5dab5fc",
+            "ruleval_c5242b0046a283d3"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "rule_refs": [
+        "ruleval_2a7ff09ac5dab5fc",
+        "ruleval_c5242b0046a283d3",
+        "ruleval_f4cea8cc4c11cb54"
+      ],
+      "limitations": [
+        "Clipping_mechanism is false, so substantial clipping ratio and flat-top rule FAILs do not establish causal clipping.",
+        "Harmonic series is native_odd_series with no reportable even-order presence; THD rule FAIL establishes elevated harmonic content but not causal harmonic_distortion."
+      ],
+      "confidence_label": "low",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "started_at_utc": "2026-09-04T06:47:43.754827+00:00",
+      "finished_at_utc": "2026-09-04T06:47:52.629025+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/6d3f5be41ac093d2",
+      "failure_class": "correct",
+      "correct": true
+    },
+    {
+      "case_id": "7e4a6cf52bd1a4e3",
+      "signal_category": "ambiguous_boundary",
+      "valid": true,
+      "B_gate_fired": false,
+      "C_policy_path": "inconclusive",
+      "outcome": "inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": null,
+      "causal_faults": [],
+      "claims": [
+        {
+          "claim_id": "claim_thd_fail_no_mechanism",
+          "fault_type": "inconclusive",
+          "statement": "Harmonic measurement is valid and the THD rule is FAIL, but no same-run Evidence establishes a causal S1 distortion mechanism.",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003"
+          ],
+          "rule_refs": [
+            "ruleval_9f5e0a382d3b19c1"
+          ],
+          "knowledge_refs": []
+        }
+      ],
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003"
+      ],
+      "rule_refs": [
+        "ruleval_9f5e0a382d3b19c1"
+      ],
+      "limitations": [
+        "THD rule FAIL establishes elevated harmonic content relative to the configured threshold, not causal harmonic_distortion without additional distortion-mechanism Evidence.",
+        "series_kind is native_odd_series, which is not the even_order_present Evidence required for a supported harmonic_distortion claim."
+      ],
+      "confidence_label": "low",
+      "tool_actions": [
+        "detect_clipping",
+        "analyze_harmonic_distortion"
+      ],
+      "knowledge_retrieval_used": false,
+      "planner_errors": [],
+      "termination_reason": "planner_finished",
+      "status": "inconclusive",
+      "started_at_utc": "2026-09-04T06:47:52.665133+00:00",
+      "finished_at_utc": "2026-09-04T06:48:00.350897+00:00",
+      "artifact_dir": "docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_4_dev_run/cases/7e4a6cf52bd1a4e3",
+      "failure_class": "correct",
+      "correct": true
+    }
+  ]
+}
