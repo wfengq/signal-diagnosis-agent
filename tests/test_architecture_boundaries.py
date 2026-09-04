@@ -1277,12 +1277,17 @@ _PHASE5_ALLOWED_UPSTREAM_PATHS = {
 # Prefix match only; does not weaken V0.2 frozen dsp/agent paths outside this list.
 _V03_ADDITIVE_PATH_PREFIXES: tuple[str, ...] = (
     "src/signal_diag/evaluation/external/",
+    "src/signal_diag/evaluation/contextual/",
 )
 _V03_ADDITIVE_EXACT_PATHS = frozenset(
     {
         "src/signal_diag/agent/prompts_v03.py",
         "src/signal_diag/agent/planner.py",
+        "src/signal_diag/agent/models.py",
+        "src/signal_diag/agent/state.py",
         "src/signal_diag/app/composition.py",
+        "src/signal_diag/dsp/__init__.py",
+        "src/signal_diag/dsp/contextual.py",
         "src/signal_diag/dsp/spectral_reliability.py",
         "src/signal_diag/dsp/pitch.py",
         "src/signal_diag/dsp/harmonics.py",
@@ -1292,10 +1297,15 @@ _V03_ADDITIVE_EXACT_PATHS = frozenset(
         "src/signal_diag/dsp/clipping.py",
         "src/signal_diag/tools/contracts.py",
         "src/signal_diag/tools/service.py",
+        "src/signal_diag/tools/__init__.py",
+        "src/signal_diag/tools/contextual.py",
+        "src/signal_diag/tools/registry.py",
         "src/signal_diag/agent/diagnosis.py",
         "src/signal_diag/agent/runtime.py",
         "src/signal_diag/evaluation/external/reference.py",
         "src/signal_diag/evaluation/external/reference_models.py",
+        "src/signal_diag/rules/profiles/s1_contextual_comparison_v1.yaml",
+        "src/signal_diag/signal/context.py",
     }
 )
 _PHASE3_SKIP_TEMPLATES = frozenset({"Phase 3 package {}/ not created yet"})
