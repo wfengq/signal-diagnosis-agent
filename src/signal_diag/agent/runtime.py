@@ -47,6 +47,11 @@ from .policies import (
     reset_progress,
     should_terminate_no_progress,
 )
+from .rule_closure import (
+    RuleClosureProfileId,
+    build_rule_closure_request,
+    required_rule_profile,
+)
 from .state import DiagnosisState
 
 _DEFAULT_LIMITS = AgentLimits()
@@ -418,6 +423,18 @@ class DistortionDiagnosisRuntime:
             state["termination_reason"] = "max_tool_calls"
             return "terminated", planner_retries_remaining, recoverable_errors
 
+        required_profile = required_rule_profile(
+            causal_policy_version=self._causal_policy_version,
+            stimulus_context=state["stimulus_context"],
+            tool_name=decision.call.tool_name,
+        )
+        if (
+            required_profile is not None
+            and state["rule_evaluation_count"] >= self._limits.max_rule_evaluations
+        ):
+            state["termination_reason"] = "max_rule_evaluations"
+            return "terminated", planner_retries_remaining, recoverable_errors
+
         normalized_arguments = normalize_tool_arguments(decision.call)
         if is_equivalent_call(
             decision.call.tool_name,
@@ -435,7 +452,7 @@ class DistortionDiagnosisRuntime:
             return "continue", planner_retries_remaining, recoverable_errors
 
         tool_result = self._execute_tool(state, decision.call)
-        self._record_tool_execution(
+        observation = self._record_tool_execution(
             state,
             decision=decision,
             normalized_arguments=normalized_arguments,
@@ -449,6 +466,14 @@ class DistortionDiagnosisRuntime:
                 return "terminated", planner_retries_remaining, recoverable_errors
         else:
             reset_progress(state)
+            if required_profile is not None:
+                closed = self._append_automatic_rule_closure(
+                    state,
+                    profile_id=required_profile,
+                    observation=observation,
+                )
+                if not closed:
+                    return "terminated", planner_retries_remaining, recoverable_errors
 
         return "continue", planner_retries_remaining, recoverable_errors
 
@@ -746,6 +771,49 @@ class DistortionDiagnosisRuntime:
             )
         raise RuntimeError(f"unsupported tool invocation: {call.tool_name}")
 
+    def _append_automatic_rule_closure(
+        self,
+        state: DiagnosisState,
+        *,
+        profile_id: RuleClosureProfileId,
+        observation: Observation,
+    ) -> bool:
+        try:
+            request = build_rule_closure_request(
+                profile_id=profile_id,
+                observation=observation,
+            )
+            if request is None:
+                return True
+            if self._rule_engine is None or self._rule_profile_loader is None:
+                raise RuntimeError("automatic rule closure requires rule dependencies")
+            profile = self._rule_profile_loader.load(request.profile_id)
+            evidence_by_id = {item.evidence_id: item for item in state["evidence"]}
+            exact_evidence = tuple(
+                evidence_by_id[ref] for ref in request.evidence_refs
+            )
+            batch = self._rule_engine.evaluate_profile(
+                profile,
+                exact_evidence,
+                evidence_filter=frozenset(request.evidence_refs),
+            )
+            if batch.profile_id != request.profile_id:
+                raise RuntimeError("automatic rule closure profile mismatch")
+            allowed = frozenset(request.evidence_refs)
+            if any(
+                ref not in allowed
+                for evaluation in batch.evaluations
+                for ref in evaluation.evidence_refs
+            ):
+                raise RuntimeError("automatic rule closure Evidence scope mismatch")
+        except Exception as error:  # noqa: BLE001
+            state["errors"].append(str(error))
+            state["termination_reason"] = "runtime_error"
+            return False
+        state["rule_evaluation_count"] += 1
+        state["rule_evaluation_batches"].append(batch)
+        return True
+
     def _record_tool_execution(
         self,
         state: DiagnosisState,
@@ -753,7 +821,7 @@ class DistortionDiagnosisRuntime:
         decision: CallToolDecision,
         normalized_arguments: dict[str, object],
         tool_result: ToolResult[ToolOutput],
-    ) -> None:
+    ) -> Observation:
         state["tool_call_count"] += 1
         observation = Observation(
             observation_id=self._next_observation_id(tool_result.call_id),
@@ -779,6 +847,7 @@ class DistortionDiagnosisRuntime:
             )
         )
         state["warnings"].extend(tool_result.warnings)
+        return observation
 
     def _run_status(
         self,
