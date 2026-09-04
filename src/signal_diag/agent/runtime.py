@@ -52,6 +52,25 @@ from .state import DiagnosisState
 _DEFAULT_LIMITS = AgentLimits()
 
 
+def _contextual_tool_routing_error(
+    *,
+    causal_policy_version: CausalPolicyVersion,
+    stimulus_context: StimulusContext,
+    tool_name: str,
+) -> str | None:
+    if causal_policy_version != "v9_6_contextual":
+        return None
+    if (
+        stimulus_context.mode in {"paired_reference", "nominal_single_tone"}
+        and tool_name == "analyze_harmonic_distortion"
+    ):
+        return (
+            f"{stimulus_context.mode} harmonic closure requires "
+            "analyze_contextual_distortion"
+        )
+    return None
+
+
 class DistortionDiagnosisRuntime:
     """Deterministic runtime orchestrating planner decisions and Tool execution."""
 
@@ -378,6 +397,19 @@ class DistortionDiagnosisRuntime:
             if handled == "terminated":
                 return "terminated", planner_retries_remaining, recoverable_errors
             return handled, planner_retries_remaining, recoverable_errors
+
+        routing_error = _contextual_tool_routing_error(
+            causal_policy_version=self._causal_policy_version,
+            stimulus_context=state["stimulus_context"],
+            tool_name=decision.call.tool_name,
+        )
+        if routing_error is not None:
+            return self._reject_decision(
+                state,
+                message=routing_error,
+                planner_retries_remaining=planner_retries_remaining,
+                recoverable_errors=recoverable_errors,
+            )
 
         if state["tool_call_count"] >= self._limits.max_tool_calls:
             state["termination_reason"] = "max_tool_calls"

@@ -18,7 +18,12 @@ from .models import (
     TaskType,
 )
 
-CausalPolicyVersion = Literal["v9_4_legacy", "v9_5_contextual"]
+CausalPolicyVersion = Literal[
+    "v9_4_legacy",
+    "v9_5_contextual",
+    "v9_6_contextual",
+]
+_CONTEXTUAL_CAUSAL_POLICIES = frozenset({"v9_5_contextual", "v9_6_contextual"})
 
 _SUBSTANTIAL_CLIPPING_RULE_IDS = frozenset(
     {
@@ -386,7 +391,7 @@ def validate_finish_decision(
             raise DiagnosisValidationError(
                 "inconclusive finish requires at least one limitation"
             )
-        if causal_policy_version == "v9_5_contextual":
+        if causal_policy_version in _CONTEXTUAL_CAUSAL_POLICIES:
             _require_inconclusive_grounding(decision)
         return
 
@@ -424,10 +429,10 @@ def validate_finish_decision(
         item.evaluation_id: item for item in (rule_evaluations or ())
     }
 
-    if causal_policy_version == "v9_5_contextual":
+    if causal_policy_version in _CONTEXTUAL_CAUSAL_POLICIES:
         if stimulus_context is None:
             raise DiagnosisValidationError(
-                "v9_5_contextual finish requires stimulus_context"
+                f"{causal_policy_version} finish requires stimulus_context"
             )
         for claim in decision.claims:
             if decision.outcome == "supported_fault":

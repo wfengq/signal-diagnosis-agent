@@ -5,9 +5,8 @@ from __future__ import annotations
 import hashlib
 import re
 
-from signal_diag.agent.planner import PROMPT_VERSION, RealLLMPlanner
+from signal_diag.agent.planner import PROMPT_VERSION
 from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_4, _S1_PROMPT_V9_5
-from signal_diag.app.composition import build_product_service
 
 _FROZEN_V94_SHA256 = (
     "a29c9cda17bd4bf1d922880610609e32f0670b3eecb984a1e3afa16671e806af"
@@ -23,9 +22,7 @@ _NUMERIC_THRESHOLD_PATTERN = re.compile(
 
 
 def test_t_cx076_prompt_version_is_v9_5() -> None:
-    assert PROMPT_VERSION == "v0.3-s1-planner-9.5"
     assert _S1_PROMPT_V9_5.version == "v0.3-s1-planner-9.5"
-    assert RealLLMPlanner._prompt_spec.version == "v0.3-s1-planner-9.5"
 
 
 def test_t_cx077_v9_5_sha_is_frozen() -> None:
@@ -66,15 +63,12 @@ def test_t_cx082_no_hidden_injection_provenance() -> None:
     assert "true injection provenance" not in text
 
 
-def test_t_cx083_product_composition_wires_v9_5_and_contextual_policy() -> None:
-    service = build_product_service(environ={"DEEPSEEK_API_KEY": "sk-test"})
-    identity = service._dependencies.planner_identity
-    assert identity.prompt_version == "v0.3-s1-planner-9.5"
-    assert identity.phase4_certified_default is False
-    assert service._dependencies.causal_policy_version == "v9_5_contextual"
-    planner = service._dependencies.planner_factory()
-    assert isinstance(planner, RealLLMPlanner)
-    assert planner.prompt_version == "v0.3-s1-planner-9.5"
+def test_t_cx083_v9_5_identity_remains_constructible_historically() -> None:
+    assert _S1_PROMPT_V9_5.version == "v0.3-s1-planner-9.5"
+    digest = hashlib.sha256(_S1_PROMPT_V9_5.system_prompt.encode("utf-8")).hexdigest()
+    assert digest == _FROZEN_V95_SHA256
+    # Active product identity moved to v9.6; this ID retains historical bytes only.
+    assert PROMPT_VERSION != "v0.3-s1-planner-9.5"
 
 
 def test_t_cx084_composition_source_has_no_scripted_fallback() -> None:

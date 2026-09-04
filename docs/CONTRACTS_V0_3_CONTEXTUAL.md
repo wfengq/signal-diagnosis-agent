@@ -6,7 +6,7 @@
 
 **Design:** `docs/superpowers/specs/2026-09-04-v0-3-contextual-reference-diagnosis-design.md`
 
-**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX145)
+**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX165)
 
 ## 1. Scope
 
@@ -165,8 +165,34 @@ active mode. No positive fault + sibling `no_supported_fault`.
 
 ## 10. Planner identity
 
-Product contextual path uses frozen prompt identity `v0.3-s1-planner-9.5`
-(bytes frozen in Task 7). v9.4 and earlier remain immutable historical identities.
+Product contextual path uses frozen prompt identity `v0.3-s1-planner-9.6`
+with causal policy `v9_6_contextual`. Historical identities remain immutable:
+
+- `v0.3-s1-planner-9.5` / `v9_5_contextual` (bytes and finish semantics frozen)
+- `v0.3-s1-planner-9.4` and earlier
+
+## 10.1 Causal policy versions
+
+```text
+CausalPolicyVersion = "v9_4_legacy" | "v9_5_contextual" | "v9_6_contextual"
+```
+
+| Policy | Finish gates | Mode-aware harmonic Tool routing |
+|--------|--------------|----------------------------------|
+| `v9_4_legacy` | legacy | none |
+| `v9_5_contextual` | frozen v9.5 contextual gates | none (historical) |
+| `v9_6_contextual` | reuses v9.5 contextual finish gates | rejects `analyze_harmonic_distortion` in `paired_reference` / `nominal_single_tone` before execution |
+
+Under `v9_6_contextual` only:
+
+- rejected ordinary harmonic Tool calls consume one planner retry and zero Tool
+  budget; no Tool Evidence is created;
+- the recoverable error must name `analyze_contextual_distortion`;
+- `single_signal` continues to allow `analyze_harmonic_distortion` (descriptive);
+- clipping remains independently finishable in every mode.
+
+v9.5 behavior is frozen and must not gain the new routing guard. Explicit tests
+and dependency injection may still construct older policy identities.
 
 ## 11. Evaluation
 

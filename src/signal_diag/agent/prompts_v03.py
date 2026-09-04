@@ -358,3 +358,83 @@ _S1_PROMPT_V9_5 = _PlannerPromptSpec(
     version="v0.3-s1-planner-9.5",
     system_prompt=_S1_SYSTEM_PROMPT_V9_5,
 )
+
+_V96_CONTEXTUAL_POLICY_SECTION = """
+12. Contextual reference diagnosis policy — mode-aware causal gates
+
+StimulusContext is trusted provenance for mode and signal IDs. Never invent or
+override test_signal_id or reference_signal_id from planner arguments. Never cite
+StimulusContext fields as numerical Evidence.
+
+Mode-to-tool routing:
+- In paired_reference and nominal_single_tone, call analyze_contextual_distortion
+  for harmonic closure. analyze_harmonic_distortion is not a substitute in these
+  modes. If a recoverable routing or finish-gate error names the required Tool or
+  Evidence, correct the next decision accordingly.
+- In single_signal, analyze_harmonic_distortion remains descriptive only and cannot
+  alone establish causal harmonic_distortion. Prefer inconclusive requesting a
+  reference or declared single-tone context when harmonics are elevated without
+  clipping support.
+- Clipping remains independent in every mode and needs clipping_mechanism=true
+  plus a same-run substantial clipping rule FAIL
+  (rule_clipping_ratio_acceptable or rule_flat_top_absent).
+
+paired_reference harmonic causality needs valid comparison Evidence and a
+same-run harmonic-growth rule FAIL. Absolute THD FAIL or even_order_present alone
+is insufficient for causal harmonic_distortion.
+
+When paired comparison validity, F0 compatibility, and reference clipping checks
+PASS, the harmonic-growth rule PASSes, and test clipping is excluded, existing
+harmonic content in both signals does not by itself require inconclusive. Finish
+no_supported_fault relative to the supplied reference, with a limitation stating
+the finding is relative to that reference.
+
+nominal_single_tone conclusions remain conditional on the declaration. Measured
+F0 must match the declared fundamental with same-run Evidence. If nominal
+contextual qualification or F0 compatibility fails, finish inconclusive with
+same-run grounding and a limitation describing the declaration mismatch. Do not emit no_supported_fault merely because clipping and absolute THD appear to pass.
+
+no_supported_fault checklist: cite same-run clipping_mechanism=false Evidence.
+clipping_detected=false is not a substitute. Also cite the required same-run
+clipping PASS rules and the mode-specific harmonic or contextual PASS rules.
+
+Combined diagnoses require two independently complete positive claims: clipping
+cites clipping_mechanism=true plus a substantial clipping rule FAIL; harmonic
+distortion cites the complete mode-specific contextual gate, including contextual
+validity and the relevant harmonic FAIL rule. Failure to close the harmonic gate
+must not erase an independently supported clipping claim; finish clipping-only
+supported_fault with an explicit limitation when the contextual harmonic
+conclusion remains unavailable.
+
+invalid context -> do not silently downgrade mode; state the limitation and finish
+inconclusive when comparison or declaration qualification fails.
+
+no_supported_fault is a final empty-cause-set conclusion. Never emit a sibling
+no_supported_fault claim together with a positive supported fault.
+
+13. Output field contract
+"""
+
+
+def _build_s1_system_prompt_v9_6() -> str:
+    text = _S1_SYSTEM_PROMPT_V9_5.replace(
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.5).",
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.6).",
+    )
+    if "12. Contextual reference diagnosis policy" not in text:
+        msg = "v9.6 prompt build anchor missing"
+        raise RuntimeError(msg)
+    start = text.index("12. Contextual reference diagnosis policy")
+    end = text.index("13. Output field contract", start)
+    return (
+        text[:start]
+        + _V96_CONTEXTUAL_POLICY_SECTION.strip()
+        + text[end + len("13. Output field contract") :]
+    )
+
+
+_S1_SYSTEM_PROMPT_V9_6 = _build_s1_system_prompt_v9_6()
+_S1_PROMPT_V9_6 = _PlannerPromptSpec(
+    version="v0.3-s1-planner-9.6",
+    system_prompt=_S1_SYSTEM_PROMPT_V9_6,
+)
