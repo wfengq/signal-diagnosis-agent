@@ -389,3 +389,95 @@ async def test_t_cx176_errored_tool_appends_no_rule_batch() -> None:
     assert result.rule_evaluation_batches == ()
     assert len(result.observations) == 1
     assert result.observations[0].status == "error"
+
+
+async def _run_manual_rule_policy(
+    policy: str,
+) -> tuple[Any, tuple[Any, ...]]:
+    from signal_diag.agent.models import (
+        AgentDecision,
+        EvaluateRulesDecision,
+        PlannerContext,
+    )
+
+    repository = InMemorySignalRepository()
+    signal_id = store_synthetic_case(
+        repository,
+        generate_sine(
+            frequency_hz=200.0,
+            sample_rate_hz=48_000,
+            duration_s=1.0,
+            amplitude=0.5,
+        ),
+    )
+    steps = (
+        ScriptedStep(
+            expected_observation_count=0,
+            decision=CallToolDecision(
+                task_assessment=ASSESSMENT,
+                call=DetectClippingCall(args=ClippingInput()),
+                purpose="obtain clipping Evidence",
+            ),
+        ),
+        ScriptedStep(
+            expected_observation_count=1,
+            decision=EvaluateRulesDecision(
+                profile_id="profile_s1_distortion",
+                evidence_refs=(),
+                purpose="attempt manual rule evaluation",
+            ),
+        ),
+        ScriptedStep(
+            expected_observation_count=1,
+            decision=FinishDecision(
+                outcome="inconclusive",
+                claims=(),
+                confidence_label="low",
+                limitations=("stop after rule-policy test",),
+            ),
+        ),
+    )
+    received: list[PlannerContext] = []
+
+    class CapturePlanner(ScriptedPlanner):
+        async def decide(self, context: PlannerContext) -> AgentDecision:
+            received.append(context)
+            return await super().decide(context)
+
+    runtime = DistortionDiagnosisRuntime(
+        repository=repository,
+        tool_service=SignalToolService(repository),
+        planner=CapturePlanner(steps),
+        rule_engine=RuleEngine(),
+        rule_profile_loader=YamlRuleProfileLoader(
+            {"profile_s1_distortion": PROFILE_S1}
+        ),
+        causal_policy_version=policy,  # type: ignore[arg-type]
+        limits=AgentLimits(max_planner_retries=2),
+    )
+    result = await runtime.run(
+        signal_id=signal_id,
+        user_request="Why distorted?",
+    )
+    return result, tuple(received)
+
+
+@pytest.mark.asyncio
+async def test_t_cx177_v97_rejects_manual_rule_action() -> None:
+    result, contexts = await _run_manual_rule_policy(
+        "v9_7_deterministic_rule_closure"
+    )
+    assert any("automatic" in error for error in result.errors)
+    assert any("Tool observation" in error for error in result.errors)
+    assert len(result.rule_evaluation_batches) == 1
+    assert (
+        contexts[1].remaining_planner_retries - 1
+        == contexts[2].remaining_planner_retries
+    )
+
+
+@pytest.mark.asyncio
+async def test_t_cx178_legacy_policies_keep_manual_rule_behavior() -> None:
+    for policy in ("v9_4_legacy", "v9_5_contextual", "v9_6_contextual"):
+        result, _ = await _run_manual_rule_policy(policy)
+        assert result.rule_evaluation_batches

@@ -515,6 +515,18 @@ class DistortionDiagnosisRuntime:
                 recoverable_errors=recoverable_errors,
             )
 
+        if self._causal_policy_version == "v9_7_deterministic_rule_closure":
+            return self._reject_decision(
+                state,
+                message=(
+                    "rule batches are created automatically from relevant Tool "
+                    "observations; use existing rule_evaluation_batches or call "
+                    "the missing Tool"
+                ),
+                planner_retries_remaining=planner_retries_remaining,
+                recoverable_errors=recoverable_errors,
+            )
+
         if state["rule_evaluation_count"] >= self._limits.max_rule_evaluations:
             state["termination_reason"] = "max_rule_evaluations"
             return "terminated", planner_retries_remaining, recoverable_errors
