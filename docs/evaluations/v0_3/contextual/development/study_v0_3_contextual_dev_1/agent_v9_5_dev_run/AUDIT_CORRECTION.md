@@ -1,7 +1,7 @@
 # Task 13 audit correction (read-only; awaiting review)
 
-**target_status:** `below_target`  
-**protocol_deviation:** `true`  
+**target_status:** `below_target`
+**protocol_deviation:** `true`
 **development_confirmation_valid:** `false`
 
 No model re-run. No product-code change. No validation access. Not committed.
@@ -39,7 +39,7 @@ Reasons `development_confirmation_valid=false`:
 **frozen scoreable denominator gate** (`denominator=17` for all scoreable cases), counting
 unexecuted and infrastructure-failed scoreable slots as incorrect under the scoring helper.
 
-It is **not** “accuracy among observed completed samples only.”  
+It is **not** “accuracy among observed completed samples only.”
 Observed completed behavioral/success outcomes in this run tree are a separate descriptive
 count and must not be substituted for the 17-denominator gate.
 
@@ -52,7 +52,7 @@ count and must not be substituted for the 17-denominator gate.
 - wall time ~9.6 s between attempt start and finish
 - no HTTP status, response body, DNS log, proxy log, or provider incident ID in artifacts
 
-**root_cause:** `unknown`  
+**root_cause:** `unknown`
 Insufficient evidence to attribute network path, provider outage, client TLS, rate limit,
 or local environment. No speculation recorded.
 

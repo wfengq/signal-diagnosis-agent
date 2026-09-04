@@ -1,7 +1,7 @@
 # Task 13 run status (corrected audit; awaiting review)
 
-**target_status:** `below_target`  
-**protocol_deviation:** `true`  
+**target_status:** `below_target`
+**protocol_deviation:** `true`
 **development_confirmation_valid:** `false`
 
 See `AUDIT_CORRECTION.md` for the full correction record.
