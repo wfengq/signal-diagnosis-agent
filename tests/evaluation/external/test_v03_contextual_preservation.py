@@ -1,4 +1,4 @@
-"""T-CX001–T-CX003 / T-CX146–T-CX148: preserve frozen identities for contextual work."""
+"""T-CX001–T-CX003 / T-CX146–T-CX148 / T-CX166: preserve frozen identities."""
 
 from __future__ import annotations
 
@@ -10,7 +10,11 @@ from hashlib import sha256
 from pathlib import Path
 
 from signal_diag.agent.prompts import _S1_PROMPT_V8_1
-from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_4, _S1_PROMPT_V9_5
+from signal_diag.agent.prompts_v03 import (
+    _S1_PROMPT_V9_4,
+    _S1_PROMPT_V9_5,
+    _S1_PROMPT_V9_6,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 REPO_ROOT = ROOT
@@ -107,4 +111,37 @@ def test_t_cx148_v9_6_ids_are_registered_once() -> None:
     table_ids = re.findall(r"^\| (T-CX\d+) \|", registry, flags=re.MULTILINE)
     counts = Counter(table_ids)
     for number in range(146, 166):
+        assert counts[f"T-CX{number}"] == 1
+
+
+V96_CONTROL_SHA256 = {
+    f"{_TASK13_BASE}/agent_v9_6_dev_confirmation_1/run_summary.json": (
+        "3742f664ee7487d5ea320826bdec0596bb324a1340ca0644b6af88aeea62d3a0"
+    ),
+    f"{_TASK13_BASE}/agent_v9_6_dev_confirmation_1/audit_report.json": (
+        "cef68d2845f9d062b73fbfd512ff6a9ab309704e9222d5a3f420a05e9c2be883"
+    ),
+    f"{_TASK13_BASE}/agent_v9_6_dev_confirmation_1/STATUS.md": (
+        "fa2caf401804f5e4373cb7a4b58ee991d797d79b4973acefe2cb66b737a77a58"
+    ),
+    f"{_TASK13_BASE}/agent_v9_6_dev_confirmation_1/AUDIT_CORRECTION.md": (
+        "76518206967c8381694bf947bea3cc3c9b06e0efa5a56f961be53feff06c1c95"
+    ),
+    f"{_TASK13_BASE}/agent_v9_6_dev_confirmation_1/corrected_scoring.json": (
+        "f06563103f790a79007575130ed001548ff0b701ade014f0101a637c6c2ea870"
+    ),
+}
+
+
+def test_t_cx166_v9_6_prompt_run_and_v9_7_registry_are_preserved() -> None:
+    digest = hashlib.sha256(_S1_PROMPT_V9_6.system_prompt.encode("utf-8")).hexdigest()
+    assert digest == (
+        "b9ed17debf9bfd2f086ee0eaa178d83370630a0530ebd02336769e416be1b5eb"
+    )
+    for relative, expected in V96_CONTROL_SHA256.items():
+        assert sha256_path(REPO_ROOT / relative) == expected
+    registry = (REPO_ROOT / "docs/TEST_PLAN_V0_3_CONTEXTUAL.md").read_text("utf-8")
+    table_ids = re.findall(r"^\| (T-CX\d+) \|", registry, flags=re.MULTILINE)
+    counts = Counter(table_ids)
+    for number in range(166, 186):
         assert counts[f"T-CX{number}"] == 1

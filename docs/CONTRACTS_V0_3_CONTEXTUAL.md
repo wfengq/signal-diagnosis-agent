@@ -165,23 +165,35 @@ active mode. No positive fault + sibling `no_supported_fault`.
 
 ## 10. Planner identity
 
-Product contextual path uses frozen prompt identity `v0.3-s1-planner-9.6`
-with causal policy `v9_6_contextual`. Historical identities remain immutable:
+Product contextual path currently uses frozen prompt identity
+`v0.3-s1-planner-9.6` with causal policy `v9_6_contextual` until the v9.7
+prompt and composition wiring are frozen and activated. Historical identities
+remain immutable:
 
+- `v0.3-s1-planner-9.6` / `v9_6_contextual` (bytes and finish semantics frozen)
 - `v0.3-s1-planner-9.5` / `v9_5_contextual` (bytes and finish semantics frozen)
 - `v0.3-s1-planner-9.4` and earlier
+
+Registered upcoming product identity (not yet the active composition root):
+
+- `v0.3-s1-planner-9.7` / `v9_7_deterministic_rule_closure`
 
 ## 10.1 Causal policy versions
 
 ```text
-CausalPolicyVersion = "v9_4_legacy" | "v9_5_contextual" | "v9_6_contextual"
+CausalPolicyVersion =
+  "v9_4_legacy"
+  | "v9_5_contextual"
+  | "v9_6_contextual"
+  | "v9_7_deterministic_rule_closure"
 ```
 
-| Policy | Finish gates | Mode-aware harmonic Tool routing |
-|--------|--------------|----------------------------------|
-| `v9_4_legacy` | legacy | none |
-| `v9_5_contextual` | frozen v9.5 contextual gates | none (historical) |
-| `v9_6_contextual` | reuses v9.5 contextual finish gates | rejects `analyze_harmonic_distortion` in `paired_reference` / `nominal_single_tone` before execution |
+| Policy | Finish gates | Mode-aware harmonic Tool routing | Rule evaluation |
+|--------|--------------|----------------------------------|-----------------|
+| `v9_4_legacy` | legacy | none | manual `evaluate_rules` |
+| `v9_5_contextual` | frozen v9.5 contextual gates | none (historical) | manual `evaluate_rules` |
+| `v9_6_contextual` | reuses v9.5 contextual finish gates | rejects `analyze_harmonic_distortion` in `paired_reference` / `nominal_single_tone` before execution | manual `evaluate_rules` |
+| `v9_7_deterministic_rule_closure` | reuses v9.6 contextual finish gates | reuses v9.6 Tool-routing guard | automatic Tool-to-profile closure; planner `evaluate_rules` rejected |
 
 Under `v9_6_contextual` only:
 
@@ -194,6 +206,66 @@ Under `v9_6_contextual` only:
 v9.5 behavior is frozen and must not gain the new routing guard. Explicit tests
 and dependency injection may still construct older policy identities.
 
+## 10.2 `v9_7_deterministic_rule_closure`
+
+Under `v9_7_deterministic_rule_closure` only:
+
+### Tool → profile mapping
+
+- `detect_clipping` in every diagnostic mode → `profile_s1_distortion`
+- `analyze_harmonic_distortion` in `single_signal` → `profile_s1_distortion`
+- `analyze_contextual_distortion` in `paired_reference` or
+  `nominal_single_tone` → `profile_s1_contextual_comparison`
+- `analyze_spectrum` and `estimate_fundamental` → no closure
+- Observation with Tool status `error` → no closure
+- Observation with Tool status `success` or `invalid` for a relevant Tool →
+  exactly one automatic RuleEngine batch
+
+### Automatic Evidence suffix
+
+- Closure uses the triggering Observation's complete ordered `evidence_refs`
+  as the Evidence filter; callers cannot supply an arbitrary subset.
+- A relevant non-error Tool with an empty Evidence suffix is a runtime contract
+  violation and terminates as `runtime_error`.
+- Automatic closure consumes exactly one existing `max_rule_evaluations` slot
+  after a successful/invalid relevant Tool; errored Tools do not consume a slot.
+
+### Manual rule rejection
+
+- Planner-created `evaluate_rules` is a recoverable behavioral error after the
+  normal initial task-assessment requirement.
+- Rejection consumes one planner retry and zero Tool/rule budget; creates no
+  Evidence and no rule batch; is not infrastructure.
+- Typed `EvaluateRulesDecision` remains for older policies and historical
+  traces.
+
+### Trace event order
+
+For a relevant non-error Tool decision, chronologically:
+
+1. existing `PlannerDecisionEvent` for the Tool call
+2. one `ObservationEvent` with the exact Evidence suffix
+3. one `RuleEvaluationEvent` for the automatic batch
+
+Observation and rule events share the same `caused_by_decision_index` (the
+Tool decision). Irrelevant or errored Tools keep the historical shape with no
+automatic rule event.
+
+### Legacy compatibility
+
+- v9.4 / v9.5 / v9.6 prompts, policies, thresholds, and recorded runs remain
+  immutable; no historical prompt constant may be edited.
+- Existing recorded traces require no migration and must round-trip unchanged.
+- Finish gates are not weakened; v9.7 reuses the v9.6 contextual finish
+  validator.
+
+### Authorization / conclusion gates
+
+- `v9_7_harness_complete` is the strongest offline conclusion permitted by this
+  remediation; it does not mean `development_confirmed`, validation passed, or
+  performance improved.
+- Real-model confirmation, validation access, and push/PR remain separately
+  authorized.
 ## 11. Evaluation
 
 Separate contextual evaluation package under `evaluation/contextual/` with
