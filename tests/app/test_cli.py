@@ -20,6 +20,10 @@ from signal_diag.agent.models import (
     TaskAssessment,
 )
 from signal_diag.app.cli import _read_wav_path, build_parser, main
+from signal_diag.app.contextual_models import (
+    ContextualAppRunSnapshot,
+    ContextualRunSubmission,
+)
 from signal_diag.app.errors import (
     ApplicationError,
     PlannerNotConfiguredError,
@@ -42,6 +46,7 @@ from signal_diag.knowledge.index import KnowledgeIndex
 from signal_diag.rules.engine import RuleEngine
 from signal_diag.rules.loader import YamlRuleProfileLoader
 from signal_diag.signal import InMemorySignalRepository, WavLoadLimits
+from signal_diag.signal.context import EffectiveCapabilities, StimulusContext
 from tests.app.test_reporting import _completed_snapshot
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -99,15 +104,21 @@ class _FakeService:
         self,
         *,
         snapshot: AppRunSnapshot | None = None,
+        contextual_snapshot: ContextualAppRunSnapshot | None = None,
         submit_error: Exception | None = None,
     ) -> None:
         self.snapshot = snapshot
+        self.contextual_snapshot = contextual_snapshot
         self.submit_error = submit_error
         self.submit_wav_calls: list[dict[str, Any]] = []
         self.submit_synthetic_calls: list[dict[str, Any]] = []
+        self.submit_contextual_calls: list[dict[str, Any]] = []
         self.wait_calls: list[str] = []
+        self.wait_contextual_calls: list[str] = []
         self.closed = False
         self.run_id = snapshot.run_id if snapshot is not None else RUN_ID
+        if contextual_snapshot is not None:
+            self.run_id = contextual_snapshot.run_id
 
     async def submit_wav(
         self,
@@ -147,6 +158,36 @@ class _FakeService:
         )
         return RunSubmission(run_id=self.run_id, status="queued")
 
+    async def submit_contextual_wav(
+        self,
+        test_data: bytes,
+        *,
+        test_filename: str | None,
+        mode: str,
+        reference_data: bytes | None,
+        reference_filename: str | None,
+        nominal_fundamental_hz: float | None,
+        stimulus_kind: str | None,
+        user_request: str,
+        channel: str = "mixdown",
+    ) -> ContextualRunSubmission:
+        if self.submit_error is not None:
+            raise self.submit_error
+        self.submit_contextual_calls.append(
+            {
+                "test_data": test_data,
+                "test_filename": test_filename,
+                "mode": mode,
+                "reference_data": reference_data,
+                "reference_filename": reference_filename,
+                "nominal_fundamental_hz": nominal_fundamental_hz,
+                "stimulus_kind": stimulus_kind,
+                "user_request": user_request,
+                "channel": channel,
+            }
+        )
+        return ContextualRunSubmission(run_id=self.run_id, status="queued")
+
     async def wait_for_terminal(
         self,
         run_id: str,
@@ -157,6 +198,17 @@ class _FakeService:
         self.wait_calls.append(run_id)
         assert self.snapshot is not None
         return self.snapshot
+
+    async def wait_for_contextual_terminal(
+        self,
+        run_id: str,
+        *,
+        timeout_s: float | None = None,
+    ) -> ContextualAppRunSnapshot:
+        del timeout_s
+        self.wait_contextual_calls.append(run_id)
+        assert self.contextual_snapshot is not None
+        return self.contextual_snapshot
 
     def list_presets(self) -> tuple[Any, ...]:
         return list_demo_presets()
@@ -662,3 +714,216 @@ def test_t275_serve_defaults_no_scripted_switch(capsys: pytest.CaptureFixture[st
         and node.func.value.id == "uvicorn"
     ]
     assert uvicorn_runs
+
+
+def _contextual_completed_snapshot() -> ContextualAppRunSnapshot:
+    from signal_diag.agent.models import AgentRunResult, StructuredDiagnosis
+
+    return ContextualAppRunSnapshot(
+        run_id=RUN_ID,
+        status="completed",
+        created_at=NOW,
+        started_at=STARTED,
+        finished_at=FINISHED,
+        user_request=QUESTION,
+        analyzed_channel="mixdown",
+        test_source=SourceSummary(
+            source_kind="wav",
+            display_name="test.wav",
+            sample_rate_hz=8_000,
+            channels=1,
+            num_frames=3,
+            duration_s=3 / 8_000,
+            bits_per_sample=16,
+        ),
+        reference_source=SourceSummary(
+            source_kind="wav",
+            display_name="ref.wav",
+            sample_rate_hz=8_000,
+            channels=1,
+            num_frames=3,
+            duration_s=3 / 8_000,
+            bits_per_sample=16,
+        ),
+        stimulus_context=StimulusContext(
+            mode="paired_reference",
+            test_signal_id="sig_test",
+            reference_signal_id="sig_ref",
+            assertion_source="user_supplied",
+        ),
+        effective_capabilities=EffectiveCapabilities(clipping=True),
+        test_preview=WaveformPreview(
+            sample_rate_hz=8_000,
+            original_num_samples=1,
+            points=(WaveformPoint(sample_index=0, time_s=0.0, amplitude=0.0),),
+        ),
+        planner_identity=_identity(),
+        result=AgentRunResult(
+            run_id="run_agent",
+            status="success",
+            diagnosis=StructuredDiagnosis(
+                run_id="run_agent",
+                task_type="distortion_analysis",
+                outcome="inconclusive",
+                claims=(),
+                confidence_label="low",
+                limitations=("comparison_invalid",),
+                termination_reason="planner_finished",
+                tool_call_count=0,
+            ),
+            observations=(),
+            evidence=(),
+            tool_history=(),
+            termination_reason="planner_finished",
+        ),
+    )
+
+
+def test_t_cx113_contextual_cli_parser_matrix() -> None:
+    parser = build_parser()
+    paired = parser.parse_args(
+        [
+            "diagnose",
+            "contextual",
+            "test.wav",
+            "--mode",
+            "paired_reference",
+            "--reference",
+            "ref.wav",
+        ]
+    )
+    assert paired.source_kind == "contextual"
+    assert Path(paired.path) == Path("test.wav")
+    assert paired.mode == "paired_reference"
+    assert Path(paired.reference) == Path("ref.wav")
+
+    nominal = parser.parse_args(
+        [
+            "diagnose",
+            "contextual",
+            "tone.wav",
+            "--mode",
+            "nominal_single_tone",
+            "--stimulus-kind",
+            "single_tone",
+            "--nominal-fundamental-hz",
+            "440",
+        ]
+    )
+    assert nominal.source_kind == "contextual"
+    assert nominal.mode == "nominal_single_tone"
+    assert nominal.stimulus_kind == "single_tone"
+    assert nominal.nominal_fundamental_hz == 440.0
+    assert nominal.reference is None
+
+
+def test_t_cx114_contextual_cli_rejects_invalid_flag_matrix(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    invalid = (
+        [
+            "diagnose",
+            "contextual",
+            "test.wav",
+            "--mode",
+            "nominal_single_tone",
+            "--reference",
+            "ref.wav",
+            "--stimulus-kind",
+            "single_tone",
+            "--nominal-fundamental-hz",
+            "440",
+        ],
+        [
+            "diagnose",
+            "contextual",
+            "test.wav",
+            "--mode",
+            "nominal_single_tone",
+            "--stimulus-kind",
+            "single_tone",
+        ],
+        [
+            "diagnose",
+            "contextual",
+            "test.wav",
+            "--mode",
+            "paired_reference",
+        ],
+        [
+            "diagnose",
+            "contextual",
+            "test.wav",
+            "--mode",
+            "single_signal",
+        ],
+    )
+    for argv in invalid:
+        code = _run(argv, service_factory=lambda: (_ for _ in ()).throw(AssertionError()))
+        captured = capsys.readouterr()
+        assert code == 2
+        assert "error:" in captured.err.casefold() or "invalid" in captured.err.casefold()
+
+
+def test_t_cx115_contextual_cli_submits_and_renders(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    test_wav = tmp_path / "test.wav"
+    ref_wav = tmp_path / "ref.wav"
+    payload = _mono_extrema_wav()
+    test_wav.write_bytes(payload)
+    ref_wav.write_bytes(payload)
+    snapshot = _contextual_completed_snapshot()
+    service = _FakeService(contextual_snapshot=snapshot)
+    code = _run(
+        [
+            "diagnose",
+            "contextual",
+            str(test_wav),
+            "--mode",
+            "paired_reference",
+            "--reference",
+            str(ref_wav),
+            "--output",
+            "json",
+        ],
+        service_factory=lambda: service,
+    )
+    capsys.readouterr()
+    assert code == 0
+    assert len(service.submit_contextual_calls) == 1
+    call = service.submit_contextual_calls[0]
+    assert call["test_data"] == payload
+    assert call["reference_data"] == payload
+    assert call["mode"] == "paired_reference"
+    assert call["test_filename"] == "test.wav"
+    assert call["reference_filename"] == "ref.wav"
+    assert service.submit_wav_calls == []
+    assert service.wait_contextual_calls == [snapshot.run_id]
+    assert service.wait_calls == []
+    assert service.closed is True
+
+
+def test_t_cx116_diagnose_wav_behavior_unchanged(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    wav_path = tmp_path / "demo.wav"
+    wav_path.write_bytes(_mono_extrema_wav())
+    snapshot = _completed_snapshot()
+    service = _FakeService(snapshot=snapshot)
+    code = _run(
+        ["diagnose", "wav", str(wav_path), "--output", "json"],
+        service_factory=lambda: service,
+    )
+    capsys.readouterr()
+    assert code == 0
+    assert len(service.submit_wav_calls) == 1
+    assert service.submit_contextual_calls == []
+    assert service.wait_calls == [snapshot.run_id]
+    assert service.wait_contextual_calls == []
+    source = _cli_source()
+    assert "diagnose contextual" in source or 'sources.add_parser("contextual"' in source
+    assert "submit_wav" in source
+    assert "ScriptedPlanner" not in source

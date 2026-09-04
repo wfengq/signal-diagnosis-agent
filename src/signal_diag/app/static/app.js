@@ -22,6 +22,19 @@ function refsText(refs) {
   return Array.isArray(refs) && refs.length ? refs.join(", ") : "none";
 }
 
+const QUALIFICATION_METRICS = new Set([
+  "context_valid",
+  "mode",
+  "algorithm_version",
+  "invalid_reason",
+  "test_f0_hz",
+  "comparison_f0_hz",
+  "f0_relative_delta",
+  "alignment_lag_samples",
+  "alignment_correlation",
+  "gain_ratio",
+]);
+
 async function apiJson(path) {
   const response = await fetch(path);
   let payload = null;
@@ -106,15 +119,71 @@ function renderDiagnosis(panel, snapshot) {
       appendText(article, "p", `rules: ${refsText(claim.rule_refs)}`);
       appendText(article, "p", `knowledge: ${refsText(claim.knowledge_refs)}`);
     }
-    for (const limitation of diagnosis.limitations || []) {
-      appendText(panel, "p", `limitation: ${limitation}`);
-    }
   }
   for (const warning of result.warnings || []) {
     appendText(panel, "p", `warning: ${warning}`);
   }
   for (const error of result.errors || []) {
     appendText(panel, "p", `error: ${error}`);
+  }
+}
+
+function renderDeclaration(panel, snapshot) {
+  const context = snapshot.stimulus_context;
+  if (!context) {
+    appendText(panel, "p", "No declared stimulus context for this run.");
+    return;
+  }
+  appendText(panel, "p", `mode: ${context.mode}`);
+  appendText(panel, "p", `assertion_source: ${context.assertion_source}`);
+  appendText(panel, "p", `test_signal_id: ${context.test_signal_id}`);
+  if (context.reference_signal_id) {
+    appendText(panel, "p", `reference_signal_id: ${context.reference_signal_id}`);
+  }
+  if (context.nominal_fundamental_hz != null) {
+    appendText(panel, "p", `nominal_fundamental_hz: ${context.nominal_fundamental_hz}`);
+  }
+  if (context.stimulus_kind) {
+    appendText(panel, "p", `stimulus_kind: ${context.stimulus_kind}`);
+  }
+  appendText(
+    panel,
+    "p",
+    "StimulusContext is declared provenance, not measured Evidence.",
+    "muted",
+  );
+}
+
+function renderQualification(panel, evidence) {
+  const items = (evidence || []).filter((item) =>
+    QUALIFICATION_METRICS.has(item.metric),
+  );
+  if (!items.length) {
+    appendText(panel, "p", "No comparison qualification evidence.");
+    return;
+  }
+  for (const item of items) {
+    const article = appendText(panel, "article", "");
+    appendText(
+      article,
+      "p",
+      `${item.evidence_id} ${item.metric} ${item.value} ${item.validity}`,
+    );
+    if (item.unit) {
+      appendText(article, "p", item.unit);
+    }
+  }
+}
+
+function renderLimitations(panel, snapshot) {
+  const diagnosis = snapshot.result && snapshot.result.diagnosis;
+  const limitations = (diagnosis && diagnosis.limitations) || [];
+  if (!limitations.length) {
+    appendText(panel, "p", "No causal limitations recorded.");
+    return;
+  }
+  for (const item of limitations) {
+    appendText(panel, "p", item);
   }
 }
 
@@ -158,11 +227,14 @@ function renderObservations(panel, observations) {
 }
 
 function renderEvidence(panel, evidence) {
-  if (!evidence.length) {
+  const items = (evidence || []).filter(
+    (item) => !QUALIFICATION_METRICS.has(item.metric),
+  );
+  if (!items.length) {
     appendText(panel, "p", "No evidence.");
     return;
   }
-  for (const item of evidence) {
+  for (const item of items) {
     const article = appendText(panel, "article", "");
     appendText(
       article,
@@ -210,14 +282,24 @@ function renderKnowledge(panel, retrievals) {
   }
 }
 
+function isContextualSnapshot(snapshot) {
+  return Boolean(snapshot && snapshot.stimulus_context);
+}
+
 function renderTerminal(snapshot) {
   const diagnosisPanel = document.getElementById("diagnosis-panel");
+  const declarationPanel = document.getElementById("declaration-panel");
+  const qualificationPanel = document.getElementById("qualification-panel");
+  const limitationPanel = document.getElementById("limitation-panel");
   const waveformPanel = document.getElementById("waveform-panel");
   const tracePanel = document.getElementById("trace-panel");
   const evidencePanel = document.getElementById("evidence-panel");
   const rulesPanel = document.getElementById("rules-panel");
   const knowledgePanel = document.getElementById("knowledge-panel");
   clearPanel(diagnosisPanel, "Diagnosis");
+  clearPanel(declarationPanel, "Declared context");
+  clearPanel(qualificationPanel, "Comparison qualification");
+  clearPanel(limitationPanel, "Causal limitations");
   clearPanel(waveformPanel, "Waveform preview");
   clearPanel(tracePanel, "Trace");
   clearPanel(evidencePanel, "Evidence");
@@ -225,8 +307,28 @@ function renderTerminal(snapshot) {
   clearPanel(knowledgePanel, "Knowledge");
 
   renderDiagnosis(diagnosisPanel, snapshot);
-  if (snapshot.waveform_preview) {
-    renderPreview(waveformPanel, snapshot.waveform_preview);
+  if (isContextualSnapshot(snapshot)) {
+    renderDeclaration(declarationPanel, snapshot);
+    const result = snapshot.result || {};
+    renderQualification(qualificationPanel, result.evidence || []);
+    renderLimitations(limitationPanel, snapshot);
+  } else {
+    appendText(declarationPanel, "p", "Not applicable for unknown one-WAV runs.");
+    appendText(qualificationPanel, "p", "Not applicable for unknown one-WAV runs.");
+    const diagnosis = snapshot.result && snapshot.result.diagnosis;
+    const limitations = (diagnosis && diagnosis.limitations) || [];
+    if (limitations.length) {
+      for (const item of limitations) {
+        appendText(limitationPanel, "p", item);
+      }
+    } else {
+      appendText(limitationPanel, "p", "No causal limitations recorded.");
+    }
+  }
+
+  const preview = snapshot.test_preview || snapshot.waveform_preview;
+  if (preview) {
+    renderPreview(waveformPanel, preview);
   }
   const result = snapshot.result || {};
   renderTrace(tracePanel, snapshot.trace_events || []);
@@ -240,8 +342,11 @@ function renderTerminal(snapshot) {
   const htmlLink = document.getElementById("report-html");
   if (snapshot.status === "completed") {
     const runId = encodeURIComponent(snapshot.run_id);
-    jsonLink.setAttribute("href", `/api/v1/runs/${runId}/report.json`);
-    htmlLink.setAttribute("href", `/api/v1/runs/${runId}/report.html`);
+    const base = isContextualSnapshot(snapshot)
+      ? `/api/v1/contextual-runs/${runId}`
+      : `/api/v1/runs/${runId}`;
+    jsonLink.setAttribute("href", `${base}/report.json`);
+    htmlLink.setAttribute("href", `${base}/report.html`);
     jsonLink.hidden = false;
     htmlLink.hidden = false;
   } else {
@@ -252,9 +357,13 @@ function renderTerminal(snapshot) {
   }
 }
 
-async function pollRun(runId) {
+async function pollRun(runId, options) {
+  const contextual = Boolean(options && options.contextual);
+  const pathBase = contextual
+    ? `/api/v1/contextual-runs/${encodeURIComponent(runId)}`
+    : `/api/v1/runs/${encodeURIComponent(runId)}`;
   for (;;) {
-    const snapshot = await apiJson(`/api/v1/runs/${encodeURIComponent(runId)}`);
+    const snapshot = await apiJson(pathBase);
     renderLifecycle(snapshot.status);
     if (snapshot.status === "completed" || snapshot.status === "failed") {
       renderTerminal(snapshot);
@@ -318,11 +427,39 @@ function selectedMode() {
   return checked ? checked.value : "wav";
 }
 
+function selectedDiagnosticMode() {
+  const select = document.getElementById("diagnostic-mode");
+  return select ? select.value : "unknown";
+}
+
+function updateContextualFields() {
+  const mode = selectedDiagnosticMode();
+  const nominal = document.getElementById("nominal-fields");
+  const reference = document.getElementById("reference-fields");
+  const sourceIsWav = selectedMode() === "wav";
+  const showNominal = sourceIsWav && mode === "nominal_single_tone";
+  const showReference = sourceIsWav && mode === "paired_reference";
+  nominal.hidden = !showNominal;
+  reference.hidden = !showReference;
+}
+
 function showError(message) {
   const panel = document.getElementById("lifecycle-panel");
   panel.replaceChildren();
   appendText(panel, "h2", "Lifecycle");
   appendText(panel, "p", message);
+}
+
+async function parseJsonResponse(response) {
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(
+      payload && payload.error && payload.error.message
+        ? payload.error.message
+        : `request failed (${response.status})`,
+    );
+  }
+  return payload;
 }
 
 async function submitDiagnose(event) {
@@ -335,6 +472,7 @@ async function submitDiagnose(event) {
   document.getElementById("report-html").hidden = true;
   try {
     let submission;
+    let contextual = false;
     if (selectedMode() === "preset") {
       submission = await fetch("/api/v1/runs/synthetic", {
         method: "POST",
@@ -344,43 +482,50 @@ async function submitDiagnose(event) {
           user_request: question,
           channel,
         }),
-      }).then(async (response) => {
-        const payload = await response.json();
-        if (!response.ok) {
-          throw new Error(
-            payload && payload.error && payload.error.message
-              ? payload.error.message
-              : `request failed (${response.status})`,
-          );
-        }
-        return payload;
-      });
+      }).then(parseJsonResponse);
     } else {
       const fileInput = document.getElementById("wav-file");
       if (!fileInput.files || !fileInput.files[0]) {
         throw new Error("Choose a WAV file before submitting.");
       }
-      const body = new FormData();
-      body.append("file", fileInput.files[0]);
-      body.append("user_request", question);
-      body.append("channel", channel);
-      submission = await fetch("/api/v1/runs/wav", {
-        method: "POST",
-        body,
-      }).then(async (response) => {
-        const payload = await response.json();
-        if (!response.ok) {
-          throw new Error(
-            payload && payload.error && payload.error.message
-              ? payload.error.message
-              : `request failed (${response.status})`,
+      const diagnosticMode = selectedDiagnosticMode();
+      if (diagnosticMode === "unknown") {
+        const body = new FormData();
+        body.append("file", fileInput.files[0]);
+        body.append("user_request", question);
+        body.append("channel", channel);
+        submission = await fetch("/api/v1/runs/wav", {
+          method: "POST",
+          body,
+        }).then(parseJsonResponse);
+      } else {
+        contextual = true;
+        const body = new FormData();
+        body.append("test_file", fileInput.files[0]);
+        body.append("mode", diagnosticMode);
+        body.append("user_request", question);
+        body.append("channel", channel);
+        if (diagnosticMode === "nominal_single_tone") {
+          body.append("stimulus_kind", "single_tone");
+          body.append(
+            "nominal_fundamental_hz",
+            document.getElementById("nominal-fundamental-hz").value,
           );
+        } else if (diagnosticMode === "paired_reference") {
+          const referenceInput = document.getElementById("reference-file");
+          if (!referenceInput.files || !referenceInput.files[0]) {
+            throw new Error("Choose a reference WAV before submitting.");
+          }
+          body.append("reference_file", referenceInput.files[0]);
         }
-        return payload;
-      });
+        submission = await fetch("/api/v1/contextual-runs/wav", {
+          method: "POST",
+          body,
+        }).then(parseJsonResponse);
+      }
     }
     renderLifecycle(submission.status);
-    await pollRun(submission.run_id);
+    await pollRun(submission.run_id, { contextual });
   } catch (error) {
     showError(error instanceof Error ? error.message : String(error));
   } finally {
@@ -390,6 +535,13 @@ async function submitDiagnose(event) {
 
 function bindUi() {
   document.getElementById("diagnose-form").addEventListener("submit", submitDiagnose);
+  document
+    .getElementById("diagnostic-mode")
+    .addEventListener("change", updateContextualFields);
+  document
+    .querySelectorAll('input[name="source-mode"]')
+    .forEach((input) => input.addEventListener("change", updateContextualFields));
+  updateContextualFields();
   loadPresets().catch((error) => {
     showError(error instanceof Error ? error.message : String(error));
   });

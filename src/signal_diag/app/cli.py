@@ -10,6 +10,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from signal_diag.app.composition import build_product_service
+from signal_diag.app.contextual_models import ContextualDiagnosisReport
+from signal_diag.app.contextual_reporting import (
+    build_contextual_diagnosis_report,
+    render_contextual_report_html,
+    render_contextual_report_json,
+)
 from signal_diag.app.errors import ApplicationError, sanitize_application_error
 from signal_diag.app.models import AppErrorDetail, DiagnosisReport
 from signal_diag.app.reporting import (
@@ -68,6 +74,20 @@ def build_parser() -> argparse.ArgumentParser:
     wav.add_argument("path", type=Path)
     synthetic = sources.add_parser("synthetic", parents=[diagnose_options])
     synthetic.add_argument("preset_id")
+    contextual = sources.add_parser("contextual", parents=[diagnose_options])
+    contextual.add_argument("path", type=Path)
+    contextual.add_argument(
+        "--mode",
+        required=True,
+        choices=("nominal_single_tone", "paired_reference"),
+    )
+    contextual.add_argument("--reference", type=Path, default=None)
+    contextual.add_argument("--nominal-fundamental-hz", type=float, default=None)
+    contextual.add_argument(
+        "--stimulus-kind",
+        choices=("single_tone",),
+        default=None,
+    )
     return parser
 
 
@@ -92,6 +112,73 @@ def _exit_for_application_error(error: ApplicationError) -> int:
     return 2 if error.detail.code in _USAGE_OR_CONFIG_CODES else 1
 
 
+def _validate_contextual_args(args: argparse.Namespace) -> None:
+    if args.mode == "nominal_single_tone":
+        if args.reference is not None:
+            raise ApplicationError(
+                AppErrorDetail(
+                    code="invalid_request",
+                    message="nominal_single_tone rejects --reference",
+                )
+            )
+        if args.stimulus_kind != "single_tone":
+            raise ApplicationError(
+                AppErrorDetail(
+                    code="invalid_request",
+                    message="nominal_single_tone requires --stimulus-kind single_tone",
+                )
+            )
+        if args.nominal_fundamental_hz is None:
+            raise ApplicationError(
+                AppErrorDetail(
+                    code="invalid_request",
+                    message="nominal_single_tone requires --nominal-fundamental-hz",
+                )
+            )
+        if not (
+            args.nominal_fundamental_hz > 0.0
+            and args.nominal_fundamental_hz == args.nominal_fundamental_hz
+            and args.nominal_fundamental_hz
+            not in (float("inf"), float("-inf"))
+        ):
+            raise ApplicationError(
+                AppErrorDetail(
+                    code="invalid_request",
+                    message="nominal_fundamental_hz must be a finite positive number",
+                )
+            )
+        return
+
+    if args.reference is None:
+        raise ApplicationError(
+            AppErrorDetail(
+                code="invalid_request",
+                message="paired_reference requires --reference",
+            )
+        )
+    if args.stimulus_kind == "single_tone" and args.nominal_fundamental_hz is None:
+        raise ApplicationError(
+            AppErrorDetail(
+                code="invalid_request",
+                message=(
+                    "paired_reference with --stimulus-kind single_tone requires "
+                    "--nominal-fundamental-hz"
+                ),
+            )
+        )
+    if args.nominal_fundamental_hz is not None and not (
+        args.nominal_fundamental_hz > 0.0
+        and args.nominal_fundamental_hz == args.nominal_fundamental_hz
+        and args.nominal_fundamental_hz not in (float("inf"), float("-inf"))
+    ):
+        raise ApplicationError(
+            AppErrorDetail(
+                code="invalid_request",
+                message="nominal_fundamental_hz must be a finite positive number",
+            )
+        )
+
+
 def _print_text_report(report: DiagnosisReport) -> None:
     result = report.result
     diagnosis = result.diagnosis
@@ -112,6 +199,35 @@ def _print_text_report(report: DiagnosisReport) -> None:
         print(f"  knowledge: {', '.join(claim.knowledge_refs)}")
 
 
+def _print_contextual_text_report(report: ContextualDiagnosisReport) -> None:
+    context = report.stimulus_context
+    print(f"mode: {context.mode}")
+    print(f"assertion_source: {context.assertion_source}")
+    if context.nominal_fundamental_hz is not None:
+        print(f"nominal_fundamental_hz: {context.nominal_fundamental_hz}")
+    if context.stimulus_kind is not None:
+        print(f"stimulus_kind: {context.stimulus_kind}")
+    result = report.result
+    diagnosis = result.diagnosis
+    if diagnosis is None:
+        print(f"outcome: {result.status}")
+        print("confidence: n/a")
+        print(f"termination: {result.termination_reason}")
+        for item in result.errors:
+            print(f"error: {item}")
+        return
+    print(f"outcome: {diagnosis.outcome}")
+    print(f"confidence: {diagnosis.confidence_label}")
+    print(f"termination: {diagnosis.termination_reason}")
+    for claim in diagnosis.claims:
+        print(f"claim {claim.claim_id}: {claim.statement}")
+        print(f"  evidence: {', '.join(claim.evidence_refs)}")
+        print(f"  rules: {', '.join(claim.rule_refs)}")
+        print(f"  knowledge: {', '.join(claim.knowledge_refs)}")
+    for limitation in diagnosis.limitations:
+        print(f"limitation: {limitation}")
+
+
 def _emit_outputs(args: argparse.Namespace, report: DiagnosisReport) -> None:
     if args.output == "json":
         sys.stdout.write(render_report_json(report))
@@ -119,6 +235,19 @@ def _emit_outputs(args: argparse.Namespace, report: DiagnosisReport) -> None:
         _print_text_report(report)
     if args.html_output is not None:
         Path(args.html_output).write_bytes(render_report_html(report).encode("utf-8"))
+
+
+def _emit_contextual_outputs(
+    args: argparse.Namespace, report: ContextualDiagnosisReport
+) -> None:
+    if args.output == "json":
+        sys.stdout.write(render_contextual_report_json(report))
+    else:
+        _print_contextual_text_report(report)
+    if args.html_output is not None:
+        Path(args.html_output).write_bytes(
+            render_contextual_report_html(report).encode("utf-8")
+        )
 
 
 def _serve(args: argparse.Namespace) -> int:
@@ -152,16 +281,28 @@ async def _diagnose(
     args: argparse.Namespace,
     service_factory: Callable[[], DiagnosisApplicationService],
 ) -> int:
-    wav_bytes: bytes | None = None
-    if args.source_kind == "wav":
+    if args.source_kind == "contextual":
         try:
-            wav_bytes = _read_wav_path(Path(args.path), WavLoadLimits().max_upload_bytes)
+            _validate_contextual_args(args)
+        except ApplicationError as error:
+            _print_error(error.detail.code, error.detail.message)
+            return _exit_for_application_error(error)
+
+    wav_bytes: bytes | None = None
+    reference_bytes: bytes | None = None
+    max_bytes = WavLoadLimits().max_upload_bytes
+    if args.source_kind in {"wav", "contextual"}:
+        try:
+            wav_bytes = _read_wav_path(Path(args.path), max_bytes)
+            if args.source_kind == "contextual" and args.reference is not None:
+                reference_bytes = _read_wav_path(Path(args.reference), max_bytes)
         except ApplicationError as error:
             _print_error(error.detail.code, error.detail.message)
             return _exit_for_application_error(error)
         except OSError as error:
             _print_error("invalid_request", str(error))
             return 2
+
     service = service_factory()
     try:
         if args.source_kind == "wav":
@@ -178,12 +319,68 @@ async def _diagnose(
                 user_request=args.question,
                 channel=args.channel,
             )
-        else:
-            submission = await service.submit_synthetic(
-                args.preset_id,
+            snapshot = await service.wait_for_terminal(submission.run_id)
+            if snapshot.status == "completed":
+                report = build_diagnosis_report(
+                    snapshot, generated_at=datetime.now(UTC)
+                )
+                _emit_outputs(args, report)
+                if snapshot.result is not None and snapshot.result.status == "error":
+                    return 1
+                return 0
+            if snapshot.application_error is not None:
+                _print_error(
+                    snapshot.application_error.code,
+                    snapshot.application_error.message,
+                )
+            else:
+                _print_error("internal_error", "diagnosis execution failed")
+            return 1
+
+        if args.source_kind == "contextual":
+            if wav_bytes is None:
+                raise ApplicationError(
+                    AppErrorDetail(
+                        code="invalid_request",
+                        message="WAV path produced no bytes",
+                    )
+                )
+            submission = await service.submit_contextual_wav(
+                wav_bytes,
+                test_filename=Path(args.path).name,
+                mode=args.mode,
+                reference_data=reference_bytes,
+                reference_filename=(
+                    Path(args.reference).name if args.reference is not None else None
+                ),
+                nominal_fundamental_hz=args.nominal_fundamental_hz,
+                stimulus_kind=args.stimulus_kind,
                 user_request=args.question,
                 channel=args.channel,
             )
+            snapshot = await service.wait_for_contextual_terminal(submission.run_id)
+            if snapshot.status == "completed":
+                report = build_contextual_diagnosis_report(
+                    snapshot, generated_at=datetime.now(UTC)
+                )
+                _emit_contextual_outputs(args, report)
+                if snapshot.result is not None and snapshot.result.status == "error":
+                    return 1
+                return 0
+            if snapshot.application_error is not None:
+                _print_error(
+                    snapshot.application_error.code,
+                    snapshot.application_error.message,
+                )
+            else:
+                _print_error("internal_error", "diagnosis execution failed")
+            return 1
+
+        submission = await service.submit_synthetic(
+            args.preset_id,
+            user_request=args.question,
+            channel=args.channel,
+        )
         snapshot = await service.wait_for_terminal(submission.run_id)
         if snapshot.status == "completed":
             report = build_diagnosis_report(

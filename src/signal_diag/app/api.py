@@ -6,7 +6,7 @@ from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from importlib.resources import files
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -16,6 +16,12 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import Response as StarletteResponse
 
 from signal_diag.app.composition import build_product_service
+from signal_diag.app.contextual_models import ContextualAppRunSnapshot
+from signal_diag.app.contextual_reporting import (
+    build_contextual_diagnosis_report,
+    render_contextual_report_html,
+    render_contextual_report_json,
+)
 from signal_diag.app.errors import (
     ApplicationError,
     ReportUnavailableError,
@@ -28,7 +34,7 @@ from signal_diag.app.models import (
     AppRunSnapshot,
     DemoPresetId,
 )
-from signal_diag.app.multipart import parse_wav_upload
+from signal_diag.app.multipart import parse_contextual_wav_upload, parse_wav_upload
 from signal_diag.app.reporting import (
     build_diagnosis_report,
     load_accepted_evaluation_summary,
@@ -118,6 +124,27 @@ def _static_asset_response(filename: str) -> Response:
 
 def _completed_snapshot(request: Request, run_id: str) -> AppRunSnapshot:
     snapshot = _service(request).get_run(run_id)
+    if snapshot.status in {"queued", "running"}:
+        raise RunNotTerminalError(
+            AppErrorDetail(
+                code="run_not_terminal",
+                message="report is available only after the run is completed",
+            )
+        )
+    if snapshot.status == "failed":
+        raise ReportUnavailableError(
+            AppErrorDetail(
+                code="report_unavailable",
+                message="application-failed runs do not have a diagnosis report",
+            )
+        )
+    return snapshot
+
+
+def _completed_contextual_snapshot(
+    request: Request, run_id: str
+) -> ContextualAppRunSnapshot:
+    snapshot = _service(request).get_contextual_run(run_id)
     if snapshot.status in {"queued", "running"}:
         raise RunNotTerminalError(
             AppErrorDetail(
@@ -268,6 +295,69 @@ def create_app(
         report = build_diagnosis_report(snapshot, generated_at=datetime.now(UTC))
         return Response(
             content=render_report_html(report),
+            media_type="text/html; charset=utf-8",
+            headers={
+                "Content-Disposition": (
+                    f'attachment; filename="{snapshot.run_id}.report.html"'
+                ),
+                "Content-Security-Policy": _CSP,
+            },
+        )
+
+    @app.post("/api/v1/contextual-runs/wav")
+    async def submit_contextual_wav(request: Request) -> JSONResponse:
+        parsed = await parse_contextual_wav_upload(
+            request, max_file_bytes=_MAX_FILE_BYTES
+        )
+        submission = await _service(request).submit_contextual_wav(
+            parsed.test_data,
+            test_filename=parsed.test_filename,
+            mode=cast(
+                Literal["nominal_single_tone", "paired_reference"],
+                parsed.mode,
+            ),
+            reference_data=parsed.reference_data,
+            reference_filename=parsed.reference_filename,
+            nominal_fundamental_hz=parsed.nominal_fundamental_hz,
+            stimulus_kind=cast(
+                Literal["single_tone"] | None,
+                parsed.stimulus_kind,
+            ),
+            user_request=parsed.user_request,
+            channel=parsed.channel,
+        )
+        return JSONResponse(status_code=202, content=submission.model_dump(mode="json"))
+
+    @app.get("/api/v1/contextual-runs/{run_id}")
+    async def get_contextual_run(request: Request, run_id: str) -> JSONResponse:
+        snapshot = _service(request).get_contextual_run(run_id)
+        return JSONResponse(content=snapshot.model_dump(mode="json"))
+
+    @app.get("/api/v1/contextual-runs/{run_id}/report.json")
+    async def contextual_report_json(request: Request, run_id: str) -> Response:
+        snapshot = _completed_contextual_snapshot(request, run_id)
+        report = build_contextual_diagnosis_report(
+            snapshot, generated_at=datetime.now(UTC)
+        )
+        return Response(
+            content=render_contextual_report_json(report),
+            media_type="application/json",
+            headers={
+                "Content-Disposition": (
+                    f'attachment; filename="{snapshot.run_id}.report.json"'
+                ),
+                "Content-Security-Policy": _CSP,
+            },
+        )
+
+    @app.get("/api/v1/contextual-runs/{run_id}/report.html")
+    async def contextual_report_html(request: Request, run_id: str) -> Response:
+        snapshot = _completed_contextual_snapshot(request, run_id)
+        report = build_contextual_diagnosis_report(
+            snapshot, generated_at=datetime.now(UTC)
+        )
+        return Response(
+            content=render_contextual_report_html(report),
             media_type="text/html; charset=utf-8",
             headers={
                 "Content-Disposition": (

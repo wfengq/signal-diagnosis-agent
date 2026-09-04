@@ -27,6 +27,9 @@ SECTION_IDS = (
     "input-panel",
     "lifecycle-panel",
     "diagnosis-panel",
+    "declaration-panel",
+    "qualification-panel",
+    "limitation-panel",
     "waveform-panel",
     "trace-panel",
     "evidence-panel",
@@ -349,3 +352,70 @@ async def test_t280_evaluation_summary_endpoint_matches_packaged_copy() -> None:
         assert "2/80" in copy
         assert "1/80" in copy
         assert "demonstration" in copy
+
+
+def test_t_cx117_contextual_ui_accessibility_labels() -> None:
+    html = _static_text("index.html")
+    assert 'id="diagnostic-mode"' in html
+    assert 'for="diagnostic-mode"' in html
+    assert 'id="nominal-fundamental-hz"' in html
+    assert 'for="nominal-fundamental-hz"' in html
+    assert 'id="reference-file"' in html
+    assert 'for="reference-file"' in html
+    assert "unknown" in html.casefold()
+    assert "single tone" in html.casefold() or "nominal" in html.casefold()
+    assert "reference" in html.casefold()
+    assert 'id="declaration-panel"' in html
+    assert 'id="qualification-panel"' in html
+    assert 'id="limitation-panel"' in html
+    for section_id in (
+        "declaration-panel",
+        "qualification-panel",
+        "limitation-panel",
+    ):
+        assert f'id="{section_id}"' in html
+
+
+def test_t_cx118_contextual_ui_conditional_visibility() -> None:
+    html = _static_text("index.html")
+    script = _static_text("app.js")
+    css = _static_text("styles.css")
+    assert 'id="nominal-fields"' in html
+    assert 'id="reference-fields"' in html
+    assert "nominal-fields" in script
+    assert "reference-fields" in script
+    assert "diagnostic-mode" in script
+    assert "hidden" in script or "display" in css
+    assert "nominal_single_tone" in script or "single_tone" in script
+    assert "paired_reference" in script
+    # Default remains the unknown one-WAV experience.
+    assert 'value="unknown"' in html or 'value="single_signal"' in html
+    assert "selected" in html or "checked" in html
+
+
+def test_t_cx119_contextual_ui_sections_and_no_client_dsp() -> None:
+    html = _static_text("index.html")
+    script = _static_text("app.js")
+    page = f"{html}\n{script}".casefold()
+    assert "declaration-panel" in html
+    assert "qualification-panel" in html
+    assert "limitation-panel" in html
+    assert "evidence-panel" in html
+    assert html.index('id="declaration-panel"') != html.index('id="evidence-panel"')
+    assert html.index('id="qualification-panel"') != html.index('id="evidence-panel"')
+    assert html.index('id="limitation-panel"') != html.index('id="evidence-panel"')
+    assert "/api/v1/contextual-runs/wav" in script
+    assert "/api/v1/contextual-runs/" in script
+    assert "/api/v1/runs/wav" in script
+    for token in (
+        "fft",
+        "numpy",
+        "thd_percent",
+        "analyze_contextual_distortion",
+        "detect_clipping",
+        "math.sin",
+        "audiocontext",
+    ):
+        assert token not in page
+    for sink in FORBIDDEN_HTML_SINKS:
+        assert sink not in script

@@ -40,6 +40,31 @@
             <select id="preset-id" name="preset_id"></select>
           </p>
         </fieldset>
+        <fieldset id="context-fieldset">
+          <legend>Diagnostic context</legend>
+          <p>
+            <label for="diagnostic-mode">Mode</label>
+            <select id="diagnostic-mode" name="diagnostic_mode">
+              <option value="unknown" selected>Unknown one-WAV signal</option>
+              <option value="nominal_single_tone">Declared single tone</option>
+              <option value="paired_reference">Compare with clean reference</option>
+            </select>
+          </p>
+          <p id="nominal-fields" class="conditional-fields" hidden>
+            <label for="nominal-fundamental-hz">Nominal fundamental (Hz)</label>
+            <input
+              id="nominal-fundamental-hz"
+              name="nominal_fundamental_hz"
+              type="text"
+              inputmode="decimal"
+              autocomplete="off"
+            >
+          </p>
+          <p id="reference-fields" class="conditional-fields" hidden>
+            <label for="reference-file">Reference WAV</label>
+            <input id="reference-file" name="reference_file" type="file" accept=".wav,audio/wav">
+          </p>
+        </fieldset>
         <p>
           <label for="question">Question</label>
           <textarea id="question" name="user_request" rows="3">Why does this signal sound distorted?</textarea>
@@ -67,6 +92,15 @@
     </section>
     <section id="diagnosis-panel">
       <h2>Diagnosis</h2>
+    </section>
+    <section id="declaration-panel">
+      <h2>Declared context</h2>
+    </section>
+    <section id="qualification-panel">
+      <h2>Comparison qualification</h2>
+    </section>
+    <section id="limitation-panel">
+      <h2>Causal limitations</h2>
     </section>
     <section id="waveform-panel">
       <h2>Waveform preview</h2>

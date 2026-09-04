@@ -171,3 +171,23 @@ def test_t284_local_matrix_verifier_is_secret_free_dual_version() -> None:
     assert "run_real_model_eval" not in text
     assert "github.com" not in text.lower()
     assert "actions/checkout" not in text
+
+
+def test_t_cx120_packaging_still_ships_contextual_ui_assets() -> None:
+    data = _pyproject()
+    package_data = data["tool"]["setuptools"]["package-data"]
+    assert package_data["signal_diag.app"] == [
+        "static/*.html",
+        "static/*.css",
+        "static/*.js",
+    ]
+    static_dir = PROJECT_ROOT / "src" / "signal_diag" / "app" / "static"
+    html = (static_dir / "index.html").read_text(encoding="utf-8")
+    script = (static_dir / "app.js").read_text(encoding="utf-8")
+    assert "diagnostic-mode" in html
+    assert "/api/v1/contextual-runs/wav" in script
+    core = "\n".join(data["project"]["dependencies"]).lower()
+    assert "fastapi" not in core
+    assert "python-multipart" not in core
+    smoke = SMOKE_PATH.read_text(encoding="utf-8")
+    assert "ScriptedPlanner" not in smoke

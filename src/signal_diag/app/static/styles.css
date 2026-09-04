@@ -108,6 +108,14 @@ a {
   color: var(--muted);
 }
 
+.conditional-fields[hidden] {
+  display: none !important;
+}
+
+#context-fieldset {
+  margin-top: 0.75rem;
+}
+
 #waveform-panel svg {
   display: block;
   width: 100%;

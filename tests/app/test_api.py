@@ -25,6 +25,10 @@ from signal_diag.agent.models import (
 )
 from signal_diag.app.api import _static_asset_response, create_app
 from signal_diag.app.errors import AppCapacityError
+from signal_diag.app.contextual_models import (
+    ContextualAppRunSnapshot,
+    ContextualRunSubmission,
+)
 from signal_diag.app.models import (
     AcceptedEvaluationSummary,
     AppErrorEnvelope,
@@ -1000,3 +1004,373 @@ async def test_t270_unconfigured_capacity_shutdown_and_post_accept_failures() ->
         await boom_service.aclose()
         await capacity_service.aclose()
         await shutdown_service.aclose()
+
+
+def _contextual_wav_form(
+    test_wav: bytes,
+    *,
+    mode: str,
+    reference_wav: bytes | None = None,
+    nominal_fundamental_hz: str | None = None,
+    stimulus_kind: str | None = None,
+    filename: str = "test.wav",
+    reference_filename: str = "ref.wav",
+    user_request: str = QUESTION,
+    channel: str = "mixdown",
+) -> tuple[bytes, str]:
+    fields: dict[str, bytes] = {
+        "mode": mode.encode("utf-8"),
+        "user_request": user_request.encode("utf-8"),
+        "channel": channel.encode("utf-8"),
+    }
+    if nominal_fundamental_hz is not None:
+        fields["nominal_fundamental_hz"] = nominal_fundamental_hz.encode("utf-8")
+    if stimulus_kind is not None:
+        fields["stimulus_kind"] = stimulus_kind.encode("utf-8")
+    files: list[tuple[str, str, bytes]] = [("test_file", filename, test_wav)]
+    if reference_wav is not None:
+        files.append(("reference_file", reference_filename, reference_wav))
+    return _encode_multipart(fields=fields, files=files)
+
+
+async def _oversize_contextual_file_chunks(
+    *,
+    field_name: str = "test_file",
+    include_reference: bool = False,
+) -> AsyncIterator[bytes]:
+    boundary = "----ContextualOversizeBoundary"
+    fields: dict[str, bytes] = {
+        "mode": b"nominal_single_tone",
+        "user_request": QUESTION.encode("utf-8"),
+        "channel": b"mixdown",
+        "stimulus_kind": b"single_tone",
+        "nominal_fundamental_hz": b"440",
+    }
+    files: list[tuple[str, str, bytes]] = []
+    if include_reference:
+        fields["mode"] = b"paired_reference"
+        files.append(("reference_file", "ref.wav", _mono_extrema_wav()))
+        fields.pop("stimulus_kind", None)
+        fields.pop("nominal_fundamental_hz", None)
+    preamble, _ = _encode_multipart(
+        fields=fields,
+        files=files,
+        boundary=boundary,
+        terminate=False,
+    )
+    file_header = (
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="{field_name}"; '
+        f'filename="huge.wav"\r\n'
+        "Content-Type: application/octet-stream\r\n"
+        "\r\n"
+    ).encode("ascii")
+    yield preamble + file_header
+    remaining = MAX_UPLOAD + 1
+    chunk = b"A" * (256 * 1024)
+    while remaining > 0:
+        size = min(len(chunk), remaining)
+        yield chunk[:size]
+        remaining -= size
+    yield f"\r\n--{boundary}--\r\n".encode("ascii")
+
+
+@pytest.mark.asyncio
+async def test_t_cx106_contextual_nominal_wav_route(
+    finish_service: DiagnosisApplicationService,
+) -> None:
+    wav = _mono_extrema_wav()
+    body, content_type = _contextual_wav_form(
+        wav,
+        mode="nominal_single_tone",
+        stimulus_kind="single_tone",
+        nominal_fundamental_hz="440",
+    )
+    async with _client(finish_service) as client:
+        with _forbid_disk_spool():
+            accepted = await client.post(
+                "/api/v1/contextual-runs/wav",
+                content=body,
+                headers={"Content-Type": content_type},
+            )
+        assert accepted.status_code == 202
+        _assert_json_type(accepted)
+        _assert_csp(accepted)
+        submission = ContextualRunSubmission.model_validate(accepted.json())
+        assert submission.status == "queued"
+        terminal = await finish_service.wait_for_contextual_terminal(submission.run_id)
+        assert terminal.status == "completed"
+        assert terminal.stimulus_context.mode == "nominal_single_tone"
+
+
+@pytest.mark.asyncio
+async def test_t_cx107_contextual_paired_snapshot_route(
+    finish_service: DiagnosisApplicationService,
+) -> None:
+    wav = _mono_extrema_wav()
+    body, content_type = _contextual_wav_form(
+        wav,
+        mode="paired_reference",
+        reference_wav=wav,
+    )
+    async with _client(finish_service) as client:
+        accepted = await client.post(
+            "/api/v1/contextual-runs/wav",
+            content=body,
+            headers={"Content-Type": content_type},
+        )
+        assert accepted.status_code == 202
+        run_id = accepted.json()["run_id"]
+        terminal = await finish_service.wait_for_contextual_terminal(run_id)
+        polled = await client.get(f"/api/v1/contextual-runs/{run_id}")
+        assert polled.status_code == 200
+        snapshot = ContextualAppRunSnapshot.model_validate(polled.json())
+        assert snapshot.status == "completed"
+        assert snapshot.stimulus_context.mode == "paired_reference"
+        assert snapshot.reference_source is not None
+        assert terminal.status == "completed"
+
+
+@pytest.mark.asyncio
+async def test_t_cx108_contextual_report_routes(
+    finish_service: DiagnosisApplicationService,
+) -> None:
+    wav = _mono_extrema_wav()
+    body, content_type = _contextual_wav_form(
+        wav,
+        mode="paired_reference",
+        reference_wav=wav,
+    )
+    async with _client(finish_service) as client:
+        accepted = await client.post(
+            "/api/v1/contextual-runs/wav",
+            content=body,
+            headers={"Content-Type": content_type},
+        )
+        run_id = accepted.json()["run_id"]
+        await finish_service.wait_for_contextual_terminal(run_id)
+        json_report = await client.get(f"/api/v1/contextual-runs/{run_id}/report.json")
+        html_report = await client.get(f"/api/v1/contextual-runs/{run_id}/report.html")
+        assert json_report.status_code == 200
+        assert html_report.status_code == 200
+        assert "application/json" in json_report.headers["content-type"]
+        assert "text/html" in html_report.headers["content-type"]
+        assert "schema_version" in json_report.text
+        assert "Declared context" in html_report.text or "declared" in html_report.text.casefold()
+        assert "Measured Evidence" in html_report.text or "evidence" in html_report.text.casefold()
+        assert run_id in json_report.headers.get("content-disposition", "")
+        assert run_id in html_report.headers.get("content-disposition", "")
+
+
+@pytest.mark.asyncio
+async def test_t_cx109_contextual_per_file_limit(
+    finish_service: DiagnosisApplicationService,
+) -> None:
+    original = finish_service.submit_contextual_wav
+    calls = {"n": 0}
+
+    async def spy(*args: Any, **kwargs: Any) -> Any:
+        calls["n"] += 1
+        return await original(*args, **kwargs)
+
+    finish_service.submit_contextual_wav = spy  # type: ignore[method-assign]
+    async with _client(finish_service) as client:
+        with _forbid_disk_spool():
+            too_large_test = await client.post(
+                "/api/v1/contextual-runs/wav",
+                content=_oversize_contextual_file_chunks(field_name="test_file"),
+                headers={
+                    "Content-Type": (
+                        "multipart/form-data; boundary=----ContextualOversizeBoundary"
+                    )
+                },
+            )
+        assert too_large_test.status_code == 413
+        assert _error_detail(too_large_test).code == "payload_too_large"
+        assert calls["n"] == 0
+
+        # Build an oversize reference while keeping a valid small test_file.
+        boundary = "----ContextualRefOversize"
+        wav = _mono_extrema_wav()
+        preamble, _ = _encode_multipart(
+            fields={
+                "mode": b"paired_reference",
+                "user_request": QUESTION.encode("utf-8"),
+                "channel": b"mixdown",
+            },
+            files=[("test_file", "test.wav", wav)],
+            boundary=boundary,
+            terminate=False,
+        )
+        file_header = (
+            f"--{boundary}\r\n"
+            'Content-Disposition: form-data; name="reference_file"; '
+            'filename="huge.wav"\r\n'
+            "Content-Type: application/octet-stream\r\n"
+            "\r\n"
+        ).encode("ascii")
+
+        async def ref_chunks() -> AsyncIterator[bytes]:
+            yield preamble + file_header
+            remaining = MAX_UPLOAD + 1
+            chunk = b"B" * (256 * 1024)
+            while remaining > 0:
+                size = min(len(chunk), remaining)
+                yield chunk[:size]
+                remaining -= size
+            yield f"\r\n--{boundary}--\r\n".encode("ascii")
+
+        with _forbid_disk_spool():
+            too_large_ref = await client.post(
+                "/api/v1/contextual-runs/wav",
+                content=ref_chunks(),
+                headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+            )
+        assert too_large_ref.status_code == 413
+        assert _error_detail(too_large_ref).code == "payload_too_large"
+        assert calls["n"] == 0
+        assert "traceback" not in too_large_ref.text.casefold()
+
+
+@pytest.mark.asyncio
+async def test_t_cx110_contextual_aggregate_body_limit(
+    finish_service: DiagnosisApplicationService,
+) -> None:
+    original = finish_service.submit_contextual_wav
+    calls = {"n": 0}
+
+    async def spy(*args: Any, **kwargs: Any) -> Any:
+        calls["n"] += 1
+        return await original(*args, **kwargs)
+
+    finish_service.submit_contextual_wav = spy  # type: ignore[method-assign]
+    boundary = "----ContextualAggregate"
+    wav = _mono_extrema_wav()
+    body, _ = _encode_multipart(
+        fields={
+            "mode": b"paired_reference",
+            "user_request": QUESTION.encode("utf-8"),
+            "channel": b"mixdown",
+        },
+        files=[
+            ("test_file", "test.wav", wav),
+            ("reference_file", "ref.wav", wav),
+        ],
+        boundary=boundary,
+    )
+    max_total = (2 * MAX_UPLOAD) + (64 * 1024)
+    padding = b"X" * (max_total - len(body) + 1)
+
+    async def aggregate_chunks() -> AsyncIterator[bytes]:
+        yield body
+        yield padding
+
+    async with _client(finish_service) as client:
+        with _forbid_disk_spool():
+            rejected = await client.post(
+                "/api/v1/contextual-runs/wav",
+                content=aggregate_chunks(),
+                headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+            )
+        assert rejected.status_code == 413
+        assert _error_detail(rejected).code == "payload_too_large"
+        assert calls["n"] == 0
+
+
+@pytest.mark.asyncio
+async def test_t_cx111_contextual_multipart_validation_and_sanitized_errors(
+    finish_service: DiagnosisApplicationService,
+) -> None:
+    wav = _mono_extrema_wav()
+    original = finish_service.submit_contextual_wav
+    calls = {"n": 0}
+
+    async def spy(*args: Any, **kwargs: Any) -> Any:
+        calls["n"] += 1
+        return await original(*args, **kwargs)
+
+    finish_service.submit_contextual_wav = spy  # type: ignore[method-assign]
+    async with _client(finish_service) as client:
+        missing, missing_type = _encode_multipart(
+            fields={
+                "user_request": QUESTION.encode("utf-8"),
+                "channel": b"mixdown",
+            },
+            files=[("test_file", "test.wav", wav)],
+        )
+        missing_mode = await client.post(
+            "/api/v1/contextual-runs/wav",
+            content=missing,
+            headers={"Content-Type": missing_type},
+        )
+        assert missing_mode.status_code == 422
+        assert _error_detail(missing_mode).code == "invalid_request"
+
+        duplicate, dup_type = _encode_multipart(
+            fields={
+                "mode": b"nominal_single_tone",
+                "user_request": QUESTION.encode("utf-8"),
+                "channel": b"mixdown",
+                "stimulus_kind": b"single_tone",
+                "nominal_fundamental_hz": b"440",
+            },
+            files=[
+                ("test_file", "test.wav", wav),
+                ("test_file", "other.wav", wav),
+            ],
+        )
+        dup = await client.post(
+            "/api/v1/contextual-runs/wav",
+            content=duplicate,
+            headers={"Content-Type": dup_type},
+        )
+        assert dup.status_code == 422
+        assert _error_detail(dup).code == "invalid_request"
+
+        unknown, unk_type = _encode_multipart(
+            fields={
+                "mode": b"nominal_single_tone",
+                "user_request": QUESTION.encode("utf-8"),
+                "channel": b"mixdown",
+                "stimulus_kind": b"single_tone",
+                "nominal_fundamental_hz": b"440",
+                "extra": b"nope",
+            },
+            files=[("test_file", "test.wav", wav)],
+        )
+        extra = await client.post(
+            "/api/v1/contextual-runs/wav",
+            content=unknown,
+            headers={"Content-Type": unk_type},
+        )
+        assert extra.status_code == 422
+        assert _error_detail(extra).code == "invalid_request"
+        assert calls["n"] == 0
+        for response in (missing_mode, dup, extra):
+            assert "traceback" not in response.text.casefold()
+            assert "File " not in response.text
+            _assert_csp(response)
+
+
+@pytest.mark.asyncio
+async def test_t_cx112_original_wav_route_unchanged(
+    finish_service: DiagnosisApplicationService,
+) -> None:
+    wav = _mono_extrema_wav()
+    body, content_type = _wav_form(wav, filename="demo.wav")
+    async with _client(finish_service) as client:
+        accepted = await client.post(
+            "/api/v1/runs/wav",
+            content=body,
+            headers={"Content-Type": content_type},
+        )
+        assert accepted.status_code == 202
+        submission = RunSubmission.model_validate(accepted.json())
+        terminal = await finish_service.wait_for_terminal(submission.run_id)
+        assert terminal.status == "completed"
+        snapshot = AppRunSnapshot.model_validate(
+            (await client.get(f"/api/v1/runs/{submission.run_id}")).json()
+        )
+        assert snapshot.status == "completed"
+        assert "stimulus_context" not in snapshot.model_dump()
+        assert "reference_source" not in snapshot.model_dump()
