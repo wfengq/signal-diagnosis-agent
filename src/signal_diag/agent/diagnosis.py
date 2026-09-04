@@ -22,8 +22,15 @@ CausalPolicyVersion = Literal[
     "v9_4_legacy",
     "v9_5_contextual",
     "v9_6_contextual",
+    "v9_7_deterministic_rule_closure",
 ]
-_CONTEXTUAL_CAUSAL_POLICIES = frozenset({"v9_5_contextual", "v9_6_contextual"})
+_CONTEXTUAL_CAUSAL_POLICIES = frozenset(
+    {
+        "v9_5_contextual",
+        "v9_6_contextual",
+        "v9_7_deterministic_rule_closure",
+    }
+)
 
 _SUBSTANTIAL_CLIPPING_RULE_IDS = frozenset(
     {

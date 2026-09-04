@@ -58,7 +58,10 @@ def _contextual_tool_routing_error(
     stimulus_context: StimulusContext,
     tool_name: str,
 ) -> str | None:
-    if causal_policy_version != "v9_6_contextual":
+    if causal_policy_version not in {
+        "v9_6_contextual",
+        "v9_7_deterministic_rule_closure",
+    }:
         return None
     if (
         stimulus_context.mode in {"paired_reference", "nominal_single_tone"}
