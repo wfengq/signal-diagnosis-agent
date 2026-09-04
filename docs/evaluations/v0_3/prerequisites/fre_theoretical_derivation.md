@@ -1,7 +1,7 @@
 # FRE Default Theoretical Derivation (V0.3)
 
-**Parameter:** `min_fundamental_relative_energy`  
-**Production default:** `0.15` (`DEFAULT_MIN_FUNDAMENTAL_RELATIVE_ENERGY`)  
+**Parameter:** `min_fundamental_relative_energy`
+**Production default:** `0.15` (`DEFAULT_MIN_FUNDAMENTAL_RELATIVE_ENERGY`)
 **Status:** Engineering default for V0.3 Workstream B; not derived from V0.2 failure observations.
 
 ---

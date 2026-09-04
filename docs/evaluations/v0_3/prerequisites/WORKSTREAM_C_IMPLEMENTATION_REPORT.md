@@ -1,7 +1,7 @@
 # Workstream C Implementation Report
 
-**Date:** 2026-09-02  
-**Prompt:** `v0.3-s1-planner-9.0`  
+**Date:** 2026-09-02
+**Prompt:** `v0.3-s1-planner-9.0`
 **Status:** Complete — stopped before real-model tuning
 
 ---
@@ -28,13 +28,13 @@
 
 ## 2. v9.0 prompt 核心行为变化
 
-1. **§3 语义澄清（EV-C030 部分）**  
+1. **§3 语义澄清（EV-C030 部分）**
    `rule_thd_acceptable` FAIL 仅表示谐波含量相对阈值升高；**本身不足以**建立 causal `harmonic_distortion`。
 
-2. **禁止 LLM 主观 heuristic**  
+2. **禁止 LLM 主观 heuristic**
    不得仅凭 THD 幅度或相对谐波模式猜测“自然 vs 注入”谐波。
 
-3. **§9 新 inconclusive 路径（EV-C030）**  
+3. **§9 新 inconclusive 路径（EV-C030）**
    当 `valid=true` + THD FAIL + 无 clipping/其他失真机制 Evidence → **inconclusive 为合法 finish**；需 same-run `evidence_refs`、`rule_refs`、非空 `limitations`。
 
 4. **§10** 原 output contract 顺延编号；无 numeric threshold 硬编码（EV-C031）。

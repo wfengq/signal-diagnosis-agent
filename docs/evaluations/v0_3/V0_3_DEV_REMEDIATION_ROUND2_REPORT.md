@@ -1,8 +1,8 @@
 # V0.3 Dev Remediation Round 2 Report
 
-**Study:** `v0.3-real-dev-validation-1`  
-**Completed:** 2026-09-02 UTC  
-**Authorization:** Opus design review — revised execution order (P0∥P3 → P1 → P2 → real-model rerun → val readiness)  
+**Study:** `v0.3-real-dev-validation-1`
+**Completed:** 2026-09-02 UTC
+**Authorization:** Opus design review — revised execution order (P0∥P3 → P1 → P2 → real-model rerun → val readiness)
 **Scope gate:** dev split only; val / test not entered; no push / PR
 
 ---
@@ -160,7 +160,7 @@ Round 2 agent outcomes:
 
 ## 8. Per-case rerun table
 
-Prompt: `v0.3-s1-planner-9.1`  
+Prompt: `v0.3-s1-planner-9.1`
 Run: `docs/evaluations/v0_3/dev/study_v0_3_dev_1/agent_v9_1_dev_run_round2/`
 
 | case_id | signal_category | valid | B_gate | C_path | outcome | expected | failure_class | planner_errors |

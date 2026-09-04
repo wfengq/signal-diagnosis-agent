@@ -1,6 +1,6 @@
 # Phase 1.5 / A-B Readiness Report
 
-**Date:** 2026-09-02  
+**Date:** 2026-09-02
 **Scope:** P0 prerequisites + Workstream A/B production implementation (Workstream C excluded)
 
 ---
@@ -21,8 +21,8 @@
 
 ## 2. Octave ambiguity 最终算法规格
 
-**Algorithm:** `upper_octave_partner_peak_ratio`  
-**Spec doc:** `docs/evaluations/v0_3/prerequisites/octave_ambiguity_spec.md`  
+**Algorithm:** `upper_octave_partner_peak_ratio`
+**Spec doc:** `docs/evaluations/v0_3/prerequisites/octave_ambiguity_spec.md`
 **Validation JSON:** `docs/evaluations/v0_3/prerequisites/octave_ambiguity_validation.json`
 
 When autocorrelation locks to a **subharmonic** (700 Hz → 350 Hz), the upper-octave partner
@@ -70,7 +70,7 @@ Implementation constant: `DEFAULT_MIN_FUNDAMENTAL_RELATIVE_ENERGY` in `spectral_
 
 ## 5. Dev calibration results
 
-**Manifest:** `docs/evaluations/v0_3/prerequisites/dev_split_manifest.json`  
+**Manifest:** `docs/evaluations/v0_3/prerequisites/dev_split_manifest.json`
 **Full results:** `docs/evaluations/v0_3/prerequisites/fre_calibration_results.json`
 
 | Threshold | False invalid | Missed unreliable |

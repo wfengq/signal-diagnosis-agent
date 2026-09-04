@@ -1345,4 +1345,3 @@ def test_t_c_028_prompt_requires_substantial_clipping_rule_fail() -> None:
     assert "rule_clipping_ratio_acceptable" in text
     assert "rule_flat_top_absent" in text
     assert "substantial" in text.lower()
-

@@ -1,6 +1,6 @@
 # Octave Ambiguity Detection Specification (V0.3 Workstream A)
 
-**Status:** Phase 1.5 finalized  
+**Status:** Phase 1.5 finalized
 **Validation artifact:** `octave_ambiguity_validation.json`
 
 ## Problem
