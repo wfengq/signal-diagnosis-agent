@@ -1,0 +1,48 @@
+{
+  "diagnostic_only": true,
+  "development_confirmation_valid": false,
+  "claims_development_confirmed": false,
+  "protocol_deviation_of_original_task13": true,
+  "prompt_version": "v0.3-s1-planner-9.5",
+  "prompt_sha256": "a4f4d260adb45a2af088961c77586b08d8279cd1bc4f3780474c3b0a6bd7cb02",
+  "implementation_sha256": "5e3dc82dd443f84b400c683d40012ba31e8ff2a2833e7a5e71286f4ca035c694",
+  "profile_s1_sha256": "1e02d0dabe74ae1327fa3418d4ce546c53e8a8d06b175b5c508edb8b512f5ed1",
+  "profile_contextual_sha256": "c79865caf913b2a1a5f6f50fccd8c37d6f2828e72feb1f80d9c9c7b4b7d9eb58",
+  "manifest_sha256": "cca0ee24d8574435761d2d057fd4341c5e015ee7d5337826f796ea832cf047dd",
+  "head_commit": "627d94e473cb94f4320272080b2d466228ad5268",
+  "model": "deepseek-v4-flash",
+  "forbidden_case_ids": [
+    "825a759a0ea47bb7",
+    "857fac53e4d2e57e",
+    "a4a0853be9983f8c",
+    "abd9010438d4ad93"
+  ],
+  "remaining_case_ids": [
+    "2be730b9113701de",
+    "6fb80bbda391c26c",
+    "aa9b4a91b0253c33",
+    "393940e92c58cf0b",
+    "04f4068ec91d2621",
+    "163185980dc8f7a4",
+    "ce8b413cf7382c3d",
+    "dff3ebd9dffee874",
+    "35967af7b71c5b75",
+    "5f7ed6fe137f73b3",
+    "eabaecd422b2eeda",
+    "43bbc0fb08d88ec3",
+    "d4bb668a379dea3b",
+    "e3c036eb778237c8",
+    "3e1ca5f1bc34a5a8",
+    "eb8d416412ce3c22"
+  ],
+  "prior_trees_unmodified_policy": true,
+  "reachability": {
+    "host": "api.deepseek.com",
+    "port": 443,
+    "tls_version": "TLSv1.3",
+    "models_endpoint_http_status": 200,
+    "chat_completions_invoked": false,
+    "diagnosis_invoked": false
+  },
+  "credentials_present": true
+}

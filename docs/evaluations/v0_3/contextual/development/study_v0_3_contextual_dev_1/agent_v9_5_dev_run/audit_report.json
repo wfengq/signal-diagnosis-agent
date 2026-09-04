@@ -1,0 +1,128 @@
+{
+  "target_status": "below_target",
+  "gates": {
+    "slots_complete_20": false,
+    "unique_cases_20": true,
+    "unique_decision_indices": true,
+    "evidence_grounding_100": false,
+    "unsupported_claim_rate_0": true,
+    "natural_even_harmonic_fp_0": true,
+    "claim_refs_resolve": false,
+    "scoreable_outcome_accuracy_ge_0_80": false,
+    "scoreable_causal_exact_ge_0_75": false
+  },
+  "claim_ref_failures": [
+    "a4a0853be9983f8c",
+    "2be730b9113701de",
+    "6fb80bbda391c26c",
+    "aa9b4a91b0253c33",
+    "393940e92c58cf0b",
+    "04f4068ec91d2621",
+    "163185980dc8f7a4",
+    "ce8b413cf7382c3d",
+    "dff3ebd9dffee874",
+    "35967af7b71c5b75",
+    "5f7ed6fe137f73b3",
+    "eabaecd422b2eeda",
+    "43bbc0fb08d88ec3",
+    "d4bb668a379dea3b"
+  ],
+  "natural_even_fp_cases": [],
+  "aggregate": {
+    "outcome_accuracy": {
+      "numerator": 2,
+      "denominator": 17,
+      "value": 0.11764705882352941
+    },
+    "causal_exact_set_accuracy": {
+      "numerator": 2,
+      "denominator": 17,
+      "value": 0.11764705882352941
+    },
+    "harmonic_precision": "not_evaluated",
+    "harmonic_recall": "not_evaluated",
+    "clipping_precision": {
+      "numerator": 2,
+      "denominator": 2,
+      "value": 1.0
+    },
+    "clipping_recall": {
+      "numerator": 2,
+      "denominator": 2,
+      "value": 1.0
+    },
+    "inconclusive_appropriateness": {
+      "numerator": 0,
+      "denominator": 6,
+      "value": 0.0
+    },
+    "natural_even_harmonic_fp": 0,
+    "unnecessary_tool_rate": {
+      "numerator": 0,
+      "denominator": 17,
+      "value": 0.0
+    },
+    "evidence_grounding": {
+      "numerator": 2,
+      "denominator": 17,
+      "value": 0.11764705882352941
+    },
+    "unsupported_claim_rate": {
+      "numerator": 0,
+      "denominator": 17,
+      "value": 0.0
+    },
+    "ablation_correct_delta": null
+  },
+  "scoring_version": "1.0.0-dev.1",
+  "protocol_deviation": true,
+  "development_confirmation_valid": false,
+  "metric_interpretation": {
+    "outcome_accuracy_2_of_17": "fixed_scoreable_denominator_gate",
+    "not": "observed_completed_sample_accuracy",
+    "note": "Denominator is frozen at 17 scoreable cases; unexecuted and infrastructure-failed scoreable slots count incorrect under the scoring helper."
+  },
+  "protocol_deviation_detail": {
+    "case_id": "825a759a0ea47bb7",
+    "real_model_attempts": 2,
+    "attempt_1_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_5_dev_run_partial_aborted_misclassified_infra_2026-09-04/cases/825a759a0ea47bb7",
+    "attempt_1_started_at_utc": "2026-09-04T13:23:16.112818+00:00",
+    "attempt_1_decide_count": 6,
+    "attempt_2_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_5_dev_run/cases/825a759a0ea47bb7",
+    "attempt_2_started_at_utc": "2026-09-04T13:24:19.160640+00:00",
+    "attempt_2_decide_count": 6,
+    "correction": "Prior not-retried wording was false; second execution is a one-shot protocol deviation."
+  },
+  "api_connection_error_audit": {
+    "case_id": "a4a0853be9983f8c",
+    "error_type": "APIConnectionError",
+    "error_message_sanitized": "Connection error.",
+    "available_evidence": [
+      "attempts.json error_type",
+      "attempts.json sanitized message",
+      "attempt wall-clock interval"
+    ],
+    "unavailable_evidence": [
+      "HTTP status",
+      "provider response body",
+      "DNS/proxy logs",
+      "provider incident id"
+    ],
+    "root_cause": "unknown"
+  },
+  "continuation_options": [
+    {
+      "id": "A_close_task_13",
+      "summary": "Close Task 13; retain both run directories as failure/deviation evidence; no slot resume; no confirmation claim."
+    },
+    {
+      "id": "B_diagnostic_continuation_requires_new_authorization",
+      "summary": "New written authorization only: run the 16 never-executed slots as diagnostic continuation; do not re-run the four executed cases; cannot claim original one-shot confirmation passed."
+    }
+  ],
+  "confirmation_blocked_reasons": [
+    "protocol_deviation_dual_attempt_825a759a0ea47bb7",
+    "campaign_incomplete_after_api_connection_error",
+    "fixed_denominator_gates_not_met"
+  ]
+}

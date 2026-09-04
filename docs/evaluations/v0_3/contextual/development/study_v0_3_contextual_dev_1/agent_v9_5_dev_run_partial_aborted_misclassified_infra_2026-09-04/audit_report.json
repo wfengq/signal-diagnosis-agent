@@ -1,0 +1,72 @@
+{
+  "target_status": "below_target",
+  "gates": {
+    "slots_complete_20": false,
+    "unique_cases_20": true,
+    "unique_decision_indices": true,
+    "evidence_grounding_100": false,
+    "unsupported_claim_rate_0": true,
+    "natural_even_harmonic_fp_0": true,
+    "claim_refs_resolve": false,
+    "scoreable_outcome_accuracy_ge_0_80": false,
+    "scoreable_causal_exact_ge_0_75": false
+  },
+  "claim_ref_failures": [
+    "857fac53e4d2e57e",
+    "abd9010438d4ad93",
+    "a4a0853be9983f8c",
+    "2be730b9113701de",
+    "6fb80bbda391c26c",
+    "aa9b4a91b0253c33",
+    "393940e92c58cf0b",
+    "04f4068ec91d2621",
+    "163185980dc8f7a4",
+    "ce8b413cf7382c3d",
+    "dff3ebd9dffee874",
+    "35967af7b71c5b75",
+    "5f7ed6fe137f73b3",
+    "eabaecd422b2eeda",
+    "43bbc0fb08d88ec3",
+    "d4bb668a379dea3b"
+  ],
+  "natural_even_fp_cases": [],
+  "aggregate": {
+    "outcome_accuracy": {
+      "numerator": 0,
+      "denominator": 17,
+      "value": 0.0
+    },
+    "causal_exact_set_accuracy": {
+      "numerator": 0,
+      "denominator": 17,
+      "value": 0.0
+    },
+    "harmonic_precision": "not_evaluated",
+    "harmonic_recall": "not_evaluated",
+    "clipping_precision": "not_evaluated",
+    "clipping_recall": "not_evaluated",
+    "inconclusive_appropriateness": {
+      "numerator": 0,
+      "denominator": 6,
+      "value": 0.0
+    },
+    "natural_even_harmonic_fp": 0,
+    "unnecessary_tool_rate": {
+      "numerator": 0,
+      "denominator": 17,
+      "value": 0.0
+    },
+    "evidence_grounding": {
+      "numerator": 0,
+      "denominator": 17,
+      "value": 0.0
+    },
+    "unsupported_claim_rate": {
+      "numerator": 0,
+      "denominator": 17,
+      "value": 0.0
+    },
+    "ablation_correct_delta": null
+  },
+  "scoring_version": "1.0.0-dev.1"
+}

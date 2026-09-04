@@ -1,0 +1,30 @@
+{
+  "case_id": "825a759a0ea47bb7",
+  "mode": "paired_reference",
+  "role": "clean",
+  "scoreable": true,
+  "expected_outcome": "no_supported_fault",
+  "expected_causal_set": [],
+  "outcome": null,
+  "causal_faults": [],
+  "claims": [],
+  "evidence_refs_complete": true,
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_harmonic_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [
+    "missing clipping_mechanism=false",
+    "missing clipping_mechanism=false",
+    "missing clipping_mechanism=false"
+  ],
+  "termination_reason": "max_planner_retries",
+  "status": "error",
+  "infrastructure_failure": true,
+  "correct_outcome": false,
+  "correct_causal": true,
+  "started_at_utc": "2026-09-04T13:23:16.112818+00:00",
+  "finished_at_utc": "2026-09-04T13:23:31.113410+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_5_dev_run/cases/825a759a0ea47bb7"
+}

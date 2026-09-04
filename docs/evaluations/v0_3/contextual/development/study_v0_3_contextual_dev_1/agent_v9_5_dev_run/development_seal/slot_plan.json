@@ -1,0 +1,142 @@
+[
+  {
+    "arm": "contextual_agent",
+    "case_id": "825a759a0ea47bb7",
+    "decision_index": 0,
+    "mode": "paired_reference",
+    "role": "clean"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "857fac53e4d2e57e",
+    "decision_index": 1,
+    "mode": "paired_reference",
+    "role": "clipping"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "abd9010438d4ad93",
+    "decision_index": 2,
+    "mode": "paired_reference",
+    "role": "clipping"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "a4a0853be9983f8c",
+    "decision_index": 3,
+    "mode": "paired_reference",
+    "role": "harmonic"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "2be730b9113701de",
+    "decision_index": 4,
+    "mode": "paired_reference",
+    "role": "harmonic"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "6fb80bbda391c26c",
+    "decision_index": 5,
+    "mode": "paired_reference",
+    "role": "combined"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "aa9b4a91b0253c33",
+    "decision_index": 6,
+    "mode": "paired_reference",
+    "role": "combined"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "393940e92c58cf0b",
+    "decision_index": 7,
+    "mode": "paired_reference",
+    "role": "natural_even_control"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "04f4068ec91d2621",
+    "decision_index": 8,
+    "mode": "paired_reference",
+    "role": "natural_even_control"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "163185980dc8f7a4",
+    "decision_index": 9,
+    "mode": "paired_reference",
+    "role": "invalid_comparison"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "ce8b413cf7382c3d",
+    "decision_index": 10,
+    "mode": "nominal_single_tone",
+    "role": "clean"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "dff3ebd9dffee874",
+    "decision_index": 11,
+    "mode": "nominal_single_tone",
+    "role": "clipping"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "35967af7b71c5b75",
+    "decision_index": 12,
+    "mode": "nominal_single_tone",
+    "role": "harmonic"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "5f7ed6fe137f73b3",
+    "decision_index": 13,
+    "mode": "nominal_single_tone",
+    "role": "frequency_mismatch"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "eabaecd422b2eeda",
+    "decision_index": 14,
+    "mode": "single_signal",
+    "role": "clean"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "43bbc0fb08d88ec3",
+    "decision_index": 15,
+    "mode": "single_signal",
+    "role": "clipping"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "d4bb668a379dea3b",
+    "decision_index": 16,
+    "mode": "single_signal",
+    "role": "controlled_inconclusive"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "e3c036eb778237c8",
+    "decision_index": 17,
+    "mode": "single_signal",
+    "role": "domain_out_inconclusive"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "3e1ca5f1bc34a5a8",
+    "decision_index": 18,
+    "mode": "single_signal",
+    "role": "domain_out_inconclusive"
+  },
+  {
+    "arm": "contextual_agent",
+    "case_id": "eb8d416412ce3c22",
+    "decision_index": 19,
+    "mode": "single_signal",
+    "role": "domain_out_inconclusive"
+  }
+]

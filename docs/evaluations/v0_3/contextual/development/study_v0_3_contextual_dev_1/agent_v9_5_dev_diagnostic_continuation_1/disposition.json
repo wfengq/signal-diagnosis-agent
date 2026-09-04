@@ -1,0 +1,10 @@
+{
+  "diagnostic_only": true,
+  "development_confirmation_valid": false,
+  "claims_development_confirmed": false,
+  "original_task13_unchanged_requirement": {
+    "protocol_deviation": true,
+    "development_confirmation_valid": false,
+    "target_status": "below_target"
+  }
+}

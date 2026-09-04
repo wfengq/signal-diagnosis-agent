@@ -1,0 +1,55 @@
+{
+  "case_id": "dff3ebd9dffee874",
+  "mode": "nominal_single_tone",
+  "role": "clipping",
+  "scoreable": true,
+  "expected_outcome": "supported_fault",
+  "expected_causal_set": [
+    "clipping"
+  ],
+  "outcome": "supported_fault",
+  "causal_faults": [
+    "clipping"
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_odd_1",
+      "fault_type": "clipping",
+      "statement": "Clipping is affirmatively supported by same-run Evidence. The harmonic analysis shows a native odd series with no reportable order-2 component, so the harmonic hypothesis is closed as clipping products. The THD rule is PASS and does not create an independent harmonic_distortion cause.",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004"
+      ],
+      "rule_refs": [
+        "ruleval_d1b39be5d86c7bb3",
+        "ruleval_78083430b4c3f899",
+        "ruleval_2a7ff09ac5dab5fc",
+        "ruleval_894c03c944d04c9b",
+        "ruleval_d187577214bb34ae"
+      ],
+      "knowledge_refs": []
+    }
+  ],
+  "evidence_refs_complete": true,
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_harmonic_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [
+    "clipping supported_fault requires clipping_mechanism=true Evidence"
+  ],
+  "termination_reason": "planner_finished",
+  "status": "success",
+  "infrastructure_failure": false,
+  "diagnostic_only": true,
+  "correct_outcome": true,
+  "correct_causal": true,
+  "started_at_utc": "2026-09-04T13:39:31.400078+00:00",
+  "finished_at_utc": "2026-09-04T13:39:43.515758+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_5_dev_diagnostic_continuation_1/cases/dff3ebd9dffee874"
+}

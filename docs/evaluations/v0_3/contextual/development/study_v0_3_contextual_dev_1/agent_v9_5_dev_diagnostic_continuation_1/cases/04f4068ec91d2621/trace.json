@@ -1,0 +1,4678 @@
+{
+  "events": [
+    {
+      "event_type": "planner_call",
+      "event_index": 0,
+      "record": {
+        "record_id": "decision_000000",
+        "decision_index": 0,
+        "context": {
+          "run_id": "run_39174ffd0d2c",
+          "user_request": "Why does this signal sound distorted?",
+          "signal_meta": {
+            "signal_id": "sig_bb34f0ac6dac49a1a84f73d05e8d8338",
+            "source_type": "wav",
+            "filename": null,
+            "sample_rate_hz": 16000,
+            "channels": 1,
+            "num_samples": 8000,
+            "duration_s": 0.5,
+            "original_dtype": "float32",
+            "amplitude_unit": "FS"
+          },
+          "stimulus_context": {
+            "mode": "paired_reference",
+            "test_signal_id": "sig_bb34f0ac6dac49a1a84f73d05e8d8338",
+            "reference_signal_id": "sig_e038c6d7c049413b922273ad5cd4f6a9",
+            "nominal_fundamental_hz": null,
+            "stimulus_kind": null,
+            "assertion_source": "evaluation_manifest"
+          },
+          "reference_signal_meta": {
+            "signal_id": "sig_e038c6d7c049413b922273ad5cd4f6a9",
+            "source_type": "wav",
+            "filename": null,
+            "sample_rate_hz": 16000,
+            "channels": 1,
+            "num_samples": 8000,
+            "duration_s": 0.5,
+            "original_dtype": "float32",
+            "amplitude_unit": "FS"
+          },
+          "task_assessment": null,
+          "observations": [],
+          "evidence": [],
+          "tool_history": [],
+          "available_tools": [
+            {
+              "name": "detect_clipping",
+              "description": "Detect full-scale and flat-top clipping in a selected signal segment.",
+              "useful_when": "Use when distortion may include amplitude limiting or waveform flattening.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "full_scale_threshold": {
+                    "default": 0.99,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Full Scale Threshold",
+                    "type": "number"
+                  }
+                },
+                "title": "ClippingInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_spectrum",
+              "description": "Summarize spectral content with compact peak and centroid metrics.",
+              "useful_when": "Use to inspect dominant frequency content without exposing full FFT arrays.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "title": "Window",
+                    "type": "string"
+                  },
+                  "n_fft": {
+                    "anyOf": [
+                      {
+                        "minimum": 3,
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "N Fft"
+                  },
+                  "max_peaks": {
+                    "default": 10,
+                    "maximum": 20,
+                    "minimum": 1,
+                    "title": "Max Peaks",
+                    "type": "integer"
+                  }
+                },
+                "title": "SpectrumInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "estimate_fundamental",
+              "description": "Estimate the fundamental frequency using deterministic autocorrelation.",
+              "useful_when": "Use when a voiced pitch estimate is needed within a configured band.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "fmin_hz": {
+                    "default": 50.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmin Hz",
+                    "type": "number"
+                  },
+                  "fmax_hz": {
+                    "default": 1000.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmax Hz",
+                    "type": "number"
+                  }
+                },
+                "title": "FundamentalInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_harmonic_distortion",
+              "description": "Measure harmonic components and total harmonic distortion (THD).",
+              "useful_when": "Use when harmonic distortion metrics are required for diagnosis evidence.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "fundamental_hz": {
+                    "anyOf": [
+                      {
+                        "exclusiveMinimum": 0.0,
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Fundamental Hz"
+                  },
+                  "fmin_hz": {
+                    "default": 50.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmin Hz",
+                    "type": "number"
+                  },
+                  "fmax_hz": {
+                    "default": 1000.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmax Hz",
+                    "type": "number"
+                  },
+                  "max_harmonic_order": {
+                    "default": 5,
+                    "maximum": 10,
+                    "minimum": 2,
+                    "title": "Max Harmonic Order",
+                    "type": "integer"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "title": "Window",
+                    "type": "string"
+                  }
+                },
+                "title": "HarmonicDistortionInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_contextual_distortion",
+              "description": "Compare test harmonics against a trusted reference or declared single-tone context.",
+              "useful_when": "Use in nominal_single_tone or paired_reference modes for causal harmonic growth evidence.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "max_harmonic_order": {
+                    "default": 5,
+                    "maximum": 10,
+                    "minimum": 2,
+                    "title": "Max Harmonic Order",
+                    "type": "integer"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "enum": [
+                      "hann",
+                      "boxcar"
+                    ],
+                    "title": "Window",
+                    "type": "string"
+                  }
+                },
+                "title": "ContextualDistortionInput",
+                "type": "object"
+              }
+            }
+          ],
+          "remaining_tool_calls": 8,
+          "remaining_planner_retries": 2,
+          "no_progress_count": 0,
+          "warnings": [],
+          "recoverable_errors": [],
+          "rule_evaluation_batches": [],
+          "knowledge_retrievals": []
+        },
+        "status": "decision",
+        "decision": {
+          "decision_type": "call_tool",
+          "task_assessment": {
+            "task_type": "distortion_analysis",
+            "objective": "Determine whether clipping or harmonic distortion explains the distorted sound.",
+            "hypotheses": [
+              "clipping",
+              "harmonic_distortion"
+            ]
+          },
+          "call": {
+            "tool_name": "detect_clipping",
+            "args": {
+              "time_range": null,
+              "channel": "mixdown",
+              "full_scale_threshold": 0.99
+            }
+          },
+          "purpose": "Obtain clipping evidence first for this broad distortion request.",
+          "expected_evidence": []
+        },
+        "error_type": null,
+        "error_message": null,
+        "latency_ms": 1529.4753000198398,
+        "provider_usage": null
+      }
+    },
+    {
+      "event_type": "observation",
+      "event_index": 1,
+      "caused_by_decision_index": 0,
+      "observation": {
+        "observation_id": "obs_detect_clipping_000000_000",
+        "call_id": "call_detect_clipping_000000",
+        "tool_name": "detect_clipping",
+        "normalized_arguments": {
+          "time_range": null,
+          "channel": "mixdown",
+          "full_scale_threshold": 0.99
+        },
+        "purpose": "Obtain clipping evidence first for this broad distortion request.",
+        "status": "success",
+        "result": {
+          "kind": "clipping",
+          "detected": false,
+          "clipping_ratio": 0.0,
+          "clipped_samples": 0,
+          "clipping_events": 0,
+          "longest_event_samples": 0,
+          "peak_abs": 0.76446533203125,
+          "full_scale_detected": false,
+          "flat_top_detected": false,
+          "clipping_mechanism": false
+        },
+        "evidence_refs": [
+          "ev_detect_clipping_detect_clipping_000000_000",
+          "ev_detect_clipping_detect_clipping_000000_001",
+          "ev_detect_clipping_detect_clipping_000000_002",
+          "ev_detect_clipping_detect_clipping_000000_003",
+          "ev_detect_clipping_detect_clipping_000000_004",
+          "ev_detect_clipping_detect_clipping_000000_005",
+          "ev_detect_clipping_detect_clipping_000000_006",
+          "ev_detect_clipping_detect_clipping_000000_007"
+        ],
+        "warnings": [],
+        "error_message": null
+      },
+      "evidence": [
+        {
+          "evidence_id": "ev_detect_clipping_detect_clipping_000000_000",
+          "source_tool": "detect_clipping",
+          "call_id": "call_detect_clipping_000000",
+          "metric": "clipping_detected",
+          "value": false,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_detect_clipping_detect_clipping_000000_001",
+          "source_tool": "detect_clipping",
+          "call_id": "call_detect_clipping_000000",
+          "metric": "clipping_ratio",
+          "value": 0.0,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_detect_clipping_detect_clipping_000000_002",
+          "source_tool": "detect_clipping",
+          "call_id": "call_detect_clipping_000000",
+          "metric": "clipped_samples",
+          "value": 0,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_detect_clipping_detect_clipping_000000_003",
+          "source_tool": "detect_clipping",
+          "call_id": "call_detect_clipping_000000",
+          "metric": "clipping_events",
+          "value": 0,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_detect_clipping_detect_clipping_000000_004",
+          "source_tool": "detect_clipping",
+          "call_id": "call_detect_clipping_000000",
+          "metric": "peak_abs",
+          "value": 0.76446533203125,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_detect_clipping_detect_clipping_000000_005",
+          "source_tool": "detect_clipping",
+          "call_id": "call_detect_clipping_000000",
+          "metric": "full_scale_detected",
+          "value": false,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_detect_clipping_detect_clipping_000000_006",
+          "source_tool": "detect_clipping",
+          "call_id": "call_detect_clipping_000000",
+          "metric": "flat_top_detected",
+          "value": false,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_detect_clipping_detect_clipping_000000_007",
+          "source_tool": "detect_clipping",
+          "call_id": "call_detect_clipping_000000",
+          "metric": "clipping_mechanism",
+          "value": false,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        }
+      ]
+    },
+    {
+      "event_type": "planner_call",
+      "event_index": 2,
+      "record": {
+        "record_id": "decision_000001",
+        "decision_index": 1,
+        "context": {
+          "run_id": "run_39174ffd0d2c",
+          "user_request": "Why does this signal sound distorted?",
+          "signal_meta": {
+            "signal_id": "sig_bb34f0ac6dac49a1a84f73d05e8d8338",
+            "source_type": "wav",
+            "filename": null,
+            "sample_rate_hz": 16000,
+            "channels": 1,
+            "num_samples": 8000,
+            "duration_s": 0.5,
+            "original_dtype": "float32",
+            "amplitude_unit": "FS"
+          },
+          "stimulus_context": {
+            "mode": "paired_reference",
+            "test_signal_id": "sig_bb34f0ac6dac49a1a84f73d05e8d8338",
+            "reference_signal_id": "sig_e038c6d7c049413b922273ad5cd4f6a9",
+            "nominal_fundamental_hz": null,
+            "stimulus_kind": null,
+            "assertion_source": "evaluation_manifest"
+          },
+          "reference_signal_meta": {
+            "signal_id": "sig_e038c6d7c049413b922273ad5cd4f6a9",
+            "source_type": "wav",
+            "filename": null,
+            "sample_rate_hz": 16000,
+            "channels": 1,
+            "num_samples": 8000,
+            "duration_s": 0.5,
+            "original_dtype": "float32",
+            "amplitude_unit": "FS"
+          },
+          "task_assessment": {
+            "task_type": "distortion_analysis",
+            "objective": "Determine whether clipping or harmonic distortion explains the distorted sound.",
+            "hypotheses": [
+              "clipping",
+              "harmonic_distortion"
+            ]
+          },
+          "observations": [
+            {
+              "observation_id": "obs_detect_clipping_000000_000",
+              "call_id": "call_detect_clipping_000000",
+              "tool_name": "detect_clipping",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "full_scale_threshold": 0.99
+              },
+              "purpose": "Obtain clipping evidence first for this broad distortion request.",
+              "status": "success",
+              "result": {
+                "kind": "clipping",
+                "detected": false,
+                "clipping_ratio": 0.0,
+                "clipped_samples": 0,
+                "clipping_events": 0,
+                "longest_event_samples": 0,
+                "peak_abs": 0.76446533203125,
+                "full_scale_detected": false,
+                "flat_top_detected": false,
+                "clipping_mechanism": false
+              },
+              "evidence_refs": [
+                "ev_detect_clipping_detect_clipping_000000_000",
+                "ev_detect_clipping_detect_clipping_000000_001",
+                "ev_detect_clipping_detect_clipping_000000_002",
+                "ev_detect_clipping_detect_clipping_000000_003",
+                "ev_detect_clipping_detect_clipping_000000_004",
+                "ev_detect_clipping_detect_clipping_000000_005",
+                "ev_detect_clipping_detect_clipping_000000_006",
+                "ev_detect_clipping_detect_clipping_000000_007"
+              ],
+              "warnings": [],
+              "error_message": null
+            }
+          ],
+          "evidence": [
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_000",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_001",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_ratio",
+              "value": 0.0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_002",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipped_samples",
+              "value": 0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_003",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_events",
+              "value": 0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_004",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "peak_abs",
+              "value": 0.76446533203125,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_005",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "full_scale_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_006",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "flat_top_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_007",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_mechanism",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            }
+          ],
+          "tool_history": [
+            {
+              "call_id": "call_detect_clipping_000000",
+              "tool_name": "detect_clipping",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "full_scale_threshold": 0.99
+              },
+              "purpose": "Obtain clipping evidence first for this broad distortion request.",
+              "status": "success"
+            }
+          ],
+          "available_tools": [
+            {
+              "name": "detect_clipping",
+              "description": "Detect full-scale and flat-top clipping in a selected signal segment.",
+              "useful_when": "Use when distortion may include amplitude limiting or waveform flattening.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "full_scale_threshold": {
+                    "default": 0.99,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Full Scale Threshold",
+                    "type": "number"
+                  }
+                },
+                "title": "ClippingInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_spectrum",
+              "description": "Summarize spectral content with compact peak and centroid metrics.",
+              "useful_when": "Use to inspect dominant frequency content without exposing full FFT arrays.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "title": "Window",
+                    "type": "string"
+                  },
+                  "n_fft": {
+                    "anyOf": [
+                      {
+                        "minimum": 3,
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "N Fft"
+                  },
+                  "max_peaks": {
+                    "default": 10,
+                    "maximum": 20,
+                    "minimum": 1,
+                    "title": "Max Peaks",
+                    "type": "integer"
+                  }
+                },
+                "title": "SpectrumInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "estimate_fundamental",
+              "description": "Estimate the fundamental frequency using deterministic autocorrelation.",
+              "useful_when": "Use when a voiced pitch estimate is needed within a configured band.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "fmin_hz": {
+                    "default": 50.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmin Hz",
+                    "type": "number"
+                  },
+                  "fmax_hz": {
+                    "default": 1000.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmax Hz",
+                    "type": "number"
+                  }
+                },
+                "title": "FundamentalInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_harmonic_distortion",
+              "description": "Measure harmonic components and total harmonic distortion (THD).",
+              "useful_when": "Use when harmonic distortion metrics are required for diagnosis evidence.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "fundamental_hz": {
+                    "anyOf": [
+                      {
+                        "exclusiveMinimum": 0.0,
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Fundamental Hz"
+                  },
+                  "fmin_hz": {
+                    "default": 50.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmin Hz",
+                    "type": "number"
+                  },
+                  "fmax_hz": {
+                    "default": 1000.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmax Hz",
+                    "type": "number"
+                  },
+                  "max_harmonic_order": {
+                    "default": 5,
+                    "maximum": 10,
+                    "minimum": 2,
+                    "title": "Max Harmonic Order",
+                    "type": "integer"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "title": "Window",
+                    "type": "string"
+                  }
+                },
+                "title": "HarmonicDistortionInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_contextual_distortion",
+              "description": "Compare test harmonics against a trusted reference or declared single-tone context.",
+              "useful_when": "Use in nominal_single_tone or paired_reference modes for causal harmonic growth evidence.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "max_harmonic_order": {
+                    "default": 5,
+                    "maximum": 10,
+                    "minimum": 2,
+                    "title": "Max Harmonic Order",
+                    "type": "integer"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "enum": [
+                      "hann",
+                      "boxcar"
+                    ],
+                    "title": "Window",
+                    "type": "string"
+                  }
+                },
+                "title": "ContextualDistortionInput",
+                "type": "object"
+              }
+            }
+          ],
+          "remaining_tool_calls": 7,
+          "remaining_planner_retries": 2,
+          "no_progress_count": 0,
+          "warnings": [],
+          "recoverable_errors": [],
+          "rule_evaluation_batches": [],
+          "knowledge_retrievals": []
+        },
+        "status": "decision",
+        "decision": {
+          "decision_type": "call_tool",
+          "task_assessment": {
+            "task_type": "distortion_analysis",
+            "objective": "Determine whether clipping or harmonic distortion explains the distorted sound.",
+            "hypotheses": [
+              "clipping",
+              "harmonic_distortion"
+            ]
+          },
+          "call": {
+            "tool_name": "analyze_harmonic_distortion",
+            "args": {
+              "time_range": null,
+              "channel": "mixdown",
+              "fundamental_hz": null,
+              "fmin_hz": 50.0,
+              "fmax_hz": 1000.0,
+              "max_harmonic_order": 5,
+              "window": "hann"
+            }
+          },
+          "purpose": "Obtain harmonic distortion evidence for the broad request; clipping was not detected.",
+          "expected_evidence": []
+        },
+        "error_type": null,
+        "error_message": null,
+        "latency_ms": 1623.2100000197534,
+        "provider_usage": null
+      }
+    },
+    {
+      "event_type": "observation",
+      "event_index": 3,
+      "caused_by_decision_index": 1,
+      "observation": {
+        "observation_id": "obs_analyze_harmonic_distortion_000001_001",
+        "call_id": "call_analyze_harmonic_distortion_000001",
+        "tool_name": "analyze_harmonic_distortion",
+        "normalized_arguments": {
+          "time_range": null,
+          "channel": "mixdown",
+          "fundamental_hz": null,
+          "fmin_hz": 50.0,
+          "fmax_hz": 1000.0,
+          "max_harmonic_order": 5,
+          "window": "hann"
+        },
+        "purpose": "Obtain harmonic distortion evidence for the broad request; clipping was not detected.",
+        "status": "success",
+        "result": {
+          "kind": "harmonic_distortion",
+          "valid": true,
+          "invalid_reason": null,
+          "fundamental_frequency_hz": 195.1219512195122,
+          "thd_percent": 8.474159666899531,
+          "components": [
+            {
+              "order": 2,
+              "measured_frequency_hz": 390.0,
+              "relative_amplitude": 0.003916657601625873,
+              "relative_magnitude_db": -48.14168786556624
+            },
+            {
+              "order": 3,
+              "measured_frequency_hz": 588.0,
+              "relative_amplitude": 0.08461417765829392,
+              "relative_magnitude_db": -21.451137239718726
+            },
+            {
+              "order": 4,
+              "measured_frequency_hz": 782.0,
+              "relative_amplitude": 0.002480635680463971,
+              "relative_magnitude_db": -52.10874027749209
+            },
+            {
+              "order": 5,
+              "measured_frequency_hz": 978.0,
+              "relative_amplitude": 0.00029220724458180593,
+              "relative_magnitude_db": -70.68618041944448
+            }
+          ],
+          "series_kind": "native_odd_series"
+        },
+        "evidence_refs": [
+          "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+          "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001",
+          "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+          "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+          "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004",
+          "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005",
+          "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_006",
+          "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_007"
+        ],
+        "warnings": [],
+        "error_message": null
+      },
+      "evidence": [
+        {
+          "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+          "source_tool": "analyze_harmonic_distortion",
+          "call_id": "call_analyze_harmonic_distortion_000001",
+          "metric": "valid",
+          "value": true,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001",
+          "source_tool": "analyze_harmonic_distortion",
+          "call_id": "call_analyze_harmonic_distortion_000001",
+          "metric": "fundamental_frequency_hz",
+          "value": 195.1219512195122,
+          "unit": "Hz",
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+          "source_tool": "analyze_harmonic_distortion",
+          "call_id": "call_analyze_harmonic_distortion_000001",
+          "metric": "thd_percent",
+          "value": 8.474159666899531,
+          "unit": "%",
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+          "source_tool": "analyze_harmonic_distortion",
+          "call_id": "call_analyze_harmonic_distortion_000001",
+          "metric": "series_kind",
+          "value": "native_odd_series",
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004",
+          "source_tool": "analyze_harmonic_distortion",
+          "call_id": "call_analyze_harmonic_distortion_000001",
+          "metric": "harmonic_order_2_relative_amplitude",
+          "value": 0.003916657601625873,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005",
+          "source_tool": "analyze_harmonic_distortion",
+          "call_id": "call_analyze_harmonic_distortion_000001",
+          "metric": "harmonic_order_3_relative_amplitude",
+          "value": 0.08461417765829392,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_006",
+          "source_tool": "analyze_harmonic_distortion",
+          "call_id": "call_analyze_harmonic_distortion_000001",
+          "metric": "harmonic_order_4_relative_amplitude",
+          "value": 0.002480635680463971,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_007",
+          "source_tool": "analyze_harmonic_distortion",
+          "call_id": "call_analyze_harmonic_distortion_000001",
+          "metric": "harmonic_order_5_relative_amplitude",
+          "value": 0.00029220724458180593,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        }
+      ]
+    },
+    {
+      "event_type": "planner_call",
+      "event_index": 4,
+      "record": {
+        "record_id": "decision_000002",
+        "decision_index": 2,
+        "context": {
+          "run_id": "run_39174ffd0d2c",
+          "user_request": "Why does this signal sound distorted?",
+          "signal_meta": {
+            "signal_id": "sig_bb34f0ac6dac49a1a84f73d05e8d8338",
+            "source_type": "wav",
+            "filename": null,
+            "sample_rate_hz": 16000,
+            "channels": 1,
+            "num_samples": 8000,
+            "duration_s": 0.5,
+            "original_dtype": "float32",
+            "amplitude_unit": "FS"
+          },
+          "stimulus_context": {
+            "mode": "paired_reference",
+            "test_signal_id": "sig_bb34f0ac6dac49a1a84f73d05e8d8338",
+            "reference_signal_id": "sig_e038c6d7c049413b922273ad5cd4f6a9",
+            "nominal_fundamental_hz": null,
+            "stimulus_kind": null,
+            "assertion_source": "evaluation_manifest"
+          },
+          "reference_signal_meta": {
+            "signal_id": "sig_e038c6d7c049413b922273ad5cd4f6a9",
+            "source_type": "wav",
+            "filename": null,
+            "sample_rate_hz": 16000,
+            "channels": 1,
+            "num_samples": 8000,
+            "duration_s": 0.5,
+            "original_dtype": "float32",
+            "amplitude_unit": "FS"
+          },
+          "task_assessment": {
+            "task_type": "distortion_analysis",
+            "objective": "Determine whether clipping or harmonic distortion explains the distorted sound.",
+            "hypotheses": [
+              "clipping",
+              "harmonic_distortion"
+            ]
+          },
+          "observations": [
+            {
+              "observation_id": "obs_detect_clipping_000000_000",
+              "call_id": "call_detect_clipping_000000",
+              "tool_name": "detect_clipping",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "full_scale_threshold": 0.99
+              },
+              "purpose": "Obtain clipping evidence first for this broad distortion request.",
+              "status": "success",
+              "result": {
+                "kind": "clipping",
+                "detected": false,
+                "clipping_ratio": 0.0,
+                "clipped_samples": 0,
+                "clipping_events": 0,
+                "longest_event_samples": 0,
+                "peak_abs": 0.76446533203125,
+                "full_scale_detected": false,
+                "flat_top_detected": false,
+                "clipping_mechanism": false
+              },
+              "evidence_refs": [
+                "ev_detect_clipping_detect_clipping_000000_000",
+                "ev_detect_clipping_detect_clipping_000000_001",
+                "ev_detect_clipping_detect_clipping_000000_002",
+                "ev_detect_clipping_detect_clipping_000000_003",
+                "ev_detect_clipping_detect_clipping_000000_004",
+                "ev_detect_clipping_detect_clipping_000000_005",
+                "ev_detect_clipping_detect_clipping_000000_006",
+                "ev_detect_clipping_detect_clipping_000000_007"
+              ],
+              "warnings": [],
+              "error_message": null
+            },
+            {
+              "observation_id": "obs_analyze_harmonic_distortion_000001_001",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "tool_name": "analyze_harmonic_distortion",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "fundamental_hz": null,
+                "fmin_hz": 50.0,
+                "fmax_hz": 1000.0,
+                "max_harmonic_order": 5,
+                "window": "hann"
+              },
+              "purpose": "Obtain harmonic distortion evidence for the broad request; clipping was not detected.",
+              "status": "success",
+              "result": {
+                "kind": "harmonic_distortion",
+                "valid": true,
+                "invalid_reason": null,
+                "fundamental_frequency_hz": 195.1219512195122,
+                "thd_percent": 8.474159666899531,
+                "components": [
+                  {
+                    "order": 2,
+                    "measured_frequency_hz": 390.0,
+                    "relative_amplitude": 0.003916657601625873,
+                    "relative_magnitude_db": -48.14168786556624
+                  },
+                  {
+                    "order": 3,
+                    "measured_frequency_hz": 588.0,
+                    "relative_amplitude": 0.08461417765829392,
+                    "relative_magnitude_db": -21.451137239718726
+                  },
+                  {
+                    "order": 4,
+                    "measured_frequency_hz": 782.0,
+                    "relative_amplitude": 0.002480635680463971,
+                    "relative_magnitude_db": -52.10874027749209
+                  },
+                  {
+                    "order": 5,
+                    "measured_frequency_hz": 978.0,
+                    "relative_amplitude": 0.00029220724458180593,
+                    "relative_magnitude_db": -70.68618041944448
+                  }
+                ],
+                "series_kind": "native_odd_series"
+              },
+              "evidence_refs": [
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_006",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_007"
+              ],
+              "warnings": [],
+              "error_message": null
+            }
+          ],
+          "evidence": [
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_000",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_001",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_ratio",
+              "value": 0.0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_002",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipped_samples",
+              "value": 0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_003",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_events",
+              "value": 0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_004",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "peak_abs",
+              "value": 0.76446533203125,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_005",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "full_scale_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_006",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "flat_top_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_007",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_mechanism",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "valid",
+              "value": true,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "fundamental_frequency_hz",
+              "value": 195.1219512195122,
+              "unit": "Hz",
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "thd_percent",
+              "value": 8.474159666899531,
+              "unit": "%",
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "series_kind",
+              "value": "native_odd_series",
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "harmonic_order_2_relative_amplitude",
+              "value": 0.003916657601625873,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "harmonic_order_3_relative_amplitude",
+              "value": 0.08461417765829392,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_006",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "harmonic_order_4_relative_amplitude",
+              "value": 0.002480635680463971,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_007",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "harmonic_order_5_relative_amplitude",
+              "value": 0.00029220724458180593,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            }
+          ],
+          "tool_history": [
+            {
+              "call_id": "call_detect_clipping_000000",
+              "tool_name": "detect_clipping",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "full_scale_threshold": 0.99
+              },
+              "purpose": "Obtain clipping evidence first for this broad distortion request.",
+              "status": "success"
+            },
+            {
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "tool_name": "analyze_harmonic_distortion",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "fundamental_hz": null,
+                "fmin_hz": 50.0,
+                "fmax_hz": 1000.0,
+                "max_harmonic_order": 5,
+                "window": "hann"
+              },
+              "purpose": "Obtain harmonic distortion evidence for the broad request; clipping was not detected.",
+              "status": "success"
+            }
+          ],
+          "available_tools": [
+            {
+              "name": "detect_clipping",
+              "description": "Detect full-scale and flat-top clipping in a selected signal segment.",
+              "useful_when": "Use when distortion may include amplitude limiting or waveform flattening.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "full_scale_threshold": {
+                    "default": 0.99,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Full Scale Threshold",
+                    "type": "number"
+                  }
+                },
+                "title": "ClippingInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_spectrum",
+              "description": "Summarize spectral content with compact peak and centroid metrics.",
+              "useful_when": "Use to inspect dominant frequency content without exposing full FFT arrays.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "title": "Window",
+                    "type": "string"
+                  },
+                  "n_fft": {
+                    "anyOf": [
+                      {
+                        "minimum": 3,
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "N Fft"
+                  },
+                  "max_peaks": {
+                    "default": 10,
+                    "maximum": 20,
+                    "minimum": 1,
+                    "title": "Max Peaks",
+                    "type": "integer"
+                  }
+                },
+                "title": "SpectrumInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "estimate_fundamental",
+              "description": "Estimate the fundamental frequency using deterministic autocorrelation.",
+              "useful_when": "Use when a voiced pitch estimate is needed within a configured band.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "fmin_hz": {
+                    "default": 50.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmin Hz",
+                    "type": "number"
+                  },
+                  "fmax_hz": {
+                    "default": 1000.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmax Hz",
+                    "type": "number"
+                  }
+                },
+                "title": "FundamentalInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_harmonic_distortion",
+              "description": "Measure harmonic components and total harmonic distortion (THD).",
+              "useful_when": "Use when harmonic distortion metrics are required for diagnosis evidence.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "fundamental_hz": {
+                    "anyOf": [
+                      {
+                        "exclusiveMinimum": 0.0,
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Fundamental Hz"
+                  },
+                  "fmin_hz": {
+                    "default": 50.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmin Hz",
+                    "type": "number"
+                  },
+                  "fmax_hz": {
+                    "default": 1000.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmax Hz",
+                    "type": "number"
+                  },
+                  "max_harmonic_order": {
+                    "default": 5,
+                    "maximum": 10,
+                    "minimum": 2,
+                    "title": "Max Harmonic Order",
+                    "type": "integer"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "title": "Window",
+                    "type": "string"
+                  }
+                },
+                "title": "HarmonicDistortionInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_contextual_distortion",
+              "description": "Compare test harmonics against a trusted reference or declared single-tone context.",
+              "useful_when": "Use in nominal_single_tone or paired_reference modes for causal harmonic growth evidence.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "max_harmonic_order": {
+                    "default": 5,
+                    "maximum": 10,
+                    "minimum": 2,
+                    "title": "Max Harmonic Order",
+                    "type": "integer"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "enum": [
+                      "hann",
+                      "boxcar"
+                    ],
+                    "title": "Window",
+                    "type": "string"
+                  }
+                },
+                "title": "ContextualDistortionInput",
+                "type": "object"
+              }
+            }
+          ],
+          "remaining_tool_calls": 6,
+          "remaining_planner_retries": 2,
+          "no_progress_count": 0,
+          "warnings": [],
+          "recoverable_errors": [],
+          "rule_evaluation_batches": [],
+          "knowledge_retrievals": []
+        },
+        "status": "decision",
+        "decision": {
+          "decision_type": "evaluate_rules",
+          "task_assessment": null,
+          "profile_id": "profile_s1_distortion",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000",
+            "ev_detect_clipping_detect_clipping_000000_001",
+            "ev_detect_clipping_detect_clipping_000000_007",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004"
+          ],
+          "purpose": "Evaluate the configured S1 distortion profile over the acquired clipping and harmonic evidence."
+        },
+        "error_type": null,
+        "error_message": null,
+        "latency_ms": 2545.0297000061255,
+        "provider_usage": null
+      }
+    },
+    {
+      "event_type": "rule_evaluation",
+      "event_index": 5,
+      "caused_by_decision_index": 2,
+      "batch": {
+        "batch_id": "rulebatch_61ef598182327d44",
+        "profile_id": "profile_s1_distortion",
+        "profile_version": "1.0.0-demo",
+        "evaluations": [
+          {
+            "evaluation_id": "ruleval_237883d67b741c3e",
+            "rule_id": "rule_clipping_detected_absent",
+            "judgment": "pass",
+            "observed_value": false,
+            "comparator": "eq",
+            "threshold": false,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "evidence_refs": [
+              "ev_detect_clipping_detect_clipping_000000_000"
+            ],
+            "reason": null
+          },
+          {
+            "evaluation_id": "ruleval_cd9664555eb15b8d",
+            "rule_id": "rule_clipping_ratio_acceptable",
+            "judgment": "pass",
+            "observed_value": 0.0,
+            "comparator": "lte",
+            "threshold": 0.01,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "evidence_refs": [
+              "ev_detect_clipping_detect_clipping_000000_001"
+            ],
+            "reason": null
+          },
+          {
+            "evaluation_id": "ruleval_c85b8fa7d41509b4",
+            "rule_id": "rule_flat_top_absent",
+            "judgment": "not_applicable",
+            "observed_value": null,
+            "comparator": "eq",
+            "threshold": false,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "evidence_refs": [],
+            "reason": "no matching evidence for rule metric"
+          },
+          {
+            "evaluation_id": "ruleval_894c03c944d04c9b",
+            "rule_id": "rule_harmonic_analysis_valid",
+            "judgment": "pass",
+            "observed_value": true,
+            "comparator": "eq",
+            "threshold": true,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "evidence_refs": [
+              "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+            ],
+            "reason": null
+          },
+          {
+            "evaluation_id": "ruleval_7c52421f55a42576",
+            "rule_id": "rule_thd_acceptable",
+            "judgment": "fail",
+            "observed_value": 8.474159666899531,
+            "comparator": "lte",
+            "threshold": 5.0,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "evidence_refs": [
+              "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+            ],
+            "reason": null
+          }
+        ]
+      }
+    },
+    {
+      "event_type": "planner_call",
+      "event_index": 6,
+      "record": {
+        "record_id": "decision_000003",
+        "decision_index": 3,
+        "context": {
+          "run_id": "run_39174ffd0d2c",
+          "user_request": "Why does this signal sound distorted?",
+          "signal_meta": {
+            "signal_id": "sig_bb34f0ac6dac49a1a84f73d05e8d8338",
+            "source_type": "wav",
+            "filename": null,
+            "sample_rate_hz": 16000,
+            "channels": 1,
+            "num_samples": 8000,
+            "duration_s": 0.5,
+            "original_dtype": "float32",
+            "amplitude_unit": "FS"
+          },
+          "stimulus_context": {
+            "mode": "paired_reference",
+            "test_signal_id": "sig_bb34f0ac6dac49a1a84f73d05e8d8338",
+            "reference_signal_id": "sig_e038c6d7c049413b922273ad5cd4f6a9",
+            "nominal_fundamental_hz": null,
+            "stimulus_kind": null,
+            "assertion_source": "evaluation_manifest"
+          },
+          "reference_signal_meta": {
+            "signal_id": "sig_e038c6d7c049413b922273ad5cd4f6a9",
+            "source_type": "wav",
+            "filename": null,
+            "sample_rate_hz": 16000,
+            "channels": 1,
+            "num_samples": 8000,
+            "duration_s": 0.5,
+            "original_dtype": "float32",
+            "amplitude_unit": "FS"
+          },
+          "task_assessment": {
+            "task_type": "distortion_analysis",
+            "objective": "Determine whether clipping or harmonic distortion explains the distorted sound.",
+            "hypotheses": [
+              "clipping",
+              "harmonic_distortion"
+            ]
+          },
+          "observations": [
+            {
+              "observation_id": "obs_detect_clipping_000000_000",
+              "call_id": "call_detect_clipping_000000",
+              "tool_name": "detect_clipping",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "full_scale_threshold": 0.99
+              },
+              "purpose": "Obtain clipping evidence first for this broad distortion request.",
+              "status": "success",
+              "result": {
+                "kind": "clipping",
+                "detected": false,
+                "clipping_ratio": 0.0,
+                "clipped_samples": 0,
+                "clipping_events": 0,
+                "longest_event_samples": 0,
+                "peak_abs": 0.76446533203125,
+                "full_scale_detected": false,
+                "flat_top_detected": false,
+                "clipping_mechanism": false
+              },
+              "evidence_refs": [
+                "ev_detect_clipping_detect_clipping_000000_000",
+                "ev_detect_clipping_detect_clipping_000000_001",
+                "ev_detect_clipping_detect_clipping_000000_002",
+                "ev_detect_clipping_detect_clipping_000000_003",
+                "ev_detect_clipping_detect_clipping_000000_004",
+                "ev_detect_clipping_detect_clipping_000000_005",
+                "ev_detect_clipping_detect_clipping_000000_006",
+                "ev_detect_clipping_detect_clipping_000000_007"
+              ],
+              "warnings": [],
+              "error_message": null
+            },
+            {
+              "observation_id": "obs_analyze_harmonic_distortion_000001_001",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "tool_name": "analyze_harmonic_distortion",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "fundamental_hz": null,
+                "fmin_hz": 50.0,
+                "fmax_hz": 1000.0,
+                "max_harmonic_order": 5,
+                "window": "hann"
+              },
+              "purpose": "Obtain harmonic distortion evidence for the broad request; clipping was not detected.",
+              "status": "success",
+              "result": {
+                "kind": "harmonic_distortion",
+                "valid": true,
+                "invalid_reason": null,
+                "fundamental_frequency_hz": 195.1219512195122,
+                "thd_percent": 8.474159666899531,
+                "components": [
+                  {
+                    "order": 2,
+                    "measured_frequency_hz": 390.0,
+                    "relative_amplitude": 0.003916657601625873,
+                    "relative_magnitude_db": -48.14168786556624
+                  },
+                  {
+                    "order": 3,
+                    "measured_frequency_hz": 588.0,
+                    "relative_amplitude": 0.08461417765829392,
+                    "relative_magnitude_db": -21.451137239718726
+                  },
+                  {
+                    "order": 4,
+                    "measured_frequency_hz": 782.0,
+                    "relative_amplitude": 0.002480635680463971,
+                    "relative_magnitude_db": -52.10874027749209
+                  },
+                  {
+                    "order": 5,
+                    "measured_frequency_hz": 978.0,
+                    "relative_amplitude": 0.00029220724458180593,
+                    "relative_magnitude_db": -70.68618041944448
+                  }
+                ],
+                "series_kind": "native_odd_series"
+              },
+              "evidence_refs": [
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_006",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_007"
+              ],
+              "warnings": [],
+              "error_message": null
+            }
+          ],
+          "evidence": [
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_000",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_001",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_ratio",
+              "value": 0.0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_002",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipped_samples",
+              "value": 0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_003",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_events",
+              "value": 0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_004",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "peak_abs",
+              "value": 0.76446533203125,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_005",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "full_scale_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_006",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "flat_top_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_007",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_mechanism",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "valid",
+              "value": true,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "fundamental_frequency_hz",
+              "value": 195.1219512195122,
+              "unit": "Hz",
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "thd_percent",
+              "value": 8.474159666899531,
+              "unit": "%",
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "series_kind",
+              "value": "native_odd_series",
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "harmonic_order_2_relative_amplitude",
+              "value": 0.003916657601625873,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "harmonic_order_3_relative_amplitude",
+              "value": 0.08461417765829392,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_006",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "harmonic_order_4_relative_amplitude",
+              "value": 0.002480635680463971,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_007",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "harmonic_order_5_relative_amplitude",
+              "value": 0.00029220724458180593,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            }
+          ],
+          "tool_history": [
+            {
+              "call_id": "call_detect_clipping_000000",
+              "tool_name": "detect_clipping",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "full_scale_threshold": 0.99
+              },
+              "purpose": "Obtain clipping evidence first for this broad distortion request.",
+              "status": "success"
+            },
+            {
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "tool_name": "analyze_harmonic_distortion",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "fundamental_hz": null,
+                "fmin_hz": 50.0,
+                "fmax_hz": 1000.0,
+                "max_harmonic_order": 5,
+                "window": "hann"
+              },
+              "purpose": "Obtain harmonic distortion evidence for the broad request; clipping was not detected.",
+              "status": "success"
+            }
+          ],
+          "available_tools": [
+            {
+              "name": "detect_clipping",
+              "description": "Detect full-scale and flat-top clipping in a selected signal segment.",
+              "useful_when": "Use when distortion may include amplitude limiting or waveform flattening.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "full_scale_threshold": {
+                    "default": 0.99,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Full Scale Threshold",
+                    "type": "number"
+                  }
+                },
+                "title": "ClippingInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_spectrum",
+              "description": "Summarize spectral content with compact peak and centroid metrics.",
+              "useful_when": "Use to inspect dominant frequency content without exposing full FFT arrays.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "title": "Window",
+                    "type": "string"
+                  },
+                  "n_fft": {
+                    "anyOf": [
+                      {
+                        "minimum": 3,
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "N Fft"
+                  },
+                  "max_peaks": {
+                    "default": 10,
+                    "maximum": 20,
+                    "minimum": 1,
+                    "title": "Max Peaks",
+                    "type": "integer"
+                  }
+                },
+                "title": "SpectrumInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "estimate_fundamental",
+              "description": "Estimate the fundamental frequency using deterministic autocorrelation.",
+              "useful_when": "Use when a voiced pitch estimate is needed within a configured band.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "fmin_hz": {
+                    "default": 50.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmin Hz",
+                    "type": "number"
+                  },
+                  "fmax_hz": {
+                    "default": 1000.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmax Hz",
+                    "type": "number"
+                  }
+                },
+                "title": "FundamentalInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_harmonic_distortion",
+              "description": "Measure harmonic components and total harmonic distortion (THD).",
+              "useful_when": "Use when harmonic distortion metrics are required for diagnosis evidence.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "fundamental_hz": {
+                    "anyOf": [
+                      {
+                        "exclusiveMinimum": 0.0,
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Fundamental Hz"
+                  },
+                  "fmin_hz": {
+                    "default": 50.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmin Hz",
+                    "type": "number"
+                  },
+                  "fmax_hz": {
+                    "default": 1000.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmax Hz",
+                    "type": "number"
+                  },
+                  "max_harmonic_order": {
+                    "default": 5,
+                    "maximum": 10,
+                    "minimum": 2,
+                    "title": "Max Harmonic Order",
+                    "type": "integer"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "title": "Window",
+                    "type": "string"
+                  }
+                },
+                "title": "HarmonicDistortionInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_contextual_distortion",
+              "description": "Compare test harmonics against a trusted reference or declared single-tone context.",
+              "useful_when": "Use in nominal_single_tone or paired_reference modes for causal harmonic growth evidence.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "max_harmonic_order": {
+                    "default": 5,
+                    "maximum": 10,
+                    "minimum": 2,
+                    "title": "Max Harmonic Order",
+                    "type": "integer"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "enum": [
+                      "hann",
+                      "boxcar"
+                    ],
+                    "title": "Window",
+                    "type": "string"
+                  }
+                },
+                "title": "ContextualDistortionInput",
+                "type": "object"
+              }
+            }
+          ],
+          "remaining_tool_calls": 6,
+          "remaining_planner_retries": 2,
+          "no_progress_count": 0,
+          "warnings": [],
+          "recoverable_errors": [],
+          "rule_evaluation_batches": [
+            {
+              "batch_id": "rulebatch_61ef598182327d44",
+              "profile_id": "profile_s1_distortion",
+              "profile_version": "1.0.0-demo",
+              "evaluations": [
+                {
+                  "evaluation_id": "ruleval_237883d67b741c3e",
+                  "rule_id": "rule_clipping_detected_absent",
+                  "judgment": "pass",
+                  "observed_value": false,
+                  "comparator": "eq",
+                  "threshold": false,
+                  "profile_id": "profile_s1_distortion",
+                  "profile_version": "1.0.0-demo",
+                  "evidence_refs": [
+                    "ev_detect_clipping_detect_clipping_000000_000"
+                  ],
+                  "reason": null
+                },
+                {
+                  "evaluation_id": "ruleval_cd9664555eb15b8d",
+                  "rule_id": "rule_clipping_ratio_acceptable",
+                  "judgment": "pass",
+                  "observed_value": 0.0,
+                  "comparator": "lte",
+                  "threshold": 0.01,
+                  "profile_id": "profile_s1_distortion",
+                  "profile_version": "1.0.0-demo",
+                  "evidence_refs": [
+                    "ev_detect_clipping_detect_clipping_000000_001"
+                  ],
+                  "reason": null
+                },
+                {
+                  "evaluation_id": "ruleval_c85b8fa7d41509b4",
+                  "rule_id": "rule_flat_top_absent",
+                  "judgment": "not_applicable",
+                  "observed_value": null,
+                  "comparator": "eq",
+                  "threshold": false,
+                  "profile_id": "profile_s1_distortion",
+                  "profile_version": "1.0.0-demo",
+                  "evidence_refs": [],
+                  "reason": "no matching evidence for rule metric"
+                },
+                {
+                  "evaluation_id": "ruleval_894c03c944d04c9b",
+                  "rule_id": "rule_harmonic_analysis_valid",
+                  "judgment": "pass",
+                  "observed_value": true,
+                  "comparator": "eq",
+                  "threshold": true,
+                  "profile_id": "profile_s1_distortion",
+                  "profile_version": "1.0.0-demo",
+                  "evidence_refs": [
+                    "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+                  ],
+                  "reason": null
+                },
+                {
+                  "evaluation_id": "ruleval_7c52421f55a42576",
+                  "rule_id": "rule_thd_acceptable",
+                  "judgment": "fail",
+                  "observed_value": 8.474159666899531,
+                  "comparator": "lte",
+                  "threshold": 5.0,
+                  "profile_id": "profile_s1_distortion",
+                  "profile_version": "1.0.0-demo",
+                  "evidence_refs": [
+                    "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+                  ],
+                  "reason": null
+                }
+              ]
+            }
+          ],
+          "knowledge_retrievals": []
+        },
+        "status": "decision",
+        "decision": {
+          "decision_type": "call_tool",
+          "task_assessment": {
+            "task_type": "distortion_analysis",
+            "objective": "Obtain contextual distortion evidence to determine if harmonic distortion is causal in paired_reference mode.",
+            "hypotheses": [
+              "harmonic_distortion"
+            ]
+          },
+          "call": {
+            "tool_name": "analyze_contextual_distortion",
+            "args": {
+              "time_range": null,
+              "channel": "mixdown",
+              "max_harmonic_order": 5,
+              "window": "hann"
+            }
+          },
+          "purpose": "Clipping is ruled out; harmonic distortion remains viable. In paired_reference mode, causal harmonic attribution requires contextual comparison evidence.",
+          "expected_evidence": []
+        },
+        "error_type": null,
+        "error_message": null,
+        "latency_ms": 2063.2068999984767,
+        "provider_usage": null
+      }
+    },
+    {
+      "event_type": "observation",
+      "event_index": 7,
+      "caused_by_decision_index": 3,
+      "observation": {
+        "observation_id": "obs_analyze_contextual_distortion_000002_002",
+        "call_id": "call_analyze_contextual_distortion_000002",
+        "tool_name": "analyze_contextual_distortion",
+        "normalized_arguments": {
+          "time_range": null,
+          "channel": "mixdown",
+          "max_harmonic_order": 5,
+          "window": "hann"
+        },
+        "purpose": "Clipping is ruled out; harmonic distortion remains viable. In paired_reference mode, causal harmonic attribution requires contextual comparison evidence.",
+        "status": "success",
+        "result": {
+          "kind": "contextual_distortion",
+          "algorithm_version": "1.0.0",
+          "mode": "paired_reference",
+          "valid": true,
+          "invalid_reason": null,
+          "test_f0_hz": 195.1219512195122,
+          "comparison_f0_hz": 195.1219512195122,
+          "f0_relative_delta": 0.0,
+          "alignment_lag_samples": 5,
+          "alignment_correlation": 0.8795358326598515,
+          "gain_ratio": 0.9024591406387396,
+          "reference_thd_percent": 10.586193643214706,
+          "test_thd_percent": 8.620590592116839,
+          "thd_delta_percent": -1.965603051097867,
+          "even_harmonic_growth_percent": 0.0144441795018897,
+          "test_series_kind": "native_odd_series",
+          "components": [
+            {
+              "order": 2,
+              "reference_relative_amplitude": 0.015789768948662557,
+              "test_relative_amplitude": 0.003924126127035472,
+              "positive_growth": 0.0
+            },
+            {
+              "order": 3,
+              "reference_relative_amplitude": 0.10463601400746031,
+              "test_relative_amplitude": 0.0860607965176778,
+              "positive_growth": 0.0
+            },
+            {
+              "order": 4,
+              "reference_relative_amplitude": 0.0029407280044712013,
+              "test_relative_amplitude": 0.0030851697994900983,
+              "positive_growth": 0.000144441795018897
+            },
+            {
+              "order": 5,
+              "reference_relative_amplitude": 0.0002991206212970739,
+              "test_relative_amplitude": 0.00028368975946115466,
+              "positive_growth": 0.0
+            }
+          ],
+          "reference_clipping_ratio": 0.0,
+          "reference_flat_top_detected": false,
+          "test_clipping_ratio": 0.0,
+          "test_flat_top_detected": false
+        },
+        "evidence_refs": [
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_000",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_001",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_002",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_003",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_004",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_005",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_006",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_007",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_008",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_009",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_010",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_011",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_012",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_013",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_014",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_015",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_016",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_017"
+        ],
+        "warnings": [],
+        "error_message": null
+      },
+      "evidence": [
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_000",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "context_valid",
+          "value": true,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_001",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "mode",
+          "value": "paired_reference",
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_002",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "algorithm_version",
+          "value": "1.0.0",
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_003",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "test_f0_hz",
+          "value": 195.1219512195122,
+          "unit": "Hz",
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_004",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "comparison_f0_hz",
+          "value": 195.1219512195122,
+          "unit": "Hz",
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_005",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "f0_relative_delta",
+          "value": 0.0,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_006",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "alignment_lag_samples",
+          "value": 5,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_007",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "alignment_correlation",
+          "value": 0.8795358326598515,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_008",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "gain_ratio",
+          "value": 0.9024591406387396,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_009",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "reference_thd_percent",
+          "value": 10.586193643214706,
+          "unit": "%",
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_010",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "test_thd_percent",
+          "value": 8.620590592116839,
+          "unit": "%",
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_011",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "thd_delta_percent",
+          "value": -1.965603051097867,
+          "unit": "%",
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_012",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "even_harmonic_growth_percent",
+          "value": 0.0144441795018897,
+          "unit": "%",
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_013",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "test_series_kind",
+          "value": "native_odd_series",
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_014",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "reference_clipping_ratio",
+          "value": 0.0,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_015",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "reference_flat_top_detected",
+          "value": false,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_016",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "test_clipping_ratio",
+          "value": 0.0,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        },
+        {
+          "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_017",
+          "source_tool": "analyze_contextual_distortion",
+          "call_id": "call_analyze_contextual_distortion_000002",
+          "metric": "test_flat_top_detected",
+          "value": false,
+          "unit": null,
+          "validity": "valid",
+          "confidence": null,
+          "time_range": null,
+          "channel": "mixdown"
+        }
+      ]
+    },
+    {
+      "event_type": "planner_call",
+      "event_index": 8,
+      "record": {
+        "record_id": "decision_000004",
+        "decision_index": 4,
+        "context": {
+          "run_id": "run_39174ffd0d2c",
+          "user_request": "Why does this signal sound distorted?",
+          "signal_meta": {
+            "signal_id": "sig_bb34f0ac6dac49a1a84f73d05e8d8338",
+            "source_type": "wav",
+            "filename": null,
+            "sample_rate_hz": 16000,
+            "channels": 1,
+            "num_samples": 8000,
+            "duration_s": 0.5,
+            "original_dtype": "float32",
+            "amplitude_unit": "FS"
+          },
+          "stimulus_context": {
+            "mode": "paired_reference",
+            "test_signal_id": "sig_bb34f0ac6dac49a1a84f73d05e8d8338",
+            "reference_signal_id": "sig_e038c6d7c049413b922273ad5cd4f6a9",
+            "nominal_fundamental_hz": null,
+            "stimulus_kind": null,
+            "assertion_source": "evaluation_manifest"
+          },
+          "reference_signal_meta": {
+            "signal_id": "sig_e038c6d7c049413b922273ad5cd4f6a9",
+            "source_type": "wav",
+            "filename": null,
+            "sample_rate_hz": 16000,
+            "channels": 1,
+            "num_samples": 8000,
+            "duration_s": 0.5,
+            "original_dtype": "float32",
+            "amplitude_unit": "FS"
+          },
+          "task_assessment": {
+            "task_type": "distortion_analysis",
+            "objective": "Obtain contextual distortion evidence to determine if harmonic distortion is causal in paired_reference mode.",
+            "hypotheses": [
+              "harmonic_distortion"
+            ]
+          },
+          "observations": [
+            {
+              "observation_id": "obs_detect_clipping_000000_000",
+              "call_id": "call_detect_clipping_000000",
+              "tool_name": "detect_clipping",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "full_scale_threshold": 0.99
+              },
+              "purpose": "Obtain clipping evidence first for this broad distortion request.",
+              "status": "success",
+              "result": {
+                "kind": "clipping",
+                "detected": false,
+                "clipping_ratio": 0.0,
+                "clipped_samples": 0,
+                "clipping_events": 0,
+                "longest_event_samples": 0,
+                "peak_abs": 0.76446533203125,
+                "full_scale_detected": false,
+                "flat_top_detected": false,
+                "clipping_mechanism": false
+              },
+              "evidence_refs": [
+                "ev_detect_clipping_detect_clipping_000000_000",
+                "ev_detect_clipping_detect_clipping_000000_001",
+                "ev_detect_clipping_detect_clipping_000000_002",
+                "ev_detect_clipping_detect_clipping_000000_003",
+                "ev_detect_clipping_detect_clipping_000000_004",
+                "ev_detect_clipping_detect_clipping_000000_005",
+                "ev_detect_clipping_detect_clipping_000000_006",
+                "ev_detect_clipping_detect_clipping_000000_007"
+              ],
+              "warnings": [],
+              "error_message": null
+            },
+            {
+              "observation_id": "obs_analyze_harmonic_distortion_000001_001",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "tool_name": "analyze_harmonic_distortion",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "fundamental_hz": null,
+                "fmin_hz": 50.0,
+                "fmax_hz": 1000.0,
+                "max_harmonic_order": 5,
+                "window": "hann"
+              },
+              "purpose": "Obtain harmonic distortion evidence for the broad request; clipping was not detected.",
+              "status": "success",
+              "result": {
+                "kind": "harmonic_distortion",
+                "valid": true,
+                "invalid_reason": null,
+                "fundamental_frequency_hz": 195.1219512195122,
+                "thd_percent": 8.474159666899531,
+                "components": [
+                  {
+                    "order": 2,
+                    "measured_frequency_hz": 390.0,
+                    "relative_amplitude": 0.003916657601625873,
+                    "relative_magnitude_db": -48.14168786556624
+                  },
+                  {
+                    "order": 3,
+                    "measured_frequency_hz": 588.0,
+                    "relative_amplitude": 0.08461417765829392,
+                    "relative_magnitude_db": -21.451137239718726
+                  },
+                  {
+                    "order": 4,
+                    "measured_frequency_hz": 782.0,
+                    "relative_amplitude": 0.002480635680463971,
+                    "relative_magnitude_db": -52.10874027749209
+                  },
+                  {
+                    "order": 5,
+                    "measured_frequency_hz": 978.0,
+                    "relative_amplitude": 0.00029220724458180593,
+                    "relative_magnitude_db": -70.68618041944448
+                  }
+                ],
+                "series_kind": "native_odd_series"
+              },
+              "evidence_refs": [
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_006",
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_007"
+              ],
+              "warnings": [],
+              "error_message": null
+            },
+            {
+              "observation_id": "obs_analyze_contextual_distortion_000002_002",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "tool_name": "analyze_contextual_distortion",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "max_harmonic_order": 5,
+                "window": "hann"
+              },
+              "purpose": "Clipping is ruled out; harmonic distortion remains viable. In paired_reference mode, causal harmonic attribution requires contextual comparison evidence.",
+              "status": "success",
+              "result": {
+                "kind": "contextual_distortion",
+                "algorithm_version": "1.0.0",
+                "mode": "paired_reference",
+                "valid": true,
+                "invalid_reason": null,
+                "test_f0_hz": 195.1219512195122,
+                "comparison_f0_hz": 195.1219512195122,
+                "f0_relative_delta": 0.0,
+                "alignment_lag_samples": 5,
+                "alignment_correlation": 0.8795358326598515,
+                "gain_ratio": 0.9024591406387396,
+                "reference_thd_percent": 10.586193643214706,
+                "test_thd_percent": 8.620590592116839,
+                "thd_delta_percent": -1.965603051097867,
+                "even_harmonic_growth_percent": 0.0144441795018897,
+                "test_series_kind": "native_odd_series",
+                "components": [
+                  {
+                    "order": 2,
+                    "reference_relative_amplitude": 0.015789768948662557,
+                    "test_relative_amplitude": 0.003924126127035472,
+                    "positive_growth": 0.0
+                  },
+                  {
+                    "order": 3,
+                    "reference_relative_amplitude": 0.10463601400746031,
+                    "test_relative_amplitude": 0.0860607965176778,
+                    "positive_growth": 0.0
+                  },
+                  {
+                    "order": 4,
+                    "reference_relative_amplitude": 0.0029407280044712013,
+                    "test_relative_amplitude": 0.0030851697994900983,
+                    "positive_growth": 0.000144441795018897
+                  },
+                  {
+                    "order": 5,
+                    "reference_relative_amplitude": 0.0002991206212970739,
+                    "test_relative_amplitude": 0.00028368975946115466,
+                    "positive_growth": 0.0
+                  }
+                ],
+                "reference_clipping_ratio": 0.0,
+                "reference_flat_top_detected": false,
+                "test_clipping_ratio": 0.0,
+                "test_flat_top_detected": false
+              },
+              "evidence_refs": [
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_000",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_001",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_002",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_003",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_004",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_005",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_006",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_007",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_008",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_009",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_010",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_011",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_012",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_013",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_014",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_015",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_016",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_017"
+              ],
+              "warnings": [],
+              "error_message": null
+            }
+          ],
+          "evidence": [
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_000",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_001",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_ratio",
+              "value": 0.0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_002",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipped_samples",
+              "value": 0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_003",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_events",
+              "value": 0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_004",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "peak_abs",
+              "value": 0.76446533203125,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_005",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "full_scale_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_006",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "flat_top_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_detect_clipping_detect_clipping_000000_007",
+              "source_tool": "detect_clipping",
+              "call_id": "call_detect_clipping_000000",
+              "metric": "clipping_mechanism",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "valid",
+              "value": true,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "fundamental_frequency_hz",
+              "value": 195.1219512195122,
+              "unit": "Hz",
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "thd_percent",
+              "value": 8.474159666899531,
+              "unit": "%",
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "series_kind",
+              "value": "native_odd_series",
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "harmonic_order_2_relative_amplitude",
+              "value": 0.003916657601625873,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "harmonic_order_3_relative_amplitude",
+              "value": 0.08461417765829392,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_006",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "harmonic_order_4_relative_amplitude",
+              "value": 0.002480635680463971,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_007",
+              "source_tool": "analyze_harmonic_distortion",
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "metric": "harmonic_order_5_relative_amplitude",
+              "value": 0.00029220724458180593,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_000",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "context_valid",
+              "value": true,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_001",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "mode",
+              "value": "paired_reference",
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_002",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "algorithm_version",
+              "value": "1.0.0",
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_003",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "test_f0_hz",
+              "value": 195.1219512195122,
+              "unit": "Hz",
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_004",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "comparison_f0_hz",
+              "value": 195.1219512195122,
+              "unit": "Hz",
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_005",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "f0_relative_delta",
+              "value": 0.0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_006",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "alignment_lag_samples",
+              "value": 5,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_007",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "alignment_correlation",
+              "value": 0.8795358326598515,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_008",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "gain_ratio",
+              "value": 0.9024591406387396,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_009",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "reference_thd_percent",
+              "value": 10.586193643214706,
+              "unit": "%",
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_010",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "test_thd_percent",
+              "value": 8.620590592116839,
+              "unit": "%",
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_011",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "thd_delta_percent",
+              "value": -1.965603051097867,
+              "unit": "%",
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_012",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "even_harmonic_growth_percent",
+              "value": 0.0144441795018897,
+              "unit": "%",
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_013",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "test_series_kind",
+              "value": "native_odd_series",
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_014",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "reference_clipping_ratio",
+              "value": 0.0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_015",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "reference_flat_top_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_016",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "test_clipping_ratio",
+              "value": 0.0,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            },
+            {
+              "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_017",
+              "source_tool": "analyze_contextual_distortion",
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "metric": "test_flat_top_detected",
+              "value": false,
+              "unit": null,
+              "validity": "valid",
+              "confidence": null,
+              "time_range": null,
+              "channel": "mixdown"
+            }
+          ],
+          "tool_history": [
+            {
+              "call_id": "call_detect_clipping_000000",
+              "tool_name": "detect_clipping",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "full_scale_threshold": 0.99
+              },
+              "purpose": "Obtain clipping evidence first for this broad distortion request.",
+              "status": "success"
+            },
+            {
+              "call_id": "call_analyze_harmonic_distortion_000001",
+              "tool_name": "analyze_harmonic_distortion",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "fundamental_hz": null,
+                "fmin_hz": 50.0,
+                "fmax_hz": 1000.0,
+                "max_harmonic_order": 5,
+                "window": "hann"
+              },
+              "purpose": "Obtain harmonic distortion evidence for the broad request; clipping was not detected.",
+              "status": "success"
+            },
+            {
+              "call_id": "call_analyze_contextual_distortion_000002",
+              "tool_name": "analyze_contextual_distortion",
+              "normalized_arguments": {
+                "time_range": null,
+                "channel": "mixdown",
+                "max_harmonic_order": 5,
+                "window": "hann"
+              },
+              "purpose": "Clipping is ruled out; harmonic distortion remains viable. In paired_reference mode, causal harmonic attribution requires contextual comparison evidence.",
+              "status": "success"
+            }
+          ],
+          "available_tools": [
+            {
+              "name": "detect_clipping",
+              "description": "Detect full-scale and flat-top clipping in a selected signal segment.",
+              "useful_when": "Use when distortion may include amplitude limiting or waveform flattening.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "full_scale_threshold": {
+                    "default": 0.99,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Full Scale Threshold",
+                    "type": "number"
+                  }
+                },
+                "title": "ClippingInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_spectrum",
+              "description": "Summarize spectral content with compact peak and centroid metrics.",
+              "useful_when": "Use to inspect dominant frequency content without exposing full FFT arrays.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "title": "Window",
+                    "type": "string"
+                  },
+                  "n_fft": {
+                    "anyOf": [
+                      {
+                        "minimum": 3,
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "N Fft"
+                  },
+                  "max_peaks": {
+                    "default": 10,
+                    "maximum": 20,
+                    "minimum": 1,
+                    "title": "Max Peaks",
+                    "type": "integer"
+                  }
+                },
+                "title": "SpectrumInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "estimate_fundamental",
+              "description": "Estimate the fundamental frequency using deterministic autocorrelation.",
+              "useful_when": "Use when a voiced pitch estimate is needed within a configured band.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "fmin_hz": {
+                    "default": 50.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmin Hz",
+                    "type": "number"
+                  },
+                  "fmax_hz": {
+                    "default": 1000.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmax Hz",
+                    "type": "number"
+                  }
+                },
+                "title": "FundamentalInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_harmonic_distortion",
+              "description": "Measure harmonic components and total harmonic distortion (THD).",
+              "useful_when": "Use when harmonic distortion metrics are required for diagnosis evidence.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "fundamental_hz": {
+                    "anyOf": [
+                      {
+                        "exclusiveMinimum": 0.0,
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Fundamental Hz"
+                  },
+                  "fmin_hz": {
+                    "default": 50.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmin Hz",
+                    "type": "number"
+                  },
+                  "fmax_hz": {
+                    "default": 1000.0,
+                    "exclusiveMinimum": 0.0,
+                    "title": "Fmax Hz",
+                    "type": "number"
+                  },
+                  "max_harmonic_order": {
+                    "default": 5,
+                    "maximum": 10,
+                    "minimum": 2,
+                    "title": "Max Harmonic Order",
+                    "type": "integer"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "title": "Window",
+                    "type": "string"
+                  }
+                },
+                "title": "HarmonicDistortionInput",
+                "type": "object"
+              }
+            },
+            {
+              "name": "analyze_contextual_distortion",
+              "description": "Compare test harmonics against a trusted reference or declared single-tone context.",
+              "useful_when": "Use in nominal_single_tone or paired_reference modes for causal harmonic growth evidence.",
+              "input_schema": {
+                "$defs": {
+                  "TimeRange": {
+                    "description": "A left-closed, right-open selection interval in seconds.",
+                    "properties": {
+                      "start_s": {
+                        "default": 0.0,
+                        "minimum": 0.0,
+                        "title": "Start S",
+                        "type": "number"
+                      },
+                      "end_s": {
+                        "anyOf": [
+                          {
+                            "exclusiveMinimum": 0.0,
+                            "type": "number"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "title": "End S"
+                      }
+                    },
+                    "title": "TimeRange",
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "time_range": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/TimeRange"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null
+                  },
+                  "channel": {
+                    "default": "mixdown",
+                    "enum": [
+                      "left",
+                      "right",
+                      "mixdown"
+                    ],
+                    "title": "Channel",
+                    "type": "string"
+                  },
+                  "max_harmonic_order": {
+                    "default": 5,
+                    "maximum": 10,
+                    "minimum": 2,
+                    "title": "Max Harmonic Order",
+                    "type": "integer"
+                  },
+                  "window": {
+                    "default": "hann",
+                    "enum": [
+                      "hann",
+                      "boxcar"
+                    ],
+                    "title": "Window",
+                    "type": "string"
+                  }
+                },
+                "title": "ContextualDistortionInput",
+                "type": "object"
+              }
+            }
+          ],
+          "remaining_tool_calls": 5,
+          "remaining_planner_retries": 2,
+          "no_progress_count": 0,
+          "warnings": [],
+          "recoverable_errors": [],
+          "rule_evaluation_batches": [
+            {
+              "batch_id": "rulebatch_61ef598182327d44",
+              "profile_id": "profile_s1_distortion",
+              "profile_version": "1.0.0-demo",
+              "evaluations": [
+                {
+                  "evaluation_id": "ruleval_237883d67b741c3e",
+                  "rule_id": "rule_clipping_detected_absent",
+                  "judgment": "pass",
+                  "observed_value": false,
+                  "comparator": "eq",
+                  "threshold": false,
+                  "profile_id": "profile_s1_distortion",
+                  "profile_version": "1.0.0-demo",
+                  "evidence_refs": [
+                    "ev_detect_clipping_detect_clipping_000000_000"
+                  ],
+                  "reason": null
+                },
+                {
+                  "evaluation_id": "ruleval_cd9664555eb15b8d",
+                  "rule_id": "rule_clipping_ratio_acceptable",
+                  "judgment": "pass",
+                  "observed_value": 0.0,
+                  "comparator": "lte",
+                  "threshold": 0.01,
+                  "profile_id": "profile_s1_distortion",
+                  "profile_version": "1.0.0-demo",
+                  "evidence_refs": [
+                    "ev_detect_clipping_detect_clipping_000000_001"
+                  ],
+                  "reason": null
+                },
+                {
+                  "evaluation_id": "ruleval_c85b8fa7d41509b4",
+                  "rule_id": "rule_flat_top_absent",
+                  "judgment": "not_applicable",
+                  "observed_value": null,
+                  "comparator": "eq",
+                  "threshold": false,
+                  "profile_id": "profile_s1_distortion",
+                  "profile_version": "1.0.0-demo",
+                  "evidence_refs": [],
+                  "reason": "no matching evidence for rule metric"
+                },
+                {
+                  "evaluation_id": "ruleval_894c03c944d04c9b",
+                  "rule_id": "rule_harmonic_analysis_valid",
+                  "judgment": "pass",
+                  "observed_value": true,
+                  "comparator": "eq",
+                  "threshold": true,
+                  "profile_id": "profile_s1_distortion",
+                  "profile_version": "1.0.0-demo",
+                  "evidence_refs": [
+                    "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+                  ],
+                  "reason": null
+                },
+                {
+                  "evaluation_id": "ruleval_7c52421f55a42576",
+                  "rule_id": "rule_thd_acceptable",
+                  "judgment": "fail",
+                  "observed_value": 8.474159666899531,
+                  "comparator": "lte",
+                  "threshold": 5.0,
+                  "profile_id": "profile_s1_distortion",
+                  "profile_version": "1.0.0-demo",
+                  "evidence_refs": [
+                    "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+                  ],
+                  "reason": null
+                }
+              ]
+            }
+          ],
+          "knowledge_retrievals": []
+        },
+        "status": "decision",
+        "decision": {
+          "decision_type": "finish",
+          "task_assessment": {
+            "task_type": "distortion_analysis",
+            "objective": "Finish the broad request after clipping is ruled out and harmonic attribution remains inconclusive in paired_reference mode.",
+            "hypotheses": []
+          },
+          "outcome": "inconclusive",
+          "claims": [
+            {
+              "claim_id": "claim_inconclusive_harmonic_001",
+              "fault_type": "inconclusive",
+              "statement": "Harmonic measurement is valid and THD is elevated, but contextual comparison shows no harmonic growth; causal harmonic distortion cannot be established.",
+              "evidence_refs": [
+                "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_011",
+                "ev_analyze_contextual_distortion_analyze_contextual_distortion_000002_012"
+              ],
+              "rule_refs": [
+                "ruleval_7c52421f55a42576"
+              ],
+              "knowledge_refs": []
+            }
+          ],
+          "confidence_label": "low",
+          "limitations": [
+            "THD rule FAIL establishes elevated harmonic content, but contextual comparison shows negative THD delta and negligible even-harmonic growth, so causal harmonic distortion is not supported without additional mechanism evidence."
+          ]
+        },
+        "error_type": null,
+        "error_message": null,
+        "latency_ms": 2876.3764000032097,
+        "provider_usage": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "authorization": "Task 13 one-shot development confirmation",
+  "preflight": {
+    "credentials_present": true,
+    "head_commit": "627d94e473cb94f4320272080b2d466228ad5268",
+    "implementation_sha256": "5e3dc82dd443f84b400c683d40012ba31e8ff2a2833e7a5e71286f4ca035c694",
+    "manifest_sha256": "cca0ee24d8574435761d2d057fd4341c5e015ee7d5337826f796ea832cf047dd",
+    "model": "deepseek-v4-flash",
+    "profile_contextual_sha256": "c79865caf913b2a1a5f6f50fccd8c37d6f2828e72feb1f80d9c9c7b4b7d9eb58",
+    "profile_s1_sha256": "1e02d0dabe74ae1327fa3418d4ce546c53e8a8d06b175b5c508edb8b512f5ed1",
+    "prompt_sha256": "a4f4d260adb45a2af088961c77586b08d8279cd1bc4f3780474c3b0a6bd7cb02",
+    "prompt_version": "v0.3-s1-planner-9.5"
+  },
+  "scripted_planner_fallback": false,
+  "study": "study_v0_3_contextual_dev_1"
+}
