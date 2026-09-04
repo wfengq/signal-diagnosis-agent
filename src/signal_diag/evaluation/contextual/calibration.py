@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from hashlib import sha256
 from pathlib import Path
 from typing import Literal
@@ -125,3 +126,35 @@ def contextual_implementation_sha256() -> str:
 def stable_code_sha(text: str) -> str:
     """Deprecated alias retained for older tests; prefer ``contextual_implementation_sha256``."""
     return sha256(text.encode("utf-8")).hexdigest()
+
+
+def resolve_active_freeze_code_sha256(study_dir: Path) -> str:
+    """Resolve active freeze code identity via freeze record or append-only amendment.
+
+    If ``profile_freeze_record.json`` already matches the current implementation
+    tree, return that digest. Otherwise require ``code_identity_amendment.json``
+    to bridge the recorded calibration SHA to the current implementation SHA.
+    """
+    study_dir = study_dir.resolve()
+    freeze_path = study_dir / "profile_freeze_record.json"
+    freeze = json.loads(freeze_path.read_text(encoding="utf-8"))
+    recorded = str(freeze["code_sha256"])
+    current = contextual_implementation_sha256()
+    if recorded == current:
+        return current
+    amendment_path = study_dir / "code_identity_amendment.json"
+    if not amendment_path.is_file():
+        raise ValueError(
+            "freeze code SHA does not match current implementation and no amendment"
+        )
+    amendment = json.loads(amendment_path.read_text(encoding="utf-8"))
+    rows = amendment if isinstance(amendment, list) else [amendment]
+    for row in rows:
+        if (
+            str(row["original_calibration_code_sha256"]) == recorded
+            and str(row["current_implementation_sha256"]) == current
+        ):
+            return current
+    raise ValueError(
+        "no amendment bridges freeze record code SHA to current implementation"
+    )

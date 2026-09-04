@@ -39,6 +39,17 @@ Rejected for committed development: SMARD (no redistribution), Pyramic speech, E
 - Calibration once: candidates `(0.5,1.0,2.0,3.0,5.0)`; selected **5.0%** (largest with 100% specificity on rich no-growth controls and ≥90% sensitivity).
 - Profile freeze: `1.0.0`, growth **5.0%**, SHA `c79865caf913b2a1a5f6f50fccd8c37d6f2828e72feb1f80d9c9c7b4b7d9eb58`.
 
+## Code-identity amendment (provenance-only)
+
+Append-only file:
+`development/study_v0_3_contextual_dev_1/code_identity_amendment.json`.
+
+- Original calibration `code_sha256`: `da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9`
+- Bridges to current implementation tree after `def199f` rematerialize, `b339dcf` typing-only fix, and the freeze-identity resolver
+- Qualification/calibration recomputes unchanged; threshold not reselected
+- Attempt-1 ESC-50 non-ESC-10 assets corrected to **CC BY-NC 3.0** with attribution in
+  `study_v0_3_contextual_dev_1_attempt1_rejected_2026-09-04/LICENSE_CORRECTION.md`
+
 ## Forbidden actions
 
 No real-model run; no ScriptedPlanner campaign; no validation construction; V0.2 1%/5% distortion profile untouched.

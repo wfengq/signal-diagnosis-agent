@@ -1,0 +1,16 @@
+{
+  "amendment_id": "code_identity_after_b339dcf_typing",
+  "amendment_kind": "append_only_code_identity",
+  "created_at_utc": "2026-09-04T12:05:00+00:00",
+  "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+  "current_implementation_sha256": "5e3dc82dd443f84b400c683d40012ba31e8ff2a2833e7a5e71286f4ca035c694",
+  "commits": {
+    "rematerialize": "def199f17898a7deaed241e4f350c302ec637a1e",
+    "typing_only": "b339dcf1fb81ab2ed53a355cf7199917596a87f5"
+  },
+  "b339dcf_scope": "typing annotation only (ClippingAnalysis for _clipping_causal_ok); no algorithmic or threshold change",
+  "qualification_recompute_unchanged": true,
+  "calibration_recompute_unchanged": true,
+  "selected_threshold_percent_unchanged": 5.0,
+  "notes": "Provenance-only bridge after b339dcf (typing-only) plus the append-only freeze-identity resolver in calibration.py. Does not rematerialize WAVs, reselect thresholds, or authorize model runs. Recomputed qualification gates and calibration confusion tables match the on-disk reports; selected threshold remains 5.0%. Active freeze identity resolves via profile_freeze_record.code_sha256 or this amendment to the current implementation tree."
+}
