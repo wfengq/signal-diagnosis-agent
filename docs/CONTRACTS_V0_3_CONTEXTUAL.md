@@ -165,18 +165,14 @@ active mode. No positive fault + sibling `no_supported_fault`.
 
 ## 10. Planner identity
 
-Product contextual path currently uses frozen prompt identity
-`v0.3-s1-planner-9.6` with causal policy `v9_6_contextual` until the v9.7
-prompt and composition wiring are frozen and activated. Historical identities
+Product contextual path uses frozen prompt identity `v0.3-s1-planner-9.7`
+with causal policy `v9_7_deterministic_rule_closure`. Historical identities
 remain immutable:
 
+- `v0.3-s1-planner-9.7` / `v9_7_deterministic_rule_closure`
 - `v0.3-s1-planner-9.6` / `v9_6_contextual` (bytes and finish semantics frozen)
 - `v0.3-s1-planner-9.5` / `v9_5_contextual` (bytes and finish semantics frozen)
 - `v0.3-s1-planner-9.4` and earlier
-
-Registered upcoming product identity (not yet the active composition root):
-
-- `v0.3-s1-planner-9.7` / `v9_7_deterministic_rule_closure`
 
 ## 10.1 Causal policy versions
 

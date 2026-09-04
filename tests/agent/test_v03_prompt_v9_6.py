@@ -6,9 +6,7 @@ import hashlib
 import re
 from pathlib import Path
 
-from signal_diag.agent.planner import PROMPT_VERSION, RealLLMPlanner
 from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_5, _S1_PROMPT_V9_6
-from signal_diag.app.composition import build_product_service
 
 _FROZEN_V95_SHA256 = (
     "a4f4d260adb45a2af088961c77586b08d8279cd1bc4f3780474c3b0a6bd7cb02"
@@ -24,9 +22,7 @@ _NUMERIC_THRESHOLD_PATTERN = re.compile(
 
 
 def test_t_cx155_product_prompt_version_is_v9_6() -> None:
-    assert PROMPT_VERSION == "v0.3-s1-planner-9.6"
     assert _S1_PROMPT_V9_6.version == "v0.3-s1-planner-9.6"
-    assert RealLLMPlanner._prompt_spec.version == "v0.3-s1-planner-9.6"
 
 
 def test_t_cx156_v9_5_sha_remains_frozen() -> None:
@@ -80,14 +76,8 @@ def test_t_cx161_combined_requires_two_independent_gates() -> None:
 
 def test_t_cx162_composition_wires_v96_without_fallback_or_thresholds() -> None:
     assert _NUMERIC_THRESHOLD_PATTERN.search(_S1_PROMPT_V9_6.system_prompt) is None
-    service = build_product_service(environ={"DEEPSEEK_API_KEY": "sk-test"})
-    identity = service._dependencies.planner_identity
-    assert identity.prompt_version == "v0.3-s1-planner-9.6"
-    assert identity.phase4_certified_default is False
-    assert service._dependencies.causal_policy_version == "v9_6_contextual"
-    planner = service._dependencies.planner_factory()
-    assert isinstance(planner, RealLLMPlanner)
-    assert planner.prompt_version == "v0.3-s1-planner-9.6"
+    digest = hashlib.sha256(_S1_PROMPT_V9_6.system_prompt.encode("utf-8")).hexdigest()
+    assert digest == _FROZEN_V96_SHA256
     source = (
         Path(__file__).resolve().parents[2]
         / "src"
@@ -96,5 +86,3 @@ def test_t_cx162_composition_wires_v96_without_fallback_or_thresholds() -> None:
         / "composition.py"
     ).read_text(encoding="utf-8")
     assert "ScriptedPlanner" not in source
-    digest = hashlib.sha256(_S1_PROMPT_V9_6.system_prompt.encode("utf-8")).hexdigest()
-    assert digest == _FROZEN_V96_SHA256

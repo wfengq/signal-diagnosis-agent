@@ -438,3 +438,179 @@ _S1_PROMPT_V9_6 = _PlannerPromptSpec(
     version="v0.3-s1-planner-9.6",
     system_prompt=_S1_SYSTEM_PROMPT_V9_6,
 )
+
+
+def _replace_once(text: str, old: str, new: str, *, label: str) -> str:
+    if text.count(old) != 1:
+        raise RuntimeError(f"v9.7 prompt build anchor mismatch: {label}")
+    return text.replace(old, new, 1)
+
+
+_V97_CONTEXTUAL_POLICY_SECTION = """
+12. Contextual reference diagnosis policy — mode-aware causal gates
+
+StimulusContext is trusted provenance for mode and signal IDs. Never invent or
+override test_signal_id or reference_signal_id from planner arguments. Never cite
+StimulusContext fields as numerical Evidence.
+
+Relevant Tool observations automatically produce rule-evaluation batches before
+the next planner turn. When a needed rule family is absent, call the required
+Tool rather than requesting a profile action. Cite resulting same-run ruleval_*
+IDs from context.
+
+Mode-to-tool routing:
+- In paired_reference and nominal_single_tone, call analyze_contextual_distortion
+  for harmonic closure. analyze_harmonic_distortion is not a substitute in these
+  modes. If a recoverable routing or finish-gate error names the required Tool or
+  Evidence, correct the next decision accordingly.
+- In single_signal, analyze_harmonic_distortion remains descriptive only and cannot
+  alone establish causal harmonic_distortion. Prefer inconclusive requesting a
+  reference or declared single-tone context when harmonics are elevated without
+  clipping support.
+- Clipping remains independent in every mode and needs clipping_mechanism=true
+  plus a same-run substantial clipping rule FAIL
+  (rule_clipping_ratio_acceptable or rule_flat_top_absent).
+
+paired_reference harmonic causality needs valid comparison Evidence and a
+same-run harmonic-growth rule FAIL. Absolute THD FAIL or even_order_present alone
+is insufficient for causal harmonic_distortion.
+
+When paired comparison validity, F0 compatibility, and reference clipping checks
+PASS, the harmonic-growth rule PASSes, and test clipping is excluded, existing
+harmonic content in both signals does not by itself require inconclusive. Finish
+no_supported_fault relative to the supplied reference, with a limitation stating
+the finding is relative to that reference.
+
+nominal_single_tone conclusions remain conditional on the declaration. Measured
+F0 must match the declared fundamental with same-run Evidence. If nominal
+contextual qualification or F0 compatibility fails, finish inconclusive with
+same-run grounding and a limitation describing the declaration mismatch. Do not emit no_supported_fault merely because clipping and absolute THD appear to pass.
+
+no_supported_fault checklist: cite same-run clipping_mechanism=false Evidence.
+clipping_detected=false is not a substitute. Also cite the required same-run
+clipping PASS rules and the mode-specific harmonic or contextual PASS rules.
+
+Combined diagnoses require two independently complete positive claims: clipping
+cites clipping_mechanism=true plus a substantial clipping rule FAIL; harmonic
+distortion cites the complete mode-specific contextual gate, including contextual
+validity and the relevant harmonic FAIL rule. Failure to close the harmonic gate
+must not erase an independently supported clipping claim; finish clipping-only
+supported_fault with an explicit limitation when the contextual harmonic
+conclusion remains unavailable.
+
+invalid context -> do not silently downgrade mode; state the limitation and finish
+inconclusive when comparison or declaration qualification fails.
+
+no_supported_fault is a final empty-cause-set conclusion. Never emit a sibling
+no_supported_fault claim together with a positive supported fault.
+
+13. Output field contract
+"""
+
+
+def _build_s1_system_prompt_v9_7() -> str:
+    text = _replace_once(
+        _S1_SYSTEM_PROMPT_V9_6,
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.6).",
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.7).",
+        label="version header",
+    )
+    text = _replace_once(
+        text,
+        (
+            "Evaluate profile_s1_distortion when relevant S1 Evidence exists and "
+            "has not yet been evaluated, including invalid or not-applicable "
+            "structured Evidence that can produce NOT_APPLICABLE rule results."
+        ),
+        (
+            "Relevant Tool observations automatically create rule batches for the "
+            "mapped profile before the next turn, including invalid structured "
+            "Evidence that can produce NOT_APPLICABLE rule results."
+        ),
+        label="global evaluate profile",
+    )
+    text = _replace_once(
+        text,
+        "Evaluate the configured profile when clipping Evidence exists.",
+        (
+            "Clipping Tool observations automatically produce the mapped clipping "
+            "rule batch; cite those same-run ruleval_* IDs when finishing."
+        ),
+        label="clipping evaluate profile",
+    )
+    text = _replace_once(
+        text,
+        (
+            "After both families have same-run Evidence, apply the configured "
+            "profile once:\n"
+            "{\n"
+            '  "decision_type": "evaluate_rules",\n'
+            '  "profile_id": "profile_s1_distortion",\n'
+            '  "evidence_refs": ["ev_clip_neg_001", "ev_thd_neg_001"],\n'
+            '  "purpose": "Judge the acquired clipping and harmonic Evidence '
+            'against the configured profile."\n'
+            "}\n\n"
+        ),
+        (
+            "After both families have same-run Evidence and automatic rule "
+            "batches, finish from those ruleval_* IDs:\n\n"
+        ),
+        label="clean-broad evaluate_rules example",
+    )
+    text = _replace_once(
+        text,
+        (
+            "can justify a RuleEngine call:\n"
+            "{\n"
+            '  "decision_type": "evaluate_rules",\n'
+            '  "profile_id": "profile_s1_distortion",\n'
+            '  "evidence_refs": ["ev_thd_invalid_001"],\n'
+            '  "purpose": "Judge invalid harmonic Evidence so the configured '
+            'rule result can be NOT_APPLICABLE."\n'
+            "}\n\n"
+        ),
+        (
+            "can justify finishing from the automatic rule batch already present "
+            "for that Tool observation:\n\n"
+        ),
+        label="invalid evaluate_rules example",
+    )
+    text = _replace_once(
+        text,
+        'decision_type: "call_tool", "evaluate_rules", "retrieve_knowledge", or "finish"',
+        'decision_type: "call_tool", "retrieve_knowledge", or "finish"',
+        label="decision list",
+    )
+    text = _replace_once(
+        text,
+        (
+            "Use profile_s1_distortion for configured S1 clipping and harmonic "
+            "rule evaluation. "
+        ),
+        (
+            "Do not emit evaluate_rules; rule batches are created automatically "
+            "from relevant Tool observations. Never fall back to ScriptedPlanner. "
+        ),
+        label="final profile instruction",
+    )
+    if "12. Contextual reference diagnosis policy" not in text:
+        raise RuntimeError("v9.7 prompt build anchor missing")
+    start = text.index("12. Contextual reference diagnosis policy")
+    end = text.index("13. Output field contract", start)
+    text = (
+        text[:start]
+        + _V97_CONTEXTUAL_POLICY_SECTION.strip()
+        + text[end + len("13. Output field contract") :]
+    )
+    if '"decision_type": "evaluate_rules"' in text:
+        raise RuntimeError("v9.7 prompt retains manual rule example")
+    if '"call_tool", "evaluate_rules"' in text:
+        raise RuntimeError("v9.7 prompt advertises manual rule action")
+    return text
+
+
+_S1_SYSTEM_PROMPT_V9_7 = _build_s1_system_prompt_v9_7()
+_S1_PROMPT_V9_7 = _PlannerPromptSpec(
+    version="v0.3-s1-planner-9.7",
+    system_prompt=_S1_SYSTEM_PROMPT_V9_7,
+)
