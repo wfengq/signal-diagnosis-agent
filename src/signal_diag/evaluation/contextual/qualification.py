@@ -7,6 +7,7 @@ from pathlib import Path
 
 from signal_diag.dsp.clipping import analyze_clipping
 from signal_diag.dsp.contextual import analyze_contextual_distortion
+from signal_diag.dsp.models import ClippingAnalysis
 from signal_diag.evaluation.contextual.manifest import (
     load_contextual_manifest,
     validate_contextual_manifest,
@@ -16,7 +17,7 @@ from signal_diag.signal.wav import load_wav_bytes
 _CLIPPING_RATIO_FAIL = 0.01
 
 
-def _clipping_causal_ok(clip: object) -> bool:
+def _clipping_causal_ok(clip: ClippingAnalysis) -> bool:
     mechanism = bool(clip.clipping_mechanism)
     ratio = float(clip.clipping_ratio)
     flat = bool(clip.flat_top_detected)
