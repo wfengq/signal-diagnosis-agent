@@ -171,3 +171,22 @@ def test_t097_loader_rejects_profile_id_mismatch(tmp_path: Path) -> None:
     loader = YamlRuleProfileLoader({"profile_other": profile_path})
     with pytest.raises(ValueError, match="profile_id does not match"):
         loader.load("profile_other")
+
+
+def test_t_cx_loader_can_register_contextual_profile_alongside_s1() -> None:
+    contextual = (
+        Path(__file__).resolve().parents[2]
+        / "src"
+        / "signal_diag"
+        / "rules"
+        / "profiles"
+        / "s1_contextual_comparison_v1.yaml"
+    )
+    loader = YamlRuleProfileLoader(
+        {
+            "profile_s1_distortion": SHIPPED_S1_PROFILE,
+            "profile_s1_contextual_comparison": contextual,
+        }
+    )
+    assert loader.load("profile_s1_distortion").version == "1.0.0-demo"
+    assert loader.load("profile_s1_contextual_comparison").version == "1.0.0-dev.1"

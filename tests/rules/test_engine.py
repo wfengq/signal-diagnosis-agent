@@ -148,6 +148,39 @@ def test_t096_approved_profile_passes_below_boundary_values() -> None:
     assert thd_eval.judgment == "pass"
 
 
+def test_t_cx_engine_evaluates_contextual_growth_fail_independently() -> None:
+    contextual_path = (
+        PROJECT_ROOT
+        / "src"
+        / "signal_diag"
+        / "rules"
+        / "profiles"
+        / "s1_contextual_comparison_v1.yaml"
+    )
+    profile = YamlRuleProfileLoader(
+        {"profile_s1_contextual_comparison": contextual_path}
+    ).load("profile_s1_contextual_comparison")
+    engine = RuleEngine()
+    batch = engine.evaluate_profile(
+        profile,
+        [
+            make_evidence(
+                evidence_id="ev_growth",
+                source_tool="analyze_contextual_distortion",
+                metric="even_harmonic_growth_percent",
+                value=1.5,
+                unit="%",
+            )
+        ],
+    )
+    growth = next(
+        item
+        for item in batch.evaluations
+        if item.rule_id == "rule_even_harmonic_growth_acceptable"
+    )
+    assert growth.judgment == "fail"
+
+
 @pytest.mark.parametrize(
     ("comparator", "observed", "threshold", "expected"),
     [
