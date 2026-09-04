@@ -1,0 +1,2372 @@
+{
+  "source_case_count": 20,
+  "replayed_observation_count": 40,
+  "label_independent_mapping": true,
+  "trace_sha256": {
+    "04f4068ec91d2621": "b6bbf4e3977e1eee71c53632f8cb8f1da520faeef4d0a8a7818965087ab2d4a1",
+    "163185980dc8f7a4": "9f1f1d6e13618f1f212cc9a7a427f444d94dfa7f8d57887f242720a9bd98fe4a",
+    "2be730b9113701de": "637dadd9b2082719d827ae3c6da247204ade54620378a73de08c7911dd2692e5",
+    "35967af7b71c5b75": "67b3a67f81d08f2ad35ef235a1b7dcd95996ec3aa76971b8d9d36e629146b909",
+    "393940e92c58cf0b": "ba704433d8842dad7ffb6214c48c34f468fd622e69dced96f0e6c46cc9c7bb77",
+    "3e1ca5f1bc34a5a8": "b138438671a3850ff668d58d5572078e87d34eff870ecea82bb07bf905342f26",
+    "43bbc0fb08d88ec3": "71f5094b6e13af17f469dac607bcd4364e70a5ada335c0bfb3b3ba95ee7dc248",
+    "5f7ed6fe137f73b3": "d747597056cb71ae2170f8abf8812190e1b3a3bd21392807f6ef799d687f471e",
+    "6fb80bbda391c26c": "26af50556c3b064afb760531b46583fbeda43d98306d3784a8f9d661e35dae6e",
+    "825a759a0ea47bb7": "1886614dfa5293a4137d29a4e1b745920d1144c8c56aebe49a074b311af4ebf8",
+    "857fac53e4d2e57e": "0ca5f0f6c68ac1cc1732024a4e98add7cfd7c2ccef1370f31069690c56c7a7a8",
+    "a4a0853be9983f8c": "01e9954827cf7d4c3770b107e4763af08f519e92105ddea40e9ec05b7a00bdbe",
+    "aa9b4a91b0253c33": "59c3b7d4731c466084af313e55e1e9cbc204c693cb75ab7fc76ddd519da89c59",
+    "abd9010438d4ad93": "e4028b74f8f2ed288eb8983b9310ed62f50e0cd2211d6fc67ef3a20e794984f0",
+    "ce8b413cf7382c3d": "8dd0dcabc5f39f00914ffddd09132219da163060d7a82e1fccbf0f09cb54859a",
+    "d4bb668a379dea3b": "c3d6b8a3fa3966e96b098ede715d57d085b37fff51493fea3f982c1697566239",
+    "dff3ebd9dffee874": "eceeae3e99bae7e18248a61ab955e6e93e970de2bcfee041ef4b144512778c35",
+    "e3c036eb778237c8": "ac7cb6a0871134a2307ca2bec159815215e828acc55419835ac47a0c87a61bc0",
+    "eabaecd422b2eeda": "cee4c690a3ae4dba5147c15109144649d6423bdc35175e3059c45e96b8d8ac9d",
+    "eb8d416412ce3c22": "2be8aeb5feec056c5e0ecf04092d18265468238774cd0ade044d367d2cf760bc"
+  },
+  "rows": [
+    {
+      "case_id": "04f4068ec91d2621",
+      "mode": "paired_reference",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "04f4068ec91d2621",
+      "mode": "paired_reference",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017"
+      ],
+      "batch_id": "rulebatch_cacde14bd5b13671",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "163185980dc8f7a4",
+      "mode": "paired_reference",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "163185980dc8f7a4",
+      "mode": "paired_reference",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_018"
+      ],
+      "batch_id": "rulebatch_bb4c242dd3e43f68",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "2be730b9113701de",
+      "mode": "paired_reference",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "2be730b9113701de",
+      "mode": "paired_reference",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017"
+      ],
+      "batch_id": "rulebatch_3880dee9f7dfefb4",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "35967af7b71c5b75",
+      "mode": "nominal_single_tone",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "35967af7b71c5b75",
+      "mode": "nominal_single_tone",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017"
+      ],
+      "batch_id": "rulebatch_79921b2aa30408d9",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "393940e92c58cf0b",
+      "mode": "paired_reference",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "393940e92c58cf0b",
+      "mode": "paired_reference",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017"
+      ],
+      "batch_id": "rulebatch_fbdfb249e202e3e9",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "3e1ca5f1bc34a5a8",
+      "mode": "single_signal",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "3e1ca5f1bc34a5a8",
+      "mode": "single_signal",
+      "observation_id": "obs_analyze_harmonic_distortion_000001_001",
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "tool_name": "analyze_harmonic_distortion",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001"
+      ],
+      "batch_id": "rulebatch_7c093ccfcb915d7a",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "43bbc0fb08d88ec3",
+      "mode": "single_signal",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_38b7173617dda9bb",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "43bbc0fb08d88ec3",
+      "mode": "single_signal",
+      "observation_id": "obs_analyze_harmonic_distortion_000001_001",
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "tool_name": "analyze_harmonic_distortion",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_006"
+      ],
+      "batch_id": "rulebatch_461c803e68bfdc5a",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "5f7ed6fe137f73b3",
+      "mode": "nominal_single_tone",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "5f7ed6fe137f73b3",
+      "mode": "nominal_single_tone",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_018"
+      ],
+      "batch_id": "rulebatch_cb05f0bc47a7dbf1",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "6fb80bbda391c26c",
+      "mode": "paired_reference",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_013f8f337e8213ca",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "6fb80bbda391c26c",
+      "mode": "paired_reference",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017"
+      ],
+      "batch_id": "rulebatch_71a1b4fa418710e5",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "825a759a0ea47bb7",
+      "mode": "paired_reference",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "825a759a0ea47bb7",
+      "mode": "paired_reference",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017"
+      ],
+      "batch_id": "rulebatch_887d293dd1156658",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "857fac53e4d2e57e",
+      "mode": "paired_reference",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_a59f58d384eee1da",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "857fac53e4d2e57e",
+      "mode": "paired_reference",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017"
+      ],
+      "batch_id": "rulebatch_410b7bef0acdf8a9",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "a4a0853be9983f8c",
+      "mode": "paired_reference",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "a4a0853be9983f8c",
+      "mode": "paired_reference",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017"
+      ],
+      "batch_id": "rulebatch_4d3ab79b39b9bfb8",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "aa9b4a91b0253c33",
+      "mode": "paired_reference",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_f0fff2086f8ed63a",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "aa9b4a91b0253c33",
+      "mode": "paired_reference",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017"
+      ],
+      "batch_id": "rulebatch_1ade6f6b49f258a3",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "abd9010438d4ad93",
+      "mode": "paired_reference",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_61146b0ec008a9a3",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "abd9010438d4ad93",
+      "mode": "paired_reference",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017"
+      ],
+      "batch_id": "rulebatch_2008e5e1ee55bd40",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "ce8b413cf7382c3d",
+      "mode": "nominal_single_tone",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "ce8b413cf7382c3d",
+      "mode": "nominal_single_tone",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017"
+      ],
+      "batch_id": "rulebatch_b72193367af4a214",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "d4bb668a379dea3b",
+      "mode": "single_signal",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "d4bb668a379dea3b",
+      "mode": "single_signal",
+      "observation_id": "obs_analyze_harmonic_distortion_000001_001",
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "tool_name": "analyze_harmonic_distortion",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001"
+      ],
+      "batch_id": "rulebatch_7c093ccfcb915d7a",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "dff3ebd9dffee874",
+      "mode": "nominal_single_tone",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_a3ea09f117fb5353",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "fail",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "dff3ebd9dffee874",
+      "mode": "nominal_single_tone",
+      "observation_id": "obs_analyze_contextual_distortion_000001_001",
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "tool_name": "analyze_contextual_distortion",
+      "profile_id": "profile_s1_contextual_comparison",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017"
+      ],
+      "batch_id": "rulebatch_77f39c4d20bbc6f2",
+      "evaluations": [
+        {
+          "rule_id": "rule_contextual_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_contextual_f0_compatible",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014"
+          ]
+        },
+        {
+          "rule_id": "rule_reference_flat_top_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015"
+          ]
+        },
+        {
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+          ]
+        },
+        {
+          "rule_id": "rule_nominal_thd_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "e3c036eb778237c8",
+      "mode": "single_signal",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "e3c036eb778237c8",
+      "mode": "single_signal",
+      "observation_id": "obs_analyze_harmonic_distortion_000001_001",
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "tool_name": "analyze_harmonic_distortion",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001"
+      ],
+      "batch_id": "rulebatch_7c093ccfcb915d7a",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "eabaecd422b2eeda",
+      "mode": "single_signal",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "eabaecd422b2eeda",
+      "mode": "single_signal",
+      "observation_id": "obs_analyze_harmonic_distortion_000001_001",
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "tool_name": "analyze_harmonic_distortion",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_006"
+      ],
+      "batch_id": "rulebatch_b5b01c0083e88afd",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "eb8d416412ce3c22",
+      "mode": "single_signal",
+      "observation_id": "obs_detect_clipping_000000_000",
+      "call_id": "call_detect_clipping_000000",
+      "tool_name": "detect_clipping",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ]
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ]
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "pass",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ]
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    },
+    {
+      "case_id": "eb8d416412ce3c22",
+      "mode": "single_signal",
+      "observation_id": "obs_analyze_harmonic_distortion_000001_001",
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "tool_name": "analyze_harmonic_distortion",
+      "profile_id": "profile_s1_distortion",
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001"
+      ],
+      "batch_id": "rulebatch_7c093ccfcb915d7a",
+      "evaluations": [
+        {
+          "rule_id": "rule_clipping_detected_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_flat_top_absent",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        },
+        {
+          "rule_id": "rule_harmonic_analysis_valid",
+          "judgment": "not_applicable",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ]
+        },
+        {
+          "rule_id": "rule_thd_acceptable",
+          "judgment": "not_applicable",
+          "evidence_refs": []
+        }
+      ]
+    }
+  ],
+  "contextual_positive_fail_case_ids": [
+    "2be730b9113701de",
+    "35967af7b71c5b75",
+    "6fb80bbda391c26c",
+    "a4a0853be9983f8c",
+    "aa9b4a91b0253c33"
+  ],
+  "contextual_complete_pass_case_ids": [
+    "04f4068ec91d2621",
+    "393940e92c58cf0b",
+    "825a759a0ea47bb7",
+    "ce8b413cf7382c3d"
+  ]
+}

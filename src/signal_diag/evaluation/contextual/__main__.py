@@ -20,6 +20,8 @@ from signal_diag.evaluation.contextual.sealing import (
     seal_contextual_bundle,
     verify_contextual_bundle,
 )
+from signal_diag.evaluation.contextual.shadow_replay import write_shadow_replay_report
+from signal_diag.rules.engine import RuleEngine
 from signal_diag.rules.loader import YamlRuleProfileLoader
 
 
@@ -62,6 +64,13 @@ def _build_parser() -> argparse.ArgumentParser:
 
     verify_cmd = sub.add_parser("verify", help="Verify a sealed contextual bundle")
     verify_cmd.add_argument("--bundle", type=Path, required=True)
+
+    shadow_cmd = sub.add_parser(
+        "shadow-replay-rule-closure",
+        help="Replay preserved Observation Evidence through v9.7 rule closure",
+    )
+    shadow_cmd.add_argument("--run-dir", type=Path, required=True)
+    shadow_cmd.add_argument("--destination", type=Path, required=True)
     return parser
 
 
@@ -136,6 +145,25 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "verify":
         verify_contextual_bundle(args.bundle)
         print("ok")
+        return 0
+    if args.command == "shadow-replay-rule-closure":
+        profile_root = Path(__file__).resolve().parents[2] / "rules" / "profiles"
+        write_shadow_replay_report(
+            run_dir=args.run_dir,
+            destination=args.destination,
+            rule_engine=RuleEngine(),
+            profile_loader=YamlRuleProfileLoader(
+                {
+                    "profile_s1_distortion": (
+                        profile_root / "s1_distortion_v1.yaml"
+                    ),
+                    "profile_s1_contextual_comparison": (
+                        profile_root / "s1_contextual_comparison_v1.yaml"
+                    ),
+                }
+            ),
+        )
+        print("shadow_replay_complete")
         return 0
     parser.error(f"unknown command: {args.command}")
     return 2
