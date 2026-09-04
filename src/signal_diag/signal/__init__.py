@@ -1,5 +1,11 @@
 """Signal representation and construction."""
 
+from .context import (
+    ContextAssertionSource,
+    DiagnosticMode,
+    EffectiveCapabilities,
+    StimulusContext,
+)
 from .exceptions import (
     InvalidSignalError,
     InvalidTimeRangeError,
@@ -41,6 +47,9 @@ from .wav import (
 
 __all__ = [
     "ChannelMode",
+    "ContextAssertionSource",
+    "DiagnosticMode",
+    "EffectiveCapabilities",
     "FaultLabel",
     "GroundTruthValue",
     "InMemorySignalRepository",
@@ -55,6 +64,7 @@ __all__ = [
     "SignalRecord",
     "SignalRepository",
     "SourceType",
+    "StimulusContext",
     "SyntheticCase",
     "SyntheticGroundTruth",
     "TimeRange",
