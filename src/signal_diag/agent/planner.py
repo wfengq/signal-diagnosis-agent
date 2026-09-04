@@ -24,13 +24,13 @@ from .prompts import (
     _S1_PROMPT_V8_1,
     _PlannerPromptSpec,
 )
-from .prompts_v03 import _S1_PROMPT_V9_4
+from .prompts_v03 import _S1_PROMPT_V9_5
 
 # DeepSeek V4 Flash official API model ID (OpenAI-compatible endpoint).
 DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
-PROMPT_VERSION = _S1_PROMPT_V9_4.version
-_SYSTEM_PROMPT = _S1_PROMPT_V9_4.system_prompt
+PROMPT_VERSION = _S1_PROMPT_V9_5.version
+_SYSTEM_PROMPT = _S1_PROMPT_V9_5.system_prompt
 
 _AGENT_DECISION_ADAPTER: TypeAdapter[AgentDecision] = TypeAdapter(AgentDecision)
 
@@ -373,7 +373,7 @@ class RealLLMPlanner:
     ScriptedPlanner.
     """
 
-    _prompt_spec: ClassVar[_PlannerPromptSpec] = _S1_PROMPT_V9_4
+    _prompt_spec: ClassVar[_PlannerPromptSpec] = _S1_PROMPT_V9_5
 
     def __init__(
         self,

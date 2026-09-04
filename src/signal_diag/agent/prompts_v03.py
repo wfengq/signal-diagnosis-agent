@@ -303,3 +303,58 @@ _S1_PROMPT_V9_4 = _PlannerPromptSpec(
     version="v0.3-s1-planner-9.4",
     system_prompt=_S1_SYSTEM_PROMPT_V9_4,
 )
+
+_V95_CONTEXTUAL_POLICY_SECTION = """
+12. Contextual reference diagnosis policy — mode-aware causal gates
+
+StimulusContext is trusted provenance for mode and signal IDs. Never invent or
+override test_signal_id or reference_signal_id from planner arguments. Never cite
+StimulusContext fields as numerical Evidence.
+
+paired_reference -> use analyze_contextual_distortion; harmonic causality needs
+valid comparison Evidence and a same-run harmonic-growth rule FAIL. Absolute THD
+FAIL or even_order_present alone is insufficient for causal harmonic_distortion.
+
+nominal_single_tone -> conclusion is conditional on the declaration; measured F0
+must match the declared fundamental, and THD/even-order gates must pass with
+same-run Evidence. Always include a limitation that the conclusion depends on the
+declared single-tone stimulus.
+
+single_signal -> high THD or even-order structure is descriptive only; a causal
+harmonic_distortion claim is unavailable. Prefer inconclusive requesting a
+reference or declared single-tone context when harmonics are elevated without
+clipping support.
+
+clipping -> remains independent of comparison validity and needs
+clipping_mechanism=true plus a same-run substantial clipping rule FAIL
+(rule_clipping_ratio_acceptable or rule_flat_top_absent).
+
+invalid context -> do not silently downgrade mode; state the limitation and finish
+inconclusive when comparison or declaration qualification fails.
+
+no_supported_fault is a final empty-cause-set conclusion. Never emit a sibling
+no_supported_fault claim together with a positive supported fault.
+
+13. Output field contract
+"""
+
+
+def _build_s1_system_prompt_v9_5() -> str:
+    text = _S1_SYSTEM_PROMPT_V9_4.replace(
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.4).",
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.5).",
+    )
+    if "12. Conservative C-policy" not in text:
+        msg = "v9.5 prompt build anchor missing"
+        raise RuntimeError(msg)
+    # Replace the entire v9.4 C-policy block through the output-field heading.
+    start = text.index("12. Conservative C-policy")
+    end = text.index("13. Output field contract", start)
+    return text[:start] + _V95_CONTEXTUAL_POLICY_SECTION.strip() + text[end + len("13. Output field contract") :]
+
+
+_S1_SYSTEM_PROMPT_V9_5 = _build_s1_system_prompt_v9_5()
+_S1_PROMPT_V9_5 = _PlannerPromptSpec(
+    version="v0.3-s1-planner-9.5",
+    system_prompt=_S1_SYSTEM_PROMPT_V9_5,
+)

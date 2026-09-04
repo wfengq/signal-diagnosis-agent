@@ -93,5 +93,6 @@ def build_product_service(
             }
         ),
         knowledge_index=KnowledgeIndex(_corpus_path()),
+        causal_policy_version="v9_5_contextual",
     )
     return DiagnosisApplicationService(dependencies)

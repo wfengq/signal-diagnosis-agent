@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from typing import Literal, Protocol, runtime_checkable
 
 from signal_diag.agent.planner import PlannerModel
+from signal_diag.agent.diagnosis import CausalPolicyVersion
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.app.errors import (
     ApplicationError,
@@ -71,6 +72,7 @@ class ApplicationDependencies:
     rule_engine: RuleEngine
     rule_profile_loader: RuleProfileLoader
     knowledge_index: KnowledgeIndex
+    causal_policy_version: CausalPolicyVersion = "v9_4_legacy"
 
 
 def _utc_now() -> datetime:
@@ -276,6 +278,7 @@ class DiagnosisApplicationService:
                 rule_engine=self._dependencies.rule_engine,
                 rule_profile_loader=self._dependencies.rule_profile_loader,
                 knowledge_index=self._dependencies.knowledge_index,
+                causal_policy_version=self._dependencies.causal_policy_version,
             )
             result = await runtime.run(
                 signal_id=analysis_id,
