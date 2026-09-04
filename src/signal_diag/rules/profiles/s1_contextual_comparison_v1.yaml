@@ -1,5 +1,5 @@
 profile_id: profile_s1_contextual_comparison
-version: 1.0.0-dev.1
+version: 1.0.0
 description: Contextual S1 comparison limits; demonstration targets, not an industry standard.
 rules:
   - rule_id: rule_contextual_analysis_valid
@@ -34,9 +34,9 @@ rules:
     metric: even_harmonic_growth_percent
     source_tool: analyze_contextual_distortion
     comparator: lte
-    threshold: 1.0
+    threshold: 5.0
     unit: "%"
-    description: Development candidate; frozen by Task 11 before validation.
+    description: Frozen on study_v0_3_contextual_dev_1 calibration (largest candidate with 100% specificity and >=90% sensitivity).
   - rule_id: rule_nominal_thd_acceptable
     metric: test_thd_percent
     source_tool: analyze_contextual_distortion

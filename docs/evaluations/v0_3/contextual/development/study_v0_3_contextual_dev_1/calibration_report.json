@@ -1,0 +1,53 @@
+{
+  "calibration_status": "selected",
+  "candidates": [
+    {
+      "threshold_percent": 0.5,
+      "true_positives": 5,
+      "false_positives": 0,
+      "true_negatives": 2,
+      "false_negatives": 0,
+      "specificity": 1.0,
+      "sensitivity": 1.0
+    },
+    {
+      "threshold_percent": 1.0,
+      "true_positives": 5,
+      "false_positives": 0,
+      "true_negatives": 2,
+      "false_negatives": 0,
+      "specificity": 1.0,
+      "sensitivity": 1.0
+    },
+    {
+      "threshold_percent": 2.0,
+      "true_positives": 5,
+      "false_positives": 0,
+      "true_negatives": 2,
+      "false_negatives": 0,
+      "specificity": 1.0,
+      "sensitivity": 1.0
+    },
+    {
+      "threshold_percent": 3.0,
+      "true_positives": 5,
+      "false_positives": 0,
+      "true_negatives": 2,
+      "false_negatives": 0,
+      "specificity": 1.0,
+      "sensitivity": 1.0
+    },
+    {
+      "threshold_percent": 5.0,
+      "true_positives": 5,
+      "false_positives": 0,
+      "true_negatives": 2,
+      "false_negatives": 0,
+      "specificity": 1.0,
+      "sensitivity": 1.0
+    }
+  ],
+  "selected_threshold_percent": 5.0,
+  "source_manifest_sha256": "b7de42baaccc002c67dc3614136d139510f068e5062141c92fb04b2b738fa0c1",
+  "code_sha256": "a01e4acbcd4561ade822068fed7549480f8c70c2dd36564bf5adf4e9bb0eddec"
+}

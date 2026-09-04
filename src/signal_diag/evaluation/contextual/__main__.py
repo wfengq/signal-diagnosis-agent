@@ -15,10 +15,12 @@ from signal_diag.evaluation.contextual.manifest import (
     load_contextual_manifest,
     validate_contextual_manifest,
 )
+from signal_diag.evaluation.contextual.qualification import qualify_development_study
 from signal_diag.evaluation.contextual.sealing import (
     seal_contextual_bundle,
     verify_contextual_bundle,
 )
+from signal_diag.rules.loader import YamlRuleProfileLoader
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -30,6 +32,19 @@ def _build_parser() -> argparse.ArgumentParser:
 
     validate_cmd = sub.add_parser("validate-manifest", help="Validate a manifest JSON")
     validate_cmd.add_argument("--manifest", type=Path, required=True)
+
+    qualify_cmd = sub.add_parser(
+        "qualify-development",
+        help="Re-run deterministic development qualification gates",
+    )
+    qualify_cmd.add_argument("--study-dir", type=Path, required=True)
+    qualify_cmd.add_argument(
+        "--growth-threshold-percent",
+        type=float,
+        default=None,
+        help="Even-growth threshold; defaults to frozen contextual profile value",
+    )
+    qualify_cmd.add_argument("--output", type=Path, required=True)
 
     calibrate_cmd = sub.add_parser(
         "calibrate",
@@ -58,21 +73,48 @@ def main(argv: list[str] | None = None) -> int:
         validate_contextual_manifest(manifest)
         print("ok")
         return 0
+    if args.command == "qualify-development":
+        threshold = args.growth_threshold_percent
+        if threshold is None:
+            profile_path = (
+                Path(__file__).resolve().parents[2]
+                / "rules"
+                / "profiles"
+                / "s1_contextual_comparison_v1.yaml"
+            )
+            profile = YamlRuleProfileLoader(
+                {"profile_s1_contextual_comparison": profile_path}
+            ).load("profile_s1_contextual_comparison")
+            growth = next(
+                rule
+                for rule in profile.rules
+                if rule.rule_id == "rule_even_harmonic_growth_acceptable"
+            )
+            threshold = float(growth.threshold)
+        qualify_report = qualify_development_study(
+            study_dir=args.study_dir,
+            growth_threshold_percent=threshold,
+        )
+        args.output.write_text(
+            json.dumps(qualify_report, indent=2) + "\n", encoding="utf-8"
+        )
+        print("ok" if qualify_report["all_gates_passed"] else "failed")
+        return 0 if qualify_report["all_gates_passed"] else 2
     if args.command == "calibrate":
         manifest = load_contextual_manifest(args.manifest)
         controls = tuple(json.loads(args.controls_json.read_text(encoding="utf-8")))
         positives = tuple(json.loads(args.positives_json.read_text(encoding="utf-8")))
-        report = calibrate_even_growth_threshold(
+        calibration_report = calibrate_even_growth_threshold(
             manifest=manifest,
             control_growth_percents=controls,
             positive_growth_percents=positives,
             code_sha256=stable_code_sha("signal_diag.evaluation.contextual"),
         )
         args.output.write_text(
-            report.model_dump_json(indent=2) + "\n", encoding="utf-8"
+            calibration_report.model_dump_json(indent=2) + "\n", encoding="utf-8"
         )
-        print(report.calibration_status)
-        return 0 if report.calibration_status == "selected" else 2
+        print(calibration_report.calibration_status)
+        return 0 if calibration_report.calibration_status == "selected" else 2
     if args.command == "seal":
         manifest = load_contextual_manifest(args.manifest)
         meta = json.loads(args.meta_json.read_text(encoding="utf-8"))

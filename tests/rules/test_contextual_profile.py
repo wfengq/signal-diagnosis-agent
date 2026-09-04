@@ -85,7 +85,7 @@ def test_t_cx047_v02_thresholds_unchanged() -> None:
 def test_t_cx048_contextual_profile_loads_independently() -> None:
     profile = _loader().load("profile_s1_contextual_comparison")
     assert profile.profile_id == "profile_s1_contextual_comparison"
-    assert profile.version == "1.0.0-dev.1"
+    assert profile.version == "1.0.0"
     assert tuple(rule.rule_id for rule in profile.rules) == EXPECTED_RULE_IDS
 
 
@@ -96,14 +96,14 @@ def test_t_cx049_all_metrics_bind_to_contextual_tool() -> None:
     )
 
 
-def test_t_cx050_growth_candidate_threshold_is_one_percent() -> None:
+def test_t_cx050_growth_threshold_matches_frozen_calibration() -> None:
     profile = _loader().load("profile_s1_contextual_comparison")
     growth = next(
         rule
         for rule in profile.rules
         if rule.rule_id == "rule_even_harmonic_growth_acceptable"
     )
-    assert growth.threshold == 1.0
+    assert growth.threshold == 5.0
     assert growth.unit == "%"
     assert growth.comparator == "lte"
 
@@ -138,7 +138,7 @@ def test_t_cx052_valid_context_passes_and_growth_fails() -> None:
             ),
             _evidence(
                 metric="even_harmonic_growth_percent",
-                value=2.5,
+                value=6.5,
                 unit="%",
                 evidence_id="ev_growth",
             ),
@@ -183,7 +183,7 @@ def test_t_cx053_invalid_evidence_yields_not_applicable() -> None:
     )
 
 
-def test_t_cx054_growth_boundary_passes_at_one_percent() -> None:
+def test_t_cx054_growth_boundary_passes_at_frozen_threshold() -> None:
     profile = _loader().load("profile_s1_contextual_comparison")
     engine = RuleEngine()
     batch = engine.evaluate_profile(
@@ -191,7 +191,7 @@ def test_t_cx054_growth_boundary_passes_at_one_percent() -> None:
         [
             _evidence(
                 metric="even_harmonic_growth_percent",
-                value=1.0,
+                value=5.0,
                 unit="%",
                 evidence_id="ev_boundary",
             )

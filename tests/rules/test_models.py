@@ -189,4 +189,4 @@ def test_t_cx_loader_can_register_contextual_profile_alongside_s1() -> None:
         }
     )
     assert loader.load("profile_s1_distortion").version == "1.0.0-demo"
-    assert loader.load("profile_s1_contextual_comparison").version == "1.0.0-dev.1"
+    assert loader.load("profile_s1_contextual_comparison").version == "1.0.0"

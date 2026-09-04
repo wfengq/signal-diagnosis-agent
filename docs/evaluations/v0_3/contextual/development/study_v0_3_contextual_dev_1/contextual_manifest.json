@@ -1,0 +1,830 @@
+{
+  "manifest_id": "study_v0_3_contextual_dev_1",
+  "split": "development",
+  "scoring_id": "signal_diag.contextual_scoring",
+  "scoring_version": "1.0.0-dev.1",
+  "cases": [
+    {
+      "case_id": "8b57b4a24fbc51a1",
+      "split": "development",
+      "mode": "paired_reference",
+      "role": "clean",
+      "expected_outcome": "no_supported_fault",
+      "expected_causal_set": [],
+      "confidence_tier": "reference_supported",
+      "scoreable": true,
+      "source_id": "nsynth_organ_028_077",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_organ_a",
+      "recording_key": "nsynth:organ_electronic_028-077-050",
+      "transform_identity": "identity",
+      "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+      "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "paired_reference",
+          "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+          "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206"
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "paired_reference",
+          "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+          "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206"
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "79a70f02190738fc",
+      "split": "development",
+      "mode": "paired_reference",
+      "role": "clipping",
+      "expected_outcome": "supported_fault",
+      "expected_causal_set": [
+        "clipping"
+      ],
+      "confidence_tier": "strong_ground_truth",
+      "scoreable": true,
+      "source_id": "nsynth_master_organ_a",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_organ_a",
+      "recording_key": "nsynth:master_organ_a",
+      "transform_identity": "signal_diag.external_transform/1.1.0/clipping/q0.05",
+      "test_wav_sha256": "54f1a7484b3ca978cbe53612da425529fdccda278ee6e7c377522334b30f367f",
+      "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "paired_reference",
+          "test_wav_sha256": "54f1a7484b3ca978cbe53612da425529fdccda278ee6e7c377522334b30f367f",
+          "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206"
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "paired_reference",
+          "test_wav_sha256": "54f1a7484b3ca978cbe53612da425529fdccda278ee6e7c377522334b30f367f",
+          "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206"
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "54f1a7484b3ca978cbe53612da425529fdccda278ee6e7c377522334b30f367f",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "da987201b431de30",
+      "split": "development",
+      "mode": "paired_reference",
+      "role": "clipping",
+      "expected_outcome": "supported_fault",
+      "expected_causal_set": [
+        "clipping"
+      ],
+      "confidence_tier": "strong_ground_truth",
+      "scoreable": true,
+      "source_id": "nsynth_master_bass_a",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_bass_a",
+      "recording_key": "nsynth:master_bass_a",
+      "transform_identity": "signal_diag.external_transform/1.1.0/clipping/q0.05",
+      "test_wav_sha256": "6d9121d1a94f5d78ecf6a287810f9f03cf540a9c778e89304fc86ca28e40ea08",
+      "reference_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5",
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "paired_reference",
+          "test_wav_sha256": "6d9121d1a94f5d78ecf6a287810f9f03cf540a9c778e89304fc86ca28e40ea08",
+          "reference_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5"
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "paired_reference",
+          "test_wav_sha256": "6d9121d1a94f5d78ecf6a287810f9f03cf540a9c778e89304fc86ca28e40ea08",
+          "reference_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5"
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "6d9121d1a94f5d78ecf6a287810f9f03cf540a9c778e89304fc86ca28e40ea08",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "3fc39ae70761089d",
+      "split": "development",
+      "mode": "paired_reference",
+      "role": "harmonic",
+      "expected_outcome": "supported_fault",
+      "expected_causal_set": [
+        "harmonic_distortion"
+      ],
+      "confidence_tier": "strong_ground_truth",
+      "scoreable": true,
+      "source_id": "nsynth_master_organ_b",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_organ_b",
+      "recording_key": "nsynth:master_organ_b",
+      "transform_identity": "signal_diag.external_transform/1.1.0/second_harmonic_ampnorm/a0.25/pg1.0",
+      "test_wav_sha256": "842b614751bdbff95007609454c09fc4615e455a779e5f34e589ec5ddb139ce6",
+      "reference_wav_sha256": "ae7c9e26224c97dafd38b47816e1db570b338d1ae3f5f1700cda2dab9bcc354e",
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "paired_reference",
+          "test_wav_sha256": "842b614751bdbff95007609454c09fc4615e455a779e5f34e589ec5ddb139ce6",
+          "reference_wav_sha256": "ae7c9e26224c97dafd38b47816e1db570b338d1ae3f5f1700cda2dab9bcc354e"
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "paired_reference",
+          "test_wav_sha256": "842b614751bdbff95007609454c09fc4615e455a779e5f34e589ec5ddb139ce6",
+          "reference_wav_sha256": "ae7c9e26224c97dafd38b47816e1db570b338d1ae3f5f1700cda2dab9bcc354e"
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "842b614751bdbff95007609454c09fc4615e455a779e5f34e589ec5ddb139ce6",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "88c30f8a7b6e4e7d",
+      "split": "development",
+      "mode": "paired_reference",
+      "role": "harmonic",
+      "expected_outcome": "supported_fault",
+      "expected_causal_set": [
+        "harmonic_distortion"
+      ],
+      "confidence_tier": "strong_ground_truth",
+      "scoreable": true,
+      "source_id": "nsynth_master_bass_b",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_bass_b",
+      "recording_key": "nsynth:master_bass_b",
+      "transform_identity": "signal_diag.external_transform/1.1.0/second_harmonic_ampnorm/a0.25/pg1.0",
+      "test_wav_sha256": "4e91a67e7655131e02b90c366e87f263eef13927c41fce96490242d0a890291f",
+      "reference_wav_sha256": "c1f92a835a8a505048fde154df51fd27e3b59ce78580c9970356338510c8094c",
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "paired_reference",
+          "test_wav_sha256": "4e91a67e7655131e02b90c366e87f263eef13927c41fce96490242d0a890291f",
+          "reference_wav_sha256": "c1f92a835a8a505048fde154df51fd27e3b59ce78580c9970356338510c8094c"
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "paired_reference",
+          "test_wav_sha256": "4e91a67e7655131e02b90c366e87f263eef13927c41fce96490242d0a890291f",
+          "reference_wav_sha256": "c1f92a835a8a505048fde154df51fd27e3b59ce78580c9970356338510c8094c"
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "4e91a67e7655131e02b90c366e87f263eef13927c41fce96490242d0a890291f",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "a97de111278f6294",
+      "split": "development",
+      "mode": "paired_reference",
+      "role": "combined",
+      "expected_outcome": "supported_fault",
+      "expected_causal_set": [
+        "clipping",
+        "harmonic_distortion"
+      ],
+      "confidence_tier": "strong_ground_truth",
+      "scoreable": true,
+      "source_id": "nsynth_master_guitar_a",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_guitar_a",
+      "recording_key": "nsynth:master_guitar_a",
+      "transform_identity": "signal_diag.external_transform/1.1.0/combined/q0.05/a0.25/pg1.0",
+      "test_wav_sha256": "0bf420944ce64518b050685e039586995ba93a371cdbb27d27aafdaf9be23831",
+      "reference_wav_sha256": "290110cda9e8467764d76bba304163d606850e184bacba1be33f2dc737aa0dda",
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "paired_reference",
+          "test_wav_sha256": "0bf420944ce64518b050685e039586995ba93a371cdbb27d27aafdaf9be23831",
+          "reference_wav_sha256": "290110cda9e8467764d76bba304163d606850e184bacba1be33f2dc737aa0dda"
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "paired_reference",
+          "test_wav_sha256": "0bf420944ce64518b050685e039586995ba93a371cdbb27d27aafdaf9be23831",
+          "reference_wav_sha256": "290110cda9e8467764d76bba304163d606850e184bacba1be33f2dc737aa0dda"
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "0bf420944ce64518b050685e039586995ba93a371cdbb27d27aafdaf9be23831",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "b1747db1743a6132",
+      "split": "development",
+      "mode": "paired_reference",
+      "role": "combined",
+      "expected_outcome": "supported_fault",
+      "expected_causal_set": [
+        "clipping",
+        "harmonic_distortion"
+      ],
+      "confidence_tier": "strong_ground_truth",
+      "scoreable": true,
+      "source_id": "nsynth_master_organ_a",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_organ_a",
+      "recording_key": "nsynth:master_organ_a",
+      "transform_identity": "signal_diag.external_transform/1.1.0/combined/q0.05/a0.25/pg1.0",
+      "test_wav_sha256": "c7e1dc079cfef7e55e62e3863e8ad5cd6f72ba8472a7f9db2a361e6f0fca39ed",
+      "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "paired_reference",
+          "test_wav_sha256": "c7e1dc079cfef7e55e62e3863e8ad5cd6f72ba8472a7f9db2a361e6f0fca39ed",
+          "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206"
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "paired_reference",
+          "test_wav_sha256": "c7e1dc079cfef7e55e62e3863e8ad5cd6f72ba8472a7f9db2a361e6f0fca39ed",
+          "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206"
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "c7e1dc079cfef7e55e62e3863e8ad5cd6f72ba8472a7f9db2a361e6f0fca39ed",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "6833b21ff8aa4272",
+      "split": "development",
+      "mode": "paired_reference",
+      "role": "natural_even_control",
+      "expected_outcome": "no_supported_fault",
+      "expected_causal_set": [],
+      "confidence_tier": "reference_supported",
+      "scoreable": true,
+      "source_id": "nsynth_master_organ_a_adj",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_organ_a",
+      "recording_key": "nsynth:master_organ_a_adj",
+      "transform_identity": "adjacent_window_identity_pair",
+      "test_wav_sha256": "1e452e536ec77c0de61d7bd7892952ec01cbd1ff091c0480a05a0ce292a7b9a9",
+      "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "paired_reference",
+          "test_wav_sha256": "1e452e536ec77c0de61d7bd7892952ec01cbd1ff091c0480a05a0ce292a7b9a9",
+          "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206"
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "paired_reference",
+          "test_wav_sha256": "1e452e536ec77c0de61d7bd7892952ec01cbd1ff091c0480a05a0ce292a7b9a9",
+          "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206"
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "1e452e536ec77c0de61d7bd7892952ec01cbd1ff091c0480a05a0ce292a7b9a9",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "5ccaede2ae44fb11",
+      "split": "development",
+      "mode": "paired_reference",
+      "role": "natural_even_control",
+      "expected_outcome": "no_supported_fault",
+      "expected_causal_set": [],
+      "confidence_tier": "reference_supported",
+      "scoreable": true,
+      "source_id": "nsynth_master_bass_a_adj",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_bass_a",
+      "recording_key": "nsynth:master_bass_a_adj",
+      "transform_identity": "adjacent_window_identity_pair",
+      "test_wav_sha256": "8a5fa1806cb4694fb43337f0d0c548e37e2242eb7e59d5a24405df0ef09bc116",
+      "reference_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5",
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "paired_reference",
+          "test_wav_sha256": "8a5fa1806cb4694fb43337f0d0c548e37e2242eb7e59d5a24405df0ef09bc116",
+          "reference_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5"
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "paired_reference",
+          "test_wav_sha256": "8a5fa1806cb4694fb43337f0d0c548e37e2242eb7e59d5a24405df0ef09bc116",
+          "reference_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5"
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "8a5fa1806cb4694fb43337f0d0c548e37e2242eb7e59d5a24405df0ef09bc116",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "213a25e2a70a3de4",
+      "split": "development",
+      "mode": "paired_reference",
+      "role": "invalid_comparison",
+      "expected_outcome": "inconclusive",
+      "expected_causal_set": [],
+      "confidence_tier": "reference_supported",
+      "scoreable": true,
+      "source_id": "nsynth_cross_master",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_organ_a",
+      "recording_key": "nsynth:cross_f0_pair",
+      "transform_identity": "incompatible_fundamental_pair",
+      "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+      "reference_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5",
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "paired_reference",
+          "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+          "reference_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5"
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "paired_reference",
+          "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+          "reference_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5"
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "bb1d7e517157752f",
+      "split": "development",
+      "mode": "nominal_single_tone",
+      "role": "clean",
+      "expected_outcome": "no_supported_fault",
+      "expected_causal_set": [],
+      "confidence_tier": "reference_supported",
+      "scoreable": true,
+      "source_id": "nsynth_bass_a",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_bass_a",
+      "recording_key": "nsynth:bass_electronic_025-056-075",
+      "transform_identity": "identity",
+      "test_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5",
+      "reference_wav_sha256": null,
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "nominal_single_tone",
+          "test_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "nominal_single_tone",
+          "test_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "824406bf96fc6807",
+      "split": "development",
+      "mode": "nominal_single_tone",
+      "role": "clipping",
+      "expected_outcome": "supported_fault",
+      "expected_causal_set": [
+        "clipping"
+      ],
+      "confidence_tier": "strong_ground_truth",
+      "scoreable": true,
+      "source_id": "nsynth_organ_b",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_organ_b",
+      "recording_key": "nsynth:organ_electronic_028-067-075",
+      "transform_identity": "signal_diag.external_transform/1.1.0/clipping/q0.05",
+      "test_wav_sha256": "e0b00b772302443a448b2bf8d8ac2536937b60742e04afe037dd7b7fbad6a591",
+      "reference_wav_sha256": null,
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "nominal_single_tone",
+          "test_wav_sha256": "e0b00b772302443a448b2bf8d8ac2536937b60742e04afe037dd7b7fbad6a591",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "nominal_single_tone",
+          "test_wav_sha256": "e0b00b772302443a448b2bf8d8ac2536937b60742e04afe037dd7b7fbad6a591",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "e0b00b772302443a448b2bf8d8ac2536937b60742e04afe037dd7b7fbad6a591",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "fe7d2f3fbd1f160a",
+      "split": "development",
+      "mode": "nominal_single_tone",
+      "role": "harmonic",
+      "expected_outcome": "supported_fault",
+      "expected_causal_set": [
+        "harmonic_distortion"
+      ],
+      "confidence_tier": "strong_ground_truth",
+      "scoreable": true,
+      "source_id": "nsynth_bass_b",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_bass_b",
+      "recording_key": "nsynth:bass_electronic_025-059-050",
+      "transform_identity": "signal_diag.external_transform/1.1.0/second_harmonic_ampnorm/a0.25/pg1.0",
+      "test_wav_sha256": "4e91a67e7655131e02b90c366e87f263eef13927c41fce96490242d0a890291f",
+      "reference_wav_sha256": null,
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "nominal_single_tone",
+          "test_wav_sha256": "4e91a67e7655131e02b90c366e87f263eef13927c41fce96490242d0a890291f",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "nominal_single_tone",
+          "test_wav_sha256": "4e91a67e7655131e02b90c366e87f263eef13927c41fce96490242d0a890291f",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "4e91a67e7655131e02b90c366e87f263eef13927c41fce96490242d0a890291f",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "8e3fe2627ceb014e",
+      "split": "development",
+      "mode": "nominal_single_tone",
+      "role": "frequency_mismatch",
+      "expected_outcome": "inconclusive",
+      "expected_causal_set": [],
+      "confidence_tier": "reference_supported",
+      "scoreable": true,
+      "source_id": "nsynth_guitar_a",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_guitar_a",
+      "recording_key": "nsynth:guitar_acoustic_021-077-050",
+      "transform_identity": "declared_fundamental_mismatch_x1.5",
+      "test_wav_sha256": "290110cda9e8467764d76bba304163d606850e184bacba1be33f2dc737aa0dda",
+      "reference_wav_sha256": null,
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "nominal_single_tone",
+          "test_wav_sha256": "290110cda9e8467764d76bba304163d606850e184bacba1be33f2dc737aa0dda",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "nominal_single_tone",
+          "test_wav_sha256": "290110cda9e8467764d76bba304163d606850e184bacba1be33f2dc737aa0dda",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "290110cda9e8467764d76bba304163d606850e184bacba1be33f2dc737aa0dda",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "1e6779aaf38fc3c5",
+      "split": "development",
+      "mode": "single_signal",
+      "role": "clean",
+      "expected_outcome": "no_supported_fault",
+      "expected_causal_set": [],
+      "confidence_tier": "reference_supported",
+      "scoreable": true,
+      "source_id": "nsynth_organ_a",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_organ_a",
+      "recording_key": "nsynth:organ_electronic_028-077-050",
+      "transform_identity": "identity",
+      "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+      "reference_wav_sha256": null,
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "single_signal",
+          "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "single_signal",
+          "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "9d3fd93de0c07c66",
+      "split": "development",
+      "mode": "single_signal",
+      "role": "clipping",
+      "expected_outcome": "supported_fault",
+      "expected_causal_set": [
+        "clipping"
+      ],
+      "confidence_tier": "strong_ground_truth",
+      "scoreable": true,
+      "source_id": "nsynth_guitar_a",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_guitar_a",
+      "recording_key": "nsynth:guitar_acoustic_021-077-050",
+      "transform_identity": "signal_diag.external_transform/1.1.0/clipping/q0.05",
+      "test_wav_sha256": "21ba2cdc8f71561d8abc355667c010b821335485d05a6f596495d9dfbac838ad",
+      "reference_wav_sha256": null,
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "single_signal",
+          "test_wav_sha256": "21ba2cdc8f71561d8abc355667c010b821335485d05a6f596495d9dfbac838ad",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "single_signal",
+          "test_wav_sha256": "21ba2cdc8f71561d8abc355667c010b821335485d05a6f596495d9dfbac838ad",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "21ba2cdc8f71561d8abc355667c010b821335485d05a6f596495d9dfbac838ad",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "1944637f7bffe88a",
+      "split": "development",
+      "mode": "single_signal",
+      "role": "controlled_inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_set": [],
+      "confidence_tier": "reference_supported",
+      "scoreable": true,
+      "source_id": "nsynth_bass_a",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_bass_a",
+      "recording_key": "nsynth:bass_electronic_025-056-075",
+      "transform_identity": "additive_noise_snr_control_seed11",
+      "test_wav_sha256": "867baa1a612934a2b24e7f630def762f001597f4d05f45571898b7f94a317324",
+      "reference_wav_sha256": null,
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "single_signal",
+          "test_wav_sha256": "867baa1a612934a2b24e7f630def762f001597f4d05f45571898b7f94a317324",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "single_signal",
+          "test_wav_sha256": "867baa1a612934a2b24e7f630def762f001597f4d05f45571898b7f94a317324",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "867baa1a612934a2b24e7f630def762f001597f4d05f45571898b7f94a317324",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "cb52b33ba66ed39b",
+      "split": "development",
+      "mode": "single_signal",
+      "role": "domain_out_inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_set": [],
+      "confidence_tier": "weak_observation",
+      "scoreable": false,
+      "source_id": "esc10_100032_a0",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_esc10_100032_a0",
+      "recording_key": "esc:esc10_100032_a0",
+      "transform_identity": "identity_crop",
+      "test_wav_sha256": "8dace279a1f2f5f7569864d482acd15cbb276c58dddf0073543806fc7f19a25d",
+      "reference_wav_sha256": null,
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "single_signal",
+          "test_wav_sha256": "8dace279a1f2f5f7569864d482acd15cbb276c58dddf0073543806fc7f19a25d",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "single_signal",
+          "test_wav_sha256": "8dace279a1f2f5f7569864d482acd15cbb276c58dddf0073543806fc7f19a25d",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "8dace279a1f2f5f7569864d482acd15cbb276c58dddf0073543806fc7f19a25d",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "576843a58393a184",
+      "split": "development",
+      "mode": "single_signal",
+      "role": "domain_out_inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_set": [],
+      "confidence_tier": "weak_observation",
+      "scoreable": false,
+      "source_id": "esc10_100038_a14",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_esc10_100038_a14",
+      "recording_key": "esc:esc10_100038_a14",
+      "transform_identity": "identity_crop",
+      "test_wav_sha256": "2b80cdd73222bf3b029962f9e0cea5885eaba58bfe98e44fc5cb3ba7a4388c26",
+      "reference_wav_sha256": null,
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "single_signal",
+          "test_wav_sha256": "2b80cdd73222bf3b029962f9e0cea5885eaba58bfe98e44fc5cb3ba7a4388c26",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "single_signal",
+          "test_wav_sha256": "2b80cdd73222bf3b029962f9e0cea5885eaba58bfe98e44fc5cb3ba7a4388c26",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "2b80cdd73222bf3b029962f9e0cea5885eaba58bfe98e44fc5cb3ba7a4388c26",
+          "reference_wav_sha256": null
+        }
+      ]
+    },
+    {
+      "case_id": "fa1f8413027d6ac1",
+      "split": "development",
+      "mode": "single_signal",
+      "role": "domain_out_inconclusive",
+      "expected_outcome": "inconclusive",
+      "expected_causal_set": [],
+      "confidence_tier": "weak_observation",
+      "scoreable": false,
+      "source_id": "esc10_101336_a30",
+      "license_id": "CC-BY-4.0",
+      "parent_master_id": "master_esc10_101336_a30",
+      "recording_key": "esc:esc10_101336_a30",
+      "transform_identity": "identity_crop",
+      "test_wav_sha256": "f521a800235cd2b3b21b495f919f34dbcd55c76c1b219e9e56b95f8eb5da6bd3",
+      "reference_wav_sha256": null,
+      "arms": [
+        {
+          "arm": "contextual_agent",
+          "mode": "single_signal",
+          "test_wav_sha256": "f521a800235cd2b3b21b495f919f34dbcd55c76c1b219e9e56b95f8eb5da6bd3",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "fixed_pipeline",
+          "mode": "single_signal",
+          "test_wav_sha256": "f521a800235cd2b3b21b495f919f34dbcd55c76c1b219e9e56b95f8eb5da6bd3",
+          "reference_wav_sha256": null
+        },
+        {
+          "arm": "no_context_ablation",
+          "mode": "single_signal",
+          "test_wav_sha256": "f521a800235cd2b3b21b495f919f34dbcd55c76c1b219e9e56b95f8eb5da6bd3",
+          "reference_wav_sha256": null
+        }
+      ]
+    }
+  ],
+  "paired_harmonic_slots": [
+    {
+      "case_id": "3fc39ae70761089d",
+      "contextual": {
+        "arm": "contextual_agent",
+        "mode": "paired_reference",
+        "test_wav_sha256": "842b614751bdbff95007609454c09fc4615e455a779e5f34e589ec5ddb139ce6",
+        "reference_wav_sha256": "ae7c9e26224c97dafd38b47816e1db570b338d1ae3f5f1700cda2dab9bcc354e"
+      },
+      "ablation": {
+        "arm": "no_context_ablation",
+        "mode": "single_signal",
+        "test_wav_sha256": "842b614751bdbff95007609454c09fc4615e455a779e5f34e589ec5ddb139ce6",
+        "reference_wav_sha256": null
+      }
+    },
+    {
+      "case_id": "88c30f8a7b6e4e7d",
+      "contextual": {
+        "arm": "contextual_agent",
+        "mode": "paired_reference",
+        "test_wav_sha256": "4e91a67e7655131e02b90c366e87f263eef13927c41fce96490242d0a890291f",
+        "reference_wav_sha256": "c1f92a835a8a505048fde154df51fd27e3b59ce78580c9970356338510c8094c"
+      },
+      "ablation": {
+        "arm": "no_context_ablation",
+        "mode": "single_signal",
+        "test_wav_sha256": "4e91a67e7655131e02b90c366e87f263eef13927c41fce96490242d0a890291f",
+        "reference_wav_sha256": null
+      }
+    },
+    {
+      "case_id": "a97de111278f6294",
+      "contextual": {
+        "arm": "contextual_agent",
+        "mode": "paired_reference",
+        "test_wav_sha256": "0bf420944ce64518b050685e039586995ba93a371cdbb27d27aafdaf9be23831",
+        "reference_wav_sha256": "290110cda9e8467764d76bba304163d606850e184bacba1be33f2dc737aa0dda"
+      },
+      "ablation": {
+        "arm": "no_context_ablation",
+        "mode": "single_signal",
+        "test_wav_sha256": "0bf420944ce64518b050685e039586995ba93a371cdbb27d27aafdaf9be23831",
+        "reference_wav_sha256": null
+      }
+    },
+    {
+      "case_id": "b1747db1743a6132",
+      "contextual": {
+        "arm": "contextual_agent",
+        "mode": "paired_reference",
+        "test_wav_sha256": "c7e1dc079cfef7e55e62e3863e8ad5cd6f72ba8472a7f9db2a361e6f0fca39ed",
+        "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206"
+      },
+      "ablation": {
+        "arm": "no_context_ablation",
+        "mode": "single_signal",
+        "test_wav_sha256": "c7e1dc079cfef7e55e62e3863e8ad5cd6f72ba8472a7f9db2a361e6f0fca39ed",
+        "reference_wav_sha256": null
+      }
+    }
+  ]
+}

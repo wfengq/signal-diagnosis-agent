@@ -89,7 +89,7 @@ def _rule(
         comparator="eq",
         threshold=True,
         profile_id=profile_id,
-        profile_version="1.0.0-dev.1",
+        profile_version="1.0.0",
         evidence_refs=(),
     )
 
