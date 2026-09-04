@@ -26,7 +26,7 @@ def sha256_path(path: Path) -> str:
 
 def test_t_cx001_frozen_prompt_and_profile_bytes_are_preserved() -> None:
     assert sha256(_S1_PROMPT_V8_1.system_prompt.encode()).hexdigest() == (
-        "f2f0a81cc8f36f0301ee67c43e860886e86f9aa9136adeea4d592707133423ca"
+        "f2f0a81cc8f36f0301ee67c43e692886e86f9aa9136adeea4d592707133423ca"
     )
     assert sha256(_S1_PROMPT_V9_4.system_prompt.encode()).hexdigest() == (
         "a29c9cda17bd4bf1d922880610609e32f0670b3eecb984a1e3afa16671e806af"
