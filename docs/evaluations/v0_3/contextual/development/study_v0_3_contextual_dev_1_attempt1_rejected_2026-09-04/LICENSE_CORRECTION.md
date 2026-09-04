@@ -30,8 +30,8 @@ Official references:
 
 ## Attribution
 
-ESC-50: Dataset for Environmental Sound Classification  
-Author: Karol J. Piczak  
+ESC-50: Dataset for Environmental Sound Classification
+Author: Karol J. Piczak
 Citation: Piczak, K. J. (2015). ESC: Dataset for Environmental Sound Classification.
 In Proceedings of the 23rd ACM International Conference on Multimedia (pp. 1015–1018).
 
