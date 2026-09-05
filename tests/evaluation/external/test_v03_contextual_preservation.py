@@ -15,6 +15,7 @@ from signal_diag.agent.prompts_v03 import (
     _S1_PROMPT_V9_5,
     _S1_PROMPT_V9_6,
     _S1_PROMPT_V9_7,
+    _S1_PROMPT_V9_8,
 )
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -157,4 +158,34 @@ def test_t_cx186_v9_7_prompt_and_v9_8_registry_are_preserved() -> None:
     table_ids = re.findall(r"^\| (T-CX\d+) \|", registry, flags=re.MULTILINE)
     counts = Counter(table_ids)
     for number in range(186, 191):
+        assert counts[f"T-CX{number}"] == 1
+
+
+def test_t_cx191_v9_8_prompt_campaign_and_v9_9_registry_are_preserved() -> None:
+    digest = hashlib.sha256(_S1_PROMPT_V9_8.system_prompt.encode("utf-8")).hexdigest()
+    assert digest == (
+        "6d7e18dae4bc1b7e19e3430a9266e7d2c10496df194d3571390df025c6f7bf41"
+    )
+    campaign = (
+        REPO_ROOT
+        / "docs/evaluations/v0_3/contextual/development"
+        / "study_v0_3_contextual_dev_1/agent_v9_8_dev_confirmation_1"
+    )
+    expected = {
+        "run_summary.json": (
+            "62769b85349335aa22c9a7003aab42e62d206993c97a01a215c242cb514e5d28"
+        ),
+        "audit_report.json": (
+            "5fe0f34a96b718f7fe1529f41463ef34b9580027e77aa03950f0b456b22b0f7d"
+        ),
+        "STATUS.md": (
+            "e95329623cf45a103ce54ceb8ce6ec3a11e929faa599e02391d82acc52a244d7"
+        ),
+    }
+    for filename, expected_digest in expected.items():
+        assert sha256_path(campaign / filename) == expected_digest
+    registry = (REPO_ROOT / "docs/TEST_PLAN_V0_3_CONTEXTUAL.md").read_text("utf-8")
+    table_ids = re.findall(r"^\| (T-CX\d+) \|", registry, flags=re.MULTILINE)
+    counts = Counter(table_ids)
+    for number in range(191, 197):
         assert counts[f"T-CX{number}"] == 1

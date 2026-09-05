@@ -93,6 +93,6 @@ def build_product_service(
             }
         ),
         knowledge_index=KnowledgeIndex(_corpus_path()),
-        causal_policy_version="v9_8_claim_reference_recovery",
+        causal_policy_version="v9_9_paired_reference_recovery",
     )
     return DiagnosisApplicationService(dependencies)

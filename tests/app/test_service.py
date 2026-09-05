@@ -684,7 +684,7 @@ async def test_t251_product_defaults_and_missing_credentials_before_reservation(
         assert empty._dependencies.planner_identity.model == DEFAULT_DEEPSEEK_MODEL
         assert empty._dependencies.planner_identity.prompt_version == PROMPT_VERSION
         assert empty._dependencies.planner_identity.phase4_certified_default is False
-        assert empty._dependencies.causal_policy_version == "v9_8_claim_reference_recovery"
+        assert empty._dependencies.causal_policy_version == "v9_9_paired_reference_recovery"
         repository = empty._dependencies.repository
         with pytest.raises(PlannerNotConfiguredError) as exc:
             await empty.submit_wav(
@@ -723,10 +723,10 @@ async def test_t251_product_defaults_and_missing_credentials_before_reservation(
         defaults = build_product_service(environ={"DEEPSEEK_API_KEY": "sk-test"})
         assert defaults._dependencies.planner_identity.model == DEFAULT_DEEPSEEK_MODEL
         assert defaults._dependencies.planner_identity.prompt_version == (
-            "v0.3-s1-planner-9.8"
+            "v0.3-s1-planner-9.9"
         )
         assert defaults._dependencies.planner_identity.phase4_certified_default is False
-        assert defaults._dependencies.causal_policy_version == "v9_8_claim_reference_recovery"
+        assert defaults._dependencies.causal_policy_version == "v9_9_paired_reference_recovery"
         service_source = SERVICE_PATH.read_text(encoding="utf-8")
         assert "fastapi" not in service_source.lower()
         service_tree = ast.parse(service_source, filename=str(SERVICE_PATH))

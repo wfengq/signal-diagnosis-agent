@@ -664,3 +664,40 @@ _S1_PROMPT_V9_8 = _PlannerPromptSpec(
     version="v0.3-s1-planner-9.8",
     system_prompt=_S1_SYSTEM_PROMPT_V9_8,
 )
+
+
+def _build_s1_system_prompt_v9_9() -> str:
+    text = _replace_once(
+        _S1_SYSTEM_PROMPT_V9_8,
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.8).",
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.9).",
+        label="v9.9 version header",
+    )
+    anchor = (
+        "every listed deficit together in the next finish; do not alternate "
+        "single-field fixes.\n"
+    )
+    replacement = anchor + (
+        "\nFor paired_reference supported_fault harmonic_distortion, one finish must "
+        "cite together the same-run evaluations for: contextual analysis PASS, "
+        "F0 compatibility PASS, rule_reference_clipping_ratio_acceptable PASS, "
+        "rule_reference_flat_top_absent PASS, and "
+        "rule_even_harmonic_growth_acceptable FAIL. Treat paired_reference and "
+        "nominal_single_tone as separate recovery modes: in paired_reference, do "
+        "not substitute rule_nominal_thd_acceptable or nominal THD Evidence. When "
+        "a paired recoverable error lists multiple ruleval IDs, cite every listed "
+        "deficit together in the next finish.\n"
+    )
+    text = _replace_once(text, anchor, replacement, label="v9.9 paired recovery")
+    if "Never fall back to ScriptedPlanner" not in text:
+        raise RuntimeError("v9.9 prompt lost no-ScriptedPlanner guard")
+    if '"decision_type": "evaluate_rules"' in text:
+        raise RuntimeError("v9.9 prompt reintroduced manual rule example")
+    return text
+
+
+_S1_SYSTEM_PROMPT_V9_9 = _build_s1_system_prompt_v9_9()
+_S1_PROMPT_V9_9 = _PlannerPromptSpec(
+    version="v0.3-s1-planner-9.9",
+    system_prompt=_S1_SYSTEM_PROMPT_V9_9,
+)

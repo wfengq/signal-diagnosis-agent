@@ -24,6 +24,7 @@ CausalPolicyVersion = Literal[
     "v9_6_contextual",
     "v9_7_deterministic_rule_closure",
     "v9_8_claim_reference_recovery",
+    "v9_9_paired_reference_recovery",
 ]
 _CONTEXTUAL_CAUSAL_POLICIES = frozenset(
     {
@@ -31,6 +32,7 @@ _CONTEXTUAL_CAUSAL_POLICIES = frozenset(
         "v9_6_contextual",
         "v9_7_deterministic_rule_closure",
         "v9_8_claim_reference_recovery",
+        "v9_9_paired_reference_recovery",
     }
 )
 _SUBSTANTIAL_CLIPPING_RULE_IDS = frozenset(
@@ -343,6 +345,52 @@ def _collect_nominal_harmonic_deficits(
     return deficits
 
 
+def _collect_paired_harmonic_deficits(
+    claim: DiagnosisClaim,
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> list[str]:
+    requirements: tuple[tuple[str, Literal["pass", "fail"], str], ...] = (
+        (
+            "rule_contextual_analysis_valid",
+            "pass",
+            "contextual analysis PASS ruleval_id",
+        ),
+        (
+            "rule_contextual_f0_compatible",
+            "pass",
+            "contextual F0 compatibility PASS ruleval_id",
+        ),
+        (
+            "rule_reference_clipping_ratio_acceptable",
+            "pass",
+            "reference clipping ratio PASS ruleval_id",
+        ),
+        (
+            "rule_reference_flat_top_absent",
+            "pass",
+            "reference flat-top PASS ruleval_id",
+        ),
+        (
+            "rule_even_harmonic_growth_acceptable",
+            "fail",
+            "harmonic growth FAIL ruleval_id",
+        ),
+    )
+    deficits: list[str] = []
+    for rule_id, judgment, label in requirements:
+        if _has_cited_rule_judgment(
+            claim, evaluations_by_id, rule_id, judgment
+        ):
+            continue
+        deficits.append(
+            _format_id_hint(
+                label,
+                _available_rule_ids(evaluations_by_id, rule_id, judgment),
+            )
+        )
+    return deficits
+
+
 def _validate_v95_harmonic_supported(
     claim: DiagnosisClaim,
     context: StimulusContext,
@@ -432,6 +480,27 @@ def _validate_v98_harmonic_supported(
             "nominal harmonic_distortion claim incomplete; cite ALL of the "
             "following same-run IDs together in one finish (do not fix only "
             "one): " + "; ".join(deficits)
+        )
+
+
+def _validate_v99_harmonic_supported(
+    claim: DiagnosisClaim,
+    context: StimulusContext,
+    evidence_by_id: dict[str, Evidence],
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> None:
+    if context.mode != "paired_reference":
+        _validate_v98_harmonic_supported(
+            claim, context, evidence_by_id, evaluations_by_id
+        )
+        return
+    deficits = _collect_paired_harmonic_deficits(claim, evaluations_by_id)
+    if deficits:
+        raise DiagnosisValidationError(
+            "paired harmonic_distortion claim incomplete; cite ALL of the "
+            "following same-run ruleval IDs together in one finish (do not fix "
+            "only one and do not substitute nominal THD rules): "
+            + "; ".join(deficits)
         )
 
 
@@ -636,7 +705,14 @@ def validate_finish_decision(
                         claim, evidence_by_id, evaluations_by_id
                     )
                 elif claim.fault_type == "harmonic_distortion":
-                    if causal_policy_version == "v9_8_claim_reference_recovery":
+                    if causal_policy_version == "v9_9_paired_reference_recovery":
+                        _validate_v99_harmonic_supported(
+                            claim,
+                            stimulus_context,
+                            evidence_by_id,
+                            evaluations_by_id,
+                        )
+                    elif causal_policy_version == "v9_8_claim_reference_recovery":
                         _validate_v98_harmonic_supported(
                             claim,
                             stimulus_context,

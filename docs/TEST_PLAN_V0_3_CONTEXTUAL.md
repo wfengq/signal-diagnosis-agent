@@ -26,6 +26,7 @@
 | T-CX163..165 | v9.6 recorded-failure regressions |
 | T-CX166..185 | v9.7 deterministic rule closure |
 | T-CX186..190 | v9.8 claim-reference recovery |
+| T-CX191..196 | v9.9 paired-reference recovery |
 
 ## Registered identities (Task 1)
 
@@ -95,6 +96,17 @@
 | T-CX189 | v9.8 prompt freezes recovery wording; v9.7 bytes unchanged |
 | T-CX190 | Composition wires v9.8 and inherits v9.7 routing/closure/manual-rule rejection |
 
+## Registered identities (v9.9 paired-reference recovery)
+
+| ID | Title |
+|----|-------|
+| T-CX191 | v9.8 prompt SHA and recorded campaign artifacts remain unchanged; T-CX191–T-CX196 registered once |
+| T-CX192 | Paired harmonic finish retains all five existing causal rule requirements |
+| T-CX193 | Paired finish rejection lists every deficit with accurate same-run evaluation IDs |
+| T-CX194 | Combined finish keeps clipping and paired harmonic requirements independent |
+| T-CX195 | v9.9 prompt separates paired recovery from nominal recovery and freezes v9.8 bytes |
+| T-CX196 | Composition wires v9.9 while inheriting v9.8 routing, closure, and manual-rule rejection |
+
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
 v9.6 contextual remediation and must not alter T-CX001–T-CX145 meanings.
@@ -102,3 +114,5 @@ T-CX166–T-CX185 are additive for the v9.7 deterministic rule-closure remediati
 and must not alter T-CX001–T-CX165 meanings.
 T-CX186–T-CX190 are additive for the v9.8 claim-reference recovery remediation
 and must not alter T-CX001–T-CX185 meanings.
+T-CX191–T-CX196 are additive for the v9.9 paired-reference recovery remediation
+and must not alter T-CX001–T-CX190 meanings.

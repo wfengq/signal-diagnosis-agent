@@ -165,10 +165,11 @@ active mode. No positive fault + sibling `no_supported_fault`.
 
 ## 10. Planner identity
 
-Product contextual path uses frozen prompt identity `v0.3-s1-planner-9.8`
-with causal policy `v9_8_claim_reference_recovery`. Historical identities
+Product contextual path uses frozen prompt identity `v0.3-s1-planner-9.9`
+with causal policy `v9_9_paired_reference_recovery`. Historical identities
 remain immutable:
 
+- `v0.3-s1-planner-9.9` / `v9_9_paired_reference_recovery`
 - `v0.3-s1-planner-9.8` / `v9_8_claim_reference_recovery`
 - `v0.3-s1-planner-9.7` / `v9_7_deterministic_rule_closure` (bytes and finish semantics frozen)
 - `v0.3-s1-planner-9.6` / `v9_6_contextual` (bytes and finish semantics frozen)
@@ -184,6 +185,7 @@ CausalPolicyVersion =
   | "v9_6_contextual"
   | "v9_7_deterministic_rule_closure"
   | "v9_8_claim_reference_recovery"
+  | "v9_9_paired_reference_recovery"
 ```
 
 | Policy | Finish gates | Mode-aware harmonic Tool routing | Rule evaluation |
@@ -193,6 +195,7 @@ CausalPolicyVersion =
 | `v9_6_contextual` | reuses v9.5 contextual finish gates | rejects `analyze_harmonic_distortion` in `paired_reference` / `nominal_single_tone` before execution | manual `evaluate_rules` |
 | `v9_7_deterministic_rule_closure` | reuses v9.6 contextual finish gates | reuses v9.6 Tool-routing guard | automatic Tool-to-profile closure; planner `evaluate_rules` rejected |
 | `v9_8_claim_reference_recovery` | inherits v9.7 requirements; accumulates ID-bearing nominal-harmonic recovery errors | inherits v9.7 | inherits v9.7 automatic closure + manual rejection |
+| `v9_9_paired_reference_recovery` | inherits v9.8 requirements; also accumulates ID-bearing paired-harmonic recovery errors | inherits v9.8 | inherits v9.8 automatic closure + manual rejection |
 
 Under `v9_6_contextual` only:
 
@@ -296,6 +299,33 @@ Under `v9_8_claim_reference_recovery` only:
   performance improved.
 - A new real-model development confirmation requires separate written
   authorization and an append-only run directory.
+
+## 10.4 `v9_9_paired_reference_recovery`
+
+Under `v9_9_paired_reference_recovery` only:
+
+- Inherit every v9.8 finish requirement, routing rule, automatic closure rule,
+  and nominal recovery behavior without weakening it.
+- For `supported_fault` + `harmonic_distortion` + `paired_reference`, one
+  finish must simultaneously cite the existing five paired rule requirements:
+  contextual analysis PASS, contextual F0 compatibility PASS, reference
+  clipping-ratio PASS, reference flat-top PASS, and even-harmonic-growth FAIL.
+- A rejected paired finish lists all current deficits in one message and names
+  accurate same-run `evaluation_id` values when present.
+- Paired recovery must not suggest or accept
+  `rule_nominal_thd_acceptable` as a substitute for the paired growth rule.
+- Runtime must not insert claim references. Combined outcomes still require an
+  independently complete clipping claim and an independently complete paired
+  harmonic claim.
+- v9.8 prompt bytes, finish behavior, and recorded runs remain immutable.
+
+### Authorization / conclusion gates (v9.9)
+
+- `v9_9_harness_complete` is the strongest offline conclusion for this
+  remediation; it does not mean `development_confirmed`, validation passed, or
+  performance improved.
+- A new real-model development confirmation requires separate written
+  authorization and a new append-only run directory.
 
 ## 11. Evaluation
 

@@ -4,11 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import re
-from pathlib import Path
 
-from signal_diag.agent.planner import PROMPT_VERSION, RealLLMPlanner
 from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_7, _S1_PROMPT_V9_8
-from signal_diag.app.composition import build_product_service
 
 _FROZEN_V97_SHA256 = (
     "fc50d82fc7b5701388f5d35c7f50a157ed1c88f050e6057cd8f11caf280b982a"
@@ -38,21 +35,5 @@ def test_t_cx189_v98_prompt_freezes_recovery_and_preserves_v97() -> None:
     assert _NUMERIC_THRESHOLD_PATTERN.search(text) is None
 
 
-def test_t_cx190_product_wires_v98_identity() -> None:
-    assert PROMPT_VERSION == "v0.3-s1-planner-9.8"
-    assert RealLLMPlanner._prompt_spec.version == "v0.3-s1-planner-9.8"
-    service = build_product_service(environ={"DEEPSEEK_API_KEY": "sk-test"})
-    assert service._dependencies.causal_policy_version == (
-        "v9_8_claim_reference_recovery"
-    )
-    assert isinstance(service._dependencies.planner_factory(), RealLLMPlanner)
-    identity = service._dependencies.planner_identity
-    assert identity.prompt_version == "v0.3-s1-planner-9.8"
-    source = (
-        Path(__file__).resolve().parents[2]
-        / "src"
-        / "signal_diag"
-        / "app"
-        / "composition.py"
-    ).read_text(encoding="utf-8")
-    assert "ScriptedPlanner" not in source
+def test_t_cx190_v98_identity_remains_available_after_product_advances() -> None:
+    assert _S1_PROMPT_V9_8.version == "v0.3-s1-planner-9.8"

@@ -46,6 +46,7 @@ def required_rule_profile(
     if causal_policy_version not in {
         "v9_7_deterministic_rule_closure",
         "v9_8_claim_reference_recovery",
+        "v9_9_paired_reference_recovery",
     }:
         return None
     if tool_name == "analyze_harmonic_distortion":
