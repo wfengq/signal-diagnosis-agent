@@ -23,15 +23,16 @@ CausalPolicyVersion = Literal[
     "v9_5_contextual",
     "v9_6_contextual",
     "v9_7_deterministic_rule_closure",
+    "v9_8_claim_reference_recovery",
 ]
 _CONTEXTUAL_CAUSAL_POLICIES = frozenset(
     {
         "v9_5_contextual",
         "v9_6_contextual",
         "v9_7_deterministic_rule_closure",
+        "v9_8_claim_reference_recovery",
     }
 )
-
 _SUBSTANTIAL_CLIPPING_RULE_IDS = frozenset(
     {
         "rule_clipping_ratio_acceptable",
@@ -186,6 +187,162 @@ def _validate_clipping_supported(
         )
 
 
+def _available_metric_ids(
+    evidence_by_id: dict[str, Evidence],
+    metric: str,
+    value: object,
+) -> list[str]:
+    return [
+        item.evidence_id
+        for item in evidence_by_id.values()
+        if item.metric == metric and item.value == value and item.validity == "valid"
+    ]
+
+
+def _available_rule_ids(
+    evaluations_by_id: dict[str, RuleEvaluation],
+    rule_id: str,
+    judgment: Literal["pass", "fail"],
+) -> list[str]:
+    return [
+        item.evaluation_id
+        for item in evaluations_by_id.values()
+        if item.rule_id == rule_id and item.judgment == judgment
+    ]
+
+
+def _has_cited_metric(
+    claim: DiagnosisClaim,
+    evidence_by_id: dict[str, Evidence],
+    metric: str,
+    value: object,
+) -> bool:
+    for item in _cited_evidence(claim, evidence_by_id):
+        if item.metric == metric and item.value == value and item.validity == "valid":
+            return True
+    return False
+
+
+def _has_cited_rule_judgment(
+    claim: DiagnosisClaim,
+    evaluations_by_id: dict[str, RuleEvaluation],
+    rule_id: str,
+    judgment: Literal["pass", "fail"],
+) -> bool:
+    for evaluation in _cited_evaluations(claim, evaluations_by_id):
+        if evaluation.rule_id == rule_id and evaluation.judgment == judgment:
+            return True
+    return False
+
+
+def _nominal_thd_fail_evidence_ids(
+    evaluations_by_id: dict[str, RuleEvaluation],
+    evidence_by_id: dict[str, Evidence],
+) -> list[str]:
+    ids: list[str] = []
+    for evaluation in evaluations_by_id.values():
+        if (
+            evaluation.rule_id != "rule_nominal_thd_acceptable"
+            or evaluation.judgment != "fail"
+        ):
+            continue
+        for evidence_id in evaluation.evidence_refs:
+            item = evidence_by_id.get(evidence_id)
+            if item is not None and item.metric == "test_thd_percent":
+                ids.append(evidence_id)
+    return ids
+
+
+def _has_cited_nominal_thd_fail_evidence(
+    claim: DiagnosisClaim,
+    evaluations_by_id: dict[str, RuleEvaluation],
+    evidence_by_id: dict[str, Evidence],
+) -> bool:
+    cited = set(claim.evidence_refs)
+    for evaluation in _cited_evaluations(claim, evaluations_by_id):
+        if (
+            evaluation.rule_id != "rule_nominal_thd_acceptable"
+            or evaluation.judgment != "fail"
+        ):
+            continue
+        for evidence_id in evaluation.evidence_refs:
+            if evidence_id not in cited:
+                continue
+            item = evidence_by_id.get(evidence_id)
+            if item is not None and item.metric == "test_thd_percent":
+                return True
+    return False
+
+
+def _format_id_hint(label: str, ids: list[str]) -> str:
+    if not ids:
+        return f"missing {label} (no same-run ID available)"
+    joined = ", ".join(ids)
+    return f"missing {label} (cite {joined})"
+
+
+def _collect_nominal_harmonic_deficits(
+    claim: DiagnosisClaim,
+    evidence_by_id: dict[str, Evidence],
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> list[str]:
+    deficits: list[str] = []
+    if not _has_cited_rule_judgment(
+        claim, evaluations_by_id, "rule_contextual_analysis_valid", "pass"
+    ):
+        deficits.append(
+            _format_id_hint(
+                "contextual analysis PASS ruleval_id",
+                _available_rule_ids(
+                    evaluations_by_id, "rule_contextual_analysis_valid", "pass"
+                ),
+            )
+        )
+    if not _has_cited_rule_judgment(
+        claim, evaluations_by_id, "rule_contextual_f0_compatible", "pass"
+    ):
+        deficits.append(
+            _format_id_hint(
+                "contextual F0 compatibility PASS ruleval_id",
+                _available_rule_ids(
+                    evaluations_by_id, "rule_contextual_f0_compatible", "pass"
+                ),
+            )
+        )
+    if not _has_cited_metric(
+        claim, evidence_by_id, "test_series_kind", "even_order_present"
+    ):
+        deficits.append(
+            _format_id_hint(
+                "test_series_kind=even_order_present evidence_id",
+                _available_metric_ids(
+                    evidence_by_id, "test_series_kind", "even_order_present"
+                ),
+            )
+        )
+    if not _has_cited_rule_judgment(
+        claim, evaluations_by_id, "rule_nominal_thd_acceptable", "fail"
+    ):
+        deficits.append(
+            _format_id_hint(
+                "nominal THD FAIL ruleval_id",
+                _available_rule_ids(
+                    evaluations_by_id, "rule_nominal_thd_acceptable", "fail"
+                ),
+            )
+        )
+    if not _has_cited_nominal_thd_fail_evidence(
+        claim, evaluations_by_id, evidence_by_id
+    ):
+        deficits.append(
+            _format_id_hint(
+                "nominal THD FAIL test_thd_percent evidence_id",
+                _nominal_thd_fail_evidence_ids(evaluations_by_id, evidence_by_id),
+            )
+        )
+    return deficits
+
+
 def _validate_v95_harmonic_supported(
     claim: DiagnosisClaim,
     context: StimulusContext,
@@ -254,6 +411,28 @@ def _validate_v95_harmonic_supported(
         "rule_nominal_thd_acceptable",
         gate_name="nominal THD FAIL",
     )
+
+
+def _validate_v98_harmonic_supported(
+    claim: DiagnosisClaim,
+    context: StimulusContext,
+    evidence_by_id: dict[str, Evidence],
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> None:
+    if context.mode != "nominal_single_tone":
+        _validate_v95_harmonic_supported(
+            claim, context, evidence_by_id, evaluations_by_id
+        )
+        return
+    deficits = _collect_nominal_harmonic_deficits(
+        claim, evidence_by_id, evaluations_by_id
+    )
+    if deficits:
+        raise DiagnosisValidationError(
+            "nominal harmonic_distortion claim incomplete; cite ALL of the "
+            "following same-run IDs together in one finish (do not fix only "
+            "one): " + "; ".join(deficits)
+        )
 
 
 def _validate_v95_no_supported_fault(
@@ -419,6 +598,15 @@ def validate_finish_decision(
         if not _claim_requires_evidence(claim, decision.outcome):
             continue
         if not claim.evidence_refs:
+            if (
+                causal_policy_version == "v9_8_claim_reference_recovery"
+                and decision.outcome == "supported_fault"
+                and claim.fault_type == "harmonic_distortion"
+                and stimulus_context is not None
+                and stimulus_context.mode == "nominal_single_tone"
+                and evidence is not None
+            ):
+                continue
             raise DiagnosisValidationError(
                 f"claim {claim.claim_id} requires evidence references"
             )
@@ -448,12 +636,20 @@ def validate_finish_decision(
                         claim, evidence_by_id, evaluations_by_id
                     )
                 elif claim.fault_type == "harmonic_distortion":
-                    _validate_v95_harmonic_supported(
-                        claim,
-                        stimulus_context,
-                        evidence_by_id,
-                        evaluations_by_id,
-                    )
+                    if causal_policy_version == "v9_8_claim_reference_recovery":
+                        _validate_v98_harmonic_supported(
+                            claim,
+                            stimulus_context,
+                            evidence_by_id,
+                            evaluations_by_id,
+                        )
+                    else:
+                        _validate_v95_harmonic_supported(
+                            claim,
+                            stimulus_context,
+                            evidence_by_id,
+                            evaluations_by_id,
+                        )
             elif decision.outcome == "no_supported_fault" and (
                 claim.fault_type == "no_supported_fault"
             ):

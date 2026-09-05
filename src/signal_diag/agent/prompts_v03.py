@@ -614,3 +614,53 @@ _S1_PROMPT_V9_7 = _PlannerPromptSpec(
     version="v0.3-s1-planner-9.7",
     system_prompt=_S1_SYSTEM_PROMPT_V9_7,
 )
+
+
+def _build_s1_system_prompt_v9_8() -> str:
+    text = _replace_once(
+        _S1_SYSTEM_PROMPT_V9_7,
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.7).",
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.8).",
+        label="v9.8 version header",
+    )
+    text = _replace_once(
+        text,
+        (
+            "nominal_single_tone conclusions remain conditional on the declaration. "
+            "Measured\n"
+            "F0 must match the declared fundamental with same-run Evidence. If nominal\n"
+            "contextual qualification or F0 compatibility fails, finish inconclusive with\n"
+            "same-run grounding and a limitation describing the declaration mismatch. "
+            "Do not emit no_supported_fault merely because clipping and absolute THD "
+            "appear to pass.\n"
+        ),
+        (
+            "nominal_single_tone conclusions remain conditional on the declaration. "
+            "Measured\n"
+            "F0 must match the declared fundamental with same-run Evidence. If nominal\n"
+            "contextual qualification or F0 compatibility fails, finish inconclusive with\n"
+            "same-run grounding and a limitation describing the declaration mismatch. "
+            "Do not emit no_supported_fault merely because clipping and absolute THD "
+            "appear to pass.\n\n"
+            "For nominal_single_tone supported_fault harmonic_distortion, one finish must "
+            "cite together: contextual analysis PASS, F0 compatibility PASS, "
+            "test_series_kind=even_order_present Evidence, rule_nominal_thd_acceptable "
+            "FAIL, and that FAIL rule's corresponding test_thd_percent Evidence. When "
+            "recoverable_errors list multiple same-run evidence_id or ruleval IDs, repair "
+            "every listed deficit together in the next finish; do not alternate "
+            "single-field fixes.\n"
+        ),
+        label="v9.8 nominal recovery",
+    )
+    if "Never fall back to ScriptedPlanner" not in text:
+        raise RuntimeError("v9.8 prompt lost no-ScriptedPlanner guard")
+    if '"decision_type": "evaluate_rules"' in text:
+        raise RuntimeError("v9.8 prompt reintroduced manual rule example")
+    return text
+
+
+_S1_SYSTEM_PROMPT_V9_8 = _build_s1_system_prompt_v9_8()
+_S1_PROMPT_V9_8 = _PlannerPromptSpec(
+    version="v0.3-s1-planner-9.8",
+    system_prompt=_S1_SYSTEM_PROMPT_V9_8,
+)

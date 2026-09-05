@@ -38,6 +38,7 @@ from signal_diag.agent.prompts_v03 import (
     _S1_PROMPT_V9_5,
     _S1_PROMPT_V9_6,
     _S1_PROMPT_V9_7,
+    _S1_PROMPT_V9_8,
 )
 from signal_diag.signal.models import SignalMeta
 from signal_diag.tools.registry import get_tool_descriptors
@@ -338,10 +339,11 @@ def test_t216_public_planner_selects_v9_and_private_v8_1_keeps_frozen_v8_1() -> 
     assert _S1_PROMPT_V9_5.version == "v0.3-s1-planner-9.5"
     assert _S1_PROMPT_V9_6.version == "v0.3-s1-planner-9.6"
     assert _S1_PROMPT_V9_7.version == "v0.3-s1-planner-9.7"
-    assert RealLLMPlanner._prompt_spec is _S1_PROMPT_V9_7
+    assert _S1_PROMPT_V9_8.version == "v0.3-s1-planner-9.8"
+    assert RealLLMPlanner._prompt_spec is _S1_PROMPT_V9_8
     assert _Phase4V8_1RealLLMPlanner._prompt_spec is _S1_PROMPT_V8_1
-    assert PROMPT_VERSION == "v0.3-s1-planner-9.7"
-    assert _SYSTEM_PROMPT == _S1_PROMPT_V9_7.system_prompt
+    assert PROMPT_VERSION == "v0.3-s1-planner-9.8"
+    assert _SYSTEM_PROMPT == _S1_PROMPT_V9_8.system_prompt
     assert _Phase4V8RealLLMPlanner._prompt_spec is _S1_PROMPT_V8
     assert _Phase4V8RealLLMPlanner._prompt_spec.version == _FROZEN_V8_VERSION
     v8_digest, v8_size = _utf8_sha256(_Phase4V8RealLLMPlanner._prompt_spec.system_prompt)

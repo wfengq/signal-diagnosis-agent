@@ -170,7 +170,7 @@ def _make_service(
             }
         ),
         knowledge_index=KnowledgeIndex(CORPUS_PATH),
-        causal_policy_version="v9_7_deterministic_rule_closure",
+        causal_policy_version="v9_8_claim_reference_recovery",
     )
     return DiagnosisApplicationService(dependencies, clock=lambda: NOW)
 
@@ -466,7 +466,7 @@ async def test_t_cx104_runtime_receives_stimulus_context_and_policy() -> None:
     planner = _ContextualThenFinishPlanner()
     service = _make_service(lambda: planner)
     try:
-        assert service._dependencies.causal_policy_version == "v9_7_deterministic_rule_closure"
+        assert service._dependencies.causal_policy_version == "v9_8_claim_reference_recovery"
         submission = await service.submit_contextual_wav(
             _mono_wav(),
             test_filename="test.wav",

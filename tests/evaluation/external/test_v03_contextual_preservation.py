@@ -14,6 +14,7 @@ from signal_diag.agent.prompts_v03 import (
     _S1_PROMPT_V9_4,
     _S1_PROMPT_V9_5,
     _S1_PROMPT_V9_6,
+    _S1_PROMPT_V9_7,
 )
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -144,4 +145,16 @@ def test_t_cx166_v9_6_prompt_run_and_v9_7_registry_are_preserved() -> None:
     table_ids = re.findall(r"^\| (T-CX\d+) \|", registry, flags=re.MULTILINE)
     counts = Counter(table_ids)
     for number in range(166, 186):
+        assert counts[f"T-CX{number}"] == 1
+
+
+def test_t_cx186_v9_7_prompt_and_v9_8_registry_are_preserved() -> None:
+    digest = hashlib.sha256(_S1_PROMPT_V9_7.system_prompt.encode("utf-8")).hexdigest()
+    assert digest == (
+        "fc50d82fc7b5701388f5d35c7f50a157ed1c88f050e6057cd8f11caf280b982a"
+    )
+    registry = (REPO_ROOT / "docs/TEST_PLAN_V0_3_CONTEXTUAL.md").read_text("utf-8")
+    table_ids = re.findall(r"^\| (T-CX\d+) \|", registry, flags=re.MULTILINE)
+    counts = Counter(table_ids)
+    for number in range(186, 191):
         assert counts[f"T-CX{number}"] == 1

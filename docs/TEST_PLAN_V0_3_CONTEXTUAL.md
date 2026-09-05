@@ -25,6 +25,7 @@
 | T-CX155..162 | v9.6 prompt and composition |
 | T-CX163..165 | v9.6 recorded-failure regressions |
 | T-CX166..185 | v9.7 deterministic rule closure |
+| T-CX186..190 | v9.8 claim-reference recovery |
 
 ## Registered identities (Task 1)
 
@@ -84,8 +85,20 @@
 | T-CX184 | Deterministic replay covers clean, natural-even, harmonic, combined, and clipping fixtures |
 | T-CX185 | Cumulative architecture, preservation, packaging, and registry gate |
 
+## Registered identities (v9.8 claim-reference recovery)
+
+| ID | Title |
+|----|-------|
+| T-CX186 | v9.7 prompt SHA remains frozen; T-CX186–T-CX190 registered once |
+| T-CX187 | Nominal harmonic finish requires all five citations together under v9.8 |
+| T-CX188 | Finish rejection lists all deficits with same-run evidence_id/ruleval IDs |
+| T-CX189 | v9.8 prompt freezes recovery wording; v9.7 bytes unchanged |
+| T-CX190 | Composition wires v9.8 and inherits v9.7 routing/closure/manual-rule rejection |
+
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
 v9.6 contextual remediation and must not alter T-CX001–T-CX145 meanings.
 T-CX166–T-CX185 are additive for the v9.7 deterministic rule-closure remediation
 and must not alter T-CX001–T-CX165 meanings.
+T-CX186–T-CX190 are additive for the v9.8 claim-reference recovery remediation
+and must not alter T-CX001–T-CX185 meanings.

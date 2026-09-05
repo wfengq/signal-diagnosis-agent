@@ -165,11 +165,12 @@ active mode. No positive fault + sibling `no_supported_fault`.
 
 ## 10. Planner identity
 
-Product contextual path uses frozen prompt identity `v0.3-s1-planner-9.7`
-with causal policy `v9_7_deterministic_rule_closure`. Historical identities
+Product contextual path uses frozen prompt identity `v0.3-s1-planner-9.8`
+with causal policy `v9_8_claim_reference_recovery`. Historical identities
 remain immutable:
 
-- `v0.3-s1-planner-9.7` / `v9_7_deterministic_rule_closure`
+- `v0.3-s1-planner-9.8` / `v9_8_claim_reference_recovery`
+- `v0.3-s1-planner-9.7` / `v9_7_deterministic_rule_closure` (bytes and finish semantics frozen)
 - `v0.3-s1-planner-9.6` / `v9_6_contextual` (bytes and finish semantics frozen)
 - `v0.3-s1-planner-9.5` / `v9_5_contextual` (bytes and finish semantics frozen)
 - `v0.3-s1-planner-9.4` and earlier
@@ -182,6 +183,7 @@ CausalPolicyVersion =
   | "v9_5_contextual"
   | "v9_6_contextual"
   | "v9_7_deterministic_rule_closure"
+  | "v9_8_claim_reference_recovery"
 ```
 
 | Policy | Finish gates | Mode-aware harmonic Tool routing | Rule evaluation |
@@ -190,6 +192,7 @@ CausalPolicyVersion =
 | `v9_5_contextual` | frozen v9.5 contextual gates | none (historical) | manual `evaluate_rules` |
 | `v9_6_contextual` | reuses v9.5 contextual finish gates | rejects `analyze_harmonic_distortion` in `paired_reference` / `nominal_single_tone` before execution | manual `evaluate_rules` |
 | `v9_7_deterministic_rule_closure` | reuses v9.6 contextual finish gates | reuses v9.6 Tool-routing guard | automatic Tool-to-profile closure; planner `evaluate_rules` rejected |
+| `v9_8_claim_reference_recovery` | inherits v9.7 requirements; accumulates ID-bearing nominal-harmonic recovery errors | inherits v9.7 | inherits v9.7 automatic closure + manual rejection |
 
 Under `v9_6_contextual` only:
 
@@ -262,6 +265,38 @@ automatic rule event.
   performance improved.
 - Real-model confirmation, validation access, and push/PR remain separately
   authorized.
+
+## 10.3 `v9_8_claim_reference_recovery`
+
+Under `v9_8_claim_reference_recovery` only:
+
+- Inherit v9.7 Tool→profile mapping, automatic Evidence suffix, manual rule
+  rejection, and chronological Observation→RuleEvaluation provenance.
+- Finish requirement sets are not weakened relative to v9.7.
+- For `supported_fault` + `harmonic_distortion` + `nominal_single_tone`, one
+  finish must simultaneously cite:
+  1. `rule_contextual_analysis_valid=pass`
+  2. `rule_contextual_f0_compatible=pass`
+  3. valid `test_series_kind=even_order_present` Evidence
+  4. `rule_nominal_thd_acceptable=fail`
+  5. the FAIL rule’s corresponding `test_thd_percent` Evidence
+- When any of those citations are missing, the recoverable error lists **all**
+  current deficits in one message, naming accurate same-run `evidence_id` /
+  `evaluation_id` values when present, and requires repairing every listed
+  deficit together on the next finish.
+- Runtime must not insert claim `evidence_refs` or `rule_refs`; the Planner
+  remains responsible for selecting and submitting citations.
+- Frozen v9.7 prompt bytes, policy semantics, and recorded runs remain
+  immutable.
+
+### Authorization / conclusion gates (v9.8)
+
+- `v9_8_harness_complete` is the strongest offline conclusion for this
+  remediation; it does not mean `development_confirmed`, validation passed, or
+  performance improved.
+- A new real-model development confirmation requires separate written
+  authorization and an append-only run directory.
+
 ## 11. Evaluation
 
 Separate contextual evaluation package under `evaluation/contextual/` with

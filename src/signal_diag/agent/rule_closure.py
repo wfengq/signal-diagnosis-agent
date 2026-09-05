@@ -43,7 +43,10 @@ def required_rule_profile(
     stimulus_context: StimulusContext,
     tool_name: ToolName,
 ) -> RuleClosureProfileId | None:
-    if causal_policy_version != "v9_7_deterministic_rule_closure":
+    if causal_policy_version not in {
+        "v9_7_deterministic_rule_closure",
+        "v9_8_claim_reference_recovery",
+    }:
         return None
     if tool_name == "analyze_harmonic_distortion":
         return (
