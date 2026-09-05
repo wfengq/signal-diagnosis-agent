@@ -347,6 +347,41 @@ maps only same-run Evidence and rule evaluations to a grounded diagnosis. A
 manifest `ContextualCase` passed at the execution boundary is rejected. Offline
 test oracles are explicit injected test doubles and are not validation arms.
 
+### 11.2 Contextual validation campaign runner
+
+The validation runner consumes sealed, truth-free `execution_inputs.json` and
+non-secret `runtime_identity.json`
+containing only case ID, diagnostic mode, local test/reference WAV paths, and
+the declared nominal stimulus fields required by that mode. It rejects any
+historical seal, non-zero execution ledger, identity/checksum mismatch, missing
+credential, unsafe path, duplicate slot, or existing output directory before
+constructing the real executor. Preflight pins the canonical active-seal path,
+the append-only supersession status and seal-index SHA, recomputes the live
+prompt/profile/scoring/product-tree/harness identities, and rejects any
+provider/model/base-URL/planner/prompt/policy mismatch before execution.
+
+Execution order is frozen and arm-major: all 20 `contextual_agent` slots, then
+all 20 truth-free `fixed_pipeline` slots, then all 20
+`no_context_ablation` slots. Each slot has one attempt. Behavioral failure
+occupies its frozen denominator and execution continues; infrastructure failure
+stops the campaign immediately. The two Agent arms use `RealLLMPlanner`; no
+ScriptedPlanner fallback is legal. WAV bytes remain local to the application
+and deterministic baseline boundaries and are never serialized into campaign
+artifacts or provider context.
+
+The evaluation layer owns truth-free plans, fixed execution, persistence, and
+scoring. The product-backed RealLLMPlanner adapter and guarded live-run CLI live
+under `app/`, preserving the frozen dependency direction; evaluation never
+imports application composition.
+
+Campaign startup copies the non-secret seal identity into the new output.
+Truth-bearing manifest fields are loaded for scoring only after all 60 slots
+are terminal. The runner preserves attempts, trace, result, case summary,
+execution ledger, run summary, metrics, audit, and status as append-only artifacts. Only the
+`contextual_agent` arm determines target status; fixed pipeline and no-context
+ablation remain required comparisons. Final-test access, validation-driven
+tuning, and rewriting historical seals/runs are forbidden.
+
 ## 12. Authorization gates (product ops)
 
 Separate explicit authorizations required for: public audio acquisition,

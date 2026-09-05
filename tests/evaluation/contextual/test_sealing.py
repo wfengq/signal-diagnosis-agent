@@ -107,8 +107,10 @@ def test_t_cx207_active_replacement_seal_preserves_study_inputs() -> None:
         / "study_v0_3_contextual_validation_1"
     )
     historical = study / "validation_seal"
-    active = study / "validation_seal_v2"
+    replacement = study / "validation_seal_v2"
+    active = study / "validation_seal_v3"
     verify_contextual_bundle(historical)
+    verify_contextual_bundle(replacement)
     verify_contextual_bundle(active)
     for name in (
         "manifest.json",
@@ -116,10 +118,56 @@ def test_t_cx207_active_replacement_seal_preserves_study_inputs() -> None:
         "source_decisions.json",
         "slot_plan.json",
     ):
-        assert (historical / name).read_bytes() == (active / name).read_bytes()
+        assert (historical / name).read_bytes() == (replacement / name).read_bytes()
+        assert (replacement / name).read_bytes() == (active / name).read_bytes()
     supersession = json.loads(
         (study / "VALIDATION_SEAL_SUPERSESSION.json").read_text(encoding="utf-8")
     )
     assert supersession["original_seal"]["executed_arms"] == 0
     assert supersession["replacement_seal"]["executed_arms"] == 0
-    assert supersession["replacement_seal"]["status"] == "active_model_not_run"
+    assert supersession["replacement_seal"]["status"] == (
+        "superseded_unexecuted_historical_seal"
+    )
+    assert supersession["active_seal"]["executed_arms"] == 0
+    assert supersession["active_seal"]["status"] == "active_model_not_run"
+
+
+def test_t_cx211_v3_seal_binds_truth_free_execution_inputs(
+    validation_manifest: ContextualManifest,
+    tmp_path: Path,
+) -> None:
+    destination = tmp_path / "seal-v3"
+    execution_inputs = [
+        {
+            "case_id": case.case_id,
+            "mode": "single_signal",
+            "test_wav_path": f"wav/{case.case_id}.wav",
+            "reference_wav_path": None,
+            "nominal_fundamental_hz": None,
+            "stimulus_kind": None,
+        }
+        for case in validation_manifest.cases
+    ]
+    seal_contextual_bundle(
+        destination=destination,
+        manifest=validation_manifest,
+        wav_checksums={"x": "b" * 64},
+        source_decisions={},
+        product_code_sha256="d" * 64,
+        evaluation_harness_sha256="c" * 64,
+        prompt_sha256="e" * 64,
+        profile_s1_sha256="f" * 64,
+        profile_contextual_sha256="a" * 64,
+        scoring_identity="id",
+        slot_plan=[],
+        execution_inputs=execution_inputs,
+        execution_counters={"executed_arms": 0},
+    )
+
+    assert json.loads(
+        (destination / "execution_inputs.json").read_text(encoding="utf-8")
+    ) == execution_inputs
+    verify_contextual_bundle(destination)
+    (destination / "execution_inputs.json").write_text("[]\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="hash mismatch"):
+        verify_contextual_bundle(destination)

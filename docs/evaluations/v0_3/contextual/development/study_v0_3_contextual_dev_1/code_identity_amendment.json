@@ -31,5 +31,18 @@
   "calibration_recompute_unchanged": true,
   "selected_threshold_percent_unchanged": 5.0,
   "model_calls": 0
+},
+{
+  "amendment_id": "code_identity_after_validation_campaign_runner",
+  "amendment_kind": "append_only_code_identity",
+  "created_at_utc": "2026-09-06T00:00:00+00:00",
+  "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+  "current_implementation_sha256": "9c3844a2b73e8ba060c9bdbeff75434a91feb111f12a8d23c57f6ff2dee7bc94",
+  "prior_bridge_current_implementation_sha256": "9d45558384ab44d5077d9826dab8f3b35f5333d949d773755d67f54124c4f017",
+  "scope": "evaluation-only append-only contextual validation runner, provider-facing adapter identity, preflight, delayed scoring, and truth-free execution/runtime-identity sealing; no DSP, product prompt, causal policy, profile, threshold, WAV, label, or scoring identity change",
+  "qualification_recompute_unchanged": true,
+  "calibration_recompute_unchanged": true,
+  "selected_threshold_percent_unchanged": 5.0,
+  "model_calls": 0
 }
 ]

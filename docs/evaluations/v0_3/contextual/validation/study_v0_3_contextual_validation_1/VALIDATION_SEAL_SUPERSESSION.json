@@ -14,8 +14,61 @@
   "replacement_seal": {
     "directory": "validation_seal_v2",
     "seal_id_sha256": "32db0f484ad29d60c41814f44ecca7a74602e3d0d15090fcecefabfed681c4ac",
-    "status": "active_model_not_run",
+    "status": "superseded_unexecuted_historical_seal",
     "evaluation_harness_sha256": "9d45558384ab44d5077d9826dab8f3b35f5333d949d773755d67f54124c4f017",
+    "completed_cases": 0,
+    "executed_arms": 0,
+    "model_calls": 0
+  },
+  "runner_construction_draft": {
+    "directory": "validation_seal_v3_historical_draft",
+    "seal_id_sha256": "05bcdf1a8c387b1ef123ee01956718d54a850fbefcb55ded739cff206d542b16",
+    "status": "superseded_unexecuted_historical_draft",
+    "reason": "Preflight checksum-key regression was found after draft creation and before activation.",
+    "completed_cases": 0,
+    "executed_arms": 0,
+    "model_calls": 0,
+    "files_modified": false
+  },
+  "runner_architecture_draft": {
+    "directory": "validation_seal_v3_historical_draft_pre_architecture_fix",
+    "seal_id_sha256": "a51846294ca5f58e3ccb725b1ddfcf31710ae3cfc98ccc336f24a416518ef5ae",
+    "status": "superseded_unexecuted_historical_draft",
+    "reason": "The draft imported app composition from evaluation and failed the frozen architecture boundary before activation.",
+    "evaluation_harness_sha256": "573941e4bbb3e037c18d4b22d9700ca98ac797fe06e3cb676361388befd8837f",
+    "completed_cases": 0,
+    "executed_arms": 0,
+    "model_calls": 0,
+    "files_modified": false
+  },
+  "runner_pre_review_draft": {
+    "directory": "validation_seal_v3_historical_draft_pre_bugbot_review",
+    "seal_id_sha256": "61628d7584c6c797ee551c76bce39fb63e49a30f90d4cd39074089e2b29934c1",
+    "status": "superseded_unexecuted_historical_draft",
+    "reason": "Review found incomplete live-product/runtime identity binding, active-seal pinning, and campaign output/CLI contract gaps before execution.",
+    "evaluation_harness_sha256": "24e89f6c8a742347232265003a141e14c306c57e4a4b95f700d8ac5974dd3b5d",
+    "completed_cases": 0,
+    "executed_arms": 0,
+    "model_calls": 0,
+    "files_modified": false
+  },
+  "runner_pre_lint_draft": {
+    "directory": "validation_seal_v3_historical_draft_pre_lint_fix",
+    "seal_id_sha256": "8efeb8fe7b32d68043a9b1d99da1128ab352db2cb4d519e86d6ed6767ae91dbc",
+    "status": "superseded_unexecuted_historical_draft",
+    "reason": "The reviewed draft was preserved after an import-order-only Ruff fix changed the sealed harness bytes.",
+    "evaluation_harness_sha256": "68e32e18648c59c833788c209b58e84f479de10bfce02940905ccfa12870bd77",
+    "completed_cases": 0,
+    "executed_arms": 0,
+    "model_calls": 0,
+    "files_modified": false
+  },
+  "active_seal": {
+    "directory": "validation_seal_v3",
+    "seal_id_sha256": "8e69f19343466c4222581b1326c9560217847bdb2d37bbd8e6c51edfd196d3a9",
+    "status": "active_model_not_run",
+    "evaluation_harness_sha256": "9c3844a2b73e8ba060c9bdbeff75434a91feb111f12a8d23c57f6ff2dee7bc94",
+    "product_tree_sha256": "2eff9095d256c726b52f0a24397a5fb2afa8944381b84d776eb5cdb531f1473f",
     "completed_cases": 0,
     "executed_arms": 0,
     "model_calls": 0

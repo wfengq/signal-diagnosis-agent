@@ -11,6 +11,9 @@ from signal_diag.evaluation.contextual.calibration import (
     calibrate_even_growth_threshold,
     contextual_implementation_sha256,
 )
+from signal_diag.evaluation.contextual.campaign import (
+    preflight_contextual_validation,
+)
 from signal_diag.evaluation.contextual.manifest import (
     load_contextual_manifest,
     validate_contextual_manifest,
@@ -71,6 +74,15 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     shadow_cmd.add_argument("--run-dir", type=Path, required=True)
     shadow_cmd.add_argument("--destination", type=Path, required=True)
+
+    preflight_cmd = sub.add_parser(
+        "preflight-validation",
+        help="Verify an unexecuted contextual validation seal without model calls",
+    )
+    preflight_cmd.add_argument("--study-dir", type=Path, required=True)
+    preflight_cmd.add_argument("--seal", type=Path, required=True)
+    preflight_cmd.add_argument("--output", type=Path, required=True)
+
     return parser
 
 
@@ -139,6 +151,8 @@ def main(argv: list[str] | None = None) -> int:
             profile_contextual_sha256=meta["profile_contextual_sha256"],
             scoring_identity=meta["scoring_identity"],
             slot_plan=meta["slot_plan"],
+            execution_inputs=meta.get("execution_inputs"),
+            runtime_identity=meta.get("runtime_identity"),
             execution_counters=meta["execution_counters"],
         )
         print(args.destination)
@@ -165,6 +179,14 @@ def main(argv: list[str] | None = None) -> int:
             ),
         )
         print("shadow_replay_complete")
+        return 0
+    if args.command == "preflight-validation":
+        preflight = preflight_contextual_validation(
+            study_dir=args.study_dir,
+            seal_dir=args.seal,
+            output=args.output,
+        )
+        print(json.dumps(preflight.record, sort_keys=True))
         return 0
     parser.error(f"unknown command: {args.command}")
     return 2

@@ -1,0 +1,13 @@
+{
+  "authorization": "user-approved contextual validation seal after construction review",
+  "case_build_record_sha256": "86bcb385a6a5f0256f957e5641492dfc62146221e4cd6cc43bfba3d506860012",
+  "construction_audit_sha256": "09ec22eaf22803de546e161e2c80f646c7dc43cd195d63c65fb636bbdef4f40d",
+  "final_test_entered": false,
+  "model_run": false,
+  "protocol_commit": "e6ea5fbec3cecdb47a317054d201a44ec74233af",
+  "qualification_report_sha256": "c237e3857099319c18e435a22187180e39bfe4cd5ae61b34c3995a7ba0764d31",
+  "review_mode": "single_reviewer_provenance_audit",
+  "source_catalog_sha256": "c741b89d158c0ff649799c044180beb85eaef833c84c0c7859ca019b065bea27",
+  "source_decision_record_sha256": "58dd3353bfce5e6bd780348e61feacdd50fe62aa6779e44f481a3842b2cbc88b",
+  "study_id": "study_v0_3_contextual_validation_1"
+}

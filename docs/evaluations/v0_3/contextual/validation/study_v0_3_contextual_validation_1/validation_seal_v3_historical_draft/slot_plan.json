@@ -1,0 +1,102 @@
+[
+  {
+    "case_id": "f159f483605aed01",
+    "decision_index": 0,
+    "slot_id": "cxval_pair_clean_01"
+  },
+  {
+    "case_id": "84fd2af41fdc1d54",
+    "decision_index": 1,
+    "slot_id": "cxval_pair_clip_01"
+  },
+  {
+    "case_id": "313d7f95b2e95656",
+    "decision_index": 2,
+    "slot_id": "cxval_pair_clip_02"
+  },
+  {
+    "case_id": "6334f80c9b6b30be",
+    "decision_index": 3,
+    "slot_id": "cxval_pair_harm_01"
+  },
+  {
+    "case_id": "773852f7513151f1",
+    "decision_index": 4,
+    "slot_id": "cxval_pair_harm_02"
+  },
+  {
+    "case_id": "2ca9870c96ed589d",
+    "decision_index": 5,
+    "slot_id": "cxval_pair_combined_01"
+  },
+  {
+    "case_id": "b1584e9fd6bf5c1d",
+    "decision_index": 6,
+    "slot_id": "cxval_pair_combined_02"
+  },
+  {
+    "case_id": "e333ac4a1bdcbd32",
+    "decision_index": 7,
+    "slot_id": "cxval_pair_nat_even_01"
+  },
+  {
+    "case_id": "c532d055b45329ab",
+    "decision_index": 8,
+    "slot_id": "cxval_pair_nat_even_02"
+  },
+  {
+    "case_id": "91280fa05c6dfd2a",
+    "decision_index": 9,
+    "slot_id": "cxval_pair_invalid_01"
+  },
+  {
+    "case_id": "207890c0f8d99c8b",
+    "decision_index": 10,
+    "slot_id": "cxval_nominal_clean_01"
+  },
+  {
+    "case_id": "7fd4173cde11c0e3",
+    "decision_index": 11,
+    "slot_id": "cxval_nominal_clip_01"
+  },
+  {
+    "case_id": "f4ba6f42e587256c",
+    "decision_index": 12,
+    "slot_id": "cxval_nominal_harm_01"
+  },
+  {
+    "case_id": "76054f40e6aeec75",
+    "decision_index": 13,
+    "slot_id": "cxval_nominal_mismatch_01"
+  },
+  {
+    "case_id": "2a0d47d7d4f05d7f",
+    "decision_index": 14,
+    "slot_id": "cxval_single_clean_01"
+  },
+  {
+    "case_id": "675073735bc06f76",
+    "decision_index": 15,
+    "slot_id": "cxval_single_clip_01"
+  },
+  {
+    "case_id": "651c196e5385a893",
+    "decision_index": 16,
+    "slot_id": "cxval_single_controlled_inc_01"
+  },
+  {
+    "case_id": "97994d18ab57b7ed",
+    "decision_index": 17,
+    "slot_id": "cxval_single_ood_01"
+  },
+  {
+    "case_id": "54c6b454b876f8f7",
+    "decision_index": 18,
+    "slot_id": "cxval_single_ood_02"
+  },
+  {
+    "case_id": "0b4fabbb2d7eae08",
+    "decision_index": 19,
+    "slot_id": "cxval_single_ood_03"
+  }
+]

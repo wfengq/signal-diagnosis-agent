@@ -124,6 +124,34 @@
 | T-CX206 | Replacement seal binds the repaired evaluation-harness SHA independently of product identity |
 | T-CX207 | Historical and replacement seals verify with identical study inputs and zero executions |
 
+## Registered identities (contextual validation campaign runner)
+
+| ID | Title |
+|----|-------|
+| T-CX208 | Execution-input schema excludes truth, provenance, waveform, and FFT payload fields |
+| T-CX209 | Nominal execution input requires a finite positive declared frequency |
+| T-CX210 | Execution plan enforces unique cases and the frozen arm-major order |
+| T-CX211 | Seal optionally binds truth-free execution inputs and detects drift |
+| T-CX212 | Campaign executes every planned slot exactly once in arm-major order |
+| T-CX213 | Behavioral failure continues while infrastructure failure stops immediately |
+| T-CX214 | Existing campaign output is append-only and cannot be overwritten |
+| T-CX215 | Historical validation seal v2 is refused for execution |
+| T-CX216 | Real executor construction selects RealLLMPlanner without a provider call |
+| T-CX217 | Product snapshots map to sanitized ArmResult artifacts without truth or WAV bytes |
+| T-CX218 | Fixed pipeline uses only local WAV, declared stimulus context, DSP, and frozen rules |
+| T-CX219 | Preflight refuses an existing output before any execution |
+| T-CX220 | Truth is loaded after complete execution and every metric/role hard gate is applied |
+| T-CX221 | CLI requires the exact written real-model authorization token |
+| T-CX222 | T-CX208–T-CX230 are registered exactly once |
+| T-CX223 | Active v3 preflight resolves case-keyed WAV checksums and yields exactly 20 cases / 60 slots |
+| T-CX224 | Unexpected executor exceptions are sanitized, persisted as infrastructure failure, and stop execution |
+| T-CX225 | Evaluation-harness identity covers the provider-facing campaign adapter |
+| T-CX226 | Real executor refuses provider/model/base URL/planner/prompt/policy drift |
+| T-CX227 | Preflight pins the authoritative active-seal path, status, and seal-index SHA |
+| T-CX228 | Campaign startup copies the non-secret active seal identity into its append-only output |
+| T-CX229 | Live campaign CLI exposes separate preflight-validation and run-validation commands |
+| T-CX230 | Complete campaign finalization writes the required run summary |
+
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
 v9.6 contextual remediation and must not alter T-CX001–T-CX145 meanings.
@@ -135,3 +163,5 @@ T-CX191–T-CX196 are additive for the v9.9 paired-reference recovery remediatio
 and must not alter T-CX001–T-CX190 meanings.
 T-CX197–T-CX207 are additive for the truth-free fixed-pipeline remediation and
 must not alter T-CX001–T-CX196 meanings.
+T-CX208–T-CX230 are additive for the contextual validation campaign runner and
+must not alter T-CX001–T-CX207 meanings.

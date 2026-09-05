@@ -1,0 +1,162 @@
+[
+  {
+    "case_id": "f159f483605aed01",
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": "wav/extwav_validation_8fdb5103064cab4d_ref.wav",
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_8fdb5103064cab4d_test.wav"
+  },
+  {
+    "case_id": "84fd2af41fdc1d54",
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": "wav/extwav_validation_8fdb5103064cab4d_ref.wav",
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_d9fc0676036ca0b8_test.wav"
+  },
+  {
+    "case_id": "313d7f95b2e95656",
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": "wav/extwav_validation_9f719b53a909854f_ref.wav",
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_91ac93679e053dd1_test.wav"
+  },
+  {
+    "case_id": "6334f80c9b6b30be",
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": "wav/extwav_validation_8fdb5103064cab4d_ref.wav",
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_b1b0d3acf7e78e3c_test.wav"
+  },
+  {
+    "case_id": "773852f7513151f1",
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": "wav/extwav_validation_9f719b53a909854f_ref.wav",
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_8e8856ea1ad6101d_test.wav"
+  },
+  {
+    "case_id": "2ca9870c96ed589d",
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": "wav/extwav_validation_8d15a36dd636befa_ref.wav",
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_7f721adc711210ad_test.wav"
+  },
+  {
+    "case_id": "b1584e9fd6bf5c1d",
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": "wav/extwav_validation_6f766252d3187d06_ref.wav",
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_9ad1a0a113a2cb6b_test.wav"
+  },
+  {
+    "case_id": "e333ac4a1bdcbd32",
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": "wav/extwav_validation_cb787015c89e8d8f_ref.wav",
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_cb4e6a3b8148a57b_test.wav"
+  },
+  {
+    "case_id": "c532d055b45329ab",
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": "wav/extwav_validation_299ce1beed93a00c_ref.wav",
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_6bc03693bd8f0023_test.wav"
+  },
+  {
+    "case_id": "91280fa05c6dfd2a",
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": "wav/extwav_validation_8d15a36dd636befa_ref.wav",
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_8fdb5103064cab4d_test.wav"
+  },
+  {
+    "case_id": "207890c0f8d99c8b",
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 219.17808219178082,
+    "reference_wav_path": null,
+    "stimulus_kind": "single_tone",
+    "test_wav_path": "wav/extwav_validation_9f719b53a909854f_test.wav"
+  },
+  {
+    "case_id": "7fd4173cde11c0e3",
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 231.8840579710145,
+    "reference_wav_path": null,
+    "stimulus_kind": "single_tone",
+    "test_wav_path": "wav/extwav_validation_ab09982d6d52fab9_test.wav"
+  },
+  {
+    "case_id": "f4ba6f42e587256c",
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 231.8840579710145,
+    "reference_wav_path": null,
+    "stimulus_kind": "single_tone",
+    "test_wav_path": "wav/extwav_validation_7e5c5689245dfa2d_test.wav"
+  },
+  {
+    "case_id": "76054f40e6aeec75",
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 585.3658536585366,
+    "reference_wav_path": null,
+    "stimulus_kind": "single_tone",
+    "test_wav_path": "wav/extwav_validation_6f766252d3187d06_test.wav"
+  },
+  {
+    "case_id": "2a0d47d7d4f05d7f",
+    "mode": "single_signal",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": null,
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_8fdb5103064cab4d_test.wav"
+  },
+  {
+    "case_id": "675073735bc06f76",
+    "mode": "single_signal",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": null,
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_8c6da870c818cf9e_test.wav"
+  },
+  {
+    "case_id": "651c196e5385a893",
+    "mode": "single_signal",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": null,
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_a5b7574e85e8d5a5_test.wav"
+  },
+  {
+    "case_id": "97994d18ab57b7ed",
+    "mode": "single_signal",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": null,
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_a70ba0cbb88b2ddc_test.wav"
+  },
+  {
+    "case_id": "54c6b454b876f8f7",
+    "mode": "single_signal",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": null,
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_dc08b09993bd8b56_test.wav"
+  },
+  {
+    "case_id": "0b4fabbb2d7eae08",
+    "mode": "single_signal",
+    "nominal_fundamental_hz": null,
+    "reference_wav_path": null,
+    "stimulus_kind": null,
+    "test_wav_path": "wav/extwav_validation_41493464c06c67a0_test.wav"
+  }
+]

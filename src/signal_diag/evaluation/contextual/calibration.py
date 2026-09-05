@@ -114,12 +114,33 @@ def contextual_implementation_sha256() -> str:
         paths.append(str(path.relative_to(package_root)).replace("\\", "/"))
     paths.extend(
         [
+            "app/contextual_campaign.py",
             "dsp/contextual.py",
             "dsp/clipping.py",
             "dsp/harmonics.py",
             "rules/profiles/s1_contextual_comparison_v1.yaml",
         ]
     )
+    return product_package_sha256(*paths)
+
+
+def contextual_product_tree_sha256() -> str:
+    """Hash the live product tree used by contextual diagnosis.
+
+    The provider-facing campaign adapter is evaluation harness code and is
+    intentionally covered by :func:`contextual_implementation_sha256` instead.
+    """
+
+    package_root = Path(__file__).resolve().parents[2]
+    paths: list[str] = []
+    for directory in ("signal", "dsp", "tools", "rules", "knowledge", "agent", "app"):
+        for path in sorted((package_root / directory).rglob("*")):
+            if not path.is_file() or path.suffix not in {".py", ".yaml", ".md"}:
+                continue
+            relative = str(path.relative_to(package_root)).replace("\\", "/")
+            if relative == "app/contextual_campaign.py":
+                continue
+            paths.append(relative)
     return product_package_sha256(*paths)
 
 

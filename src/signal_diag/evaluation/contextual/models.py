@@ -39,6 +39,21 @@ CONTEXTUAL_SCORING_VERSION = "1.0.0-dev.1"
 _SHA = r"^[0-9a-f]{64}$"
 
 
+class ContextualRuntimeIdentity(BaseModel):
+    """Sealed, non-secret identity required before live campaign execution."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    provider: Literal["deepseek"]
+    model: str = Field(min_length=1)
+    base_url: str = Field(min_length=1)
+    planner_class: Literal["RealLLMPlanner"]
+    prompt_version: str = Field(min_length=1)
+    prompt_sha256: str = Field(pattern=_SHA)
+    causal_policy_version: str = Field(min_length=1)
+    product_tree_sha256: str = Field(pattern=_SHA)
+
+
 class ArmPlan(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -128,6 +143,107 @@ class ContextualBaselineRequest(BaseModel):
         if self.signal_id != self.stimulus_context.test_signal_id:
             raise ValueError("signal_id must match stimulus_context.test_signal_id")
         return self
+
+
+class ContextualExecutionInput(BaseModel):
+    """Truth-free local inputs required to execute one validation case."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    case_id: str = Field(min_length=1)
+    mode: DiagnosticMode
+    test_wav_path: str = Field(min_length=1)
+    reference_wav_path: str | None = None
+    nominal_fundamental_hz: float | None = Field(default=None, gt=0.0)
+    stimulus_kind: Literal["single_tone"] | None = None
+
+    @model_validator(mode="after")
+    def _validate_mode_inputs(self) -> ContextualExecutionInput:
+        if self.mode == "paired_reference":
+            if self.reference_wav_path is None:
+                raise ValueError("paired_reference requires reference_wav_path")
+            if self.nominal_fundamental_hz is not None or self.stimulus_kind is not None:
+                raise ValueError("paired_reference rejects nominal stimulus fields")
+        elif self.mode == "nominal_single_tone":
+            if self.reference_wav_path is not None:
+                raise ValueError("nominal_single_tone rejects reference_wav_path")
+            if self.nominal_fundamental_hz is None:
+                raise ValueError("nominal_single_tone requires nominal_fundamental_hz")
+            if self.stimulus_kind != "single_tone":
+                raise ValueError("nominal_single_tone requires stimulus_kind=single_tone")
+        elif any(
+            value is not None
+            for value in (
+                self.reference_wav_path,
+                self.nominal_fundamental_hz,
+                self.stimulus_kind,
+            )
+        ):
+            raise ValueError("single_signal rejects reference and nominal fields")
+        return self
+
+
+class ContextualExecutionSlot(BaseModel):
+    """One truth-free arm/case execution request."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    case_id: str = Field(min_length=1)
+    arm: ArmKind
+    mode: DiagnosticMode
+    test_wav_path: str = Field(min_length=1)
+    reference_wav_path: str | None = None
+    nominal_fundamental_hz: float | None = Field(default=None, gt=0.0)
+    stimulus_kind: Literal["single_tone"] | None = None
+
+
+class ContextualExecutionPlan(BaseModel):
+    """Frozen arm-major expansion of truth-free case inputs."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    cases: tuple[ContextualExecutionInput, ...]
+    arm_order: tuple[ArmKind, ...] = (
+        "contextual_agent",
+        "fixed_pipeline",
+        "no_context_ablation",
+    )
+
+    @model_validator(mode="after")
+    def _validate_plan(self) -> ContextualExecutionPlan:
+        if self.arm_order != (
+            "contextual_agent",
+            "fixed_pipeline",
+            "no_context_ablation",
+        ):
+            raise ValueError("execution plan requires frozen arm-major order")
+        case_ids = tuple(item.case_id for item in self.cases)
+        if len(case_ids) != len(set(case_ids)):
+            raise ValueError("execution plan case IDs must be unique")
+        return self
+
+    @property
+    def slots(self) -> tuple[ContextualExecutionSlot, ...]:
+        slots: list[ContextualExecutionSlot] = []
+        for arm in self.arm_order:
+            for item in self.cases:
+                ablation = arm == "no_context_ablation"
+                slots.append(
+                    ContextualExecutionSlot(
+                        case_id=item.case_id,
+                        arm=arm,
+                        mode="single_signal" if ablation else item.mode,
+                        test_wav_path=item.test_wav_path,
+                        reference_wav_path=(
+                            None if ablation else item.reference_wav_path
+                        ),
+                        nominal_fundamental_hz=(
+                            None if ablation else item.nominal_fundamental_hz
+                        ),
+                        stimulus_kind=None if ablation else item.stimulus_kind,
+                    )
+                )
+        return tuple(slots)
 
 
 class ContextualManifest(BaseModel):

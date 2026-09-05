@@ -38,6 +38,8 @@ def seal_contextual_bundle(
     slot_plan: list[dict[str, object]],
     execution_counters: dict[str, int],
     evaluation_harness_sha256: str | None = None,
+    execution_inputs: list[dict[str, object]] | None = None,
+    runtime_identity: dict[str, object] | None = None,
 ) -> Path:
     if destination.exists():
         raise FileExistsError(f"seal destination already exists: {destination}")
@@ -56,6 +58,16 @@ def seal_contextual_bundle(
         json.dumps(slot_plan, sort_keys=True, indent=2) + "\n",
         encoding="utf-8",
     )
+    if execution_inputs is not None:
+        (destination / "execution_inputs.json").write_text(
+            json.dumps(execution_inputs, sort_keys=True, indent=2) + "\n",
+            encoding="utf-8",
+        )
+    if runtime_identity is not None:
+        (destination / "runtime_identity.json").write_text(
+            json.dumps(runtime_identity, sort_keys=True, indent=2) + "\n",
+            encoding="utf-8",
+        )
     meta = {
         "manifest_sha256": manifest_sha256(manifest),
         "product_code_sha256": product_code_sha256,
