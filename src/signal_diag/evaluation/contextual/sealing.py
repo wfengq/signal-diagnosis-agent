@@ -37,6 +37,7 @@ def seal_contextual_bundle(
     scoring_identity: str,
     slot_plan: list[dict[str, object]],
     execution_counters: dict[str, int],
+    evaluation_harness_sha256: str | None = None,
 ) -> Path:
     if destination.exists():
         raise FileExistsError(f"seal destination already exists: {destination}")
@@ -64,6 +65,8 @@ def seal_contextual_bundle(
         "scoring_identity": scoring_identity,
         "execution_counters": execution_counters,
     }
+    if evaluation_harness_sha256 is not None:
+        meta["evaluation_harness_sha256"] = evaluation_harness_sha256
     (destination / "seal_meta.json").write_text(
         json.dumps(meta, sort_keys=True, indent=2) + "\n",
         encoding="utf-8",

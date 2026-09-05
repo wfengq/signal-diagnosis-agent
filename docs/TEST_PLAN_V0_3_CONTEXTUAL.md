@@ -27,6 +27,7 @@
 | T-CX166..185 | v9.7 deterministic rule closure |
 | T-CX186..190 | v9.8 claim-reference recovery |
 | T-CX191..196 | v9.9 paired-reference recovery |
+| T-CX197..207 | truth-free deterministic contextual fixed pipeline and reseal |
 
 ## Registered identities (Task 1)
 
@@ -107,6 +108,22 @@
 | T-CX195 | v9.9 prompt separates paired recovery from nominal recovery and freezes v9.8 bytes |
 | T-CX196 | Composition wires v9.9 while inheriting v9.8 routing, closure, and manual-rule rejection |
 
+## Registered identities (truth-free fixed pipeline remediation)
+
+| ID | Title |
+|----|-------|
+| T-CX197 | Fixed-pipeline request schema excludes labels, confidence, role, and transform provenance |
+| T-CX198 | Truth-free request and deterministic baseline are public contextual-harness APIs |
+| T-CX199 | Fixed-pipeline execution rejects a manifest `ContextualCase` at its boundary |
+| T-CX200 | Baseline implementation contains no truth/provenance field access |
+| T-CX201 | Clean single-signal result derives from real Tool Evidence and frozen rules |
+| T-CX202 | Clipping requires mechanism Evidence plus a substantial clipping-rule failure |
+| T-CX203 | Paired harmonic diagnosis requires contextual growth-rule failure |
+| T-CX204 | Invalid paired comparison remains grounded and inconclusive |
+| T-CX205 | Nominal harmonic diagnosis retains its declared-single-tone limitation |
+| T-CX206 | Replacement seal binds the repaired evaluation-harness SHA independently of product identity |
+| T-CX207 | Historical and replacement seals verify with identical study inputs and zero executions |
+
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
 v9.6 contextual remediation and must not alter T-CX001–T-CX145 meanings.
@@ -116,3 +133,5 @@ T-CX186–T-CX190 are additive for the v9.8 claim-reference recovery remediation
 and must not alter T-CX001–T-CX185 meanings.
 T-CX191–T-CX196 are additive for the v9.9 paired-reference recovery remediation
 and must not alter T-CX001–T-CX190 meanings.
+T-CX197–T-CX207 are additive for the truth-free fixed-pipeline remediation and
+must not alter T-CX001–T-CX196 meanings.

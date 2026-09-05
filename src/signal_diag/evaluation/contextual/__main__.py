@@ -133,6 +133,7 @@ def main(argv: list[str] | None = None) -> int:
             wav_checksums=meta["wav_checksums"],
             source_decisions=meta["source_decisions"],
             product_code_sha256=meta["product_code_sha256"],
+            evaluation_harness_sha256=meta.get("evaluation_harness_sha256"),
             prompt_sha256=meta["prompt_sha256"],
             profile_s1_sha256=meta["profile_s1_sha256"],
             profile_contextual_sha256=meta["profile_contextual_sha256"],

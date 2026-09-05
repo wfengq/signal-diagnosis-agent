@@ -35,12 +35,23 @@ def test_t_cx138d_active_freeze_identity_resolves_via_record_or_amendment() -> N
         amendment = json.loads(
             (_ACTIVE_STUDY / "code_identity_amendment.json").read_text(encoding="utf-8")
         )
-        assert amendment["original_calibration_code_sha256"] == recorded
-        assert amendment["current_implementation_sha256"] == current
-        assert amendment["qualification_recompute_unchanged"] is True
-        assert amendment["calibration_recompute_unchanged"] is True
-        assert "b339dcf" in amendment["commits"]["typing_only"]
-        assert "def199f" in amendment["commits"]["rematerialize"]
+        rows = amendment if isinstance(amendment, list) else [amendment]
+        active = next(
+            row
+            for row in rows
+            if (
+                row["original_calibration_code_sha256"] == recorded
+                and row["current_implementation_sha256"] == current
+            )
+        )
+        assert active["qualification_recompute_unchanged"] is True
+        assert active["calibration_recompute_unchanged"] is True
+        original = rows[0]
+        assert (
+            original["original_calibration_code_sha256"] == recorded
+        )
+        assert "b339dcf" in original["commits"]["typing_only"]
+        assert "def199f" in original["commits"]["rematerialize"]
 
 
 def test_t_cx138e_missing_amendment_rejects_mismatched_freeze(

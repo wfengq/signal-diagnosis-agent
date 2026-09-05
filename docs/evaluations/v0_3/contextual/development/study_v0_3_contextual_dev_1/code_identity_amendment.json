@@ -1,3 +1,4 @@
+[
 {
   "amendment_id": "code_identity_after_v9_7_shadow_replay",
   "amendment_kind": "append_only_code_identity",
@@ -17,4 +18,18 @@
   "calibration_recompute_unchanged": true,
   "selected_threshold_percent_unchanged": 5.0,
   "notes": "Provenance-only bridge after v9.7 shadow-replay harness files landed under evaluation/contextual/. Does not rematerialize WAVs, reselect thresholds, or authorize model runs. Selected threshold remains 5.0%. Active freeze identity resolves via profile_freeze_record.code_sha256 or this amendment to the current implementation tree. Prior bridge current SHA 5e3dc82d... is retained under prior_bridge_current_implementation_sha256."
+},
+{
+  "amendment_id": "code_identity_after_truth_free_fixed_pipeline",
+  "amendment_kind": "append_only_code_identity",
+  "created_at_utc": "2026-09-05T00:00:00+00:00",
+  "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+  "current_implementation_sha256": "9d45558384ab44d5077d9826dab8f3b35f5333d949d773755d67f54124c4f017",
+  "prior_bridge_current_implementation_sha256": "51b65779a0ef7797b512e527f2757edfd0fdb99f7dc3302786309d7d40fca470",
+  "scope": "evaluation-only truth-free contextual fixed pipeline, explicit oracle injection, and replacement-seal metadata; no DSP, product prompt, causal policy, profile, threshold, WAV, label, or scoring change",
+  "qualification_recompute_unchanged": true,
+  "calibration_recompute_unchanged": true,
+  "selected_threshold_percent_unchanged": 5.0,
+  "model_calls": 0
 }
+]

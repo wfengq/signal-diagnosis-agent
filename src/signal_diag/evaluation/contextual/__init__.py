@@ -1,5 +1,6 @@
 """Isolated V0.3 contextual evaluation harness."""
 
+from .baseline import ContextualFixedPipelineBaseline
 from .calibration import (
     CONTEXTUAL_GROWTH_CANDIDATES,
     CalibrationReport,
@@ -20,6 +21,7 @@ from .models import (
     ArmResult,
     ConfidenceTier,
     ContextualAggregate,
+    ContextualBaselineRequest,
     ContextualCase,
     ContextualManifest,
     ContextualRole,
@@ -41,7 +43,9 @@ __all__ = [
     "CalibrationReport",
     "ConfidenceTier",
     "ContextualAggregate",
+    "ContextualBaselineRequest",
     "ContextualCase",
+    "ContextualFixedPipelineBaseline",
     "ContextualManifest",
     "ContextualRole",
     "ContextualRunScore",

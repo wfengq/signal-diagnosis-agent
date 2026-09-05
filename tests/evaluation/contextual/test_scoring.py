@@ -2,15 +2,35 @@
 
 from __future__ import annotations
 
-from signal_diag.evaluation.contextual.models import ContextualManifest
+from signal_diag.evaluation.contextual.models import (
+    ArmResult,
+    ContextualCase,
+    ContextualManifest,
+)
 from signal_diag.evaluation.contextual.runner import run_contextual_arms
 from signal_diag.evaluation.contextual.scoring import score_contextual_run
+
+
+def _scoring_oracle(case: ContextualCase, arm: str) -> ArmResult:
+    predicted = case.expected_causal_set
+    outcome = case.expected_outcome
+    if arm == "no_context_ablation" and "harmonic_distortion" in predicted:
+        predicted = tuple(item for item in predicted if item != "harmonic_distortion")
+        outcome = "supported_fault" if predicted else "inconclusive"
+    return ArmResult(
+        case_id=case.case_id,
+        arm=arm,  # type: ignore[arg-type]
+        status="ok",
+        predicted_outcome=outcome,
+        predicted_causal_set=predicted,
+        evidence_refs_complete=True,
+    )
 
 
 def test_t_cx133_scoreable_denominators_are_fixed(
     validation_manifest: ContextualManifest,
 ) -> None:
-    results = run_contextual_arms(validation_manifest)
+    results = run_contextual_arms(validation_manifest, oracle=_scoring_oracle)
     score = score_contextual_run(
         validation_manifest,
         results["contextual_agent"],
@@ -26,7 +46,7 @@ def test_t_cx133_scoreable_denominators_are_fixed(
 def test_t_cx134_natural_even_fp_is_zero_for_oracle_arm(
     validation_manifest: ContextualManifest,
 ) -> None:
-    results = run_contextual_arms(validation_manifest)
+    results = run_contextual_arms(validation_manifest, oracle=_scoring_oracle)
     score = score_contextual_run(
         validation_manifest,
         results["contextual_agent"],
@@ -44,7 +64,11 @@ def test_t_cx135_zero_prediction_denominator_is_not_evaluated() -> None:
 def test_t_cx136_infrastructure_failure_counts_incorrect(
     validation_manifest: ContextualManifest,
 ) -> None:
-    results = list(run_contextual_arms(validation_manifest)["contextual_agent"])
+    results = list(
+        run_contextual_arms(validation_manifest, oracle=_scoring_oracle)[
+            "contextual_agent"
+        ]
+    )
     failed = results[0].model_copy(
         update={
             "status": "infrastructure_failure",
@@ -66,7 +90,7 @@ def test_t_cx136_infrastructure_failure_counts_incorrect(
 def test_t_cx137_ablation_delta_is_positive_for_oracle(
     validation_manifest: ContextualManifest,
 ) -> None:
-    results = run_contextual_arms(validation_manifest)
+    results = run_contextual_arms(validation_manifest, oracle=_scoring_oracle)
     score = score_contextual_run(
         validation_manifest,
         results["contextual_agent"],

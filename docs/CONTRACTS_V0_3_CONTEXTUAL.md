@@ -6,7 +6,7 @@
 
 **Design:** `docs/superpowers/specs/2026-09-04-v0-3-contextual-reference-diagnosis-design.md`
 
-**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX165)
+**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX207)
 
 ## 1. Scope
 
@@ -333,6 +333,19 @@ Separate contextual evaluation package under `evaluation/contextual/` with
 manifests, runner, scorer, calibration, sealing, and CLI. Historical V0.2 /
 v9.4 scoring identities and EV-C036 single-WAV draft are not rewritten.
 Use `single_reviewer_provenance_audit`; agreement/kappa reported `not_evaluated`.
+
+### 11.1 Truth-free fixed pipeline
+
+The validation `fixed_pipeline` arm accepts only an immutable
+`ContextualBaselineRequest` containing `case_id`, `signal_id`, and
+`StimulusContext`. It must not receive or inspect role, expected outcome,
+expected causes, confidence tier, transform provenance, or source labels.
+
+It executes deterministic clipping analysis plus the mode-appropriate absolute
+or contextual harmonic analysis, evaluates the unchanged frozen profiles, and
+maps only same-run Evidence and rule evaluations to a grounded diagnosis. A
+manifest `ContextualCase` passed at the execution boundary is rejected. Offline
+test oracles are explicit injected test doubles and are not validation arms.
 
 ## 12. Authorization gates (product ops)
 

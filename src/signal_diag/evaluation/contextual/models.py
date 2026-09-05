@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from signal_diag.agent.models import DiagnosisOutcome
 from signal_diag.evaluation.models import CausalFault, RateMetric
+from signal_diag.signal.context import StimulusContext
 
 DiagnosticMode = Literal["single_signal", "nominal_single_tone", "paired_reference"]
 ConfidenceTier = Literal[
@@ -110,6 +111,22 @@ class PairedHarmonicSlot(BaseModel):
     def _same_test_sha(self) -> PairedHarmonicSlot:
         if self.contextual.test_wav_sha256 != self.ablation.test_wav_sha256:
             raise ValueError("ablation must reuse the contextual test SHA")
+        return self
+
+
+class ContextualBaselineRequest(BaseModel):
+    """Truth-free input boundary for deterministic contextual execution."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    case_id: str = Field(min_length=1)
+    signal_id: str = Field(min_length=1)
+    stimulus_context: StimulusContext
+
+    @model_validator(mode="after")
+    def _signal_matches_context(self) -> ContextualBaselineRequest:
+        if self.signal_id != self.stimulus_context.test_signal_id:
+            raise ValueError("signal_id must match stimulus_context.test_signal_id")
         return self
 
 
