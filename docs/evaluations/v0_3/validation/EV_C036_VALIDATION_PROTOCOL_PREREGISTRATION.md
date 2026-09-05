@@ -1,6 +1,6 @@
 # V0.3 Validation Protocol & EV-C036 Pre-registration
 
-**Status:** PRE-REGISTERED — v9.9 identity amendment approved and frozen
+**Status:** SUPERSEDED — unexecuted historical draft; see `SUPERSESSION_NOTICE.md`
 **Study ID:** `v0.3-real-validation-1`
 **Protocol version:** `1.2.0-prereg`
 **Document revised:** 2026-09-05

@@ -1,0 +1,29 @@
+{
+  "document_id": "ev_cx_slot_plan",
+  "study_id": "study_v0_3_contextual_validation_1",
+  "protocol_version": "1.0.0-prereg",
+  "status": "skeleton_only_no_assets",
+  "notes": "Placeholder slots only. Asset binding requires separate construction authorization and must satisfy all isolation and qualification gates.",
+  "slots": [
+    {"slot_id": "cxval_pair_clean_01", "mode": "paired_reference", "role": "clean", "expected_outcome": "no_supported_fault", "expected_causal_set": [], "confidence": "reference_supported"},
+    {"slot_id": "cxval_pair_clip_01", "mode": "paired_reference", "role": "clipping_only", "expected_outcome": "supported_fault", "expected_causal_set": ["clipping"], "confidence": "strong_ground_truth", "positive_master_pool": "A"},
+    {"slot_id": "cxval_pair_clip_02", "mode": "paired_reference", "role": "clipping_only", "expected_outcome": "supported_fault", "expected_causal_set": ["clipping"], "confidence": "strong_ground_truth", "positive_master_pool": "B"},
+    {"slot_id": "cxval_pair_harm_01", "mode": "paired_reference", "role": "harmonic_only", "expected_outcome": "supported_fault", "expected_causal_set": ["harmonic_distortion"], "confidence": "strong_ground_truth", "positive_master_pool": "A", "paired_harmonic_bearing": true},
+    {"slot_id": "cxval_pair_harm_02", "mode": "paired_reference", "role": "harmonic_only", "expected_outcome": "supported_fault", "expected_causal_set": ["harmonic_distortion"], "confidence": "strong_ground_truth", "positive_master_pool": "B", "paired_harmonic_bearing": true},
+    {"slot_id": "cxval_pair_combined_01", "mode": "paired_reference", "role": "combined", "expected_outcome": "supported_fault", "expected_causal_set": ["clipping", "harmonic_distortion"], "confidence": "strong_ground_truth", "positive_master_pool": "C", "paired_harmonic_bearing": true},
+    {"slot_id": "cxval_pair_combined_02", "mode": "paired_reference", "role": "combined", "expected_outcome": "supported_fault", "expected_causal_set": ["clipping", "harmonic_distortion"], "confidence": "strong_ground_truth", "positive_master_pool": "D", "paired_harmonic_bearing": true},
+    {"slot_id": "cxval_pair_nat_even_01", "mode": "paired_reference", "role": "natural_even_control", "expected_outcome": "no_supported_fault", "expected_causal_set": [], "confidence": "reference_supported"},
+    {"slot_id": "cxval_pair_nat_even_02", "mode": "paired_reference", "role": "natural_even_control", "expected_outcome": "no_supported_fault", "expected_causal_set": [], "confidence": "reference_supported"},
+    {"slot_id": "cxval_pair_invalid_01", "mode": "paired_reference", "role": "controlled_inconclusive", "expected_outcome": "inconclusive", "expected_causal_set": [], "confidence": "reference_supported"},
+    {"slot_id": "cxval_nominal_clean_01", "mode": "nominal_single_tone", "role": "clean", "expected_outcome": "no_supported_fault", "expected_causal_set": [], "confidence": "reference_supported"},
+    {"slot_id": "cxval_nominal_clip_01", "mode": "nominal_single_tone", "role": "clipping_only", "expected_outcome": "supported_fault", "expected_causal_set": ["clipping"], "confidence": "strong_ground_truth", "positive_master_pool": "E"},
+    {"slot_id": "cxval_nominal_harm_01", "mode": "nominal_single_tone", "role": "harmonic_only", "expected_outcome": "supported_fault", "expected_causal_set": ["harmonic_distortion"], "confidence": "strong_ground_truth", "positive_master_pool": "E"},
+    {"slot_id": "cxval_nominal_mismatch_01", "mode": "nominal_single_tone", "role": "controlled_inconclusive", "expected_outcome": "inconclusive", "expected_causal_set": [], "confidence": "reference_supported"},
+    {"slot_id": "cxval_single_clean_01", "mode": "single_signal", "role": "clean", "expected_outcome": "no_supported_fault", "expected_causal_set": [], "confidence": "reference_supported"},
+    {"slot_id": "cxval_single_clip_01", "mode": "single_signal", "role": "clipping_only", "expected_outcome": "supported_fault", "expected_causal_set": ["clipping"], "confidence": "strong_ground_truth", "positive_master_pool": "F"},
+    {"slot_id": "cxval_single_controlled_inc_01", "mode": "single_signal", "role": "controlled_inconclusive", "expected_outcome": "inconclusive", "expected_causal_set": [], "confidence": "reference_supported"},
+    {"slot_id": "cxval_single_ood_01", "mode": "single_signal", "role": "domain_out_inconclusive", "expected_outcome": "inconclusive", "expected_causal_set": [], "confidence": "weak_observation"},
+    {"slot_id": "cxval_single_ood_02", "mode": "single_signal", "role": "domain_out_inconclusive", "expected_outcome": "inconclusive", "expected_causal_set": [], "confidence": "weak_observation"},
+    {"slot_id": "cxval_single_ood_03", "mode": "single_signal", "role": "domain_out_inconclusive", "expected_outcome": "inconclusive", "expected_causal_set": [], "confidence": "unknown"}
+  ]
+}

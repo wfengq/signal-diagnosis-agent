@@ -1,5 +1,8 @@
 # V0.3 Validation Construction & Gate Checklist
 
+> Historical only. This checklist was never executed and is superseded by the
+> distinct contextual validation protocol under `docs/evaluations/v0_3/contextual/validation/`.
+
 Use with protocol `1.2.0-prereg`, `ev_c036_acceptance_targets.json`, and `val_slot_plan.json`.
 
 ## A. Protocol freeze re-review (this phase)

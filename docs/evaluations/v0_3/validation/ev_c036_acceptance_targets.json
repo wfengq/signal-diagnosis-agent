@@ -2,7 +2,8 @@
   "document_id": "ev_c036_acceptance_targets",
   "protocol_version": "1.2.0-prereg",
   "study_id": "v0.3-real-validation-1",
-  "status": "pre_registered_v9_9_frozen",
+  "status": "superseded_unexecuted_historical_draft",
+  "superseded_by": "docs/evaluations/v0_3/contextual/validation/EV_CX_VALIDATION_PROTOCOL_PREREGISTRATION.md",
   "frozen_baseline": {
     "code_commit": "15c047ced6cbd46a4b4757abdfdacd11e0a12ea1",
     "dev_evidence_commit": "a45177574ad09d41b4c26c8bdf93e85ca6a7eed8",
