@@ -1,0 +1,225 @@
+{
+  "document_id": "ev_c036_acceptance_targets",
+  "protocol_version": "1.2.0-prereg",
+  "study_id": "v0.3-real-validation-1",
+  "status": "pre_registered_v9_9_frozen",
+  "frozen_baseline": {
+    "code_commit": "15c047ced6cbd46a4b4757abdfdacd11e0a12ea1",
+    "dev_evidence_commit": "a45177574ad09d41b4c26c8bdf93e85ca6a7eed8",
+    "prompt_version": "v0.3-s1-planner-9.9",
+    "prompt_sha256": "27a9315ad85a035c9cc9cbfe5f15ea26c49383d7fb23207989315ae0adb78dc9",
+    "causal_policy_version": "v9_9_paired_reference_recovery",
+    "implementation_sha256": "5bc2a3375d5fb5be5c7c77cb0ddba140c240635d549662c9d3221e64acb81ae2",
+    "dev_manifest_sha256": "cca0ee24d8574435761d2d057fd4341c5e015ee7d5337826f796ea832cf047dd",
+    "rule_profile_id": "profile_s1_distortion",
+    "rule_profile_version": "1.0.0-demo",
+    "rule_profile_sha256": "1e02d0dabe74ae1327fa3418d4ce546c53e8a8d06b175b5c508edb8b512f5ed1",
+    "contextual_rule_profile_id": "profile_s1_contextual_comparison",
+    "contextual_rule_profile_version": "1.0.0",
+    "contextual_rule_profile_sha256": "c79865caf913b2a1a5f6f50fccd8c37d6f2828e72feb1f80d9c9c7b4b7d9eb58",
+    "scoring_identity": "signal_diag.contextual_scoring@1.0.0-dev.1"
+  },
+  "validation_design": {
+    "case_count": 20,
+    "scoreable_count": 17,
+    "unscored_count": 3,
+    "scoreable_inconclusive_count_fixed": 6,
+    "outcome_role_counts": {
+      "clean": 3,
+      "clipping_pos": 3,
+      "harmonic_pos": 3,
+      "combined_pos": 2,
+      "natural_even_neg": 2,
+      "natural_rich": 3,
+      "low_snr": 2,
+      "ood": 2
+    },
+    "confidence_counts": {
+      "strong_ground_truth": 8,
+      "reference_supported": 9,
+      "weak_observation": 2,
+      "unknown": 1
+    },
+    "confidence_binding": {
+      "natural_even_neg_must_be_reference_supported": true,
+      "scoreable_inconclusive_fixed": 6,
+      "silent_confidence_downgrade_forbidden": true,
+      "construction_confidence_failure_requires_amendment": true
+    },
+    "scoreable_confidences": [
+      "strong_ground_truth",
+      "reference_supported"
+    ],
+    "unscored_confidences": [
+      "weak_observation",
+      "unknown"
+    ],
+    "source_composition": {
+      "min_public_real_recording_cases": 10,
+      "min_independent_real_parent_masters_for_strong_positives": 4,
+      "max_scoreable_positives_per_parent_master": 2,
+      "min_independent_source_families_among_reference_and_unscored": 3
+    }
+  },
+  "isolation": {
+    "cross_split_ban_if_any_match": [
+      "parent_master_id",
+      "source_recording_key",
+      "capture_session_lineage"
+    ],
+    "crops_of_same_recording_same_group": true,
+    "transform_parameter_change_does_not_authorize_reuse": true,
+    "transforms_only_on_new_independent_masters": true,
+    "forbid_reuse_of_v02_sealed_final": true,
+    "forbid_reuse_of_v03_legacy_dev_14_cases": true,
+    "forbid_reuse_of_v03_contextual_dev_20_cases": true
+  },
+  "metrics": {
+    "planner_infrastructure_success": {
+      "numerator": "cases finished without planner/provider/auth/harness infrastructure error and without ScriptedPlanner fallback",
+      "denominator": "all_validation_cases",
+      "denominator_value": 20,
+      "denominator_fixed": true,
+      "operator": ">=",
+      "threshold": 0.95
+    },
+    "outcome_accuracy": {
+      "numerator": "scoreable cases with predicted_outcome == expected_outcome and successful finished diagnosis",
+      "denominator": "scoreable_cases",
+      "denominator_value": 17,
+      "denominator_fixed": true,
+      "infrastructure_failure_counts_as_incorrect": true,
+      "operator": ">=",
+      "threshold": 0.8
+    },
+    "causal_exact_set_accuracy": {
+      "numerator": "scoreable cases with predicted positive causal set == expected positive causal set and successful finished diagnosis",
+      "denominator": "scoreable_cases",
+      "denominator_value": 17,
+      "denominator_fixed": true,
+      "infrastructure_failure_counts_as_incorrect": true,
+      "positive_faults": [
+        "clipping",
+        "harmonic_distortion"
+      ],
+      "operator": ">=",
+      "threshold": 0.75
+    },
+    "causal_macro_f1": {
+      "definition": "Unweighted mean of per-label F1 for clipping and harmonic_distortion on the fixed scoreable population",
+      "operator": ">=",
+      "threshold": 0.75
+    },
+    "evidence_grounding": {
+      "numerator": "claims that satisfy grounding including non-empty required refs",
+      "denominator": "all claims on finished agent diagnoses in the campaign",
+      "empty_required_refs_fail": true,
+      "operator": "==",
+      "threshold": 1.0
+    },
+    "unsupported_claim_rate": {
+      "numerator": "positive fault claims that violate causal evidence gates or lack same-run grounding",
+      "denominator": "all predicted positive fault claims (clipping + harmonic_distortion)",
+      "operator": "==",
+      "threshold": 0.0,
+      "zero_denominator_status": "not_evaluated",
+      "zero_denominator_blocks_meets_target": true
+    },
+    "inconclusive_appropriateness": {
+      "numerator": "scoreable reference_supported expected-inconclusive cases predicted inconclusive with no positive causal fault",
+      "denominator": "scoreable reference_supported expected-inconclusive cases",
+      "denominator_value": 6,
+      "denominator_fixed": true,
+      "min_numerator": 5,
+      "operator": "fraction_gate",
+      "threshold_display": "5/6"
+    },
+    "unnecessary_tool_rate": {
+      "numerator": "unnecessary tool actions under frozen path scorer",
+      "denominator": "all tool actions in the agent campaign",
+      "operator": "<=",
+      "threshold": 0.2
+    }
+  },
+  "role_hard_gates": {
+    "clean": {
+      "metric": "outcome_correct",
+      "denominator_value": 3,
+      "denominator_fixed": true,
+      "operator": ">=",
+      "threshold_fraction": "2/3",
+      "infrastructure_failure_counts_as_incorrect": true
+    },
+    "clipping_pos": {
+      "metric": "causal_exact_set",
+      "denominator_value": 3,
+      "denominator_fixed": true,
+      "operator": ">=",
+      "threshold_fraction": "2/3",
+      "infrastructure_failure_counts_as_incorrect": true
+    },
+    "harmonic_pos": {
+      "metric": "causal_exact_set",
+      "denominator_value": 3,
+      "denominator_fixed": true,
+      "operator": ">=",
+      "threshold_fraction": "2/3",
+      "infrastructure_failure_counts_as_incorrect": true
+    },
+    "combined_pos": {
+      "metric": "causal_exact_set",
+      "denominator_value": 2,
+      "denominator_fixed": true,
+      "operator": "==",
+      "threshold_fraction": "2/2",
+      "infrastructure_failure_counts_as_incorrect": true
+    },
+    "natural_even_neg": {
+      "metric": "appropriate_inconclusive_and_zero_harmonic_claims",
+      "denominator_value": 2,
+      "denominator_fixed": true,
+      "operator": "==",
+      "threshold_fraction": "2/2",
+      "max_harmonic_distortion_claims": 0,
+      "required_confidence": "reference_supported",
+      "infrastructure_failure_counts_as_incorrect": true
+    },
+    "scoreable_inconclusive": {
+      "metric": "inconclusive_appropriateness",
+      "denominator_value": 6,
+      "denominator_fixed": true,
+      "operator": ">=",
+      "threshold_fraction": "5/6",
+      "infrastructure_failure_counts_as_incorrect": true
+    }
+  },
+  "comparison": {
+    "fixed_pipeline_required": true,
+    "agent_decides_ev_c036": true,
+    "scripted_planner_forbidden": true,
+    "no_product_data_label_identity_change_between_baseline_and_agent": true
+  },
+  "stop_rules": {
+    "one_shot_agent": true,
+    "one_shot_fixed_pipeline": true,
+    "no_slot_retries": true,
+    "no_validation_driven_tuning": true,
+    "retain_failures": true,
+    "below_target_blocks_final_test": true,
+    "not_evaluated_unsupported_claim_rate_blocks_meets_target": true,
+    "construction_confidence_failure_requires_amendment": true
+  },
+  "final_test_gate": {
+    "requires_ev_c036_meets_target": true,
+    "requires_all_role_hard_gates": true,
+    "requires_explicit_user_authorization": true
+  },
+  "semantic_constraints": {
+    "even_order_present_is_operational_only": true,
+    "even_order_present_is_not_injection_provenance": true,
+    "natural_even_negative_controls_required": true,
+    "forbid_reuse_of_v02_sealed_final": true,
+    "forbid_reuse_of_v03_legacy_dev_14_cases": true,
+    "forbid_reuse_of_v03_contextual_dev_20_cases": true
+  }
+}

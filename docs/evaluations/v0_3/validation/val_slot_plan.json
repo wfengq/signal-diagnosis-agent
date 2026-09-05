@@ -1,0 +1,286 @@
+{
+  "document_id": "v0_3_validation_slot_plan",
+  "protocol_version": "1.2.0-prereg",
+  "study_id": "v0.3-real-validation-1",
+  "status": "skeleton_only_no_assets",
+  "notes": "Slot IDs are placeholders. Do not bind WAV bytes or downloads until construction authorization. Do not open validation/test payloads in this phase. Confidence counts are fixed; construction failure requires amendment, never silent downgrade.",
+  "forbidden_dev_case_ids": [
+    "a1f3c9e2b804d716",
+    "b2e4d0f3c915e827",
+    "c3f5e1a4d026f938",
+    "d4a6f2b5e1370a49",
+    "e5b7a3c6f2481b5a",
+    "f6c8b4d7a3592c6b",
+    "07d9c5e8b46a3d7c",
+    "18ea06f9c57b4e8d",
+    "29fb17a0d68c5f9e",
+    "3a0c28b1e79d60af",
+    "4b1d39c2f8ae71b0",
+    "5c2e4ad309bf82c1",
+    "6d3f5be41ac093d2",
+    "7e4a6cf52bd1a4e3",
+    "825a759a0ea47bb7",
+    "857fac53e4d2e57e",
+    "abd9010438d4ad93",
+    "a4a0853be9983f8c",
+    "2be730b9113701de",
+    "6fb80bbda391c26c",
+    "aa9b4a91b0253c33",
+    "393940e92c58cf0b",
+    "04f4068ec91d2621",
+    "163185980dc8f7a4",
+    "ce8b413cf7382c3d",
+    "dff3ebd9dffee874",
+    "35967af7b71c5b75",
+    "5f7ed6fe137f73b3",
+    "eabaecd422b2eeda",
+    "43bbc0fb08d88ec3",
+    "d4bb668a379dea3b",
+    "e3c036eb778237c8",
+    "3e1ca5f1bc34a5a8",
+    "eb8d416412ce3c22"
+  ],
+  "forbidden_dev_case_id_counts": {
+    "legacy_v03_dev": 14,
+    "contextual_v03_dev": 20,
+    "total": 34
+  },
+  "planned_confidence_totals": {
+    "strong_ground_truth": 8,
+    "reference_supported": 9,
+    "weak_observation": 2,
+    "unknown": 1
+  },
+  "fixed_denominators": {
+    "scoreable_inconclusive": 6,
+    "natural_even_neg_reference_supported": 2
+  },
+  "source_composition_constraints": {
+    "min_public_real_recording_cases": 10,
+    "min_independent_real_parent_masters_for_strong_positives": 4,
+    "max_scoreable_positives_per_parent_master": 2,
+    "min_independent_source_families_among_reference_and_unscored": 3,
+    "strong_positive_master_pool_note": "Bind the 8 strong positives to >=4 distinct real parent_master_id values with <=2 scoreable positives each. Example pattern: four real masters x two transform variants."
+  },
+  "isolation_constraints": {
+    "ban_cross_split_if_any_match": [
+      "parent_master_id",
+      "source_recording_key",
+      "capture_session_lineage"
+    ],
+    "crops_same_group": true,
+    "transform_change_does_not_authorize_reuse": true
+  },
+  "slots": [
+    {
+      "slot_id": "val_clean_01",
+      "role": "clean",
+      "expected_outcome": "no_supported_fault",
+      "expected_causal_faults": [],
+      "planned_confidence": "reference_supported",
+      "requires_public_real_recording": true,
+      "scoreable_positive": false,
+      "construction_intent": "Public real clean periodic; lineage disjoint from dev/V0.2 sealed final"
+    },
+    {
+      "slot_id": "val_clean_02",
+      "role": "clean",
+      "expected_outcome": "no_supported_fault",
+      "expected_causal_faults": [],
+      "planned_confidence": "reference_supported",
+      "requires_public_real_recording": true,
+      "scoreable_positive": false,
+      "construction_intent": "Second public real clean; different f0/recording family preferred"
+    },
+    {
+      "slot_id": "val_clean_03",
+      "role": "clean",
+      "expected_outcome": "no_supported_fault",
+      "expected_causal_faults": [],
+      "planned_confidence": "reference_supported",
+      "requires_public_real_recording": false,
+      "scoreable_positive": false,
+      "construction_intent": "Third clean; may be synthesis only if public-real quota already met elsewhere"
+    },
+    {
+      "slot_id": "val_clip_01",
+      "role": "clipping_pos",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": ["clipping"],
+      "planned_confidence": "strong_ground_truth",
+      "requires_public_real_recording": true,
+      "scoreable_positive": true,
+      "planned_master_pool": "strong_real_master_A",
+      "construction_intent": "Transform on independent real master A; substantial clipping Evidence"
+    },
+    {
+      "slot_id": "val_clip_02",
+      "role": "clipping_pos",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": ["clipping"],
+      "planned_confidence": "strong_ground_truth",
+      "requires_public_real_recording": true,
+      "scoreable_positive": true,
+      "planned_master_pool": "strong_real_master_B",
+      "construction_intent": "Transform on independent real master B"
+    },
+    {
+      "slot_id": "val_clip_03",
+      "role": "clipping_pos",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": ["clipping"],
+      "planned_confidence": "strong_ground_truth",
+      "requires_public_real_recording": true,
+      "scoreable_positive": true,
+      "planned_master_pool": "strong_real_master_C",
+      "construction_intent": "Transform on independent real master C; not byte-reuse of c3f5e1a4d026f938"
+    },
+    {
+      "slot_id": "val_harm_01",
+      "role": "harmonic_pos",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": ["harmonic_distortion"],
+      "planned_confidence": "strong_ground_truth",
+      "requires_public_real_recording": true,
+      "scoreable_positive": true,
+      "planned_master_pool": "strong_real_master_A",
+      "construction_intent": "H2 injection on same independent master A as val_clip_01 (2nd positive for A)"
+    },
+    {
+      "slot_id": "val_harm_02",
+      "role": "harmonic_pos",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": ["harmonic_distortion"],
+      "planned_confidence": "strong_ground_truth",
+      "requires_public_real_recording": true,
+      "scoreable_positive": true,
+      "planned_master_pool": "strong_real_master_B",
+      "construction_intent": "H2 injection on master B (2nd positive for B)"
+    },
+    {
+      "slot_id": "val_harm_03",
+      "role": "harmonic_pos",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": ["harmonic_distortion"],
+      "planned_confidence": "strong_ground_truth",
+      "requires_public_real_recording": true,
+      "scoreable_positive": true,
+      "planned_master_pool": "strong_real_master_D",
+      "construction_intent": "H2 injection on independent real master D; not byte-reuse of b2e4d0f3c915e827"
+    },
+    {
+      "slot_id": "val_comb_01",
+      "role": "combined_pos",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": ["clipping", "harmonic_distortion"],
+      "planned_confidence": "strong_ground_truth",
+      "requires_public_real_recording": true,
+      "scoreable_positive": true,
+      "planned_master_pool": "strong_real_master_C",
+      "construction_intent": "Combined transform on master C (2nd positive for C); not rematerialized d4a6"
+    },
+    {
+      "slot_id": "val_comb_02",
+      "role": "combined_pos",
+      "expected_outcome": "supported_fault",
+      "expected_causal_faults": ["clipping", "harmonic_distortion"],
+      "planned_confidence": "strong_ground_truth",
+      "requires_public_real_recording": true,
+      "scoreable_positive": true,
+      "planned_master_pool": "strong_real_master_D",
+      "construction_intent": "Combined transform on master D (2nd positive for D)"
+    },
+    {
+      "slot_id": "val_nat_even_01",
+      "role": "natural_even_neg",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": [],
+      "planned_confidence": "reference_supported",
+      "confidence_fixed": true,
+      "requires_public_real_recording": true,
+      "scoreable_positive": false,
+      "construction_intent": "Natural even-order; no controlled distortion; harmonic FP probe; confidence not downgradable"
+    },
+    {
+      "slot_id": "val_nat_even_02",
+      "role": "natural_even_neg",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": [],
+      "planned_confidence": "reference_supported",
+      "confidence_fixed": true,
+      "requires_public_real_recording": true,
+      "scoreable_positive": false,
+      "construction_intent": "Second natural even-order negative; confidence not downgradable"
+    },
+    {
+      "slot_id": "val_rich_multitone",
+      "role": "natural_rich",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": [],
+      "planned_confidence": "reference_supported",
+      "requires_public_real_recording": false,
+      "scoreable_positive": false,
+      "construction_intent": "Multi-tone / multi-partial; scoreable inconclusive member"
+    },
+    {
+      "slot_id": "val_rich_square",
+      "role": "natural_rich",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": [],
+      "planned_confidence": "reference_supported",
+      "requires_public_real_recording": false,
+      "scoreable_positive": false,
+      "construction_intent": "Square / odd-rich; scoreable inconclusive member"
+    },
+    {
+      "slot_id": "val_rich_other",
+      "role": "natural_rich",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": [],
+      "planned_confidence": "weak_observation",
+      "requires_public_real_recording": false,
+      "scoreable_positive": false,
+      "construction_intent": "Additional harmonic-rich; unscored"
+    },
+    {
+      "slot_id": "val_lowsnr_01",
+      "role": "low_snr",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": [],
+      "planned_confidence": "reference_supported",
+      "requires_public_real_recording": false,
+      "scoreable_positive": false,
+      "construction_intent": "Low-SNR scoreable inconclusive member"
+    },
+    {
+      "slot_id": "val_lowsnr_02",
+      "role": "low_snr",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": [],
+      "planned_confidence": "weak_observation",
+      "requires_public_real_recording": false,
+      "scoreable_positive": false,
+      "construction_intent": "Second low-SNR; unscored"
+    },
+    {
+      "slot_id": "val_ood_01",
+      "role": "ood",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": [],
+      "planned_confidence": "reference_supported",
+      "requires_public_real_recording": true,
+      "scoreable_positive": false,
+      "construction_intent": "Public real OOD; scoreable inconclusive member; distinct source family"
+    },
+    {
+      "slot_id": "val_ood_02",
+      "role": "ood",
+      "expected_outcome": "inconclusive",
+      "expected_causal_faults": [],
+      "planned_confidence": "unknown",
+      "requires_public_real_recording": true,
+      "scoreable_positive": false,
+      "construction_intent": "Hard OOD public real; unscored; distinct family preferred"
+    }
+  ]
+}
