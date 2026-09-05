@@ -1,0 +1,66 @@
+{
+  "audit_id": "study_v0_3_contextual_validation_1_construction_audit",
+  "status": "construction_ready_for_review",
+  "protocol_commit": "e6ea5fbec3cecdb47a317054d201a44ec74233af",
+  "scope": "catalog construction and deterministic qualification only; metadata-only isolation comparison; no final-test payload access",
+  "checks": {
+    "manifest_schema_valid": true,
+    "case_count_20": true,
+    "unique_case_ids_20": true,
+    "scoreable_count_17": true,
+    "mode_distribution_10_4_6": true,
+    "role_distribution": true,
+    "outcome_distribution_5_9_6": true,
+    "confidence_distribution_9_8_2_1": true,
+    "slot_binding_matches_frozen_skeleton": true,
+    "positive_count_9": true,
+    "positive_parent_masters_at_least_5": true,
+    "positive_cases_per_master_at_most_2": true,
+    "public_real_derived_at_least_14": true,
+    "all_positives_public_real_master": true,
+    "reference_or_unscored_source_families_at_least_3": true,
+    "no_case_id_overlap": true,
+    "no_wav_sha_overlap": true,
+    "no_parent_master_overlap": true,
+    "no_recording_key_overlap": true,
+    "no_forbidden_pyramic_or_development_esc": true,
+    "wav_set_exact_and_checksums_valid": true,
+    "manifest_wav_hashes_valid": true,
+    "qualification_20_of_20": true,
+    "three_arms_each_case": true,
+    "ablation_same_test_sha": true,
+    "execution_ledger_zero_attempts": true,
+    "no_seal_created": true,
+    "no_model_outputs_created": true
+  },
+  "counts": {
+    "cases": 20,
+    "scoreable": 17,
+    "unique_wav_files": 24,
+    "positive_parent_masters": {
+      "cxval_master_bass_electronic_027": 2,
+      "cxval_master_bass_synthetic_135": 2,
+      "cxval_master_keyboard_electronic_069": 1,
+      "cxval_master_guitar_electronic_022": 1,
+      "cxval_master_mallet_acoustic_056": 2,
+      "cxval_master_brass_acoustic_016": 1
+    },
+    "reference_or_unscored_source_families": [
+      "bass_electronic_027",
+      "bass_synthetic_135",
+      "flute_synthetic_000",
+      "guitar_electronic_022",
+      "keyboard_acoustic_004",
+      "organ_electronic_001",
+      "organ_electronic_057",
+      "string_acoustic_012"
+    ],
+    "arms_planned": 60,
+    "arms_executed": 0
+  },
+  "historical_metadata_compared": [
+    "docs\\evaluations\\v0_3\\contextual\\development\\study_v0_3_contextual_dev_1\\contextual_manifest.json",
+    "docs\\evaluations\\v0_3\\dev\\study_v0_3_dev_1\\dev_manifest.json",
+    "docs\\evaluations\\v0_2_external_wav\\final_external_test\\study_v0_2_external_wav_final_1\\final_seal\\study_manifest.json"
+  ]
+}

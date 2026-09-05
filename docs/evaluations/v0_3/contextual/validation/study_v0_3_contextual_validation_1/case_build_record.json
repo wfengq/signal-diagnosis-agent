@@ -1,0 +1,757 @@
+[
+  {
+    "case_id": "f159f483605aed01",
+    "slot_id": "cxval_pair_clean_01",
+    "test_path": "wav\\extwav_validation_8fdb5103064cab4d_test.wav",
+    "ref_path": "wav\\extwav_validation_8fdb5103064cab4d_ref.wav",
+    "rate": 16000,
+    "mode": "paired_reference",
+    "role": "clean",
+    "outcome": "no_supported_fault",
+    "causal": [],
+    "confidence": "reference_supported",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_A",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_bass_electronic_027",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/bass_electronic_027-050-100.wav",
+    "upstream_asset_id": "bass_electronic_027-050-100.wav",
+    "transform_identity": "identity",
+    "transform_parameters": {
+      "kind": "identity"
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": [
+        16000,
+        24000
+      ]
+    },
+    "nominal_hz": null,
+    "test_sha256": "8fdb5103064cab4dec580bcb1244c417958d94e8340f721fa1906b270f41d6bb",
+    "reference_sha256": "8fdb5103064cab4dec580bcb1244c417958d94e8340f721fa1906b270f41d6bb"
+  },
+  {
+    "case_id": "84fd2af41fdc1d54",
+    "slot_id": "cxval_pair_clip_01",
+    "test_path": "wav\\extwav_validation_d9fc0676036ca0b8_test.wav",
+    "ref_path": "wav\\extwav_validation_8fdb5103064cab4d_ref.wav",
+    "rate": 16000,
+    "mode": "paired_reference",
+    "role": "clipping",
+    "outcome": "supported_fault",
+    "causal": [
+      "clipping"
+    ],
+    "confidence": "strong_ground_truth",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_A",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_bass_electronic_027",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/bass_electronic_027-050-100.wav",
+    "upstream_asset_id": "bass_electronic_027-050-100.wav",
+    "transform_identity": "fullscale_hard_clip/peak_target1.5",
+    "transform_parameters": {
+      "kind": "fullscale_hard_clip",
+      "peak_target": 1.5,
+      "clip_level": 0.99,
+      "input_peak": 0.119903564453125,
+      "drive": 12.510053448714686
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": [
+        16000,
+        24000
+      ]
+    },
+    "nominal_hz": null,
+    "test_sha256": "d9fc0676036ca0b87f41d809c4788ac37d970dcecf390a919fb029ca62696a9a",
+    "reference_sha256": "8fdb5103064cab4dec580bcb1244c417958d94e8340f721fa1906b270f41d6bb"
+  },
+  {
+    "case_id": "313d7f95b2e95656",
+    "slot_id": "cxval_pair_clip_02",
+    "test_path": "wav\\extwav_validation_91ac93679e053dd1_test.wav",
+    "ref_path": "wav\\extwav_validation_9f719b53a909854f_ref.wav",
+    "rate": 16000,
+    "mode": "paired_reference",
+    "role": "clipping",
+    "outcome": "supported_fault",
+    "causal": [
+      "clipping"
+    ],
+    "confidence": "strong_ground_truth",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_B",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_bass_synthetic_135",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/bass_synthetic_135-057-127.wav",
+    "upstream_asset_id": "bass_synthetic_135-057-127.wav",
+    "transform_identity": "fullscale_hard_clip/peak_target1.5",
+    "transform_parameters": {
+      "kind": "fullscale_hard_clip",
+      "peak_target": 1.5,
+      "clip_level": 0.99,
+      "input_peak": 0.08795166015625,
+      "drive": 17.054823039555863
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": [
+        16000,
+        24000
+      ]
+    },
+    "nominal_hz": null,
+    "test_sha256": "91ac93679e053dd1e8cad3ed79f3cdba0bac8ac60220b4f7f75070bf6f9cce30",
+    "reference_sha256": "9f719b53a909854fb188365983ee022e9b1a5307499fd56a18f02f6d672e9937"
+  },
+  {
+    "case_id": "6334f80c9b6b30be",
+    "slot_id": "cxval_pair_harm_01",
+    "test_path": "wav\\extwav_validation_b1b0d3acf7e78e3c_test.wav",
+    "ref_path": "wav\\extwav_validation_8fdb5103064cab4d_ref.wav",
+    "rate": 16000,
+    "mode": "paired_reference",
+    "role": "harmonic",
+    "outcome": "supported_fault",
+    "causal": [
+      "harmonic_distortion"
+    ],
+    "confidence": "strong_ground_truth",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_A",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_bass_electronic_027",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/bass_electronic_027-050-100.wav",
+    "upstream_asset_id": "bass_electronic_027-050-100.wav",
+    "transform_identity": "second_harmonic_ampnorm/a0.35/pg1.0",
+    "transform_parameters": {
+      "kind": "second_harmonic_ampnorm",
+      "alpha": 0.35,
+      "post_gain": 1.0
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": [
+        16000,
+        24000
+      ]
+    },
+    "nominal_hz": null,
+    "test_sha256": "b1b0d3acf7e78e3c444f0b3c52c2c4a07ca7c06105136fd636f71bce62316742",
+    "reference_sha256": "8fdb5103064cab4dec580bcb1244c417958d94e8340f721fa1906b270f41d6bb"
+  },
+  {
+    "case_id": "773852f7513151f1",
+    "slot_id": "cxval_pair_harm_02",
+    "test_path": "wav\\extwav_validation_8e8856ea1ad6101d_test.wav",
+    "ref_path": "wav\\extwav_validation_9f719b53a909854f_ref.wav",
+    "rate": 16000,
+    "mode": "paired_reference",
+    "role": "harmonic",
+    "outcome": "supported_fault",
+    "causal": [
+      "harmonic_distortion"
+    ],
+    "confidence": "strong_ground_truth",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_B",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_bass_synthetic_135",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/bass_synthetic_135-057-127.wav",
+    "upstream_asset_id": "bass_synthetic_135-057-127.wav",
+    "transform_identity": "second_harmonic_ampnorm/a0.35/pg1.0",
+    "transform_parameters": {
+      "kind": "second_harmonic_ampnorm",
+      "alpha": 0.35,
+      "post_gain": 1.0
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": [
+        16000,
+        24000
+      ]
+    },
+    "nominal_hz": null,
+    "test_sha256": "8e8856ea1ad6101d75b5cdade9c0669567796b0f7045230ec66b392dc367dc63",
+    "reference_sha256": "9f719b53a909854fb188365983ee022e9b1a5307499fd56a18f02f6d672e9937"
+  },
+  {
+    "case_id": "2ca9870c96ed589d",
+    "slot_id": "cxval_pair_combined_01",
+    "test_path": "wav\\extwav_validation_7f721adc711210ad_test.wav",
+    "ref_path": "wav\\extwav_validation_8d15a36dd636befa_ref.wav",
+    "rate": 16000,
+    "mode": "paired_reference",
+    "role": "combined",
+    "outcome": "supported_fault",
+    "causal": [
+      "clipping",
+      "harmonic_distortion"
+    ],
+    "confidence": "strong_ground_truth",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_C",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_keyboard_electronic_069",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/keyboard_electronic_069-072-075.wav",
+    "upstream_asset_id": "keyboard_electronic_069-072-075.wav",
+    "transform_identity": "second_harmonic_ampnorm_then_fullscale_hard_clip",
+    "transform_parameters": {
+      "kind": "fullscale_hard_clip",
+      "alpha": 0.35,
+      "post_gain": 1.0,
+      "peak_target": 1.5,
+      "clip_level": 0.99,
+      "input_peak": 0.21731038391590118,
+      "drive": 6.902569370916476
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": [
+        16000,
+        24000
+      ]
+    },
+    "nominal_hz": null,
+    "test_sha256": "7f721adc711210ad77d4093a25521e702933ee59603e6053f6d7b7d35037f314",
+    "reference_sha256": "8d15a36dd636befadce4f136ebb66c41f2e03c02cbf10f00483f81ed295078b5"
+  },
+  {
+    "case_id": "b1584e9fd6bf5c1d",
+    "slot_id": "cxval_pair_combined_02",
+    "test_path": "wav\\extwav_validation_9ad1a0a113a2cb6b_test.wav",
+    "ref_path": "wav\\extwav_validation_6f766252d3187d06_ref.wav",
+    "rate": 16000,
+    "mode": "paired_reference",
+    "role": "combined",
+    "outcome": "supported_fault",
+    "causal": [
+      "clipping",
+      "harmonic_distortion"
+    ],
+    "confidence": "strong_ground_truth",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_D",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_guitar_electronic_022",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/guitar_electronic_022-067-127.wav",
+    "upstream_asset_id": "guitar_electronic_022-067-127.wav",
+    "transform_identity": "second_harmonic_ampnorm_then_fullscale_hard_clip",
+    "transform_parameters": {
+      "kind": "fullscale_hard_clip",
+      "alpha": 0.35,
+      "post_gain": 1.0,
+      "peak_target": 1.5,
+      "clip_level": 0.99,
+      "input_peak": 0.26321375370025635,
+      "drive": 5.698790351617325
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": [
+        16000,
+        24000
+      ]
+    },
+    "nominal_hz": null,
+    "test_sha256": "9ad1a0a113a2cb6b6a0364e99d77327dcb8fd227619260d03db25fd9240f4c27",
+    "reference_sha256": "6f766252d3187d069f71e4f84ba81f2ca537c3d197a5d51cb295f129fddd94d3"
+  },
+  {
+    "case_id": "e333ac4a1bdcbd32",
+    "slot_id": "cxval_pair_nat_even_01",
+    "test_path": "wav\\extwav_validation_cb4e6a3b8148a57b_test.wav",
+    "ref_path": "wav\\extwav_validation_cb787015c89e8d8f_ref.wav",
+    "rate": 16000,
+    "mode": "paired_reference",
+    "role": "natural_even_control",
+    "outcome": "no_supported_fault",
+    "causal": [],
+    "confidence": "reference_supported",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_organ_001",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_organ_001",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/organ_electronic_001-073-100.wav",
+    "upstream_asset_id": "organ_electronic_001-073-100.wav",
+    "transform_identity": "adjacent_sustain_windows_identity_pair",
+    "transform_parameters": {
+      "kind": "identity"
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": [
+        8000,
+        16000
+      ]
+    },
+    "nominal_hz": null,
+    "test_sha256": "cb4e6a3b8148a57b03805e94a106cd949d11832fd8ff81801ac0351d61b04eb9",
+    "reference_sha256": "cb787015c89e8d8f415870a9585615a1c0c7cece171937605c570b359963adac"
+  },
+  {
+    "case_id": "c532d055b45329ab",
+    "slot_id": "cxval_pair_nat_even_02",
+    "test_path": "wav\\extwav_validation_6bc03693bd8f0023_test.wav",
+    "ref_path": "wav\\extwav_validation_299ce1beed93a00c_ref.wav",
+    "rate": 16000,
+    "mode": "paired_reference",
+    "role": "natural_even_control",
+    "outcome": "no_supported_fault",
+    "causal": [],
+    "confidence": "reference_supported",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_organ_057",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_organ_057",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/organ_electronic_057-045-050.wav",
+    "upstream_asset_id": "organ_electronic_057-045-050.wav",
+    "transform_identity": "adjacent_sustain_windows_identity_pair",
+    "transform_parameters": {
+      "kind": "identity"
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": [
+        8000,
+        16000
+      ]
+    },
+    "nominal_hz": null,
+    "test_sha256": "6bc03693bd8f002314e71b5d4c7afe26484140cf4e5cd3eb48ebc84a47837e46",
+    "reference_sha256": "299ce1beed93a00ccf8064e801d06ed3e804e3f175a5c9dd393f04d31d206ebe"
+  },
+  {
+    "case_id": "91280fa05c6dfd2a",
+    "slot_id": "cxval_pair_invalid_01",
+    "test_path": "wav\\extwav_validation_8fdb5103064cab4d_test.wav",
+    "ref_path": "wav\\extwav_validation_8d15a36dd636befa_ref.wav",
+    "rate": 16000,
+    "mode": "paired_reference",
+    "role": "controlled_inconclusive",
+    "outcome": "inconclusive",
+    "causal": [],
+    "confidence": "reference_supported",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_A",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_bass_electronic_027",
+    "reference_master_id": "cxval_master_keyboard_electronic_069",
+    "recording_key": "nsynth-test/audio/bass_electronic_027-050-100.wav|nsynth-test/audio/keyboard_electronic_069-072-075.wav",
+    "upstream_asset_id": "bass_electronic_027-050-100.wav|keyboard_electronic_069-072-075.wav",
+    "transform_identity": "incompatible_fundamental_pair",
+    "transform_parameters": {
+      "kind": "incompatible_fundamental_pair",
+      "reference_master_id": "cxval_master_keyboard_electronic_069"
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": [
+        16000,
+        24000
+      ]
+    },
+    "nominal_hz": null,
+    "test_sha256": "8fdb5103064cab4dec580bcb1244c417958d94e8340f721fa1906b270f41d6bb",
+    "reference_sha256": "8d15a36dd636befadce4f136ebb66c41f2e03c02cbf10f00483f81ed295078b5"
+  },
+  {
+    "case_id": "207890c0f8d99c8b",
+    "slot_id": "cxval_nominal_clean_01",
+    "test_path": "wav\\extwav_validation_9f719b53a909854f_test.wav",
+    "ref_path": null,
+    "rate": 16000,
+    "mode": "nominal_single_tone",
+    "role": "clean",
+    "outcome": "no_supported_fault",
+    "causal": [],
+    "confidence": "reference_supported",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_B",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_bass_synthetic_135",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/bass_synthetic_135-057-127.wav",
+    "upstream_asset_id": "bass_synthetic_135-057-127.wav",
+    "transform_identity": "identity",
+    "transform_parameters": {
+      "kind": "identity"
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": null
+    },
+    "nominal_hz": 219.17808219178082,
+    "test_sha256": "9f719b53a909854fb188365983ee022e9b1a5307499fd56a18f02f6d672e9937",
+    "reference_sha256": null
+  },
+  {
+    "case_id": "7fd4173cde11c0e3",
+    "slot_id": "cxval_nominal_clip_01",
+    "test_path": "wav\\extwav_validation_ab09982d6d52fab9_test.wav",
+    "ref_path": null,
+    "rate": 16000,
+    "mode": "nominal_single_tone",
+    "role": "clipping",
+    "outcome": "supported_fault",
+    "causal": [
+      "clipping"
+    ],
+    "confidence": "strong_ground_truth",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_E",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_mallet_acoustic_056",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/mallet_acoustic_056-058-100.wav",
+    "upstream_asset_id": "mallet_acoustic_056-058-100.wav",
+    "transform_identity": "fullscale_hard_clip/peak_target1.5",
+    "transform_parameters": {
+      "kind": "fullscale_hard_clip",
+      "peak_target": 1.5,
+      "clip_level": 0.99,
+      "input_peak": 0.000244140625,
+      "drive": 6144.0
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": null
+    },
+    "nominal_hz": 231.8840579710145,
+    "test_sha256": "ab09982d6d52fab9fc5555271bb3c0ed1c3bf8a37fc3d9689c23204ea95d67c7",
+    "reference_sha256": null
+  },
+  {
+    "case_id": "f4ba6f42e587256c",
+    "slot_id": "cxval_nominal_harm_01",
+    "test_path": "wav\\extwav_validation_7e5c5689245dfa2d_test.wav",
+    "ref_path": null,
+    "rate": 16000,
+    "mode": "nominal_single_tone",
+    "role": "harmonic",
+    "outcome": "supported_fault",
+    "causal": [
+      "harmonic_distortion"
+    ],
+    "confidence": "strong_ground_truth",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_E",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_mallet_acoustic_056",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/mallet_acoustic_056-058-100.wav",
+    "upstream_asset_id": "mallet_acoustic_056-058-100.wav",
+    "transform_identity": "second_harmonic_ampnorm/a0.35/pg1.0",
+    "transform_parameters": {
+      "kind": "second_harmonic_ampnorm",
+      "alpha": 0.35,
+      "post_gain": 1.0
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": null
+    },
+    "nominal_hz": 231.8840579710145,
+    "test_sha256": "7e5c5689245dfa2d4aedd0c636f53d2514ad62dc38ba32f93bfc3e0307127a40",
+    "reference_sha256": null
+  },
+  {
+    "case_id": "76054f40e6aeec75",
+    "slot_id": "cxval_nominal_mismatch_01",
+    "test_path": "wav\\extwav_validation_6f766252d3187d06_test.wav",
+    "ref_path": null,
+    "rate": 16000,
+    "mode": "nominal_single_tone",
+    "role": "controlled_inconclusive",
+    "outcome": "inconclusive",
+    "causal": [],
+    "confidence": "reference_supported",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_D",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_guitar_electronic_022",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/guitar_electronic_022-067-127.wav",
+    "upstream_asset_id": "guitar_electronic_022-067-127.wav",
+    "transform_identity": "declared_fundamental_mismatch_x1.5",
+    "transform_parameters": {
+      "kind": "declared_fundamental_mismatch",
+      "scale": 1.5
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": null
+    },
+    "nominal_hz": 585.3658536585366,
+    "test_sha256": "6f766252d3187d069f71e4f84ba81f2ca537c3d197a5d51cb295f129fddd94d3",
+    "reference_sha256": null
+  },
+  {
+    "case_id": "2a0d47d7d4f05d7f",
+    "slot_id": "cxval_single_clean_01",
+    "test_path": "wav\\extwav_validation_8fdb5103064cab4d_test.wav",
+    "ref_path": null,
+    "rate": 16000,
+    "mode": "single_signal",
+    "role": "clean",
+    "outcome": "no_supported_fault",
+    "causal": [],
+    "confidence": "reference_supported",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_A",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_bass_electronic_027",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/bass_electronic_027-050-100.wav",
+    "upstream_asset_id": "bass_electronic_027-050-100.wav",
+    "transform_identity": "identity",
+    "transform_parameters": {
+      "kind": "identity"
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": null
+    },
+    "nominal_hz": null,
+    "test_sha256": "8fdb5103064cab4dec580bcb1244c417958d94e8340f721fa1906b270f41d6bb",
+    "reference_sha256": null
+  },
+  {
+    "case_id": "675073735bc06f76",
+    "slot_id": "cxval_single_clip_01",
+    "test_path": "wav\\extwav_validation_8c6da870c818cf9e_test.wav",
+    "ref_path": null,
+    "rate": 16000,
+    "mode": "single_signal",
+    "role": "clipping",
+    "outcome": "supported_fault",
+    "causal": [
+      "clipping"
+    ],
+    "confidence": "strong_ground_truth",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_F",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_brass_acoustic_016",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/brass_acoustic_016-066-025.wav",
+    "upstream_asset_id": "brass_acoustic_016-066-025.wav",
+    "transform_identity": "fullscale_hard_clip/peak_target1.5",
+    "transform_parameters": {
+      "kind": "fullscale_hard_clip",
+      "peak_target": 1.5,
+      "clip_level": 0.99,
+      "input_peak": 0.801055908203125,
+      "drive": 1.8725284772753248
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": null
+    },
+    "nominal_hz": null,
+    "test_sha256": "8c6da870c818cf9ebb6cddc24a95023721d1be059ec21890f972e13359f792b5",
+    "reference_sha256": null
+  },
+  {
+    "case_id": "651c196e5385a893",
+    "slot_id": "cxval_single_controlled_inc_01",
+    "test_path": "wav\\extwav_validation_a5b7574e85e8d5a5_test.wav",
+    "ref_path": null,
+    "rate": 16000,
+    "mode": "single_signal",
+    "role": "controlled_inconclusive",
+    "outcome": "inconclusive",
+    "causal": [],
+    "confidence": "reference_supported",
+    "scoreable": true,
+    "source_id": "cxval_nsynth_B",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_bass_synthetic_135",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/bass_synthetic_135-057-127.wav",
+    "upstream_asset_id": "bass_synthetic_135-057-127.wav",
+    "transform_identity": "additive_noise_snr_control",
+    "transform_parameters": {
+      "kind": "additive_noise_snr_control",
+      "tone_gain": 0.15,
+      "noise_sigma": 0.35,
+      "seed": 20260905
+    },
+    "crop": {
+      "test": [
+        16000,
+        24000
+      ],
+      "reference": null
+    },
+    "nominal_hz": null,
+    "test_sha256": "a5b7574e85e8d5a5ab1324cba1c649ae71fd46e7d2896498ae66a47ad56f1ecd",
+    "reference_sha256": null
+  },
+  {
+    "case_id": "97994d18ab57b7ed",
+    "slot_id": "cxval_single_ood_01",
+    "test_path": "wav\\extwav_validation_a70ba0cbb88b2ddc_test.wav",
+    "ref_path": null,
+    "rate": 16000,
+    "mode": "single_signal",
+    "role": "domain_out_inconclusive",
+    "outcome": "inconclusive",
+    "causal": [],
+    "confidence": "weak_observation",
+    "scoreable": false,
+    "source_id": "cxval_nsynth_ood_1",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_string_acoustic_012",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/string_acoustic_012-045-100.wav",
+    "upstream_asset_id": "string_acoustic_012-045-100.wav",
+    "transform_identity": "identity",
+    "transform_parameters": {
+      "kind": "identity_onset_crop",
+      "public_label_not_used_as_s1_truth": true,
+      "domain_out_rationale": "non-stationary instrument onset outside the periodic steady-state S1 assumption"
+    },
+    "crop": {
+      "test": [
+        0,
+        8000
+      ],
+      "reference": null
+    },
+    "nominal_hz": null,
+    "test_sha256": "a70ba0cbb88b2ddced6bea2961446fe76e97424d76a3f5c5df05296a731f3381",
+    "reference_sha256": null
+  },
+  {
+    "case_id": "54c6b454b876f8f7",
+    "slot_id": "cxval_single_ood_02",
+    "test_path": "wav\\extwav_validation_dc08b09993bd8b56_test.wav",
+    "ref_path": null,
+    "rate": 16000,
+    "mode": "single_signal",
+    "role": "domain_out_inconclusive",
+    "outcome": "inconclusive",
+    "causal": [],
+    "confidence": "weak_observation",
+    "scoreable": false,
+    "source_id": "cxval_nsynth_ood_2",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_keyboard_acoustic_004",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/keyboard_acoustic_004-058-100.wav",
+    "upstream_asset_id": "keyboard_acoustic_004-058-100.wav",
+    "transform_identity": "identity",
+    "transform_parameters": {
+      "kind": "identity_onset_crop",
+      "public_label_not_used_as_s1_truth": true,
+      "domain_out_rationale": "non-stationary instrument onset outside the periodic steady-state S1 assumption"
+    },
+    "crop": {
+      "test": [
+        0,
+        8000
+      ],
+      "reference": null
+    },
+    "nominal_hz": null,
+    "test_sha256": "dc08b09993bd8b56e70e869b0d8632beb70cfb9a78a4a2b36005339257ab3801",
+    "reference_sha256": null
+  },
+  {
+    "case_id": "0b4fabbb2d7eae08",
+    "slot_id": "cxval_single_ood_03",
+    "test_path": "wav\\extwav_validation_41493464c06c67a0_test.wav",
+    "ref_path": null,
+    "rate": 16000,
+    "mode": "single_signal",
+    "role": "domain_out_inconclusive",
+    "outcome": "inconclusive",
+    "causal": [],
+    "confidence": "unknown",
+    "scoreable": false,
+    "source_id": "cxval_nsynth_ood_3",
+    "license_id": "CC-BY-4.0",
+    "parent_master_id": "cxval_master_flute_synthetic_000",
+    "reference_master_id": null,
+    "recording_key": "nsynth-test/audio/flute_synthetic_000-048-100.wav",
+    "upstream_asset_id": "flute_synthetic_000-048-100.wav",
+    "transform_identity": "identity",
+    "transform_parameters": {
+      "kind": "identity_onset_crop",
+      "public_label_not_used_as_s1_truth": true,
+      "domain_out_rationale": "non-stationary instrument onset outside the periodic steady-state S1 assumption"
+    },
+    "crop": {
+      "test": [
+        0,
+        8000
+      ],
+      "reference": null
+    },
+    "nominal_hz": null,
+    "test_sha256": "41493464c06c67a05851c2ff1b1cfa96ec0666372cf4f77dca7a06a273f296bb",
+    "reference_sha256": null
+  }
+]

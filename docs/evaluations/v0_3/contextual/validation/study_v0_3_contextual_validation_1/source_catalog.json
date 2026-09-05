@@ -1,0 +1,245 @@
+{
+  "catalog_id": "v0.3-contextual-validation-1",
+  "protocol_version": "1.0.0-prereg",
+  "sources": [
+    {
+      "source_id": "cxval_nsynth_A",
+      "official_name": "NSynth",
+      "source_family": "bass_electronic_027",
+      "upstream_asset_id": "bass_electronic_027-050-100.wav",
+      "upstream_member_sha256": [
+        "61c3eb8cbfe6e818dc65e8028ef324ec508f07d55bad362c8d0d831267a6ae9b"
+      ],
+      "parent_archive_sha256": "0f9ba5d62beba9ec4612f918d19f5e87a681822f1c566124f05fe8b27a51934c",
+      "authoritative_page_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "terms_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "attribution": "NSynth Dataset (Google Magenta)",
+      "citation": "Jesse Engel et al., Neural Audio Synthesis of Musical Notes with WaveNet Autoencoders, 2017.",
+      "license_id": "CC-BY-4.0",
+      "redistribution_decision": "derived 0.5 s mono PCM24 study WAV; attribution retained",
+      "third_party_label_policy": "instrument metadata is provenance only and is not mapped to S1 fault truth",
+      "s1_roles": [
+        "clean",
+        "clipping",
+        "controlled_inconclusive",
+        "harmonic"
+      ],
+      "notes": ""
+    },
+    {
+      "source_id": "cxval_nsynth_B",
+      "official_name": "NSynth",
+      "source_family": "bass_synthetic_135",
+      "upstream_asset_id": "bass_synthetic_135-057-127.wav",
+      "upstream_member_sha256": [
+        "5d4ec2e73148c6b1715253cdb25b2ccbf44a9ad61fed8b9e3ed40013b09976e2"
+      ],
+      "parent_archive_sha256": "0f9ba5d62beba9ec4612f918d19f5e87a681822f1c566124f05fe8b27a51934c",
+      "authoritative_page_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "terms_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "attribution": "NSynth Dataset (Google Magenta)",
+      "citation": "Jesse Engel et al., Neural Audio Synthesis of Musical Notes with WaveNet Autoencoders, 2017.",
+      "license_id": "CC-BY-4.0",
+      "redistribution_decision": "derived 0.5 s mono PCM24 study WAV; attribution retained",
+      "third_party_label_policy": "instrument metadata is provenance only and is not mapped to S1 fault truth",
+      "s1_roles": [
+        "clean",
+        "clipping",
+        "controlled_inconclusive",
+        "harmonic"
+      ],
+      "notes": ""
+    },
+    {
+      "source_id": "cxval_nsynth_C",
+      "official_name": "NSynth",
+      "source_family": "keyboard_electronic_069",
+      "upstream_asset_id": "keyboard_electronic_069-072-075.wav",
+      "upstream_member_sha256": [
+        "9446c3ba965e096a9c17cd72f94c0ad78cb41ca839753dea992bb6ecc8eab690"
+      ],
+      "parent_archive_sha256": "0f9ba5d62beba9ec4612f918d19f5e87a681822f1c566124f05fe8b27a51934c",
+      "authoritative_page_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "terms_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "attribution": "NSynth Dataset (Google Magenta)",
+      "citation": "Jesse Engel et al., Neural Audio Synthesis of Musical Notes with WaveNet Autoencoders, 2017.",
+      "license_id": "CC-BY-4.0",
+      "redistribution_decision": "derived 0.5 s mono PCM24 study WAV; attribution retained",
+      "third_party_label_policy": "instrument metadata is provenance only and is not mapped to S1 fault truth",
+      "s1_roles": [
+        "combined"
+      ],
+      "notes": ""
+    },
+    {
+      "source_id": "cxval_nsynth_D",
+      "official_name": "NSynth",
+      "source_family": "guitar_electronic_022",
+      "upstream_asset_id": "guitar_electronic_022-067-127.wav",
+      "upstream_member_sha256": [
+        "97931c24a126e508d8ec032525142183e0038e05194beb1683f4dd4e4b4dda64"
+      ],
+      "parent_archive_sha256": "0f9ba5d62beba9ec4612f918d19f5e87a681822f1c566124f05fe8b27a51934c",
+      "authoritative_page_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "terms_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "attribution": "NSynth Dataset (Google Magenta)",
+      "citation": "Jesse Engel et al., Neural Audio Synthesis of Musical Notes with WaveNet Autoencoders, 2017.",
+      "license_id": "CC-BY-4.0",
+      "redistribution_decision": "derived 0.5 s mono PCM24 study WAV; attribution retained",
+      "third_party_label_policy": "instrument metadata is provenance only and is not mapped to S1 fault truth",
+      "s1_roles": [
+        "combined",
+        "controlled_inconclusive"
+      ],
+      "notes": ""
+    },
+    {
+      "source_id": "cxval_nsynth_organ_001",
+      "official_name": "NSynth",
+      "source_family": "organ_electronic_001",
+      "upstream_asset_id": "organ_electronic_001-073-100.wav",
+      "upstream_member_sha256": [
+        "9192d44a069ed84f9114f12af43f859eed4d8f4b36d9c3b7bc5a53e6a33d3809"
+      ],
+      "parent_archive_sha256": "0f9ba5d62beba9ec4612f918d19f5e87a681822f1c566124f05fe8b27a51934c",
+      "authoritative_page_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "terms_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "attribution": "NSynth Dataset (Google Magenta)",
+      "citation": "Jesse Engel et al., Neural Audio Synthesis of Musical Notes with WaveNet Autoencoders, 2017.",
+      "license_id": "CC-BY-4.0",
+      "redistribution_decision": "derived 0.5 s mono PCM24 study WAV; attribution retained",
+      "third_party_label_policy": "instrument metadata is provenance only and is not mapped to S1 fault truth",
+      "s1_roles": [
+        "natural_even_control"
+      ],
+      "notes": ""
+    },
+    {
+      "source_id": "cxval_nsynth_organ_057",
+      "official_name": "NSynth",
+      "source_family": "organ_electronic_057",
+      "upstream_asset_id": "organ_electronic_057-045-050.wav",
+      "upstream_member_sha256": [
+        "c78b43dbdee296d9a2ac89f5c7381e596f6f13a56a8669cf5681295dee473ef4"
+      ],
+      "parent_archive_sha256": "0f9ba5d62beba9ec4612f918d19f5e87a681822f1c566124f05fe8b27a51934c",
+      "authoritative_page_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "terms_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "attribution": "NSynth Dataset (Google Magenta)",
+      "citation": "Jesse Engel et al., Neural Audio Synthesis of Musical Notes with WaveNet Autoencoders, 2017.",
+      "license_id": "CC-BY-4.0",
+      "redistribution_decision": "derived 0.5 s mono PCM24 study WAV; attribution retained",
+      "third_party_label_policy": "instrument metadata is provenance only and is not mapped to S1 fault truth",
+      "s1_roles": [
+        "natural_even_control"
+      ],
+      "notes": ""
+    },
+    {
+      "source_id": "cxval_nsynth_E",
+      "official_name": "NSynth",
+      "source_family": "mallet_acoustic_056",
+      "upstream_asset_id": "mallet_acoustic_056-058-100.wav",
+      "upstream_member_sha256": [
+        "004668183cc2e8abbfad1400158546d7e94d5aa8f3019e7142fcf2e812c9871f"
+      ],
+      "parent_archive_sha256": "0f9ba5d62beba9ec4612f918d19f5e87a681822f1c566124f05fe8b27a51934c",
+      "authoritative_page_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "terms_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "attribution": "NSynth Dataset (Google Magenta)",
+      "citation": "Jesse Engel et al., Neural Audio Synthesis of Musical Notes with WaveNet Autoencoders, 2017.",
+      "license_id": "CC-BY-4.0",
+      "redistribution_decision": "derived 0.5 s mono PCM24 study WAV; attribution retained",
+      "third_party_label_policy": "instrument metadata is provenance only and is not mapped to S1 fault truth",
+      "s1_roles": [
+        "clipping",
+        "harmonic"
+      ],
+      "notes": ""
+    },
+    {
+      "source_id": "cxval_nsynth_F",
+      "official_name": "NSynth",
+      "source_family": "brass_acoustic_016",
+      "upstream_asset_id": "brass_acoustic_016-066-025.wav",
+      "upstream_member_sha256": [
+        "b0a8039c1c2b2de5e7dd5a3ee95485ae85295eaf61c8ff5046ac27ebe6789890"
+      ],
+      "parent_archive_sha256": "0f9ba5d62beba9ec4612f918d19f5e87a681822f1c566124f05fe8b27a51934c",
+      "authoritative_page_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "terms_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "attribution": "NSynth Dataset (Google Magenta)",
+      "citation": "Jesse Engel et al., Neural Audio Synthesis of Musical Notes with WaveNet Autoencoders, 2017.",
+      "license_id": "CC-BY-4.0",
+      "redistribution_decision": "derived 0.5 s mono PCM24 study WAV; attribution retained",
+      "third_party_label_policy": "instrument metadata is provenance only and is not mapped to S1 fault truth",
+      "s1_roles": [
+        "clipping"
+      ],
+      "notes": ""
+    },
+    {
+      "source_id": "cxval_nsynth_ood_1",
+      "official_name": "NSynth",
+      "source_family": "string_acoustic_012",
+      "upstream_asset_id": "string_acoustic_012-045-100.wav",
+      "upstream_member_sha256": [
+        "c8fdb0b010b3068c539613df55abd21f4efa849abc5685637b84126e57c62b06"
+      ],
+      "parent_archive_sha256": "0f9ba5d62beba9ec4612f918d19f5e87a681822f1c566124f05fe8b27a51934c",
+      "authoritative_page_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "terms_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "attribution": "NSynth Dataset (Google Magenta)",
+      "citation": "Jesse Engel et al., Neural Audio Synthesis of Musical Notes with WaveNet Autoencoders, 2017.",
+      "license_id": "CC-BY-4.0",
+      "redistribution_decision": "derived 0.5 s mono PCM24 study WAV; attribution retained",
+      "third_party_label_policy": "instrument metadata is provenance only and is not mapped to S1 fault truth",
+      "s1_roles": [
+        "domain_out_inconclusive"
+      ],
+      "notes": ""
+    },
+    {
+      "source_id": "cxval_nsynth_ood_2",
+      "official_name": "NSynth",
+      "source_family": "keyboard_acoustic_004",
+      "upstream_asset_id": "keyboard_acoustic_004-058-100.wav",
+      "upstream_member_sha256": [
+        "79f5c393cb7dcc6545bee850c8811ccecf58fa2668fdca305db9e6a4a2d18b2a"
+      ],
+      "parent_archive_sha256": "0f9ba5d62beba9ec4612f918d19f5e87a681822f1c566124f05fe8b27a51934c",
+      "authoritative_page_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "terms_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "attribution": "NSynth Dataset (Google Magenta)",
+      "citation": "Jesse Engel et al., Neural Audio Synthesis of Musical Notes with WaveNet Autoencoders, 2017.",
+      "license_id": "CC-BY-4.0",
+      "redistribution_decision": "derived 0.5 s mono PCM24 study WAV; attribution retained",
+      "third_party_label_policy": "instrument metadata is provenance only and is not mapped to S1 fault truth",
+      "s1_roles": [
+        "domain_out_inconclusive"
+      ],
+      "notes": ""
+    },
+    {
+      "source_id": "cxval_nsynth_ood_3",
+      "official_name": "NSynth",
+      "source_family": "flute_synthetic_000",
+      "upstream_asset_id": "flute_synthetic_000-048-100.wav",
+      "upstream_member_sha256": [
+        "fbd9fc0aba48f938d5ef3d2b75edf4355aa7eea2eedf3471fdcf39172f2ed23d"
+      ],
+      "parent_archive_sha256": "0f9ba5d62beba9ec4612f918d19f5e87a681822f1c566124f05fe8b27a51934c",
+      "authoritative_page_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "terms_url": "https://magenta.withgoogle.com/datasets/nsynth",
+      "attribution": "NSynth Dataset (Google Magenta)",
+      "citation": "Jesse Engel et al., Neural Audio Synthesis of Musical Notes with WaveNet Autoencoders, 2017.",
+      "license_id": "CC-BY-4.0",
+      "redistribution_decision": "derived 0.5 s mono PCM24 study WAV; attribution retained",
+      "third_party_label_policy": "instrument metadata is provenance only and is not mapped to S1 fault truth",
+      "s1_roles": [
+        "domain_out_inconclusive"
+      ],
+      "notes": ""
+    }
+  ]
+}

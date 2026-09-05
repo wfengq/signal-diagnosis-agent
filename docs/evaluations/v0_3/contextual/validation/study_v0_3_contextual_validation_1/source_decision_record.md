@@ -1,0 +1,3 @@
+# Contextual validation source decision
+
+Only the cached, license-recorded NSynth CC BY 4.0 archive was used. Development NSynth instrument/source identities, development ESC-10 assets, and every Pyramic asset were excluded. Pyramic was rejected because its cached recordings share an upstream environment family with V0.2 sealed evidence; a different crop is not independent. The three unscored domain-out pressure cases are distinct non-stationary NSynth instrument onsets outside the periodic steady-state S1 assumption. Third-party labels are provenance only and were not mapped to S1 fault truth.

@@ -1,0 +1,14 @@
+{
+  "status": "construction_complete_model_not_run",
+  "arms": {
+    "contextual_agent": {
+      "attempts": 0
+    },
+    "fixed_pipeline": {
+      "attempts": 0
+    },
+    "no_context_ablation": {
+      "attempts": 0
+    }
+  }
+}
