@@ -1,0 +1,76 @@
+{
+  "case_id": "04f4068ec91d2621",
+  "mode": "paired_reference",
+  "role": "natural_even_control",
+  "scoreable": true,
+  "expected_outcome": "no_supported_fault",
+  "expected_causal_set": [],
+  "outcome": "no_supported_fault",
+  "causal_faults": [],
+  "claims": [
+    {
+      "claim_id": "claim_no_fault_1",
+      "fault_type": "no_supported_fault",
+      "statement": "Clipping is ruled out by clipping_mechanism=false and PASS clipping rules. Harmonic distortion is ruled out relative to the paired reference: contextual analysis is valid, F0 compatible, reference clipping checks PASS, and even harmonic growth is within the acceptable threshold. The supported cause set is empty.",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+      ],
+      "rule_refs": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_cd9664555eb15b8d",
+        "ruleval_a670d5d62d79c436",
+        "ruleval_1ce95ddb07224efd",
+        "ruleval_afb6f8279079cce6",
+        "ruleval_8dbed32f9b0ac32b",
+        "ruleval_d25b56ddd168013f",
+        "ruleval_fe7c68f96f39d743"
+      ],
+      "knowledge_refs": []
+    }
+  ],
+  "evidence_refs": [
+    "ev_detect_clipping_detect_clipping_000000_007",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012"
+  ],
+  "rule_refs": [
+    "ruleval_237883d67b741c3e",
+    "ruleval_cd9664555eb15b8d",
+    "ruleval_a670d5d62d79c436",
+    "ruleval_1ce95ddb07224efd",
+    "ruleval_afb6f8279079cce6",
+    "ruleval_8dbed32f9b0ac32b",
+    "ruleval_d25b56ddd168013f",
+    "ruleval_fe7c68f96f39d743"
+  ],
+  "evidence_refs_complete": true,
+  "causal_gate": {
+    "outcome": "no_supported_fault",
+    "causal_faults": [],
+    "claim_count": 1,
+    "limitations": [
+      "The no_supported_fault conclusion is relative to the supplied paired reference signal; it does not assert the signal is free of all distortion in an absolute sense."
+    ]
+  },
+  "limitations": [
+    "The no_supported_fault conclusion is relative to the supplied paired reference signal; it does not assert the signal is free of all distortion in an absolute sense."
+  ],
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_contextual_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [],
+  "termination_reason": "planner_finished",
+  "status": "success",
+  "infrastructure_failure": false,
+  "correct_outcome": true,
+  "correct_causal": true,
+  "started_at_utc": "2026-09-05T00:11:32.937613+00:00",
+  "finished_at_utc": "2026-09-05T00:11:39.409046+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_7_dev_confirmation_1/cases/04f4068ec91d2621"
+}

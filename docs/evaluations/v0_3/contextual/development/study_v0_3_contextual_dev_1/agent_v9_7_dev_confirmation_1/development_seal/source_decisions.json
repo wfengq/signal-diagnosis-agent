@@ -1,0 +1,37 @@
+{
+  "authorization": "v9.7 development confirmation",
+  "causal_policy_version": "v9_7_deterministic_rule_closure",
+  "preflight": {
+    "authorization": "v9.7 development confirmation; RealLLMPlanner; deepseek-v4-flash; causal_policy=v9_7_deterministic_rule_closure; scripted_planner_fallback=false; one attempt per slot; failure-as-incorrect scoring; no validation access",
+    "causal_policy_version": "v9_7_deterministic_rule_closure",
+    "credentials_present": true,
+    "head_commit": "e28c4e4c9f2e16e86fad6342d842db4016da765a",
+    "implementation_sha256": "51b65779a0ef7797b512e527f2757edfd0fdb99f7dc3302786309d7d40fca470",
+    "manifest_sha256": "cca0ee24d8574435761d2d057fd4341c5e015ee7d5337826f796ea832cf047dd",
+    "model": "deepseek-v4-flash",
+    "model_provider": "deepseek",
+    "planner_class": "RealLLMPlanner",
+    "profile_contextual_sha256": "c79865caf913b2a1a5f6f50fccd8c37d6f2828e72feb1f80d9c9c7b4b7d9eb58",
+    "profile_s1_sha256": "1e02d0dabe74ae1327fa3418d4ce546c53e8a8d06b175b5c508edb8b512f5ed1",
+    "prompt_sha256": "fc50d82fc7b5701388f5d35c7f50a157ed1c88f050e6057cd8f11caf280b982a",
+    "prompt_version": "v0.3-s1-planner-9.7",
+    "protected_prior_trees": [
+      "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_5_dev_run",
+      "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_5_dev_run_partial_aborted_misclassified_infra_2026-09-04",
+      "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_5_dev_diagnostic_continuation_1",
+      "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_6_dev_confirmation_1",
+      "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/v9_7_rule_closure_shadow_replay_1"
+    ],
+    "reachability": {
+      "chat_completions_invoked": false,
+      "diagnosis_invoked": false,
+      "host": "api.deepseek.com",
+      "models_endpoint_http_status": 200,
+      "port": 443,
+      "tls_version": "TLSv1.3"
+    },
+    "scripted_planner_fallback": false
+  },
+  "scripted_planner_fallback": false,
+  "study": "study_v0_3_contextual_dev_1"
+}

@@ -1,0 +1,70 @@
+{
+  "case_id": "abd9010438d4ad93",
+  "mode": "paired_reference",
+  "role": "clipping",
+  "scoreable": true,
+  "expected_outcome": "supported_fault",
+  "expected_causal_set": [
+    "clipping"
+  ],
+  "outcome": "supported_fault",
+  "causal_faults": [
+    "clipping"
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_supported_1",
+      "fault_type": "clipping",
+      "statement": "Clipping is affirmatively supported by clipping_mechanism=true and substantial clipping ratio with flat-top detection.",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "rule_refs": [
+        "ruleval_c6092880e114a008",
+        "ruleval_2a7ff09ac5dab5fc"
+      ],
+      "knowledge_refs": []
+    }
+  ],
+  "evidence_refs": [
+    "ev_detect_clipping_detect_clipping_000000_000",
+    "ev_detect_clipping_detect_clipping_000000_001",
+    "ev_detect_clipping_detect_clipping_000000_006",
+    "ev_detect_clipping_detect_clipping_000000_007"
+  ],
+  "rule_refs": [
+    "ruleval_c6092880e114a008",
+    "ruleval_2a7ff09ac5dab5fc"
+  ],
+  "evidence_refs_complete": true,
+  "causal_gate": {
+    "outcome": "supported_fault",
+    "causal_faults": [
+      "clipping"
+    ],
+    "claim_count": 1,
+    "limitations": [
+      "Harmonic distortion is not independently supported: contextual comparison shows only odd-order growth consistent with clipping products, and even-harmonic growth is within acceptable limits."
+    ]
+  },
+  "limitations": [
+    "Harmonic distortion is not independently supported: contextual comparison shows only odd-order growth consistent with clipping products, and even-harmonic growth is within acceptable limits."
+  ],
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_contextual_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [],
+  "termination_reason": "planner_finished",
+  "status": "success",
+  "infrastructure_failure": false,
+  "correct_outcome": true,
+  "correct_causal": true,
+  "started_at_utc": "2026-09-05T00:10:29.463089+00:00",
+  "finished_at_utc": "2026-09-05T00:10:35.745960+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_7_dev_confirmation_1/cases/abd9010438d4ad93"
+}

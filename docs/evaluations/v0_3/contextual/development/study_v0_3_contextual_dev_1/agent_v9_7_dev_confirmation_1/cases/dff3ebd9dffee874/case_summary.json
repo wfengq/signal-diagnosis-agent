@@ -1,0 +1,72 @@
+{
+  "case_id": "dff3ebd9dffee874",
+  "mode": "nominal_single_tone",
+  "role": "clipping",
+  "scoreable": true,
+  "expected_outcome": "supported_fault",
+  "expected_causal_set": [
+    "clipping"
+  ],
+  "outcome": "supported_fault",
+  "causal_faults": [
+    "clipping"
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_supported_1",
+      "fault_type": "clipping",
+      "statement": "Clipping is affirmatively supported by same-run Evidence: clipping_mechanism is true, clipping_ratio is 0.137, and flat_top_detected is true.",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "rule_refs": [
+        "ruleval_d1b39be5d86c7bb3",
+        "ruleval_78083430b4c3f899",
+        "ruleval_2a7ff09ac5dab5fc"
+      ],
+      "knowledge_refs": []
+    }
+  ],
+  "evidence_refs": [
+    "ev_detect_clipping_detect_clipping_000000_000",
+    "ev_detect_clipping_detect_clipping_000000_001",
+    "ev_detect_clipping_detect_clipping_000000_006",
+    "ev_detect_clipping_detect_clipping_000000_007"
+  ],
+  "rule_refs": [
+    "ruleval_d1b39be5d86c7bb3",
+    "ruleval_78083430b4c3f899",
+    "ruleval_2a7ff09ac5dab5fc"
+  ],
+  "evidence_refs_complete": true,
+  "causal_gate": {
+    "outcome": "supported_fault",
+    "causal_faults": [
+      "clipping"
+    ],
+    "claim_count": 1,
+    "limitations": [
+      "Harmonic distortion is not independently supported: contextual analysis in nominal_single_tone mode shows even_harmonic_growth_percent 0.63% and nominal THD 2.86%, both within configured thresholds, and test_series_kind is native_odd_series. No reportable even-order distortion mechanism is established beyond clipping products."
+    ]
+  },
+  "limitations": [
+    "Harmonic distortion is not independently supported: contextual analysis in nominal_single_tone mode shows even_harmonic_growth_percent 0.63% and nominal THD 2.86%, both within configured thresholds, and test_series_kind is native_odd_series. No reportable even-order distortion mechanism is established beyond clipping products."
+  ],
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_contextual_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [],
+  "termination_reason": "planner_finished",
+  "status": "success",
+  "infrastructure_failure": false,
+  "correct_outcome": true,
+  "correct_causal": true,
+  "started_at_utc": "2026-09-05T00:11:51.736729+00:00",
+  "finished_at_utc": "2026-09-05T00:11:57.902065+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_7_dev_confirmation_1/cases/dff3ebd9dffee874"
+}
