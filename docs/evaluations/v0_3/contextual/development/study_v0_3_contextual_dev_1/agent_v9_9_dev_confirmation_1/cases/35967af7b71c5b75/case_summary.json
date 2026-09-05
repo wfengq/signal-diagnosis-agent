@@ -1,0 +1,68 @@
+{
+  "case_id": "35967af7b71c5b75",
+  "mode": "nominal_single_tone",
+  "role": "harmonic",
+  "scoreable": true,
+  "expected_outcome": "supported_fault",
+  "expected_causal_set": [
+    "harmonic_distortion"
+  ],
+  "outcome": "supported_fault",
+  "causal_faults": [
+    "harmonic_distortion"
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_harm_nominal_1",
+      "fault_type": "harmonic_distortion",
+      "statement": "Harmonic distortion is affirmatively supported: contextual analysis is valid, F0 is compatible, even-order harmonics are present, and the nominal THD rule is FAIL.",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+      ],
+      "rule_refs": [
+        "ruleval_1ce95ddb07224efd",
+        "ruleval_afb6f8279079cce6",
+        "ruleval_f963bb9707e29412"
+      ],
+      "knowledge_refs": []
+    }
+  ],
+  "evidence_refs": [
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013"
+  ],
+  "rule_refs": [
+    "ruleval_1ce95ddb07224efd",
+    "ruleval_afb6f8279079cce6",
+    "ruleval_f963bb9707e29412"
+  ],
+  "evidence_refs_complete": true,
+  "causal_gate": {
+    "outcome": "supported_fault",
+    "causal_faults": [
+      "harmonic_distortion"
+    ],
+    "claim_count": 1,
+    "limitations": []
+  },
+  "limitations": [],
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_contextual_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [],
+  "termination_reason": "planner_finished",
+  "status": "success",
+  "infrastructure_failure": false,
+  "correct_outcome": true,
+  "correct_causal": true,
+  "started_at_utc": "2026-09-05T05:46:55.078028+00:00",
+  "finished_at_utc": "2026-09-05T05:47:01.022135+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_9_dev_confirmation_1/cases/35967af7b71c5b75"
+}

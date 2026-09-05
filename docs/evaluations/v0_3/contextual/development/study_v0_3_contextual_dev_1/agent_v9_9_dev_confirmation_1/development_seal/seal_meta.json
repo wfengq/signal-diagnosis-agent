@@ -1,0 +1,12 @@
+{
+  "execution_counters": {
+    "completed_slots": 0,
+    "planned_slots": 20
+  },
+  "manifest_sha256": "cca0ee24d8574435761d2d057fd4341c5e015ee7d5337826f796ea832cf047dd",
+  "product_code_sha256": "5bc2a3375d5fb5be5c7c77cb0ddba140c240635d549662c9d3221e64acb81ae2",
+  "profile_contextual_sha256": "c79865caf913b2a1a5f6f50fccd8c37d6f2828e72feb1f80d9c9c7b4b7d9eb58",
+  "profile_s1_sha256": "1e02d0dabe74ae1327fa3418d4ce546c53e8a8d06b175b5c508edb8b512f5ed1",
+  "prompt_sha256": "27a9315ad85a035c9cc9cbfe5f15ea26c49383d7fb23207989315ae0adb78dc9",
+  "scoring_identity": "signal_diag.contextual_scoring@1.0.0-dev.1"
+}

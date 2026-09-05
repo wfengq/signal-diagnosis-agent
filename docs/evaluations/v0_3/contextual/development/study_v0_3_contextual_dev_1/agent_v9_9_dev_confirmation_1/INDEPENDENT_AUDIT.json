@@ -1,0 +1,78 @@
+{
+  "audit_kind": "independent_post_run_recomputation",
+  "run_id": "agent_v9_9_dev_confirmation_1",
+  "preflight_sha256": "fdd3cf776f9bb7a5a452a60154fbe65f6ccc605cdcf17582317e8b059c95450c",
+  "run_summary_sha256": "92994fd675aab681feb81e8d654b1b9e4b5026f20d951d7a117216854da00cca",
+  "audit_report_sha256": "1708bed047b9168d89997cac549f5eb3a5cc43c036cf013e81d808def90370fa",
+  "status_sha256": "860c51a506ce66652f0b605d787ed7e5604842d54a0a809ea7ca097b9f9c1707",
+  "case_count": 20,
+  "unique_case_count": 20,
+  "attempt_count": 20,
+  "decision_indexes_contiguous": true,
+  "required_artifact_failures": [],
+  "trace_decide_count_failures": [],
+  "finish_revalidation_failures": [],
+  "planner_identity": {
+    "class": "RealLLMPlanner",
+    "prompt_version": "v0.3-s1-planner-9.9",
+    "prompt_sha256": "27a9315ad85a035c9cc9cbfe5f15ea26c49383d7fb23207989315ae0adb78dc9",
+    "causal_policy_version": "v9_9_paired_reference_recovery",
+    "model": "deepseek-v4-flash",
+    "scripted_planner_fallback": false
+  },
+  "recomputed_aggregate": {
+    "outcome_accuracy": {
+      "numerator": 17,
+      "denominator": 17,
+      "value": 1.0
+    },
+    "causal_exact_set_accuracy": {
+      "numerator": 17,
+      "denominator": 17,
+      "value": 1.0
+    },
+    "harmonic_precision": {
+      "numerator": 5,
+      "denominator": 5,
+      "value": 1.0
+    },
+    "harmonic_recall": {
+      "numerator": 5,
+      "denominator": 5,
+      "value": 1.0
+    },
+    "clipping_precision": {
+      "numerator": 6,
+      "denominator": 6,
+      "value": 1.0
+    },
+    "clipping_recall": {
+      "numerator": 6,
+      "denominator": 6,
+      "value": 1.0
+    },
+    "inconclusive_appropriateness": {
+      "numerator": 6,
+      "denominator": 6,
+      "value": 1.0
+    },
+    "natural_even_harmonic_fp": 0,
+    "unnecessary_tool_rate": {
+      "numerator": 0,
+      "denominator": 17,
+      "value": 0.0
+    },
+    "evidence_grounding": {
+      "numerator": 17,
+      "denominator": 17,
+      "value": 1.0
+    },
+    "unsupported_claim_rate": {
+      "numerator": 0,
+      "denominator": 17,
+      "value": 0.0
+    },
+    "ablation_correct_delta": null
+  },
+  "target_status": "meets_target"
+}

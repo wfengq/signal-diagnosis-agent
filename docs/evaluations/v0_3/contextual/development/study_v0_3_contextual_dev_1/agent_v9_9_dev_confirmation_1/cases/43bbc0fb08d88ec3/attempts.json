@@ -1,0 +1,16 @@
+[
+  {
+    "decision_index": 15,
+    "case_id": "43bbc0fb08d88ec3",
+    "status": "success",
+    "started_at_utc": "2026-09-05T05:47:22.012335+00:00",
+    "finished_at_utc": "2026-09-05T05:47:27.814363+00:00",
+    "planner_class": "RealLLMPlanner",
+    "scripted_planner_fallback": false,
+    "prompt_version": "v0.3-s1-planner-9.9",
+    "causal_policy_version": "v9_9_paired_reference_recovery",
+    "model": "deepseek-v4-flash",
+    "decide_count": 3,
+    "termination_reason": "planner_finished"
+  }
+]

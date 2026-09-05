@@ -1,0 +1,74 @@
+{
+  "case_id": "abd9010438d4ad93",
+  "mode": "paired_reference",
+  "role": "clipping",
+  "scoreable": true,
+  "expected_outcome": "supported_fault",
+  "expected_causal_set": [
+    "clipping"
+  ],
+  "outcome": "supported_fault",
+  "causal_faults": [
+    "clipping"
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_combined_1",
+      "fault_type": "clipping",
+      "statement": "Clipping is affirmatively supported by same-run Evidence: clipping_mechanism is true and the clipping ratio rule is FAIL.",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "rule_refs": [
+        "ruleval_d1b39be5d86c7bb3",
+        "ruleval_c6092880e114a008",
+        "ruleval_2a7ff09ac5dab5fc"
+      ],
+      "knowledge_refs": []
+    }
+  ],
+  "evidence_refs": [
+    "ev_detect_clipping_detect_clipping_000000_000",
+    "ev_detect_clipping_detect_clipping_000000_001",
+    "ev_detect_clipping_detect_clipping_000000_006",
+    "ev_detect_clipping_detect_clipping_000000_007"
+  ],
+  "rule_refs": [
+    "ruleval_2a7ff09ac5dab5fc",
+    "ruleval_c6092880e114a008",
+    "ruleval_d1b39be5d86c7bb3"
+  ],
+  "evidence_refs_complete": true,
+  "causal_gate": {
+    "outcome": "supported_fault",
+    "causal_faults": [
+      "clipping"
+    ],
+    "claim_count": 1,
+    "limitations": [
+      "Harmonic_distortion is not supported because the contextual comparison shows native_odd_series with no reportable even-order growth; the even-harmonic growth rule PASSes and the THD rule PASSes relative to the reference."
+    ]
+  },
+  "limitations": [
+    "Harmonic_distortion is not supported because the contextual comparison shows native_odd_series with no reportable even-order growth; the even-harmonic growth rule PASSes and the THD rule PASSes relative to the reference."
+  ],
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_contextual_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [
+    "supported_fault must not include a sibling no_supported_fault claim"
+  ],
+  "termination_reason": "planner_finished",
+  "status": "success",
+  "infrastructure_failure": false,
+  "correct_outcome": true,
+  "correct_causal": true,
+  "started_at_utc": "2026-09-05T05:45:46.118168+00:00",
+  "finished_at_utc": "2026-09-05T05:45:56.288178+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_9_dev_confirmation_1/cases/abd9010438d4ad93"
+}

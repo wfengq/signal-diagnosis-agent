@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "audit_kind": "post_run_tool_use_adjudication",
+  "campaign": "agent_v9_9_dev_confirmation_1",
+  "scope": {
+    "all_cases": 20,
+    "scoreable_cases": 17
+  },
+  "observations": {
+    "cases_with_exactly_two_tool_calls": 20,
+    "paired_or_nominal_cases_using_detect_clipping_and_contextual_analysis": 14,
+    "single_signal_cases_using_detect_clipping_and_harmonic_analysis": 6,
+    "paired_or_nominal_cases_using_ordinary_harmonic_analysis": 0,
+    "single_signal_cases_using_contextual_analysis": 0,
+    "cases_with_extra_spectrum_fundamental_or_knowledge_calls": 0
+  },
+  "adjudication": {
+    "rationale": "The S1 question requires independent closure of clipping and harmonic-distortion hypotheses. Each case used only the two mode-appropriate deterministic tools needed for that closure, with no extra exploratory calls.",
+    "unnecessary_tool_numerator": 0,
+    "unnecessary_tool_denominator": 17,
+    "unnecessary_tool_rate": 0.0,
+    "all_case_unnecessary_tool_count": 0,
+    "status": "verified"
+  },
+  "limitations": [
+    "This is a post-run deterministic audit of recorded tool sequences.",
+    "It does not change the original attempts, traces, results, summaries, or scoring artifacts."
+  ]
+}
