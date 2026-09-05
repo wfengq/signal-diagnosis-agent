@@ -1,0 +1,68 @@
+{
+  "case_id": "e3c036eb778237c8",
+  "mode": "single_signal",
+  "role": "domain_out_inconclusive",
+  "scoreable": false,
+  "expected_outcome": "inconclusive",
+  "expected_causal_set": [],
+  "outcome": "inconclusive",
+  "causal_faults": [],
+  "claims": [
+    {
+      "claim_id": "claim_inconclusive_broad_1",
+      "fault_type": "inconclusive",
+      "statement": "Clipping is ruled out by same-run Evidence, but harmonic distortion cannot be established because the harmonic analysis is invalid and the rule result is NOT_APPLICABLE.",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+      ],
+      "rule_refs": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_cd9664555eb15b8d",
+        "ruleval_a670d5d62d79c436",
+        "ruleval_3218b9baf7883009"
+      ],
+      "knowledge_refs": []
+    }
+  ],
+  "evidence_refs": [
+    "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+    "ev_detect_clipping_detect_clipping_000000_000",
+    "ev_detect_clipping_detect_clipping_000000_001",
+    "ev_detect_clipping_detect_clipping_000000_006"
+  ],
+  "rule_refs": [
+    "ruleval_237883d67b741c3e",
+    "ruleval_3218b9baf7883009",
+    "ruleval_a670d5d62d79c436",
+    "ruleval_cd9664555eb15b8d"
+  ],
+  "evidence_refs_complete": true,
+  "causal_gate": {
+    "outcome": "inconclusive",
+    "causal_faults": [],
+    "claim_count": 1,
+    "limitations": [
+      "Harmonic distortion analysis is invalid because fundamental bin energy is below the reliability threshold; causal S1 distortion attribution cannot be established."
+    ]
+  },
+  "limitations": [
+    "Harmonic distortion analysis is invalid because fundamental bin energy is below the reliability threshold; causal S1 distortion attribution cannot be established."
+  ],
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_harmonic_distortion"
+  ],
+  "knowledge_retrieval_used": false,
+  "planner_errors": [],
+  "termination_reason": "planner_finished",
+  "status": "inconclusive",
+  "infrastructure_failure": false,
+  "correct_outcome": true,
+  "correct_causal": true,
+  "started_at_utc": "2026-09-05T01:50:36.180615+00:00",
+  "finished_at_utc": "2026-09-05T01:50:41.990649+00:00",
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_8_dev_confirmation_1/cases/e3c036eb778237c8"
+}
