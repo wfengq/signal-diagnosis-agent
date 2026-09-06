@@ -1,0 +1,124 @@
+{
+  "aggregate": {
+    "ablation_correct_delta": null,
+    "causal_exact_set_accuracy": {
+      "denominator": 17,
+      "numerator": 0,
+      "value": 0.0
+    },
+    "clipping_precision": "not_evaluated",
+    "clipping_recall": "not_evaluated",
+    "evidence_grounding": {
+      "denominator": 17,
+      "numerator": 0,
+      "value": 0.0
+    },
+    "harmonic_precision": "not_evaluated",
+    "harmonic_recall": "not_evaluated",
+    "inconclusive_appropriateness": {
+      "denominator": 6,
+      "numerator": 0,
+      "value": 0.0
+    },
+    "natural_even_harmonic_fp": 0,
+    "outcome_accuracy": {
+      "denominator": 17,
+      "numerator": 0,
+      "value": 0.0
+    },
+    "unnecessary_tool_rate": {
+      "denominator": 17,
+      "numerator": 0,
+      "value": 0.0
+    },
+    "unsupported_claim_rate": {
+      "denominator": 17,
+      "numerator": 0,
+      "value": 0.0
+    }
+  },
+  "authorization": "v9.10 development confirmation; RealLLMPlanner; deepseek-v4-flash; causal_policy=v9_10_contextual_clipping_recovery; scripted_planner_fallback=false; one attempt per slot; failure-as-incorrect scoring; structured diagnostic context only; no raw WAV/labels/expected outcomes/credentials sent; no validation access",
+  "behavioral_failure_case_ids": [],
+  "cases_executed": 1,
+  "cases_planned": 20,
+  "causal_policy_version": "v9_10_contextual_clipping_recovery",
+  "claim_ref_failures": [],
+  "code_implementation_sha256": "00a14ffc46646080fe16b1a54148fcf0f41fbc160eb93def84532a2cda3cba3e",
+  "completed_diagnosis_case_ids": [],
+  "finished_at_utc": "2026-09-06T08:48:14.764361+00:00",
+  "gates": {
+    "claim_refs_resolve": true,
+    "evidence_grounding_100": false,
+    "inconclusive_appropriateness_1_00": false,
+    "natural_even_harmonic_fp_0": true,
+    "planner_completion_ge_0_95": false,
+    "scoreable_causal_exact_ge_0_75": false,
+    "scoreable_outcome_accuracy_ge_0_80": false,
+    "slots_complete_20": false,
+    "unique_cases_20": false,
+    "unsupported_claim_rate_0": true
+  },
+  "head_commit": "454a21a472be52d012341a70861031c6ba94ab38",
+  "infrastructure_error": {
+    "code": "internal_error",
+    "details": {},
+    "message": "diagnosis execution failed"
+  },
+  "infrastructure_failure_case_ids": [
+    "825a759a0ea47bb7"
+  ],
+  "label": "v9.10 development confirmation",
+  "manifest_sha256": "cca0ee24d8574435761d2d057fd4341c5e015ee7d5337826f796ea832cf047dd",
+  "model_id": "deepseek-v4-flash",
+  "model_provider": "deepseek",
+  "not_a_prior_run_rewrite": true,
+  "per_case_table": [
+    {
+      "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_10_dev_confirmation_1/cases/825a759a0ea47bb7",
+      "case_id": "825a759a0ea47bb7",
+      "causal_faults": [],
+      "claims": [],
+      "correct_causal": true,
+      "correct_outcome": false,
+      "evidence_refs": [],
+      "evidence_refs_complete": false,
+      "expected_causal_set": [],
+      "expected_outcome": "no_supported_fault",
+      "finished_at_utc": "2026-09-06T08:48:14.758899+00:00",
+      "infrastructure_failure": true,
+      "limitations": [],
+      "mode": "paired_reference",
+      "outcome": null,
+      "planner_completed": false,
+      "planner_errors": [],
+      "projected_trace_event_count": 0,
+      "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+      "result_status": "infrastructure_failure",
+      "role": "clean",
+      "rule_refs": [],
+      "scoreable": true,
+      "started_at_utc": "2026-09-06T08:47:57.148399+00:00",
+      "termination_reason": null,
+      "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+      "tool_actions": [],
+      "unnecessary_tool": false
+    }
+  ],
+  "planner_class": "RealLLMPlanner",
+  "planner_completion": {
+    "denominator": 20,
+    "numerator": 0,
+    "value": 0.0
+  },
+  "planner_version": "v0.3-s1-planner-9.10",
+  "product_tree_sha256": "32fb7bfe7b94d79bbe4f52ccfb820a12d8de2b40a6a148795a0e97bc563f2b01",
+  "profile_contextual_sha256": "02df1a7df05354035451a6f079e919f72ccbf558e23ae2be34f54664a6445e01",
+  "profile_s1_sha256": "1e02d0dabe74ae1327fa3418d4ce546c53e8a8d06b175b5c508edb8b512f5ed1",
+  "prompt_sha256": "2c9a8777362d35051e3e0642f930e87eeaffe14aea045abefb8139fd182bca3c",
+  "run_id": "agent_v9_10_dev_confirmation_1",
+  "scripted_planner_fallback": false,
+  "started_at_utc": "2026-09-06T08:47:57.113686+00:00",
+  "stopped_for_infrastructure": true,
+  "study_id": "study_v0_3_contextual_dev_1",
+  "target_status": "below_target"
+}

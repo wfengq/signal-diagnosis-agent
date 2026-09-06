@@ -1,0 +1,63 @@
+{
+  "authorization": "v9.10 development confirmation",
+  "credential_persisted": false,
+  "runtime_identity": {
+    "causal_policy_version": "v9_10_contextual_clipping_recovery",
+    "head_commit": "454a21a472be52d012341a70861031c6ba94ab38",
+    "implementation_sha256": "00a14ffc46646080fe16b1a54148fcf0f41fbc160eb93def84532a2cda3cba3e",
+    "manifest_sha256": "cca0ee24d8574435761d2d057fd4341c5e015ee7d5337826f796ea832cf047dd",
+    "model": "deepseek-v4-flash",
+    "model_provider": "deepseek",
+    "planner_class": "RealLLMPlanner",
+    "product_tree_sha256": "32fb7bfe7b94d79bbe4f52ccfb820a12d8de2b40a6a148795a0e97bc563f2b01",
+    "profile_contextual_sha256": "02df1a7df05354035451a6f079e919f72ccbf558e23ae2be34f54664a6445e01",
+    "profile_s1_sha256": "1e02d0dabe74ae1327fa3418d4ce546c53e8a8d06b175b5c508edb8b512f5ed1",
+    "prompt_sha256": "2c9a8777362d35051e3e0642f930e87eeaffe14aea045abefb8139fd182bca3c",
+    "prompt_version": "v0.3-s1-planner-9.10",
+    "scoring_identity": "signal_diag.contextual_scoring@1.0.0-dev.1"
+  },
+  "source_license_pairs": [
+    [
+      "esc10_100032_a0",
+      "CC-BY-3.0"
+    ],
+    [
+      "esc10_17367_a10",
+      "CC-BY-3.0"
+    ],
+    [
+      "esc10_28135_a11",
+      "CC-BY-3.0"
+    ],
+    [
+      "nsynth_note_master_bass_a",
+      "CC-BY-4.0"
+    ],
+    [
+      "nsynth_note_master_bass_b",
+      "CC-BY-4.0"
+    ],
+    [
+      "nsynth_note_master_guitar_a",
+      "CC-BY-4.0"
+    ],
+    [
+      "nsynth_note_master_organ_a",
+      "CC-BY-4.0"
+    ],
+    [
+      "nsynth_note_master_organ_b",
+      "CC-BY-4.0"
+    ],
+    [
+      "nsynth_note_master_organ_rich_a",
+      "CC-BY-4.0"
+    ],
+    [
+      "nsynth_note_master_organ_rich_b",
+      "CC-BY-4.0"
+    ]
+  ],
+  "study": "study_v0_3_contextual_dev_1",
+  "validation_accessed": false
+}
