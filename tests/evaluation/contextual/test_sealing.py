@@ -108,9 +108,11 @@ def test_t_cx207_historical_v3_seal_preserves_study_inputs() -> None:
     )
     historical = study / "validation_seal"
     replacement = study / "validation_seal_v2"
-    active = study / "validation_seal_v3"
+    v3 = study / "validation_seal_v3"
+    active = study / "validation_seal_v4"
     verify_contextual_bundle(historical)
     verify_contextual_bundle(replacement)
+    verify_contextual_bundle(v3)
     verify_contextual_bundle(active)
     for name in (
         "manifest.json",
@@ -119,7 +121,11 @@ def test_t_cx207_historical_v3_seal_preserves_study_inputs() -> None:
         "slot_plan.json",
     ):
         assert (historical / name).read_bytes() == (replacement / name).read_bytes()
-        assert (replacement / name).read_bytes() == (active / name).read_bytes()
+        assert (replacement / name).read_bytes() == (v3 / name).read_bytes()
+        assert (v3 / name).read_bytes() == (active / name).read_bytes()
+    assert (v3 / "execution_inputs.json").read_bytes() == (
+        active / "execution_inputs.json"
+    ).read_bytes()
     supersession = json.loads(
         (study / "VALIDATION_SEAL_SUPERSESSION.json").read_text(encoding="utf-8")
     )
@@ -128,12 +134,16 @@ def test_t_cx207_historical_v3_seal_preserves_study_inputs() -> None:
     assert supersession["replacement_seal"]["status"] == (
         "superseded_unexecuted_historical_seal"
     )
+    assert supersession["v9_9_executed_seal"]["directory"] == "validation_seal_v3"
+    assert supersession["v9_9_executed_seal"]["status"] == (
+        "historical_infrastructure_stopped"
+    )
     assert supersession["v9_9_executed_seal"]["original_terminal_slots"] == 47
     assert supersession["v9_9_executed_seal"]["validation_passed"] is False
-    assert supersession["active_seal"]["directory"] is None
-    assert supersession["active_seal"]["status"] == (
-        "none_pending_v9_10_development_confirmation"
-    )
+    assert supersession["active_seal"]["directory"] == "validation_seal_v4"
+    assert supersession["active_seal"]["status"] == "active_model_not_run"
+    assert supersession["active_seal"]["model_calls"] == 0
+    assert supersession["active_seal"]["validation_passed"] is False
 
 
 def test_t_cx211_v3_seal_binds_truth_free_execution_inputs(

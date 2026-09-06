@@ -1,0 +1,15 @@
+{
+  "evaluation_harness_sha256": "f4bdf9b2adefbe7e610b2687e8313aa81406604d73cbbcd9db3c9019947a8618",
+  "execution_counters": {
+    "completed_cases": 0,
+    "executed_arms": 0,
+    "planned_arms": 60,
+    "planned_cases": 20
+  },
+  "manifest_sha256": "f8702be6c054f87425b12b4e4aa2c5f9a9ac409ba45265d19d22a1e67cf2f186",
+  "product_code_sha256": "f4bdf9b2adefbe7e610b2687e8313aa81406604d73cbbcd9db3c9019947a8618",
+  "profile_contextual_sha256": "02df1a7df05354035451a6f079e919f72ccbf558e23ae2be34f54664a6445e01",
+  "profile_s1_sha256": "1e02d0dabe74ae1327fa3418d4ce546c53e8a8d06b175b5c508edb8b512f5ed1",
+  "prompt_sha256": "ecd10554beef79afcf505bf788509f660eb933eaef72ed89693514009fe1134b",
+  "scoring_identity": "signal_diag.contextual_scoring@1.0.0-dev.1"
+}

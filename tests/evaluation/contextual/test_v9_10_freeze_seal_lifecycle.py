@@ -78,11 +78,29 @@ def test_t_cx249_post_assemble_amendment_matches_current_harness() -> None:
     assert row["prior_bridge_current_implementation_sha256"] == (
         "83302bfec62893fcd373a2b0a23b239cfccc3ce9f0e347f7d0606555cab22a95"
     )
-    assert row["current_implementation_sha256"] == current
+    assert row["current_implementation_sha256"] == (
+        "1dfc498e30bb5139eef2f8340aad2e2f3ea2aef5ceb51a633e040bf736065d42"
+    )
+    assert row["current_implementation_sha256"] != current
     assert row["qualification_recompute_unchanged"] is True
     assert row["calibration_recompute_unchanged"] is True
     assert row["selected_threshold_percent_unchanged"] == 5.0
     assert row["amendment_creation_model_calls"] == 0
+    reseal = next(
+        item
+        for item in rows
+        if item["amendment_id"] == "v9_11_validation_reseal_campaign_rebind"
+    )
+    assert reseal["amendment_kind"] == "append_only_evaluation_identity"
+    assert reseal["prior_bridge_current_implementation_sha256"] == (
+        "1dfc498e30bb5139eef2f8340aad2e2f3ea2aef5ceb51a633e040bf736065d42"
+    )
+    assert reseal["current_implementation_sha256"] == current
+    assert reseal["qualification_recompute_unchanged"] is True
+    assert reseal["calibration_recompute_unchanged"] is True
+    assert reseal["selected_threshold_percent_unchanged"] == 5.0
+    assert reseal["amendment_creation_model_calls"] == 0
+    assert reseal["validation_passed"] is False
     assert resolve_active_freeze_code_sha256(DEV) == current
 
 
@@ -98,16 +116,18 @@ def test_t_cx242_v99_v3_is_historical_with_truthful_execution_counts() -> None:
     assert historical["diagnostic_continuation_slots"] == 13
     assert historical["one_shot_validation_complete"] is False
     assert historical["validation_passed"] is False
-    assert record["active_seal"]["directory"] is None
-    assert record["active_seal"]["status"] == (
-        "none_pending_v9_10_development_confirmation"
-    )
+    active = record["active_seal"]
+    assert active["directory"] == "validation_seal_v4"
+    assert active["status"] == "active_model_not_run"
+    assert active["model_calls"] == 0
+    assert active["validation_passed"] is False
+    assert record["authorization_boundary"]["real_model_run_authorized"] is False
 
 
 def test_t_cx243_preflight_rejects_historical_v3_before_credentials() -> None:
     output = VAL / "__t_cx243_must_not_exist__"
     assert not output.exists()
-    with pytest.raises(CampaignPreflightError, match="historical.*not active"):
+    with pytest.raises(CampaignPreflightError, match="validation_seal_v4"):
         preflight_contextual_validation(
             study_dir=VAL,
             seal_dir=VAL / "validation_seal_v3",

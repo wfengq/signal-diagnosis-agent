@@ -354,7 +354,7 @@ def test_t_cx215_preflight_refuses_historical_v2_before_execution(
         / "validation"
         / "study_v0_3_contextual_validation_1"
     )
-    with pytest.raises(CampaignPreflightError, match="validation_seal_v3"):
+    with pytest.raises(CampaignPreflightError, match="validation_seal_v4"):
         preflight_contextual_validation(
             study_dir=study,
             seal_dir=study / "validation_seal_v2",
@@ -503,7 +503,7 @@ def test_t_cx219_preflight_refuses_existing_output_before_execution(
     with pytest.raises(CampaignPreflightError, match="output already exists"):
         preflight_contextual_validation(
             study_dir=tmp_path,
-            seal_dir=tmp_path / "validation_seal_v3",
+            seal_dir=tmp_path / "validation_seal_v4",
             output=output,
             environ={"DEEPSEEK_API_KEY": "present-but-not-persisted"},
         )
@@ -610,7 +610,7 @@ def test_t_cx223_historical_v3_retains_case_keyed_wav_checksums() -> None:
         / "validation"
         / "study_v0_3_contextual_validation_1"
     )
-    seal = study / "validation_seal_v3"
+    seal = study / "validation_seal_v3"  # historical checksum-key evidence
     verify_contextual_bundle(seal)
     checksums = json.loads((seal / "wav_checksums.json").read_text("utf-8"))
     execution_inputs = json.loads(
@@ -701,7 +701,7 @@ def test_t_cx227_preflight_rejects_non_authoritative_v3_path(tmp_path: Path) -> 
         preflight_contextual_validation,
     )
 
-    alternate = tmp_path / "other" / "validation_seal_v3"
+    alternate = tmp_path / "other" / "validation_seal_v4"
     with pytest.raises(CampaignPreflightError, match="authoritative"):
         preflight_contextual_validation(
             study_dir=tmp_path,
@@ -734,7 +734,7 @@ async def test_t_cx228_campaign_copies_seal_identity_at_start(tmp_path: Path) ->
 
     record = {
         "status": "passed",
-        "seal": "validation_seal_v3",
+        "seal": "validation_seal_v4",
         "seal_index_sha256": "a" * 64,
         "prompt_sha256": "b" * 64,
         "evaluation_harness_sha256": "c" * 64,

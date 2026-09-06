@@ -105,5 +105,20 @@
   "selected_threshold_percent_unchanged": 5.0,
   "development_confirmation_authorized": false,
   "model_calls": 0
-}
+},
+  {
+    "amendment_id": "v9_11_validation_reseal_campaign_rebind",
+    "amendment_kind": "append_only_evaluation_identity",
+    "created_at_utc": "2026-09-06T15:00:00+00:00",
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "current_implementation_sha256": "f4bdf9b2adefbe7e610b2687e8313aa81406604d73cbbcd9db3c9019947a8618",
+    "prior_bridge_current_implementation_sha256": "1dfc498e30bb5139eef2f8340aad2e2f3ea2aef5ceb51a633e040bf736065d42",
+    "scope": "Phase 7 evaluation-harness rebind of contextual campaign preflight from validation_seal_v3/v9.9 to validation_seal_v4/v9.11; no DSP, product prompt bytes, causal policy logic, profile thresholds, WAV, label, scoring identity, retry behavior, RealLLM call, or historical seal/run mutation",
+    "qualification_recompute_unchanged": true,
+    "calibration_recompute_unchanged": true,
+    "selected_threshold_percent_unchanged": 5.0,
+    "amendment_creation_model_calls": 0,
+    "validation_passed": false,
+    "real_model_run_authorized": false
+  }
 ]

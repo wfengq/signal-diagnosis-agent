@@ -13,12 +13,12 @@
   },
   "frozen_identity": {
     "code_commit": "15c047ced6cbd46a4b4757abdfdacd11e0a12ea1",
-    "development_evidence_commit": "a45177574ad09d41b4c26c8bdf93e85ca6a7eed8",
+    "development_evidence_commit": "caabd87306be3912af361925e3c112c211132a9f",
     "planner_class": "RealLLMPlanner",
-    "prompt_version": "v0.3-s1-planner-9.9",
-    "prompt_sha256": "27a9315ad85a035c9cc9cbfe5f15ea26c49383d7fb23207989315ae0adb78dc9",
-    "causal_policy_version": "v9_9_paired_reference_recovery",
-    "implementation_sha256": "5bc2a3375d5fb5be5c7c77cb0ddba140c240635d549662c9d3221e64acb81ae2",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "prompt_sha256": "ecd10554beef79afcf505bf788509f660eb933eaef72ed89693514009fe1134b",
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "implementation_sha256": "f4bdf9b2adefbe7e610b2687e8313aa81406604d73cbbcd9db3c9019947a8618",
     "development_manifest_sha256": "cca0ee24d8574435761d2d057fd4341c5e015ee7d5337826f796ea832cf047dd",
     "profile_s1_distortion": {
       "version": "1.0.0-demo",
@@ -26,7 +26,7 @@
     },
     "profile_s1_contextual_comparison": {
       "version": "1.0.0",
-      "sha256": "c79865caf913b2a1a5f6f50fccd8c37d6f2828e72feb1f80d9c9c7b4b7d9eb58"
+      "sha256": "02df1a7df05354035451a6f079e919f72ccbf558e23ae2be34f54664a6445e01"
     },
     "scoring_identity": "signal_diag.contextual_scoring@1.0.0-dev.1",
     "provider": "deepseek",
@@ -97,7 +97,7 @@
       "determines_target_status": false
     },
     "no_context_ablation": {
-      "prompt_version": "v0.3-s1-planner-9.9",
+      "prompt_version": "v0.3-s1-planner-9.11",
       "forced_mode": "single_signal",
       "same_test_wav_sha_required": true,
       "reference_and_nominal_context_removed": true

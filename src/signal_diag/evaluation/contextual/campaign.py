@@ -12,7 +12,7 @@ from typing import Any, Literal, cast
 
 from pydantic import BaseModel, ConfigDict
 
-from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_9
+from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_11
 from signal_diag.evaluation.contextual.baseline import ContextualFixedPipelineBaseline
 from signal_diag.evaluation.contextual.calibration import (
     contextual_implementation_sha256,
@@ -122,14 +122,14 @@ def preflight_contextual_validation(
 ) -> CampaignPreflight:
     """Validate the active campaign identity without constructing an executor."""
 
-    if seal_dir.name != "validation_seal_v3":
+    if seal_dir.name != "validation_seal_v4":
         raise CampaignPreflightError(
-            "contextual validation requires active validation_seal_v3"
+            "contextual validation requires active validation_seal_v4"
         )
     study_dir = study_dir.resolve()
     seal_dir = seal_dir.resolve()
-    if seal_dir != study_dir / "validation_seal_v3":
-        raise CampaignPreflightError("seal is not the authoritative active v3 path")
+    if seal_dir != study_dir / "validation_seal_v4":
+        raise CampaignPreflightError("seal is not the authoritative active v4 path")
     if output.exists():
         raise CampaignPreflightError(f"campaign output already exists: {output}")
     try:
@@ -142,10 +142,10 @@ def preflight_contextual_validation(
         raise CampaignPreflightError(str(error)) from error
     active = supersession.get("active_seal", {})
     if (
-        active.get("directory") != "validation_seal_v3"
+        active.get("directory") != "validation_seal_v4"
         or active.get("status") != "active_model_not_run"
     ):
-        raise CampaignPreflightError("historical validation seal is not active")
+        raise CampaignPreflightError("validation seal is not active for v9.11 runner")
     env = dict(os.environ) if environ is None else dict(environ)
     if not env.get("DEEPSEEK_API_KEY"):
         raise CampaignPreflightError("DEEPSEEK_API_KEY is not configured")
@@ -191,7 +191,7 @@ def preflight_contextual_validation(
     frozen = targets["frozen_identity"]
     seal_index_sha256 = sha256((seal_dir / "seal.sha256").read_bytes()).hexdigest()
     if (
-        active.get("directory") != "validation_seal_v3"
+        active.get("directory") != "validation_seal_v4"
         or active.get("status") != "active_model_not_run"
         or active.get("seal_id_sha256") != seal_index_sha256
     ):
@@ -211,7 +211,7 @@ def preflight_contextual_validation(
     if meta.get("evaluation_harness_sha256") != contextual_implementation_sha256():
         raise CampaignPreflightError("active evaluation harness identity mismatch")
     prompt_sha256 = sha256(
-        _S1_PROMPT_V9_9.system_prompt.encode("utf-8")
+        _S1_PROMPT_V9_11.system_prompt.encode("utf-8")
     ).hexdigest()
     profile_root = Path(str(files("signal_diag").joinpath("rules", "profiles")))
     live_identity = ContextualRuntimeIdentity(
@@ -219,9 +219,9 @@ def preflight_contextual_validation(
         model=str(frozen["model"]),
         base_url="https://api.deepseek.com",
         planner_class="RealLLMPlanner",
-        prompt_version=_S1_PROMPT_V9_9.version,
+        prompt_version=_S1_PROMPT_V9_11.version,
         prompt_sha256=prompt_sha256,
-        causal_policy_version="v9_9_paired_reference_recovery",
+        causal_policy_version="v9_11_mode_aware_no_fault_recovery",
         product_tree_sha256=contextual_product_tree_sha256(),
     )
     if runtime_identity != live_identity:
@@ -236,7 +236,7 @@ def preflight_contextual_validation(
         or sha256((profile_root / "s1_distortion_v1.yaml").read_bytes()).hexdigest()
         != frozen["profile_s1_distortion"]["sha256"]
         or sha256(
-            (profile_root / "s1_contextual_comparison_v1.yaml").read_bytes()
+            (profile_root / "s1_contextual_comparison_v9_10.yaml").read_bytes()
         ).hexdigest()
         != frozen["profile_s1_contextual_comparison"]["sha256"]
         or f"{CONTEXTUAL_SCORING_ID}@{CONTEXTUAL_SCORING_VERSION}"
