@@ -1,0 +1,8 @@
+[
+  {
+    "case_id": "6fb80bbda391c26c",
+    "decision_index": 5,
+    "note": "not started after infrastructure stop; not a behavioral result",
+    "status": "not_run_after_infra_stop"
+  }
+]

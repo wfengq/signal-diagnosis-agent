@@ -1,0 +1,8 @@
+{
+  "application_error": {
+    "code": "internal_error",
+    "details": {},
+    "message": "diagnosis execution failed"
+  },
+  "status": "infrastructure_failure"
+}

@@ -1,0 +1,20 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_10_dev_confirmation_2/cases/abd9010438d4ad93",
+  "case_id": "abd9010438d4ad93",
+  "correct_causal": false,
+  "correct_outcome": false,
+  "decision_index_skipped": 2,
+  "evidence_refs_complete": false,
+  "expected_causal_set": [
+    "clipping"
+  ],
+  "expected_outcome": "supported_fault",
+  "infrastructure_failure": true,
+  "mode": "paired_reference",
+  "note": "not started after infrastructure stop; not a behavioral result",
+  "planner_completed": false,
+  "result_status": "not_run_after_infra_stop",
+  "role": "clipping",
+  "scoreable": true,
+  "status": "not_run_after_infra_stop"
+}
