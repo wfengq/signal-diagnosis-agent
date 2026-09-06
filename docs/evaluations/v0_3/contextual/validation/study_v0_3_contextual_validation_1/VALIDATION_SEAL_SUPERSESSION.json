@@ -63,14 +63,28 @@
     "model_calls": 0,
     "files_modified": false
   },
-  "active_seal": {
+  "v9_9_executed_seal": {
     "directory": "validation_seal_v3",
     "seal_id_sha256": "8e69f19343466c4222581b1326c9560217847bdb2d37bbd8e6c51edfd196d3a9",
-    "status": "active_model_not_run",
+    "status": "historical_infrastructure_stopped",
     "evaluation_harness_sha256": "9c3844a2b73e8ba060c9bdbeff75434a91feb111f12a8d23c57f6ff2dee7bc94",
     "product_tree_sha256": "2eff9095d256c726b52f0a24397a5fb2afa8944381b84d776eb5cdb531f1473f",
-    "completed_cases": 0,
-    "executed_arms": 0,
+    "original_run_directory": "agent_v9_9_validation_run_1",
+    "original_planned_slots": 60,
+    "original_terminal_slots": 47,
+    "original_model_slots": 27,
+    "original_stop_reason": "infrastructure_stopped",
+    "diagnostic_continuation_directory": "agent_v9_9_validation_diagnostic_continuation_1",
+    "diagnostic_continuation_slots": 13,
+    "diagnostic_continuation_only": true,
+    "one_shot_validation_complete": false,
+    "validation_passed": false,
+    "notes": "The 13-slot diagnostic continuation is descriptive only and does not repair the interrupted one-shot validation campaign."
+  },
+  "active_seal": {
+    "directory": null,
+    "seal_id_sha256": null,
+    "status": "none_pending_v9_10_development_confirmation",
     "model_calls": 0
   },
   "unchanged_sha256": {

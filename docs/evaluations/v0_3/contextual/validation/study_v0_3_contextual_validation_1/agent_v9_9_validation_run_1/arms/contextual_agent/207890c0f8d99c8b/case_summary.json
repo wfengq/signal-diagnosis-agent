@@ -1,0 +1,15 @@
+{
+  "arm": "contextual_agent",
+  "arm_result": {
+    "arm": "contextual_agent",
+    "case_id": "207890c0f8d99c8b",
+    "evidence_refs_complete": true,
+    "infrastructure_failure": false,
+    "predicted_causal_set": [],
+    "predicted_outcome": "no_supported_fault",
+    "status": "ok",
+    "unnecessary_tool": false
+  },
+  "case_id": "207890c0f8d99c8b",
+  "mode": "nominal_single_tone"
+}

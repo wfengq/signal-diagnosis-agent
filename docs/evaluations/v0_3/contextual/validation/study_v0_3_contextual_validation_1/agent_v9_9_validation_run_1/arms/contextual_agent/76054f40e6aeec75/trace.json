@@ -1,0 +1,71 @@
+{
+  "events": [
+    {
+      "action_name": "call_tool",
+      "event_index": 0,
+      "kind": "planner",
+      "latency_ms": 1504.3388999984018,
+      "provider_usage": null,
+      "purpose": "Obtain contextual harmonic distortion evidence for the nominal_single_tone mode.",
+      "reference_ids": [],
+      "status": "decision"
+    },
+    {
+      "action_name": "analyze_contextual_distortion",
+      "event_index": 1,
+      "kind": "observation",
+      "latency_ms": null,
+      "provider_usage": null,
+      "purpose": "Obtain contextual harmonic distortion evidence for the nominal_single_tone mode.",
+      "reference_ids": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_017",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018"
+      ],
+      "status": "invalid"
+    },
+    {
+      "action_name": "profile_s1_contextual_comparison",
+      "event_index": 2,
+      "kind": "rule",
+      "latency_ms": null,
+      "provider_usage": null,
+      "purpose": null,
+      "reference_ids": [
+        "ruleval_023479387b051f31",
+        "ruleval_1678df5c4579965c",
+        "ruleval_e67d2a455f238bea",
+        "ruleval_ef448a170d0fc547",
+        "ruleval_2a32d71a22da36c1",
+        "ruleval_9c059d2336325e02"
+      ],
+      "status": "completed"
+    },
+    {
+      "action_name": "finish",
+      "event_index": 3,
+      "kind": "planner",
+      "latency_ms": 2849.2719999994733,
+      "provider_usage": null,
+      "purpose": null,
+      "reference_ids": [],
+      "status": "decision"
+    }
+  ]
+}

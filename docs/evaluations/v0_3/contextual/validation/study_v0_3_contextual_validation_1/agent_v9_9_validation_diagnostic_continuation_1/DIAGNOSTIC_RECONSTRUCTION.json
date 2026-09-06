@@ -1,0 +1,135 @@
+{
+  "classification": "diagnostic_reconstruction_only",
+  "claims_validation_completed": false,
+  "continuation": {
+    "execution_ledger_sha256": "df6b025f098b1af12242517fab686f675a4afb06c49c9db712bef7a64fd9c3b6",
+    "planned_slots": 13,
+    "preflight_sha256": "2829a4704dbf7dda650ad9bca9ec9251d90a68414533b11c653d5d9014439fc2",
+    "status": "execution_complete_unscored",
+    "terminal_slots": 13
+  },
+  "failure_adjudication": [
+    {
+      "case_id": "7fd4173cde11c0e3",
+      "classification": "deterministic_rule_closure_gap",
+      "evidence": {
+        "test_clipping_ratio": 0.03,
+        "test_flat_top_detected": true,
+        "test_series_kind": "native_odd_series"
+      },
+      "expected_causal_set": [
+        "clipping"
+      ],
+      "expected_outcome": "supported_fault",
+      "observed_causal_set": [],
+      "observed_outcome": "inconclusive",
+      "reason": "The nominal contextual tool exposed affirmative test-side clipping observations, but its automatic contextual rule batch evaluated only reference-side clipping rules, which were not_applicable. The runtime therefore had no substantial clipping rule FAIL available for a supported clipping claim. The frozen strong-ground-truth clipping transform remains consistent with the observed test-side clipping evidence."
+    },
+    {
+      "case_id": "675073735bc06f76",
+      "classification": "planner_finish_selection_failure",
+      "evidence": {
+        "clipping_detected": true,
+        "clipping_mechanism": true,
+        "clipping_ratio": 0.199375,
+        "flat_top_detected": true
+      },
+      "expected_causal_set": [
+        "clipping"
+      ],
+      "expected_outcome": "supported_fault",
+      "observed_causal_set": [],
+      "observed_outcome": null,
+      "reason": "The first tool call produced three affirmative clipping rule FAIL evaluations. The planner then pursued an unsupported sibling harmonic_distortion claim and repeated the rejected finish three times instead of returning the already supported clipping-only subset, ending at max_planner_retries."
+    }
+  ],
+  "integrity": {
+    "combined_unique_slots": 60,
+    "continuation_slots_all_no_context_ablation": true,
+    "credential_findings": 0,
+    "original_continuation_overlap": 0,
+    "raw_audio_findings": 0
+  },
+  "original_campaign": {
+    "execution_ledger_sha256": "d2190c9725320d8534f85e9723e0fbb58dba24fc901b852ee02df281bdbc525a",
+    "planned_slots": 60,
+    "preflight_sha256": "4e60b51a85e1503a29e3b97e86d9f4d1ee5f69e01932946670ec0c5d1a03cfbc",
+    "status": "infrastructure_stopped",
+    "stopped_after": "no_context_ablation:b1584e9fd6bf5c1d",
+    "terminal_slots": 47
+  },
+  "reconstructed_diagnostic_metrics": {
+    "causal_exact_set_accuracy": {
+      "denominator": 17,
+      "numerator": 15,
+      "value": 0.8823529411764706
+    },
+    "causal_macro_f1": 0.9,
+    "clipping_precision": {
+      "denominator": 4,
+      "numerator": 4,
+      "value": 1.0
+    },
+    "clipping_recall": {
+      "denominator": 6,
+      "numerator": 4,
+      "value": 0.6666666666666666
+    },
+    "evidence_grounding": {
+      "denominator": 17,
+      "numerator": 16,
+      "value": 0.9411764705882353
+    },
+    "harmonic_precision": {
+      "denominator": 5,
+      "numerator": 5,
+      "value": 1.0
+    },
+    "harmonic_recall": {
+      "denominator": 5,
+      "numerator": 5,
+      "value": 1.0
+    },
+    "inconclusive_appropriateness": {
+      "denominator": 6,
+      "numerator": 6,
+      "value": 1.0
+    },
+    "natural_even_harmonic_false_positives": 0,
+    "outcome_accuracy": {
+      "denominator": 17,
+      "numerator": 15,
+      "value": 0.8823529411764706
+    },
+    "paired_harmonic_ablation_correct_delta": 4,
+    "planner_completion": {
+      "denominator": 20,
+      "numerator": 19,
+      "value": 0.95
+    },
+    "unnecessary_tool_action_rate": {
+      "denominator": 17,
+      "numerator": 0,
+      "value": 0.0
+    },
+    "unsupported_claim_rate": {
+      "denominator": 17,
+      "numerator": 1,
+      "value": 0.058823529411764705
+    }
+  },
+  "reconstructed_gate_result": {
+    "failed_metric_gates": [
+      "clipping_recall",
+      "evidence_grounding",
+      "unsupported_claim_rate"
+    ],
+    "failed_role_hard_gates": [
+      "clipping_only"
+    ],
+    "frozen_scorer_descriptive_target_status": "below_target"
+  },
+  "scoring_id": "signal_diag.contextual_scoring",
+  "scoring_version": "1.0.0-dev.1",
+  "validation_confirmation_valid": false
+}

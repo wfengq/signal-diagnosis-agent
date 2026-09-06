@@ -1,0 +1,15 @@
+{
+  "arm": "no_context_ablation",
+  "arm_result": {
+    "arm": "no_context_ablation",
+    "case_id": "b1584e9fd6bf5c1d",
+    "evidence_refs_complete": false,
+    "infrastructure_failure": true,
+    "predicted_causal_set": [],
+    "predicted_outcome": null,
+    "status": "infrastructure_failure",
+    "unnecessary_tool": false
+  },
+  "case_id": "b1584e9fd6bf5c1d",
+  "mode": "single_signal"
+}

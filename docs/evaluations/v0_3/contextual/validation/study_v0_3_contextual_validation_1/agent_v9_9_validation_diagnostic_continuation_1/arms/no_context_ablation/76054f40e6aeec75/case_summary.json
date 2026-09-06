@@ -1,0 +1,15 @@
+{
+  "arm": "no_context_ablation",
+  "arm_result": {
+    "arm": "no_context_ablation",
+    "case_id": "76054f40e6aeec75",
+    "evidence_refs_complete": true,
+    "infrastructure_failure": false,
+    "predicted_causal_set": [],
+    "predicted_outcome": "inconclusive",
+    "status": "ok",
+    "unnecessary_tool": false
+  },
+  "case_id": "76054f40e6aeec75",
+  "mode": "single_signal"
+}
