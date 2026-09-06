@@ -1,0 +1,61 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_10_dev_confirmation_4/cases/d4bb668a379dea3b",
+  "case_id": "d4bb668a379dea3b",
+  "causal_faults": [],
+  "claims": [
+    {
+      "claim_id": "claim_inconclusive_invalid_harmonic",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_007",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+      ],
+      "fault_type": "inconclusive",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_cd9664555eb15b8d",
+        "ruleval_a670d5d62d79c436",
+        "ruleval_3218b9baf7883009"
+      ],
+      "statement": "Clipping is ruled out by same-run Evidence, but harmonic distortion cannot be established because the harmonic analysis is invalid and the rule result is NOT_APPLICABLE."
+    }
+  ],
+  "correct_causal": true,
+  "correct_outcome": true,
+  "evidence_refs": [
+    "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+    "ev_detect_clipping_detect_clipping_000000_007"
+  ],
+  "evidence_refs_complete": true,
+  "expected_causal_set": [],
+  "expected_outcome": "inconclusive",
+  "finished_at_utc": "2026-09-06T11:32:25.697876+00:00",
+  "infrastructure_failure": false,
+  "limitations": [
+    "Harmonic distortion analysis is invalid because the fundamental frequency could not be estimated reliably; causal S1 distortion attribution is not supported."
+  ],
+  "mode": "single_signal",
+  "outcome": "inconclusive",
+  "planner_completed": true,
+  "planner_errors": [],
+  "projected_trace_event_count": 7,
+  "reference_wav_sha256": null,
+  "result_status": "ok",
+  "role": "controlled_inconclusive",
+  "rule_refs": [
+    "ruleval_237883d67b741c3e",
+    "ruleval_3218b9baf7883009",
+    "ruleval_a670d5d62d79c436",
+    "ruleval_cd9664555eb15b8d"
+  ],
+  "scoreable": true,
+  "started_at_utc": "2026-09-06T11:32:19.817679+00:00",
+  "status": "ok",
+  "termination_reason": "planner_finished",
+  "test_wav_sha256": "867baa1a612934a2b24e7f630def762f001597f4d05f45571898b7f94a317324",
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_harmonic_distortion"
+  ],
+  "unnecessary_tool": false
+}

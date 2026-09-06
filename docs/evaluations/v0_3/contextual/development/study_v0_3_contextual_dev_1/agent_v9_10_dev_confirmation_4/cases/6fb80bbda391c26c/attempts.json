@@ -1,0 +1,16 @@
+[
+  {
+    "case_id": "6fb80bbda391c26c",
+    "causal_policy_version": "v9_10_contextual_clipping_recovery",
+    "decide_count": 7,
+    "decision_index": 5,
+    "finished_at_utc": "2026-09-06T11:30:59.283590+00:00",
+    "model": "deepseek-v4-flash",
+    "planner_class": "RealLLMPlanner",
+    "prompt_version": "v0.3-s1-planner-9.10",
+    "scripted_planner_fallback": false,
+    "started_at_utc": "2026-09-06T11:30:46.752601+00:00",
+    "status": "ok",
+    "termination_reason": "planner_finished"
+  }
+]

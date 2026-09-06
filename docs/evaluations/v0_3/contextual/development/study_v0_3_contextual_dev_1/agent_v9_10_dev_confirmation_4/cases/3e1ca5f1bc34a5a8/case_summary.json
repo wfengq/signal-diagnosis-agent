@@ -1,0 +1,53 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_10_dev_confirmation_4/cases/3e1ca5f1bc34a5a8",
+  "case_id": "3e1ca5f1bc34a5a8",
+  "causal_faults": [],
+  "claims": [
+    {
+      "claim_id": "claim_invalid_harmonic_no_attribution",
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+      ],
+      "fault_type": "inconclusive",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_3218b9baf7883009"
+      ],
+      "statement": "Same-run harmonic measurement is invalid or unreliable; causal S1 distortion attribution is not supported."
+    }
+  ],
+  "correct_causal": true,
+  "correct_outcome": true,
+  "evidence_refs": [
+    "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+  ],
+  "evidence_refs_complete": true,
+  "expected_causal_set": [],
+  "expected_outcome": "inconclusive",
+  "finished_at_utc": "2026-09-06T11:32:37.071208+00:00",
+  "infrastructure_failure": false,
+  "limitations": [
+    "Harmonic distortion analysis is invalid or unreliable on this signal; finish is inconclusive because causal attribution requires valid same-run harmonic Evidence."
+  ],
+  "mode": "single_signal",
+  "outcome": "inconclusive",
+  "planner_completed": true,
+  "planner_errors": [],
+  "projected_trace_event_count": 7,
+  "reference_wav_sha256": null,
+  "result_status": "ok",
+  "role": "domain_out_inconclusive",
+  "rule_refs": [
+    "ruleval_3218b9baf7883009"
+  ],
+  "scoreable": false,
+  "started_at_utc": "2026-09-06T11:32:31.201389+00:00",
+  "status": "ok",
+  "termination_reason": "planner_finished",
+  "test_wav_sha256": "c795f93fe96fc47dba8c8836806d86019b6f83fb8753dcf433069c3fc92f2454",
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_harmonic_distortion"
+  ],
+  "unnecessary_tool": false
+}

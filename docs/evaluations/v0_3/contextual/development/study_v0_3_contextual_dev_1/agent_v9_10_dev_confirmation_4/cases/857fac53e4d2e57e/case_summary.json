@@ -1,0 +1,59 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_10_dev_confirmation_4/cases/857fac53e4d2e57e",
+  "case_id": "857fac53e4d2e57e",
+  "causal_faults": [
+    "clipping"
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_paired_1",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_018"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_41c5c754e881181f"
+      ],
+      "statement": "Clipping is affirmatively supported by same-run Evidence: test clipping mechanism is true and the test clipping ratio rule is FAIL."
+    }
+  ],
+  "correct_causal": true,
+  "correct_outcome": true,
+  "evidence_refs": [
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_018"
+  ],
+  "evidence_refs_complete": true,
+  "expected_causal_set": [
+    "clipping"
+  ],
+  "expected_outcome": "supported_fault",
+  "finished_at_utc": "2026-09-06T11:30:27.283188+00:00",
+  "infrastructure_failure": false,
+  "limitations": [
+    "Harmonic distortion is not supported because the even-harmonic growth rule PASSes and no reportable order-2 evidence indicates a causal harmonic distortion mechanism beyond clipping products."
+  ],
+  "mode": "paired_reference",
+  "outcome": "supported_fault",
+  "planner_completed": true,
+  "planner_errors": [],
+  "projected_trace_event_count": 7,
+  "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+  "result_status": "ok",
+  "role": "clipping",
+  "rule_refs": [
+    "ruleval_41c5c754e881181f"
+  ],
+  "scoreable": true,
+  "started_at_utc": "2026-09-06T11:30:20.836129+00:00",
+  "status": "ok",
+  "termination_reason": "planner_finished",
+  "test_wav_sha256": "5e3cd7fa1e12ce4b4c94f540ac590dbcd07edbebdfd3c35f7b44dddad9fd778a",
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_contextual_distortion"
+  ],
+  "unnecessary_tool": false
+}

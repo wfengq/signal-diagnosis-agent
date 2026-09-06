@@ -1,0 +1,55 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_10_dev_confirmation_4/cases/163185980dc8f7a4",
+  "case_id": "163185980dc8f7a4",
+  "causal_faults": [],
+  "claims": [
+    {
+      "claim_id": "claim_invalid_context_1",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003"
+      ],
+      "fault_type": "inconclusive",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_472ea3b94d546ae2"
+      ],
+      "statement": "Contextual analysis is invalid because the test and reference fundamentals are incompatible; causal harmonic distortion cannot be established."
+    }
+  ],
+  "correct_causal": true,
+  "correct_outcome": true,
+  "evidence_refs": [
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003"
+  ],
+  "evidence_refs_complete": true,
+  "expected_causal_set": [],
+  "expected_outcome": "inconclusive",
+  "finished_at_utc": "2026-09-06T11:31:43.013694+00:00",
+  "infrastructure_failure": false,
+  "limitations": [
+    "Contextual analysis is invalid due to fundamental incompatibility; causal harmonic distortion cannot be established without valid comparison evidence."
+  ],
+  "mode": "paired_reference",
+  "outcome": "inconclusive",
+  "planner_completed": true,
+  "planner_errors": [],
+  "projected_trace_event_count": 7,
+  "reference_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5",
+  "result_status": "ok",
+  "role": "invalid_comparison",
+  "rule_refs": [
+    "ruleval_472ea3b94d546ae2"
+  ],
+  "scoreable": true,
+  "started_at_utc": "2026-09-06T11:31:36.103542+00:00",
+  "status": "ok",
+  "termination_reason": "planner_finished",
+  "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_contextual_distortion"
+  ],
+  "unnecessary_tool": false
+}

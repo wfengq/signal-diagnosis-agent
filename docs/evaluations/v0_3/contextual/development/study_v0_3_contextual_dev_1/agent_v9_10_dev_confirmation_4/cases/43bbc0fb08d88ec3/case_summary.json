@@ -1,0 +1,59 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_10_dev_confirmation_4/cases/43bbc0fb08d88ec3",
+  "case_id": "43bbc0fb08d88ec3",
+  "causal_faults": [
+    "clipping"
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_supported_1",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_34beb5bd8d8930e5"
+      ],
+      "statement": "Clipping is affirmatively supported by same-run Evidence: clipping_mechanism is true and the clipping ratio rule FAILs."
+    }
+  ],
+  "correct_causal": true,
+  "correct_outcome": true,
+  "evidence_refs": [
+    "ev_detect_clipping_detect_clipping_000000_001",
+    "ev_detect_clipping_detect_clipping_000000_007"
+  ],
+  "evidence_refs_complete": true,
+  "expected_causal_set": [
+    "clipping"
+  ],
+  "expected_outcome": "supported_fault",
+  "finished_at_utc": "2026-09-06T11:32:19.813964+00:00",
+  "infrastructure_failure": false,
+  "limitations": [
+    "Harmonic distortion is not independently supported: the THD rule PASSes and no reportable even-order (order-2) Evidence establishes a separate harmonic distortion mechanism. The harmonic hypothesis is closed without a supported harmonic_distortion fault."
+  ],
+  "mode": "single_signal",
+  "outcome": "supported_fault",
+  "planner_completed": true,
+  "planner_errors": [],
+  "projected_trace_event_count": 7,
+  "reference_wav_sha256": null,
+  "result_status": "ok",
+  "role": "clipping",
+  "rule_refs": [
+    "ruleval_34beb5bd8d8930e5"
+  ],
+  "scoreable": true,
+  "started_at_utc": "2026-09-06T11:32:13.750405+00:00",
+  "status": "ok",
+  "termination_reason": "planner_finished",
+  "test_wav_sha256": "db5b8d536a6d4dc086d93931a0702cf3dcc03f1f34de6346c3244b2adce7fd3d",
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_harmonic_distortion"
+  ],
+  "unnecessary_tool": false
+}

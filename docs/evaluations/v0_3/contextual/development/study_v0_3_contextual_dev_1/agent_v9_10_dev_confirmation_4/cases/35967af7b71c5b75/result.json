@@ -1,0 +1,610 @@
+{
+  "diagnosis": {
+    "claims": [
+      {
+        "claim_id": "claim_harm_nominal_1",
+        "evidence_refs": [
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_005",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_013",
+          "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_010"
+        ],
+        "fault_type": "harmonic_distortion",
+        "knowledge_refs": [],
+        "rule_refs": [
+          "ruleval_f2cece788c67624a",
+          "ruleval_ff4fb99021a80996",
+          "ruleval_a1105684a3d6f413"
+        ],
+        "statement": "Harmonic distortion is affirmatively supported in nominal_single_tone mode: contextual analysis is valid, F0 is compatible, even-order harmonics are present, and the nominal THD rule is FAIL."
+      }
+    ],
+    "confidence_label": "high",
+    "knowledge_retrievals": [],
+    "limitations": [],
+    "outcome": "supported_fault",
+    "rule_evaluation_batches": [
+      {
+        "batch_id": "rulebatch_ace854ebb6222c0d",
+        "evaluations": [
+          {
+            "comparator": "eq",
+            "evaluation_id": "ruleval_f2cece788c67624a",
+            "evidence_refs": [
+              "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000"
+            ],
+            "judgment": "pass",
+            "observed_value": true,
+            "profile_id": "profile_s1_contextual_comparison_v9_10",
+            "profile_version": "1.0.0",
+            "reason": null,
+            "rule_id": "rule_contextual_analysis_valid",
+            "threshold": true
+          },
+          {
+            "comparator": "lte",
+            "evaluation_id": "ruleval_ff4fb99021a80996",
+            "evidence_refs": [
+              "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_005"
+            ],
+            "judgment": "pass",
+            "observed_value": 0.0,
+            "profile_id": "profile_s1_contextual_comparison_v9_10",
+            "profile_version": "1.0.0",
+            "reason": null,
+            "rule_id": "rule_contextual_f0_compatible",
+            "threshold": 0.02
+          },
+          {
+            "comparator": "lte",
+            "evaluation_id": "ruleval_d6fc55cc79c5773d",
+            "evidence_refs": [
+              "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_014"
+            ],
+            "judgment": "not_applicable",
+            "observed_value": null,
+            "profile_id": "profile_s1_contextual_comparison_v9_10",
+            "profile_version": "1.0.0",
+            "reason": "evidence is not applicable",
+            "rule_id": "rule_reference_clipping_ratio_acceptable",
+            "threshold": 0.01
+          },
+          {
+            "comparator": "eq",
+            "evaluation_id": "ruleval_e45f49265f16ef61",
+            "evidence_refs": [
+              "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_015"
+            ],
+            "judgment": "not_applicable",
+            "observed_value": null,
+            "profile_id": "profile_s1_contextual_comparison_v9_10",
+            "profile_version": "1.0.0",
+            "reason": "evidence is not applicable",
+            "rule_id": "rule_reference_flat_top_absent",
+            "threshold": false
+          },
+          {
+            "comparator": "lte",
+            "evaluation_id": "ruleval_8de763b9ddb5d960",
+            "evidence_refs": [
+              "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_012"
+            ],
+            "judgment": "fail",
+            "observed_value": 10.339347241424573,
+            "profile_id": "profile_s1_contextual_comparison_v9_10",
+            "profile_version": "1.0.0",
+            "reason": null,
+            "rule_id": "rule_even_harmonic_growth_acceptable",
+            "threshold": 5.0
+          },
+          {
+            "comparator": "lte",
+            "evaluation_id": "ruleval_a1105684a3d6f413",
+            "evidence_refs": [
+              "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_010"
+            ],
+            "judgment": "fail",
+            "observed_value": 10.339720101819712,
+            "profile_id": "profile_s1_contextual_comparison_v9_10",
+            "profile_version": "1.0.0",
+            "reason": null,
+            "rule_id": "rule_nominal_thd_acceptable",
+            "threshold": 5.0
+          },
+          {
+            "comparator": "lte",
+            "evaluation_id": "ruleval_bed5972891a6ad50",
+            "evidence_refs": [
+              "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_016"
+            ],
+            "judgment": "pass",
+            "observed_value": 0.0,
+            "profile_id": "profile_s1_contextual_comparison_v9_10",
+            "profile_version": "1.0.0",
+            "reason": null,
+            "rule_id": "rule_test_clipping_ratio_acceptable",
+            "threshold": 0.01
+          },
+          {
+            "comparator": "eq",
+            "evaluation_id": "ruleval_f4a76ac74bf9f077",
+            "evidence_refs": [
+              "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_017"
+            ],
+            "judgment": "pass",
+            "observed_value": false,
+            "profile_id": "profile_s1_contextual_comparison_v9_10",
+            "profile_version": "1.0.0",
+            "reason": null,
+            "rule_id": "rule_test_flat_top_absent",
+            "threshold": false
+          }
+        ],
+        "profile_id": "profile_s1_contextual_comparison_v9_10",
+        "profile_version": "1.0.0"
+      }
+    ],
+    "run_id": "run_a9ea0f4ee83e",
+    "task_type": "distortion_analysis",
+    "termination_reason": "planner_finished",
+    "tool_call_count": 1
+  },
+  "errors": [],
+  "evidence": [
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000",
+      "metric": "context_valid",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": true
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_001",
+      "metric": "mode",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": "nominal_single_tone"
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_002",
+      "metric": "algorithm_version",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": "1.0.0"
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_003",
+      "metric": "test_f0_hz",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": "Hz",
+      "validity": "valid",
+      "value": 246.15384615384616
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_004",
+      "metric": "comparison_f0_hz",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": "Hz",
+      "validity": "valid",
+      "value": 246.15384615384616
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_005",
+      "metric": "f0_relative_delta",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": 0.0
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_006",
+      "metric": "alignment_lag_samples",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": 0
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_007",
+      "metric": "alignment_correlation",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": 1.0
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_008",
+      "metric": "gain_ratio",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": 1.0
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_009",
+      "metric": "reference_thd_percent",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": "%",
+      "validity": "valid",
+      "value": 0.0
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_010",
+      "metric": "test_thd_percent",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": "%",
+      "validity": "valid",
+      "value": 10.339720101819712
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_011",
+      "metric": "thd_delta_percent",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": "%",
+      "validity": "valid",
+      "value": 10.339720101819712
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_012",
+      "metric": "even_harmonic_growth_percent",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": "%",
+      "validity": "valid",
+      "value": 10.339347241424573
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_013",
+      "metric": "test_series_kind",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": "even_order_present"
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_014",
+      "metric": "reference_clipping_ratio",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "not_applicable",
+      "value": "not_applicable"
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_015",
+      "metric": "reference_flat_top_detected",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "not_applicable",
+      "value": "not_applicable"
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_016",
+      "metric": "test_clipping_ratio",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": 0.0
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_017",
+      "metric": "test_flat_top_detected",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": false
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018",
+      "metric": "test_clipping_mechanism",
+      "source_tool": "analyze_contextual_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": false
+    }
+  ],
+  "knowledge_retrievals": [],
+  "observations": [
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "error_message": null,
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_017",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018"
+      ],
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "observation_id": "obs_analyze_contextual_distortion_000000_000",
+      "purpose": "Obtain contextual harmonic evidence for causal attribution in nominal_single_tone mode.",
+      "result": {
+        "algorithm_version": "1.0.0",
+        "alignment_correlation": 1.0,
+        "alignment_lag_samples": 0,
+        "comparison_f0_hz": 246.15384615384616,
+        "components": [
+          {
+            "order": 2,
+            "positive_growth": 0.10339346453964317,
+            "reference_relative_amplitude": 0.0,
+            "test_relative_amplitude": 0.10339346453964317
+          },
+          {
+            "order": 3,
+            "positive_growth": 0.0008770842632341331,
+            "reference_relative_amplitude": 0.0,
+            "test_relative_amplitude": 0.0008770842632341331
+          },
+          {
+            "order": 4,
+            "positive_growth": 4.035300413404075e-05,
+            "reference_relative_amplitude": 0.0,
+            "test_relative_amplitude": 4.035300413404075e-05
+          },
+          {
+            "order": 5,
+            "positive_growth": 4.199663384840078e-05,
+            "reference_relative_amplitude": 0.0,
+            "test_relative_amplitude": 4.199663384840078e-05
+          }
+        ],
+        "even_harmonic_growth_percent": 10.339347241424573,
+        "f0_relative_delta": 0.0,
+        "gain_ratio": 1.0,
+        "invalid_reason": null,
+        "kind": "contextual_distortion",
+        "mode": "nominal_single_tone",
+        "reference_clipping_ratio": null,
+        "reference_flat_top_detected": null,
+        "reference_thd_percent": 0.0,
+        "test_clipping_mechanism": false,
+        "test_clipping_ratio": 0.0,
+        "test_f0_hz": 246.15384615384616,
+        "test_flat_top_detected": false,
+        "test_series_kind": "even_order_present",
+        "test_thd_percent": 10.339720101819712,
+        "thd_delta_percent": 10.339720101819712,
+        "valid": true
+      },
+      "status": "success",
+      "tool_name": "analyze_contextual_distortion",
+      "warnings": []
+    }
+  ],
+  "rule_evaluation_batches": [
+    {
+      "batch_id": "rulebatch_ace854ebb6222c0d",
+      "evaluations": [
+        {
+          "comparator": "eq",
+          "evaluation_id": "ruleval_f2cece788c67624a",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000"
+          ],
+          "judgment": "pass",
+          "observed_value": true,
+          "profile_id": "profile_s1_contextual_comparison_v9_10",
+          "profile_version": "1.0.0",
+          "reason": null,
+          "rule_id": "rule_contextual_analysis_valid",
+          "threshold": true
+        },
+        {
+          "comparator": "lte",
+          "evaluation_id": "ruleval_ff4fb99021a80996",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_005"
+          ],
+          "judgment": "pass",
+          "observed_value": 0.0,
+          "profile_id": "profile_s1_contextual_comparison_v9_10",
+          "profile_version": "1.0.0",
+          "reason": null,
+          "rule_id": "rule_contextual_f0_compatible",
+          "threshold": 0.02
+        },
+        {
+          "comparator": "lte",
+          "evaluation_id": "ruleval_d6fc55cc79c5773d",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_014"
+          ],
+          "judgment": "not_applicable",
+          "observed_value": null,
+          "profile_id": "profile_s1_contextual_comparison_v9_10",
+          "profile_version": "1.0.0",
+          "reason": "evidence is not applicable",
+          "rule_id": "rule_reference_clipping_ratio_acceptable",
+          "threshold": 0.01
+        },
+        {
+          "comparator": "eq",
+          "evaluation_id": "ruleval_e45f49265f16ef61",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_015"
+          ],
+          "judgment": "not_applicable",
+          "observed_value": null,
+          "profile_id": "profile_s1_contextual_comparison_v9_10",
+          "profile_version": "1.0.0",
+          "reason": "evidence is not applicable",
+          "rule_id": "rule_reference_flat_top_absent",
+          "threshold": false
+        },
+        {
+          "comparator": "lte",
+          "evaluation_id": "ruleval_8de763b9ddb5d960",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_012"
+          ],
+          "judgment": "fail",
+          "observed_value": 10.339347241424573,
+          "profile_id": "profile_s1_contextual_comparison_v9_10",
+          "profile_version": "1.0.0",
+          "reason": null,
+          "rule_id": "rule_even_harmonic_growth_acceptable",
+          "threshold": 5.0
+        },
+        {
+          "comparator": "lte",
+          "evaluation_id": "ruleval_a1105684a3d6f413",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_010"
+          ],
+          "judgment": "fail",
+          "observed_value": 10.339720101819712,
+          "profile_id": "profile_s1_contextual_comparison_v9_10",
+          "profile_version": "1.0.0",
+          "reason": null,
+          "rule_id": "rule_nominal_thd_acceptable",
+          "threshold": 5.0
+        },
+        {
+          "comparator": "lte",
+          "evaluation_id": "ruleval_bed5972891a6ad50",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_016"
+          ],
+          "judgment": "pass",
+          "observed_value": 0.0,
+          "profile_id": "profile_s1_contextual_comparison_v9_10",
+          "profile_version": "1.0.0",
+          "reason": null,
+          "rule_id": "rule_test_clipping_ratio_acceptable",
+          "threshold": 0.01
+        },
+        {
+          "comparator": "eq",
+          "evaluation_id": "ruleval_f4a76ac74bf9f077",
+          "evidence_refs": [
+            "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_017"
+          ],
+          "judgment": "pass",
+          "observed_value": false,
+          "profile_id": "profile_s1_contextual_comparison_v9_10",
+          "profile_version": "1.0.0",
+          "reason": null,
+          "rule_id": "rule_test_flat_top_absent",
+          "threshold": false
+        }
+      ],
+      "profile_id": "profile_s1_contextual_comparison_v9_10",
+      "profile_version": "1.0.0"
+    }
+  ],
+  "run_id": "run_a9ea0f4ee83e",
+  "status": "success",
+  "termination_reason": "planner_finished",
+  "tool_history": [
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "purpose": "Obtain contextual harmonic evidence for causal attribution in nominal_single_tone mode.",
+      "status": "success",
+      "tool_name": "analyze_contextual_distortion"
+    }
+  ],
+  "warnings": []
+}

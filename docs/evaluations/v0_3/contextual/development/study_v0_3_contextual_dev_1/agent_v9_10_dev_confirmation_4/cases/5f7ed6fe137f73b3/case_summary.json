@@ -1,0 +1,54 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_10_dev_confirmation_4/cases/5f7ed6fe137f73b3",
+  "case_id": "5f7ed6fe137f73b3",
+  "causal_faults": [],
+  "claims": [
+    {
+      "claim_id": "claim_inconclusive_nominal_f0_mismatch",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_003"
+      ],
+      "fault_type": "inconclusive",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_18570d1d55acc8df"
+      ],
+      "statement": "Contextual analysis is invalid because the measured fundamental is incompatible with the declared nominal fundamental; causal harmonic distortion cannot be established."
+    }
+  ],
+  "correct_causal": true,
+  "correct_outcome": true,
+  "evidence_refs": [
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_003"
+  ],
+  "evidence_refs_complete": true,
+  "expected_causal_set": [],
+  "expected_outcome": "inconclusive",
+  "finished_at_utc": "2026-09-06T11:32:02.685211+00:00",
+  "infrastructure_failure": false,
+  "limitations": [
+    "The contextual analysis is invalid because the measured fundamental frequency is incompatible with the declared nominal fundamental (1043.478 Hz). Without a valid contextual comparison, causal harmonic distortion cannot be attributed."
+  ],
+  "mode": "nominal_single_tone",
+  "outcome": "inconclusive",
+  "planner_completed": true,
+  "planner_errors": [],
+  "projected_trace_event_count": 4,
+  "reference_wav_sha256": null,
+  "result_status": "ok",
+  "role": "frequency_mismatch",
+  "rule_refs": [
+    "ruleval_18570d1d55acc8df"
+  ],
+  "scoreable": true,
+  "started_at_utc": "2026-09-06T11:31:58.346102+00:00",
+  "status": "ok",
+  "termination_reason": "planner_finished",
+  "test_wav_sha256": "290110cda9e8467764d76bba304163d606850e184bacba1be33f2dc737aa0dda",
+  "tool_actions": [
+    "analyze_contextual_distortion"
+  ],
+  "unnecessary_tool": false
+}
