@@ -1,0 +1,55 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_11_dev_confirmation_2/cases/5f7ed6fe137f73b3",
+  "case_id": "5f7ed6fe137f73b3",
+  "causal_faults": [],
+  "claims": [
+    {
+      "claim_id": "claim_inconclusive_nominal_mismatch",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003"
+      ],
+      "fault_type": "inconclusive",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_472ea3b94d546ae2"
+      ],
+      "statement": "Nominal single-tone contextual analysis is invalid because the measured fundamental is incompatible with the declared fundamental; causal harmonic distortion cannot be established."
+    }
+  ],
+  "correct_causal": true,
+  "correct_outcome": true,
+  "evidence_refs": [
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003"
+  ],
+  "evidence_refs_complete": true,
+  "expected_causal_set": [],
+  "expected_outcome": "inconclusive",
+  "finished_at_utc": "2026-09-06T13:58:03.656224+00:00",
+  "infrastructure_failure": false,
+  "limitations": [
+    "Nominal single-tone contextual analysis is invalid because the measured fundamental is incompatible with the declared fundamental (1043.48 Hz); causal harmonic distortion cannot be established without a valid contextual comparison."
+  ],
+  "mode": "nominal_single_tone",
+  "outcome": "inconclusive",
+  "planner_completed": true,
+  "planner_errors": [],
+  "projected_trace_event_count": 7,
+  "reference_wav_sha256": null,
+  "result_status": "ok",
+  "role": "frequency_mismatch",
+  "rule_refs": [
+    "ruleval_472ea3b94d546ae2"
+  ],
+  "scoreable": true,
+  "started_at_utc": "2026-09-06T13:57:56.688361+00:00",
+  "status": "ok",
+  "termination_reason": "planner_finished",
+  "test_wav_sha256": "290110cda9e8467764d76bba304163d606850e184bacba1be33f2dc737aa0dda",
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_contextual_distortion"
+  ],
+  "unnecessary_tool": false
+}

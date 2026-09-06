@@ -1,0 +1,114 @@
+{
+  "aggregate": {
+    "ablation_correct_delta": null,
+    "causal_exact_set_accuracy": {
+      "denominator": 17,
+      "numerator": 17,
+      "value": 1.0
+    },
+    "clipping_precision": {
+      "denominator": 6,
+      "numerator": 6,
+      "value": 1.0
+    },
+    "clipping_recall": {
+      "denominator": 6,
+      "numerator": 6,
+      "value": 1.0
+    },
+    "evidence_grounding": {
+      "denominator": 17,
+      "numerator": 17,
+      "value": 1.0
+    },
+    "harmonic_precision": {
+      "denominator": 5,
+      "numerator": 5,
+      "value": 1.0
+    },
+    "harmonic_recall": {
+      "denominator": 5,
+      "numerator": 5,
+      "value": 1.0
+    },
+    "inconclusive_appropriateness": {
+      "denominator": 6,
+      "numerator": 6,
+      "value": 1.0
+    },
+    "natural_even_harmonic_fp": 0,
+    "outcome_accuracy": {
+      "denominator": 17,
+      "numerator": 17,
+      "value": 1.0
+    },
+    "unnecessary_tool_rate": {
+      "denominator": 17,
+      "numerator": 0,
+      "value": 0.0
+    },
+    "unsupported_claim_rate": {
+      "denominator": 17,
+      "numerator": 0,
+      "value": 0.0
+    }
+  },
+  "attempt_count": 20,
+  "behavioral_failure_case_ids": [],
+  "case_count": 20,
+  "cases_executed": 20,
+  "cases_planned": 20,
+  "claim_ref_failures": [],
+  "completed_diagnosis_case_ids": [
+    "825a759a0ea47bb7",
+    "857fac53e4d2e57e",
+    "abd9010438d4ad93",
+    "a4a0853be9983f8c",
+    "2be730b9113701de",
+    "6fb80bbda391c26c",
+    "aa9b4a91b0253c33",
+    "393940e92c58cf0b",
+    "04f4068ec91d2621",
+    "163185980dc8f7a4",
+    "ce8b413cf7382c3d",
+    "dff3ebd9dffee874",
+    "35967af7b71c5b75",
+    "5f7ed6fe137f73b3",
+    "eabaecd422b2eeda",
+    "43bbc0fb08d88ec3",
+    "d4bb668a379dea3b",
+    "e3c036eb778237c8",
+    "3e1ca5f1bc34a5a8",
+    "eb8d416412ce3c22"
+  ],
+  "decision_indexes_contiguous": true,
+  "development_confirmed": true,
+  "gates": {
+    "claim_refs_resolve": true,
+    "evidence_grounding_100": true,
+    "inconclusive_appropriateness_1_00": true,
+    "natural_even_harmonic_fp_0": true,
+    "planner_completion_ge_0_95": true,
+    "scoreable_causal_exact_ge_0_75": true,
+    "scoreable_outcome_accuracy_ge_0_80": true,
+    "slots_complete_20": true,
+    "unique_cases_20": true,
+    "unsupported_claim_rate_0": true
+  },
+  "infrastructure_failure_case_ids": [],
+  "label": "v9.11 development confirmation_2 audit",
+  "natural_even_fp_cases": [],
+  "not_a_prior_run_rewrite": true,
+  "planner_completion": {
+    "denominator": 20,
+    "numerator": 20,
+    "value": 1.0
+  },
+  "scoring_method": "failure-as-incorrect over frozen denominators",
+  "scoring_version": "1.0.0-dev.1",
+  "stop_case_id": null,
+  "stop_failure_fingerprint": null,
+  "stopped_for_infrastructure": false,
+  "target_status": "meets_target",
+  "unique_case_count": 20
+}

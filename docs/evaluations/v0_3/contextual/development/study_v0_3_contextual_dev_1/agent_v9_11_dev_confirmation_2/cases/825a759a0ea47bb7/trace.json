@@ -1,0 +1,118 @@
+{
+  "events": [
+    {
+      "action_name": "call_tool",
+      "event_index": 0,
+      "kind": "planner",
+      "latency_ms": 4005.378200003179,
+      "provider_usage": null,
+      "purpose": "Obtain clipping evidence first for this broad paired_reference request.",
+      "reference_ids": [],
+      "status": "decision"
+    },
+    {
+      "action_name": "detect_clipping",
+      "event_index": 1,
+      "kind": "observation",
+      "latency_ms": null,
+      "provider_usage": null,
+      "purpose": "Obtain clipping evidence first for this broad paired_reference request.",
+      "reference_ids": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "status": "success"
+    },
+    {
+      "action_name": "profile_s1_distortion",
+      "event_index": 2,
+      "kind": "rule",
+      "latency_ms": null,
+      "provider_usage": null,
+      "purpose": null,
+      "reference_ids": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_cd9664555eb15b8d",
+        "ruleval_a670d5d62d79c436",
+        "ruleval_85b5a3bed3ae119d",
+        "ruleval_26d0fc73df26e5ec"
+      ],
+      "status": "completed"
+    },
+    {
+      "action_name": "call_tool",
+      "event_index": 3,
+      "kind": "planner",
+      "latency_ms": 1820.4528000060236,
+      "provider_usage": null,
+      "purpose": "Clipping is ruled out; harmonic_distortion remains viable and requires contextual comparison evidence in paired_reference mode.",
+      "reference_ids": [],
+      "status": "decision"
+    },
+    {
+      "action_name": "analyze_contextual_distortion",
+      "event_index": 4,
+      "kind": "observation",
+      "latency_ms": null,
+      "provider_usage": null,
+      "purpose": "Clipping is ruled out; harmonic_distortion remains viable and requires contextual comparison evidence in paired_reference mode.",
+      "reference_ids": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_001",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_002",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_004",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_007",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_008",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_009",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_011",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_018"
+      ],
+      "status": "success"
+    },
+    {
+      "action_name": "profile_s1_contextual_comparison_v9_10",
+      "event_index": 5,
+      "kind": "rule",
+      "latency_ms": null,
+      "provider_usage": null,
+      "purpose": null,
+      "reference_ids": [
+        "ruleval_4709b5befaf84773",
+        "ruleval_1f8571ea0ca7e982",
+        "ruleval_a68381d6ddef0ba9",
+        "ruleval_2a57753c5355e8eb",
+        "ruleval_79e9e86dbbf01e5b",
+        "ruleval_0b4c65fd1df92f33",
+        "ruleval_0ae64e877fff1e34",
+        "ruleval_f729bea9d83dad51"
+      ],
+      "status": "completed"
+    },
+    {
+      "action_name": "finish",
+      "event_index": 6,
+      "kind": "planner",
+      "latency_ms": 4621.098300005542,
+      "provider_usage": null,
+      "purpose": null,
+      "reference_ids": [],
+      "status": "decision"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_11_dev_confirmation_2/cases/a4a0853be9983f8c",
+  "case_id": "a4a0853be9983f8c",
+  "causal_faults": [
+    "harmonic_distortion"
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_harm_paired_1",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010"
+      ],
+      "fault_type": "harmonic_distortion",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_4709b5befaf84773",
+        "ruleval_1f8571ea0ca7e982",
+        "ruleval_a68381d6ddef0ba9",
+        "ruleval_2a57753c5355e8eb",
+        "ruleval_dcb17cc07bf8af9a",
+        "ruleval_0ae64e877fff1e34",
+        "ruleval_f729bea9d83dad51"
+      ],
+      "statement": "Harmonic distortion is affirmatively supported: contextual analysis is valid, F0 is compatible, reference clipping is absent, test clipping is excluded, and even-order harmonic growth exceeds the configured threshold."
+    }
+  ],
+  "correct_causal": true,
+  "correct_outcome": true,
+  "evidence_refs": [
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_010",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_013"
+  ],
+  "evidence_refs_complete": true,
+  "expected_causal_set": [
+    "harmonic_distortion"
+  ],
+  "expected_outcome": "supported_fault",
+  "finished_at_utc": "2026-09-06T13:56:45.846603+00:00",
+  "infrastructure_failure": false,
+  "limitations": [],
+  "mode": "paired_reference",
+  "outcome": "supported_fault",
+  "planner_completed": true,
+  "planner_errors": [],
+  "projected_trace_event_count": 7,
+  "reference_wav_sha256": "ae7c9e26224c97dafd38b47816e1db570b338d1ae3f5f1700cda2dab9bcc354e",
+  "result_status": "ok",
+  "role": "harmonic",
+  "rule_refs": [
+    "ruleval_0ae64e877fff1e34",
+    "ruleval_1f8571ea0ca7e982",
+    "ruleval_2a57753c5355e8eb",
+    "ruleval_4709b5befaf84773",
+    "ruleval_a68381d6ddef0ba9",
+    "ruleval_dcb17cc07bf8af9a",
+    "ruleval_f729bea9d83dad51"
+  ],
+  "scoreable": true,
+  "started_at_utc": "2026-09-06T13:56:37.610565+00:00",
+  "status": "ok",
+  "termination_reason": "planner_finished",
+  "test_wav_sha256": "1004c08876b654fad0db060739c973b2ebe655639c9041da64e7155680e53bf3",
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_contextual_distortion"
+  ],
+  "unnecessary_tool": false
+}

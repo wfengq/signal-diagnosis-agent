@@ -1,0 +1,74 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_11_dev_confirmation_2/cases/ce8b413cf7382c3d",
+  "case_id": "ce8b413cf7382c3d",
+  "causal_faults": [],
+  "claims": [
+    {
+      "claim_id": "claim_nominal_clean_1",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_010",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_017",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018"
+      ],
+      "fault_type": "no_supported_fault",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_f2cece788c67624a",
+        "ruleval_ff4fb99021a80996",
+        "ruleval_a6579489436604de",
+        "ruleval_a05e86d9afed2ce6",
+        "ruleval_bed5972891a6ad50",
+        "ruleval_f4a76ac74bf9f077"
+      ],
+      "statement": "Contextual analysis is valid, F0 is compatible, test clipping is excluded, and harmonic growth and THD are within configured limits; no supported S1 distortion is present relative to the declared single-tone context."
+    }
+  ],
+  "correct_causal": true,
+  "correct_outcome": true,
+  "evidence_refs": [
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_005",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_010",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_012",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_016",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_017",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018"
+  ],
+  "evidence_refs_complete": true,
+  "expected_causal_set": [],
+  "expected_outcome": "no_supported_fault",
+  "finished_at_utc": "2026-09-06T13:57:46.943894+00:00",
+  "infrastructure_failure": false,
+  "limitations": [
+    "Finding is relative to the declared nominal single-tone context; reference clipping rules are not applicable in this mode."
+  ],
+  "mode": "nominal_single_tone",
+  "outcome": "no_supported_fault",
+  "planner_completed": true,
+  "planner_errors": [],
+  "projected_trace_event_count": 4,
+  "reference_wav_sha256": null,
+  "result_status": "ok",
+  "role": "clean",
+  "rule_refs": [
+    "ruleval_a05e86d9afed2ce6",
+    "ruleval_a6579489436604de",
+    "ruleval_bed5972891a6ad50",
+    "ruleval_f2cece788c67624a",
+    "ruleval_f4a76ac74bf9f077",
+    "ruleval_ff4fb99021a80996"
+  ],
+  "scoreable": true,
+  "started_at_utc": "2026-09-06T13:57:41.185038+00:00",
+  "status": "ok",
+  "termination_reason": "planner_finished",
+  "test_wav_sha256": "b0c7ea55bd6b1ebc9eeb57a954ee4f465c264eb2ac18ab4b65222787c87fa1c5",
+  "tool_actions": [
+    "analyze_contextual_distortion"
+  ],
+  "unnecessary_tool": false
+}
