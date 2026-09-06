@@ -38,6 +38,20 @@ def automatic_profile_for_tool(tool_name: ToolName) -> RuleClosureProfileId | No
     return None
 
 
+def automatic_profiles_for_tool(tool_name: ToolName) -> frozenset[RuleClosureProfileId]:
+    """Profiles a Tool may emit via automatic rule closure across policies."""
+
+    if tool_name == "analyze_contextual_distortion":
+        return frozenset(
+            {
+                "profile_s1_contextual_comparison",
+                "profile_s1_contextual_comparison_v9_10",
+            }
+        )
+    profile = automatic_profile_for_tool(tool_name)
+    return frozenset({profile}) if profile is not None else frozenset()
+
+
 def required_rule_profile(
     *,
     causal_policy_version: CausalPolicyVersion,

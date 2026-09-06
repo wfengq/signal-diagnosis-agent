@@ -9,6 +9,8 @@ import pytest
 from signal_diag.agent.diagnosis import CausalPolicyVersion
 from signal_diag.agent.models import Observation
 from signal_diag.agent.rule_closure import (
+    automatic_profile_for_tool,
+    automatic_profiles_for_tool,
     build_rule_closure_request,
     required_rule_profile,
 )
@@ -162,3 +164,16 @@ def test_t_cx235_new_rules_use_exact_triggering_observation_suffix(
     assert set(ratio_evaluation.evidence_refs + flat_evaluation.evidence_refs) == {
         item.evidence_id for item in suffix
     }
+
+
+def test_t_cx235_automatic_profiles_include_v9_10_contextual() -> None:
+    assert automatic_profile_for_tool("analyze_contextual_distortion") == (
+        "profile_s1_contextual_comparison"
+    )
+    assert automatic_profiles_for_tool("analyze_contextual_distortion") == frozenset(
+        {
+            "profile_s1_contextual_comparison",
+            "profile_s1_contextual_comparison_v9_10",
+        }
+    )
+

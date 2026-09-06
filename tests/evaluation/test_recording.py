@@ -11,6 +11,7 @@ from pydantic import ValidationError
 from signal_diag.agent.models import (
     AgentDecision,
     AgentRunResult,
+    AnalyzeContextualDistortionCall,
     CallToolDecision,
     ClippingInput,
     DetectClippingCall,
@@ -49,6 +50,8 @@ from signal_diag.rules.models import RuleEvaluation, RuleEvaluationBatch
 from signal_diag.signal.models import SignalMeta
 from signal_diag.tools.contracts import (
     ClippingOutput,
+    ContextualDistortionInput,
+    ContextualDistortionOutput,
     HarmonicComponentOutput,
     HarmonicDistortionInput,
     HarmonicDistortionOutput,
@@ -1516,3 +1519,98 @@ def test_t_cx180_historical_and_automatic_traces_round_trip() -> None:
     restored_auto = EvaluationTrace.model_validate_json(automatic.model_dump_json())
     assert restored_auto == automatic
     assert any(event.event_type == "rule_evaluation" for event in automatic.events)
+
+def test_t_cx_v910_accepts_contextual_v9_10_automatic_profile() -> None:
+    empty = _empty_context()
+    call = AnalyzeContextualDistortionCall(args=ContextualDistortionInput())
+    decision = CallToolDecision(
+        task_assessment=_task_assessment(),
+        call=call,
+        purpose="contextual compare",
+    )
+    output = ContextualDistortionOutput(
+        mode="paired_reference",
+        valid=True,
+        invalid_reason=None,
+        test_f0_hz=440.0,
+        comparison_f0_hz=440.0,
+        f0_relative_delta=0.0,
+        alignment_lag_samples=0,
+        alignment_correlation=1.0,
+        gain_ratio=1.0,
+        reference_thd_percent=1.0,
+        test_thd_percent=1.0,
+        thd_delta_percent=0.0,
+        even_harmonic_growth_percent=0.0,
+        test_series_kind="odd_dominant",
+        components=(),
+        reference_clipping_ratio=0.0,
+        reference_flat_top_detected=False,
+        test_clipping_ratio=0.0,
+        test_flat_top_detected=False,
+    )
+    evidence = Evidence(
+        evidence_id="ev_ctx_001",
+        source_tool="analyze_contextual_distortion",
+        call_id="call_ctx_001",
+        metric="context_valid",
+        value=True,
+        channel="mixdown",
+    )
+    observation = Observation(
+        observation_id="obs_ctx_001",
+        call_id="call_ctx_001",
+        tool_name="analyze_contextual_distortion",
+        normalized_arguments=normalize_tool_arguments(call),
+        purpose="contextual compare",
+        status="success",
+        result=output,
+        evidence_refs=("ev_ctx_001",),
+    )
+    evaluation = RuleEvaluation(
+        evaluation_id="ruleval_ctx_001",
+        rule_id="rule_contextual_valid",
+        judgment="pass",
+        observed_value=1.0,
+        comparator="eq",
+        threshold=1.0,
+        profile_id="profile_s1_contextual_comparison_v9_10",
+        profile_version="9.10.0",
+        evidence_refs=("ev_ctx_001",),
+    )
+    batch = RuleEvaluationBatch(
+        batch_id="rulebatch_ctx_001",
+        profile_id="profile_s1_contextual_comparison_v9_10",
+        profile_version="9.10.0",
+        evaluations=(evaluation,),
+    )
+    after = _advance(
+        empty,
+        observations=(observation,),
+        evidence=(evidence,),
+        rule_evaluation_batches=(batch,),
+    )
+    records = (
+        _decision_record(0, empty, decision),
+        _decision_record(
+            1,
+            after,
+            FinishDecision(
+                task_assessment=_task_assessment(),
+                outcome="inconclusive",
+                claims=(),
+                confidence_label="low",
+                limitations=("stop",),
+            ),
+        ),
+    )
+    result = _agent_result(
+        observations=(observation,),
+        evidence=(evidence,),
+        batches=(batch,),
+        retrievals=(),
+        claims=(),
+    )
+    events = assemble_agent_events(records, result)
+    assert any(getattr(event, "event_type", None) == "rule_evaluation" for event in events)
+

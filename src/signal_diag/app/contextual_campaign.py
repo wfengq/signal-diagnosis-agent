@@ -18,6 +18,8 @@ from signal_diag.agent.planner import (
     RealLLMPlanner,
 )
 from signal_diag.app.composition import build_product_service
+from signal_diag.app.contextual_runs import ContextualRunWorkItem
+from signal_diag.app.runs import RunWorkItem
 from signal_diag.app.service import DiagnosisApplicationService
 from signal_diag.evaluation.contextual.campaign import (
     CampaignSlotArtifacts,
@@ -102,6 +104,60 @@ class RealAgentSlotExecutor:
                 dependencies,
                 planner_factory=captured_factory,
             )
+
+        def _capture_execute_failure(error: BaseException) -> None:
+            if capture.fingerprint is None:
+                capture.fingerprint = restricted_error_fingerprint(error)
+
+        original_run_submit = self.service._executor.submit
+        original_contextual_submit = self.service._contextual_executor.submit
+
+        async def _submit_run(item, snapshot=None, owned_signal_ids=()):  # type: ignore[no-untyped-def]
+            orig_execute = item.execute
+
+            async def execute_with_capture():
+                try:
+                    return await orig_execute()
+                except BaseException as error:
+                    _capture_execute_failure(error)
+                    raise
+
+            wrapped_item = (
+                replace(item, execute=execute_with_capture)
+                if is_dataclass(item)
+                else RunWorkItem(run_id=item.run_id, execute=execute_with_capture)
+            )
+            return await original_run_submit(
+                wrapped_item,
+                snapshot=snapshot,
+                owned_signal_ids=owned_signal_ids,
+            )
+
+        async def _submit_contextual(item, snapshot=None, owned_signal_ids=()):  # type: ignore[no-untyped-def]
+            orig_execute = item.execute
+
+            async def execute_with_capture():
+                try:
+                    return await orig_execute()
+                except BaseException as error:
+                    _capture_execute_failure(error)
+                    raise
+
+            wrapped_item = (
+                replace(item, execute=execute_with_capture)
+                if is_dataclass(item)
+                else ContextualRunWorkItem(
+                    run_id=item.run_id, execute=execute_with_capture
+                )
+            )
+            return await original_contextual_submit(
+                wrapped_item,
+                snapshot=snapshot,
+                owned_signal_ids=owned_signal_ids,
+            )
+
+        self.service._executor.submit = _submit_run  # type: ignore[method-assign]
+        self.service._contextual_executor.submit = _submit_contextual  # type: ignore[method-assign]
         snapshot: object
         try:
             if slot.mode == "single_signal":
@@ -139,6 +195,8 @@ class RealAgentSlotExecutor:
                     contextual_submission.run_id
                 )
         finally:
+            self.service._executor.submit = original_run_submit  # type: ignore[method-assign]
+            self.service._contextual_executor.submit = original_contextual_submit  # type: ignore[method-assign]
             if wrapped:
                 self.service._dependencies = dependencies
         return artifacts_from_agent_snapshot(

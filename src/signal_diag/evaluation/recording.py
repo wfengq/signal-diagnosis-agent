@@ -23,7 +23,7 @@ from signal_diag.agent.models import (
 )
 from signal_diag.agent.planner import PlannerModel
 from signal_diag.agent.policies import normalize_tool_arguments
-from signal_diag.agent.rule_closure import automatic_profile_for_tool
+from signal_diag.agent.rule_closure import automatic_profiles_for_tool
 from signal_diag.evaluation.models import (
     BaselineRunResult,
     BenchmarkConfig,
@@ -370,10 +370,10 @@ def _assemble_agent_events(
             event_index += 1
             if rule_delta:
                 batch = rule_delta[0]
-                expected_profile = automatic_profile_for_tool(observation.tool_name)
+                allowed_profiles = automatic_profiles_for_tool(observation.tool_name)
                 if observation.status == "error":
                     raise ValueError("errored Tool cannot produce automatic rules")
-                if expected_profile is None or batch.profile_id != expected_profile:
+                if batch.profile_id not in allowed_profiles:
                     raise ValueError("automatic rule batch does not match Tool")
                 events.append(
                     RuleEvaluationEvent(
