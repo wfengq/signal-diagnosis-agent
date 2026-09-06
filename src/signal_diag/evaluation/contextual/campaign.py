@@ -377,6 +377,8 @@ def _arm_result_from_result(
 def artifacts_from_agent_snapshot(
     slot: ContextualExecutionSlot,
     snapshot: object,
+    *,
+    failure_diagnostic: dict[str, str | int | None] | None = None,
 ) -> CampaignSlotArtifacts:
     snapshot_status = getattr(snapshot, "status", None)
     result = getattr(snapshot, "result", None)
@@ -392,6 +394,8 @@ def artifacts_from_agent_snapshot(
             "status": "infrastructure_failure",
             "application_error": _model_json(application_error),
         }
+        if failure_diagnostic is not None:
+            result_payload["failure_diagnostic"] = dict(failure_diagnostic)
     else:
         arm_result = _arm_result_from_result(slot, result)
         result_payload = _model_json(result)
@@ -404,7 +408,15 @@ def artifacts_from_agent_snapshot(
     }
     return CampaignSlotArtifacts(
         arm_result=arm_result,
-        attempts={"attempt_count": 1, "provider_attempts": 1},
+        attempts={
+            "attempt_count": 1,
+            "provider_attempts": 1,
+            **(
+                {"failure_diagnostic": dict(failure_diagnostic)}
+                if failure_diagnostic is not None
+                else {}
+            ),
+        },
         trace={"events": _model_json(trace_events)},
         result=result_payload,
         summary=summary,

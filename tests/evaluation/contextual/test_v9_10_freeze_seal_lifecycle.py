@@ -38,12 +38,28 @@ def test_t_cx241_v910_development_identity_has_recomputed_bridge() -> None:
         if item["amendment_id"] == "v9_10_contextual_clipping_recovery"
     )
     assert row["amendment_kind"] == "append_only_behavior_identity"
-    assert row["current_implementation_sha256"] == current
+    assert row["current_implementation_sha256"] != current
     assert row["qualification_recompute_unchanged"] is True
     assert row["calibration_recompute_unchanged_except_code_sha256"] is True
     assert row["selected_threshold_percent_unchanged"] == 5.0
     assert row["model_calls"] == 0
     assert resolve_active_freeze_code_sha256(DEV) == current
+
+
+def test_t_cx248_observability_amendment_matches_current_harness() -> None:
+    rows = json.loads((DEV / "code_identity_amendment.json").read_text("utf-8"))
+    current = contextual_implementation_sha256()
+    row = next(
+        item
+        for item in rows
+        if item["amendment_id"] == "v9_10_evaluation_failure_observability"
+    )
+    assert row["amendment_kind"] == "append_only_evaluation_identity"
+    assert row["current_implementation_sha256"] == current
+    assert row["qualification_recompute_unchanged"] is True
+    assert row["calibration_recompute_unchanged"] is True
+    assert row["selected_threshold_percent_unchanged"] == 5.0
+    assert row["model_calls"] == 0
 
 
 def test_t_cx242_v99_v3_is_historical_with_truthful_execution_counts() -> None:

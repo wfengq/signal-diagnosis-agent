@@ -484,3 +484,15 @@ infrastructure-stopped 47/60-slot campaign. Its separate 13-slot diagnostic
 continuation cannot repair or complete the original one-shot campaign. No
 v9.10 run may reuse or amend that seal; no validation seal is active until a
 successful v9.10 development confirmation and separate construction approval.
+
+## 14. Evaluation failure observability (T-CX245–T-CX247)
+
+The contextual real-model adapter may retain one restricted failure fingerprint
+when an application run fails before a diagnosis result is produced. The
+fingerprint contains only a bounded exception type, a coarse category, and an
+optional HTTP status code. It must not contain exception text, module names,
+request or response bodies, raw WAV data, labels, expected outcomes, or
+credentials. Provider transport failures are categorized separately from
+ordinary evaluator/internal failures. This diagnostic field does not alter
+application-facing error messages, retry behavior, scoring, or historical run
+artifacts.

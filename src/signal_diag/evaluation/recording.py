@@ -60,6 +60,43 @@ _SECRET_PATTERN = re.compile(
 _MAX_ERROR_MESSAGE_CHARS = 1000
 
 
+def restricted_error_fingerprint(error: BaseException) -> dict[str, str | int | None]:
+    """Return a non-sensitive category for an evaluation-time failure.
+
+    The fingerprint intentionally excludes the exception message, module name,
+    request payload, and response body.  It is for append-only campaign
+    diagnostics, not for user-facing application errors.
+    """
+
+    status_code = getattr(error, "status_code", None)
+    if not isinstance(status_code, int) or not 100 <= status_code <= 599:
+        status_code = None
+    name = type(error).__name__
+    module = type(error).__module__ or ""
+    lowered = name.lower()
+    if status_code in {401, 403} or "auth" in lowered:
+        category = "authentication"
+    elif status_code == 429 or "ratelimit" in lowered:
+        category = "rate_limited"
+    elif status_code is not None and 500 <= status_code <= 599:
+        category = "provider_5xx"
+    elif (
+        getattr(error, "_signal_diag_provider_error", False)
+        or module == "openai"
+        or module.startswith("openai.")
+    ):
+        category = "provider_transport"
+    elif isinstance(error, TimeoutError) or "timeout" in lowered:
+        category = "timeout"
+    else:
+        category = "evaluator_internal"
+    return {
+        "category": category,
+        "error_type": name[:100],
+        "status_code": status_code,
+    }
+
+
 @runtime_checkable
 class _ProviderUsageCapture(Protocol):
     @property

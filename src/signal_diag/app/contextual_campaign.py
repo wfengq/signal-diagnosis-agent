@@ -8,10 +8,13 @@ import json
 import os
 import sys
 from collections.abc import Mapping
+from dataclasses import is_dataclass, replace
 from pathlib import Path
 
+from signal_diag.agent.models import AgentDecision, PlannerContext
 from signal_diag.agent.planner import (
     DEFAULT_DEEPSEEK_BASE_URL,
+    PlannerModel,
     RealLLMPlanner,
 )
 from signal_diag.app.composition import build_product_service
@@ -28,6 +31,27 @@ from signal_diag.evaluation.contextual.models import (
     ContextualExecutionSlot,
     ContextualRuntimeIdentity,
 )
+from signal_diag.evaluation.recording import restricted_error_fingerprint
+
+
+class _FailureCapture:
+    def __init__(self) -> None:
+        self.fingerprint: dict[str, str | int | None] | None = None
+
+
+class _FingerprintCapturingPlanner:
+    """Preserve planner behavior while retaining a safe evaluation fingerprint."""
+
+    def __init__(self, planner: PlannerModel, capture: _FailureCapture) -> None:
+        self._planner = planner
+        self._capture = capture
+
+    async def decide(self, context: PlannerContext) -> AgentDecision:
+        try:
+            return await self._planner.decide(context)
+        except BaseException as error:
+            self._capture.fingerprint = restricted_error_fingerprint(error)
+            raise
 
 
 class RealAgentSlotExecutor:
@@ -65,40 +89,63 @@ class RealAgentSlotExecutor:
     async def __call__(self, slot: ContextualExecutionSlot) -> CampaignSlotArtifacts:
         test_path = self._resolve_input(slot.test_wav_path)
         test_data = test_path.read_bytes()
+        dependencies = self.service._dependencies
+        capture = _FailureCapture()
+        wrapped = is_dataclass(dependencies)
+        if wrapped:
+            planner_factory = dependencies.planner_factory
+
+            def captured_factory() -> PlannerModel:
+                return _FingerprintCapturingPlanner(planner_factory(), capture)
+
+            self.service._dependencies = replace(
+                dependencies,
+                planner_factory=captured_factory,
+            )
         snapshot: object
-        if slot.mode == "single_signal":
-            submission = await self.service.submit_wav(
-                test_data,
-                filename=test_path.name,
-                user_request="Diagnose supported S1 distortion conservatively.",
-                channel="mixdown",
-            )
-            snapshot = await self.service.wait_for_terminal(submission.run_id)
-        else:
-            reference_path = (
-                self._resolve_input(slot.reference_wav_path)
-                if slot.reference_wav_path is not None
-                else None
-            )
-            contextual_submission = await self.service.submit_contextual_wav(
-                test_data,
-                test_filename=test_path.name,
-                mode=slot.mode,
-                reference_data=(
-                    reference_path.read_bytes() if reference_path is not None else None
-                ),
-                reference_filename=(
-                    reference_path.name if reference_path is not None else None
-                ),
-                nominal_fundamental_hz=slot.nominal_fundamental_hz,
-                stimulus_kind=slot.stimulus_kind,
-                user_request="Diagnose supported S1 distortion conservatively.",
-                channel="mixdown",
-            )
-            snapshot = await self.service.wait_for_contextual_terminal(
-                contextual_submission.run_id
-            )
-        return artifacts_from_agent_snapshot(slot, snapshot)
+        try:
+            if slot.mode == "single_signal":
+                submission = await self.service.submit_wav(
+                    test_data,
+                    filename=test_path.name,
+                    user_request="Diagnose supported S1 distortion conservatively.",
+                    channel="mixdown",
+                )
+                snapshot = await self.service.wait_for_terminal(submission.run_id)
+            else:
+                reference_path = (
+                    self._resolve_input(slot.reference_wav_path)
+                    if slot.reference_wav_path is not None
+                    else None
+                )
+                contextual_submission = await self.service.submit_contextual_wav(
+                    test_data,
+                    test_filename=test_path.name,
+                    mode=slot.mode,
+                    reference_data=(
+                        reference_path.read_bytes()
+                        if reference_path is not None
+                        else None
+                    ),
+                    reference_filename=(
+                        reference_path.name if reference_path is not None else None
+                    ),
+                    nominal_fundamental_hz=slot.nominal_fundamental_hz,
+                    stimulus_kind=slot.stimulus_kind,
+                    user_request="Diagnose supported S1 distortion conservatively.",
+                    channel="mixdown",
+                )
+                snapshot = await self.service.wait_for_contextual_terminal(
+                    contextual_submission.run_id
+                )
+        finally:
+            if wrapped:
+                self.service._dependencies = dependencies
+        return artifacts_from_agent_snapshot(
+            slot,
+            snapshot,
+            failure_diagnostic=capture.fingerprint,
+        )
 
     def _resolve_input(self, relative_path: str | None) -> Path:
         if relative_path is None:

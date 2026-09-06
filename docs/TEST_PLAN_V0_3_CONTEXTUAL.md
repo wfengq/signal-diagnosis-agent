@@ -171,6 +171,10 @@
 | T-CX242 | v9.9 validation seal v3 is historical and accurately records 47 original slots plus 13 diagnostic-only continuation slots with no active seal. |
 | T-CX243 | Contextual validation preflight rejects historical seal v3 before execution and creates no output. |
 | T-CX244 | Lifecycle test IDs T-CX241 through T-CX244 are registered exactly once. |
+| T-CX245 | Provider failure fingerprints retain only coarse non-sensitive diagnostics. |
+| T-CX246 | Ordinary internal failures are not mislabeled as provider failures. |
+| T-CX247 | The real contextual executor persists a safe failure fingerprint without secrets or payloads. |
+| T-CX248 | The append-only observability identity amendment matches the current evaluation harness. |
 
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
@@ -190,3 +194,8 @@ must not alter T-CX001–T-CX230 meanings.
 T-CX241–T-CX244 are additive lifecycle gates for the v9.10 development freeze
 and historical v9.9 validation seal; they must not alter T-CX001–T-CX240
 meanings.
+T-CX245–T-CX247 are additive evaluation-observability gates for failed v9.10
+real-model slots; they must not alter product error presentation, scoring,
+retry behavior, or historical evidence.
+T-CX248 is the append-only identity bridge for that evaluation-only change and
+must not alter the v9.10 behavior-bearing identity or its qualification data.
