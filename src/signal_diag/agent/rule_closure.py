@@ -63,6 +63,7 @@ def required_rule_profile(
         "v9_8_claim_reference_recovery",
         "v9_9_paired_reference_recovery",
         "v9_10_contextual_clipping_recovery",
+        "v9_11_mode_aware_no_fault_recovery",
     }:
         return None
     if tool_name == "analyze_harmonic_distortion":
@@ -77,7 +78,10 @@ def required_rule_profile(
             "nominal_single_tone",
         }:
             return None
-        if causal_policy_version == "v9_10_contextual_clipping_recovery":
+        if causal_policy_version in {
+            "v9_10_contextual_clipping_recovery",
+            "v9_11_mode_aware_no_fault_recovery",
+        }:
             return "profile_s1_contextual_comparison_v9_10"
         return "profile_s1_contextual_comparison"
     return automatic_profile_for_tool(tool_name)

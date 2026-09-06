@@ -26,6 +26,7 @@ CausalPolicyVersion = Literal[
     "v9_8_claim_reference_recovery",
     "v9_9_paired_reference_recovery",
     "v9_10_contextual_clipping_recovery",
+    "v9_11_mode_aware_no_fault_recovery",
 ]
 _CONTEXTUAL_CAUSAL_POLICIES = frozenset(
     {
@@ -35,6 +36,7 @@ _CONTEXTUAL_CAUSAL_POLICIES = frozenset(
         "v9_8_claim_reference_recovery",
         "v9_9_paired_reference_recovery",
         "v9_10_contextual_clipping_recovery",
+        "v9_11_mode_aware_no_fault_recovery",
     }
 )
 _SUBSTANTIAL_CLIPPING_RULE_IDS = frozenset(
@@ -193,6 +195,116 @@ def _validate_v910_no_supported_fault(
     _validate_contextual_mode_no_fault(
         claim, context, evaluations_by_id
     )
+
+
+def _collect_v911_no_fault_deficits(
+    claim: DiagnosisClaim,
+    context: StimulusContext,
+    evidence_by_id: dict[str, Evidence],
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> list[str]:
+    clipping_rules: tuple[tuple[str, str], ...]
+    mode_rules: tuple[tuple[str, str], ...]
+    if context.mode == "single_signal":
+        metric = "clipping_mechanism"
+        clipping_rules = (
+            (
+                "rule_clipping_ratio_acceptable",
+                "clipping ratio PASS ruleval_id",
+            ),
+            ("rule_flat_top_absent", "flat-top absent PASS ruleval_id"),
+        )
+        mode_rules = (
+            (
+                "rule_harmonic_analysis_valid",
+                "harmonic analysis PASS ruleval_id",
+            ),
+            ("rule_thd_acceptable", "THD PASS ruleval_id"),
+        )
+    else:
+        metric = "test_clipping_mechanism"
+        clipping_rules = (
+            (
+                "rule_test_clipping_ratio_acceptable",
+                "test clipping ratio PASS ruleval_id",
+            ),
+            (
+                "rule_test_flat_top_absent",
+                "test flat-top absent PASS ruleval_id",
+            ),
+        )
+        if context.mode == "paired_reference":
+            mode_rules = (
+                (
+                    "rule_contextual_analysis_valid",
+                    "contextual analysis PASS ruleval_id",
+                ),
+                (
+                    "rule_contextual_f0_compatible",
+                    "contextual F0 compatibility PASS ruleval_id",
+                ),
+                (
+                    "rule_reference_clipping_ratio_acceptable",
+                    "reference clipping ratio PASS ruleval_id",
+                ),
+                (
+                    "rule_reference_flat_top_absent",
+                    "reference flat-top PASS ruleval_id",
+                ),
+                (
+                    "rule_even_harmonic_growth_acceptable",
+                    "harmonic growth PASS ruleval_id",
+                ),
+            )
+        else:
+            mode_rules = (
+                (
+                    "rule_contextual_analysis_valid",
+                    "contextual analysis PASS ruleval_id",
+                ),
+                (
+                    "rule_contextual_f0_compatible",
+                    "contextual F0 compatibility PASS ruleval_id",
+                ),
+                ("rule_nominal_thd_acceptable", "nominal THD PASS ruleval_id"),
+            )
+
+    deficits: list[str] = []
+    if not _has_cited_metric(claim, evidence_by_id, metric, False):
+        deficits.append(
+            _format_id_hint(
+                f"{metric}=false evidence_id",
+                _available_metric_ids(evidence_by_id, metric, False),
+            )
+        )
+    for rule_id, label in (*clipping_rules, *mode_rules):
+        if _has_cited_rule_judgment(
+            claim, evaluations_by_id, rule_id, "pass"
+        ):
+            continue
+        deficits.append(
+            _format_id_hint(
+                label,
+                _available_rule_ids(evaluations_by_id, rule_id, "pass"),
+            )
+        )
+    return deficits
+
+
+def _validate_v911_no_supported_fault(
+    claim: DiagnosisClaim,
+    context: StimulusContext,
+    evidence_by_id: dict[str, Evidence],
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> None:
+    deficits = _collect_v911_no_fault_deficits(
+        claim, context, evidence_by_id, evaluations_by_id
+    )
+    if deficits:
+        raise DiagnosisValidationError(
+            "no_supported_fault claim incomplete; cite ALL of the following "
+            "same-run IDs together in one finish: " + "; ".join(deficits)
+        )
 
 
 def _v910_clipping_subset_is_supported(
@@ -775,6 +887,32 @@ def validate_finish_decision(
             "supported or no-supported-fault finish requires at least one claim"
         )
 
+    if (
+        causal_policy_version == "v9_11_mode_aware_no_fault_recovery"
+        and decision.outcome == "no_supported_fault"
+    ):
+        if any(claim.fault_type != "no_supported_fault" for claim in decision.claims):
+            raise DiagnosisValidationError(
+                "no_supported_fault outcome requires only no_supported_fault claims"
+            )
+        if evidence is None or stimulus_context is None:
+            raise DiagnosisValidationError(
+                "v9_11_mode_aware_no_fault_recovery finish requires evidence and "
+                "stimulus_context"
+            )
+        evidence_by_id = {item.evidence_id: item for item in evidence}
+        evaluations_by_id = {
+            item.evaluation_id: item for item in (rule_evaluations or ())
+        }
+        for claim in decision.claims:
+            _validate_v911_no_supported_fault(
+                claim,
+                stimulus_context,
+                evidence_by_id,
+                evaluations_by_id,
+            )
+        return
+
     if decision.outcome == "supported_fault":
         fault_types = {claim.fault_type for claim in decision.claims}
         positive_faults = fault_types - {"no_supported_fault", "inconclusive"}
@@ -821,7 +959,10 @@ def validate_finish_decision(
         for claim in decision.claims:
             if decision.outcome == "supported_fault":
                 if claim.fault_type == "clipping":
-                    if causal_policy_version == "v9_10_contextual_clipping_recovery":
+                    if causal_policy_version in {
+                        "v9_10_contextual_clipping_recovery",
+                        "v9_11_mode_aware_no_fault_recovery",
+                    }:
                         _validate_v910_clipping_supported(
                             claim, evidence_by_id, evaluations_by_id
                         )
@@ -854,7 +995,11 @@ def validate_finish_decision(
                             )
                     except DiagnosisValidationError as error:
                         if (
-                            causal_policy_version == "v9_10_contextual_clipping_recovery"
+                            causal_policy_version
+                            in {
+                                "v9_10_contextual_clipping_recovery",
+                                "v9_11_mode_aware_no_fault_recovery",
+                            }
                             and stimulus_context.mode == "single_signal"
                             and _v910_clipping_subset_is_supported(
                                 decision, evidence_by_id, evaluations_by_id

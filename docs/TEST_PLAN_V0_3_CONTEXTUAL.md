@@ -176,6 +176,12 @@
 | T-CX247 | The real contextual executor persists a safe failure fingerprint without secrets or payloads. |
 | T-CX248 | The append-only observability identity amendment matches the current evaluation harness. |
 | T-CX249 | A later append-only identity amendment preserves T-CX248 and bridges the post-assemble compatibility fix to the current harness. |
+| T-CX250 | Preserve v9.10 prompt, policy, and retained development evidence while registering T-CX250–T-CX255 once. |
+| T-CX251 | v9.11 single-signal no-fault accepts only the complete legacy clipping clean family. |
+| T-CX252 | v9.11 paired and nominal no-fault retain the complete contextual test clean family and mode gates. |
+| T-CX253 | v9.11 no-fault rejection reports every missing requirement with available same-run IDs in one error. |
+| T-CX254 | Product freezes and wires v9.11 prompt and policy without changing profiles or thresholds. |
+| T-CX255 | Deterministic replay covers the three retained v9.10 no-fault failure shapes without model or WAV access. |
 
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
@@ -202,3 +208,5 @@ T-CX248 is the append-only identity bridge for that evaluation-only change and
 must not alter the v9.10 behavior-bearing identity or its qualification data.
 T-CX249 preserves that historical bridge and binds the later post-assemble
 evaluation-harness compatibility fix without changing product behavior.
+T-CX250–T-CX255 are additive for v9.11 mode-aware no-fault recovery and must
+not alter v9.10 identities, profiles, thresholds, data, scoring, or evidence.

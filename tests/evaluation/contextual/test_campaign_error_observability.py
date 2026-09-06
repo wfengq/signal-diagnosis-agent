@@ -120,9 +120,9 @@ async def test_t_cx247_real_executor_preserves_safe_provider_fingerprint(
             model="deepseek-v4-flash",
             base_url="https://api.deepseek.com",
             planner_class="RealLLMPlanner",
-            prompt_version="v0.3-s1-planner-9.10",
+            prompt_version="v0.3-s1-planner-9.11",
             prompt_sha256="a" * 64,
-            causal_policy_version="v9_10_contextual_clipping_recovery",
+            causal_policy_version="v9_11_mode_aware_no_fault_recovery",
             product_tree_sha256="b" * 64,
         ),
     )
@@ -245,9 +245,9 @@ async def test_t_cx247b_post_decide_execute_failure_gets_fingerprint(
             model="deepseek-v4-flash",
             base_url="https://api.deepseek.com",
             planner_class="RealLLMPlanner",
-            prompt_version="v0.3-s1-planner-9.10",
+            prompt_version="v0.3-s1-planner-9.11",
             prompt_sha256="a" * 64,
-            causal_policy_version="v9_10_contextual_clipping_recovery",
+            causal_policy_version="v9_11_mode_aware_no_fault_recovery",
             product_tree_sha256="b" * 64,
         ),
     )

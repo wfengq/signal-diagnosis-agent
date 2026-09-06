@@ -194,9 +194,9 @@ def _runtime_identity() -> Any:
         model="deepseek-v4-flash",
         base_url="https://api.deepseek.com",
         planner_class="RealLLMPlanner",
-        prompt_version="v0.3-s1-planner-9.10",
+        prompt_version="v0.3-s1-planner-9.11",
         prompt_sha256="a" * 64,
-        causal_policy_version="v9_10_contextual_clipping_recovery",
+        causal_policy_version="v9_11_mode_aware_no_fault_recovery",
         product_tree_sha256="b" * 64,
     )
 
@@ -377,7 +377,7 @@ def test_t_cx216_real_executor_builder_uses_real_planner_without_calling_model()
         executor.service._dependencies.planner_factory(), RealLLMPlanner
     )
     assert executor.model == "deepseek-v4-flash"
-    assert executor.prompt_version == "v0.3-s1-planner-9.10"
+    assert executor.prompt_version == "v0.3-s1-planner-9.11"
 
 
 @pytest.mark.asyncio
@@ -414,10 +414,10 @@ async def test_t_cx217_real_executor_maps_product_snapshot_without_truth(
                 planner_identity=PlannerIdentity(
                     provider="deepseek",
                     model="deepseek-v4-flash",
-                    prompt_version="v0.3-s1-planner-9.10",
+                    prompt_version="v0.3-s1-planner-9.11",
                     phase4_certified_default=False,
                 ),
-                causal_policy_version="v9_10_contextual_clipping_recovery",
+                causal_policy_version="v9_11_mode_aware_no_fault_recovery",
             )
             self.submitted: bytes | None = None
 

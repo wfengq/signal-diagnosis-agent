@@ -733,3 +733,40 @@ _S1_PROMPT_V9_10 = _PlannerPromptSpec(
     version="v0.3-s1-planner-9.10",
     system_prompt=_S1_SYSTEM_PROMPT_V9_10,
 )
+
+
+def _build_s1_system_prompt_v9_11() -> str:
+    text = _replace_once(
+        _S1_SYSTEM_PROMPT_V9_10,
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.10).",
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.11).",
+        label="v9.11 version header",
+    )
+    text = _replace_once(
+        text,
+        "no_supported_fault checklist: cite same-run clipping_mechanism=false Evidence.\n"
+        "clipping_detected=false is not a substitute. Also cite the required same-run\n"
+        "clipping PASS rules and the mode-specific harmonic or contextual PASS rules.",
+        "no_supported_fault checklist: select the clean clipping "
+        "evidence family by stimulus mode. In single_signal, cite "
+        "clipping_mechanism=false and the legacy clipping-ratio and flat-top "
+        "PASS evaluations. In paired_reference and nominal_single_tone, cite "
+        "test_clipping_mechanism=false and the test clipping-ratio and flat-top "
+        "PASS evaluations. Also cite every mode-specific harmonic/contextual "
+        "PASS required by the runtime. When a recoverable error lists multiple "
+        "missing same-run IDs, cite every listed deficit together in the next "
+        "finish; do not alternate single-field fixes.",
+        label="v9.11 no-supported-fault checklist",
+    )
+    if "Never fall back to ScriptedPlanner" not in text:
+        raise RuntimeError("v9.11 prompt lost no-ScriptedPlanner guard")
+    if '"decision_type": "evaluate_rules"' in text:
+        raise RuntimeError("v9.11 prompt reintroduced manual rule example")
+    return text
+
+
+_S1_SYSTEM_PROMPT_V9_11 = _build_s1_system_prompt_v9_11()
+_S1_PROMPT_V9_11 = _PlannerPromptSpec(
+    version="v0.3-s1-planner-9.11",
+    system_prompt=_S1_SYSTEM_PROMPT_V9_11,
+)

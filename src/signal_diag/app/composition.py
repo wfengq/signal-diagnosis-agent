@@ -99,6 +99,6 @@ def build_product_service(
             }
         ),
         knowledge_index=KnowledgeIndex(_corpus_path()),
-        causal_policy_version="v9_10_contextual_clipping_recovery",
+        causal_policy_version="v9_11_mode_aware_no_fault_recovery",
     )
     return DiagnosisApplicationService(dependencies)

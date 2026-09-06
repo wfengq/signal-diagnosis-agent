@@ -1,0 +1,88 @@
+"""T-CX250 and T-CX254: v9.11 prompt and product identity."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+from pathlib import Path
+
+from signal_diag.agent import prompts_v03
+from signal_diag.agent.planner import PROMPT_VERSION, RealLLMPlanner
+from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_10
+from signal_diag.app.composition import build_product_service
+from signal_diag.evaluation.contextual.calibration import (
+    contextual_implementation_sha256,
+    contextual_product_tree_sha256,
+)
+
+
+def test_t_cx250_v911_preserves_v910_prompt_and_registers_ids_once() -> None:
+    assert _S1_PROMPT_V9_10.version == "v0.3-s1-planner-9.10"
+    assert hashlib.sha256(_S1_PROMPT_V9_10.system_prompt.encode()).hexdigest() == (
+        "2c9a8777362d35051e3e0642f930e87eeaffe14aea045abefb8139fd182bca3c"
+    )
+    root = Path(__file__).resolve().parents[2]
+    text = (root / "docs/TEST_PLAN_V0_3_CONTEXTUAL.md").read_text("utf-8")
+    ids = re.findall(r"^\| (T-CX\d+) \|", text, flags=re.MULTILINE)
+    for number in range(250, 256):
+        assert ids.count(f"T-CX{number}") == 1
+
+
+def test_t_cx254_v911_prompt_explains_mode_aware_complete_recovery() -> None:
+    spec = getattr(prompts_v03, "_S1_PROMPT_V9_11", None)
+    assert spec is not None
+    assert spec.version == "v0.3-s1-planner-9.11"
+    text = spec.system_prompt
+    assert "single_signal" in text
+    assert "clipping_mechanism=false" in text
+    assert "paired_reference" in text
+    assert "nominal_single_tone" in text
+    assert "test_clipping_mechanism=false" in text
+    assert "every listed deficit together" in text
+    assert "Never fall back to ScriptedPlanner" in text
+    assert (
+        "no_supported_fault checklist: cite same-run clipping_mechanism=false "
+        "Evidence."
+    ) not in text
+
+
+def test_t_cx254_product_wires_v911_without_profile_or_threshold_change() -> None:
+    spec = getattr(prompts_v03, "_S1_PROMPT_V9_11", None)
+    assert spec is not None
+    assert PROMPT_VERSION == "v0.3-s1-planner-9.11"
+    assert RealLLMPlanner._prompt_spec is spec
+    service = build_product_service(environ={"DEEPSEEK_API_KEY": "sk-test"})
+    assert service._dependencies.causal_policy_version == (
+        "v9_11_mode_aware_no_fault_recovery"
+    )
+    profile = service._dependencies.rule_profile_loader.load(
+        "profile_s1_contextual_comparison_v9_10"
+    )
+    assert profile.version == "1.0.0"
+    by_id = {rule.rule_id: rule for rule in profile.rules}
+    assert by_id["rule_test_clipping_ratio_acceptable"].threshold == 0.01
+
+
+def test_t_cx254_v911_append_only_identity_matches_worktree() -> None:
+    root = Path(__file__).resolve().parents[2]
+    path = (
+        root
+        / "docs/evaluations/v0_3/contextual/development/"
+        "study_v0_3_contextual_dev_1/code_identity_amendment.json"
+    )
+    rows = json.loads(path.read_text(encoding="utf-8"))
+    matches = [
+        row
+        for row in rows
+        if row["amendment_id"] == "v9_11_mode_aware_no_fault_recovery"
+    ]
+    assert len(matches) == 1
+    row = matches[0]
+    assert row["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert row["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert row["prompt_sha256"] == hashlib.sha256(
+        prompts_v03._S1_PROMPT_V9_11.system_prompt.encode()
+    ).hexdigest()

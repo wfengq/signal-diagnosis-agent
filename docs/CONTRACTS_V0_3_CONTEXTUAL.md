@@ -501,3 +501,16 @@ Later evaluation-harness fixes must preserve earlier identity amendments and
 append a new bridge to the current implementation SHA. Compatibility support
 for lightweight test services must not disable restricted failure capture on
 the real product service.
+
+## 15. v9.11 mode-aware no-fault recovery (T-CX250–T-CX255)
+
+Policy `v9_11_mode_aware_no_fault_recovery` inherits v9.10 except for
+`no_supported_fault` validation. Single-signal no-fault uses the legacy
+clipping clean family; paired-reference and nominal-single-tone no-fault use
+the contextual test clean family. Existing mode-specific harmonic/contextual
+PASS requirements remain mandatory.
+
+A rejected no-fault finish reports every missing requirement together and
+includes each available matching same-run Evidence or rule-evaluation ID.
+Runtime validates the planner decision without adding, removing, or rewriting
+claims or references. v9.10 behavior and recorded runs remain immutable.
