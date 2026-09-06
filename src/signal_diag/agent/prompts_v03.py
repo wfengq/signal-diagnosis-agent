@@ -701,3 +701,35 @@ _S1_PROMPT_V9_9 = _PlannerPromptSpec(
     version="v0.3-s1-planner-9.9",
     system_prompt=_S1_SYSTEM_PROMPT_V9_9,
 )
+
+
+def _build_s1_system_prompt_v9_10() -> str:
+    text = _replace_once(
+        _S1_SYSTEM_PROMPT_V9_9,
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.9).",
+        "S1 distortion-diagnosis planner operating policy (v0.3-s1-planner-9.10).",
+        label="v9.10 version header",
+    )
+    text += (
+        "\nFor v9.10 contextual clipping recovery, use one coherent clipping evidence "
+        "family in a supported_fault claim: either clipping_mechanism=true with a "
+        "same-run substantial legacy clipping rule FAIL, or "
+        "test_clipping_mechanism=true with a same-run FAIL of "
+        "rule_test_clipping_ratio_acceptable or rule_test_flat_top_absent. Do not "
+        "mix legacy and test families. For single_signal, if clipping is independently "
+        "supported but a harmonic_distortion sibling lacks categorical support, preserve "
+        "the clipping claim and its same-run references and remove the unsupported "
+        "harmonic_distortion sibling before the next finish.\n"
+    )
+    if "Never fall back to ScriptedPlanner" not in text:
+        raise RuntimeError("v9.10 prompt lost no-ScriptedPlanner guard")
+    if '"decision_type": "evaluate_rules"' in text:
+        raise RuntimeError("v9.10 prompt reintroduced manual rule example")
+    return text
+
+
+_S1_SYSTEM_PROMPT_V9_10 = _build_s1_system_prompt_v9_10()
+_S1_PROMPT_V9_10 = _PlannerPromptSpec(
+    version="v0.3-s1-planner-9.10",
+    system_prompt=_S1_SYSTEM_PROMPT_V9_10,
+)

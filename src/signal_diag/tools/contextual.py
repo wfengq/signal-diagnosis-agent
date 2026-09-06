@@ -44,6 +44,7 @@ def analysis_to_output(
         ),
         reference_clipping_ratio=analysis.reference_clipping_ratio,
         reference_flat_top_detected=analysis.reference_flat_top_detected,
+        test_clipping_mechanism=analysis.test_clipping_mechanism,
         test_clipping_ratio=analysis.test_clipping_ratio,
         test_flat_top_detected=analysis.test_flat_top_detected,
     )
@@ -158,4 +159,5 @@ def build_contextual_evidence(
 
     _append("test_clipping_ratio", output.test_clipping_ratio)
     _append("test_flat_top_detected", output.test_flat_top_detected)
+    _append("test_clipping_mechanism", output.test_clipping_mechanism)
     return tuple(items)

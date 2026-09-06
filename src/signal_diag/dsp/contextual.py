@@ -51,6 +51,7 @@ class ContextualDistortionAnalysis:
     components: tuple[HarmonicGrowthComponent, ...]
     reference_clipping_ratio: float | None
     reference_flat_top_detected: bool | None
+    test_clipping_mechanism: bool
     test_clipping_ratio: float
     test_flat_top_detected: bool
 
@@ -59,6 +60,7 @@ def _invalid(
     *,
     mode: Literal["nominal_single_tone", "paired_reference"],
     reason: str,
+    test_clipping_mechanism: bool,
     test_clipping_ratio: float = 0.0,
     test_flat_top_detected: bool = False,
     reference_clipping_ratio: float | None = None,
@@ -83,6 +85,7 @@ def _invalid(
         components=(),
         reference_clipping_ratio=reference_clipping_ratio,
         reference_flat_top_detected=reference_flat_top_detected,
+        test_clipping_mechanism=test_clipping_mechanism,
         test_clipping_ratio=test_clipping_ratio,
         test_flat_top_detected=test_flat_top_detected,
     )
@@ -202,6 +205,7 @@ def analyze_contextual_distortion(
         return _invalid(
             mode=mode,
             reason="test_too_short",
+            test_clipping_mechanism=test_clip.clipping_mechanism,
             test_clipping_ratio=test_clip.clipping_ratio,
             test_flat_top_detected=test_clip.flat_top_detected,
         )
@@ -219,6 +223,7 @@ def analyze_contextual_distortion(
             return _invalid(
                 mode=mode,
                 reason="sample_rate_mismatch",
+                test_clipping_mechanism=test_clip.clipping_mechanism,
                 test_clipping_ratio=test_clip.clipping_ratio,
                 test_flat_top_detected=test_clip.flat_top_detected,
                 reference_clipping_ratio=ref_clip.clipping_ratio,
@@ -228,6 +233,7 @@ def analyze_contextual_distortion(
             return _invalid(
                 mode=mode,
                 reason="reference_too_short",
+                test_clipping_mechanism=test_clip.clipping_mechanism,
                 test_clipping_ratio=test_clip.clipping_ratio,
                 test_flat_top_detected=test_clip.flat_top_detected,
                 reference_clipping_ratio=ref_clip.clipping_ratio,
@@ -237,6 +243,7 @@ def analyze_contextual_distortion(
             return _invalid(
                 mode=mode,
                 reason="reference_clipping_invalidates_comparison",
+                test_clipping_mechanism=test_clip.clipping_mechanism,
                 test_clipping_ratio=test_clip.clipping_ratio,
                 test_flat_top_detected=test_clip.flat_top_detected,
                 reference_clipping_ratio=ref_clip.clipping_ratio,
@@ -258,6 +265,7 @@ def analyze_contextual_distortion(
             return _invalid(
                 mode=mode,
                 reason="test_fundamental_invalid",
+                test_clipping_mechanism=test_clip.clipping_mechanism,
                 test_clipping_ratio=test_clip.clipping_ratio,
                 test_flat_top_detected=test_clip.flat_top_detected,
                 reference_clipping_ratio=ref_clip.clipping_ratio,
@@ -267,6 +275,7 @@ def analyze_contextual_distortion(
             return _invalid(
                 mode=mode,
                 reason="reference_fundamental_invalid",
+                test_clipping_mechanism=test_clip.clipping_mechanism,
                 test_clipping_ratio=test_clip.clipping_ratio,
                 test_flat_top_detected=test_clip.flat_top_detected,
                 reference_clipping_ratio=ref_clip.clipping_ratio,
@@ -279,6 +288,7 @@ def analyze_contextual_distortion(
             return _invalid(
                 mode=mode,
                 reason="fundamental_incompatible",
+                test_clipping_mechanism=test_clip.clipping_mechanism,
                 test_clipping_ratio=test_clip.clipping_ratio,
                 test_flat_top_detected=test_clip.flat_top_detected,
                 reference_clipping_ratio=ref_clip.clipping_ratio,
@@ -291,6 +301,7 @@ def analyze_contextual_distortion(
             return _invalid(
                 mode=mode,
                 reason="alignment_quality_below_threshold",
+                test_clipping_mechanism=test_clip.clipping_mechanism,
                 test_clipping_ratio=test_clip.clipping_ratio,
                 test_flat_top_detected=test_clip.flat_top_detected,
                 reference_clipping_ratio=ref_clip.clipping_ratio,
@@ -321,6 +332,7 @@ def analyze_contextual_distortion(
             return _invalid(
                 mode=mode,
                 reason="test_fundamental_invalid",
+                test_clipping_mechanism=test_clip.clipping_mechanism,
                 test_clipping_ratio=test_clip.clipping_ratio,
                 test_flat_top_detected=test_clip.flat_top_detected,
                 reference_clipping_ratio=ref_clip.clipping_ratio,
@@ -330,6 +342,7 @@ def analyze_contextual_distortion(
             return _invalid(
                 mode=mode,
                 reason="reference_fundamental_invalid",
+                test_clipping_mechanism=test_clip.clipping_mechanism,
                 test_clipping_ratio=test_clip.clipping_ratio,
                 test_flat_top_detected=test_clip.flat_top_detected,
                 reference_clipping_ratio=ref_clip.clipping_ratio,
@@ -342,6 +355,7 @@ def analyze_contextual_distortion(
             return _invalid(
                 mode=mode,
                 reason="fundamental_incompatible",
+                test_clipping_mechanism=test_clip.clipping_mechanism,
                 test_clipping_ratio=test_clip.clipping_ratio,
                 test_flat_top_detected=test_clip.flat_top_detected,
                 reference_clipping_ratio=ref_clip.clipping_ratio,
@@ -390,6 +404,7 @@ def analyze_contextual_distortion(
             components=tuple(components),
             reference_clipping_ratio=ref_clip.clipping_ratio,
             reference_flat_top_detected=ref_clip.flat_top_detected,
+            test_clipping_mechanism=test_clip.clipping_mechanism,
             test_clipping_ratio=test_clip.clipping_ratio,
             test_flat_top_detected=test_clip.flat_top_detected,
         )
@@ -410,6 +425,7 @@ def analyze_contextual_distortion(
         return _invalid(
             mode=mode,
             reason="test_fundamental_invalid",
+            test_clipping_mechanism=test_clip.clipping_mechanism,
             test_clipping_ratio=test_clip.clipping_ratio,
             test_flat_top_detected=test_clip.flat_top_detected,
         )
@@ -420,6 +436,7 @@ def analyze_contextual_distortion(
         return _invalid(
             mode=mode,
             reason="fundamental_incompatible_with_declaration",
+            test_clipping_mechanism=test_clip.clipping_mechanism,
             test_clipping_ratio=test_clip.clipping_ratio,
             test_flat_top_detected=test_clip.flat_top_detected,
         )
@@ -460,6 +477,7 @@ def analyze_contextual_distortion(
         components=tuple(components),
         reference_clipping_ratio=None,
         reference_flat_top_detected=None,
+        test_clipping_mechanism=test_clip.clipping_mechanism,
         test_clipping_ratio=test_clip.clipping_ratio,
         test_flat_top_detected=test_clip.flat_top_detected,
     )

@@ -14,6 +14,7 @@ from .models import Observation
 RuleClosureProfileId = Literal[
     "profile_s1_distortion",
     "profile_s1_contextual_comparison",
+    "profile_s1_contextual_comparison_v9_10",
 ]
 
 
@@ -47,6 +48,7 @@ def required_rule_profile(
         "v9_7_deterministic_rule_closure",
         "v9_8_claim_reference_recovery",
         "v9_9_paired_reference_recovery",
+        "v9_10_contextual_clipping_recovery",
     }:
         return None
     if tool_name == "analyze_harmonic_distortion":
@@ -56,11 +58,14 @@ def required_rule_profile(
             else None
         )
     if tool_name == "analyze_contextual_distortion":
-        return (
-            "profile_s1_contextual_comparison"
-            if stimulus_context.mode in {"paired_reference", "nominal_single_tone"}
-            else None
-        )
+        if stimulus_context.mode not in {
+            "paired_reference",
+            "nominal_single_tone",
+        }:
+            return None
+        if causal_policy_version == "v9_10_contextual_clipping_recovery":
+            return "profile_s1_contextual_comparison_v9_10"
+        return "profile_s1_contextual_comparison"
     return automatic_profile_for_tool(tool_name)
 
 

@@ -209,6 +209,11 @@ def test_t_cx055_composition_registers_both_profiles() -> None:
     from signal_diag.app import composition
 
     assert composition._PROFILE_ID == "profile_s1_distortion"
-    assert composition._CONTEXTUAL_PROFILE_ID == "profile_s1_contextual_comparison"
+    assert composition._LEGACY_CONTEXTUAL_PROFILE_ID == (
+        "profile_s1_contextual_comparison"
+    )
+    assert composition._CONTEXTUAL_PROFILE_ID == (
+        "profile_s1_contextual_comparison_v9_10"
+    )
     assert composition._contextual_profile_path().is_file()
     assert composition._profile_path().is_file()

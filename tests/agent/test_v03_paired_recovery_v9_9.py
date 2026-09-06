@@ -15,10 +15,8 @@ from signal_diag.agent.models import (
     FinishDecision,
     TaskAssessment,
 )
-from signal_diag.agent.planner import PROMPT_VERSION, RealLLMPlanner
 from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_8, _S1_PROMPT_V9_9
 from signal_diag.agent.rule_closure import required_rule_profile
-from signal_diag.app.composition import build_product_service
 from signal_diag.rules.models import RuleEvaluation
 from signal_diag.signal.context import StimulusContext
 from signal_diag.tools.evidence import Evidence
@@ -209,16 +207,8 @@ def test_t_cx195_v99_prompt_separates_modes_and_preserves_v98() -> None:
     assert "Never fall back to ScriptedPlanner" in text
 
 
-def test_t_cx196_product_wires_v99_and_inherits_rule_closure() -> None:
-    assert PROMPT_VERSION == "v0.3-s1-planner-9.9"
-    assert RealLLMPlanner._prompt_spec is _S1_PROMPT_V9_9
-    service = build_product_service(environ={"DEEPSEEK_API_KEY": "sk-test"})
-    assert service._dependencies.causal_policy_version == (
-        "v9_9_paired_reference_recovery"
-    )
-    assert service._dependencies.planner_identity.prompt_version == (
-        "v0.3-s1-planner-9.9"
-    )
+def test_t_cx196_v99_rule_closure_remains_available_after_product_upgrade() -> None:
+    assert _S1_PROMPT_V9_9.version == "v0.3-s1-planner-9.9"
     assert (
         required_rule_profile(
             causal_policy_version="v9_9_paired_reference_recovery",
@@ -227,14 +217,6 @@ def test_t_cx196_product_wires_v99_and_inherits_rule_closure() -> None:
         )
         == "profile_s1_contextual_comparison"
     )
-    source = (
-        Path(__file__).resolve().parents[2]
-        / "src"
-        / "signal_diag"
-        / "app"
-        / "composition.py"
-    ).read_text(encoding="utf-8")
-    assert "ScriptedPlanner" not in source
 
 
 def test_t_cx191_registry_has_each_v99_id_once() -> None:

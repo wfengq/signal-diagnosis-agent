@@ -156,5 +156,7 @@ class ContextualDistortionOutput(BaseModel):
     components: tuple[HarmonicGrowthComponentOutput, ...]
     reference_clipping_ratio: float | None
     reference_flat_top_detected: bool | None
+    # Default keeps append-only compatibility with pre-v9.10 recorded traces.
+    test_clipping_mechanism: bool = False
     test_clipping_ratio: float
     test_flat_top_detected: bool

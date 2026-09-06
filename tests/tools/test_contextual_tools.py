@@ -9,7 +9,11 @@ import pytest
 from pydantic import ValidationError
 
 from signal_diag.signal import InMemorySignalRepository, StimulusContext
-from signal_diag.signal.synthetic import generate_harmonic_sine, generate_sine
+from signal_diag.signal.synthetic import (
+    generate_clipped_sine,
+    generate_harmonic_sine,
+    generate_sine,
+)
 from signal_diag.tools.contracts import ContextualDistortionInput
 from signal_diag.tools.registry import get_tool_descriptors
 from signal_diag.tools.service import SignalToolService
@@ -348,3 +352,83 @@ def test_t_cx045_registry_includes_contextual_tool() -> None:
         if item.name == "analyze_contextual_distortion"
     )
     assert "signal_id" not in descriptor.input_schema.get("properties", {})
+
+
+@pytest.mark.parametrize(
+    ("test_sample_rate_hz", "clipped", "expected_status", "expected_mechanism"),
+    [
+        (48_000, True, "success", True),
+        (48_000, False, "success", False),
+        (44_100, True, "invalid", True),
+    ],
+)
+def test_t_cx233_emits_one_compact_test_clipping_mechanism_item(
+    repository: InMemorySignalRepository,
+    test_sample_rate_hz: int,
+    clipped: bool,
+    expected_status: str,
+    expected_mechanism: bool,
+) -> None:
+    reference = generate_sine(
+        sample_rate_hz=48_000,
+        duration_s=1.0,
+        frequency_hz=440.0,
+        amplitude=0.4,
+    )
+    if clipped:
+        test = generate_clipped_sine(
+            sample_rate_hz=test_sample_rate_hz,
+            duration_s=1.0,
+            frequency_hz=440.0,
+            amplitude=1.2,
+            clip_level=0.99,
+        )
+    else:
+        test = generate_sine(
+            sample_rate_hz=test_sample_rate_hz,
+            duration_s=1.0,
+            frequency_hz=440.0,
+            amplitude=0.4,
+        )
+    repository.put(reference.record)
+    repository.put(test.record)
+    context = StimulusContext(
+        mode="paired_reference",
+        test_signal_id=test.record.meta.signal_id,
+        reference_signal_id=reference.record.meta.signal_id,
+        assertion_source="user_supplied",
+    )
+
+    result = SignalToolService(repository).analyze_contextual_distortion(
+        context,
+        ContextualDistortionInput(),
+    )
+
+    assert result.status == expected_status
+    assert result.result is not None
+    assert result.result.test_clipping_mechanism is expected_mechanism
+    items = [
+        item for item in result.evidence if item.metric == "test_clipping_mechanism"
+    ]
+    assert len(items) == 1
+    assert items[0].source_tool == "analyze_contextual_distortion"
+    assert items[0].validity == "valid"
+    assert items[0].value is expected_mechanism
+    payload = result.model_dump_json().lower()
+    assert '"samples"' not in payload
+    assert "fft" not in payload
+
+
+def test_t_cx233_preserves_existing_clipping_evidence_ordinals(
+    repository: InMemorySignalRepository,
+) -> None:
+    context = _put_pair(repository)
+    result = SignalToolService(repository).analyze_contextual_distortion(
+        context,
+        ContextualDistortionInput(),
+    )
+    by_metric = {item.metric: item.evidence_id for item in result.evidence}
+
+    assert by_metric["test_clipping_ratio"].endswith("_016")
+    assert by_metric["test_flat_top_detected"].endswith("_017")
+    assert by_metric["test_clipping_mechanism"].endswith("_018")

@@ -96,7 +96,7 @@ def test_t_cx206_replacement_seal_binds_evaluation_harness(
     verify_contextual_bundle(destination)
 
 
-def test_t_cx207_active_replacement_seal_preserves_study_inputs() -> None:
+def test_t_cx207_historical_v3_seal_preserves_study_inputs() -> None:
     study = (
         Path(__file__).resolve().parents[3]
         / "docs"
@@ -128,8 +128,12 @@ def test_t_cx207_active_replacement_seal_preserves_study_inputs() -> None:
     assert supersession["replacement_seal"]["status"] == (
         "superseded_unexecuted_historical_seal"
     )
-    assert supersession["active_seal"]["executed_arms"] == 0
-    assert supersession["active_seal"]["status"] == "active_model_not_run"
+    assert supersession["v9_9_executed_seal"]["original_terminal_slots"] == 47
+    assert supersession["v9_9_executed_seal"]["validation_passed"] is False
+    assert supersession["active_seal"]["directory"] is None
+    assert supersession["active_seal"]["status"] == (
+        "none_pending_v9_10_development_confirmation"
+    )
 
 
 def test_t_cx211_v3_seal_binds_truth_free_execution_inputs(

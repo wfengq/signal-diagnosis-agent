@@ -1,0 +1,60 @@
+profile_id: profile_s1_contextual_comparison_v9_10
+version: 1.0.0
+description: Contextual S1 comparison limits with test-side clipping closure; demonstration targets, not an industry standard.
+rules:
+  - rule_id: rule_contextual_analysis_valid
+    metric: context_valid
+    source_tool: analyze_contextual_distortion
+    comparator: eq
+    threshold: true
+    unit: null
+    description: Contextual analysis must be valid.
+  - rule_id: rule_contextual_f0_compatible
+    metric: f0_relative_delta
+    source_tool: analyze_contextual_distortion
+    comparator: lte
+    threshold: 0.02
+    unit: null
+    description: Measured and comparison fundamentals differ by at most two percent.
+  - rule_id: rule_reference_clipping_ratio_acceptable
+    metric: reference_clipping_ratio
+    source_tool: analyze_contextual_distortion
+    comparator: lte
+    threshold: 0.01
+    unit: null
+    description: Reference clipping ratio is at most the unchanged demo threshold.
+  - rule_id: rule_reference_flat_top_absent
+    metric: reference_flat_top_detected
+    source_tool: analyze_contextual_distortion
+    comparator: eq
+    threshold: false
+    unit: null
+    description: Reference has no reliable flat top.
+  - rule_id: rule_even_harmonic_growth_acceptable
+    metric: even_harmonic_growth_percent
+    source_tool: analyze_contextual_distortion
+    comparator: lte
+    threshold: 5.0
+    unit: "%"
+    description: Frozen on study_v0_3_contextual_dev_1 remediation calibration (largest candidate with 100% specificity and >=90% sensitivity).
+  - rule_id: rule_nominal_thd_acceptable
+    metric: test_thd_percent
+    source_tool: analyze_contextual_distortion
+    comparator: lte
+    threshold: 5.0
+    unit: "%"
+    description: Reuses, but does not modify, the five-percent demo threshold.
+  - rule_id: rule_test_clipping_ratio_acceptable
+    metric: test_clipping_ratio
+    source_tool: analyze_contextual_distortion
+    comparator: lte
+    threshold: 0.01
+    unit: null
+    description: Test clipping ratio is at most the unchanged demo threshold.
+  - rule_id: rule_test_flat_top_absent
+    metric: test_flat_top_detected
+    source_tool: analyze_contextual_distortion
+    comparator: eq
+    threshold: false
+    unit: null
+    description: Test signal has no reliable flat top.

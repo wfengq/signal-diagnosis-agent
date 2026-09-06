@@ -327,6 +327,90 @@ Under `v9_9_paired_reference_recovery` only:
 - A new real-model development confirmation requires separate written
   authorization and a new append-only run directory.
 
+## 10.5 `v9_10_contextual_clipping_recovery`
+
+Under `v9_10_contextual_clipping_recovery` only:
+
+### Contextual test-side clipping Evidence
+
+- `ContextualDistortionAnalysis` and `ContextualDistortionResult` add the
+  Boolean field `test_clipping_mechanism`.
+- Its value comes only from the existing deterministic clipping analysis of
+  the test waveform, including when the contextual comparison itself is
+  invalid.
+- `analyze_contextual_distortion` emits exactly one compact, valid
+  `test_clipping_mechanism` Evidence item. No waveform, sample array, or full
+  FFT payload crosses the Tool boundary.
+
+### Additive contextual profile identity
+
+- The existing `profile_s1_contextual_comparison` version `1.0.0` file and
+  bytes remain unchanged.
+- The additive profile `profile_s1_contextual_comparison_v9_10` version
+  `1.0.0` inherits the original six rule semantics unchanged and adds exactly:
+  1. `rule_test_clipping_ratio_acceptable`:
+     `test_clipping_ratio <= 0.01`
+  2. `rule_test_flat_top_absent`:
+     `test_flat_top_detected == false`
+- The 1% clipping-ratio and Boolean flat-top limits remain demonstration
+  thresholds, not industry standards or SLAs.
+- v9.7 through v9.9 continue to map contextual observations to the original
+  profile. Only v9.10 maps paired or nominal contextual observations to the
+  additive profile, in the existing single automatic rule batch and from the
+  triggering Observation's exact complete Evidence suffix.
+
+### Coherent clipping family semantics
+
+A v9.10 clipping claim must satisfy one complete coherent clipping family:
+
+- legacy family: valid `clipping_mechanism=true` Evidence plus FAIL of either
+  `rule_clipping_ratio_acceptable` or `rule_flat_top_absent`;
+- contextual test family: valid `test_clipping_mechanism=true` Evidence plus
+  FAIL of either `rule_test_clipping_ratio_acceptable` or
+  `rule_test_flat_top_absent`.
+
+Evidence and rule evaluations from different families cannot be mixed to
+satisfy the gate. Mechanism Evidence alone is insufficient. Older policies
+retain their exact historical behavior.
+
+For `no_supported_fault` in paired-reference or nominal-single-tone mode,
+v9.10 may use a complete contextual test-side clean family: valid
+`test_clipping_mechanism=false` Evidence plus PASS of both new test-side
+clipping rules. Every existing mode-specific harmonic and contextual
+requirement remains mandatory.
+
+### Single-signal supported-subset recovery
+
+Only when a v9.10 `supported_fault` finish in `single_signal` mode contains an
+independently complete coherent clipping claim, an unsupported sibling
+`harmonic_distortion` claim, and no other invalid positive claim, the
+recoverable error states that the clipping claim is independently supported
+and instructs the next finish to preserve that clipping claim and its same-run
+references while removing the unsupported harmonic sibling.
+
+This supported-subset recovery is validation guidance only. Runtime does not
+accept, insert, delete, rewrite, or replace any claim or reference. Incomplete
+clipping receives the ordinary clipping validation error. Paired-reference
+and nominal-single-tone recovery retain their v9.9 and v9.8 behavior, and a
+complete combined harmonic gate continues to require both claims.
+
+### Authorization / conclusion gates (v9.10)
+
+- Historical v9.9 prompt/profile identities, development and validation
+  artifacts, both validation ledgers, the diagnostic reconstruction, and
+  `validation_seal_v3` remain immutable.
+- The original v9.9 validation campaign remains `infrastructure_stopped` at
+  47/60. Its 13-slot continuation is diagnostic-only and cannot complete or
+  replace it.
+- `validation_seal_v3` cannot support v9.10 performance claims because the
+  product/profile identity changes.
+- `v9_10_harness_complete` is the strongest implementation conclusion. It
+  does not mean `development_confirmed`, validation completion, performance
+  improvement, or final-test access.
+- Any v9.10 real-model development confirmation, later validation,
+  preregistration/seal, push, or PR requires separate explicit authorization
+  and append-only artifacts where applicable.
+
 ## 11. Evaluation
 
 Separate contextual evaluation package under `evaluation/contextual/` with
@@ -387,3 +471,16 @@ tuning, and rewriting historical seals/runs are forbidden.
 Separate explicit authorizations required for: public audio acquisition,
 contextual development materialization, real-model confirmation, validation
 construction/seal, validation model campaign, push/PR.
+
+## 13. v9.10 freeze and seal lifecycle
+
+The v9.10 implementation may bridge the frozen development dataset only with
+an append-only, behavior-bearing identity amendment backed by unchanged
+deterministic qualification and calibration results. Such a bridge does not
+constitute development confirmation.
+
+The v9.9 `validation_seal_v3` remains immutable historical evidence of an
+infrastructure-stopped 47/60-slot campaign. Its separate 13-slot diagnostic
+continuation cannot repair or complete the original one-shot campaign. No
+v9.10 run may reuse or amend that seal; no validation seal is active until a
+successful v9.10 development confirmation and separate construction approval.

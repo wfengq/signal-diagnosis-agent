@@ -68,6 +68,7 @@ def _contextual_tool_routing_error(
         "v9_7_deterministic_rule_closure",
         "v9_8_claim_reference_recovery",
         "v9_9_paired_reference_recovery",
+        "v9_10_contextual_clipping_recovery",
     }:
         return None
     if (
@@ -521,6 +522,7 @@ class DistortionDiagnosisRuntime:
             "v9_7_deterministic_rule_closure",
             "v9_8_claim_reference_recovery",
             "v9_9_paired_reference_recovery",
+            "v9_10_contextual_clipping_recovery",
         }:
             return self._reject_decision(
                 state,

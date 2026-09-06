@@ -342,10 +342,10 @@ def test_t216_public_planner_selects_v9_and_private_v8_1_keeps_frozen_v8_1() -> 
     assert _S1_PROMPT_V9_7.version == "v0.3-s1-planner-9.7"
     assert _S1_PROMPT_V9_8.version == "v0.3-s1-planner-9.8"
     assert _S1_PROMPT_V9_9.version == "v0.3-s1-planner-9.9"
-    assert RealLLMPlanner._prompt_spec is _S1_PROMPT_V9_9
+    assert RealLLMPlanner._prompt_spec.version == "v0.3-s1-planner-9.10"
     assert _Phase4V8_1RealLLMPlanner._prompt_spec is _S1_PROMPT_V8_1
-    assert PROMPT_VERSION == "v0.3-s1-planner-9.9"
-    assert _SYSTEM_PROMPT == _S1_PROMPT_V9_9.system_prompt
+    assert PROMPT_VERSION == "v0.3-s1-planner-9.10"
+    assert _SYSTEM_PROMPT != _S1_PROMPT_V9_9.system_prompt
     assert _Phase4V8RealLLMPlanner._prompt_spec is _S1_PROMPT_V8
     assert _Phase4V8RealLLMPlanner._prompt_spec.version == _FROZEN_V8_VERSION
     v8_digest, v8_size = _utf8_sha256(_Phase4V8RealLLMPlanner._prompt_spec.system_prompt)

@@ -132,6 +132,20 @@ def preflight_contextual_validation(
         raise CampaignPreflightError("seal is not the authoritative active v3 path")
     if output.exists():
         raise CampaignPreflightError(f"campaign output already exists: {output}")
+    try:
+        supersession = json.loads(
+            (study_dir / "VALIDATION_SEAL_SUPERSESSION.json").read_text(
+                encoding="utf-8"
+            )
+        )
+    except (FileNotFoundError, ValueError, json.JSONDecodeError) as error:
+        raise CampaignPreflightError(str(error)) from error
+    active = supersession.get("active_seal", {})
+    if (
+        active.get("directory") != "validation_seal_v3"
+        or active.get("status") != "active_model_not_run"
+    ):
+        raise CampaignPreflightError("historical validation seal is not active")
     env = dict(os.environ) if environ is None else dict(environ)
     if not env.get("DEEPSEEK_API_KEY"):
         raise CampaignPreflightError("DEEPSEEK_API_KEY is not configured")
@@ -159,11 +173,6 @@ def preflight_contextual_validation(
                 encoding="utf-8"
             )
         )
-        supersession = json.loads(
-            (study_dir / "VALIDATION_SEAL_SUPERSESSION.json").read_text(
-                encoding="utf-8"
-            )
-        )
         runtime_identity = ContextualRuntimeIdentity.model_validate_json(
             (seal_dir / "runtime_identity.json").read_text(encoding="utf-8")
         )
@@ -180,7 +189,6 @@ def preflight_contextual_validation(
     if meta.get("manifest_sha256") != manifest_sha256(manifest):
         raise CampaignPreflightError("sealed manifest identity mismatch")
     frozen = targets["frozen_identity"]
-    active = supersession.get("active_seal", {})
     seal_index_sha256 = sha256((seal_dir / "seal.sha256").read_bytes()).hexdigest()
     if (
         active.get("directory") != "validation_seal_v3"

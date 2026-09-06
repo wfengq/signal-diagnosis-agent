@@ -265,3 +265,41 @@ def test_t_cx025_programmer_error_on_bad_mode() -> None:
             48_000,
             mode="single_signal",  # type: ignore[arg-type]
         )
+
+
+def test_t_cx232_propagates_test_clipping_mechanism_for_all_outcomes() -> None:
+    reference = _tone(amp=0.4)
+    clipped = generate_clipped_sine(
+        sample_rate_hz=48_000,
+        duration_s=1.0,
+        frequency_hz=440.0,
+        amplitude=1.2,
+        clip_level=0.99,
+    ).record.samples[:, 0].astype(np.float64)
+
+    clipped_result = analyze_contextual_distortion(
+        clipped,
+        48_000,
+        mode="paired_reference",
+        reference_samples=reference,
+        reference_sample_rate_hz=48_000,
+    )
+    clean_result = analyze_contextual_distortion(
+        reference.copy(),
+        48_000,
+        mode="paired_reference",
+        reference_samples=reference,
+        reference_sample_rate_hz=48_000,
+    )
+    invalid_result = analyze_contextual_distortion(
+        clipped,
+        48_000,
+        mode="paired_reference",
+        reference_samples=reference,
+        reference_sample_rate_hz=44_100,
+    )
+
+    assert clipped_result.test_clipping_mechanism is True
+    assert clean_result.test_clipping_mechanism is False
+    assert invalid_result.valid is False
+    assert invalid_result.test_clipping_mechanism is True

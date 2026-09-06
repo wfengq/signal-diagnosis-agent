@@ -30,7 +30,8 @@ from signal_diag.rules.loader import YamlRuleProfileLoader
 from signal_diag.signal.repository import InMemorySignalRepository
 
 _PROFILE_ID = "profile_s1_distortion"
-_CONTEXTUAL_PROFILE_ID = "profile_s1_contextual_comparison"
+_CONTEXTUAL_PROFILE_ID = "profile_s1_contextual_comparison_v9_10"
+_LEGACY_CONTEXTUAL_PROFILE_ID = "profile_s1_contextual_comparison"
 _CERTIFIED_PROMPT_VERSION = "v0.3-s1-planner-9.4"
 
 
@@ -46,7 +47,9 @@ def _profile_path() -> Path:
 
 
 def _contextual_profile_path() -> Path:
-    return _packaged_path("rules", "profiles", "s1_contextual_comparison_v1.yaml")
+    return _packaged_path(
+        "rules", "profiles", "s1_contextual_comparison_v9_10.yaml"
+    )
 
 
 def _corpus_path() -> Path:
@@ -89,10 +92,13 @@ def build_product_service(
         rule_profile_loader=YamlRuleProfileLoader(
             {
                 _PROFILE_ID: _profile_path(),
+                _LEGACY_CONTEXTUAL_PROFILE_ID: _packaged_path(
+                    "rules", "profiles", "s1_contextual_comparison_v1.yaml"
+                ),
                 _CONTEXTUAL_PROFILE_ID: _contextual_profile_path(),
             }
         ),
         knowledge_index=KnowledgeIndex(_corpus_path()),
-        causal_policy_version="v9_9_paired_reference_recovery",
+        causal_policy_version="v9_10_contextual_clipping_recovery",
     )
     return DiagnosisApplicationService(dependencies)

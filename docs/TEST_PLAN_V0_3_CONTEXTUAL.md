@@ -28,6 +28,7 @@
 | T-CX186..190 | v9.8 claim-reference recovery |
 | T-CX191..196 | v9.9 paired-reference recovery |
 | T-CX197..207 | truth-free deterministic contextual fixed pipeline and reseal |
+| T-CX231..240 | v9.10 contextual clipping recovery |
 
 ## Registered identities (Task 1)
 
@@ -152,6 +153,25 @@
 | T-CX229 | Live campaign CLI exposes separate preflight-validation and run-validation commands |
 | T-CX230 | Complete campaign finalization writes the required run summary |
 
+## Registered identities (v9.10 contextual clipping recovery)
+
+| ID | Title |
+|----|-------|
+| T-CX231 | Preserve v9.9 identities and recorded evidence; register T-CX231–T-CX240 once |
+| T-CX232 | Contextual DSP propagates deterministic test clipping mechanism |
+| T-CX233 | Contextual Tool emits one compact test clipping-mechanism Evidence item |
+| T-CX234 | Additive v9.10 profile preserves the original profile and threshold semantics |
+| T-CX235 | v9.10 automatic closure evaluates test-side clipping rules from one Evidence suffix |
+| T-CX236 | v9.10 clipping claims require one coherent evidence family |
+| T-CX237 | v9.10 contextual no-fault accepts only a complete contextual clean family |
+| T-CX238 | Single-signal unsupported harmonic sibling yields clipping-subset recovery guidance |
+| T-CX239 | Product freezes and wires v9.10 prompt, policy, and additive profile identity |
+| T-CX240 | Two-failure replay and cumulative offline acceptance gate |
+| T-CX241 | v9.10 development freeze resolves only through an append-only behavior-bearing identity amendment with matching deterministic recomputation evidence. |
+| T-CX242 | v9.9 validation seal v3 is historical and accurately records 47 original slots plus 13 diagnostic-only continuation slots with no active seal. |
+| T-CX243 | Contextual validation preflight rejects historical seal v3 before execution and creates no output. |
+| T-CX244 | Lifecycle test IDs T-CX241 through T-CX244 are registered exactly once. |
+
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
 v9.6 contextual remediation and must not alter T-CX001–T-CX145 meanings.
@@ -165,3 +185,8 @@ T-CX197–T-CX207 are additive for the truth-free fixed-pipeline remediation and
 must not alter T-CX001–T-CX196 meanings.
 T-CX208–T-CX230 are additive for the contextual validation campaign runner and
 must not alter T-CX001–T-CX207 meanings.
+T-CX231–T-CX240 are additive for the v9.10 contextual clipping recovery and
+must not alter T-CX001–T-CX230 meanings.
+T-CX241–T-CX244 are additive lifecycle gates for the v9.10 development freeze
+and historical v9.9 validation seal; they must not alter T-CX001–T-CX240
+meanings.

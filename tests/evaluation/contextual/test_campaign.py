@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import math
 import struct
 import wave
@@ -193,9 +194,9 @@ def _runtime_identity() -> Any:
         model="deepseek-v4-flash",
         base_url="https://api.deepseek.com",
         planner_class="RealLLMPlanner",
-        prompt_version="v0.3-s1-planner-9.9",
+        prompt_version="v0.3-s1-planner-9.10",
         prompt_sha256="a" * 64,
-        causal_policy_version="v9_9_paired_reference_recovery",
+        causal_policy_version="v9_10_contextual_clipping_recovery",
         product_tree_sha256="b" * 64,
     )
 
@@ -376,7 +377,7 @@ def test_t_cx216_real_executor_builder_uses_real_planner_without_calling_model()
         executor.service._dependencies.planner_factory(), RealLLMPlanner
     )
     assert executor.model == "deepseek-v4-flash"
-    assert executor.prompt_version == "v0.3-s1-planner-9.9"
+    assert executor.prompt_version == "v0.3-s1-planner-9.10"
 
 
 @pytest.mark.asyncio
@@ -413,10 +414,10 @@ async def test_t_cx217_real_executor_maps_product_snapshot_without_truth(
                 planner_identity=PlannerIdentity(
                     provider="deepseek",
                     model="deepseek-v4-flash",
-                    prompt_version="v0.3-s1-planner-9.9",
+                    prompt_version="v0.3-s1-planner-9.10",
                     phase4_certified_default=False,
                 ),
-                causal_policy_version="v9_9_paired_reference_recovery",
+                causal_policy_version="v9_10_contextual_clipping_recovery",
             )
             self.submitted: bytes | None = None
 
@@ -596,12 +597,8 @@ def test_t_cx222_campaign_test_ids_are_registered_once() -> None:
         assert ids.count(f"T-CX{number}") == 1
 
 
-def test_t_cx223_active_v3_preflight_resolves_case_keyed_wav_checksums(
-    tmp_path: Path,
-) -> None:
-    from signal_diag.evaluation.contextual.campaign import (
-        preflight_contextual_validation,
-    )
+def test_t_cx223_historical_v3_retains_case_keyed_wav_checksums() -> None:
+    from signal_diag.evaluation.contextual.sealing import verify_contextual_bundle
 
     repo = Path(__file__).resolve().parents[3]
     study = (
@@ -613,16 +610,16 @@ def test_t_cx223_active_v3_preflight_resolves_case_keyed_wav_checksums(
         / "validation"
         / "study_v0_3_contextual_validation_1"
     )
-    preflight = preflight_contextual_validation(
-        study_dir=study,
-        seal_dir=study / "validation_seal_v3",
-        output=tmp_path / "not_created",
-        environ={"DEEPSEEK_API_KEY": "present-but-not-persisted"},
+    seal = study / "validation_seal_v3"
+    verify_contextual_bundle(seal)
+    checksums = json.loads((seal / "wav_checksums.json").read_text("utf-8"))
+    execution_inputs = json.loads(
+        (seal / "execution_inputs.json").read_text("utf-8")
     )
-
-    assert len(preflight.plan.cases) == 20
-    assert len(preflight.plan.slots) == 60
-    assert preflight.record["credential_persisted"] is False
+    case_ids = {item["case_id"] for item in execution_inputs}
+    assert len(case_ids) == 20
+    assert {key.split(":", 1)[1] for key in checksums} == case_ids
+    assert all(key.startswith(("test:", "ref:")) for key in checksums)
 
 
 @pytest.mark.asyncio

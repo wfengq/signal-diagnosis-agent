@@ -25,6 +25,7 @@ CausalPolicyVersion = Literal[
     "v9_7_deterministic_rule_closure",
     "v9_8_claim_reference_recovery",
     "v9_9_paired_reference_recovery",
+    "v9_10_contextual_clipping_recovery",
 ]
 _CONTEXTUAL_CAUSAL_POLICIES = frozenset(
     {
@@ -33,12 +34,19 @@ _CONTEXTUAL_CAUSAL_POLICIES = frozenset(
         "v9_7_deterministic_rule_closure",
         "v9_8_claim_reference_recovery",
         "v9_9_paired_reference_recovery",
+        "v9_10_contextual_clipping_recovery",
     }
 )
 _SUBSTANTIAL_CLIPPING_RULE_IDS = frozenset(
     {
         "rule_clipping_ratio_acceptable",
         "rule_flat_top_absent",
+    }
+)
+_SUBSTANTIAL_TEST_CLIPPING_RULE_IDS = frozenset(
+    {
+        "rule_test_clipping_ratio_acceptable",
+        "rule_test_flat_top_absent",
     }
 )
 
@@ -95,6 +103,18 @@ def _has_clipping_mechanism(
     )
 
 
+def _has_test_clipping_mechanism(
+    claim: DiagnosisClaim,
+    evidence_by_id: dict[str, Evidence],
+) -> bool:
+    return any(
+        item.metric == "test_clipping_mechanism"
+        and item.value is True
+        and item.validity == "valid"
+        for item in _cited_evidence(claim, evidence_by_id)
+    )
+
+
 def _has_substantial_clipping_rule_fail(
     claim: DiagnosisClaim,
     evaluations_by_id: dict[str, RuleEvaluation],
@@ -106,6 +126,98 @@ def _has_substantial_clipping_rule_fail(
         ):
             return True
     return False
+
+
+def _has_substantial_test_clipping_rule_fail(
+    claim: DiagnosisClaim,
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> bool:
+    return any(
+        evaluation.rule_id in _SUBSTANTIAL_TEST_CLIPPING_RULE_IDS
+        and evaluation.judgment == "fail"
+        for evaluation in _cited_evaluations(claim, evaluations_by_id)
+    )
+
+
+def _validate_v910_clipping_supported(
+    claim: DiagnosisClaim,
+    evidence_by_id: dict[str, Evidence],
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> None:
+    has_legacy_mechanism = _has_clipping_mechanism(claim, evidence_by_id)
+    has_contextual_mechanism = _has_test_clipping_mechanism(claim, evidence_by_id)
+    has_legacy_fail = _has_substantial_clipping_rule_fail(claim, evaluations_by_id)
+    has_contextual_fail = _has_substantial_test_clipping_rule_fail(
+        claim, evaluations_by_id
+    )
+    legacy_ok = has_legacy_mechanism and has_legacy_fail
+    contextual_ok = has_contextual_mechanism and has_contextual_fail
+    if (has_legacy_mechanism or has_legacy_fail) and (
+        has_contextual_mechanism or has_contextual_fail
+    ):
+        raise DiagnosisValidationError(
+            "clipping claim mixes legacy and contextual evidence families; "
+            "no coherent family"
+        )
+    if not (legacy_ok or contextual_ok):
+        raise DiagnosisValidationError(
+            "clipping claim lacks one coherent evidence family"
+        )
+
+
+def _validate_v910_no_supported_fault(
+    claim: DiagnosisClaim,
+    context: StimulusContext,
+    evidence_by_id: dict[str, Evidence],
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> None:
+    _require_metric(
+        claim,
+        evidence_by_id,
+        "test_clipping_mechanism",
+        False,
+        gate_name="test_clipping_mechanism=false",
+    )
+    _require_rule_pass(
+        claim,
+        evaluations_by_id,
+        "rule_test_clipping_ratio_acceptable",
+        gate_name="test clipping ratio PASS",
+    )
+    _require_rule_pass(
+        claim,
+        evaluations_by_id,
+        "rule_test_flat_top_absent",
+        gate_name="test flat-top absent PASS",
+    )
+    _validate_contextual_mode_no_fault(
+        claim, context, evaluations_by_id
+    )
+
+
+def _v910_clipping_subset_is_supported(
+    decision: FinishDecision,
+    evidence_by_id: dict[str, Evidence],
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> bool:
+    if any(
+        claim.fault_type not in {"clipping", "harmonic_distortion"}
+        for claim in decision.claims
+    ):
+        return False
+    clipping_claims = tuple(
+        claim for claim in decision.claims if claim.fault_type == "clipping"
+    )
+    if not clipping_claims:
+        return False
+    try:
+        for claim in clipping_claims:
+            _validate_v910_clipping_supported(
+                claim, evidence_by_id, evaluations_by_id
+            )
+    except DiagnosisValidationError:
+        return False
+    return True
 
 
 def _require_metric(
@@ -529,6 +641,14 @@ def _validate_v95_no_supported_fault(
         "rule_flat_top_absent",
         gate_name="flat-top absent PASS",
     )
+    _validate_contextual_mode_no_fault(claim, context, evaluations_by_id)
+
+
+def _validate_contextual_mode_no_fault(
+    claim: DiagnosisClaim,
+    context: StimulusContext,
+    evaluations_by_id: dict[str, RuleEvaluation],
+) -> None:
     if context.mode == "paired_reference":
         _require_rule_pass(
             claim,
@@ -701,40 +821,68 @@ def validate_finish_decision(
         for claim in decision.claims:
             if decision.outcome == "supported_fault":
                 if claim.fault_type == "clipping":
-                    _validate_clipping_supported(
-                        claim, evidence_by_id, evaluations_by_id
-                    )
-                elif claim.fault_type == "harmonic_distortion":
-                    if causal_policy_version == "v9_9_paired_reference_recovery":
-                        _validate_v99_harmonic_supported(
-                            claim,
-                            stimulus_context,
-                            evidence_by_id,
-                            evaluations_by_id,
-                        )
-                    elif causal_policy_version == "v9_8_claim_reference_recovery":
-                        _validate_v98_harmonic_supported(
-                            claim,
-                            stimulus_context,
-                            evidence_by_id,
-                            evaluations_by_id,
+                    if causal_policy_version == "v9_10_contextual_clipping_recovery":
+                        _validate_v910_clipping_supported(
+                            claim, evidence_by_id, evaluations_by_id
                         )
                     else:
-                        _validate_v95_harmonic_supported(
-                            claim,
-                            stimulus_context,
-                            evidence_by_id,
-                            evaluations_by_id,
+                        _validate_clipping_supported(
+                            claim, evidence_by_id, evaluations_by_id
                         )
+                elif claim.fault_type == "harmonic_distortion":
+                    try:
+                        if causal_policy_version == "v9_9_paired_reference_recovery":
+                            _validate_v99_harmonic_supported(
+                                claim,
+                                stimulus_context,
+                                evidence_by_id,
+                                evaluations_by_id,
+                            )
+                        elif causal_policy_version == "v9_8_claim_reference_recovery":
+                            _validate_v98_harmonic_supported(
+                                claim,
+                                stimulus_context,
+                                evidence_by_id,
+                                evaluations_by_id,
+                            )
+                        else:
+                            _validate_v95_harmonic_supported(
+                                claim,
+                                stimulus_context,
+                                evidence_by_id,
+                                evaluations_by_id,
+                            )
+                    except DiagnosisValidationError as error:
+                        if (
+                            causal_policy_version == "v9_10_contextual_clipping_recovery"
+                            and stimulus_context.mode == "single_signal"
+                            and _v910_clipping_subset_is_supported(
+                                decision, evidence_by_id, evaluations_by_id
+                            )
+                        ):
+                            raise DiagnosisValidationError(
+                                "clipping claim is independently supported; preserve "
+                                "the clipping claim and its same-run references; "
+                                "remove the unsupported harmonic_distortion sibling"
+                            ) from error
+                        raise
             elif decision.outcome == "no_supported_fault" and (
                 claim.fault_type == "no_supported_fault"
             ):
-                _validate_v95_no_supported_fault(
-                    claim,
-                    stimulus_context,
-                    evidence_by_id,
-                    evaluations_by_id,
-                )
+                if causal_policy_version == "v9_10_contextual_clipping_recovery":
+                    _validate_v910_no_supported_fault(
+                        claim,
+                        stimulus_context,
+                        evidence_by_id,
+                        evaluations_by_id,
+                    )
+                else:
+                    _validate_v95_no_supported_fault(
+                        claim,
+                        stimulus_context,
+                        evidence_by_id,
+                        evaluations_by_id,
+                    )
         return
 
     if decision.outcome != "supported_fault":
