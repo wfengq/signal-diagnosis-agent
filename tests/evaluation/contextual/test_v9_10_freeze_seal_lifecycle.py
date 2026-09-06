@@ -46,7 +46,7 @@ def test_t_cx241_v910_development_identity_has_recomputed_bridge() -> None:
     assert resolve_active_freeze_code_sha256(DEV) == current
 
 
-def test_t_cx248_observability_amendment_matches_current_harness() -> None:
+def test_t_cx248_observability_amendment_is_preserved_after_supersession() -> None:
     rows = json.loads((DEV / "code_identity_amendment.json").read_text("utf-8"))
     current = contextual_implementation_sha256()
     row = next(
@@ -55,11 +55,35 @@ def test_t_cx248_observability_amendment_matches_current_harness() -> None:
         if item["amendment_id"] == "v9_10_evaluation_failure_observability"
     )
     assert row["amendment_kind"] == "append_only_evaluation_identity"
-    assert row["current_implementation_sha256"] == current
+    assert row["current_implementation_sha256"] == (
+        "83302bfec62893fcd373a2b0a23b239cfccc3ce9f0e347f7d0606555cab22a95"
+    )
+    assert row["current_implementation_sha256"] != current
     assert row["qualification_recompute_unchanged"] is True
     assert row["calibration_recompute_unchanged"] is True
     assert row["selected_threshold_percent_unchanged"] == 5.0
     assert row["model_calls"] == 0
+
+
+def test_t_cx249_post_assemble_amendment_matches_current_harness() -> None:
+    rows = json.loads((DEV / "code_identity_amendment.json").read_text("utf-8"))
+    current = contextual_implementation_sha256()
+    row = next(
+        item
+        for item in rows
+        if item["amendment_id"]
+        == "v9_10_evaluation_harness_post_assemble_fix"
+    )
+    assert row["amendment_kind"] == "append_only_evaluation_identity"
+    assert row["prior_bridge_current_implementation_sha256"] == (
+        "83302bfec62893fcd373a2b0a23b239cfccc3ce9f0e347f7d0606555cab22a95"
+    )
+    assert row["current_implementation_sha256"] == current
+    assert row["qualification_recompute_unchanged"] is True
+    assert row["calibration_recompute_unchanged"] is True
+    assert row["selected_threshold_percent_unchanged"] == 5.0
+    assert row["amendment_creation_model_calls"] == 0
+    assert resolve_active_freeze_code_sha256(DEV) == current
 
 
 def test_t_cx242_v99_v3_is_historical_with_truthful_execution_counts() -> None:
@@ -97,4 +121,7 @@ def test_t_cx244_lifecycle_ids_are_registered_once() -> None:
     text = (REPO / "docs/TEST_PLAN_V0_3_CONTEXTUAL.md").read_text("utf-8")
     ids = re.findall(r"^\| (T-CX\d+) \|", text, flags=re.MULTILINE)
     for number in range(241, 245):
+        assert ids.count(f"T-CX{number}") == 1
+
+    for number in range(248, 250):
         assert ids.count(f"T-CX{number}") == 1

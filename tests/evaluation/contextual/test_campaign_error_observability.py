@@ -148,6 +148,7 @@ async def test_t_cx247_real_executor_preserves_safe_provider_fingerprint(
     assert "must-not-survive" not in serialized
     assert "present-but-not-persisted" not in serialized
 
+
 @pytest.mark.asyncio
 async def test_t_cx247b_post_decide_execute_failure_gets_fingerprint(
     monkeypatch: pytest.MonkeyPatch,
@@ -269,4 +270,3 @@ async def test_t_cx247b_post_decide_execute_failure_gets_fingerprint(
         "status_code": None,
     }
     assert "automatic rule batch" not in artifacts.model_dump_json()
-

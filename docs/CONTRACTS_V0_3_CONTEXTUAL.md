@@ -485,7 +485,7 @@ continuation cannot repair or complete the original one-shot campaign. No
 v9.10 run may reuse or amend that seal; no validation seal is active until a
 successful v9.10 development confirmation and separate construction approval.
 
-## 14. Evaluation failure observability (T-CX245–T-CX247)
+## 14. Evaluation failure observability (T-CX245–T-CX249)
 
 The contextual real-model adapter may retain one restricted failure fingerprint
 when an application run fails before a diagnosis result is produced. The
@@ -496,3 +496,8 @@ credentials. Provider transport failures are categorized separately from
 ordinary evaluator/internal failures. This diagnostic field does not alter
 application-facing error messages, retry behavior, scoring, or historical run
 artifacts.
+
+Later evaluation-harness fixes must preserve earlier identity amendments and
+append a new bridge to the current implementation SHA. Compatibility support
+for lightweight test services must not disable restricted failure capture on
+the real product service.

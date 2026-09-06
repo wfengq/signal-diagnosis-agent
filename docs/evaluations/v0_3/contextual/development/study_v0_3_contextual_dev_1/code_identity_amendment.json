@@ -74,5 +74,18 @@
   "calibration_recompute_unchanged": true,
   "selected_threshold_percent_unchanged": 5.0,
   "model_calls": 0
+},
+{
+  "amendment_id": "v9_10_evaluation_harness_post_assemble_fix",
+  "amendment_kind": "append_only_evaluation_identity",
+  "created_at_utc": "2026-09-06T00:00:00+00:00",
+  "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+  "current_implementation_sha256": "1dfc498e30bb5139eef2f8340aad2e2f3ea2aef5ceb51a633e040bf736065d42",
+  "prior_bridge_current_implementation_sha256": "83302bfec62893fcd373a2b0a23b239cfccc3ce9f0e347f7d0606555cab22a95",
+  "scope": "evaluation-harness compatibility after accepting the additive v9.10 contextual automatic-rule profile, capturing restricted post-decide failures, and preserving lightweight service test doubles; no DSP, product prompt, causal policy, profile, threshold, WAV, label, scoring identity, retry behavior, or historical run mutation",
+  "qualification_recompute_unchanged": true,
+  "calibration_recompute_unchanged": true,
+  "selected_threshold_percent_unchanged": 5.0,
+  "amendment_creation_model_calls": 0
 }
 ]

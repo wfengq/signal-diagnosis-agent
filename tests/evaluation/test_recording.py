@@ -1520,6 +1520,7 @@ def test_t_cx180_historical_and_automatic_traces_round_trip() -> None:
     assert restored_auto == automatic
     assert any(event.event_type == "rule_evaluation" for event in automatic.events)
 
+
 def test_t_cx_v910_accepts_contextual_v9_10_automatic_profile() -> None:
     empty = _empty_context()
     call = AnalyzeContextualDistortionCall(args=ContextualDistortionInput())
@@ -1613,4 +1614,3 @@ def test_t_cx_v910_accepts_contextual_v9_10_automatic_profile() -> None:
     )
     events = assemble_agent_events(records, result)
     assert any(getattr(event, "event_type", None) == "rule_evaluation" for event in events)
-

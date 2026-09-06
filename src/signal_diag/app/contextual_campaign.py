@@ -109,8 +109,14 @@ class RealAgentSlotExecutor:
             if capture.fingerprint is None:
                 capture.fingerprint = restricted_error_fingerprint(error)
 
-        original_run_submit = self.service._executor.submit
-        original_contextual_submit = self.service._contextual_executor.submit
+        run_executor = getattr(self.service, "_executor", None)
+        contextual_executor = getattr(self.service, "_contextual_executor", None)
+        original_run_submit = (
+            run_executor.submit if run_executor is not None else None
+        )
+        original_contextual_submit = (
+            contextual_executor.submit if contextual_executor is not None else None
+        )
 
         async def _submit_run(item, snapshot=None, owned_signal_ids=()):  # type: ignore[no-untyped-def]
             orig_execute = item.execute
@@ -127,6 +133,7 @@ class RealAgentSlotExecutor:
                 if is_dataclass(item)
                 else RunWorkItem(run_id=item.run_id, execute=execute_with_capture)
             )
+            assert original_run_submit is not None
             return await original_run_submit(
                 wrapped_item,
                 snapshot=snapshot,
@@ -150,14 +157,17 @@ class RealAgentSlotExecutor:
                     run_id=item.run_id, execute=execute_with_capture
                 )
             )
+            assert original_contextual_submit is not None
             return await original_contextual_submit(
                 wrapped_item,
                 snapshot=snapshot,
                 owned_signal_ids=owned_signal_ids,
             )
 
-        self.service._executor.submit = _submit_run  # type: ignore[method-assign]
-        self.service._contextual_executor.submit = _submit_contextual  # type: ignore[method-assign]
+        if run_executor is not None:
+            run_executor.submit = _submit_run  # type: ignore[method-assign]
+        if contextual_executor is not None:
+            contextual_executor.submit = _submit_contextual  # type: ignore[method-assign]
         snapshot: object
         try:
             if slot.mode == "single_signal":
@@ -195,8 +205,10 @@ class RealAgentSlotExecutor:
                     contextual_submission.run_id
                 )
         finally:
-            self.service._executor.submit = original_run_submit  # type: ignore[method-assign]
-            self.service._contextual_executor.submit = original_contextual_submit  # type: ignore[method-assign]
+            if run_executor is not None:
+                run_executor.submit = original_run_submit  # type: ignore[method-assign]
+            if contextual_executor is not None:
+                contextual_executor.submit = original_contextual_submit  # type: ignore[method-assign]
             if wrapped:
                 self.service._dependencies = dependencies
         return artifacts_from_agent_snapshot(

@@ -176,4 +176,3 @@ def test_t_cx235_automatic_profiles_include_v9_10_contextual() -> None:
             "profile_s1_contextual_comparison_v9_10",
         }
     )
-

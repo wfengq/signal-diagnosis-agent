@@ -175,6 +175,7 @@
 | T-CX246 | Ordinary internal failures are not mislabeled as provider failures. |
 | T-CX247 | The real contextual executor persists a safe failure fingerprint without secrets or payloads. |
 | T-CX248 | The append-only observability identity amendment matches the current evaluation harness. |
+| T-CX249 | A later append-only identity amendment preserves T-CX248 and bridges the post-assemble compatibility fix to the current harness. |
 
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
@@ -199,3 +200,5 @@ real-model slots; they must not alter product error presentation, scoring,
 retry behavior, or historical evidence.
 T-CX248 is the append-only identity bridge for that evaluation-only change and
 must not alter the v9.10 behavior-bearing identity or its qualification data.
+T-CX249 preserves that historical bridge and binds the later post-assemble
+evaluation-harness compatibility fix without changing product behavior.
