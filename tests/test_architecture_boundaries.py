@@ -1306,6 +1306,7 @@ _V03_ADDITIVE_EXACT_PATHS = frozenset(
         "src/signal_diag/evaluation/external/reference.py",
         "src/signal_diag/evaluation/external/reference_models.py",
         "src/signal_diag/rules/profiles/s1_contextual_comparison_v1.yaml",
+        "src/signal_diag/rules/profiles/s1_contextual_comparison_v9_10.yaml",
         "src/signal_diag/signal/context.py",
     }
 )
