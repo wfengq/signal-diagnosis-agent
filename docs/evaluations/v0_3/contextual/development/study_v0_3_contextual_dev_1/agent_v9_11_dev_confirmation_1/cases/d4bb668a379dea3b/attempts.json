@@ -1,0 +1,21 @@
+[
+  {
+    "case_id": "d4bb668a379dea3b",
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "decide_count": 0,
+    "decision_index": 16,
+    "failure_diagnostic": {
+      "category": "provider_transport",
+      "error_type": "APIConnectionError",
+      "status_code": null
+    },
+    "finished_at_utc": "2026-09-06T13:50:07.916240+00:00",
+    "model": "deepseek-v4-flash",
+    "planner_class": "RealLLMPlanner",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "scripted_planner_fallback": false,
+    "started_at_utc": "2026-09-06T13:50:01.115329+00:00",
+    "status": "infrastructure_failure",
+    "termination_reason": null
+  }
+]

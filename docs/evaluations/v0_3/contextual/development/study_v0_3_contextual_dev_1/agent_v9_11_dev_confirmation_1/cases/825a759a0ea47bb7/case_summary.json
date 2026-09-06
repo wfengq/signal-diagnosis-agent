@@ -1,0 +1,93 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_11_dev_confirmation_1/cases/825a759a0ea47bb7",
+  "case_id": "825a759a0ea47bb7",
+  "causal_faults": [],
+  "claims": [
+    {
+      "claim_id": "claim_clean_paired_1",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_018"
+      ],
+      "fault_type": "no_supported_fault",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_cd9664555eb15b8d",
+        "ruleval_a670d5d62d79c436",
+        "ruleval_4709b5befaf84773",
+        "ruleval_1f8571ea0ca7e982",
+        "ruleval_a68381d6ddef0ba9",
+        "ruleval_2a57753c5355e8eb",
+        "ruleval_79e9e86dbbf01e5b",
+        "ruleval_0b4c65fd1df92f33",
+        "ruleval_0ae64e877fff1e34",
+        "ruleval_f729bea9d83dad51"
+      ],
+      "statement": "Clipping and harmonic distortion are both closed by sufficient Evidence; the supported cause set is empty."
+    }
+  ],
+  "correct_causal": true,
+  "correct_outcome": true,
+  "evidence_refs": [
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_005",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_012",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_014",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_015",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_016",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_018",
+    "ev_detect_clipping_detect_clipping_000000_000",
+    "ev_detect_clipping_detect_clipping_000000_001",
+    "ev_detect_clipping_detect_clipping_000000_006"
+  ],
+  "evidence_refs_complete": true,
+  "expected_causal_set": [],
+  "expected_outcome": "no_supported_fault",
+  "finished_at_utc": "2026-09-06T13:48:11.961892+00:00",
+  "infrastructure_failure": false,
+  "limitations": [
+    "Finding is relative to the supplied reference signal."
+  ],
+  "mode": "paired_reference",
+  "outcome": "no_supported_fault",
+  "planner_completed": true,
+  "planner_errors": [],
+  "projected_trace_event_count": 8,
+  "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+  "result_status": "ok",
+  "role": "clean",
+  "rule_refs": [
+    "ruleval_0ae64e877fff1e34",
+    "ruleval_0b4c65fd1df92f33",
+    "ruleval_1f8571ea0ca7e982",
+    "ruleval_237883d67b741c3e",
+    "ruleval_2a57753c5355e8eb",
+    "ruleval_4709b5befaf84773",
+    "ruleval_79e9e86dbbf01e5b",
+    "ruleval_a670d5d62d79c436",
+    "ruleval_a68381d6ddef0ba9",
+    "ruleval_cd9664555eb15b8d",
+    "ruleval_f729bea9d83dad51"
+  ],
+  "scoreable": true,
+  "started_at_utc": "2026-09-06T13:47:56.824139+00:00",
+  "status": "ok",
+  "termination_reason": "planner_finished",
+  "test_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_contextual_distortion"
+  ],
+  "unnecessary_tool": false
+}

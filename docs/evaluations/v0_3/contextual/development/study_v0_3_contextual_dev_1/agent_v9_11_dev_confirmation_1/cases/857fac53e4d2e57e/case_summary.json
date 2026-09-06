@@ -1,0 +1,65 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_11_dev_confirmation_1/cases/857fac53e4d2e57e",
+  "case_id": "857fac53e4d2e57e",
+  "causal_faults": [
+    "clipping"
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_paired_1",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_c98926991e2146b5",
+        "ruleval_2a7ff09ac5dab5fc"
+      ],
+      "statement": "Clipping is affirmatively supported by same-run Evidence: clipping_mechanism=true and substantial clipping ratio and flat-top rule FAILs."
+    }
+  ],
+  "correct_causal": true,
+  "correct_outcome": true,
+  "evidence_refs": [
+    "ev_detect_clipping_detect_clipping_000000_000",
+    "ev_detect_clipping_detect_clipping_000000_001",
+    "ev_detect_clipping_detect_clipping_000000_006",
+    "ev_detect_clipping_detect_clipping_000000_007"
+  ],
+  "evidence_refs_complete": true,
+  "expected_causal_set": [
+    "clipping"
+  ],
+  "expected_outcome": "supported_fault",
+  "finished_at_utc": "2026-09-06T13:48:18.232736+00:00",
+  "infrastructure_failure": false,
+  "limitations": [
+    "Harmonic_distortion is not supported because the even-harmonic-growth rule PASSes and no reportable order-2 distortion mechanism is established; the harmonic hypothesis is closed."
+  ],
+  "mode": "paired_reference",
+  "outcome": "supported_fault",
+  "planner_completed": true,
+  "planner_errors": [],
+  "projected_trace_event_count": 7,
+  "reference_wav_sha256": "ea04bd30a909d494472704a01def64f5785150e735677a27b3f8a16b49c6f206",
+  "result_status": "ok",
+  "role": "clipping",
+  "rule_refs": [
+    "ruleval_2a7ff09ac5dab5fc",
+    "ruleval_c98926991e2146b5"
+  ],
+  "scoreable": true,
+  "started_at_utc": "2026-09-06T13:48:11.966169+00:00",
+  "status": "ok",
+  "termination_reason": "planner_finished",
+  "test_wav_sha256": "5e3cd7fa1e12ce4b4c94f540ac590dbcd07edbebdfd3c35f7b44dddad9fd778a",
+  "tool_actions": [
+    "detect_clipping",
+    "analyze_contextual_distortion"
+  ],
+  "unnecessary_tool": false
+}

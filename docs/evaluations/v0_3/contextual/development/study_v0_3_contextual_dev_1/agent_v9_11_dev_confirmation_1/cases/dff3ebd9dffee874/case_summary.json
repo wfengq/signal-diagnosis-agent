@@ -1,0 +1,62 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_11_dev_confirmation_1/cases/dff3ebd9dffee874",
+  "case_id": "dff3ebd9dffee874",
+  "causal_faults": [
+    "clipping"
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_nominal_1",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_017",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_cb69afc92c3d53b9",
+        "ruleval_04e8c1f3758fc93f"
+      ],
+      "statement": "Clipping is affirmatively supported by test_clipping_mechanism=true and substantial clipping rule FAILs."
+    }
+  ],
+  "correct_causal": true,
+  "correct_outcome": true,
+  "evidence_refs": [
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_016",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_017",
+    "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018"
+  ],
+  "evidence_refs_complete": true,
+  "expected_causal_set": [
+    "clipping"
+  ],
+  "expected_outcome": "supported_fault",
+  "finished_at_utc": "2026-09-06T13:49:35.396791+00:00",
+  "infrastructure_failure": false,
+  "limitations": [
+    "Harmonic distortion is not supported because the harmonic-growth rule PASSes and the test series is native_odd_series without reportable order-2 evidence."
+  ],
+  "mode": "nominal_single_tone",
+  "outcome": "supported_fault",
+  "planner_completed": true,
+  "planner_errors": [],
+  "projected_trace_event_count": 4,
+  "reference_wav_sha256": null,
+  "result_status": "ok",
+  "role": "clipping",
+  "rule_refs": [
+    "ruleval_04e8c1f3758fc93f",
+    "ruleval_cb69afc92c3d53b9"
+  ],
+  "scoreable": true,
+  "started_at_utc": "2026-09-06T13:49:30.889586+00:00",
+  "status": "ok",
+  "termination_reason": "planner_finished",
+  "test_wav_sha256": "da68310a78a7bd3c341ab328015ef3d3597551cb70f7f212932fa6feeab30282",
+  "tool_actions": [
+    "analyze_contextual_distortion"
+  ],
+  "unnecessary_tool": false
+}

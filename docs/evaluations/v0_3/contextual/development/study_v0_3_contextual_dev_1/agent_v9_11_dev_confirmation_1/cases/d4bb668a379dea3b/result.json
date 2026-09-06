@@ -1,0 +1,13 @@
+{
+  "application_error": {
+    "code": "internal_error",
+    "details": {},
+    "message": "diagnosis execution failed"
+  },
+  "failure_diagnostic": {
+    "category": "provider_transport",
+    "error_type": "APIConnectionError",
+    "status_code": null
+  },
+  "status": "infrastructure_failure"
+}
