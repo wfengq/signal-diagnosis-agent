@@ -44,5 +44,22 @@
   "calibration_recompute_unchanged": true,
   "selected_threshold_percent_unchanged": 5.0,
   "model_calls": 0
+},
+{
+  "amendment_id": "v9_10_contextual_clipping_recovery",
+  "amendment_kind": "append_only_behavior_identity",
+  "created_at_utc": "2026-09-06T00:00:00+00:00",
+  "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+  "current_implementation_sha256": "00a14ffc46646080fe16b1a54148fcf0f41fbc160eb93def84532a2cda3cba3e",
+  "prior_bridge_current_implementation_sha256": "9c3844a2b73e8ba060c9bdbeff75434a91feb111f12a8d23c57f6ff2dee7bc94",
+  "scope": "v9.10 behavior-bearing contextual clipping evidence, additive rule profile, coherent causal-family validation, and single-signal supported-subset recovery; no development WAV, manifest, calibration input, label, scoring identity, or historical run mutation",
+  "compatibility_audit_file": "v9_10_freeze_compatibility_audit.json",
+  "compatibility_audit_sha256": "a6c3d97eb9eadcecab9674a63765e0bd36a4e6a6be32526f63841cd56414de55",
+  "qualification_recompute_unchanged": true,
+  "calibration_recompute_unchanged": true,
+  "calibration_recompute_unchanged_except_code_sha256": true,
+  "selected_threshold_percent_unchanged": 5.0,
+  "development_confirmation_authorized": false,
+  "model_calls": 0
 }
 ]

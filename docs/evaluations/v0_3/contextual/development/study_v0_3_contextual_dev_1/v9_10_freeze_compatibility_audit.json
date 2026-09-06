@@ -1,0 +1,20 @@
+{
+  "audit_id": "v9_10_freeze_compatibility_2026_09_06",
+  "audit_kind": "deterministic_development_freeze_compatibility",
+  "implementation_sha256": "00a14ffc46646080fe16b1a54148fcf0f41fbc160eb93def84532a2cda3cba3e",
+  "product_tree_sha256": "32fb7bfe7b94d79bbe4f52ccfb820a12d8de2b40a6a148795a0e97bc563f2b01",
+  "qualification": {
+    "recomputed_report_sha256": "8415fecb8b5034c6ccbb43a413463ec567f6384a1f1280e11641c9bda5d31163",
+    "semantic_equal_to_frozen_report": true,
+    "all_gates_passed": true
+  },
+  "calibration": {
+    "recomputed_report_sha256": "198e73a7874078e7234b06ef2b1aa2335bc89d7facabab79da63480026a3264b",
+    "semantic_equal_except_code_sha256": true,
+    "selected_threshold_percent": 5.0,
+    "threshold_reselected": false
+  },
+  "model_calls": 0,
+  "validation_or_final_test_access": false,
+  "notes": "Recomputation used the frozen development manifest, controls, positives, and WAV assets. Disposable full reports remain ignored under private/."
+}
