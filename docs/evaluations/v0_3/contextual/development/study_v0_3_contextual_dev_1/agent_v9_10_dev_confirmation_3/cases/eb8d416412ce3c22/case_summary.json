@@ -1,0 +1,18 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_10_dev_confirmation_3/cases/eb8d416412ce3c22",
+  "case_id": "eb8d416412ce3c22",
+  "correct_causal": false,
+  "correct_outcome": false,
+  "decision_index_skipped": 19,
+  "evidence_refs_complete": false,
+  "expected_causal_set": [],
+  "expected_outcome": "inconclusive",
+  "infrastructure_failure": true,
+  "mode": "single_signal",
+  "note": "not started after infrastructure stop; not a behavioral result",
+  "planner_completed": false,
+  "result_status": "not_run_after_infra_stop",
+  "role": "domain_out_inconclusive",
+  "scoreable": false,
+  "status": "not_run_after_infra_stop"
+}

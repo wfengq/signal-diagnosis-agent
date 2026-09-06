@@ -1,0 +1,38 @@
+{
+  "artifact_dir": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/agent_v9_10_dev_confirmation_3/cases/35967af7b71c5b75",
+  "case_id": "35967af7b71c5b75",
+  "causal_faults": [],
+  "claims": [],
+  "correct_causal": false,
+  "correct_outcome": false,
+  "evidence_refs": [],
+  "evidence_refs_complete": false,
+  "expected_causal_set": [
+    "harmonic_distortion"
+  ],
+  "expected_outcome": "supported_fault",
+  "failure_diagnostic": {
+    "category": "provider_transport",
+    "error_type": "APIConnectionError",
+    "status_code": null
+  },
+  "finished_at_utc": "2026-09-06T11:25:07.091909+00:00",
+  "infrastructure_failure": true,
+  "limitations": [],
+  "mode": "nominal_single_tone",
+  "outcome": null,
+  "planner_completed": false,
+  "planner_errors": [],
+  "projected_trace_event_count": 0,
+  "reference_wav_sha256": null,
+  "result_status": "infrastructure_failure",
+  "role": "harmonic",
+  "rule_refs": [],
+  "scoreable": true,
+  "started_at_utc": "2026-09-06T11:25:04.659888+00:00",
+  "status": "infrastructure_failure",
+  "termination_reason": null,
+  "test_wav_sha256": "945af745f599fec0217909699d89af0b77eda1f94e7bca15649d2aeb0bfbb11b",
+  "tool_actions": [],
+  "unnecessary_tool": false
+}
