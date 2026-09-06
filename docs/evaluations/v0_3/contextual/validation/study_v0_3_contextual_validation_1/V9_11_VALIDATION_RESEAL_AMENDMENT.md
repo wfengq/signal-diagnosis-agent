@@ -1,7 +1,7 @@
 # Amendment: v9.9/v3 → v9.11/v4 validation reseal (Phase 7)
 
-Date: 2026-09-06 (Asia/Shanghai)  
-Scope: Phase 7 only — create unexecuted `validation_seal_v4` and rebind campaign preflight.  
+Date: 2026-09-06 (Asia/Shanghai)
+Scope: Phase 7 only — create unexecuted `validation_seal_v4` and rebind campaign preflight.
 **validation_passed = false**. Phase 8 (real-model one-shot) needs separate authorization.
 
 ## Old (v9.9 / validation_seal_v3) vs new (v9.11 / validation_seal_v4)

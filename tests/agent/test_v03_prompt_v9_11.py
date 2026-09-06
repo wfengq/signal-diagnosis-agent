@@ -14,6 +14,7 @@ from signal_diag.app.composition import build_product_service
 from signal_diag.evaluation.contextual.calibration import (
     contextual_implementation_sha256,
     contextual_product_tree_sha256,
+    resolve_active_freeze_code_sha256,
 )
 
 
@@ -64,7 +65,7 @@ def test_t_cx254_product_wires_v911_without_profile_or_threshold_change() -> Non
     assert by_id["rule_test_clipping_ratio_acceptable"].threshold == 0.01
 
 
-def test_t_cx254_v911_append_only_identity_matches_worktree() -> None:
+def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches() -> None:
     root = Path(__file__).resolve().parents[2]
     path = (
         root
@@ -80,9 +81,15 @@ def test_t_cx254_v911_append_only_identity_matches_worktree() -> None:
     assert len(matches) == 1
     row = matches[0]
     assert row["current_implementation_sha256"] == (
-        contextual_implementation_sha256()
+        "1dfc498e30bb5139eef2f8340aad2e2f3ea2aef5ceb51a633e040bf736065d42"
     )
-    assert row["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert row["product_tree_sha256"] == (
+        "626824f6bd2c4c04da566d77914648f2e2d629241d910cb56bcd086bd279c799"
+    )
     assert row["prompt_sha256"] == hashlib.sha256(
         prompts_v03._S1_PROMPT_V9_11.system_prompt.encode()
     ).hexdigest()
+    assert resolve_active_freeze_code_sha256(path.parent) == (
+        contextual_implementation_sha256()
+    )
+    assert contextual_product_tree_sha256() == row["product_tree_sha256"]
