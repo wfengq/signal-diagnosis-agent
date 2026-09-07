@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "correction_id": "contextual_validation_scoring_correction_1",
+  "correction_status": "append_only",
+  "campaign_execution_status": "complete",
+  "target_status": "meets_target",
+  "source_campaign": "agent_v9_11_validation_run_1",
+  "source_head": "9aa4ef0e",
+  "correction_base_head": "uncommitted-working-tree",
+  "scoring_semantics": "signal_diag.contextual_scoring@1.0.0-dev.1",
+  "reason": "The original scorer used the fixed 17-case denominator for evidence grounding and unsupported positive claims instead of the preregistered dynamic claim populations.",
+  "population_definitions": {
+    "evidence_grounding": "all_claims_on_completed_diagnoses",
+    "unsupported_claim_rate": "all_predicted_positive_fault_claims"
+  },
+  "contextual_agent": {
+    "planner_completion": {"numerator": 19, "denominator": 20, "value": 0.95},
+    "outcome_accuracy": {"numerator": 16, "denominator": 17, "value": 0.9411764705882353},
+    "causal_exact_set_accuracy": {"numerator": 16, "denominator": 17, "value": 0.9411764705882353},
+    "causal_macro_f1": 0.9545454545454546,
+    "harmonic_precision": {"numerator": 5, "denominator": 5, "value": 1.0},
+    "harmonic_recall": {"numerator": 5, "denominator": 5, "value": 1.0},
+    "clipping_precision": {"numerator": 5, "denominator": 5, "value": 1.0},
+    "clipping_recall": {"numerator": 5, "denominator": 6, "value": 0.8333333333333334},
+    "evidence_grounding": {"numerator": 21, "denominator": 21, "value": 1.0},
+    "unsupported_claim_rate": {"numerator": 0, "denominator": 10, "value": 0.0},
+    "inconclusive_appropriateness": {"numerator": 6, "denominator": 6, "value": 1.0},
+    "natural_even_harmonic_false_positives": 0,
+    "unnecessary_tool_action_rate": {"numerator": 0, "denominator": 17, "value": 0.0},
+    "paired_harmonic_ablation_delta": 4
+  },
+  "claim_populations": {
+    "contextual_agent": {"claims": 21, "grounded_claims": 21, "positive_fault_claims": 10, "unsupported_positive_fault_claims": 0},
+    "fixed_pipeline": {"claims": 22, "grounded_claims": 19, "positive_fault_claims": 11, "unsupported_positive_fault_claims": 0},
+    "no_context_ablation": {"claims": 19, "grounded_claims": 19, "positive_fault_claims": 5, "unsupported_positive_fault_claims": 0}
+  },
+  "aggregate_gates": {
+    "planner_completion": true,
+    "outcome_accuracy": true,
+    "causal_exact_set_accuracy": true,
+    "causal_macro_f1": true,
+    "harmonic_precision": true,
+    "harmonic_recall": true,
+    "clipping_precision": true,
+    "clipping_recall": true,
+    "evidence_grounding": true,
+    "unsupported_claim_rate": true,
+    "natural_even_harmonic_false_positives": true,
+    "inconclusive_appropriateness": true,
+    "unnecessary_tool_action_rate": true,
+    "paired_harmonic_ablation_delta": true
+  },
+  "role_hard_gates": {
+    "no_supported_fault_controls": true,
+    "clipping_only": true,
+    "harmonic_only": true,
+    "combined": true,
+    "natural_even_controls": true,
+    "inconclusive": true,
+    "paired_harmonic_ablation": true
+  },
+  "source_artifact_sha256": {
+    "run_summary.json": "1fc4d2eaa1a4a265e42333f6d24701d0f0ddfdf650d812eb18e937d0e4c622ec",
+    "metrics.json": "5d438040e9084ef07852a80c763cf9a2b1bccfcc153c402eed5a83b1ec2dd7f4",
+    "audit_report.json": "d77c331c10b18799e536ed04f45a300102f468d7562f7db0ccedee34b71110a6",
+    "STATUS.md": "0828f74c6cf22b3a1561da5a5e0a66e8e454ea8a57498c5fc7dbfcd87dd241c2",
+    "execution_ledger.json": "99a937b01238e3feabbfb56bd0b3ef0485582b7160710050e2d5596e89b4e7d3"
+  },
+  "correction_source_sha256": {
+    "scoring.py": "01fd680188209a2cd527e57b94f0300e1538837e98b53663467fb73caabe7634",
+    "models.py": "14cc1ed0cb473dfc0c792b2a3d6a5288d6f8dfbf8f0f166446ff5d37100b24aa",
+    "campaign.py": "30a09c4a682ebafb738bcc185b4d8685afed516dd07bfb21963f42e25918daa6"
+  },
+  "constraints": {
+    "provider_calls": 0,
+    "campaign_slots_rerun": 0,
+    "original_campaign_files_modified": false,
+    "product_prompt_rules_thresholds_labels_modified": false,
+    "final_test_accessed": false
+  }
+}
