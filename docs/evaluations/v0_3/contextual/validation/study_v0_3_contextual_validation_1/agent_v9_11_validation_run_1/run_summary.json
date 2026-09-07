@@ -1,0 +1,222 @@
+{
+  "arm_order": [
+    "contextual_agent",
+    "fixed_pipeline",
+    "no_context_ablation"
+  ],
+  "executed_slots": 60,
+  "metrics": {
+    "causal_macro_f1": 0.9545454545454546,
+    "gates": {
+      "causal_exact_set_accuracy": true,
+      "causal_macro_f1": true,
+      "clipping_precision": true,
+      "clipping_recall": true,
+      "evidence_grounding": false,
+      "harmonic_precision": true,
+      "harmonic_recall": true,
+      "inconclusive_appropriateness": true,
+      "natural_even_harmonic_false_positives": true,
+      "outcome_accuracy": true,
+      "paired_harmonic_ablation_delta": true,
+      "planner_completion": true,
+      "unnecessary_tool_action_rate": true,
+      "unsupported_claim_rate": false
+    },
+    "planner_completion": {
+      "denominator": 20,
+      "numerator": 19
+    },
+    "role_hard_gates": {
+      "clipping_only": true,
+      "combined": true,
+      "harmonic_only": true,
+      "inconclusive": true,
+      "natural_even_controls": true,
+      "no_supported_fault_controls": true,
+      "paired_harmonic_ablation": true
+    },
+    "scores": {
+      "contextual_agent": {
+        "aggregate": {
+          "ablation_correct_delta": 4,
+          "causal_exact_set_accuracy": {
+            "denominator": 17,
+            "numerator": 16,
+            "value": 0.9411764705882353
+          },
+          "clipping_precision": {
+            "denominator": 5,
+            "numerator": 5,
+            "value": 1.0
+          },
+          "clipping_recall": {
+            "denominator": 6,
+            "numerator": 5,
+            "value": 0.8333333333333334
+          },
+          "evidence_grounding": {
+            "denominator": 17,
+            "numerator": 16,
+            "value": 0.9411764705882353
+          },
+          "harmonic_precision": {
+            "denominator": 5,
+            "numerator": 5,
+            "value": 1.0
+          },
+          "harmonic_recall": {
+            "denominator": 5,
+            "numerator": 5,
+            "value": 1.0
+          },
+          "inconclusive_appropriateness": {
+            "denominator": 6,
+            "numerator": 6,
+            "value": 1.0
+          },
+          "natural_even_harmonic_fp": 0,
+          "outcome_accuracy": {
+            "denominator": 17,
+            "numerator": 16,
+            "value": 0.9411764705882353
+          },
+          "unnecessary_tool_rate": {
+            "denominator": 17,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "unsupported_claim_rate": {
+            "denominator": 17,
+            "numerator": 1,
+            "value": 0.058823529411764705
+          }
+        },
+        "arm": "contextual_agent",
+        "scoring_id": "signal_diag.contextual_scoring",
+        "scoring_version": "1.0.0-dev.1",
+        "target_status": "not_evaluated"
+      },
+      "fixed_pipeline": {
+        "aggregate": {
+          "ablation_correct_delta": null,
+          "causal_exact_set_accuracy": {
+            "denominator": 17,
+            "numerator": 17,
+            "value": 1.0
+          },
+          "clipping_precision": {
+            "denominator": 6,
+            "numerator": 6,
+            "value": 1.0
+          },
+          "clipping_recall": {
+            "denominator": 6,
+            "numerator": 6,
+            "value": 1.0
+          },
+          "evidence_grounding": {
+            "denominator": 17,
+            "numerator": 17,
+            "value": 1.0
+          },
+          "harmonic_precision": {
+            "denominator": 5,
+            "numerator": 5,
+            "value": 1.0
+          },
+          "harmonic_recall": {
+            "denominator": 5,
+            "numerator": 5,
+            "value": 1.0
+          },
+          "inconclusive_appropriateness": {
+            "denominator": 6,
+            "numerator": 6,
+            "value": 1.0
+          },
+          "natural_even_harmonic_fp": 0,
+          "outcome_accuracy": {
+            "denominator": 17,
+            "numerator": 17,
+            "value": 1.0
+          },
+          "unnecessary_tool_rate": {
+            "denominator": 17,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "unsupported_claim_rate": {
+            "denominator": 17,
+            "numerator": 0,
+            "value": 0.0
+          }
+        },
+        "arm": "fixed_pipeline",
+        "scoring_id": "signal_diag.contextual_scoring",
+        "scoring_version": "1.0.0-dev.1",
+        "target_status": "not_evaluated"
+      },
+      "no_context_ablation": {
+        "aggregate": {
+          "ablation_correct_delta": null,
+          "causal_exact_set_accuracy": {
+            "denominator": 17,
+            "numerator": 11,
+            "value": 0.6470588235294118
+          },
+          "clipping_precision": {
+            "denominator": 5,
+            "numerator": 5,
+            "value": 1.0
+          },
+          "clipping_recall": {
+            "denominator": 6,
+            "numerator": 5,
+            "value": 0.8333333333333334
+          },
+          "evidence_grounding": {
+            "denominator": 17,
+            "numerator": 16,
+            "value": 0.9411764705882353
+          },
+          "harmonic_precision": "not_evaluated",
+          "harmonic_recall": {
+            "denominator": 5,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "inconclusive_appropriateness": {
+            "denominator": 6,
+            "numerator": 5,
+            "value": 0.8333333333333334
+          },
+          "natural_even_harmonic_fp": 0,
+          "outcome_accuracy": {
+            "denominator": 17,
+            "numerator": 10,
+            "value": 0.5882352941176471
+          },
+          "unnecessary_tool_rate": {
+            "denominator": 17,
+            "numerator": 0,
+            "value": 0.0
+          },
+          "unsupported_claim_rate": {
+            "denominator": 17,
+            "numerator": 1,
+            "value": 0.058823529411764705
+          }
+        },
+        "arm": "no_context_ablation",
+        "scoring_id": "signal_diag.contextual_scoring",
+        "scoring_version": "1.0.0-dev.1",
+        "target_status": "not_evaluated"
+      }
+    },
+    "target_status": "below_target"
+  },
+  "planned_slots": 60,
+  "status": "campaign_scored",
+  "target_status": "below_target"
+}

@@ -1,0 +1,7 @@
+{
+  "executed_slots": 60,
+  "raw_wav_persisted": false,
+  "status": "campaign_scored",
+  "target_status": "below_target",
+  "truth_loaded_after_execution": true
+}

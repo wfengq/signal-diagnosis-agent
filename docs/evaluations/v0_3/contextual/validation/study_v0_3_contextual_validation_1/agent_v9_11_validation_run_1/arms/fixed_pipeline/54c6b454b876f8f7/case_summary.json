@@ -1,0 +1,15 @@
+{
+  "arm": "fixed_pipeline",
+  "arm_result": {
+    "arm": "fixed_pipeline",
+    "case_id": "54c6b454b876f8f7",
+    "evidence_refs_complete": false,
+    "infrastructure_failure": false,
+    "predicted_causal_set": [],
+    "predicted_outcome": "inconclusive",
+    "status": "ok",
+    "unnecessary_tool": false
+  },
+  "case_id": "54c6b454b876f8f7",
+  "mode": "single_signal"
+}

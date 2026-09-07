@@ -1,0 +1,17 @@
+{
+  "arm": "fixed_pipeline",
+  "arm_result": {
+    "arm": "fixed_pipeline",
+    "case_id": "675073735bc06f76",
+    "evidence_refs_complete": true,
+    "infrastructure_failure": false,
+    "predicted_causal_set": [
+      "clipping"
+    ],
+    "predicted_outcome": "supported_fault",
+    "status": "ok",
+    "unnecessary_tool": false
+  },
+  "case_id": "675073735bc06f76",
+  "mode": "single_signal"
+}

@@ -1,0 +1,17 @@
+{
+  "arm": "contextual_agent",
+  "arm_result": {
+    "arm": "contextual_agent",
+    "case_id": "7fd4173cde11c0e3",
+    "evidence_refs_complete": true,
+    "infrastructure_failure": false,
+    "predicted_causal_set": [
+      "clipping"
+    ],
+    "predicted_outcome": "supported_fault",
+    "status": "ok",
+    "unnecessary_tool": false
+  },
+  "case_id": "7fd4173cde11c0e3",
+  "mode": "nominal_single_tone"
+}

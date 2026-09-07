@@ -1,0 +1,649 @@
+{
+  "diagnosis": {
+    "claims": [
+      {
+        "claim_id": "claim_thd_fail_no_mechanism",
+        "evidence_refs": [
+          "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+          "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+        ],
+        "fault_type": "inconclusive",
+        "knowledge_refs": [],
+        "rule_refs": [
+          "ruleval_8890af5e417589bf"
+        ],
+        "statement": "Harmonic measurement is valid and the THD rule is FAIL, but no same-run Evidence establishes a causal S1 distortion mechanism."
+      }
+    ],
+    "confidence_label": "low",
+    "knowledge_retrievals": [],
+    "limitations": [
+      "THD rule FAIL establishes elevated harmonic content relative to the configured threshold, not causal harmonic_distortion without additional distortion-mechanism Evidence."
+    ],
+    "outcome": "inconclusive",
+    "rule_evaluation_batches": [
+      {
+        "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+        "evaluations": [
+          {
+            "comparator": "eq",
+            "evaluation_id": "ruleval_237883d67b741c3e",
+            "evidence_refs": [
+              "ev_detect_clipping_detect_clipping_000000_000"
+            ],
+            "judgment": "pass",
+            "observed_value": false,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "reason": null,
+            "rule_id": "rule_clipping_detected_absent",
+            "threshold": false
+          },
+          {
+            "comparator": "lte",
+            "evaluation_id": "ruleval_cd9664555eb15b8d",
+            "evidence_refs": [
+              "ev_detect_clipping_detect_clipping_000000_001"
+            ],
+            "judgment": "pass",
+            "observed_value": 0.0,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "reason": null,
+            "rule_id": "rule_clipping_ratio_acceptable",
+            "threshold": 0.01
+          },
+          {
+            "comparator": "eq",
+            "evaluation_id": "ruleval_a670d5d62d79c436",
+            "evidence_refs": [
+              "ev_detect_clipping_detect_clipping_000000_006"
+            ],
+            "judgment": "pass",
+            "observed_value": false,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "reason": null,
+            "rule_id": "rule_flat_top_absent",
+            "threshold": false
+          },
+          {
+            "comparator": "eq",
+            "evaluation_id": "ruleval_85b5a3bed3ae119d",
+            "evidence_refs": [],
+            "judgment": "not_applicable",
+            "observed_value": null,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "reason": "no matching evidence for rule metric",
+            "rule_id": "rule_harmonic_analysis_valid",
+            "threshold": true
+          },
+          {
+            "comparator": "lte",
+            "evaluation_id": "ruleval_26d0fc73df26e5ec",
+            "evidence_refs": [],
+            "judgment": "not_applicable",
+            "observed_value": null,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "reason": "no matching evidence for rule metric",
+            "rule_id": "rule_thd_acceptable",
+            "threshold": 5.0
+          }
+        ],
+        "profile_id": "profile_s1_distortion",
+        "profile_version": "1.0.0-demo"
+      },
+      {
+        "batch_id": "rulebatch_aced66c1dcb02997",
+        "evaluations": [
+          {
+            "comparator": "eq",
+            "evaluation_id": "ruleval_38fe5da121211b53",
+            "evidence_refs": [],
+            "judgment": "not_applicable",
+            "observed_value": null,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "reason": "no matching evidence for rule metric",
+            "rule_id": "rule_clipping_detected_absent",
+            "threshold": false
+          },
+          {
+            "comparator": "lte",
+            "evaluation_id": "ruleval_647a15f86ebdd157",
+            "evidence_refs": [],
+            "judgment": "not_applicable",
+            "observed_value": null,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "reason": "no matching evidence for rule metric",
+            "rule_id": "rule_clipping_ratio_acceptable",
+            "threshold": 0.01
+          },
+          {
+            "comparator": "eq",
+            "evaluation_id": "ruleval_c85b8fa7d41509b4",
+            "evidence_refs": [],
+            "judgment": "not_applicable",
+            "observed_value": null,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "reason": "no matching evidence for rule metric",
+            "rule_id": "rule_flat_top_absent",
+            "threshold": false
+          },
+          {
+            "comparator": "eq",
+            "evaluation_id": "ruleval_894c03c944d04c9b",
+            "evidence_refs": [
+              "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+            ],
+            "judgment": "pass",
+            "observed_value": true,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "reason": null,
+            "rule_id": "rule_harmonic_analysis_valid",
+            "threshold": true
+          },
+          {
+            "comparator": "lte",
+            "evaluation_id": "ruleval_8890af5e417589bf",
+            "evidence_refs": [
+              "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+            ],
+            "judgment": "fail",
+            "observed_value": 13.305733042491058,
+            "profile_id": "profile_s1_distortion",
+            "profile_version": "1.0.0-demo",
+            "reason": null,
+            "rule_id": "rule_thd_acceptable",
+            "threshold": 5.0
+          }
+        ],
+        "profile_id": "profile_s1_distortion",
+        "profile_version": "1.0.0-demo"
+      }
+    ],
+    "run_id": "run_328bfcf0a9a4",
+    "task_type": "distortion_analysis",
+    "termination_reason": "planner_finished",
+    "tool_call_count": 2
+  },
+  "errors": [],
+  "evidence": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_000",
+      "metric": "clipping_detected",
+      "source_tool": "detect_clipping",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": false
+    },
+    {
+      "call_id": "call_detect_clipping_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_001",
+      "metric": "clipping_ratio",
+      "source_tool": "detect_clipping",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": 0.0
+    },
+    {
+      "call_id": "call_detect_clipping_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_002",
+      "metric": "clipped_samples",
+      "source_tool": "detect_clipping",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": 0
+    },
+    {
+      "call_id": "call_detect_clipping_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_003",
+      "metric": "clipping_events",
+      "source_tool": "detect_clipping",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": 0
+    },
+    {
+      "call_id": "call_detect_clipping_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_004",
+      "metric": "peak_abs",
+      "source_tool": "detect_clipping",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": 0.77886962890625
+    },
+    {
+      "call_id": "call_detect_clipping_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_005",
+      "metric": "full_scale_detected",
+      "source_tool": "detect_clipping",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": false
+    },
+    {
+      "call_id": "call_detect_clipping_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_006",
+      "metric": "flat_top_detected",
+      "source_tool": "detect_clipping",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": false
+    },
+    {
+      "call_id": "call_detect_clipping_000000",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_007",
+      "metric": "clipping_mechanism",
+      "source_tool": "detect_clipping",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": false
+    },
+    {
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+      "metric": "valid",
+      "source_tool": "analyze_harmonic_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": true
+    },
+    {
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001",
+      "metric": "fundamental_frequency_hz",
+      "source_tool": "analyze_harmonic_distortion",
+      "time_range": null,
+      "unit": "Hz",
+      "validity": "valid",
+      "value": 275.86206896551727
+    },
+    {
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+      "metric": "thd_percent",
+      "source_tool": "analyze_harmonic_distortion",
+      "time_range": null,
+      "unit": "%",
+      "validity": "valid",
+      "value": 13.305733042491058
+    },
+    {
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+      "metric": "series_kind",
+      "source_tool": "analyze_harmonic_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": "even_order_present"
+    },
+    {
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004",
+      "metric": "harmonic_order_2_relative_amplitude",
+      "source_tool": "analyze_harmonic_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": 0.10151265036885464
+    },
+    {
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005",
+      "metric": "harmonic_order_3_relative_amplitude",
+      "source_tool": "analyze_harmonic_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": 0.0784987638738577
+    },
+    {
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_006",
+      "metric": "harmonic_order_4_relative_amplitude",
+      "source_tool": "analyze_harmonic_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": 0.03517229337646697
+    },
+    {
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "channel": "mixdown",
+      "confidence": null,
+      "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_007",
+      "metric": "harmonic_order_5_relative_amplitude",
+      "source_tool": "analyze_harmonic_distortion",
+      "time_range": null,
+      "unit": null,
+      "validity": "valid",
+      "value": 0.0005374419136807752
+    }
+  ],
+  "knowledge_retrievals": [],
+  "observations": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "error_message": null,
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_002",
+        "ev_detect_clipping_detect_clipping_000000_003",
+        "ev_detect_clipping_detect_clipping_000000_004",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "observation_id": "obs_detect_clipping_000000_000",
+      "purpose": "Obtain the currently most informative clipping observation for this broad request.",
+      "result": {
+        "clipped_samples": 0,
+        "clipping_events": 0,
+        "clipping_mechanism": false,
+        "clipping_ratio": 0.0,
+        "detected": false,
+        "flat_top_detected": false,
+        "full_scale_detected": false,
+        "kind": "clipping",
+        "longest_event_samples": 0,
+        "peak_abs": 0.77886962890625
+      },
+      "status": "success",
+      "tool_name": "detect_clipping",
+      "warnings": []
+    },
+    {
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "error_message": null,
+      "evidence_refs": [
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_006",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_007"
+      ],
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "fmax_hz": 1000.0,
+        "fmin_hz": 50.0,
+        "fundamental_hz": null,
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "observation_id": "obs_analyze_harmonic_distortion_000001_001",
+      "purpose": "Obtain harmonic Evidence to close the remaining harmonic_distortion hypothesis in this broad request.",
+      "result": {
+        "components": [
+          {
+            "measured_frequency_hz": 554.0,
+            "order": 2,
+            "relative_amplitude": 0.10151265036885464,
+            "relative_magnitude_db": -19.8695966637746
+          },
+          {
+            "measured_frequency_hz": 830.0,
+            "order": 3,
+            "relative_amplitude": 0.0784987638738577,
+            "relative_magnitude_db": -22.102743641397975
+          },
+          {
+            "measured_frequency_hz": 1106.0,
+            "order": 4,
+            "relative_amplitude": 0.03517229337646697,
+            "relative_magnitude_db": -29.075986259892495
+          },
+          {
+            "measured_frequency_hz": 1382.0,
+            "order": 5,
+            "relative_amplitude": 0.0005374419136807752,
+            "relative_magnitude_db": -65.39336934196244
+          }
+        ],
+        "fundamental_frequency_hz": 275.86206896551727,
+        "invalid_reason": null,
+        "kind": "harmonic_distortion",
+        "series_kind": "even_order_present",
+        "thd_percent": 13.305733042491058,
+        "valid": true
+      },
+      "status": "success",
+      "tool_name": "analyze_harmonic_distortion",
+      "warnings": []
+    }
+  ],
+  "rule_evaluation_batches": [
+    {
+      "batch_id": "rulebatch_96a64ee3e3bb4dfe",
+      "evaluations": [
+        {
+          "comparator": "eq",
+          "evaluation_id": "ruleval_237883d67b741c3e",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_000"
+          ],
+          "judgment": "pass",
+          "observed_value": false,
+          "profile_id": "profile_s1_distortion",
+          "profile_version": "1.0.0-demo",
+          "reason": null,
+          "rule_id": "rule_clipping_detected_absent",
+          "threshold": false
+        },
+        {
+          "comparator": "lte",
+          "evaluation_id": "ruleval_cd9664555eb15b8d",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_001"
+          ],
+          "judgment": "pass",
+          "observed_value": 0.0,
+          "profile_id": "profile_s1_distortion",
+          "profile_version": "1.0.0-demo",
+          "reason": null,
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "threshold": 0.01
+        },
+        {
+          "comparator": "eq",
+          "evaluation_id": "ruleval_a670d5d62d79c436",
+          "evidence_refs": [
+            "ev_detect_clipping_detect_clipping_000000_006"
+          ],
+          "judgment": "pass",
+          "observed_value": false,
+          "profile_id": "profile_s1_distortion",
+          "profile_version": "1.0.0-demo",
+          "reason": null,
+          "rule_id": "rule_flat_top_absent",
+          "threshold": false
+        },
+        {
+          "comparator": "eq",
+          "evaluation_id": "ruleval_85b5a3bed3ae119d",
+          "evidence_refs": [],
+          "judgment": "not_applicable",
+          "observed_value": null,
+          "profile_id": "profile_s1_distortion",
+          "profile_version": "1.0.0-demo",
+          "reason": "no matching evidence for rule metric",
+          "rule_id": "rule_harmonic_analysis_valid",
+          "threshold": true
+        },
+        {
+          "comparator": "lte",
+          "evaluation_id": "ruleval_26d0fc73df26e5ec",
+          "evidence_refs": [],
+          "judgment": "not_applicable",
+          "observed_value": null,
+          "profile_id": "profile_s1_distortion",
+          "profile_version": "1.0.0-demo",
+          "reason": "no matching evidence for rule metric",
+          "rule_id": "rule_thd_acceptable",
+          "threshold": 5.0
+        }
+      ],
+      "profile_id": "profile_s1_distortion",
+      "profile_version": "1.0.0-demo"
+    },
+    {
+      "batch_id": "rulebatch_aced66c1dcb02997",
+      "evaluations": [
+        {
+          "comparator": "eq",
+          "evaluation_id": "ruleval_38fe5da121211b53",
+          "evidence_refs": [],
+          "judgment": "not_applicable",
+          "observed_value": null,
+          "profile_id": "profile_s1_distortion",
+          "profile_version": "1.0.0-demo",
+          "reason": "no matching evidence for rule metric",
+          "rule_id": "rule_clipping_detected_absent",
+          "threshold": false
+        },
+        {
+          "comparator": "lte",
+          "evaluation_id": "ruleval_647a15f86ebdd157",
+          "evidence_refs": [],
+          "judgment": "not_applicable",
+          "observed_value": null,
+          "profile_id": "profile_s1_distortion",
+          "profile_version": "1.0.0-demo",
+          "reason": "no matching evidence for rule metric",
+          "rule_id": "rule_clipping_ratio_acceptable",
+          "threshold": 0.01
+        },
+        {
+          "comparator": "eq",
+          "evaluation_id": "ruleval_c85b8fa7d41509b4",
+          "evidence_refs": [],
+          "judgment": "not_applicable",
+          "observed_value": null,
+          "profile_id": "profile_s1_distortion",
+          "profile_version": "1.0.0-demo",
+          "reason": "no matching evidence for rule metric",
+          "rule_id": "rule_flat_top_absent",
+          "threshold": false
+        },
+        {
+          "comparator": "eq",
+          "evaluation_id": "ruleval_894c03c944d04c9b",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"
+          ],
+          "judgment": "pass",
+          "observed_value": true,
+          "profile_id": "profile_s1_distortion",
+          "profile_version": "1.0.0-demo",
+          "reason": null,
+          "rule_id": "rule_harmonic_analysis_valid",
+          "threshold": true
+        },
+        {
+          "comparator": "lte",
+          "evaluation_id": "ruleval_8890af5e417589bf",
+          "evidence_refs": [
+            "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+          ],
+          "judgment": "fail",
+          "observed_value": 13.305733042491058,
+          "profile_id": "profile_s1_distortion",
+          "profile_version": "1.0.0-demo",
+          "reason": null,
+          "rule_id": "rule_thd_acceptable",
+          "threshold": 5.0
+        }
+      ],
+      "profile_id": "profile_s1_distortion",
+      "profile_version": "1.0.0-demo"
+    }
+  ],
+  "run_id": "run_328bfcf0a9a4",
+  "status": "inconclusive",
+  "termination_reason": "planner_finished",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "purpose": "Obtain the currently most informative clipping observation for this broad request.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "fmax_hz": 1000.0,
+        "fmin_hz": 50.0,
+        "fundamental_hz": null,
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "purpose": "Obtain harmonic Evidence to close the remaining harmonic_distortion hypothesis in this broad request.",
+      "status": "success",
+      "tool_name": "analyze_harmonic_distortion"
+    }
+  ],
+  "warnings": []
+}

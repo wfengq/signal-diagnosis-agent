@@ -1,0 +1,18 @@
+{
+  "arm": "contextual_agent",
+  "arm_result": {
+    "arm": "contextual_agent",
+    "case_id": "b1584e9fd6bf5c1d",
+    "evidence_refs_complete": true,
+    "infrastructure_failure": false,
+    "predicted_causal_set": [
+      "clipping",
+      "harmonic_distortion"
+    ],
+    "predicted_outcome": "supported_fault",
+    "status": "ok",
+    "unnecessary_tool": false
+  },
+  "case_id": "b1584e9fd6bf5c1d",
+  "mode": "paired_reference"
+}
