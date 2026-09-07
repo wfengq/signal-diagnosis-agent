@@ -96,6 +96,35 @@ Official real-model behavior evaluation:
 The first Phase 4 official benchmark and the v5–v8 development misses remain
 committed. They are engineering evidence, not hidden or rewritten results.
 
+## Incremental external/contextual validation
+
+After V0.2 acceptance, a separate incremental study examined the main external
+validity limitation: the accepted official dataset was synthetic. The first
+V0.2 external-WAV campaign used public recordings and controlled distortions
+but remained `below_target`, primarily because single-WAV THD evidence could
+not reliably distinguish newly introduced harmonic distortion from harmonic
+content already present in the recording. That result remains preserved.
+
+V0.3 added explicit `paired_reference` and `nominal_single_tone` context without
+expanding beyond Scenario S1. Its frozen v9.11 validation ran 20 cases across
+three arms (60 total slots): contextual Agent, truth-free fixed pipeline, and
+no-context ablation. After an append-only correction to two incorrectly
+implemented claim-level scoring denominators, the contextual Agent met every
+preregistered aggregate and role gate:
+
+- planner completion 19/20;
+- outcome and causal exact-set accuracy 16/17;
+- causal macro-F1 0.955;
+- harmonic recall 5/5 and clipping recall 5/6;
+- evidence grounding 21/21 and unsupported positive claims 0/10;
+- paired harmonic causal advantage over no-context ablation: +4 cases.
+
+The original generated `below_target` files, the scorer defect, the corrected
+implementation, and the append-only `meets_target` verdict are all retained.
+This is a small external/contextual validation, not an official benchmark,
+industrial validation, production certification, or a replacement for V0.2.
+See the [v9.11 validation acceptance report](docs/evaluations/v0_3/contextual/V9_11_CONTEXTUAL_VALIDATION_ACCEPTANCE_REPORT.md).
+
 ## Install
 
 Requires Python 3.11 or 3.12.
@@ -199,3 +228,6 @@ historical reading paths.
   no multi-agent runtime.
 - The accepted official run still discloses two behavior-coded slots and one
   wrong outcome out of 80.
+- The V0.2 external-WAV increment remained `below_target`; the later v9.11
+  contextual result applies only to its frozen 20-case study and includes one
+  retained behavioral failure.

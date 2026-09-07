@@ -13,6 +13,9 @@ path from implementation authority and historical evidence.
    public `RealLLMPlanner` runs and sanitized artifacts.
 4. [Accepted official evaluation](evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/)
    — immutable 80-slot held-out bundle.
+5. [V0.3 contextual validation acceptance](evaluations/v0_3/contextual/V9_11_CONTEXTUAL_VALIDATION_ACCEPTANCE_REPORT.md)
+   — incremental 20-case/60-slot external-context study with preserved scorer
+   correction history.
 
 ## Code-review path
 
@@ -96,6 +99,11 @@ the specs, plans, Git history, and committed bundles are the detailed evidence.
 - `demo/phase5/v0_2_acceptance/` — retained Web UI and WAV CLI real-model runs,
   reports, screenshots, and checksums.
 - `reports/` — Phase 2 and Phase 3 real-model observations.
+- `evaluations/v0_2_external_wav/` — incremental V0.2 external-WAV study,
+  including the retained `below_target` result.
+- `evaluations/v0_3/contextual/` — V0.3 contextual development history,
+  sealed three-arm validation, independent audit, and corrected
+  `meets_target` verdict.
 
 Historical misses are intentionally retained. They are evidence of controlled
 calibration and held-out discipline, not active product configurations.
@@ -118,3 +126,7 @@ Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
 The public product path is `RealLLMPlanner`; required tests do not call a live
 model. The accepted Demo and official bundles must not be rewritten to improve
 recorded outcomes.
+
+The V0.3 contextual study is additive evidence only. It does not change the
+V0.2 completion statement or convert either external study into an official
+benchmark, industrial validation, or production-readiness claim.

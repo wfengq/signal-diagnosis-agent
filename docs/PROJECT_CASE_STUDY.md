@@ -233,6 +233,62 @@ Phase 5 added presentation without moving domain logic into adapters:
 The final deterministic suite contains 1006 passing tests. The real Demo is a
 separate product-path check and never becomes a stochastic CI requirement.
 
+## Incremental external validity: from single-WAV ambiguity to context
+
+The accepted V0.2 official benchmark primarily used synthetic signals. A later
+incremental external-WAV study therefore tested public recordings, controlled
+distortions on real-recording masters, and domain-out audio. It completed
+honestly as `below_target`: the system could process real WAV inputs, but
+single-WAV harmonic measurements did not consistently establish whether
+harmonics were newly introduced or already present in the source.
+
+The response was not to relabel those failures or lower the frozen 1% clipping
+and 5% THD demonstration thresholds. V0.3 introduced two explicit observation
+modes inside the same Scenario S1 boundary:
+
+- `paired_reference` compares a test recording with its clean reference;
+- `nominal_single_tone` uses a declared single-tone stimulus contract.
+
+Development runs retained successive failures while the implementation added
+deterministic contextual DSP, mode-aware causal gates, automatic rule closure,
+and conservative recovery guidance. The v9.11 development confirmation met its
+frozen gate before validation was resealed.
+
+The final contextual validation froze 20 cases and ran three arms once in a
+fixed 60-slot order: the contextual Agent, a truth-free deterministic fixed
+pipeline, and a no-context ablation. The contextual Agent completed 19/20
+slots, reached 16/17 outcome and causal exact-set accuracy, harmonic recall 5/5,
+clipping recall 5/6, and a +4 paired-harmonic causal advantage over ablation.
+
+Independent review then found an evaluator defect: two claim-level metrics used
+the 17-case outcome denominator instead of their preregistered dynamic
+populations. The raw `below_target` output was preserved. A TDD correction added
+claim-level same-run reference accounting and deterministic replay from the
+immutable result files. Correct scoring produced 21/21 grounded claims and
+0/10 unsupported positive claims; all aggregate and role gates passed, yielding
+the append-only verdict `meets_target`.
+
+This result is deliberately narrow. It shows that declared reference or
+stimulus context materially improved harmonic attribution on one small,
+license-traceable external/contextual study. It is not an official benchmark,
+industrial validation, production certification, general audio diagnosis, or
+a contextual final external test. The earlier V0.2 external-WAV
+`below_target` result remains part of the evidence trail.
+
+### Resume-safe positioning
+
+A concise, supportable description is:
+
+> Built and evaluated a hybrid signal-diagnosis Agent combining deterministic
+> DSP, versioned causal rules, and LLM planning; designed a sealed three-arm
+> external/contextual WAV study where v9.11 achieved 16/17 outcome and causal
+> exact-set accuracy, 21/21 grounded claims, and 0/10 unsupported positive
+> claims, while preserving failed runs and an append-only scorer correction.
+
+Avoid claims of industrial validation, production readiness, industry-standard
+thresholds, a general-purpose audio diagnostician, or an official external
+benchmark.
+
 ## What this project demonstrates
 
 - Contract-first boundaries around an LLM without turning the controller into
@@ -263,6 +319,7 @@ the accepted result.
 - [Historical and accepted evaluation bundles](evaluations/)
 - [Accepted official v8.1 bundle](evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/)
 - [Real product Demo](demo/phase5/v0_2_acceptance/README.md)
+- [V0.3 contextual validation acceptance](evaluations/v0_3/contextual/V9_11_CONTEXTUAL_VALIDATION_ACCEPTANCE_REPORT.md)
 - [Formal specs and implementation plans](superpowers/)
 
 ### Demo checksum portability note
