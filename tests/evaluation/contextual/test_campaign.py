@@ -201,6 +201,51 @@ def _runtime_identity() -> Any:
     )
 
 
+def test_t_cx258_arm_result_records_same_run_claim_population_counts() -> None:
+    from types import SimpleNamespace
+
+    from signal_diag.evaluation.contextual.campaign import _arm_result_from_result
+    from signal_diag.evaluation.contextual.models import ContextualExecutionSlot
+
+    slot = ContextualExecutionSlot(
+        case_id="case_a",
+        arm="contextual_agent",
+        mode="single_signal",
+        test_wav_path="wav/a.wav",
+    )
+    result = SimpleNamespace(
+        diagnosis=SimpleNamespace(
+            outcome="supported_fault",
+            claims=(
+                SimpleNamespace(
+                    fault_type="clipping",
+                    evidence_refs=("ev_1",),
+                    rule_refs=("rule_1",),
+                ),
+                SimpleNamespace(
+                    fault_type="inconclusive",
+                    evidence_refs=("missing",),
+                    rule_refs=("rule_1",),
+                ),
+            ),
+        ),
+        evidence=(SimpleNamespace(evidence_id="ev_1"),),
+        rule_evaluation_batches=(
+            SimpleNamespace(
+                evaluations=(SimpleNamespace(evaluation_id="rule_1"),)
+            ),
+        ),
+        tool_history=(),
+    )
+
+    arm_result = _arm_result_from_result(slot, result)
+
+    assert arm_result.claim_count == 2
+    assert arm_result.grounded_claim_count == 1
+    assert arm_result.predicted_positive_fault_claim_count == 1
+    assert arm_result.unsupported_positive_fault_claim_count == 0
+
+
 @pytest.mark.asyncio
 async def test_t_cx212_campaign_executes_exact_arm_major_order_once(
     tmp_path: Path,
@@ -539,6 +584,10 @@ def test_t_cx220_scoring_occurs_after_execution_and_applies_all_hard_gates() -> 
                     predicted_outcome=outcome,
                     predicted_causal_set=causal,
                     evidence_refs_complete=True,
+                    claim_count=max(1, len(causal)),
+                    grounded_claim_count=max(1, len(causal)),
+                    predicted_positive_fault_claim_count=len(causal),
+                    unsupported_positive_fault_claim_count=0,
                 )
             )
 
@@ -551,6 +600,79 @@ def test_t_cx220_scoring_occurs_after_execution_and_applies_all_hard_gates() -> 
     assert report["target_status"] == "meets_target"
     assert report["gates"]["planner_completion"] is True
     assert all(report["role_hard_gates"].values())
+
+
+def test_t_cx259_empty_positive_population_blocks_unsupported_claim_gate() -> None:
+    from signal_diag.evaluation.contextual.campaign import score_completed_campaign
+    from signal_diag.evaluation.contextual.manifest import load_contextual_manifest
+
+    repo = Path(__file__).resolve().parents[3]
+    validation = repo / "docs" / "evaluations" / "v0_3" / "contextual" / "validation"
+    manifest = load_contextual_manifest(
+        validation / "study_v0_3_contextual_validation_1" / "contextual_manifest.json"
+    )
+    targets = __import__("json").loads(
+        (validation / "acceptance_targets.json").read_text(encoding="utf-8")
+    )
+    results = [
+        ArmResult(
+            case_id=case.case_id,
+            arm=arm,  # type: ignore[arg-type]
+            status="ok",
+            predicted_outcome="inconclusive",
+            claim_count=1,
+            grounded_claim_count=1,
+        )
+        for arm in ("contextual_agent", "fixed_pipeline", "no_context_ablation")
+        for case in manifest.cases
+    ]
+
+    report = score_completed_campaign(
+        manifest=manifest,
+        results=results,
+        acceptance_targets=targets,
+    )
+
+    assert (
+        report["scores"]["contextual_agent"]["aggregate"][
+            "unsupported_claim_rate"
+        ]["denominator"]
+        == 0
+    )
+    assert report["gates"]["unsupported_claim_rate"] is False
+
+
+def test_t_cx260_reconstructs_claim_populations_from_immutable_results() -> None:
+    from signal_diag.evaluation.contextual.campaign import (
+        reconstruct_arm_results_from_campaign,
+        score_completed_campaign,
+    )
+    from signal_diag.evaluation.contextual.manifest import load_contextual_manifest
+
+    repo = Path(__file__).resolve().parents[3]
+    root = repo / "docs" / "evaluations" / "v0_3" / "contextual"
+    study = root / "validation" / "study_v0_3_contextual_validation_1"
+    run = study / "agent_v9_11_validation_run_1"
+    manifest = load_contextual_manifest(study / "contextual_manifest.json")
+    targets = __import__("json").loads(
+        (root / "validation" / "acceptance_targets.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    results = reconstruct_arm_results_from_campaign(run, manifest)
+    report = score_completed_campaign(
+        manifest=manifest,
+        results=results,
+        acceptance_targets=targets,
+    )
+
+    agent = [item for item in results if item.arm == "contextual_agent"]
+    assert sum(item.claim_count for item in agent) == 21
+    assert sum(item.grounded_claim_count for item in agent) == 21
+    assert sum(item.predicted_positive_fault_claim_count for item in agent) == 10
+    assert sum(item.unsupported_positive_fault_claim_count for item in agent) == 0
+    assert report["target_status"] == "meets_target"
 
 
 def test_t_cx221_cli_requires_explicit_real_model_authorization() -> None:

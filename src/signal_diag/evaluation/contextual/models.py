@@ -266,8 +266,31 @@ class ArmResult(BaseModel):
     predicted_outcome: DiagnosisOutcome | None = None
     predicted_causal_set: tuple[CausalFault, ...] = ()
     evidence_refs_complete: bool = False
+    claim_count: int = Field(default=0, ge=0)
+    grounded_claim_count: int = Field(default=0, ge=0)
+    predicted_positive_fault_claim_count: int = Field(default=0, ge=0)
+    unsupported_positive_fault_claim_count: int = Field(default=0, ge=0)
     unnecessary_tool: bool = False
     infrastructure_failure: bool = False
+
+    @model_validator(mode="after")
+    def validate_claim_populations(self) -> ArmResult:
+        if self.grounded_claim_count > self.claim_count:
+            raise ValueError("grounded claims cannot exceed total claims")
+        if self.predicted_positive_fault_claim_count > self.claim_count:
+            raise ValueError("positive claims cannot exceed total claims")
+        if self.unsupported_positive_fault_claim_count > self.predicted_positive_fault_claim_count:
+            raise ValueError("unsupported positive claims cannot exceed positive claims")
+        if (self.status != "ok" or self.infrastructure_failure) and any(
+            (
+                self.claim_count,
+                self.grounded_claim_count,
+                self.predicted_positive_fault_claim_count,
+                self.unsupported_positive_fault_claim_count,
+            )
+        ):
+            raise ValueError("failed results cannot contain diagnosis claims")
+        return self
 
 
 class ContextualAggregate(BaseModel):

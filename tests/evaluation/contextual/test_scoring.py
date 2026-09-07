@@ -24,6 +24,10 @@ def _scoring_oracle(case: ContextualCase, arm: str) -> ArmResult:
         predicted_outcome=outcome,
         predicted_causal_set=predicted,
         evidence_refs_complete=True,
+        claim_count=max(1, len(predicted)),
+        grounded_claim_count=1,
+        predicted_positive_fault_claim_count=len(predicted),
+        unsupported_positive_fault_claim_count=0,
     )
 
 
@@ -99,3 +103,114 @@ def test_t_cx137_ablation_delta_is_positive_for_oracle(
     )
     assert score.aggregate.ablation_correct_delta is not None
     assert score.aggregate.ablation_correct_delta >= 3
+
+
+def test_t_cx256_grounding_and_unsupported_use_dynamic_claim_populations(
+    validation_manifest: ContextualManifest,
+) -> None:
+    results = list(
+        run_contextual_arms(validation_manifest, oracle=_scoring_oracle)[
+            "contextual_agent"
+        ]
+    )
+    results[0] = results[0].model_copy(
+        update={
+            "claim_count": 2,
+            "grounded_claim_count": 2,
+            "predicted_positive_fault_claim_count": 1,
+            "unsupported_positive_fault_claim_count": 0,
+        }
+    )
+    results[1] = results[1].model_copy(
+        update={
+            "claim_count": 1,
+            "grounded_claim_count": 0,
+            "predicted_positive_fault_claim_count": 1,
+            "unsupported_positive_fault_claim_count": 1,
+        }
+    )
+    for index in range(2, len(results)):
+        claim_count = 1
+        results[index] = results[index].model_copy(
+            update={
+                "claim_count": claim_count,
+                "grounded_claim_count": 1,
+                "predicted_positive_fault_claim_count": 0,
+                "unsupported_positive_fault_claim_count": 0,
+            }
+        )
+
+    score = score_contextual_run(
+        validation_manifest,
+        results,
+        arm="contextual_agent",
+    )
+
+    assert score.aggregate.evidence_grounding.numerator == 20
+    assert score.aggregate.evidence_grounding.denominator == 21
+    assert score.aggregate.unsupported_claim_rate.numerator == 1
+    assert score.aggregate.unsupported_claim_rate.denominator == 2
+
+
+def test_t_cx257_failure_without_diagnosis_is_absent_from_claim_populations(
+    validation_manifest: ContextualManifest,
+) -> None:
+    results = list(
+        run_contextual_arms(validation_manifest, oracle=_scoring_oracle)[
+            "contextual_agent"
+        ]
+    )
+    results[0] = results[0].model_copy(
+        update={
+            "status": "infrastructure_failure",
+            "infrastructure_failure": True,
+            "predicted_outcome": None,
+            "predicted_causal_set": (),
+            "evidence_refs_complete": False,
+            "claim_count": 0,
+            "grounded_claim_count": 0,
+            "predicted_positive_fault_claim_count": 0,
+            "unsupported_positive_fault_claim_count": 0,
+        }
+    )
+    for index in range(1, len(results)):
+        results[index] = results[index].model_copy(
+            update={
+                "claim_count": 1,
+                "grounded_claim_count": 1,
+                "predicted_positive_fault_claim_count": 0,
+                "unsupported_positive_fault_claim_count": 0,
+            }
+        )
+
+    score = score_contextual_run(
+        validation_manifest,
+        results,
+        arm="contextual_agent",
+    )
+
+    assert score.aggregate.evidence_grounding.numerator == 19
+    assert score.aggregate.evidence_grounding.denominator == 19
+    assert score.aggregate.unsupported_claim_rate.denominator == 0
+
+
+def test_t_cx261_arm_result_rejects_impossible_claim_populations() -> None:
+    import pytest
+
+    with pytest.raises(ValueError, match="positive claims cannot exceed total"):
+        ArmResult(
+            case_id="case",
+            arm="contextual_agent",
+            status="ok",
+            claim_count=1,
+            predicted_positive_fault_claim_count=2,
+        )
+
+    with pytest.raises(ValueError, match="failed results cannot contain"):
+        ArmResult(
+            case_id="case",
+            arm="contextual_agent",
+            status="infrastructure_failure",
+            infrastructure_failure=True,
+            claim_count=1,
+        )

@@ -65,8 +65,14 @@ def score_contextual_run(
     scoreable_cases = [case for case in manifest.cases if case.scoreable]
     outcome_correct = 0
     causal_correct = 0
-    grounded = 0
-    unsupported = 0
+    grounded = sum(item.grounded_claim_count for item in by_id.values())
+    claim_count = sum(item.claim_count for item in by_id.values())
+    unsupported = sum(
+        item.unsupported_positive_fault_claim_count for item in by_id.values()
+    )
+    positive_claim_count = sum(
+        item.predicted_positive_fault_claim_count for item in by_id.values()
+    )
     unnecessary = 0
     tool_actions = 0
     natural_even_fp = 0
@@ -83,10 +89,6 @@ def score_contextual_run(
         tool_actions += 1
         if result.unnecessary_tool:
             unnecessary += 1
-        if result.evidence_refs_complete:
-            grounded += 1
-        else:
-            unsupported += 1
         if result.predicted_outcome == case.expected_outcome:
             outcome_correct += 1
         if _predicted_set(result) == _causal_set(case):
@@ -167,8 +169,8 @@ def score_contextual_run(
         inconclusive_appropriateness=_rate(inconclusive_ok, _INCONCLUSIVE_DENOM),
         natural_even_harmonic_fp=natural_even_fp,
         unnecessary_tool_rate=_rate(unnecessary, max(tool_actions, 1)),
-        evidence_grounding=_rate(grounded, _SCOREABLE_DENOM),
-        unsupported_claim_rate=_rate(unsupported, _SCOREABLE_DENOM),
+        evidence_grounding=_rate(grounded, claim_count),
+        unsupported_claim_rate=_rate(unsupported, positive_claim_count),
         ablation_correct_delta=ablation_delta,
     )
     return ContextualRunScore(

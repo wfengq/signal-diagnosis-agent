@@ -346,11 +346,25 @@ def _arm_result_from_result(
         for batch in getattr(result, "rule_evaluation_batches", ())
         for evaluation in batch.evaluations
     }
-    refs_complete = bool(claims) and all(
-        bool(claim.evidence_refs)
+    grounded_claims = tuple(
+        claim
+        for claim in claims
+        if bool(claim.evidence_refs)
         and set(claim.evidence_refs) <= evidence_ids
         and set(claim.rule_refs) <= rule_ids
+    )
+    refs_complete = bool(claims) and len(grounded_claims) == len(claims)
+    positive_claims = tuple(
+        claim
         for claim in claims
+        if claim.fault_type in {"clipping", "harmonic_distortion"}
+    )
+    grounded_positive_claims = tuple(
+        claim
+        for claim in positive_claims
+        if bool(claim.evidence_refs)
+        and set(claim.evidence_refs) <= evidence_ids
+        and set(claim.rule_refs) <= rule_ids
     )
     causal = tuple(
         cast(CausalFault, fault)
@@ -370,8 +384,51 @@ def _arm_result_from_result(
         predicted_outcome=diagnosis.outcome if diagnosis is not None else None,
         predicted_causal_set=causal,
         evidence_refs_complete=refs_complete,
+        claim_count=len(claims),
+        grounded_claim_count=len(grounded_claims),
+        predicted_positive_fault_claim_count=len(positive_claims),
+        unsupported_positive_fault_claim_count=(
+            len(positive_claims) - len(grounded_positive_claims)
+        ),
         unnecessary_tool=disallowed in tools or len(tools) != len(set(tools)),
     )
+
+
+def _as_namespace(value: object) -> object:
+    from types import SimpleNamespace
+
+    if isinstance(value, dict):
+        return SimpleNamespace(**{key: _as_namespace(item) for key, item in value.items()})
+    if isinstance(value, list):
+        return tuple(_as_namespace(item) for item in value)
+    return value
+
+
+def reconstruct_arm_results_from_campaign(
+    run_dir: Path,
+    manifest: ContextualManifest,
+) -> list[ArmResult]:
+    """Rebuild claim populations from immutable persisted result payloads."""
+    results: list[ArmResult] = []
+    for arm in ("contextual_agent", "fixed_pipeline", "no_context_ablation"):
+        for case in manifest.cases:
+            case_dir = run_dir / "arms" / arm / case.case_id
+            summary = json.loads((case_dir / "case_summary.json").read_text(encoding="utf-8"))
+            payload = json.loads((case_dir / "result.json").read_text(encoding="utf-8"))
+            if payload.get("diagnosis") is None:
+                results.append(ArmResult.model_validate(summary["arm_result"]))
+                continue
+            slot = ContextualExecutionSlot(
+                case_id=case.case_id,
+                arm=arm,  # type: ignore[arg-type]
+                mode="single_signal" if arm == "no_context_ablation" else case.mode,
+                test_wav_path="<sealed>",
+                reference_wav_path=None,
+                nominal_fundamental_hz=None,
+                stimulus_kind=None,
+            )
+            results.append(_arm_result_from_result(slot, _as_namespace(payload)))
+    return results
 
 
 def artifacts_from_agent_snapshot(
@@ -507,7 +564,10 @@ def score_completed_campaign(
         "clipping_recall": recall_c is not None
         and recall_c >= metrics["clipping_recall"]["threshold"],
         "evidence_grounding": aggregate.evidence_grounding.value == 1.0,
-        "unsupported_claim_rate": aggregate.unsupported_claim_rate.value == 0.0,
+        "unsupported_claim_rate": (
+            aggregate.unsupported_claim_rate.denominator > 0
+            and aggregate.unsupported_claim_rate.value == 0.0
+        ),
         "natural_even_harmonic_false_positives": (
             aggregate.natural_even_harmonic_fp == 0
         ),

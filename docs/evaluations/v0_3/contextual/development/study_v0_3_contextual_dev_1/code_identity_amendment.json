@@ -120,5 +120,44 @@
     "amendment_creation_model_calls": 0,
     "validation_passed": false,
     "real_model_run_authorized": false
+  },
+  {
+    "amendment_id": "contextual_scoring_dynamic_claim_populations",
+    "amendment_kind": "append_only_evaluation_identity",
+    "created_at_utc": "2026-09-07T00:00:00+00:00",
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "current_implementation_sha256": "3bc9a67461862e77b7544ae8dd52745d8ab94d68a34b65c03c7d2be8705671c1",
+    "prior_bridge_current_implementation_sha256": "f4bdf9b2adefbe7e610b2687e8313aa81406604d73cbbcd9db3c9019947a8618",
+    "scope": "evaluation-only correction aligning contextual evidence-grounding and unsupported-positive-claim denominators with the frozen preregistered claim populations; no campaign rerun, product prompt, causal policy, profile, threshold, WAV, label, or historical artifact mutation",
+    "qualification_recompute_unchanged": true,
+    "calibration_recompute_unchanged": true,
+    "selected_threshold_percent_unchanged": 5.0,
+    "model_calls": 0
+  },
+  {
+    "amendment_id": "contextual_scoring_reconstruction_boundary",
+    "amendment_kind": "append_only_evaluation_identity",
+    "created_at_utc": "2026-09-07T00:30:00+00:00",
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "current_implementation_sha256": "3bc9a67461862e77b7544ae8dd52745d8ab94d68a34b65c03c7d2be8705671c1",
+    "prior_bridge_current_implementation_sha256": "1cfe33952db05a1aba308f15fae53593b030449f987a1afe210e7258a7cfffb3",
+    "scope": "evaluation-only deterministic reconstruction from immutable campaign result payloads and ArmResult population-boundary validation; no campaign rerun, product prompt, causal policy, profile, threshold, WAV, label, or historical artifact mutation",
+    "qualification_recompute_unchanged": true,
+    "calibration_recompute_unchanged": true,
+    "selected_threshold_percent_unchanged": 5.0,
+    "model_calls": 0
+  },
+  {
+    "amendment_id": "contextual_scoring_reconstruction_boundary_v2",
+    "amendment_kind": "append_only_evaluation_identity",
+    "created_at_utc": "2026-09-07T00:45:00+00:00",
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "current_implementation_sha256": "799ee09e0a02ba39bf65596399f36de18c9d6b90c8aea7c919817f7cbbd91f72",
+    "prior_bridge_current_implementation_sha256": "3bc9a67461862e77b7544ae8dd52745d8ab94d68a34b65c03c7d2be8705671c1",
+    "scope": "evaluation-only identity bridge for deterministic contextual scoring reconstruction and ArmResult population validation; no campaign rerun, product prompt, causal policy, profile, threshold, WAV, label, or historical artifact mutation",
+    "qualification_recompute_unchanged": true,
+    "calibration_recompute_unchanged": true,
+    "selected_threshold_percent_unchanged": 5.0,
+    "model_calls": 0
   }
 ]

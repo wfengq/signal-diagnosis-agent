@@ -466,6 +466,15 @@ execution ledger, run summary, metrics, audit, and status as append-only artifac
 ablation remain required comparisons. Final-test access, validation-driven
 tuning, and rewriting historical seals/runs are forbidden.
 
+### Claim-population scoring correction
+
+Evidence grounding uses every claim in every completed diagnosis as its
+denominator. Unsupported-claim rate uses only predicted positive clipping or
+harmonic-distortion claims as its denominator. Each claim is grounded only when
+its required Evidence and rule references resolve within the same run. A slot
+without a completed diagnosis contributes no claim to either population. A
+zero positive-claim denominator is `not_evaluated` and blocks `meets_target`.
+
 ## 12. Authorization gates (product ops)
 
 Separate explicit authorizations required for: public audio acquisition,

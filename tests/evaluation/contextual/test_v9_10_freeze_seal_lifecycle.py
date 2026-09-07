@@ -95,7 +95,18 @@ def test_t_cx249_post_assemble_amendment_matches_current_harness() -> None:
     assert reseal["prior_bridge_current_implementation_sha256"] == (
         "1dfc498e30bb5139eef2f8340aad2e2f3ea2aef5ceb51a633e040bf736065d42"
     )
-    assert reseal["current_implementation_sha256"] == current
+    assert reseal["current_implementation_sha256"] != current
+    correction = next(
+        item
+        for item in rows
+            if item["amendment_id"] == "contextual_scoring_reconstruction_boundary_v2"
+    )
+    assert correction["amendment_kind"] == "append_only_evaluation_identity"
+    assert correction["prior_bridge_current_implementation_sha256"] == (
+        "3bc9a67461862e77b7544ae8dd52745d8ab94d68a34b65c03c7d2be8705671c1"
+    )
+    assert correction["current_implementation_sha256"] == current
+    assert correction["model_calls"] == 0
     assert reseal["qualification_recompute_unchanged"] is True
     assert reseal["calibration_recompute_unchanged"] is True
     assert reseal["selected_threshold_percent_unchanged"] == 5.0

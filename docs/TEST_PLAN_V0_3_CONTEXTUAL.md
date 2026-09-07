@@ -182,6 +182,13 @@
 | T-CX253 | v9.11 no-fault rejection reports every missing requirement with available same-run IDs in one error. |
 | T-CX254 | Product freezes and wires v9.11 prompt and policy without changing profiles or thresholds. |
 | T-CX255 | Deterministic replay covers the three retained v9.10 no-fault failure shapes without model or WAV access. |
+| T-CX256 | Evidence grounding and unsupported positive-claim rate use their preregistered dynamic claim populations. |
+| T-CX257 | A behavioral failure without a completed diagnosis contributes no claim to either dynamic population. |
+| T-CX258 | Campaign result projection counts claims and resolves their Evidence and rule references within the same run. |
+| T-CX259 | A zero predicted-positive denominator is not evaluated and blocks the unsupported-claim gate. |
+| T-CX260 | Immutable campaign result payloads deterministically reconstruct claim populations and the corrected verdict. |
+| T-CX261 | Arm-result claim population counters reject impossible and failed-result states. |
+| T-CX262 | Append-only identity amendment binds the deterministic reconstruction implementation without changing campaign evidence. |
 
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
@@ -210,3 +217,9 @@ T-CX249 preserves that historical bridge and binds the later post-assemble
 evaluation-harness compatibility fix without changing product behavior.
 T-CX250–T-CX255 are additive for v9.11 mode-aware no-fault recovery and must
 not alter v9.10 identities, profiles, thresholds, data, scoring, or evidence.
+T-CX256–T-CX259 correct the contextual scorer implementation to the already
+preregistered claim populations. They must not alter campaign inputs, product
+behavior, prompt, rules, thresholds, labels, or historical run artifacts.
+T-CX260–T-CX261 add only deterministic offline reconstruction and boundary
+validation for the same scoring correction.
+T-CX262 records the follow-up evaluation-harness identity bridge only.
