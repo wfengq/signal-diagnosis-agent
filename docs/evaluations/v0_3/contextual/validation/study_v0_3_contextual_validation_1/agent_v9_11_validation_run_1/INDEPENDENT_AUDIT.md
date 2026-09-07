@@ -61,4 +61,3 @@ same-run references before emitting corrected metrics and a final verdict.
 
 The original `below_target` files are retained as generated evidence. They must
 not be overwritten, silently edited or presented as the corrected verdict.
-
