@@ -1,0 +1,5 @@
+clean_periodic
+clipping
+harmonic_distortion
+combined_distortion
+noise_inconclusive

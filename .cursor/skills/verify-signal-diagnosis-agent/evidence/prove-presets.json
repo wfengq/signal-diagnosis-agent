@@ -1,0 +1,10 @@
+﻿{
+    "feature":  "list-presets",
+    "cli_exit":  0,
+    "health_status":  "ok",
+    "planner_configured":  true,
+    "missing_ids":  [
+
+                    ],
+    "ok":  true
+}

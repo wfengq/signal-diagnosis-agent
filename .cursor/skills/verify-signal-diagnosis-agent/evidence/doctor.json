@@ -1,0 +1,30 @@
+﻿{
+    "repo":  "C:\\Users\\wei\\Desktop\\招聘\\signal-diagnosis-agent",
+    "head":  "994d3e785d84e2a4956f888501e31ad7b3485413",
+    "branch":  "codex/v0.2-real-world-validation",
+    "cli_exists":  true,
+    "presets_exit":  0,
+    "presets_ids":  [
+                        "clean_periodic",
+                        "clipping",
+                        "harmonic_distortion",
+                        "combined_distortion",
+                        "noise_inconclusive"
+                    ],
+    "health":  {
+                   "status":  "ok",
+                   "planner_configured":  true,
+                   "planner_identity":  {
+                                            "provider":  "deepseek",
+                                            "model":  "deepseek-v4-flash",
+                                            "prompt_version":  "v0.3-s1-planner-9.11",
+                                            "phase4_certified_default":  false
+                                        }
+               },
+    "serve_pid":  20684,
+    "serve_running":  true,
+    "ok":  true,
+    "errors":  [
+
+               ]
+}

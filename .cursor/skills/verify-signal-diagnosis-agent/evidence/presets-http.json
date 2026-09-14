@@ -1,0 +1,42 @@
+﻿[
+    {
+        "preset_id":  "clean_periodic",
+        "label":  "Clean periodic",
+        "description":  "Clean 220 Hz sine without injected faults.",
+        "sample_rate_hz":  48000,
+        "duration_s":  1.0,
+        "channels":  1
+    },
+    {
+        "preset_id":  "clipping",
+        "label":  "Clipping",
+        "description":  "Sine with symmetric hard clipping.",
+        "sample_rate_hz":  48000,
+        "duration_s":  1.0,
+        "channels":  1
+    },
+    {
+        "preset_id":  "harmonic_distortion",
+        "label":  "Harmonic distortion",
+        "description":  "Sine with added second and third harmonics.",
+        "sample_rate_hz":  48000,
+        "duration_s":  1.0,
+        "channels":  1
+    },
+    {
+        "preset_id":  "combined_distortion",
+        "label":  "Combined distortion",
+        "description":  "Harmonic distortion followed by hard clipping.",
+        "sample_rate_hz":  48000,
+        "duration_s":  1.0,
+        "channels":  1
+    },
+    {
+        "preset_id":  "noise_inconclusive",
+        "label":  "Inconclusive noise",
+        "description":  "Seeded white-noise waveform for an inconclusive Demo.",
+        "sample_rate_hz":  48000,
+        "duration_s":  1.0,
+        "channels":  1
+    }
+]
