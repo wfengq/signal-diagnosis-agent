@@ -1,5 +1,7 @@
 # Signal Diagnosis Agent
 
+[中文对照](README.zh-CN.md)
+
 A reproducible, evaluated, and interactive narrow-domain Agent that answers:
 **“Why does this periodic signal sound distorted?”**
 
