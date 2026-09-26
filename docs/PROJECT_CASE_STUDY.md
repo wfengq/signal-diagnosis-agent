@@ -275,7 +275,7 @@ industrial validation, production certification, general audio diagnosis, or
 a contextual final external test. The earlier V0.2 external-WAV
 `below_target` result remains part of the evidence trail.
 
-### Resume-safe positioning
+### Honest public positioning
 
 A concise, supportable description is:
 

@@ -10,7 +10,7 @@ V0.2 is complete and accepted locally from terminal evidence at `b48790c`:
 ```text
 presentation_harness_accepted
 real_demo_completed
-Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
+Phase 5 accepted; V0.2 complete demonstrable vertical slice
 ```
 
 Phase 1–5 contracts are frozen. Repository curation after `b48790c` is

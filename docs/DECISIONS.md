@@ -137,11 +137,11 @@ demonstration limits, not industry standards. Changing any comparator or
 threshold requires a new profile version. Boundary tests cover values below,
 equal to, and above the 1% and 5% thresholds.
 
-## D016 — Define V0.2 as the first resume-grade vertical slice
+## D016 — Define V0.2 as the first demonstrable vertical slice
 
 **Decision:** The long-term project vision remains an extensible Signal Test and
 Fault Diagnosis Agent for audio, sensor, and generic sampled waveforms. V0.2 is
-the first complete, resume-grade vertical slice of that platform; it does not
+the first complete, demonstrable vertical slice of that platform; it does not
 redefine the whole project as S1-only.
 
 V0.2 completion includes the full S1 distortion-diagnosis path: Phase 3
@@ -451,7 +451,7 @@ benchmark; Phase 4.3.1 official remains behavior evidence. Individual Demo
 outcomes are retained honestly, no fake fallback is permitted, and missing
 credentials leave real Demo pending.
 
-V0.2 may be called a complete resume-grade demonstrable product only after both
+V0.2 may be called a complete demonstrable vertical slice only after both
 states pass. D026–D030 and the complete written contract were approved under
 OQ-010 on 2026-08-31. That approval authorizes implementation planning only;
 source/test implementation, model runs, push, and merge still require the
