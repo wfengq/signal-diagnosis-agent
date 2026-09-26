@@ -112,8 +112,7 @@ calibration and held-out discipline, not active product configurations.
 
 - [archive/v0.1/](archive/v0.1/) contains the original V0.1 project,
   contracts, and test plan. They are historical only.
-- [context/](context/) contains non-normative project and career background.
-  It cannot override active engineering contracts.
+- Job-search / project-origin background lives in local `private/` (gitignored) and is not part of the public repo.
 
 ## Current terminal status
 
