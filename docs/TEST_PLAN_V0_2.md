@@ -1275,8 +1275,8 @@ presentation_harness_accepted
 real_demo_completed
 ```
 
-Only after both may project documentation and resume text describe V0.2 as a
-complete resume-grade demonstrable product.
+Only after both may project documentation describe V0.2 as a
+complete demonstrable vertical slice.
 
 Approval of §28 freezes tests and design only. It does not authorize
 implementation, real-model execution, push, merge, worktree deletion, or

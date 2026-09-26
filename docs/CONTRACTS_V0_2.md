@@ -4315,7 +4315,7 @@ Phase 4.3.1 official remains the behavior evidence. No fallback is legal.
 Missing credentials leave `real_demo_pending`.
 
 Phase 5 and V0.2 are fully accepted only when both states are satisfied.
-Only then may the repository claim a complete resume-grade demonstrable V0.2.
+Only then may the repository claim a complete demonstrable V0.2 vertical slice.
 
 Approval of §§55–§64 freezes design and tests only. It does not authorize
 implementation, a model run, push, merge, worktree deletion, or cleanup of the
