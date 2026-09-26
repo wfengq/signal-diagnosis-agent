@@ -6,7 +6,7 @@ path from implementation authority and historical evidence.
 
 ## Five-minute reviewer path
 
-1. [Project README](../README.md) — product, screenshots, metrics, and quickstart.
+1. [Project README](../README.md) — value, architecture, official 79/80, Demo, and limitations.
 2. [Engineering case study](PROJECT_CASE_STUDY.md) — difficult failures,
    decisions, corrections, and lessons.
 3. [Phase 5 Demo evidence](demo/phase5/v0_2_acceptance/README.md) — two retained
@@ -120,7 +120,7 @@ calibration and held-out discipline, not active product configurations.
 ```text
 presentation_harness_accepted
 real_demo_completed
-Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
+Phase 5 accepted; V0.2 complete demonstrable vertical slice
 ```
 
 The public product path is `RealLLMPlanner`; required tests do not call a live
