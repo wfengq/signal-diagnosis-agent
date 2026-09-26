@@ -34,8 +34,7 @@ For final presentation work, also read:
 - `docs/superpowers/plans/2026-08-31-phase5-presentation-engineering.md`
 - `docs/PROJECT_CASE_STUDY.md`
 
-Files under `docs/archive/v0.1/` are historical only. Files under
-`docs/context/` are non-normative background.
+Files under `docs/archive/v0.1/` are historical only. Non-normative career or project-origin notes (local only, not in the public tree) do not override active engineering contracts.
 
 ## Source of truth
 
