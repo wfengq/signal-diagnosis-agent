@@ -1,3 +1,9 @@
+> **HISTORICAL / NON-NORMATIVE:** This file is early brainstorm and project-origin notes. It is **not** the current product contract, architecture, acceptance record, or public visitor facade. For current truth, use the root README, docs/ARCHITECTURE_V0_2.md, docs/CONTRACTS_V0_2.md, and docs/TEST_PLAN_V0_2.md.
+>
+> **历史 / 非规范：** 本文件为早期头脑风暴与项目起源笔记。它**不是**当前产品契约、架构、验收记录或公开访客门面。当前事实以根 README、docs/ARCHITECTURE_V0_2.md、docs/CONTRACTS_V0_2.md 与 docs/TEST_PLAN_V0_2.md 为准。
+
+---
+
 有更优解，而且我认为应该把第三个项目重新定义成：
 
 # **面向音频/时序波形的智能测试诊断 Agent**

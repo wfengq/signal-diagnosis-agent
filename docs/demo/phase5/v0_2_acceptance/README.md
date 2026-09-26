@@ -1,5 +1,14 @@
 # Phase 5 real product Demo (Task 14)
 
+> **Visitor summary (this folder is / is not):** This folder is the retained
+> Phase 5 product-Demo evidence pack—two authorized public `RealLLMPlanner`
+> runs, self-contained reports, checksums, and sanitized UI screenshots. It is
+> presentation-integration proof that the local CLI/Web path works end-to-end.
+> It is **not** the official held-out behavior benchmark (that remains Phase
+> 4.3.1 / 79/80), not a rerun-to-improve gate, and not a production readiness
+> claim. Read the detailed acceptance record below only if you need run IDs,
+> claim text, or file digests.
+
 This directory holds the two authorized real-model product runs. It is
 presentation-integration evidence for P5-R001–P5-R003, not a new
 behavior-quality gate. Phase 4.3.1 official remains the real-model behavior

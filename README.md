@@ -11,33 +11,8 @@ thresholds, and every supported diagnosis must cite same-run evidence. A
 scripted planner is injectable for state-machine and tool-execution tests; it is
 never a silent product fallback.
 
-> V0.2 is a resume-grade demonstrable vertical slice, not a production audio-QA,
+> V0.2 is a demonstrable vertical slice, not a production audio-QA,
 > chip-validation, or standards-compliance product.
-
-![Completed local Web UI run](docs/demo/phase5/v0_2_acceptance/ui_completed.png)
-
-![Accepted evaluation with disclosed failures](docs/demo/phase5/v0_2_acceptance/ui_evaluation_panel.png)
-
-<details>
-<summary>Open the full diagnosis, trace, Evidence, rules, and knowledge screenshot</summary>
-
-![Full diagnosis with trace, evidence, and rules](docs/demo/phase5/v0_2_acceptance/ui_diagnosis_sections.png)
-
-</details>
-
-## What is implemented
-
-- Synthetic periodic signals and bounded integer-PCM WAV input.
-- Deterministic clipping, spectrum, fundamental, and harmonic analysis.
-- Compact Evidence adapters; raw waveforms and full FFT arrays never reach the
-  LLM.
-- Dynamic `RealLLMPlanner` decisions with observation-driven replanning and
-  explicit stopping.
-- Versioned PASS/FAIL/NOT_APPLICABLE rules and a curated local knowledge index.
-- Scripted deterministic acceptance plus separate real-model behavior
-  evaluation against an honest fixed pipeline.
-- One shared application service exposed through argparse CLI, FastAPI, a native
-  Web UI, JSON, and self-contained HTML reports.
 
 ## Architecture
 
@@ -62,14 +37,14 @@ StructuredDiagnosis -> JSON / HTML / UI
 The dependency direction is enforced by architecture tests. `signal`, `dsp`,
 `tools`, `rules`, and `knowledge` do not depend on Agent or LLM frameworks.
 
-## Verified result
+## Official held-out result
 
 V0.2 terminal state:
 
 ```text
 presentation_harness_accepted
 real_demo_completed
-Phase 5 accepted; V0.2 complete resume-grade demonstrable vertical slice
+Phase 5 accepted; V0.2 complete demonstrable vertical slice
 ```
 
 Deterministic acceptance:
@@ -91,65 +66,20 @@ Official real-model behavior evaluation:
 - Causal macro F1 1.0; evidence grounding 1.0; first-tool selection 1.0;
   timely stopping 1.0; unnecessary Tool action rate 0.0; unsupported claim
   rate 0.0.
-- Outcome accuracy 79/80. Two slots contain disclosed non-blocking behavior
+- Outcome accuracy **79/80**. Two slots contain disclosed non-blocking behavior
   failure codes; one of them is the sole wrong outcome. These facts remain
   visible in the UI and committed evaluation bundle.
 
 The first Phase 4 official benchmark and the v5–v8 development misses remain
 committed. They are engineering evidence, not hidden or rewritten results.
 
-## Incremental external/contextual validation
+## 30-second Demo
 
-After V0.2 acceptance, a separate incremental study examined the main external
-validity limitation: the accepted official dataset was synthetic. The first
-V0.2 external-WAV campaign used public recordings and controlled distortions
-but remained `below_target`, primarily because single-WAV THD evidence could
-not reliably distinguish newly introduced harmonic distortion from harmonic
-content already present in the recording. That result remains preserved.
-
-V0.3 added explicit `paired_reference` and `nominal_single_tone` context without
-expanding beyond Scenario S1. Its frozen v9.11 validation ran 20 cases across
-three arms (60 total slots): contextual Agent, truth-free fixed pipeline, and
-no-context ablation. After an append-only correction to two incorrectly
-implemented claim-level scoring denominators, the contextual Agent met every
-preregistered aggregate and role gate:
-
-- planner completion 19/20;
-- outcome and causal exact-set accuracy 16/17;
-- causal macro-F1 0.955;
-- harmonic recall 5/5 and clipping recall 5/6;
-- evidence grounding 21/21 and unsupported positive claims 0/10;
-- paired harmonic causal advantage over no-context ablation: +4 cases.
-
-The original generated `below_target` files, the scorer defect, the corrected
-implementation, and the append-only `meets_target` verdict are all retained.
-This is a small external/contextual validation, not an official benchmark,
-industrial validation, production certification, or a replacement for V0.2.
-See the [v9.11 validation acceptance report](docs/evaluations/v0_3/contextual/V9_11_CONTEXTUAL_VALIDATION_ACCEPTANCE_REPORT.md).
-
-## Install
-
-Requires Python 3.11 or 3.12.
+Requires Python 3.11 or 3.12 and a local DeepSeek API key. Never commit the key.
 
 ```text
 python -m pip install --upgrade pip
 python -m pip install ".[app,llm]"
-```
-
-For tests and packaging:
-
-```text
-python -m pip install ".[app,llm,dev]"
-```
-
-Core DSP/rules/knowledge/agent installation remains `pip install .` and does
-not pull FastAPI.
-
-## Run the local Demo
-
-The product planner requires a local DeepSeek API key. Never commit it.
-
-```text
 set DEEPSEEK_API_KEY=<your-key>
 signal-diag serve --host 127.0.0.1 --port 8765
 ```
@@ -163,6 +93,56 @@ configuration error; the product path does not fall back to `ScriptedPlanner`.
 
 **This is a local, single-user, no-auth service. Do not expose it to an
 untrusted network.**
+
+Retained Phase 5 Demo artifacts (reports, checksums, screenshots) live under
+[docs/demo/phase5/v0_2_acceptance/](docs/demo/phase5/v0_2_acceptance/README.md).
+
+## Honest limitations
+
+- S1 distortion only; this is not a general audio or hardware-test platform.
+- Synthetic cases and bounded PCM WAV are supported; arbitrary production
+  captures are not a validated corpus.
+- F0 is an autocorrelation baseline, not a universal pitch tracker.
+- Rule profile `profile_s1_distortion` 1.0.0-demo uses 1% clipping and 5% THD
+  demonstration settings, not industry standards or SLAs.
+- Local-only, no authentication, no database, no Docker, no vector search, and
+  no multi-agent runtime.
+- The accepted official run still discloses two behavior-coded slots and one
+  wrong outcome out of 80.
+- External/contextual follow-on studies are separate evidence trails; they do
+  not replace the official held-out 79/80 result above. See the pointer below.
+
+## Incremental external/contextual validation
+
+After V0.2 acceptance, separate incremental studies examined external WAV and
+declared-context validity. Detailed numbers, arm design, and scorer-correction
+history live in the [engineering case study](docs/PROJECT_CASE_STUDY.md) and
+the [v9.11 validation acceptance report](docs/evaluations/v0_3/contextual/V9_11_CONTEXTUAL_VALIDATION_ACCEPTANCE_REPORT.md).
+Those studies are additive evidence only—not an official benchmark replacement
+for the held-out result above.
+
+## What is implemented
+
+- Synthetic periodic signals and bounded integer-PCM WAV input.
+- Deterministic clipping, spectrum, fundamental, and harmonic analysis.
+- Compact Evidence adapters; raw waveforms and full FFT arrays never reach the
+  LLM.
+- Dynamic `RealLLMPlanner` decisions with observation-driven replanning and
+  explicit stopping.
+- Versioned PASS/FAIL/NOT_APPLICABLE rules and a curated local knowledge index.
+- Scripted deterministic acceptance plus separate real-model behavior
+  evaluation against an honest fixed pipeline.
+- One shared application service exposed through argparse CLI, FastAPI, a native
+  Web UI, JSON, and self-contained HTML reports.
+
+## Install (dev / packaging)
+
+```text
+python -m pip install ".[app,llm,dev]"
+```
+
+Core DSP/rules/knowledge/agent installation remains `pip install .` and does
+not pull FastAPI.
 
 ## CLI
 
@@ -217,19 +197,3 @@ historical reading paths.
 - [Frozen contracts](docs/CONTRACTS_V0_2.md)
 - [Acceptance plan T001–T285](docs/TEST_PLAN_V0_2.md)
 - [Design decisions D001–D031](docs/DECISIONS.md)
-
-## Honest limitations
-
-- S1 distortion only; this is not a general audio or hardware-test platform.
-- Synthetic cases and bounded PCM WAV are supported; arbitrary production
-  captures are not a validated corpus.
-- F0 is an autocorrelation baseline, not a universal pitch tracker.
-- Rule profile `profile_s1_distortion` 1.0.0-demo uses 1% clipping and 5% THD
-  demonstration settings, not industry standards or SLAs.
-- Local-only, no authentication, no database, no Docker, no vector search, and
-  no multi-agent runtime.
-- The accepted official run still discloses two behavior-coded slots and one
-  wrong outcome out of 80.
-- The V0.2 external-WAV increment remained `below_target`; the later v9.11
-  contextual result applies only to its frozen 20-case study and includes one
-  retained behavioral failure.

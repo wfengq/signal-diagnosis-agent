@@ -1,7 +1,17 @@
 # 求职 Agent 共享上下文（Master Context）
 
-> 用途：提供给 Codex、Antigravity、Grok、ChatGPT 或其他求职类 Agent，作为统一的长期上下文、约束和工作规范。  
-> 目标：避免每个 Agent 重复询问背景、误判方向、夸大项目经历，确保所有简历、岗位筛选、求职信和面试准备基于同一套真实事实。
+> **NOT A PUBLIC BANNER / INTERNAL JOB-SEARCH CONTEXT ONLY**
+>
+> 本文件是给 Codex、Antigravity、Grok、ChatGPT 或其他**求职协作 Agent** 使用的
+> 内部长期上下文与约束。它**不是**本仓库（signal-diagnosis-agent）的公开 GitHub
+> 访客门面、产品契约、架构权威或验收记录。公开访客叙事以根 README 与
+> `docs/ARCHITECTURE_V0_2.md` / `docs/CONTRACTS_V0_2.md` / `docs/TEST_PLAN_V0_2.md`
+> 为准。
+>
+> **Ban for this repo's story:** 描述本仓库 signal-diagnosis-agent 时，禁止混入
+> LangGraph、OnCall / SuperBiz、NL2SQL、SNN 或其他无关项目叙事。本仓库的公开故事
+> 是 Hybrid Agent + 确定性 DSP + 版本化规则/知识 + 可评测垂直切片；不要把别的
+> 学习项目技术栈写进本仓库门面。
 
 ---
 
@@ -513,283 +523,17 @@ C. 半导体 / 硬件测试 / 产品验证 / 制造质量
 
 ---
 
-## 4.6 计划新增项目：智能信号测试与故障诊断 Agent
+## 4.6 signal-diagnosis-agent（本仓库）
 
-### 当前状态
+> 状态：已完成开源可演示垂直切片（V0.2）。**不是** `[PLANNED]`。
 
-> `PLANNED / 尚未完成`
+公开叙事以本仓库根 README 与工程文档为准。求职材料可引用，但必须：
 
-这是**未来准备真正独立完成的新项目**，当前不能写进正式投递简历，也不能由任何 Agent 默认视为已经完成。
+- 与公开官方留出结果（79/80）及已披露局限一致
+- **禁止**把 LangGraph / OnCall / SuperBiz / NL2SQL / SNN 写进本仓库故事
+- **禁止**写成生产级音频 QA、芯片验证或标准符合性产品
 
-只有当对应模块已经：
-
-- 本人实际编码
-- 能本地运行
-- 能解释关键设计
-- 有真实或可复现实验数据
-- 能展示结果 / Demo
-
-之后，才能把已完成部分标记为 `[REAL]` 并逐步写入简历。
-
-### 项目定位
-
-目标不是再做一个纯 RAG Demo，也不是做一个纯信号分析脚本，而是：
-
-> **让 Agent 负责测试任务理解、工具选择、诊断流程编排和结果解释；让 DSP / 数值工具负责可验证的信号计算；让 RAG 提供测试规范和知识依据；最终生成可追溯的测试诊断报告。**
-
-该项目用于打通三条求职路线：
-
-- A：信号处理 / 语音声学
-- B：AI 应用 / Agent / Python
-- C：半导体 / 硬件测试
-
-### 推荐项目名称
-
-母版统一名称：
-
-> **智能信号测试与故障诊断 Agent**
-
-针对不同简历可更换展示标题，但底层必须是同一套真实代码和实验。
-
-#### A 版可用标题
-
-> **音频与时序信号智能分析系统**
-
-#### B 版可用标题
-
-> **基于 Tool Calling 的智能信号诊断 Agent**
-
-#### C 版可用标题
-
-> **智能信号测试与异常诊断平台**
-
-### 核心技术架构
-
-```text
-用户测试 / 诊断请求
-        ↓
-任务理解与测试计划
-        ↓
-Agent / LangGraph
-        ↓
-工具选择与调用
-        ↓
-┌─────────────────────────────┐
-│ 信号分析工具                │
-│ FFT / STFT / F0 / SNR / THD │
-│ RMS / 谐波 / 削顶 / 漂移    │
-└─────────────────────────────┘
-        ↓
-测试规则 / 知识库 RAG
-        ↓
-异常综合判断
-        ↓
-结构化测试结果
-        ↓
-自动诊断报告
-```
-
-### 第一阶段：真实信号分析能力
-
-输入支持：
-
-- WAV
-- PCM
-- CSV 波形
-- 人工生成时序波形
-
-建议实现工具：
-
-- `load_signal`
-- `signal_statistics`
-- `fft_analysis`
-- `stft_analysis`
-- `estimate_f0`
-- `calculate_snr`
-- `calculate_thd`
-- `harmonic_analysis`
-- `detect_clipping`
-- `detect_frequency_drift`
-- `detect_amplitude_abnormality`
-
-原则：
-
-> 数值结论必须由确定性算法 / DSP 工具计算，不允许让 LLM 凭空计算或猜测。
-
-### 第二阶段：Agent 编排
-
-Agent 的职责：
-
-- 理解用户测试目标
-- 判断需要哪些分析步骤
-- 选择工具
-- 填写调用参数
-- 根据工具结果决定是否继续分析
-- 处理异常 / 重试
-- 汇总结果
-- 生成诊断结论
-
-建议技术：
-
-- Python
-- LangGraph
-- Tool Calling
-- Structured Output
-- Agent State
-- 条件路由
-- 错误重试
-
-推荐工作流：
-
-```text
-Plan
-↓
-Tool
-↓
-Observation
-↓
-Replan（必要时）
-↓
-Diagnosis
-↓
-Report
-```
-
-### 第三阶段：RAG / 测试知识库
-
-RAG 不是主体，只负责提供依据。
-
-知识库可以包含：
-
-- FFT / STFT / F0 / SNR / THD 基础
-- 谐波与失真说明
-- clipping 判定说明
-- WAV / PCM / 采样率等格式说明
-- 测试流程
-- 测试规范
-- 指标阈值
-- 后续公开器件 / 仪器文档
-
-目标：
-
-> 诊断结论尽量由“工具计算结果 + 测试规则 / 知识依据”共同支撑，而不是只靠大模型自由生成。
-
-### 第四阶段：自动报告
-
-建议输出：
-
-- 测试对象
-- 采样率
-- 时长
-- RMS
-- F0
-- SNR
-- THD
-- 异常项
-- Pass / Fail
-- 时域图
-- FFT / STFT 图
-- Agent 诊断
-- 建议
-- CSV / HTML / PDF 报告
-
-### 第五阶段：Evaluation
-
-这是该项目区别于普通学生 Agent Demo 的重要部分。
-
-可生成带标签的测试数据：
-
-- 正常信号
-- clipping
-- 高频噪声
-- 谐波失真
-- frequency drift
-- amplitude abnormality
-
-可评价：
-
-#### 信号算法指标
-
-- Accuracy
-- Precision
-- Recall
-- F1
-
-#### Agent 指标
-
-- 工具选择正确率
-- 参数提取正确率
-- 诊断准确率
-- 任务完成率
-- 平均工具调用次数
-- 无效工具调用率
-
-可进一步对比：
-
-> **Agent 动态分析流程 vs 固定规则流水线**
-
-### 三份简历中的使用方式
-
-#### A：信号处理 / 语音版
-
-强调：
-
-- FFT / STFT
-- F0
-- 谐波
-- SNR / THD
-- 信号异常检测
-- 实验评价
-- 算法工程化
-
-Agent 只作为工程增强，不抢占主线。
-
-#### B：AI 应用 / Agent 版
-
-强调：
-
-- LangGraph
-- Tool Calling
-- Agent State
-- 多工具调度
-- Structured Output
-- RAG
-- 错误处理
-- Evaluation
-- FastAPI（若实际完成）
-- 流式交互（若实际完成）
-
-该项目完成后，应成为 B 版中**优先于开源 OnCall / SuperBiz 实践的自主 Agent 项目**。
-
-#### C：半导体 / 测试版
-
-强调：
-
-- 自动测试
-- 测试数据分析
-- FFT / SNR / THD
-- 异常检测
-- Pass / Fail
-- 批量处理
-- 自动报告
-- Python 自动化
-- Agent 编排作为辅助
-
-不要在 C 版堆大量 LangChain / RAG 术语。
-
-### 项目真实性规则
-
-在项目尚未完成前：
-
-- 不得写进正式简历
-- 不得声称“已实现”
-- 不得编造性能指标
-- 不得编造用户规模
-- 不得编造企业场景
-- 不得编造真实硬件测试经验
-- 不得把模拟波形写成真实芯片测试数据
-
-完成后，只能写本人真正实现并验证的部分。
+详细工程叙事见 `docs/PROJECT_CASE_STUDY.md`；本 Master Context 文件本身不是公开门面。
 
 ---
 
@@ -1084,192 +828,28 @@ AI 方向现在有两个层次：
 
 ### 已有
 
-- OnCall / SuperBiz：开源项目学习与流程实践
+- OnCall / SuperBiz：开源项目学习与流程实践（**不得**写进 signal-diagnosis-agent 本仓库公开故事）
+- **signal-diagnosis-agent（本仓库）**：已完成的可演示垂直切片开源项目；公开叙事见根 README，禁止混入 LangGraph / OnCall / NL2SQL / SNN
 
-### 待新增
+### 说明
 
-- **智能信号测试与故障诊断 Agent：未来自主项目**
-
-新项目必须满足：
-
-- 有本人代码
-- 可现场运行
-- Agent 不是装饰
-- 工具调用有真实功能
-- 数值分析可验证
-- 有 Evaluation
-- 能解释 Agent 为什么需要存在
-- 能解释不用 Agent 的固定流水线方案及其差异
-
-建议学习重点：
-
-- LangGraph / 状态机
-- Tool Calling
-- Structured Output
-- RAG
-- Agent Evaluation
-- FastAPI
-- 流式返回
-- 错误重试
-- 可观测性 / trace
-
-目标：
-
-> 用一个真正自己完成的跨领域 Agent 项目，替代“只会调框架 API”的印象，同时把 AI 兴趣与已有信号处理能力连接起来。
+本仓库不再处于 `[PLANNED]`。求职材料若引用本仓库，必须与公开 README / case study 一致，
+且不得把 OnCall、LangGraph、SuperBiz、NL2SQL、SNN 技术叙事混进本仓库故事。
 
 ---
 
 
-# 10. 第三个项目正式规划
+# 10. 关于本仓库（原“第三项目”规划已关闭）
 
-当前第三项目不再采用单纯的：
+原 `[PLANNED]` 的“智能信号测试与故障诊断 Agent”规划章节已删除。
 
-> “Python 信号测试与自动分析工具”
+该项目已落地为仓库 **signal-diagnosis-agent**。此处不再保留过时的 LangGraph 架构草案或未完成清单。
 
-而正式升级为：
+求职 Agent 规则：
 
-> **智能信号测试与故障诊断 Agent**
-
-## 10.1 为什么选这个项目
-
-它同时解决三类简历的项目缺口：
-
-### 对 A：信号处理 / 语音
-
-它体现：
-
-- DSP
-- FFT / STFT
-- F0
-- SNR / THD
-- 异常检测
-- 信号评价
-- 算法工程化
-
-### 对 B：AI 应用 / Agent
-
-它体现：
-
-- Agent Workflow
-- Tool Calling
-- LangGraph
-- RAG
-- Structured Output
-- Evaluation
-- 工具调度
-- 诊断推理
-
-### 对 C：半导体 / 硬件测试
-
-它体现：
-
-- 自动测试
-- 波形分析
-- 测试指标
-- 异常定位
-- 数据分析
-- 批量处理
-- 自动报告
-- Python 测试自动化
-
-因此，它比：
-
-- 纯 RAG Demo
-- 纯信号分析脚本
-- 虚构半导体项目
-- 再做一个普通聊天 Agent
-
-更适合作为第三个项目。
-
-## 10.2 项目设计原则
-
-核心原则：
-
-> **Agent 负责“决定怎么分析”，工具负责“真正计算”，RAG 负责“提供依据”，报告模块负责“输出可追溯结果”。**
-
-避免：
-
-> LLM 直接对波形给出未经验证的数值和诊断。
-
-## 10.3 开发顺序
-
-### Phase 1：DSP 工具层
-
-先完成：
-
-- WAV / PCM / CSV 输入
-- FFT
-- STFT
-- F0
-- RMS
-- SNR
-- THD
-- clipping
-- frequency drift
-- harmonic analysis
-- amplitude abnormality
-
-### Phase 2：Agent
-
-再完成：
-
-- 任务理解
-- 工具选择
-- 参数生成
-- 条件路由
-- Replan
-- 错误重试
-- 结构化诊断
-
-### Phase 3：RAG
-
-加入：
-
-- 测试规范
-- 信号处理知识
-- 判定规则
-- 指标解释
-
-### Phase 4：工程化
-
-根据时间增加：
-
-- FastAPI
-- Web UI
-- SSE
-- 批量测试
-- 自动报告
-- Docker
-
-### Phase 5：Evaluation
-
-最后建立：
-
-- 标注测试集
-- 异常识别指标
-- Agent 工具选择指标
-- Agent 诊断指标
-- 固定流水线对比实验
-
-## 10.4 简历准入条件
-
-只有满足以下条件后，该项目才能正式进入投递简历：
-
-```text
-[ ] 代码主要由本人完成
-[ ] 可本地运行
-[ ] 至少 5 个真实可调用分析工具
-[ ] Agent 能动态选择工具
-[ ] 有结构化输出
-[ ] 有测试数据
-[ ] 有基础 Evaluation
-[ ] 能解释至少 3 个关键设计取舍
-[ ] 能现场 Demo
-```
-
-未满足前统一标记：
-
-> `[PLANNED]`
+1. 引用本仓库时以公开 README / case study 为准
+2. 禁止混入 LangGraph / OnCall / SuperBiz / NL2SQL / SNN
+3. 本文件（Master Context）不得当作本仓库公开访客 banner
 
 ---
 
@@ -1366,8 +946,8 @@ xx%
 8. 把 AI 应用路线设成次要 / 保底路线
 9. 维护超过必要数量的简历版本
 10. 为了“填满简历”而制造新项目
-11. 在“智能信号测试与故障诊断 Agent”真正完成前，把它写成已完成项目
-12. 为该计划项目编造准确率、性能、真实客户、真实芯片测试数据或生产落地
+11. 把本仓库 signal-diagnosis-agent 与 OnCall / LangGraph / NL2SQL / SNN 叙事混写
+12. 为本仓库或其它项目编造工业验证、生产落地、真实客户或未发生的指标
 
 ---
 
@@ -1437,25 +1017,11 @@ REMOVE
 
 ## Step 3
 
-启动并完成第三项目：
+本仓库 signal-diagnosis-agent 已完成。求职材料引用时：
 
-> **智能信号测试与故障诊断 Agent**
-
-开发顺序：
-
-```text
-DSP 工具层
-↓
-Agent 编排
-↓
-RAG
-↓
-工程化
-↓
-Evaluation
-```
-
-在项目未达到简历准入条件前，一律标记为 `[PLANNED]`。
+- 只使用公开 README / case study / 官方 79/80 与已披露局限
+- 禁止混入 LangGraph / OnCall / SuperBiz / NL2SQL / SNN
+- 禁止写成生产级音频 QA / 芯片验证 / 标准符合性产品
 
 ---
 
@@ -1530,8 +1096,8 @@ JD 链接
 - NL-to-SQL 虚拟项目
 - 机器人 / ROS / SLAM 项目
 
-计划新增：
-- 智能信号测试与故障诊断 Agent [PLANNED]
+本仓库（signal-diagnosis-agent）：
+- 已完成可演示垂直切片；公开叙事见根 README（禁止混入 LangGraph / OnCall / NL2SQL / SNN）
 ```
 
 ---
@@ -1558,8 +1124,8 @@ JD 链接
 9. 不允许重新启用 NL-to-SQL 虚拟项目；
 10. 机器人比赛默认删除；
 11. SuperBiz / OnCall 只能按开源项目学习实践描述，除非有代码证据证明某模块是本人独立完成；
-12. “智能信号测试与故障诊断 Agent”目前属于计划新增项目，未完成前不得写成已完成经历；
-13. 新项目目标是打通 A/B/C 三类岗位，但不同简历只强调对应部分，不得为了关键词堆砌不存在的模块。
+12. 本仓库 signal-diagnosis-agent 已完成；引用时以公开 README/case study 为准，禁止混入 LangGraph / OnCall / NL2SQL / SNN；
+13. 不同简历只强调对应部分，不得为了关键词堆砌不存在的模块或把其它项目技术栈写进本仓库。
 
 收到 JD 后，请输出：
 
@@ -1589,19 +1155,14 @@ JD 链接
 - 明确半导体优先切入测试 / 产品 / 制造 / 质量 / 数据分析
 - 明确不需要第四份独立简历
 - 明确使用“真实经历母版 + A/B/C 三个模板”的管理方式
-- 明确第三个项目不再做纯信号脚本，而升级为“智能信号测试与故障诊断 Agent”
-- 明确第三项目用于打通 A/B/C 三条路线
-- 明确第三项目当前状态为 `[PLANNED]`，完成前不得写进正式简历
-- 明确第三项目架构：DSP 工具 + Agent 编排 + RAG + Evaluation + 自动报告
+- 明确本仓库 signal-diagnosis-agent 已落地为开源可演示垂直切片；公开叙事不得混入 LangGraph / OnCall / NL2SQL / SNN
 
 待完成：
 
 - 建立真实经历母版
 - 深挖语音项目
-- 核实 OnCall 实际代码贡献
-- 开发“智能信号测试与故障诊断 Agent”
-- 完成第三项目基础 Evaluation
-- 达到准入条件后再写入 A/B/C 简历
+- 核实 OnCall 实际代码贡献（仅限求职材料，不写进本仓库门面）
+- 按公开 README/case study 将本仓库写入 A/B/C 简历（禁止夸大、禁止混栈）
 - 生成 A/B/C 三套初稿
 - 建立岗位投递台账
 - 根据实际 JD 持续迭代
