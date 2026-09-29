@@ -1235,7 +1235,7 @@ behavior.
 | T282 | Wheel smoke | sdist/wheel build cleanly; a fresh environment installs the wheel with app+llm extras, imports core/app without source-tree paths, loads assets, runs presets, and starts API composition without credentials |
 | T283 | Architecture boundary | dependency direction includes evaluation→app; signal/dsp/tools/rules/knowledge/agent do not import app; WAV imports no app/evaluation/Agent/LLM framework; API/UI do not duplicate DSP/rule/diagnosis logic |
 | T284 | Secret-free dual-version verification | a committed local verifier creates a fresh venv for CPython 3.11 and for CPython 3.12, installs `.[app,llm,dev]` with no provider secret, and runs deterministic pytest, architecture, Ruff, mypy, build, and wheel smoke in each environment; it uses no network model call, required skip, or stochastic gate. Hosted GitHub Actions is optional and is not an acceptance input |
-| T285 | Phase 5 cumulative gate | T001–T285 pass with zero required skip/xfail; Ruff, mypy, architecture, wheel, clean-install, Python 3.11/3.12 local clean-environment full verification, and git diff --check 36ae7c9..HEAD pass; Phase 1–4.3.1 contracts, prompts, datasets, scores, reports, and bundle checksums do not drift |
+| T285 | Phase 5 cumulative gate | T001–T285 pass with zero required skip/xfail; Ruff, mypy, architecture, wheel, clean-install, Python 3.11/3.12 local clean-environment full verification, and git diff --check 36ae7c9..HEAD pass; Phase 1–4.3.1 contracts, prompts, datasets, scores, reports, and bundle checksums do not drift outside the documented `_V03_ADDITIVE_*` allowlist (OQ-017): allowlisted paths record authorized V0.3 mutations and are not byte-identical to baseline `36ae7c9` |
 
 ### Phase 5 acceptance states
 

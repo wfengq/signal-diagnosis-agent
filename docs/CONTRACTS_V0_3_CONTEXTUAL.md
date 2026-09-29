@@ -108,8 +108,15 @@ Causal decisions use **normalized** harmonic growth, not sample subtraction.
 
 ## 6. Tool
 
-Additive tool name (exact registration in Task 4):
-`compare_with_reference` (or the plan’s final registered `ToolName` alias).
+Registered additive tool name (exact): `analyze_contextual_distortion`.
+
+`get_tool_descriptors()` / planner context advertising always includes this
+fifth tool alongside the four frozen V0.2 S1 tools (`detect_clipping`,
+`analyze_harmonic_distortion`, `analyze_spectrum`, `estimate_fundamental`).
+`CONTRACTS_V0_2.md` §§16/23 remain frozen historical inventory for the V0.2
+slice. Mode-filtered descriptor lists (hide contextual tool on
+`single_signal`) are **not** authorized here; that would be a separate B-class
+design (see resolved OQ-016 hygiene disposition).
 
 Returns compact Evidence only — no waveform/FFT arrays to the planner.
 
@@ -223,6 +230,11 @@ v9.5 behavior is frozen and must not gain the new routing guard. Explicit tests
 and dependency injection may still construct older policy identities.
 
 ## 10.2 `v9_7_deterministic_rule_closure`
+
+For product policies `v9_7_deterministic_rule_closure` and later, automatic
+Tool-to-profile rule closure **supersedes** planner-owned
+`EvaluateRulesDecision` for the live HEAD path (D033). Frozen
+`CONTRACTS_V0_2.md` §38.3 / D021 remain the V0.2 historical requirement.
 
 Under `v9_7_deterministic_rule_closure` only:
 

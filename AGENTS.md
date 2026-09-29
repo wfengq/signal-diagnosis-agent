@@ -28,9 +28,16 @@ outcome. To demonstrate the accepted V0.2 product, check out `ff16e2a` /
 Phase 1–5 contracts (`CONTRACTS_V0_2.md` §§1–64) remain frozen byte-stable.
 Additive V0.3 surfaces live in `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and
 `docs/TEST_PLAN_V0_3_CONTEXTUAL.md`. Do not rewrite accepted evaluation/Demo
-assets or replace recorded runs. Open contract mappings: OQ-013–OQ-018.
-Further product-behavior changes still need a new written design, contract
-additions, test IDs, and explicit authorization (see Scope gates).
+assets or replace recorded runs. HEAD-vs-freeze documentation mappings
+OQ-013–OQ-018 are resolved as hygiene (D032–D036); further **product-behavior**
+changes still need a new written design, contract additions, test IDs, and
+explicit authorization (see Scope gates).
+
+**T285 note:** a green T285 with the `_V03_ADDITIVE_*` allowlist means those
+paths had authorized V0.3 mutations relative to baseline `36ae7c9`, not that
+they remain byte-identical to Phase 4.3.1. V0.2 behavioral preservation for
+accepted Demo/bundles is enforced by sealed assets and dedicated preservation
+tests, not by assuming T285 proves untouched V0.2 cores.
 
 ## Required reading
 
@@ -40,7 +47,7 @@ Before modifying product code, read:
 - `docs/ARCHITECTURE_V0_2.md` (especially §§12–18)
 - `docs/CONTRACTS_V0_2.md` (frozen §§1–64)
 - `docs/TEST_PLAN_V0_2.md` (required T001–T285)
-- `docs/DECISIONS.md` (D001–D035)
+- `docs/DECISIONS.md` (D001–D036)
 - `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and `docs/TEST_PLAN_V0_3_CONTEXTUAL.md`
   when touching contextual / HEAD live product paths
 - the relevant specification and plan under `docs/superpowers/`
@@ -68,9 +75,9 @@ explicit current user instruction
 ```
 
 When V0.2 frozen text and V0.3 additive text disagree about the **live HEAD
-default**, treat the disagreement as an open contract mapping (OQ-013+): do not
-silently edit §§1–64. Implement only what the additive V0.3 contract already
-permits, or stop for a new design.
+default**, prefer `CONTRACTS_V0_3_CONTEXTUAL.md` for HEAD wiring (D032–D036);
+do not silently edit frozen §§1–64. Implement only what the additive V0.3
+contract already permits, or stop for a new design.
 
 Public interfaces, package boundaries, model fields, actions, arguments, and
 return values under the V0.2 freeze are frozen. For a genuine contract defect:

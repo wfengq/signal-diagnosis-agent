@@ -480,3 +480,43 @@ These EV-C contracts are additive. They do not modify §§1–64 of
 prompt hash, scoring identity, or rule profile threshold. External study code may
 depend on frozen V0.2 modules but must not edit them except through a separately
 authorized V0.3 change process.
+
+---
+
+## 11. Historical V0.3 prerequisite IDs (EV-C026+, OQ-018)
+
+The following IDs appear in V0.3 prerequisite reports, DSP comments, and
+contextual designs. They are recorded here so the ID space is not orphaned.
+They are **not** normative gates for the sealed V0.2 external-WAV study
+(EV-C001–EV-C025) and do not authorize re-running or rewriting sealed bundles.
+
+### EV-C026 — Fundamental relative energy (FRE)
+
+Historical Workstream A/B definition: fraction of positive-frequency spectral
+energy at the estimated fundamental, exposed on `HarmonicAnalysis` as
+`fundamental_relative_energy`. Used by V0.3 DSP validity gates; not an
+external-WAV sealing requirement.
+
+### EV-C027 — FRE validity gate
+
+When FRE is below the configured threshold, harmonic analysis is
+`valid=false` with
+`invalid_reason=fundamental_bin_energy_below_reliability_threshold`.
+
+### EV-C028 — Named FRE threshold parameter
+
+Optional `min_fundamental_relative_energy` (engineering default documented in
+DSP as 0.15). Thresholds remain code/profile owned; this ID names the
+parameter only.
+
+### EV-C029 — Octave ambiguity indicator (revised)
+
+`F0Estimate.octave_ambiguity_detected` may flag octave risk without
+re-selecting F0 by energy ranking.
+
+### EV-C036 — Single-WAV validation draft (superseded / never executed)
+
+Draft acceptance-target pre-registration for a single-WAV V0.3 validation
+protocol. Superseded by the contextual paired/nominal validation path; must
+not be executed as if it were an active gate. See
+`docs/evaluations/v0_3/validation/SUPERSESSION_NOTICE.md`.

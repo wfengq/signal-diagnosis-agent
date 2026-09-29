@@ -44,9 +44,9 @@ Read these before changing behavior or public interfaces:
    §§1–§64.
 3. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) — deterministic T001–T285 and
    separately gated real-model evaluation/Demo requirements.
-4. [DECISIONS.md](DECISIONS.md) — D001–D035 architectural and process choices.
-5. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — OQ-001–OQ-018 (OQ-013+ map HEAD
-   vs frozen V0.2 gaps).
+4. [DECISIONS.md](DECISIONS.md) — D001–D036 architectural and process choices.
+5. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — OQ-001–OQ-018 (OQ-013–OQ-018
+   hygiene dispositions resolve HEAD vs frozen V0.2 documentation gaps).
 6. [CONTRACTS_V0_3_CONTEXTUAL.md](CONTRACTS_V0_3_CONTEXTUAL.md) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) — additive
    HEAD / contextual surfaces (do not edit frozen §§1–64).
@@ -141,4 +141,6 @@ an official benchmark, industrial validation, or production-readiness claim.
 
 Separately, HEAD **code wiring** may already default to the V0.3 planner
 identity (`v0.3-s1-planner-9.11`). That is a product-path fact, not a claim that
-79/80 was re-earned on HEAD. See OQ-013–OQ-018 and D032–D035.
+79/80 was re-earned on HEAD. See resolved OQ-013–OQ-018 and D032–D036. Package
+`pyproject.toml` version remains `0.2.0` to preserve tag/wheel history until a
+separate release design chooses `0.3.0`.
