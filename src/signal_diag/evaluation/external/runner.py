@@ -417,9 +417,9 @@ def _default_client_factory() -> object:
 
 
 def _build_production_planner(client: object) -> RealLLMPlanner:
-    return _Phase4V8_1RealLLMPlanner(  # type: ignore[arg-type]
+    return _Phase4V8_1RealLLMPlanner(
         provider=_OFFICIAL_PROVIDER,
-        client=client,
+        client=client,  # type: ignore[arg-type]
     )
 
 
