@@ -19,9 +19,9 @@ from signal_diag.agent.models import (
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.rules.engine import RuleEngine
 from signal_diag.rules.loader import YamlRuleProfileLoader
+from signal_diag.signal import SyntheticCase
 from signal_diag.signal.context import StimulusContext
 from signal_diag.signal.repository import InMemorySignalRepository
-from signal_diag.signal import SyntheticCase
 from signal_diag.tools.service import SignalToolService
 from tests.conftest import store_synthetic_case
 
