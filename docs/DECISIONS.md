@@ -1,8 +1,8 @@
 # Architecture and Development Decisions
 
 **Status:** Active  
-**Current architecture version:** V0.2  
-**Last updated:** 2026-08-31
+**Current architecture version:** V0.2 accepted; HEAD may run V0.3 contextual product identity  
+**Last updated:** 2026-09-29
 
 This file records approved decisions that affect implementation. Historical V0.1
 documents are preserved under `docs/archive/v0.1/`.
@@ -481,3 +481,56 @@ No other D026–D030, T001–T283, wheel, architecture, or honesty requirement
 is reduced.
 
 Approved under OQ-011 on 2026-08-31.
+
+## D032 — Separate V0.2 acceptance anchor from HEAD live product identity
+
+**Decision:** V0.2 completion remains the dual acceptance state at commit
+`b48790c` (tag target `ff16e2a` / `v0.2.0` when present). That product identity
+is DeepSeek `deepseek-v4-flash` with prompt `v0.2-s1-planner-8.1`.
+
+HEAD on `codex/v0.2-real-world-validation` (and successors) may ship the V0.3
+contextual product path as the default `RealLLMPlanner` /
+`build_product_service` wiring (`v0.3-s1-planner-9.11`,
+`v9_11_mode_aware_no_fault_recovery`). Reports must show
+`phase4_certified_default=false` whenever the live prompt is not the Phase
+4.3.1 certified identity `v0.2-s1-planner-8.1`.
+
+The V0.3 contextual validation `meets_target` result is additive evidence. It
+does not replace the official 79/80 held-out bundle and does not authorize
+rewriting sealed assets.
+
+**Authorization:** User-approved V0.3 contextual design
+(`docs/superpowers/specs/2026-09-04-v0-3-contextual-reference-diagnosis-design.md`
+and later v9.x amendments) plus hygiene clarification authorized 2026-09-29.
+Where a chat approval was not committed as a decision at the time, this entry
+records the lasting outcome; gaps in contemporaneous OQ linkage are noted as
+“approval not fully recorded in-repo at land time.”
+
+## D033 — V0.3 automatic rule closure for product policies ≥ v9.7
+
+**Decision:** For causal policies `v9_7_deterministic_rule_closure` and later
+product policies, the runtime performs deterministic Tool-to-profile rule
+closure and rejects planner `EvaluateRulesDecision`. This supersedes the
+Phase 3 planner-owned rule-evaluation flow **for those product policies only**.
+`CONTRACTS_V0_2.md` §38.3 remains frozen historical text for the V0.2 slice.
+Scripted and historical campaign paths that still use manual `evaluate_rules`
+keep that behavior under older policy identities.
+
+Recorded under design
+`docs/superpowers/specs/2026-09-05-v0-3-v9-7-deterministic-rule-closure-design.md`.
+Related open contract mapping: OQ-015.
+
+## D034 — Phase 4.3.1 certification marker names only v8.1
+
+**Decision:** `_CERTIFIED_PROMPT_VERSION` in `app/composition.py` must equal
+`v0.2-s1-planner-8.1`. It must not be set to any v0.3 prompt identity.
+`phase4_certified_default` compares the live prompt string to that marker and
+must stay false while HEAD defaults to v9.11.
+
+## D035 — External WAV re-execution pins v8.1 planner subclass
+
+**Decision:** `evaluation/external/runner.py` `_build_production_planner` must
+construct `_Phase4V8_1RealLLMPlanner`, not the public `RealLLMPlanner` default,
+so recorded external campaign identity (`v0.2-s1-planner-8.1`) matches the
+system prompt actually sent on re-runs. Official Phase 4.3.1 runners already
+follow this pattern.

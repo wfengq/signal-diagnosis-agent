@@ -1,7 +1,7 @@
 # Open Contract and Architecture Questions
 
 **Status:** Active register
-**Current open questions:** 0 open; 12 resolved (OQ-001–OQ-012)
+**Current open questions:** 6 open (OQ-013–OQ-018); 12 resolved (OQ-001–OQ-012)
 
 Use this file only for concrete issues that may require changing an approved
 contract or architectural boundary.
@@ -234,4 +234,106 @@ User decision history:
 - 2026-09-01: Pilot v4 executed under transform 1.1.0 with EV-C010B expanded alpha set on 42 eligible SMARD periodic windows; validation master `master_val_01` (sinus_tones_48kHz_ch10_ULA_2B, clean THD 0.0037%). Alpha selection passed at alpha=0.50 (candidates 0.10–0.25 failed THD > 5% gate). Success report: docs/evaluations/v0_2_external_wav/validation/pilot_success_report_v4.json. Cases materialized: 0/14 + 0/10 pending Task 11 Step 5 execution; final_external_test not accessed; no real model calls.
 - 2026-09-01: Task 11 Step 5 complete — materialized 14 development + 10 validation cases under frozen transform 1.1.0, alpha=0.50, q=0.03, post_gain=0.8. Manifests: development/study_v0_2_external_wav_dev_1/, validation/study_v0_2_external_wav_validation_1/. Deterministic gates passed; no final_external_test access; no real model calls.
 - 2026-09-01: Task 11 Step 8 validation gate stop — OQ-012 resolved. Pilot v4 alpha gate (EV-C010B, transform 1.1.0, alpha=0.50) and SMARD host policy (shares01.portal.aau.dk) satisfied the original blockers. Materialization commit 7993f0c; gate report validation/validation_gate_report.md. External pytest 128/128 passed; final_external_test not accessed; no real model calls. Task 12 requires separate final-data authorization.
+```
+
+---
+
+## OQ-013 — Live product planner identity vs frozen V0.2 §§55/59
+
+```text
+ID: OQ-013
+Date: 2026-09-29
+Status: open
+Affected document and section: docs/CONTRACTS_V0_2.md §§55/59; src/signal_diag/app/composition.py; src/signal_diag/agent/planner.py PROMPT_VERSION
+Observed problem: Frozen Phase 5 text pins the public product planner at DeepSeek / deepseek-v4-flash / v0.2-s1-planner-8.1. HEAD build_product_service and public RealLLMPlanner use v0.3-s1-planner-9.11 with causal policy v9_11_mode_aware_no_fault_recovery; phase4_certified_default is false.
+Why the current contract cannot represent a correct implementation: Reading only CONTRACTS_V0_2.md, a reviewer expects the accepted v8.1 product path. HEAD intentionally runs the V0.3 contextual product identity on the same entrypoints (submit_wav / submit_synthetic), so the frozen sections no longer describe the live default.
+Minimal proposed change: Keep frozen §§1–64 byte-stable. Document in AGENTS.md and docs/README.md that V0.2 acceptance is anchored at b48790c / ff16e2a (v8.1), while HEAD live product is v9.11 under CONTRACTS_V0_3_CONTEXTUAL.md §15. Amend CONTRACTS_V0_3 §10 header text to name v9.11 as current product identity (historical 9.9 remains immutable). Do not rewrite sealed bundles or restore ScriptedPlanner fallback.
+Compatibility impact: Documentation and additive V0.3 contract header hygiene only until a separate design decides whether single_signal must regain v8.1 semantics.
+Test impact: None for sealed T001–T285 identities. Focused tests already lock PROMPT_VERSION == v0.3-s1-planner-9.11 and phase4_certified_default is False.
+User decision: pending — hygiene path authorized 2026-09-29; product-behavior resolution deferred
+```
+
+---
+
+## OQ-014 — Shared clipping_mechanism vs ARCH §17 S1-CLIP-SUBFS
+
+```text
+ID: OQ-014
+Date: 2026-09-29
+Status: open
+Affected document and section: docs/ARCHITECTURE_V0_2.md §17; docs/CONTRACTS_V0_2.md §§10/12; src/signal_diag/dsp/clipping.py clipping_mechanism; tests/agent/test_s1_acceptance.py T087
+Observed problem: DSP now requires clipping_mechanism (full-scale saturation or flat-top with peak >= 0.99). V0.2 S1-CLIP-SUBFS requires sub-full-scale flat-top to support a clipping claim. Retained Phase 5 Demo inputs and multiple held-out clipping cases have peak ~0.65 and therefore cannot finish as supported_fault/clipping under HEAD gates.
+Why the current contract cannot represent a correct implementation: Frozen architecture acceptance matrix and demo evidence assume sub-full-scale flat-top clipping is diagnosable. HEAD shared DSP + causal policy make that outcome unreachable without changing either the DSP gate or the architecture matrix.
+Minimal proposed change: Do not silently weaken tests further. Either (a) a new written design restores sub-full-scale mechanism semantics, or (b) an approved contract amendment retires S1-CLIP-SUBFS and updates ARCH §17 / Demo honesty text. Until then, disclose that HEAD single_signal cannot reproduce V0.2 clipping Demo outcomes.
+Compatibility impact: Behavior change requires B-class design authorization. Hygiene only discloses the gap.
+Test impact: Future restoration should make T087 assert supported_fault/clipping (currently green via max_planner_retries tolerance).
+User decision: pending — no behavior change in this hygiene pass
+```
+
+---
+
+## OQ-015 — Automatic rule closure vs §38.3 / D021
+
+```text
+ID: OQ-015
+Date: 2026-09-29
+Status: open
+Affected document and section: docs/CONTRACTS_V0_2.md §38.3; docs/DECISIONS.md D021; src/signal_diag/agent/runtime.py; src/signal_diag/agent/rule_closure.py
+Observed problem: Phase 3 freeze and D021 require planner-owned EvaluateRulesDecision; runtime must not force rules before finish. Product policies v9.7+ create rule batches automatically from tool observations and reject planner evaluate_rules.
+Why the current contract cannot represent a correct implementation: Frozen V0.2 text and live V0.3 product policy disagree on who owns rule evaluation.
+Minimal proposed change: Record the V0.3 design authorization (v9.7 deterministic rule closure) as D033. Keep CONTRACTS_V0_2 §38.3 frozen; state in CONTRACTS_V0_3 that automatic closure supersedes planner-owned evaluate_rules for product policies >= v9.7.
+Compatibility impact: Documentation / decision register only for this hygiene pass.
+Test impact: Existing T-CX coverage for automatic closure remains authoritative for V0.3.
+User decision: pending acknowledgment that V0.3 supersedes §38.3 for live product policies
+```
+
+---
+
+## OQ-016 — Fifth tool always advertised on PlannerContext
+
+```text
+ID: OQ-016
+Date: 2026-09-29
+Status: open
+Affected document and section: docs/CONTRACTS_V0_2.md §§16/23; docs/ARCHITECTURE_V0_2.md §7.2; src/signal_diag/tools/registry.py
+Observed problem: Frozen V0.2 lists exactly four S1 tools. get_tool_descriptors() always includes analyze_contextual_distortion, so every planner context (including single_signal) sees five tools.
+Why the current contract cannot represent a correct implementation: Frozen tool inventory no longer matches the live descriptor list.
+Minimal proposed change: Keep §§16/23 frozen. Document the fifth tool under CONTRACTS_V0_3. Optionally (separate design) filter descriptors by mode so single_signal sees four tools.
+Compatibility impact: Hygiene disclosure now; mode-filtered descriptors would be B-class.
+Test impact: None for hygiene-only.
+User decision: pending
+```
+
+---
+
+## OQ-017 — T285 allowlist exempts mutated V0.2 cores
+
+```text
+ID: OQ-017
+Date: 2026-09-29
+Status: open
+Affected document and section: tests/test_architecture_boundaries.py T285 _V03_ADDITIVE_EXACT_PATHS; docs/CONTRACTS_V0_2.md freeze intent
+Observed problem: T285 was the Phase 5 freeze detector against baseline 36ae7c9. It now allowlists agent/planner.py, agent/runtime.py, agent/diagnosis.py, dsp/clipping.py, dsp/harmonics.py, tools/*, app/composition.py, and related paths. Green T285 no longer proves those files match Phase 4.3.1.
+Why the current contract cannot represent a correct implementation: Reviewers may treat a green T285 as V0.2 behavioral preservation. The allowlist only records authorized V0.3 edits.
+Minimal proposed change: Document in AGENTS.md / TEST_PLAN notes that T285 allowlist means “V0.3 authorized mutation,” not “byte-identical to 36ae7c9.” A future design may split a V0.2-preservation suite from a V0.3 suite.
+Compatibility impact: Documentation only.
+Test impact: None in this pass.
+User decision: pending
+```
+
+---
+
+## OQ-018 — Undocumented EV-C026+ IDs and package version label
+
+```text
+ID: OQ-018
+Date: 2026-09-29
+Status: open
+Affected document and section: docs/EXTERNAL_VALIDATION_CONTRACTS_V0_2.md (ends EV-C025); docs/evaluations/v0_3/prerequisites/*; pyproject.toml version 0.2.0
+Observed problem: Reports and code comments cite EV-C026–EV-C029 (and draft EV-C036, superseded/never executed) without normative contract entries. Package metadata remains 0.2.0 while live HEAD behavior is V0.3-identity; bumping the package version would collide with external preservation expectations around tag v0.2.0 / wheel identity history.
+Why the current contract cannot represent a correct implementation: Contract ID space and distribution version no longer match the story told by V0.3 reports.
+Minimal proposed change: Either append EV-C026+ as historical/superseded entries in EXTERNAL_VALIDATION_CONTRACTS_V0_2.md, or explicitly mark them report-only. Keep pyproject 0.2.0 until a release design chooses 0.3.0 without breaking tag/object preservation checks; disclose the version/label split in README.
+Compatibility impact: Docs only for this pass.
+Test impact: Do not change v0.2.0 tag preservation tests.
+User decision: pending
 ```

@@ -12,7 +12,11 @@ scripted planner is injectable for state-machine and tool-execution tests; it is
 never a silent product fallback.
 
 > V0.2 is a demonstrable vertical slice, not a production audio-QA,
-> chip-validation, or standards-compliance product.
+> chip-validation, or standards-compliance product. The accepted V0.2 product
+> identity is commit `b48790c` / prompt `v0.2-s1-planner-8.1`. HEAD defaults to
+> the additive V0.3 planner `v0.3-s1-planner-9.11` (reports uncertified by
+> Phase 4.3.1). Package metadata may still say `0.2.0`; that label preserves
+> tag/wheel history and is not a claim that HEAD equals the v8.1 Demo.
 
 ## Architecture
 
@@ -76,6 +80,14 @@ committed. They are engineering evidence, not hidden or rewritten results.
 ## 30-second Demo
 
 Requires Python 3.11 or 3.12 and a local DeepSeek API key. Never commit the key.
+
+**Identity note:** `signal-diag serve` on HEAD runs prompt
+`v0.3-s1-planner-9.11`. Single-WAV / public presets are conservative and may
+not reproduce the retained Phase 5 clipping Demo outcomes. To replay the
+accepted V0.2 Demo path, check out `b48790c` (or `ff16e2a` / tag `v0.2.0` when
+present). Retained artifacts under
+[docs/demo/phase5/v0_2_acceptance/](docs/demo/phase5/v0_2_acceptance/README.md)
+are evidence from that anchor, not a promise about HEAD.
 
 ```text
 python -m pip install --upgrade pip

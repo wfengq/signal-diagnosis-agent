@@ -14,13 +14,16 @@ reference: signal_diag.external_reference 1.0.0
 
 ## Current phase
 
-Phase A — protocol and preservation freeze. Artifacts here define additive
-contracts, test IDs, and the protected V0.2 asset audit in
-`protocol/protected_assets.sha256`.
+Study **completed** with retained result
+`external_validation_completed/below_target` under
+`final_external_test/` (prompt identity `v0.2-s1-planner-8.1` at campaign
+time). Phase A protocol/preservation freeze artifacts remain under `protocol/`.
 
-Later phases add write-once bundles under `development/`, `validation/`, and
-`final_external_test/`. Raw downloads remain outside Git under
-`private/external_wav/`.
+This study does not replace Phase 4.3.1 official 79/80 or Phase 5 Demo
+artifacts. Later V0.3 contextual work is a separate evidence trail
+(`docs/evaluations/v0_3/contextual/`).
+
+Raw downloads remain outside Git under `private/external_wav/`.
 
 ## Preservation boundary
 

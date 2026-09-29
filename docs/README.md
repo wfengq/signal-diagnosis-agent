@@ -1,8 +1,10 @@
 # Documentation Index
 
-V0.2 is complete and accepted as a reproducible, evaluated, interactive S1
-distortion-diagnosis vertical slice. This index separates the short reviewer
-path from implementation authority and historical evidence.
+V0.2 is complete and accepted at `b48790c` as a reproducible, evaluated,
+interactive S1 distortion-diagnosis vertical slice. HEAD may also carry the
+additive V0.3 contextual product path (`v0.3-s1-planner-9.11`, uncertified by
+Phase 4.3.1). This index separates the short reviewer path from implementation
+authority and historical evidence.
 
 ## Five-minute reviewer path
 
@@ -42,10 +44,16 @@ Read these before changing behavior or public interfaces:
    §§1–§64.
 3. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) — deterministic T001–T285 and
    separately gated real-model evaluation/Demo requirements.
-4. [DECISIONS.md](DECISIONS.md) — D001–D031 architectural and process choices.
-5. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — OQ-001–OQ-011 disposition and
-   historical contract concerns.
-6. [Phase 5 design](superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md)
+4. [DECISIONS.md](DECISIONS.md) — D001–D035 architectural and process choices.
+5. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — OQ-001–OQ-018 (OQ-013+ map HEAD
+   vs frozen V0.2 gaps).
+6. [CONTRACTS_V0_3_CONTEXTUAL.md](CONTRACTS_V0_3_CONTEXTUAL.md) and
+   [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) — additive
+   HEAD / contextual surfaces (do not edit frozen §§1–64).
+7. [EXTERNAL_VALIDATION_CONTRACTS_V0_2.md](EXTERNAL_VALIDATION_CONTRACTS_V0_2.md)
+   and [EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md](EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md)
+   — external-WAV study contracts.
+8. [Phase 5 design](superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md)
    and [implementation plan](superpowers/plans/2026-08-31-phase5-presentation-engineering.md).
 
 When active documents disagree, use this priority:
@@ -53,9 +61,10 @@ When active documents disagree, use this priority:
 ```text
 explicit current user instruction
     -> AGENTS.md
-    -> CONTRACTS_V0_2.md
+    -> CONTRACTS_V0_2.md (frozen §§1–64)
+    -> CONTRACTS_V0_3_CONTEXTUAL.md (additive HEAD/contextual)
     -> ARCHITECTURE_V0_2.md
-    -> TEST_PLAN_V0_2.md
+    -> TEST_PLAN_V0_2.md / TEST_PLAN_V0_3_CONTEXTUAL.md
     -> approved implementation plan
 ```
 
@@ -126,6 +135,10 @@ The public product path is `RealLLMPlanner`; required tests do not call a live
 model. The accepted Demo and official bundles must not be rewritten to improve
 recorded outcomes.
 
-The V0.3 contextual study is additive evidence only. It does not change the
-V0.2 completion statement or convert either external study into an official
-benchmark, industrial validation, or production-readiness claim.
+The V0.3 contextual **validation numbers** are additive evidence only. They do
+not change the V0.2 completion statement or convert either external study into
+an official benchmark, industrial validation, or production-readiness claim.
+
+Separately, HEAD **code wiring** may already default to the V0.3 planner
+identity (`v0.3-s1-planner-9.11`). That is a product-path fact, not a claim that
+79/80 was re-earned on HEAD. See OQ-013–OQ-018 and D032–D035.
