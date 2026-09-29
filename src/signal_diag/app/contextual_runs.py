@@ -9,8 +9,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from signal_diag.agent.models import AgentRunResult
-from signal_diag.app.contextual_models import ContextualAppRunSnapshot
 from signal_diag.app.context_guidance import build_context_guidance
+from signal_diag.app.contextual_models import ContextualAppRunSnapshot
 from signal_diag.app.errors import (
     AppCapacityError,
     RunNotFoundError,

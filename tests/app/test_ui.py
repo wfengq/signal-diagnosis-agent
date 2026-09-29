@@ -186,9 +186,9 @@ def test_t277_complete_interaction_surface() -> None:
     assert "async function pollRun" in script
     assert "function renderLifecycle" in script
     assert "function renderTerminal" in script
-    assert "/api/v1/runs/wav" in script
+    assert "/api/v1/contextual-runs/wav" in script
     assert "/api/v1/runs/synthetic" in script
-    assert "/api/v1/runs/" in script
+    assert "/api/v1/runs/" in script or "/api/v1/contextual-runs/" in script
     assert "/report.json" in script
     assert "/report.html" in script
     assert "/api/v1/presets" in script
