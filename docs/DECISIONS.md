@@ -1,7 +1,7 @@
 # Architecture and Development Decisions
 
-**Status:** Active  
-**Current architecture version:** V0.2 accepted; HEAD may run V0.3 contextual product identity  
+**Status:** Active
+**Current architecture version:** V0.2 accepted; HEAD may run V0.3 contextual product identity
 **Last updated:** 2026-09-29
 
 This file records approved decisions that affect implementation. Historical V0.1
