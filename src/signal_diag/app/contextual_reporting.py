@@ -59,6 +59,7 @@ def build_contextual_diagnosis_report(
         test_preview=snapshot.test_preview,
         trace_events=snapshot.trace_events,
         result=result,
+        context_guidance=snapshot.context_guidance,
     )
 
 
@@ -276,9 +277,34 @@ def render_contextual_report_html(report: ContextualDiagnosisReport) -> str:
             )
     else:
         parts.append("<p>No structured diagnosis.</p>")
+    parts.append("</section>")
+    guidance = data.get("context_guidance")
+    if guidance:
+        parts.extend(
+            [
+                '<section id="context-guidance">',
+                "<h2>Context guidance</h2>",
+                f"<p>{_esc(guidance.get('summary'))}</p>",
+                "<dl>",
+                (
+                    f"<dt>reason_codes</dt>"
+                    f"<dd>{_esc(', '.join(guidance.get('reason_codes') or ()))}</dd>"
+                ),
+                (
+                    f"<dt>unlockable_modes</dt>"
+                    f"<dd>{_esc(', '.join(guidance.get('unlockable_modes') or ()))}</dd>"
+                ),
+                "</dl>",
+            ]
+        )
+        required = guidance.get("required_inputs") or {}
+        for mode_name, inputs in required.items():
+            parts.append(
+                f"<p>{_esc(mode_name)}: {_esc(', '.join(inputs or ()))}</p>"
+            )
+        parts.append("</section>")
     parts.extend(
         [
-            "</section>",
             '<section id="measured-evidence">',
             "<h2>Measured Evidence</h2>",
         ]

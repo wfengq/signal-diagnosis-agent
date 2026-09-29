@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 
 from signal_diag.agent.models import AgentRunResult
 from signal_diag.app.contextual_models import ContextualAppRunSnapshot
+from signal_diag.app.context_guidance import build_context_guidance
 from signal_diag.app.errors import (
     AppCapacityError,
     RunNotFoundError,
@@ -194,6 +195,10 @@ class InMemoryContextualRunStore:
                     "trace_events": trace_events,
                     "effective_capabilities": effective_capabilities,
                     "application_error": None,
+                    "context_guidance": build_context_guidance(
+                        mode=current.stimulus_context.mode,
+                        result=result,
+                    ),
                 }
             )
             self._snapshots[run_id] = updated

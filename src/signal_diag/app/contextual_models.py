@@ -8,6 +8,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from signal_diag.agent.models import AgentRunResult
+from signal_diag.app.context_guidance import ContextGuidance
 from signal_diag.app.models import (
     AppErrorDetail,
     AppRunStatus,
@@ -53,6 +54,7 @@ class ContextualAppRunSnapshot(BaseModel):
     trace_events: tuple[TraceEventView, ...] = ()
     result: AgentRunResult | None = None
     application_error: AppErrorDetail | None = None
+    context_guidance: ContextGuidance | None = None
 
     @model_validator(mode="after")
     def validate_lifecycle(self) -> ContextualAppRunSnapshot:
@@ -122,6 +124,7 @@ class ContextualDiagnosisReport(BaseModel):
     test_preview: WaveformPreview
     trace_events: tuple[TraceEventView, ...]
     result: AgentRunResult
+    context_guidance: ContextGuidance | None = None
 
     @field_validator("generated_at")
     @classmethod

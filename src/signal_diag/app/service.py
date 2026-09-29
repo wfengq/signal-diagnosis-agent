@@ -128,11 +128,13 @@ def _new_run_id() -> str:
 
 
 def _queued_capabilities(
-    mode: Literal["nominal_single_tone", "paired_reference"],
+    mode: Literal["single_signal", "nominal_single_tone", "paired_reference"],
 ) -> EffectiveCapabilities:
     if mode == "nominal_single_tone":
         return EffectiveCapabilities(nominal_harmonic_attribution=True)
-    return EffectiveCapabilities(paired_harmonic_attribution=True)
+    if mode == "paired_reference":
+        return EffectiveCapabilities(paired_harmonic_attribution=True)
+    return EffectiveCapabilities()
 
 
 def _context_valid_value(evidence: tuple[Evidence, ...]) -> bool | None:
@@ -144,7 +146,7 @@ def _context_valid_value(evidence: tuple[Evidence, ...]) -> bool | None:
 
 def _terminal_capabilities(
     *,
-    mode: Literal["nominal_single_tone", "paired_reference"],
+    mode: Literal["single_signal", "nominal_single_tone", "paired_reference"],
     queued: EffectiveCapabilities,
     evidence: tuple[Evidence, ...],
 ) -> EffectiveCapabilities:
@@ -157,13 +159,20 @@ def _terminal_capabilities(
             nominal_harmonic_attribution=queued.nominal_harmonic_attribution,
             paired_harmonic_attribution=paired,
         )
-    nominal = bool(
-        queued.nominal_harmonic_attribution and context_valid is not False
-    )
+    if mode == "nominal_single_tone":
+        nominal = bool(
+            queued.nominal_harmonic_attribution and context_valid is not False
+        )
+        return EffectiveCapabilities(
+            clipping=True,
+            absolute_harmonic_description=True,
+            nominal_harmonic_attribution=nominal,
+            paired_harmonic_attribution=False,
+        )
     return EffectiveCapabilities(
         clipping=True,
         absolute_harmonic_description=True,
-        nominal_harmonic_attribution=nominal,
+        nominal_harmonic_attribution=False,
         paired_harmonic_attribution=False,
     )
 
@@ -240,7 +249,7 @@ class DiagnosisApplicationService:
         test_data: bytes,
         *,
         test_filename: str | None,
-        mode: Literal["nominal_single_tone", "paired_reference"],
+        mode: Literal["single_signal", "nominal_single_tone", "paired_reference"],
         reference_data: bytes | None,
         reference_filename: str | None,
         nominal_fundamental_hz: float | None,
@@ -251,7 +260,14 @@ class DiagnosisApplicationService:
         if not self._dependencies.planner_configured:
             raise PlannerNotConfiguredError(_planner_not_configured_detail())
         question = _normalize_question(user_request)
-        if mode == "nominal_single_tone":
+        if mode == "single_signal":
+            if reference_data is not None or reference_filename is not None:
+                raise _invalid_request("single_signal rejects a reference WAV")
+            if stimulus_kind is not None or nominal_fundamental_hz is not None:
+                raise _invalid_request(
+                    "single_signal rejects nominal stimulus fields"
+                )
+        elif mode == "nominal_single_tone":
             if reference_data is not None or reference_filename is not None:
                 raise _invalid_request(
                     "nominal_single_tone rejects a reference WAV"

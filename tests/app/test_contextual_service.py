@@ -280,7 +280,108 @@ async def test_t_cx098_mode_matrix_validation(
             stimulus_kind=None,
             user_request=QUESTION,
         )
+    with pytest.raises(InvalidRequestError):
+        await finish_service.submit_contextual_wav(
+            _mono_wav(),
+            test_filename="t.wav",
+            mode="single_signal",
+            reference_data=_mono_wav(),
+            reference_filename="r.wav",
+            nominal_fundamental_hz=None,
+            stimulus_kind=None,
+            user_request=QUESTION,
+        )
+    with pytest.raises(InvalidRequestError):
+        await finish_service.submit_contextual_wav(
+            _mono_wav(),
+            test_filename="t.wav",
+            mode="single_signal",
+            reference_data=None,
+            reference_filename=None,
+            nominal_fundamental_hz=440.0,
+            stimulus_kind="single_tone",
+            user_request=QUESTION,
+        )
     assert finish_service._dependencies.repository.list_meta() == []
+
+
+@pytest.mark.asyncio
+async def test_t_cx266_single_signal_contextual_submit(
+    finish_service: DiagnosisApplicationService,
+) -> None:
+    submission = await finish_service.submit_contextual_wav(
+        _mono_wav(),
+        test_filename="alone.wav",
+        mode="single_signal",
+        reference_data=None,
+        reference_filename=None,
+        nominal_fundamental_hz=None,
+        stimulus_kind=None,
+        user_request=QUESTION,
+    )
+    queued = finish_service.get_contextual_run(submission.run_id)
+    assert queued.status == "queued"
+    assert queued.reference_source is None
+    assert queued.stimulus_context.mode == "single_signal"
+    assert queued.effective_capabilities.nominal_harmonic_attribution is False
+    assert queued.effective_capabilities.paired_harmonic_attribution is False
+    assert len(_owned(finish_service, submission.run_id)) == 2
+    terminal = await finish_service.wait_for_contextual_terminal(submission.run_id)
+    assert terminal.status == "completed"
+    assert terminal.result is not None
+    assert terminal.result.diagnosis is not None
+    assert terminal.result.diagnosis.outcome == "inconclusive"
+    assert terminal.context_guidance is not None
+    assert terminal.context_guidance.reason_codes == (
+        "insufficient_evidence_for_supported_fault",
+    )
+
+
+@pytest.mark.asyncio
+async def test_t_cx267_harmonic_inconclusive_emits_harmonic_guidance() -> None:
+    from signal_diag.agent.models import AnalyzeHarmonicDistortionCall
+    from signal_diag.tools.contracts import HarmonicDistortionInput
+
+    class _HarmonicThenFinishPlanner:
+        def __init__(self) -> None:
+            self._index = 0
+
+        async def decide(self, context: PlannerContext) -> AgentDecision:
+            del context
+            if self._index == 0:
+                self._index += 1
+                return CallToolDecision(
+                    call=AnalyzeHarmonicDistortionCall(
+                        args=HarmonicDistortionInput()
+                    ),
+                    purpose="measure harmonic structure",
+                    task_assessment=_ASSESSMENT,
+                )
+            return _FINISH
+
+    service = _make_service(lambda: _HarmonicThenFinishPlanner())
+    try:
+        submission = await service.submit_contextual_wav(
+            _sine_wav(),
+            test_filename="tone.wav",
+            mode="single_signal",
+            reference_data=None,
+            reference_filename=None,
+            nominal_fundamental_hz=None,
+            stimulus_kind=None,
+            user_request=QUESTION,
+        )
+        terminal = await service.wait_for_contextual_terminal(submission.run_id)
+        assert terminal.status == "completed"
+        assert terminal.context_guidance is not None
+        assert terminal.context_guidance.reason_codes == (
+            "harmonic_attribution_requires_context",
+        )
+        lowered = terminal.context_guidance.summary.lower()
+        assert "可能是" not in terminal.context_guidance.summary
+        assert "likely" not in lowered
+    finally:
+        await service.aclose()
 
 
 @pytest.mark.asyncio

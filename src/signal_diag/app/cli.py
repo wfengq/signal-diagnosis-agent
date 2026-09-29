@@ -79,7 +79,7 @@ def build_parser() -> argparse.ArgumentParser:
     contextual.add_argument(
         "--mode",
         required=True,
-        choices=("nominal_single_tone", "paired_reference"),
+        choices=("single_signal", "nominal_single_tone", "paired_reference"),
     )
     contextual.add_argument("--reference", type=Path, default=None)
     contextual.add_argument("--nominal-fundamental-hz", type=float, default=None)
@@ -113,6 +113,23 @@ def _exit_for_application_error(error: ApplicationError) -> int:
 
 
 def _validate_contextual_args(args: argparse.Namespace) -> None:
+    if args.mode == "single_signal":
+        if args.reference is not None:
+            raise ApplicationError(
+                AppErrorDetail(
+                    code="invalid_request",
+                    message="single_signal rejects --reference",
+                )
+            )
+        if args.stimulus_kind is not None or args.nominal_fundamental_hz is not None:
+            raise ApplicationError(
+                AppErrorDetail(
+                    code="invalid_request",
+                    message="single_signal rejects nominal stimulus fields",
+                )
+            )
+        return
+
     if args.mode == "nominal_single_tone":
         if args.reference is not None:
             raise ApplicationError(
@@ -226,6 +243,11 @@ def _print_contextual_text_report(report: ContextualDiagnosisReport) -> None:
         print(f"  knowledge: {', '.join(claim.knowledge_refs)}")
     for limitation in diagnosis.limitations:
         print(f"limitation: {limitation}")
+    guidance = report.context_guidance
+    if guidance is not None:
+        print(f"context_guidance: {guidance.summary}")
+        print(f"  reason_codes: {', '.join(guidance.reason_codes)}")
+        print(f"  unlockable_modes: {', '.join(guidance.unlockable_modes)}")
 
 
 def _emit_outputs(args: argparse.Namespace, report: DiagnosisReport) -> None:

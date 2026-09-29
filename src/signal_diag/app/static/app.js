@@ -175,6 +175,36 @@ function renderQualification(panel, evidence) {
   }
 }
 
+function renderGuidance(panel, snapshot) {
+  const guidance = snapshot.context_guidance;
+  if (!guidance) {
+    appendText(panel, "p", "No context upgrade guidance for this run.");
+    return;
+  }
+  appendText(panel, "p", guidance.summary);
+  appendText(
+    panel,
+    "p",
+    `reason_codes: ${(guidance.reason_codes || []).join(", ")}`,
+  );
+  appendText(
+    panel,
+    "p",
+    `unlockable_modes: ${(guidance.unlockable_modes || []).join(", ")}`,
+  );
+  const required = guidance.required_inputs || {};
+  for (const modeName of Object.keys(required)) {
+    const inputs = required[modeName] || [];
+    appendText(panel, "p", `${modeName}: ${inputs.join(", ")}`);
+  }
+  appendText(
+    panel,
+    "p",
+    "Upgrade requires a user-supplied reference WAV or declared nominal_fundamental_hz; measured F0 is never auto-filled.",
+    "muted",
+  );
+}
+
 function renderLimitations(panel, snapshot) {
   const diagnosis = snapshot.result && snapshot.result.diagnosis;
   const limitations = (diagnosis && diagnosis.limitations) || [];
@@ -288,6 +318,7 @@ function isContextualSnapshot(snapshot) {
 
 function renderTerminal(snapshot) {
   const diagnosisPanel = document.getElementById("diagnosis-panel");
+  const guidancePanel = document.getElementById("guidance-panel");
   const declarationPanel = document.getElementById("declaration-panel");
   const qualificationPanel = document.getElementById("qualification-panel");
   const limitationPanel = document.getElementById("limitation-panel");
@@ -297,6 +328,7 @@ function renderTerminal(snapshot) {
   const rulesPanel = document.getElementById("rules-panel");
   const knowledgePanel = document.getElementById("knowledge-panel");
   clearPanel(diagnosisPanel, "Diagnosis");
+  clearPanel(guidancePanel, "Context guidance");
   clearPanel(declarationPanel, "Declared context");
   clearPanel(qualificationPanel, "Comparison qualification");
   clearPanel(limitationPanel, "Causal limitations");
@@ -307,14 +339,15 @@ function renderTerminal(snapshot) {
   clearPanel(knowledgePanel, "Knowledge");
 
   renderDiagnosis(diagnosisPanel, snapshot);
+  renderGuidance(guidancePanel, snapshot);
   if (isContextualSnapshot(snapshot)) {
     renderDeclaration(declarationPanel, snapshot);
     const result = snapshot.result || {};
     renderQualification(qualificationPanel, result.evidence || []);
     renderLimitations(limitationPanel, snapshot);
   } else {
-    appendText(declarationPanel, "p", "Not applicable for unknown one-WAV runs.");
-    appendText(qualificationPanel, "p", "Not applicable for unknown one-WAV runs.");
+    appendText(declarationPanel, "p", "Not applicable for legacy V0.2 one-WAV runs.");
+    appendText(qualificationPanel, "p", "Not applicable for legacy V0.2 one-WAV runs.");
     const diagnosis = snapshot.result && snapshot.result.diagnosis;
     const limitations = (diagnosis && diagnosis.limitations) || [];
     if (limitations.length) {
@@ -429,7 +462,7 @@ function selectedMode() {
 
 function selectedDiagnosticMode() {
   const select = document.getElementById("diagnostic-mode");
-  return select ? select.value : "unknown";
+  return select ? select.value : "single_signal";
 }
 
 function updateContextualFields() {
@@ -489,40 +522,29 @@ async function submitDiagnose(event) {
         throw new Error("Choose a WAV file before submitting.");
       }
       const diagnosticMode = selectedDiagnosticMode();
-      if (diagnosticMode === "unknown") {
-        const body = new FormData();
-        body.append("file", fileInput.files[0]);
-        body.append("user_request", question);
-        body.append("channel", channel);
-        submission = await fetch("/api/v1/runs/wav", {
-          method: "POST",
-          body,
-        }).then(parseJsonResponse);
-      } else {
-        contextual = true;
-        const body = new FormData();
-        body.append("test_file", fileInput.files[0]);
-        body.append("mode", diagnosticMode);
-        body.append("user_request", question);
-        body.append("channel", channel);
-        if (diagnosticMode === "nominal_single_tone") {
-          body.append("stimulus_kind", "single_tone");
-          body.append(
-            "nominal_fundamental_hz",
-            document.getElementById("nominal-fundamental-hz").value,
-          );
-        } else if (diagnosticMode === "paired_reference") {
-          const referenceInput = document.getElementById("reference-file");
-          if (!referenceInput.files || !referenceInput.files[0]) {
-            throw new Error("Choose a reference WAV before submitting.");
-          }
-          body.append("reference_file", referenceInput.files[0]);
+      contextual = true;
+      const body = new FormData();
+      body.append("test_file", fileInput.files[0]);
+      body.append("mode", diagnosticMode);
+      body.append("user_request", question);
+      body.append("channel", channel);
+      if (diagnosticMode === "nominal_single_tone") {
+        body.append("stimulus_kind", "single_tone");
+        body.append(
+          "nominal_fundamental_hz",
+          document.getElementById("nominal-fundamental-hz").value,
+        );
+      } else if (diagnosticMode === "paired_reference") {
+        const referenceInput = document.getElementById("reference-file");
+        if (!referenceInput.files || !referenceInput.files[0]) {
+          throw new Error("Choose a reference WAV before submitting.");
         }
-        submission = await fetch("/api/v1/contextual-runs/wav", {
-          method: "POST",
-          body,
-        }).then(parseJsonResponse);
+        body.append("reference_file", referenceInput.files[0]);
       }
+      submission = await fetch("/api/v1/contextual-runs/wav", {
+        method: "POST",
+        body,
+      }).then(parseJsonResponse);
     }
     renderLifecycle(submission.status);
     await pollRun(submission.run_id, { contextual });

@@ -313,7 +313,7 @@ def create_app(
             parsed.test_data,
             test_filename=parsed.test_filename,
             mode=cast(
-                Literal["nominal_single_tone", "paired_reference"],
+                Literal["single_signal", "nominal_single_tone", "paired_reference"],
                 parsed.mode,
             ),
             reference_data=parsed.reference_data,
