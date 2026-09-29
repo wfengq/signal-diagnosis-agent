@@ -546,3 +546,40 @@ when `clipping_mechanism` is false. `paired_reference` and
 `nominal_single_tone` continue to require `test_clipping_mechanism` for clipping
 claims. Sealed evaluation bundles and Workstream C mechanism gold labels remain
 unchanged.
+
+## D037 — Product definition: single-file default, context optional
+
+**Decision (operator answers 2026-09-29):**
+
+1. **Default experience:** single-file (`single_signal`) conservative diagnosis.
+   Reference WAV (`paired_reference`) and declared single-tone stimulus
+   (`nominal_single_tone`) are **optional upgrades**, not the only legitimate
+   product mode. Rephrase V0.3 docs that called `single_signal` merely a
+   “compatibility path”: it is the default user path; paired reference remains
+   the strongest evidence mode when available.
+2. **Built-in presets:** keep “unknown signal” semantics (option A). The
+   `harmonic_distortion` preset may end `inconclusive` under HEAD single-file
+   gates by design; do not inject generator-known stimulus into presets to make
+   Demo look stronger than a real one-file user. Guidance after inconclusive is
+   the remediation (see pending context-guidance design).
+3. **Public quality claims:** until a separate held-out design is authorized,
+   HEAD default-path quality numbers are not cited. The official **79/80**
+   remains attached only to V0.2 acceptance at `b48790c` /
+   `v0.2-s1-planner-8.1`. V0.3 contextual validation remains additive evidence.
+
+**One-line product:** A hybrid diagnosis Agent for periodic-signal distortion:
+deterministic DSP measures, versioned rules judge, a real LLM plans; with only
+one file it can confirm clipping and must stay conservative on harmonic
+attribution; with a clean reference or declared single-tone stimulus it can
+support evidence-backed “added vs inherent” judgments.
+
+**Not:** general audio QA / pass-fail production metrology / industry SLAs.
+
+**Long-term vision:** D016 remains open (extensible signal test & fault
+diagnosis). Noise/SNR, drift, sensors, CSV, etc. are not shipped.
+
+**Next behavior change (not authorized until design approval):** deterministic
+`context_guidance` on single-file `inconclusive` so the user can upgrade to
+reference/nominal with the same test file. Spec:
+`docs/superpowers/specs/2026-09-29-single-file-context-guidance-design.md`.
+

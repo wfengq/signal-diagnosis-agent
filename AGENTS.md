@@ -20,10 +20,12 @@ Accepted product identity at that anchor: DeepSeek `deepseek-v4-flash`, prompt
 **HEAD live product** (this branch tip) is the V0.3 contextual path: public
 `RealLLMPlanner` / `build_product_service` use prompt `v0.3-s1-planner-9.11`
 and causal policy `v9_11_mode_aware_no_fault_recovery`. Reports are
-**uncertified by Phase 4.3.1**. Single-WAV (`single_signal`) behavior is
-intentionally conservative and does **not** reproduce every V0.2 Demo clipping
-outcome. To demonstrate the accepted V0.2 product, check out `ff16e2a` /
-`b48790c` rather than assuming HEAD matches those artifacts.
+**uncertified by Phase 4.3.1**. **Default user path is single-file**
+(`single_signal`): clipping may be confirmed; harmonic attribution stays
+conservative without reference/nominal context (D037). Optional upgrades:
+`paired_reference` and `nominal_single_tone`. Do not cite HEAD quality numbers
+in place of the V0.2 **79/80**. To demonstrate the accepted V0.2 product, check
+out `ff16e2a` / `b48790c` rather than assuming HEAD matches those artifacts.
 
 Phase 1–5 contracts (`CONTRACTS_V0_2.md` §§1–64) remain frozen byte-stable.
 Additive V0.3 surfaces live in `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and
@@ -47,7 +49,7 @@ Before modifying product code, read:
 - `docs/ARCHITECTURE_V0_2.md` (especially §§12–18)
 - `docs/CONTRACTS_V0_2.md` (frozen §§1–64)
 - `docs/TEST_PLAN_V0_2.md` (required T001–T285)
-- `docs/DECISIONS.md` (D001–D036)
+- `docs/DECISIONS.md` (D001–D037)
 - `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and `docs/TEST_PLAN_V0_3_CONTEXTUAL.md`
   when touching contextual / HEAD live product paths
 - the relevant specification and plan under `docs/superpowers/`
