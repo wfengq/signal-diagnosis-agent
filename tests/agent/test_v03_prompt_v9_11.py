@@ -36,6 +36,7 @@ def test_t_cx254_v911_prompt_explains_mode_aware_complete_recovery() -> None:
     assert spec.version == "v0.3-s1-planner-9.11"
     text = spec.system_prompt
     assert "single_signal" in text
+    assert "flat_top_detected=true" in text
     assert "clipping_mechanism=false" in text
     assert "paired_reference" in text
     assert "nominal_single_tone" in text
@@ -86,10 +87,25 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert row["product_tree_sha256"] == (
         "626824f6bd2c4c04da566d77914648f2e2d629241d910cb56bcd086bd279c799"
     )
-    assert row["prompt_sha256"] == hashlib.sha256(
-        prompts_v03._S1_PROMPT_V9_11.system_prompt.encode()
-    ).hexdigest()
+    assert row["prompt_sha256"] == (
+        "ecd10554beef79afcf505bf788509f660eb933eaef72ed89693514009fe1134b"
+    )
     assert resolve_active_freeze_code_sha256(path.parent) == (
         contextual_implementation_sha256()
     )
-    assert contextual_product_tree_sha256() == row["product_tree_sha256"]
+    oq014 = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "oq014_option_c_single_signal_flat_top_clipping"
+    )
+    assert oq014["amendment_kind"] == "append_only_behavior_identity"
+    assert oq014["prior_bridge_current_implementation_sha256"] == (
+        "799ee09e0a02ba39bf65596399f36de18c9d6b90c8aea7c919817f7cbbd91f72"
+    )
+    assert oq014["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert oq014["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert oq014["prompt_sha256"] == hashlib.sha256(
+        prompts_v03._S1_PROMPT_V9_11.system_prompt.encode()
+    ).hexdigest()

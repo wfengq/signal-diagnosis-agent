@@ -159,5 +159,22 @@
     "calibration_recompute_unchanged": true,
     "selected_threshold_percent_unchanged": 5.0,
     "model_calls": 0
+  },
+  {
+    "amendment_id": "oq014_option_c_single_signal_flat_top_clipping",
+    "amendment_kind": "append_only_behavior_identity",
+    "created_at_utc": "2026-09-29T12:00:00+00:00",
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "prior_bridge_current_implementation_sha256": "799ee09e0a02ba39bf65596399f36de18c9d6b90c8aea7c919817f7cbbd91f72",
+    "product_tree_sha256": "7eef19bbe41a4fa896199d9995261ac5897b6531482607caf2587a3c895240f9",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "scope": "OQ-014 Option C: single_signal supported_fault clipping may cite flat_top_detected=true plus substantial legacy clipping rule FAIL without clipping_mechanism=true; paired_reference and nominal_single_tone unchanged; DSP clipping_mechanism label strict; no sealed bundle or campaign mutation",
+    "qualification_recompute_unchanged": true,
+    "calibration_recompute_unchanged": true,
+    "selected_threshold_percent_unchanged": 5.0,
+    "model_calls": 0
   }
 ]

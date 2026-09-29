@@ -8,6 +8,10 @@
 产品路径使用真实 LLM 动态选择 DSP、规则与知识动作。确定性 DSP 拥有每一项数值结果，版本化 profile 拥有阈值，每一个受支持的诊断都必须引用同次运行（same-run）证据。脚本化 planner 可注入，用于状态机与工具执行测试；它绝不是静默的产品回退路径。
 
 > V0.2 是可演示垂直切片，不是生产级音频 QA、芯片验证或标准符合性产品。
+> 已验收的 V0.2 产品身份是 commit `b48790c` / prompt `v0.2-s1-planner-8.1`。
+> HEAD 默认走附加的 V0.3 planner `v0.3-s1-planner-9.11`（报告标注未获
+> Phase 4.3.1 认证）。`pyproject` 版本号仍可能是 `0.2.0`，用于保全 tag/wheel
+> 历史，并不表示 HEAD 等同 v8.1 Demo。
 
 ## 架构
 
@@ -67,6 +71,13 @@ Phase 5 accepted; V0.2 complete demonstrable vertical slice
 ## 30 秒 Demo
 
 需要 Python 3.11 或 3.12，以及本地 DeepSeek API key。切勿提交该密钥。
+
+**身份说明：** HEAD 上 `signal-diag serve` 使用 prompt `v0.3-s1-planner-9.11`。
+单 WAV / 公开 presets 路径偏保守，不一定复现保留的 Phase 5 clipping Demo
+结果。若要复现已验收 V0.2 Demo，请 checkout `b48790c`（或存在时的 `ff16e2a` /
+tag `v0.2.0`）。
+[docs/demo/phase5/v0_2_acceptance/](docs/demo/phase5/v0_2_acceptance/README.md)
+中的产物属于该锚点证据，不是对 HEAD 的承诺。
 
 ```text
 python -m pip install --upgrade pip

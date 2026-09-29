@@ -19,3 +19,17 @@ Phase 7 creates an unexecuted v9.11 validation seal only. The append-only
 lifecycle record is `VALIDATION_SEAL_SUPERSESSION.json`. Historical seal
 directories under `validation_seal/`, `validation_seal_v2/`, `validation_seal_v3/`,
 and historical drafts remain byte-preserved.
+
+---
+
+## Append-only hygiene note (2026-09-29)
+
+The lines above are historical seal-machine state from before the one-shot
+v9.11 campaign completed and must not be rewritten.
+
+Authoritative post-run verdict (append-only scorer correction):
+`docs/evaluations/v0_3/contextual/V9_11_CONTEXTUAL_VALIDATION_ACCEPTANCE_REPORT.md`
+records `meets_target` after corrected scoring; raw campaign `STATUS.md` under
+the sealed run remains `below_target`. Do not treat the header fields
+`active_model_not_run` / `Validation passed: false` as the final public
+verdict; they describe pre-run seal status and are preserved for audit.

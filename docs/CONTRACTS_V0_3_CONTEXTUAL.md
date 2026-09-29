@@ -6,7 +6,11 @@
 
 **Design:** `docs/superpowers/specs/2026-09-04-v0-3-contextual-reference-diagnosis-design.md`
 
-**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX207)
+**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX263)
+
+**Live product identity (HEAD):** prompt `v0.3-s1-planner-9.11` with causal
+policy `v9_11_mode_aware_no_fault_recovery` (§15). Historical identities
+through v9.10 remain immutable.
 
 ## 1. Scope
 
@@ -165,10 +169,16 @@ active mode. No positive fault + sibling `no_supported_fault`.
 
 ## 10. Planner identity
 
-Product contextual path uses frozen prompt identity `v0.3-s1-planner-9.9`
-with causal policy `v9_9_paired_reference_recovery`. Historical identities
+**Current HEAD / product contextual path** uses prompt identity
+`v0.3-s1-planner-9.11` with causal policy `v9_11_mode_aware_no_fault_recovery`
+(§15; T-CX250–T-CX255).
+
+Earlier frozen product identity for the v9.9 slice was
+`v0.3-s1-planner-9.9` / `v9_9_paired_reference_recovery`. Historical identities
 remain immutable:
 
+- `v0.3-s1-planner-9.11` / `v9_11_mode_aware_no_fault_recovery` (current)
+- `v0.3-s1-planner-9.10` / `v9_10_contextual_clipping_recovery`
 - `v0.3-s1-planner-9.9` / `v9_9_paired_reference_recovery`
 - `v0.3-s1-planner-9.8` / `v9_8_claim_reference_recovery`
 - `v0.3-s1-planner-9.7` / `v9_7_deterministic_rule_closure` (bytes and finish semantics frozen)
@@ -186,6 +196,8 @@ CausalPolicyVersion =
   | "v9_7_deterministic_rule_closure"
   | "v9_8_claim_reference_recovery"
   | "v9_9_paired_reference_recovery"
+  | "v9_10_contextual_clipping_recovery"
+  | "v9_11_mode_aware_no_fault_recovery"
 ```
 
 | Policy | Finish gates | Mode-aware harmonic Tool routing | Rule evaluation |
@@ -196,6 +208,8 @@ CausalPolicyVersion =
 | `v9_7_deterministic_rule_closure` | reuses v9.6 contextual finish gates | reuses v9.6 Tool-routing guard | automatic Tool-to-profile closure; planner `evaluate_rules` rejected |
 | `v9_8_claim_reference_recovery` | inherits v9.7 requirements; accumulates ID-bearing nominal-harmonic recovery errors | inherits v9.7 | inherits v9.7 automatic closure + manual rejection |
 | `v9_9_paired_reference_recovery` | inherits v9.8 requirements; also accumulates ID-bearing paired-harmonic recovery errors | inherits v9.8 | inherits v9.8 automatic closure + manual rejection |
+| `v9_10_contextual_clipping_recovery` | inherits v9.9; contextual clipping recovery amendments | inherits v9.9 | inherits v9.9 |
+| `v9_11_mode_aware_no_fault_recovery` | inherits v9.10 except mode-aware `no_supported_fault` validation (§15) | inherits v9.10 | inherits v9.10 |
 
 Under `v9_6_contextual` only:
 
@@ -523,3 +537,19 @@ A rejected no-fault finish reports every missing requirement together and
 includes each available matching same-run Evidence or rule-evaluation ID.
 Runtime validates the planner decision without adding, removing, or rewriting
 claims or references. v9.10 behavior and recorded runs remain immutable.
+
+## 16. Single-signal flat-top clipping finish predicate (OQ-014 Option C)
+
+DSP `clipping_mechanism` remains the strict causal label from
+`detect_clipping` (unchanged). For `single_signal` `supported_fault` clipping
+under v9.10/v9.11 coherent-family validation and under legacy
+`_validate_clipping_supported`, a claim is valid when either:
+
+- valid `clipping_mechanism=true` Evidence plus FAIL of
+  `rule_clipping_ratio_acceptable` or `rule_flat_top_absent`; or
+- valid `flat_top_detected=true` Evidence plus FAIL of the same substantial
+  legacy clipping rules when `clipping_mechanism` is false.
+
+`paired_reference` and `nominal_single_tone` clipping claims still require the
+contextual test family (`test_clipping_mechanism=true` plus test-side rule
+FAILs). Legacy and contextual families cannot be mixed.

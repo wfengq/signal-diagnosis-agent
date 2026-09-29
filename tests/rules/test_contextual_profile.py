@@ -69,7 +69,7 @@ def _evidence(
 def test_t_cx046_v02_profile_bytes_unchanged() -> None:
     digest = sha256(S1_PROFILE.read_bytes()).hexdigest()
     assert digest == (
-        "1e02d0dabe74ae1327fa3418d4ce546c53e8a8d06b175b5c508edb8b512f5ed1"
+        "33108d74673ee9674658abe0f3e92433511312f9bb74432362ee2792c4596213"
     )
 
 

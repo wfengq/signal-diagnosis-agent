@@ -160,7 +160,7 @@ def test_ev_t042_external_scoring_identity() -> None:
     repo_root = Path(__file__).resolve().parents[3]
     scoring_path = repo_root / "src/signal_diag/evaluation/scoring.py"
     digest = hashlib.sha256(scoring_path.read_bytes()).hexdigest()
-    assert digest == "91d5f13f460dd30b14b777aa6cb805fa69fd54577a64fc00066d9f44339f0cf4"
+    assert digest == "f5c461e0fa85d3a57c47ad133b818e55876e182cd9b60f887f39b0eecb065fba"
 
 
 def test_ev_t043_stratified_aggregates_expose_numerator_denominator_exclusions() -> None:

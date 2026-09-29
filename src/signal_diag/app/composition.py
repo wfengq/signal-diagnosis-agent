@@ -32,7 +32,7 @@ from signal_diag.signal.repository import InMemorySignalRepository
 _PROFILE_ID = "profile_s1_distortion"
 _CONTEXTUAL_PROFILE_ID = "profile_s1_contextual_comparison_v9_10"
 _LEGACY_CONTEXTUAL_PROFILE_ID = "profile_s1_contextual_comparison"
-_CERTIFIED_PROMPT_VERSION = "v0.3-s1-planner-9.4"
+_CERTIFIED_PROMPT_VERSION = "v0.2-s1-planner-8.1"
 
 
 def _packaged_path(*parts: str) -> Path:
