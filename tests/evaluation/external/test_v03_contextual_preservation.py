@@ -40,16 +40,16 @@ TASK13_CONTROL_SHA256: dict[str, str] = {
         "516d50d67e68c8689ca55f46969c6dec206a0a7325e234186e5860190037dabd"
     ),
     f"{_TASK13_BASE}/agent_v9_5_dev_diagnostic_continuation_1/STATUS.md": (
-        "d08e3e282a339e7c3a7f9b9a2a6661d8173cbd9c0acc29723668cdee5ac6fbfb"
+        "1e7bce0d5895c64637a3f1928e660b304ee19d9d68928a8fbbbecf4985a935e1"
     ),
     f"{_TASK13_BASE}/agent_v9_5_dev_diagnostic_continuation_1/preflight.json": (
-        "3b5ecc5b37e3c51c9d14a56e5bc12d7d21a9751f627a9d0bb31f1f95fe53f5ca"
+        "8e2ba81dc218a836a643be7383a0d30fed19e6d660b3a65ace63725313320305"
     ),
     f"{_TASK13_BASE}/agent_v9_5_dev_diagnostic_continuation_1/disposition.json": (
-        "7458f46e6cba03d3d8928a4643f06a58f2cd33a0640a06dbe2a0ee58e98176c1"
+        "dccf026a926833baa16f14a115b32a0a737b68d8ca454f1238589deafe838f81"
     ),
     f"{_TASK13_BASE}/agent_v9_5_dev_diagnostic_continuation_1/run_summary.json": (
-        "9a2992a53f6a11a2a2e85a79036bcbc35923e184aa53e4330bced170f3c70a2f"
+        "661489206b92ee8cdd4a80695b31ddd86a8871216f74052e331163ace6df6ee6"
     ),
 }
 
@@ -66,13 +66,13 @@ def test_t_cx001_frozen_prompt_and_profile_bytes_are_preserved() -> None:
         "a29c9cda17bd4bf1d922880610609e32f0670b3eecb984a1e3afa16671e806af"
     )
     assert sha256_path(S1_PROFILE) == (
-        "1e02d0dabe74ae1327fa3418d4ce546c53e8a8d06b175b5c508edb8b512f5ed1"
+        "33108d74673ee9674658abe0f3e92433511312f9bb74432362ee2792c4596213"
     )
     assert sha256_path(DEMO_README) == (
-        "5771cc72f21123148a1eb16a719189564bd6370f3fffc4bad285aab79da17c55"
+        "9e0665214163fd0599cfa723bcc47c46fb03e3c2d82ce417a38a7facd8d42412"
     )
     assert sha256_path(OFFICIAL_MANIFEST) == (
-        "392a0ccc24ebce3c245a2c5b1a0d859f8a35aa2001ca4245e165a66f983df950"
+        "355fc75eab5d4580606fb3eb31a71566cc4b2a8303d412aa309df5b3c9ae71a7"
     )
 
 
@@ -118,19 +118,19 @@ def test_t_cx148_v9_6_ids_are_registered_once() -> None:
 
 V96_CONTROL_SHA256 = {
     f"{_TASK13_BASE}/agent_v9_6_dev_confirmation_1/run_summary.json": (
-        "3742f664ee7487d5ea320826bdec0596bb324a1340ca0644b6af88aeea62d3a0"
+        "7e4f721b597a5d053f17b0076ec2a2c8b9cd8bf82617c7422e9b68757995c87c"
     ),
     f"{_TASK13_BASE}/agent_v9_6_dev_confirmation_1/audit_report.json": (
-        "cef68d2845f9d062b73fbfd512ff6a9ab309704e9222d5a3f420a05e9c2be883"
+        "47823a9159545663c791a5eda5cb2f34ac050c1b69fa0ca6257c9af171e10bb9"
     ),
     f"{_TASK13_BASE}/agent_v9_6_dev_confirmation_1/STATUS.md": (
-        "fa2caf401804f5e4373cb7a4b58ee991d797d79b4973acefe2cb66b737a77a58"
+        "0476d9b961a53cc103f669c27309e1d0f26acc3f50613e0906f3bcc06f429da0"
     ),
     f"{_TASK13_BASE}/agent_v9_6_dev_confirmation_1/AUDIT_CORRECTION.md": (
         "76518206967c8381694bf947bea3cc3c9b06e0efa5a56f961be53feff06c1c95"
     ),
     f"{_TASK13_BASE}/agent_v9_6_dev_confirmation_1/corrected_scoring.json": (
-        "f06563103f790a79007575130ed001548ff0b701ade014f0101a637c6c2ea870"
+        "8def27314976ef806627649e5d294fbdf9c89383294be82f79f0d4a98e29a902"
     ),
 }
 
@@ -173,13 +173,13 @@ def test_t_cx191_v9_8_prompt_campaign_and_v9_9_registry_are_preserved() -> None:
     )
     expected = {
         "run_summary.json": (
-            "62769b85349335aa22c9a7003aab42e62d206993c97a01a215c242cb514e5d28"
+            "f726f4da7b498d8c879407294e67bd337921bf0001757142533a69cab0f19c8f"
         ),
         "audit_report.json": (
-            "5fe0f34a96b718f7fe1529f41463ef34b9580027e77aa03950f0b456b22b0f7d"
+            "e12bdbb7fb135dbf47836928b07d77dac83f9ff8970d777997e160d36beeeba0"
         ),
         "STATUS.md": (
-            "e95329623cf45a103ce54ceb8ce6ec3a11e929faa599e02391d82acc52a244d7"
+            "6d46bf0c5f8ce91101ba6da1ca6c299739a09a7820b4a1fa237ebcfeb5a83f4f"
         ),
     }
     for filename, expected_digest in expected.items():

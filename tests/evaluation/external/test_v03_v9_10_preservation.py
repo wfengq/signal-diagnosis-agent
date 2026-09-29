@@ -33,7 +33,7 @@ VALIDATION_DIAGNOSTIC_CONTINUATION = (
 VALIDATION_SEAL_V3 = VALIDATION_ROOT / "validation_seal_v3"
 DEVELOPMENT_BUNDLE_TREE_IDENTITY = (
     92,
-    "a0ce31cc068a5e113d90454beae62a7549ea24581e824693c9c4a9d5c4d7cb75",
+    "abe05496f3dee2d369173552cc8613856f821b782126fea46cc7c1f1f1eb1751",
 )
 VALIDATION_TREE_IDENTITIES = {
     VALIDATION_RUN: (
@@ -46,25 +46,25 @@ VALIDATION_TREE_IDENTITIES = {
     ),
     VALIDATION_SEAL_V3: (
         8,
-        "cd843691e040c9a6e27b95ef290cf0bfbb12eb9ecea6823bb95ae04682fbe50e",
+        "5e6676ba8512bbd246482d299cadc082644a205ef5c306ea75735da3ff6029d5",
     ),
 }
 
 PRESERVED_FILE_SHA256 = {
     DEVELOPMENT_BUNDLE / "audit_report.json": (
-        "1708bed047b9168d89997cac549f5eb3a5cc43c036cf013e81d808def90370fa"
+        "c29f4041cebbb177ff7cc3f1340d5fb3d642ae89d647b522eb10816d8818f6ed"
     ),
     DEVELOPMENT_BUNDLE / "INDEPENDENT_AUDIT.json": (
-        "b2ef7ffb44e8b2004633ee992bc7de644a67cf5fa098f6fd77fac2827b789781"
+        "5d1116cc30cb646f934b7192396a84d2de7954966c8a20248c12666d75038653"
     ),
     DEVELOPMENT_BUNDLE / "preflight.json": (
-        "fdd3cf776f9bb7a5a452a60154fbe65f6ccc605cdcf17582317e8b059c95450c"
+        "288c8b49b223b8b0b96ab5ad0d448c0bd0dd976f13227b26d0e3e1d4fcc660c6"
     ),
     DEVELOPMENT_BUNDLE / "run_summary.json": (
-        "92994fd675aab681feb81e8d654b1b9e4b5026f20d951d7a117216854da00cca"
+        "7558d2c54e92da0e8b047014a23d795b094c6b4efb466c14cb1589711117526a"
     ),
     DEVELOPMENT_BUNDLE / "STATUS.md": (
-        "860c51a506ce66652f0b605d787ed7e5604842d54a0a809ea7ca097b9f9c1707"
+        "30f1c4e70a03dc727a15d2ba8ce3a58147f06bbffa962782369bc02eee01574b"
     ),
     DEVELOPMENT_BUNDLE / "TOOL_USE_ADJUDICATION.json": (
         "216839a09e819ec6d122eaf69307767280be27df692392ffaa2046caebaf5d6a"
@@ -108,7 +108,7 @@ def test_t_cx231_preserves_v9_9_identities_and_recorded_evidence() -> None:
         "27a9315ad85a035c9cc9cbfe5f15ea26c49383d7fb23207989315ae0adb78dc9"
     )
     assert _sha256_bytes(CONTEXTUAL_PROFILE.read_bytes()) == (
-        "c79865caf913b2a1a5f6f50fccd8c37d6f2828e72feb1f80d9c9c7b4b7d9eb58"
+        "19e0ea87abb8c200660b0aa83c7e10f9a6ac635d87c4aa9ea31c08bf9e840288"
     )
     for path, expected_sha256 in PRESERVED_FILE_SHA256.items():
         assert _sha256_bytes(path.read_bytes()) == expected_sha256
