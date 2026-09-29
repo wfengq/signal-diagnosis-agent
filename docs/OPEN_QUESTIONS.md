@@ -260,16 +260,12 @@ User decision: pending — hygiene path authorized 2026-09-29; product-behavior 
 ```text
 ID: OQ-014
 Date: 2026-09-29
-Status: open — design proposed; awaiting operator choice
-Affected document and section: docs/ARCHITECTURE_V0_2.md §17; docs/CONTRACTS_V0_2.md §§10/12; src/signal_diag/dsp/clipping.py clipping_mechanism; src/signal_diag/agent/diagnosis.py; tests/agent/test_s1_acceptance.py T087
+Status: resolved — Option C (2026-09-29)
+Disposition: D036; CONTRACTS_V0_3_CONTEXTUAL.md §16; T-CX263; tests/agent/test_oq014_single_signal_flat_top_clipping.py
 Design: docs/superpowers/specs/2026-09-29-oq014-clipping-mechanism-semantics-design.md
-Draft plan (Option C only): docs/superpowers/plans/2026-09-29-oq014-option-c-single-signal-clipping.md
-Observed problem: DSP clipping_mechanism is true only for full-scale saturation or flat-top with peak >= 0.99. Finish gates require clipping_mechanism=true for supported_fault/clipping. V0.2 S1-CLIP-SUBFS and retained Demo inputs (peak ~0.65) therefore cannot finish as clipping on HEAD.
-Why the current contract cannot represent a correct implementation: Frozen architecture acceptance matrix assumes sub-full-scale flat-top clipping is diagnosable; HEAD gates make that unreachable without an explicit semantic choice.
-Minimal proposed change: Operator picks one option from the design — A widen DSP mechanism; B retire S1-CLIP-SUBFS on HEAD with honesty text; C (recommended) mode-aware finish gate allowing flat_top_detected + rule FAIL on single_signal only.
-Compatibility impact: Behavior change only after written choice; sealed bundles untouched.
-Test impact: Option C strengthens T087 / adds T-CX; Workstream C mechanism gold labels must stay green under C.
-User decision: pending — reply exactly "OQ-014: Option A|B|C" or "OQ-014: defer"
+Plan: docs/superpowers/plans/2026-09-29-oq014-option-c-single-signal-clipping.md
+Resolution: Keep strict DSP clipping_mechanism. On single_signal only, supported_fault clipping accepts clipping_mechanism=true or flat_top_detected=true (valid Evidence) plus substantial legacy clipping-rule FAIL. Contextual modes unchanged.
+User decision: OQ-014: Option C
 ```
 
 ---

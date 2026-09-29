@@ -534,3 +534,15 @@ construct `_Phase4V8_1RealLLMPlanner`, not the public `RealLLMPlanner` default,
 so recorded external campaign identity (`v0.2-s1-planner-8.1`) matches the
 system prompt actually sent on re-runs. Official Phase 4.3.1 runners already
 follow this pattern.
+
+## D036 — OQ-014 Option C single_signal flat-top clipping finish gate
+
+**Decision:** Keep the strict DSP `clipping_mechanism` label unchanged. For
+`single_signal` supported_fault clipping under policies that use
+`_validate_clipping_supported` or `_validate_v910_clipping_supported`, accept
+valid `flat_top_detected=true` Evidence plus a same-run substantial legacy
+clipping-rule FAIL (`rule_clipping_ratio_acceptable` or `rule_flat_top_absent`)
+when `clipping_mechanism` is false. `paired_reference` and
+`nominal_single_tone` continue to require `test_clipping_mechanism` for clipping
+claims. Sealed evaluation bundles and Workstream C mechanism gold labels remain
+unchanged.

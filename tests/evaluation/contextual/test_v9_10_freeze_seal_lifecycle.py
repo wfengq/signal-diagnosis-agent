@@ -105,8 +105,22 @@ def test_t_cx249_post_assemble_amendment_matches_current_harness() -> None:
     assert correction["prior_bridge_current_implementation_sha256"] == (
         "3bc9a67461862e77b7544ae8dd52745d8ab94d68a34b65c03c7d2be8705671c1"
     )
-    assert correction["current_implementation_sha256"] == current
+    assert correction["current_implementation_sha256"] == (
+        "799ee09e0a02ba39bf65596399f36de18c9d6b90c8aea7c919817f7cbbd91f72"
+    )
+    assert correction["current_implementation_sha256"] != current
     assert correction["model_calls"] == 0
+    oq014 = next(
+        item
+        for item in rows
+        if item["amendment_id"] == "oq014_option_c_single_signal_flat_top_clipping"
+    )
+    assert oq014["amendment_kind"] == "append_only_behavior_identity"
+    assert oq014["prior_bridge_current_implementation_sha256"] == (
+        correction["current_implementation_sha256"]
+    )
+    assert oq014["current_implementation_sha256"] == current
+    assert oq014["model_calls"] == 0
     assert reseal["qualification_recompute_unchanged"] is True
     assert reseal["calibration_recompute_unchanged"] is True
     assert reseal["selected_threshold_percent_unchanged"] == 5.0

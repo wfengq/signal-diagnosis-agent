@@ -189,6 +189,7 @@
 | T-CX260 | Immutable campaign result payloads deterministically reconstruct claim populations and the corrected verdict. |
 | T-CX261 | Arm-result claim population counters reject impossible and failed-result states. |
 | T-CX262 | Append-only identity amendment binds the deterministic reconstruction implementation without changing campaign evidence. |
+| T-CX263 | OQ-014 Option C: single_signal supported_fault clipping via flat_top_detected plus substantial legacy clipping-rule FAIL without clipping_mechanism=true. |
 
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
@@ -223,3 +224,5 @@ behavior, prompt, rules, thresholds, labels, or historical run artifacts.
 T-CX260–T-CX261 add only deterministic offline reconstruction and boundary
 validation for the same scoring correction.
 T-CX262 records the follow-up evaluation-harness identity bridge only.
+T-CX263 records OQ-014 Option C single_signal flat-top clipping finish behavior
+and the append-only behavior identity bridge `oq014_option_c_single_signal_flat_top_clipping`.

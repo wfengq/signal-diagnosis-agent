@@ -6,7 +6,7 @@
 
 **Design:** `docs/superpowers/specs/2026-09-04-v0-3-contextual-reference-diagnosis-design.md`
 
-**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX262)
+**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX263)
 
 **Live product identity (HEAD):** prompt `v0.3-s1-planner-9.11` with causal
 policy `v9_11_mode_aware_no_fault_recovery` (§15). Historical identities
@@ -537,3 +537,19 @@ A rejected no-fault finish reports every missing requirement together and
 includes each available matching same-run Evidence or rule-evaluation ID.
 Runtime validates the planner decision without adding, removing, or rewriting
 claims or references. v9.10 behavior and recorded runs remain immutable.
+
+## 16. Single-signal flat-top clipping finish predicate (OQ-014 Option C)
+
+DSP `clipping_mechanism` remains the strict causal label from
+`detect_clipping` (unchanged). For `single_signal` `supported_fault` clipping
+under v9.10/v9.11 coherent-family validation and under legacy
+`_validate_clipping_supported`, a claim is valid when either:
+
+- valid `clipping_mechanism=true` Evidence plus FAIL of
+  `rule_clipping_ratio_acceptable` or `rule_flat_top_absent`; or
+- valid `flat_top_detected=true` Evidence plus FAIL of the same substantial
+  legacy clipping rules when `clipping_mechanism` is false.
+
+`paired_reference` and `nominal_single_tone` clipping claims still require the
+contextual test family (`test_clipping_mechanism=true` plus test-side rule
+FAILs). Legacy and contextual families cannot be mixed.
