@@ -12,7 +12,12 @@ from pathlib import Path
 from typing import Protocol, runtime_checkable
 
 from signal_diag.agent.models import AgentRunResult
-from signal_diag.agent.planner import PlannerModel, RealLLMPlanner, ScriptedPlanner
+from signal_diag.agent.planner import (
+    PlannerModel,
+    RealLLMPlanner,
+    ScriptedPlanner,
+    _Phase4V8_1RealLLMPlanner,
+)
 from signal_diag.agent.prompts import _S1_PROMPT_V8_1
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.evaluation.baseline import FixedPipelineBaseline
@@ -412,7 +417,10 @@ def _default_client_factory() -> object:
 
 
 def _build_production_planner(client: object) -> RealLLMPlanner:
-    return RealLLMPlanner(provider=_OFFICIAL_PROVIDER, client=client)  # type: ignore[arg-type]
+    return _Phase4V8_1RealLLMPlanner(  # type: ignore[arg-type]
+        provider=_OFFICIAL_PROVIDER,
+        client=client,
+    )
 
 
 def _reject_scripted_planner(planner: PlannerModel) -> PlannerModel:

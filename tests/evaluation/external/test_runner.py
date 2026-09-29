@@ -18,7 +18,12 @@ from signal_diag.agent.models import (
     PlannerContext,
     TaskAssessment,
 )
-from signal_diag.agent.planner import PlannerModel, RealLLMPlanner, ScriptedPlanner
+from signal_diag.agent.planner import (
+    PlannerModel,
+    RealLLMPlanner,
+    ScriptedPlanner,
+    _Phase4V8_1RealLLMPlanner,
+)
 from signal_diag.evaluation.external.manifest import canonical_json_bytes
 from signal_diag.evaluation.external.models import ExternalDatasetManifest
 from signal_diag.evaluation.external.runner import (
@@ -327,3 +332,5 @@ def test_production_planner_factory_builds_real_llm_planner(
     monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
     planner = _build_production_planner(object())
     assert isinstance(planner, RealLLMPlanner)
+    assert isinstance(planner, _Phase4V8_1RealLLMPlanner)
+    assert planner._prompt_spec.version == "v0.2-s1-planner-8.1"

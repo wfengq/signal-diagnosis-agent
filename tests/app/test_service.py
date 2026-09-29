@@ -751,6 +751,19 @@ async def test_t251_product_defaults_and_missing_credentials_before_reservation(
 
 
 @pytest.mark.asyncio
+async def test_certified_prompt_version_pins_phase_4_3_1_v8_1() -> None:
+    from signal_diag.app.composition import _CERTIFIED_PROMPT_VERSION
+
+    assert _CERTIFIED_PROMPT_VERSION == "v0.2-s1-planner-8.1"
+    service = build_product_service(environ={})
+    try:
+        assert service._dependencies.planner_identity.phase4_certified_default is False
+        assert service._dependencies.planner_identity.prompt_version == PROMPT_VERSION
+    finally:
+        await service.aclose()
+
+
+@pytest.mark.asyncio
 async def test_t251_unconfigured_synthetic_does_not_insert_or_reserve() -> None:
     repository = InMemorySignalRepository()
     service = _make_service(
