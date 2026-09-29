@@ -260,14 +260,16 @@ User decision: pending — hygiene path authorized 2026-09-29; product-behavior 
 ```text
 ID: OQ-014
 Date: 2026-09-29
-Status: open
-Affected document and section: docs/ARCHITECTURE_V0_2.md §17; docs/CONTRACTS_V0_2.md §§10/12; src/signal_diag/dsp/clipping.py clipping_mechanism; tests/agent/test_s1_acceptance.py T087
-Observed problem: DSP now requires clipping_mechanism (full-scale saturation or flat-top with peak >= 0.99). V0.2 S1-CLIP-SUBFS requires sub-full-scale flat-top to support a clipping claim. Retained Phase 5 Demo inputs and multiple held-out clipping cases have peak ~0.65 and therefore cannot finish as supported_fault/clipping under HEAD gates.
-Why the current contract cannot represent a correct implementation: Frozen architecture acceptance matrix and demo evidence assume sub-full-scale flat-top clipping is diagnosable. HEAD shared DSP + causal policy make that outcome unreachable without changing either the DSP gate or the architecture matrix.
-Minimal proposed change: Do not silently weaken tests further. Either (a) a new written design restores sub-full-scale mechanism semantics, or (b) an approved contract amendment retires S1-CLIP-SUBFS and updates ARCH §17 / Demo honesty text. Until then, disclose that HEAD single_signal cannot reproduce V0.2 clipping Demo outcomes.
-Compatibility impact: Behavior change requires B-class design authorization. Hygiene only discloses the gap.
-Test impact: Future restoration should make T087 assert supported_fault/clipping (currently green via max_planner_retries tolerance).
-User decision: pending — no behavior change in this hygiene pass
+Status: open — design proposed; awaiting operator choice
+Affected document and section: docs/ARCHITECTURE_V0_2.md §17; docs/CONTRACTS_V0_2.md §§10/12; src/signal_diag/dsp/clipping.py clipping_mechanism; src/signal_diag/agent/diagnosis.py; tests/agent/test_s1_acceptance.py T087
+Design: docs/superpowers/specs/2026-09-29-oq014-clipping-mechanism-semantics-design.md
+Draft plan (Option C only): docs/superpowers/plans/2026-09-29-oq014-option-c-single-signal-clipping.md
+Observed problem: DSP clipping_mechanism is true only for full-scale saturation or flat-top with peak >= 0.99. Finish gates require clipping_mechanism=true for supported_fault/clipping. V0.2 S1-CLIP-SUBFS and retained Demo inputs (peak ~0.65) therefore cannot finish as clipping on HEAD.
+Why the current contract cannot represent a correct implementation: Frozen architecture acceptance matrix assumes sub-full-scale flat-top clipping is diagnosable; HEAD gates make that unreachable without an explicit semantic choice.
+Minimal proposed change: Operator picks one option from the design — A widen DSP mechanism; B retire S1-CLIP-SUBFS on HEAD with honesty text; C (recommended) mode-aware finish gate allowing flat_top_detected + rule FAIL on single_signal only.
+Compatibility impact: Behavior change only after written choice; sealed bundles untouched.
+Test impact: Option C strengthens T087 / adds T-CX; Workstream C mechanism gold labels must stay green under C.
+User decision: pending — reply exactly "OQ-014: Option A|B|C" or "OQ-014: defer"
 ```
 
 ---
