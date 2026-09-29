@@ -758,6 +758,13 @@ def _build_s1_system_prompt_v9_11() -> str:
         "finish; do not alternate single-field fixes.",
         label="v9.11 no-supported-fault checklist",
     )
+    text += (
+        "\nIn single_signal, a supported_fault clipping claim may cite "
+        "flat_top_detected=true plus a same-run substantial legacy clipping rule "
+        "FAIL when clipping_mechanism is false. paired_reference and "
+        "nominal_single_tone still require test_clipping_mechanism for clipping "
+        "claims.\n"
+    )
     if "Never fall back to ScriptedPlanner" not in text:
         raise RuntimeError("v9.11 prompt lost no-ScriptedPlanner guard")
     if '"decision_type": "evaluate_rules"' in text:

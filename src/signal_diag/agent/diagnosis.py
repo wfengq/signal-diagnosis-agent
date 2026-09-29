@@ -105,6 +105,18 @@ def _has_clipping_mechanism(
     )
 
 
+def _has_flat_top_detected(
+    claim: DiagnosisClaim,
+    evidence_by_id: dict[str, Evidence],
+) -> bool:
+    return any(
+        item.metric == "flat_top_detected"
+        and item.value is True
+        and item.validity == "valid"
+        for item in _cited_evidence(claim, evidence_by_id)
+    )
+
+
 def _has_test_clipping_mechanism(
     claim: DiagnosisClaim,
     evidence_by_id: dict[str, Evidence],
@@ -145,16 +157,25 @@ def _validate_v910_clipping_supported(
     claim: DiagnosisClaim,
     evidence_by_id: dict[str, Evidence],
     evaluations_by_id: dict[str, RuleEvaluation],
+    *,
+    stimulus_mode: str | None = None,
 ) -> None:
     has_legacy_mechanism = _has_clipping_mechanism(claim, evidence_by_id)
+    has_flat_top = _has_flat_top_detected(claim, evidence_by_id)
     has_contextual_mechanism = _has_test_clipping_mechanism(claim, evidence_by_id)
     has_legacy_fail = _has_substantial_clipping_rule_fail(claim, evaluations_by_id)
     has_contextual_fail = _has_substantial_test_clipping_rule_fail(
         claim, evaluations_by_id
     )
-    legacy_ok = has_legacy_mechanism and has_legacy_fail
+    legacy_evidence = has_legacy_mechanism
+    if stimulus_mode == "single_signal":
+        legacy_evidence = legacy_evidence or has_flat_top
+    legacy_ok = legacy_evidence and has_legacy_fail
     contextual_ok = has_contextual_mechanism and has_contextual_fail
-    if (has_legacy_mechanism or has_legacy_fail) and (
+    has_legacy_presence = has_legacy_mechanism or has_legacy_fail
+    if stimulus_mode == "single_signal":
+        has_legacy_presence = has_legacy_presence or has_flat_top
+    if has_legacy_presence and (
         has_contextual_mechanism or has_contextual_fail
     ):
         raise DiagnosisValidationError(
@@ -311,6 +332,8 @@ def _v910_clipping_subset_is_supported(
     decision: FinishDecision,
     evidence_by_id: dict[str, Evidence],
     evaluations_by_id: dict[str, RuleEvaluation],
+    *,
+    stimulus_mode: str | None = None,
 ) -> bool:
     if any(
         claim.fault_type not in {"clipping", "harmonic_distortion"}
@@ -325,7 +348,10 @@ def _v910_clipping_subset_is_supported(
     try:
         for claim in clipping_claims:
             _validate_v910_clipping_supported(
-                claim, evidence_by_id, evaluations_by_id
+                claim,
+                evidence_by_id,
+                evaluations_by_id,
+                stimulus_mode=stimulus_mode,
             )
     except DiagnosisValidationError:
         return False
@@ -400,17 +426,28 @@ def _validate_clipping_supported(
     claim: DiagnosisClaim,
     evidence_by_id: dict[str, Evidence],
     evaluations_by_id: dict[str, RuleEvaluation],
+    *,
+    stimulus_mode: str | None = "single_signal",
 ) -> None:
-    if not _has_clipping_mechanism(claim, evidence_by_id):
+    has_mechanism = _has_clipping_mechanism(claim, evidence_by_id)
+    has_flat_top = _has_flat_top_detected(claim, evidence_by_id)
+    has_fail = _has_substantial_clipping_rule_fail(claim, evaluations_by_id)
+    if stimulus_mode == "single_signal":
+        if has_fail and (has_mechanism or has_flat_top):
+            return
+    elif has_mechanism and has_fail:
+        return
+    if not has_mechanism and not (
+        stimulus_mode == "single_signal" and has_flat_top
+    ):
         raise DiagnosisValidationError(
             "clipping supported_fault requires clipping_mechanism=true Evidence"
         )
-    if not _has_substantial_clipping_rule_fail(claim, evaluations_by_id):
-        raise DiagnosisValidationError(
-            "clipping supported_fault requires a same-run substantial "
-            "clipping rule FAIL (rule_clipping_ratio_acceptable or "
-            "rule_flat_top_absent)"
-        )
+    raise DiagnosisValidationError(
+        "clipping supported_fault requires a same-run substantial "
+        "clipping rule FAIL (rule_clipping_ratio_acceptable or "
+        "rule_flat_top_absent)"
+    )
 
 
 def _available_metric_ids(
@@ -964,11 +1001,17 @@ def validate_finish_decision(
                         "v9_11_mode_aware_no_fault_recovery",
                     }:
                         _validate_v910_clipping_supported(
-                            claim, evidence_by_id, evaluations_by_id
+                            claim,
+                            evidence_by_id,
+                            evaluations_by_id,
+                            stimulus_mode=stimulus_context.mode,
                         )
                     else:
                         _validate_clipping_supported(
-                            claim, evidence_by_id, evaluations_by_id
+                            claim,
+                            evidence_by_id,
+                            evaluations_by_id,
+                            stimulus_mode=stimulus_context.mode,
                         )
                 elif claim.fault_type == "harmonic_distortion":
                     try:
@@ -1002,7 +1045,10 @@ def validate_finish_decision(
                             }
                             and stimulus_context.mode == "single_signal"
                             and _v910_clipping_subset_is_supported(
-                                decision, evidence_by_id, evaluations_by_id
+                                decision,
+                                evidence_by_id,
+                                evaluations_by_id,
+                                stimulus_mode=stimulus_context.mode,
                             )
                         ):
                             raise DiagnosisValidationError(
@@ -1043,7 +1089,17 @@ def validate_finish_decision(
                 "even_order_present Evidence"
             )
         if claim.fault_type == "clipping":
-            _validate_clipping_supported(claim, evidence_by_id, evaluations_by_id)
+            mode = (
+                stimulus_context.mode
+                if stimulus_context is not None
+                else "single_signal"
+            )
+            _validate_clipping_supported(
+                claim,
+                evidence_by_id,
+                evaluations_by_id,
+                stimulus_mode=mode,
+            )
 
 
 def build_task_type(decision: FinishDecision, assessment: TaskAssessment) -> TaskType:
