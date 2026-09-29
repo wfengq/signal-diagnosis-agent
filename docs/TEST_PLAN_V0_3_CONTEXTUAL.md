@@ -233,4 +233,6 @@ T-CX263 records OQ-014 Option C single_signal flat-top clipping finish behavior
 and the append-only behavior identity bridge `oq014_option_c_single_signal_flat_top_clipping`.
 T-CX264–T-CX268 are additive for D037 single-file context guidance. They must
 not alter DSP, rule thresholds, planner prompts, causal finish gates, or frozen
-V0.2 endpoints/DTOs.
+V0.2 endpoints/DTOs. The append-only code-identity bridge
+`d037_single_file_context_guidance` rebinds the live product-tree digest without
+rewriting the sealed OQ-014 behavior-identity row.

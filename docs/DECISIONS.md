@@ -578,8 +578,8 @@ support evidence-backed “added vs inherent” judgments.
 **Long-term vision:** D016 remains open (extensible signal test & fault
 diagnosis). Noise/SNR, drift, sensors, CSV, etc. are not shipped.
 
-**Next behavior change (not authorized until design approval):** deterministic
-`context_guidance` on single-file `inconclusive` so the user can upgrade to
-reference/nominal with the same test file. Spec:
+**Next behavior change (authorized 2026-09-29; implemented on
+`cursor/product-def-context-guidance-0d26`):** deterministic `context_guidance`
+on single-file `inconclusive` so the user can upgrade to reference/nominal with
+the same test file. Spec:
 `docs/superpowers/specs/2026-09-29-single-file-context-guidance-design.md`.
-
