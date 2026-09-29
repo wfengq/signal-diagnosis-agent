@@ -1,0 +1,40 @@
+---
+description: Default engineering workflow is pstack / poteto-mode
+alwaysApply: true
+---
+# Default programming workflow: pstack
+
+For any nontrivial engineering work in this environment (features, bugs, refactors,
+perf, architecture, investigations that lead to code, PR babysitting, shipping),
+route through **pstack `/poteto-mode`** as the default workflow.
+
+## When it applies
+
+- New behavior, bug fix, refactor, performance work, or multi-step verification
+- "How does X work?" / "why was Y built this way?" before changing code
+- Design forks that need architect / arena / interrogate
+- Opening, babysitting, or landing PRs
+
+## When it does not apply
+
+- Pure casual Q&A with no rigor needed
+- User explicitly opts out ("skip poteto", "just edit", "quick one-liner")
+- Mechanical one-file typos the user already specified verbatim
+
+## How to apply
+
+1. Read and follow the `poteto-mode` skill (plugin: pstack) before implementing.
+2. Match a playbook; copy its steps into the session todo list.
+3. Spawn playbook subagents with `subagent_type: "poteto-agent"` unless a routed
+   skill (`how`, `why`, `interrogate`, `reflect`, `swarm`, `arena`, `architect`)
+   prescribes another type.
+4. Honor `~/.cursor/rules/pstack-models.mdc` for per-role Task models.
+5. For this repo, prove user-facing changes with
+   `.cursor/skills/verify-signal-diagnosis-agent` when the change touches CLI,
+   API, Web UI, or diagnosis service behavior. Do not claim RealLLM product
+   verification without credentials.
+6. Respect frozen V0.2 contracts in `AGENTS.md` / `docs/CONTRACTS_V0_2.md`: no
+   silent product behavior changes, no ScriptedPlanner product fallback, no
+   rewriting accepted evaluation or Demo assets.
+
+Name principles you actually applied (from leaf SKILL.md files read this session).
