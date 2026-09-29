@@ -1,7 +1,7 @@
 # Open Contract and Architecture Questions
 
 **Status:** Active register
-**Current open questions:** 6 open (OQ-013–OQ-018); 12 resolved (OQ-001–OQ-012)
+**Current open questions:** 0 open; 18 resolved (OQ-001–OQ-018)
 
 Use this file only for concrete issues that may require changing an approved
 contract or architectural boundary.
@@ -243,14 +243,14 @@ User decision history:
 ```text
 ID: OQ-013
 Date: 2026-09-29
-Status: open
-Affected document and section: docs/CONTRACTS_V0_2.md §§55/59; src/signal_diag/app/composition.py; src/signal_diag/agent/planner.py PROMPT_VERSION
+Status: resolved — hygiene (2026-09-29)
+Disposition: D032, D034, D035; AGENTS.md HEAD vs anchor; CONTRACTS_V0_3 §10 / §15
 Observed problem: Frozen Phase 5 text pins the public product planner at DeepSeek / deepseek-v4-flash / v0.2-s1-planner-8.1. HEAD build_product_service and public RealLLMPlanner use v0.3-s1-planner-9.11 with causal policy v9_11_mode_aware_no_fault_recovery; phase4_certified_default is false.
 Why the current contract cannot represent a correct implementation: Reading only CONTRACTS_V0_2.md, a reviewer expects the accepted v8.1 product path. HEAD intentionally runs the V0.3 contextual product identity on the same entrypoints (submit_wav / submit_synthetic), so the frozen sections no longer describe the live default.
 Minimal proposed change: Keep frozen §§1–64 byte-stable. Document in AGENTS.md and docs/README.md that V0.2 acceptance is anchored at b48790c / ff16e2a (v8.1), while HEAD live product is v9.11 under CONTRACTS_V0_3_CONTEXTUAL.md §15. Amend CONTRACTS_V0_3 §10 header text to name v9.11 as current product identity (historical 9.9 remains immutable). Do not rewrite sealed bundles or restore ScriptedPlanner fallback.
 Compatibility impact: Documentation and additive V0.3 contract header hygiene only until a separate design decides whether single_signal must regain v8.1 semantics.
 Test impact: None for sealed T001–T285 identities. Focused tests already lock PROMPT_VERSION == v0.3-s1-planner-9.11 and phase4_certified_default is False.
-User decision: pending — hygiene path authorized 2026-09-29; product-behavior resolution deferred
+User decision: hygiene path approved 2026-09-29; product-behavior resolution remains deferred pending a separate design
 ```
 
 ---
@@ -275,14 +275,14 @@ User decision: OQ-014: Option C
 ```text
 ID: OQ-015
 Date: 2026-09-29
-Status: open
-Affected document and section: docs/CONTRACTS_V0_2.md §38.3; docs/DECISIONS.md D021; src/signal_diag/agent/runtime.py; src/signal_diag/agent/rule_closure.py
+Status: resolved — hygiene (2026-09-29)
+Disposition: D033; CONTRACTS_V0_3_CONTEXTUAL.md §10.1–§10.2
 Observed problem: Phase 3 freeze and D021 require planner-owned EvaluateRulesDecision; runtime must not force rules before finish. Product policies v9.7+ create rule batches automatically from tool observations and reject planner evaluate_rules.
 Why the current contract cannot represent a correct implementation: Frozen V0.2 text and live V0.3 product policy disagree on who owns rule evaluation.
 Minimal proposed change: Record the V0.3 design authorization (v9.7 deterministic rule closure) as D033. Keep CONTRACTS_V0_2 §38.3 frozen; state in CONTRACTS_V0_3 that automatic closure supersedes planner-owned evaluate_rules for product policies >= v9.7.
 Compatibility impact: Documentation / decision register only for this hygiene pass.
 Test impact: Existing T-CX coverage for automatic closure remains authoritative for V0.3.
-User decision: pending acknowledgment that V0.3 supersedes §38.3 for live product policies
+User decision: acknowledged 2026-09-29 — V0.3 automatic closure supersedes §38.3 for live product policies ≥ v9.7; frozen V0.2 text unchanged
 ```
 
 ---
@@ -292,14 +292,14 @@ User decision: pending acknowledgment that V0.3 supersedes §38.3 for live produ
 ```text
 ID: OQ-016
 Date: 2026-09-29
-Status: open
-Affected document and section: docs/CONTRACTS_V0_2.md §§16/23; docs/ARCHITECTURE_V0_2.md §7.2; src/signal_diag/tools/registry.py
+Status: resolved — hygiene (2026-09-29)
+Disposition: CONTRACTS_V0_3_CONTEXTUAL.md §6
 Observed problem: Frozen V0.2 lists exactly four S1 tools. get_tool_descriptors() always includes analyze_contextual_distortion, so every planner context (including single_signal) sees five tools.
 Why the current contract cannot represent a correct implementation: Frozen tool inventory no longer matches the live descriptor list.
 Minimal proposed change: Keep §§16/23 frozen. Document the fifth tool under CONTRACTS_V0_3. Optionally (separate design) filter descriptors by mode so single_signal sees four tools.
 Compatibility impact: Hygiene disclosure now; mode-filtered descriptors would be B-class.
 Test impact: None for hygiene-only.
-User decision: pending
+User decision: hygiene disclosure approved 2026-09-29; mode-filtered descriptors not authorized
 ```
 
 ---
@@ -309,14 +309,14 @@ User decision: pending
 ```text
 ID: OQ-017
 Date: 2026-09-29
-Status: open
-Affected document and section: tests/test_architecture_boundaries.py T285 _V03_ADDITIVE_EXACT_PATHS; docs/CONTRACTS_V0_2.md freeze intent
+Status: resolved — hygiene (2026-09-29)
+Disposition: AGENTS.md T285 note; TEST_PLAN_V0_2.md Checkpoint AC note
 Observed problem: T285 was the Phase 5 freeze detector against baseline 36ae7c9. It now allowlists agent/planner.py, agent/runtime.py, agent/diagnosis.py, dsp/clipping.py, dsp/harmonics.py, tools/*, app/composition.py, and related paths. Green T285 no longer proves those files match Phase 4.3.1.
 Why the current contract cannot represent a correct implementation: Reviewers may treat a green T285 as V0.2 behavioral preservation. The allowlist only records authorized V0.3 edits.
 Minimal proposed change: Document in AGENTS.md / TEST_PLAN notes that T285 allowlist means “V0.3 authorized mutation,” not “byte-identical to 36ae7c9.” A future design may split a V0.2-preservation suite from a V0.3 suite.
 Compatibility impact: Documentation only.
 Test impact: None in this pass.
-User decision: pending
+User decision: documentation clarification approved 2026-09-29
 ```
 
 ---
@@ -326,12 +326,12 @@ User decision: pending
 ```text
 ID: OQ-018
 Date: 2026-09-29
-Status: open
-Affected document and section: docs/EXTERNAL_VALIDATION_CONTRACTS_V0_2.md (ends EV-C025); docs/evaluations/v0_3/prerequisites/*; pyproject.toml version 0.2.0
+Status: resolved — hygiene (2026-09-29)
+Disposition: EXTERNAL_VALIDATION_CONTRACTS_V0_2.md §11 historical EV-C026+; README package-label note
 Observed problem: Reports and code comments cite EV-C026–EV-C029 (and draft EV-C036, superseded/never executed) without normative contract entries. Package metadata remains 0.2.0 while live HEAD behavior is V0.3-identity; bumping the package version would collide with external preservation expectations around tag v0.2.0 / wheel identity history.
 Why the current contract cannot represent a correct implementation: Contract ID space and distribution version no longer match the story told by V0.3 reports.
 Minimal proposed change: Either append EV-C026+ as historical/superseded entries in EXTERNAL_VALIDATION_CONTRACTS_V0_2.md, or explicitly mark them report-only. Keep pyproject 0.2.0 until a release design chooses 0.3.0 without breaking tag/object preservation checks; disclose the version/label split in README.
 Compatibility impact: Docs only for this pass.
 Test impact: Do not change v0.2.0 tag preservation tests.
-User decision: pending
+User decision: append historical EV-C026+ entries + keep pyproject 0.2.0 with README disclosure (2026-09-29)
 ```

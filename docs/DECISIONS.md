@@ -518,7 +518,7 @@ keep that behavior under older policy identities.
 
 Recorded under design
 `docs/superpowers/specs/2026-09-05-v0-3-v9-7-deterministic-rule-closure-design.md`.
-Related open contract mapping: OQ-015.
+Related contract mapping: OQ-015 (resolved — hygiene 2026-09-29).
 
 ## D034 — Phase 4.3.1 certification marker names only v8.1
 
