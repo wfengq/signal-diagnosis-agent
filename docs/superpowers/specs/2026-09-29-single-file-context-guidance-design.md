@@ -1,12 +1,13 @@
 # Single-file inconclusive → context guidance
 
-**Status:** proposed design (awaiting operator review; implementation not
-authorized)
+**Status:** approved design (operator `通过` 2026-09-29); implementation authorized
 
 **Date:** 2026-09-29
 
 **Product decisions:** D037 (single-file default; presets option A; no HEAD
 quality claims)
+
+**Plan:** `docs/superpowers/plans/2026-09-29-single-file-context-guidance.md`
 
 **Related:** D016 (long-term vision); D032–D036; CONTRACTS_V0_3_CONTEXTUAL.md
 modes; `src/signal_diag/app/contextual_*`; `src/signal_diag/agent/diagnosis.py`
@@ -180,11 +181,5 @@ tests: **unchanged**.
 
 ## 7. Implementation authorization gate
 
-Implementation (plan + code) starts only after the operator replies in writing,
-for example:
-
-```text
-Approve design: single-file context guidance
-```
-
-Until then: documentation and this spec only.
+Operator approved 2026-09-29 (`通过`). Implementation proceeds per
+`docs/superpowers/plans/2026-09-29-single-file-context-guidance.md`.
