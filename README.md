@@ -5,6 +5,13 @@
 A reproducible, evaluated, and interactive narrow-domain Agent that answers:
 **“Why does this periodic signal sound distorted?”**
 
+**Product framing (D037):** default path is a **single file** (conservative:
+clipping may be confirmed; harmonic “added distortion” is not claimed without
+context). A clean **reference WAV** or a **declared single-tone stimulus** is an
+optional upgrade when the user can provide it—not a claim that every real
+deployment has an undistorted original. This is diagnosis with evidence gates,
+not general audio QA / pass-fail metrology.
+
 The product path uses a real LLM to select DSP, rule, and knowledge actions
 dynamically. Deterministic DSP owns every numeric result, versioned profiles own
 thresholds, and every supported diagnosis must cite same-run evidence. A
@@ -13,10 +20,11 @@ never a silent product fallback.
 
 > V0.2 is a demonstrable vertical slice, not a production audio-QA,
 > chip-validation, or standards-compliance product. The accepted V0.2 product
-> identity is commit `b48790c` / prompt `v0.2-s1-planner-8.1`. HEAD defaults to
-> the additive V0.3 planner `v0.3-s1-planner-9.11` (reports uncertified by
-> Phase 4.3.1). Package metadata may still say `0.2.0`; that label preserves
-> tag/wheel history and is not a claim that HEAD equals the v8.1 Demo.
+> identity is commit `b48790c` / prompt `v0.2-s1-planner-8.1` (**79/80** held-out
+> attaches only there). HEAD defaults to the additive V0.3 planner
+> `v0.3-s1-planner-9.11` (reports uncertified by Phase 4.3.1). Package metadata
+> may still say `0.2.0`; that label preserves tag/wheel history and is not a
+> claim that HEAD equals the v8.1 Demo.
 
 ## Architecture
 

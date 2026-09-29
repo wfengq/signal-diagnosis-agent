@@ -1104,6 +1104,34 @@ async def test_t_cx106_contextual_nominal_wav_route(
 
 
 @pytest.mark.asyncio
+async def test_t_cx268_contextual_single_signal_wav_route(
+    finish_service: DiagnosisApplicationService,
+) -> None:
+    wav = _mono_extrema_wav()
+    body, content_type = _contextual_wav_form(
+        wav,
+        mode="single_signal",
+    )
+    async with _client(finish_service) as client:
+        accepted = await client.post(
+            "/api/v1/contextual-runs/wav",
+            content=body,
+            headers={"Content-Type": content_type},
+        )
+        assert accepted.status_code == 202
+        submission = ContextualRunSubmission.model_validate(accepted.json())
+        terminal = await finish_service.wait_for_contextual_terminal(submission.run_id)
+        assert terminal.status == "completed"
+        assert terminal.stimulus_context.mode == "single_signal"
+        assert terminal.reference_source is None
+        assert terminal.context_guidance is not None
+        polled = await client.get(f"/api/v1/contextual-runs/{submission.run_id}")
+        assert polled.status_code == 200
+        snapshot = ContextualAppRunSnapshot.model_validate(polled.json())
+        assert snapshot.context_guidance is not None
+
+
+@pytest.mark.asyncio
 async def test_t_cx107_contextual_paired_snapshot_route(
     finish_service: DiagnosisApplicationService,
 ) -> None:

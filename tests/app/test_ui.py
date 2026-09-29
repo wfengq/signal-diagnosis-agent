@@ -186,9 +186,9 @@ def test_t277_complete_interaction_surface() -> None:
     assert "async function pollRun" in script
     assert "function renderLifecycle" in script
     assert "function renderTerminal" in script
-    assert "/api/v1/runs/wav" in script
+    assert "/api/v1/contextual-runs/wav" in script
     assert "/api/v1/runs/synthetic" in script
-    assert "/api/v1/runs/" in script
+    assert "/api/v1/runs/" in script or "/api/v1/contextual-runs/" in script
     assert "/report.json" in script
     assert "/report.html" in script
     assert "/api/v1/presets" in script
@@ -362,7 +362,8 @@ def test_t_cx117_contextual_ui_accessibility_labels() -> None:
     assert 'for="nominal-fundamental-hz"' in html
     assert 'id="reference-file"' in html
     assert 'for="reference-file"' in html
-    assert "unknown" in html.casefold()
+    assert 'id="guidance-panel"' in html
+    assert "single_signal" in html or "unknown" in html.casefold()
     assert "single tone" in html.casefold() or "nominal" in html.casefold()
     assert "reference" in html.casefold()
     assert 'id="declaration-panel"' in html
@@ -372,6 +373,7 @@ def test_t_cx117_contextual_ui_accessibility_labels() -> None:
         "declaration-panel",
         "qualification-panel",
         "limitation-panel",
+        "guidance-panel",
     ):
         assert f'id="{section_id}"' in html
 
@@ -388,8 +390,8 @@ def test_t_cx118_contextual_ui_conditional_visibility() -> None:
     assert "hidden" in script or "display" in css
     assert "nominal_single_tone" in script or "single_tone" in script
     assert "paired_reference" in script
-    # Default remains the unknown one-WAV experience.
-    assert 'value="unknown"' in html or 'value="single_signal"' in html
+    # Default one-WAV experience uses contextual single_signal.
+    assert 'value="single_signal"' in html
     assert "selected" in html or "checked" in html
 
 
@@ -398,6 +400,7 @@ def test_t_cx119_contextual_ui_sections_and_no_client_dsp() -> None:
     script = _static_text("app.js")
     page = f"{html}\n{script}".casefold()
     assert "declaration-panel" in html
+    assert "guidance-panel" in html
     assert "qualification-panel" in html
     assert "limitation-panel" in html
     assert "evidence-panel" in html
@@ -406,7 +409,9 @@ def test_t_cx119_contextual_ui_sections_and_no_client_dsp() -> None:
     assert html.index('id="limitation-panel"') != html.index('id="evidence-panel"')
     assert "/api/v1/contextual-runs/wav" in script
     assert "/api/v1/contextual-runs/" in script
-    assert "/api/v1/runs/wav" in script
+    assert 'mode", diagnosticMode' in script or "mode\", diagnosticMode" in script
+    assert "single_signal" in script
+    assert "context_guidance" in script
     for token in (
         "fft",
         "numpy",
@@ -419,3 +424,18 @@ def test_t_cx119_contextual_ui_sections_and_no_client_dsp() -> None:
         assert token not in page
     for sink in FORBIDDEN_HTML_SINKS:
         assert sink not in script
+
+
+def test_t_cx268_ui_unknown_wav_uses_contextual_single_signal() -> None:
+    html = _static_text("index.html")
+    script = _static_text("app.js")
+    assert 'value="single_signal"' in html
+    assert "selected" in html
+    assert "/api/v1/contextual-runs/wav" in script
+    assert 'body.append("mode", diagnosticMode)' in script
+    assert "single_signal" in script
+    assert "/api/v1/runs/synthetic" in script
+    assert script.count("/api/v1/runs/wav") == 0
+    assert "renderGuidance" in script
+    assert "guidance-panel" in html
+    assert "context_guidance" in script

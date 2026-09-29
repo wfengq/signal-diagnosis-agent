@@ -190,6 +190,11 @@
 | T-CX261 | Arm-result claim population counters reject impossible and failed-result states. |
 | T-CX262 | Append-only identity amendment binds the deterministic reconstruction implementation without changing campaign evidence. |
 | T-CX263 | OQ-014 Option C: single_signal supported_fault clipping via flat_top_detected plus substantial legacy clipping-rule FAIL without clipping_mechanism=true. |
+| T-CX264 | single_signal inconclusive with harmonic Evidence emits harmonic_attribution_requires_context guidance; wording forbids soft diagnosis. |
+| T-CX265 | context_guidance is absent for supported_fault, no_supported_fault, and non-single_signal modes. |
+| T-CX266 | contextual submit accepts mode=single_signal (test WAV only) and rejects reference/nominal fields. |
+| T-CX267 | completed single_signal inconclusive snapshots attach deterministic context_guidance (including harmonic path). |
+| T-CX268 | API/CLI/UI wire single_signal contextual submit; UI default unknown one-WAV uses contextual single_signal and renders guidance. |
 
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
@@ -226,3 +231,8 @@ validation for the same scoring correction.
 T-CX262 records the follow-up evaluation-harness identity bridge only.
 T-CX263 records OQ-014 Option C single_signal flat-top clipping finish behavior
 and the append-only behavior identity bridge `oq014_option_c_single_signal_flat_top_clipping`.
+T-CX264–T-CX268 are additive for D037 single-file context guidance. They must
+not alter DSP, rule thresholds, planner prompts, causal finish gates, or frozen
+V0.2 endpoints/DTOs. The append-only code-identity bridge
+`d037_single_file_context_guidance` rebinds the live product-tree digest without
+rewriting the sealed OQ-014 behavior-identity row.

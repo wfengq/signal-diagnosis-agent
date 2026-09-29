@@ -6,7 +6,7 @@
 
 **Design:** `docs/superpowers/specs/2026-09-04-v0-3-contextual-reference-diagnosis-design.md`
 
-**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX263)
+**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX268)
 
 **Live product identity (HEAD):** prompt `v0.3-s1-planner-9.11` with causal
 policy `v9_11_mode_aware_no_fault_recovery` (§15). Historical identities
@@ -565,3 +565,49 @@ under v9.10/v9.11 coherent-family validation and under legacy
 `paired_reference` and `nominal_single_tone` clipping claims still require the
 contextual test family (`test_clipping_mechanism=true` plus test-side rule
 FAILs). Legacy and contextual families cannot be mixed.
+
+## 17. Single-file context guidance (D037)
+
+Additive report field on `ContextualAppRunSnapshot` /
+`ContextualDiagnosisReport` only (frozen V0.2 `AppRunSnapshot` /
+`DiagnosisReport` and `/api/v1/runs/*` remain unchanged):
+
+```text
+ContextGuidanceReasonCode =
+  "harmonic_attribution_requires_context"
+  | "insufficient_evidence_for_supported_fault"
+
+context_guidance: ContextGuidance | None
+  reason_codes: non-empty unique ordered tuple[ContextGuidanceReasonCode, ...]
+  unlockable_modes: ("paired_reference", "nominal_single_tone")  # subset
+  required_inputs:
+    paired_reference: ("reference_wav",)
+    nominal_single_tone: ("nominal_fundamental_hz", "stimulus_kind=single_tone")
+  summary: str  # fixed templates; UTF-8; no LLM; no soft diagnosis
+```
+
+Emission (deterministic; no planner text):
+
+1. `stimulus_context.mode == "single_signal"`;
+2. terminal diagnosis outcome is `inconclusive`;
+3. otherwise omit (`None`) for `supported_fault`, `no_supported_fault`,
+   failed/infrastructure terminals, and non-`single_signal` modes.
+
+Reason selection:
+
+- If same-run valid Evidence includes a harmonic measurement metric in
+  `{thd_percent, even_order_present, fundamental_relative_energy,
+  even_harmonic_growth, odd_harmonic_growth, test_thd_percent}` →
+  `harmonic_attribution_requires_context`;
+- else → `insufficient_evidence_for_supported_fault`.
+
+`submit_contextual_wav` / `POST /api/v1/contextual-runs/wav` /
+`signal-diag diagnose contextual --mode single_signal` accept
+`mode=single_signal` with test WAV only (reject reference and nominal
+stimulus fields). Queued capabilities for `single_signal` expose clipping and
+absolute harmonic description only.
+
+Web UI default “Unknown one-WAV signal” submits through the contextual
+endpoint as `mode=single_signal`. Legacy `POST /api/v1/runs/wav` remains for
+compatibility and does not gain `context_guidance`. Nominal Hz must never be
+auto-filled from measured F0.

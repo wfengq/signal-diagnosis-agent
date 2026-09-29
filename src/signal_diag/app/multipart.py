@@ -204,7 +204,9 @@ _CONTEXTUAL_ALLOWED_FIELDS = frozenset(
 _CONTEXTUAL_REQUIRED_FIELDS = frozenset(
     {"test_file", "mode", "user_request", "channel"}
 )
-_CONTEXTUAL_MODES = frozenset({"nominal_single_tone", "paired_reference"})
+_CONTEXTUAL_MODES = frozenset(
+    {"nominal_single_tone", "paired_reference", "single_signal"}
+)
 _CONTEXTUAL_FILE_FIELDS = frozenset({"test_file", "reference_file"})
 
 

@@ -44,7 +44,7 @@ Read these before changing behavior or public interfaces:
    §§1–§64.
 3. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) — deterministic T001–T285 and
    separately gated real-model evaluation/Demo requirements.
-4. [DECISIONS.md](DECISIONS.md) — D001–D036 architectural and process choices.
+4. [DECISIONS.md](DECISIONS.md) — D001–D037 architectural and process choices.
 5. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — OQ-001–OQ-018 (OQ-013–OQ-018
    hygiene dispositions resolve HEAD vs frozen V0.2 documentation gaps).
 6. [CONTRACTS_V0_3_CONTEXTUAL.md](CONTRACTS_V0_3_CONTEXTUAL.md) and

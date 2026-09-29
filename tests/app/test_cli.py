@@ -856,6 +856,19 @@ def test_t_cx114_contextual_cli_rejects_invalid_flag_matrix(
             "test.wav",
             "--mode",
             "single_signal",
+            "--reference",
+            "ref.wav",
+        ],
+        [
+            "diagnose",
+            "contextual",
+            "test.wav",
+            "--mode",
+            "single_signal",
+            "--stimulus-kind",
+            "single_tone",
+            "--nominal-fundamental-hz",
+            "440",
         ],
     )
     for argv in invalid:
@@ -863,6 +876,48 @@ def test_t_cx114_contextual_cli_rejects_invalid_flag_matrix(
         captured = capsys.readouterr()
         assert code == 2
         assert "error:" in captured.err.casefold() or "invalid" in captured.err.casefold()
+
+
+def test_t_cx268_contextual_cli_accepts_single_signal(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    test_wav = tmp_path / "alone.wav"
+    payload = _mono_extrema_wav()
+    test_wav.write_bytes(payload)
+    base = _contextual_completed_snapshot()
+    snapshot = base.model_copy(
+        update={
+            "stimulus_context": StimulusContext(
+                mode="single_signal",
+                test_signal_id="sig_test",
+                assertion_source="user_supplied",
+            ),
+            "reference_source": None,
+        }
+    )
+    service = _FakeService(contextual_snapshot=snapshot)
+    code = _run(
+        [
+            "diagnose",
+            "contextual",
+            str(test_wav),
+            "--mode",
+            "single_signal",
+            "--output",
+            "json",
+        ],
+        service_factory=lambda: service,
+    )
+    capsys.readouterr()
+    assert code == 0
+    assert len(service.submit_contextual_calls) == 1
+    call = service.submit_contextual_calls[0]
+    assert call["mode"] == "single_signal"
+    assert call["reference_data"] is None
+    assert call["nominal_fundamental_hz"] is None
+    assert call["stimulus_kind"] is None
+    assert service.wait_contextual_calls == [snapshot.run_id]
 
 
 def test_t_cx115_contextual_cli_submits_and_renders(
