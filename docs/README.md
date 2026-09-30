@@ -96,9 +96,9 @@ the root README read like a task ledger.
 - V0.3 additive (HEAD): contextual modes, D037 single-file default with
   `context_guidance` and Web UI held-bytes upgrade (§17–§18 / T-CX264–T-CX275).
 - Approved study shape (OQ-019 / D038): [S1 planner-ablation utility study](superpowers/specs/2026-09-30-s1-planner-ablation-utility-study-design.md);
-  plan [Wave 0](superpowers/plans/2026-09-30-s1-planner-ablation-utility-study.md);
-  CONTRACTS §19 / T-CX276–T-CX288 definitions landed. Harness, seal, and RealLLM
-  still need later grants.
+  plan [Wave 0–2](superpowers/plans/2026-09-30-s1-planner-ablation-utility-study.md);
+  CONTRACTS §19 / T-CX276–T-CX288 and Wave 2 harness landed. Protocol seal and
+  RealLLM still need later grants.
 
 The [engineering case study](PROJECT_CASE_STUDY.md) is the concise narrative;
 the specs, plans, Git history, and committed bundles are the detailed evidence.
