@@ -1,9 +1,9 @@
 # S1 default-path utility and planner-ablation study
 
 **Status:** study-shape approved (OQ-019 / D038, operator 2026-09-30; revised
-after Codex adversarial review the same day). This is not an executable
-experiment protocol, writing-plans grant, harness grant, or RealLLM campaign
-grant.
+after Codex adversarial review the same day). Implementation plan drafted under
+a documentation-only grant; awaiting strong-model plan review. This is not an
+executable experiment protocol, harness grant, or RealLLM campaign grant.
 
 **Date:** 2026-09-30
 
@@ -24,7 +24,8 @@ grant.
 
 **Open question:** OQ-019 (resolved — study shape approved; see D038)
 
-**Plan:** not written until a separate documentation-only writing-plans grant
+**Plan:** `docs/superpowers/plans/2026-09-30-s1-planner-ablation-utility-study.md`
+(Wave 0 draft; Wave 1+ gated)
 
 ## 1. Decision summary
 
@@ -264,7 +265,7 @@ Other claims under test:
 | Layer | This design package | Needs later grant |
 |-------|---------------------|-------------------|
 | Study-shape design + OQ-019 / D038 | Approved 2026-09-30 | Shape frozen; later grants still required |
-| writing-plans (docs only) | No | Separate documentation-only grant after shape approval |
+| writing-plans (docs only) | Draft plan written 2026-09-30 | Strong-model review + operator accept before Wave 1 |
 | Additive CONTRACTS / TEST_PLAN definitions | No | Bounded grant; definitions before code |
 | Harness + Scripted dry-run | No | Same bounded grant after definitions, or a follow-on grant |
 | Execution-protocol seal and identity check | No | Before any scored run |
