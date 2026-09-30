@@ -6,6 +6,40 @@ function appendText(parent, tagName, value, className = "") {
   return element;
 }
 
+/** Client-held test WAV for D037 upgrade resubmits (cleared on reload). */
+const heldTestSignal = {
+  blob: null,
+  filename: null,
+  channel: null,
+  userRequest: null,
+};
+
+function clearHeldTestSignal() {
+  heldTestSignal.blob = null;
+  heldTestSignal.filename = null;
+  heldTestSignal.channel = null;
+  heldTestSignal.userRequest = null;
+}
+
+function rememberHeldTestSignal({ blob, filename, channel, userRequest }) {
+  heldTestSignal.blob = blob;
+  heldTestSignal.filename = filename;
+  heldTestSignal.channel = channel;
+  heldTestSignal.userRequest = userRequest;
+}
+
+function setUpgradeControlsVisible(visible) {
+  const controls = document.getElementById("upgrade-controls");
+  if (!controls) return;
+  controls.hidden = !visible;
+  if (!visible) {
+    const hz = document.getElementById("upgrade-nominal-hz");
+    if (hz) hz.value = "";
+    const ref = document.getElementById("upgrade-reference-file");
+    if (ref) ref.value = "";
+  }
+}
+
 function clearPanel(panel, heading) {
   panel.replaceChildren();
   appendText(panel, "h2", heading);
@@ -177,8 +211,11 @@ function renderQualification(panel, evidence) {
 
 function renderGuidance(panel, snapshot) {
   const guidance = snapshot.context_guidance;
+  const controls = document.getElementById("upgrade-controls");
   if (!guidance) {
     appendText(panel, "p", "No context upgrade guidance for this run.");
+    setUpgradeControlsVisible(false);
+    if (controls) panel.appendChild(controls);
     return;
   }
   appendText(panel, "p", guidance.summary);
@@ -203,6 +240,10 @@ function renderGuidance(panel, snapshot) {
     "Upgrade requires a user-supplied reference WAV or declared nominal_fundamental_hz; measured F0 is never auto-filled.",
     "muted",
   );
+  setUpgradeControlsVisible(Boolean(heldTestSignal.blob));
+  if (controls) {
+    panel.appendChild(controls);
+  }
 }
 
 function renderLimitations(panel, snapshot) {
@@ -327,6 +368,10 @@ function renderTerminal(snapshot) {
   const evidencePanel = document.getElementById("evidence-panel");
   const rulesPanel = document.getElementById("rules-panel");
   const knowledgePanel = document.getElementById("knowledge-panel");
+  const upgradeControls = document.getElementById("upgrade-controls");
+  if (upgradeControls) {
+    upgradeControls.remove();
+  }
   clearPanel(diagnosisPanel, "Diagnosis");
   clearPanel(guidancePanel, "Context guidance");
   clearPanel(declarationPanel, "Declared context");
@@ -337,6 +382,9 @@ function renderTerminal(snapshot) {
   clearPanel(evidencePanel, "Evidence");
   clearPanel(rulesPanel, "Rules");
   clearPanel(knowledgePanel, "Knowledge");
+  if (upgradeControls) {
+    guidancePanel.appendChild(upgradeControls);
+  }
 
   renderDiagnosis(diagnosisPanel, snapshot);
   renderGuidance(guidancePanel, snapshot);
@@ -495,6 +543,31 @@ async function parseJsonResponse(response) {
   return payload;
 }
 
+async function fetchPresetWavBlob(presetId) {
+  const response = await fetch(`/api/v1/presets/${encodeURIComponent(presetId)}/wav`);
+  if (!response.ok) {
+    let payload = null;
+    try {
+      payload = await response.json();
+    } catch (_error) {
+      payload = null;
+    }
+    throw new Error(
+      payload && payload.error && payload.error.message
+        ? payload.error.message
+        : `preset wav request failed (${response.status})`,
+    );
+  }
+  return response.blob();
+}
+
+async function postContextualWav(body) {
+  return fetch("/api/v1/contextual-runs/wav", {
+    method: "POST",
+    body,
+  }).then(parseJsonResponse);
+}
+
 async function submitDiagnose(event) {
   event.preventDefault();
   const question = document.getElementById("question").value;
@@ -504,55 +577,94 @@ async function submitDiagnose(event) {
   document.getElementById("report-json").hidden = true;
   document.getElementById("report-html").hidden = true;
   try {
-    let submission;
-    let contextual = false;
+    let testBlob;
+    let testFilename;
+    let diagnosticMode;
     if (selectedMode() === "preset") {
-      submission = await fetch("/api/v1/runs/synthetic", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          preset_id: document.getElementById("preset-id").value,
-          user_request: question,
-          channel,
-        }),
-      }).then(parseJsonResponse);
+      const presetId = document.getElementById("preset-id").value;
+      testBlob = await fetchPresetWavBlob(presetId);
+      testFilename = "input.wav";
+      diagnosticMode = "single_signal";
     } else {
       const fileInput = document.getElementById("wav-file");
       if (!fileInput.files || !fileInput.files[0]) {
         throw new Error("Choose a WAV file before submitting.");
       }
-      const diagnosticMode = selectedDiagnosticMode();
-      contextual = true;
-      const body = new FormData();
-      body.append("test_file", fileInput.files[0]);
-      body.append("mode", diagnosticMode);
-      body.append("user_request", question);
-      body.append("channel", channel);
-      if (diagnosticMode === "nominal_single_tone") {
-        body.append("stimulus_kind", "single_tone");
-        body.append(
-          "nominal_fundamental_hz",
-          document.getElementById("nominal-fundamental-hz").value,
-        );
-      } else if (diagnosticMode === "paired_reference") {
-        const referenceInput = document.getElementById("reference-file");
-        if (!referenceInput.files || !referenceInput.files[0]) {
-          throw new Error("Choose a reference WAV before submitting.");
-        }
-        body.append("reference_file", referenceInput.files[0]);
-      }
-      submission = await fetch("/api/v1/contextual-runs/wav", {
-        method: "POST",
-        body,
-      }).then(parseJsonResponse);
+      testBlob = fileInput.files[0];
+      testFilename = fileInput.files[0].name || "input.wav";
+      diagnosticMode = selectedDiagnosticMode();
     }
+    rememberHeldTestSignal({
+      blob: testBlob,
+      filename: testFilename,
+      channel,
+      userRequest: question,
+    });
+    const body = new FormData();
+    body.append("test_file", testBlob, testFilename);
+    body.append("mode", diagnosticMode);
+    body.append("user_request", question);
+    body.append("channel", channel);
+    if (diagnosticMode === "nominal_single_tone") {
+      body.append("stimulus_kind", "single_tone");
+      body.append(
+        "nominal_fundamental_hz",
+        document.getElementById("nominal-fundamental-hz").value,
+      );
+    } else if (diagnosticMode === "paired_reference") {
+      const referenceInput = document.getElementById("reference-file");
+      if (!referenceInput.files || !referenceInput.files[0]) {
+        throw new Error("Choose a reference WAV before submitting.");
+      }
+      body.append("reference_file", referenceInput.files[0]);
+    }
+    const submission = await postContextualWav(body);
     renderLifecycle(submission.status);
-    await pollRun(submission.run_id, { contextual });
+    await pollRun(submission.run_id, { contextual: true });
   } catch (error) {
     showError(error instanceof Error ? error.message : String(error));
   } finally {
     submit.disabled = false;
   }
+}
+
+async function submitUpgradePaired() {
+  if (!heldTestSignal.blob) {
+    throw new Error("No held test WAV to upgrade.");
+  }
+  const referenceInput = document.getElementById("upgrade-reference-file");
+  if (!referenceInput.files || !referenceInput.files[0]) {
+    throw new Error("Choose a reference WAV before upgrading.");
+  }
+  const body = new FormData();
+  body.append("test_file", heldTestSignal.blob, heldTestSignal.filename || "input.wav");
+  body.append("mode", "paired_reference");
+  body.append("user_request", heldTestSignal.userRequest || "");
+  body.append("channel", heldTestSignal.channel || "mixdown");
+  body.append("reference_file", referenceInput.files[0]);
+  const submission = await postContextualWav(body);
+  renderLifecycle(submission.status);
+  await pollRun(submission.run_id, { contextual: true });
+}
+
+async function submitUpgradeNominal() {
+  if (!heldTestSignal.blob) {
+    throw new Error("No held test WAV to upgrade.");
+  }
+  const hz = document.getElementById("upgrade-nominal-hz").value;
+  if (!hz || !String(hz).trim()) {
+    throw new Error("Enter a nominal fundamental in Hz before upgrading.");
+  }
+  const body = new FormData();
+  body.append("test_file", heldTestSignal.blob, heldTestSignal.filename || "input.wav");
+  body.append("mode", "nominal_single_tone");
+  body.append("stimulus_kind", "single_tone");
+  body.append("nominal_fundamental_hz", hz);
+  body.append("user_request", heldTestSignal.userRequest || "");
+  body.append("channel", heldTestSignal.channel || "mixdown");
+  const submission = await postContextualWav(body);
+  renderLifecycle(submission.status);
+  await pollRun(submission.run_id, { contextual: true });
 }
 
 function bindUi() {
@@ -563,6 +675,23 @@ function bindUi() {
   document
     .querySelectorAll('input[name="source-mode"]')
     .forEach((input) => input.addEventListener("change", updateContextualFields));
+  const pairedButton = document.getElementById("upgrade-paired");
+  const nominalButton = document.getElementById("upgrade-nominal");
+  if (pairedButton) {
+    pairedButton.addEventListener("click", () => {
+      submitUpgradePaired().catch((error) => {
+        showError(error instanceof Error ? error.message : String(error));
+      });
+    });
+  }
+  if (nominalButton) {
+    nominalButton.addEventListener("click", () => {
+      submitUpgradeNominal().catch((error) => {
+        showError(error instanceof Error ? error.message : String(error));
+      });
+    });
+  }
+  setUpgradeControlsVisible(false);
   updateContextualFields();
   loadPresets().catch((error) => {
     showError(error instanceof Error ? error.message : String(error));
