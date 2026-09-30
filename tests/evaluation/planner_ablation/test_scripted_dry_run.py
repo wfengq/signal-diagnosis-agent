@@ -24,6 +24,7 @@ from signal_diag.evaluation.planner_ablation.baseline import (
 )
 from signal_diag.evaluation.planner_ablation.campaign import (
     run_four_path_harness_dry_run,
+    run_harness_dry_run_product_slot,
 )
 from signal_diag.evaluation.planner_ablation.identity import (
     PLANNER_ABLATION_SCORING_IDENTITY,
@@ -67,6 +68,9 @@ class _FailOnCallProvider:
 
 
 class _ImmediateFinishPlanner:
+    def __init__(self, provider: _FailOnCallProvider) -> None:
+        self._provider = provider
+
     async def decide(self, context: PlannerContext) -> AgentDecision:
         del context
         return FinishDecision(
@@ -113,7 +117,7 @@ async def scripted_executor(provider_spy: _FailOnCallProvider) -> AppProductSlot
     repo = InMemorySignalRepository()
     dependencies = ApplicationDependencies(
         repository=repo,
-        planner_factory=lambda: _ImmediateFinishPlanner(),
+        planner_factory=lambda: _ImmediateFinishPlanner(provider_spy),
         planner_identity=PlannerIdentity(
             provider="deepseek",
             model="deepseek-v4-flash",
@@ -211,6 +215,34 @@ async def test_t_cx282_four_executor_mode_paths_zero_provider_calls(
     assert all(item.execution_identity == "harness_only" for item in results)
     assert results[0].planner_class == "_ImmediateFinishPlanner"
     assert results[2].planner_class == "PlannerAblationFixedPipelineBaseline"
+
+
+@pytest.mark.asyncio
+async def test_t_cx288_rejects_relabeled_harness_dry_run_outcome(
+    scripted_executor: AppProductSlotExecutor,
+    provider_spy: _FailOnCallProvider,
+) -> None:
+    test = generate_sine(frequency_hz=440.0, sample_rate_hz=8_000, duration_s=0.25)
+    harness_outcome, dry_run = await run_harness_dry_run_product_slot(
+        scripted_executor,
+        ProductSlotRequest(
+            case_id="rewrite_probe",
+            test_wav_bytes=_wav_from_case(test),
+            mode="single_signal",
+            user_request=USER_REQUEST,
+        ),
+        provider=provider_spy,
+    )
+    assert dry_run.execution_identity == "harness_only"
+    relabeled = {
+        "arm": "product_agent",
+        "execution_identity": harness_outcome.execution_identity,
+        "planner_class": harness_outcome.planner_class,
+        "study_id": PLANNER_ABLATION_STUDY_ID,
+        "scoring_identity": PLANNER_ABLATION_SCORING_IDENTITY,
+    }
+    with pytest.raises(ValueError, match="harness_only"):
+        validate_scored_campaign_input(relabeled)
 
 
 def test_t_cx288_rejects_harness_only_relabeled_as_product_agent() -> None:

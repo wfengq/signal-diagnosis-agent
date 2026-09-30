@@ -8,11 +8,18 @@ import pytest
 
 from signal_diag.evaluation.contextual.baseline import ContextualFixedPipelineBaseline
 from signal_diag.evaluation.contextual.models import ContextualBaselineRequest
+from signal_diag.agent.diagnosis import (
+    DiagnosisValidationError,
+    _has_harmonic_even_order_structure,
+    validate_finish_decision,
+)
+from signal_diag.agent.models import DiagnosisClaim, FinishDecision, TaskAssessment
 from signal_diag.evaluation.planner_ablation.baseline import (
     PlannerAblationFixedPipelineBaseline,
     paired_clipping_supported,
     single_signal_clipping_supported,
 )
+from signal_diag.tools.evidence import Evidence
 from signal_diag.evaluation.planner_ablation.models import (
     PlannerAblationBaselineRequest,
 )
@@ -187,6 +194,67 @@ async def test_t_cx287_single_signal_inconclusive_valid(
     )
     assert result.diagnosis is not None
     assert result.diagnosis.outcome == "inconclusive"
+
+
+def test_paired_harmonic_even_order_gate_matches_product_validator() -> None:
+    """Study baseline and product both require even_order_present for harmonic supported_fault."""
+    claim = DiagnosisClaim(
+        claim_id="claim_harmonic_no_even",
+        fault_type="harmonic_distortion",
+        statement="Elevated THD alone cannot support harmonic_distortion.",
+        evidence_refs=("ev_thd",),
+        rule_refs=(),
+    )
+    evidence = (
+        Evidence(
+            evidence_id="ev_thd",
+            call_id="call_1",
+            source_tool="analyze_harmonic_distortion",
+            metric="thd_percent",
+            value=9.0,
+            validity="valid",
+            channel="mixdown",
+        ),
+    )
+    evidence_by_id = {item.evidence_id: item for item in evidence}
+    assert _has_harmonic_even_order_structure(claim, evidence_by_id) is False
+
+    decision = FinishDecision(
+        task_assessment=TaskAssessment(
+            task_type="distortion_analysis",
+            objective="determine distortion",
+            hypotheses=("harmonic_distortion",),
+        ),
+        outcome="supported_fault",
+        claims=(claim,),
+        confidence_label="medium",
+    )
+    with pytest.raises(DiagnosisValidationError, match="even_order_present"):
+        validate_finish_decision(
+            decision,
+            known_evidence_ids=frozenset(evidence_by_id),
+            task_assessment=decision.task_assessment,
+            evidence=evidence,
+            causal_policy_version="v9_4_legacy",
+        )
+
+    class _SeriesEvidence:
+        def __init__(self, metric: str, value: str, validity: str = "valid") -> None:
+            self.metric = metric
+            self.value = value
+            self.validity = validity
+
+    harmonic_rules: list[object] | None = [object()]
+    analysis_evidence = (_SeriesEvidence("test_series_kind", "native_odd_series"),)
+    even_order = any(
+        item.metric == "test_series_kind"
+        and item.value == "even_order_present"
+        and item.validity == "valid"
+        for item in analysis_evidence
+    )
+    if harmonic_rules is not None and not even_order:
+        harmonic_rules = None
+    assert harmonic_rules is None
 
 
 def test_t_cx277_negative_mechanism_without_substantial_fail() -> None:

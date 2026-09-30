@@ -154,6 +154,7 @@ def claim_population_denominator(
     """T-CX283: claim population counts grounded claims, not slot placeholders."""
     validate_scored_slots(slots)
     grounded = 0
+    total = 0
     for slot in slots:
         if slot.get("completed_diagnosis") is not True:
             continue
@@ -169,13 +170,14 @@ def claim_population_denominator(
                     claim = claim_mapping()
                 else:
                     continue
+            total += 1
             if _claim_has_same_run_refs(
                 claim,
                 evidence_ids=evidence_ids,
                 rule_eval_ids=rule_eval_ids,
             ):
                 grounded += 1
-    return _rate(grounded, grounded)
+    return _rate(grounded, total)
 
 
 def upgrade_success_denominators(

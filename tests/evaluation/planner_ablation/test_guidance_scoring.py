@@ -127,6 +127,7 @@ def test_t_cx279_guidance_emission_parity_both_arms() -> None:
     )
     assert baseline_guidance is not None
     assert baseline_guidance.reason_codes == study_guidance.reason_codes
+    assert guidance_parity_equal(baseline_guidance, study_guidance)
 
 
 def test_t_cx279_guidance_omitted_when_not_inconclusive() -> None:
@@ -202,7 +203,8 @@ def test_t_cx283_claim_population_counts_grounded_claims_only() -> None:
     )
     population = claim_population_denominator(slots)
     assert population.numerator == 1
-    assert population.denominator == 1
+    assert population.denominator == 2
+    assert population.value == 0.5
 
 
 def test_t_cx283_zero_claim_population_is_not_evaluable() -> None:
@@ -210,18 +212,30 @@ def test_t_cx283_zero_claim_population_is_not_evaluable() -> None:
         claim_population_denominator(
             (
                 _scored_slot(completed_diagnosis=True, claims=()),
-                _scored_slot(
-                    completed_diagnosis=True,
-                    claims=(
-                        {
-                            "claim_id": "bad",
-                            "evidence_refs": ("missing",),
-                            "rule_refs": (),
-                        },
-                    ),
-                ),
+                _scored_slot(completed_diagnosis=False, claims=({"claim_id": "ignored"},)),
             )
         )
+
+
+def test_t_cx283_claim_population_ignores_incomplete_diagnosis_slots() -> None:
+    population = claim_population_denominator(
+        (
+            _scored_slot(
+                completed_diagnosis=True,
+                evidence=(),
+                claims=(
+                    {"claim_id": "c1", "evidence_refs": (), "rule_refs": ()},
+                    {"claim_id": "c2", "evidence_refs": (), "rule_refs": ()},
+                ),
+            ),
+            _scored_slot(
+                completed_diagnosis=False,
+                claims=({"claim_id": "c3", "evidence_refs": ("ev_x",), "rule_refs": ()},),
+            ),
+        )
+    )
+    assert population.numerator == 0
+    assert population.denominator == 2
 
 
 def test_t_cx285_upgrade_success_reports_both_denominators() -> None:
