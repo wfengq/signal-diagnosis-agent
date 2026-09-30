@@ -94,7 +94,7 @@ Both frozen modes (`single_signal`, `paired_reference`) × claim families:
 
 | Mode | Clipping support | Harmonic support | `no_supported_fault` | Valid `inconclusive` |
 |------|------------------|------------------|----------------------|----------------------|
-| `single_signal` | OQ-014 Option C: `clipping_mechanism=true` **or** `flat_top_detected=true` + substantial legacy FAIL | Absolute/harmonic description only; no unsupported harmonic `supported_fault` | Legacy clipping clean family + single no-fault rules as product path | Correct when evidence insufficient; may carry deterministic `context_guidance` |
+| `single_signal` | OQ-014 Option C: (a) valid `clipping_mechanism=true` Evidence + substantial legacy FAIL, or (b) valid `flat_top_detected=true` Evidence + same substantial FAIL when `clipping_mechanism` is false. Mechanism alone is not enough. | Absolute/harmonic description only; no unsupported harmonic `supported_fault` | Legacy clipping clean family + single no-fault rules as product path | Correct when evidence insufficient; may carry deterministic `context_guidance` |
 | `paired_reference` | Contextual test family only (`test_clipping_mechanism` + test-side FAILs); no family mixing | Mode-specific contextual harmonic gate | Contextual test clean family (not legacy-only clean) | Correct when context invalid/insufficient per oracle |
 
 Acceptance for "matched gates" requires positive and negative cases, valid
@@ -396,22 +396,24 @@ class StudyConclusion(str, Enum):
     INSUFFICIENT_EVIDENCE = "insufficient_evidence"
 ```
 
-- [ ] **Step 1: Implement parameterized decision function** that reads an
+- [ ] **Step 1: Write failing unit tests first (TDD)** for all three
+  conclusions, negative cases that must not yield advantage or dominance
+  (safety failure; unacceptable regression on another constrained metric;
+  missing evaluable population; incomplete protocol; failed matching
+  prerequisites; unmatched comparison), equal-completion dominance only when
+  every other required condition holds (T-CX286), and identity/denominator
+  derivation (T-CX280).
+
+- [ ] **Step 2: Run the focused tests and confirm they fail for the missing
+  decision function**
+
+- [ ] **Step 3: Implement the parameterized decision function** that reads an
   approved protocol object. Do not hard-code draft `1/N` or `20%` as live
   acceptance gates inside library defaults used outside a sealed protocol.
 
-- [ ] **Step 2: Unit-test all three conclusions**
+- [ ] **Step 4: Re-run focused tests green**
 
-- [ ] **Step 3: Negative cases that must NOT yield advantage or dominance:**
-  safety failure; unacceptable regression on another constrained metric;
-  missing evaluable population; incomplete protocol; failed matching
-  prerequisites; unmatched comparison
-
-- [ ] **Step 4: Equal 100% completion permits dominance only when every other
-  required condition holds (T-CX286)**
-
-- [ ] **Step 5: Identity/denominator derivation tests (T-CX280); commit only
-  with authorization**
+- [ ] **Step 5: Commit only with authorization**
 
 ```bash
 git commit -m "feat(evaluation): planner-ablation decision language and identity guards"
