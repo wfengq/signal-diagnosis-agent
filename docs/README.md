@@ -50,9 +50,9 @@ Read these before changing behavior or public interfaces:
    OQ-019 / D038 freezes the S1 planner-ablation study shape only).
 6. [CONTRACTS_V0_3_CONTEXTUAL.md](CONTRACTS_V0_3_CONTEXTUAL.md) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) — additive
-   HEAD / contextual surfaces including D037 §17–§18
-   (`context_guidance`, preset WAV, held-bytes upgrade; do not edit frozen
-   §§1–64).
+   HEAD / contextual surfaces including D037 §17–§18 and D038 §19
+   (`context_guidance`, preset WAV, held-bytes upgrade, planner-ablation study
+   definitions; do not edit frozen §§1–64).
 7. [EXTERNAL_VALIDATION_CONTRACTS_V0_2.md](EXTERNAL_VALIDATION_CONTRACTS_V0_2.md)
    and [EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md](EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md)
    — external-WAV study contracts.
@@ -95,8 +95,10 @@ the root README read like a task ledger.
   real product Demo, T224–T285.
 - V0.3 additive (HEAD): contextual modes, D037 single-file default with
   `context_guidance` and Web UI held-bytes upgrade (§17–§18 / T-CX264–T-CX275).
-- Approved study shape (OQ-019 / D038): [S1 planner-ablation utility study](superpowers/specs/2026-09-30-s1-planner-ablation-utility-study-design.md)
-  (shape only; writing-plans, harness, and RealLLM still need later grants).
+- Approved study shape (OQ-019 / D038): [S1 planner-ablation utility study](superpowers/specs/2026-09-30-s1-planner-ablation-utility-study-design.md);
+  plan [Wave 0](superpowers/plans/2026-09-30-s1-planner-ablation-utility-study.md);
+  CONTRACTS §19 / T-CX276–T-CX288 definitions landed. Harness, seal, and RealLLM
+  still need later grants.
 
 The [engineering case study](PROJECT_CASE_STUDY.md) is the concise narrative;
 the specs, plans, Git history, and committed bundles are the detailed evidence.

@@ -29,6 +29,7 @@
 | T-CX191..196 | v9.9 paired-reference recovery |
 | T-CX197..207 | truth-free deterministic contextual fixed pipeline and reseal |
 | T-CX231..240 | v9.10 contextual clipping recovery |
+| T-CX276..288 | D038 planner-ablation utility study (definitions; harness gated) |
 
 ## Registered identities (Task 1)
 
@@ -202,6 +203,19 @@
 | T-CX273 | Served harmonic_distortion WAV under ScriptedPlanner emits harmonic_attribution_requires_context guidance. |
 | T-CX274 | Held-bytes upgrade resubmits the same test bytes as paired_reference / nominal_single_tone (survives parent eviction). |
 | T-CX275 | Web UI fetches preset WAV, submits contextual single_signal as input.wav, renders upgrade controls, and does not POST /api/v1/runs/synthetic. |
+| T-CX276 | Planner-ablation product slots use complete `submit_contextual_wav` kwargs and `wait_for_contextual_terminal`; legacy `submit_wav` / `wait_for_terminal` fail if called; Scripted integration returns a contextual snapshot. |
+| T-CX277 | Study `fixed_pipeline` `single_signal` clipping finish accepts OQ-014 Option C equivalently to product gates. |
+| T-CX278 | Study `fixed_pipeline` paired clipping requires contextual test-family evidence; no family mixing. |
+| T-CX279 | Deterministic report parity across both arms for guidance emission, omission, reason codes, and required inputs; guidance never scored as planner skill. |
+| T-CX280 | Study seal/scorer rejects foreign study identities and wrong denominator derivation; does not forbid coincidental numeric equality with historical rates. |
+| T-CX281 | `evaluation/planner_ablation` does not import app composition/service/report modules; product diagnosis unchanged for non-study callers. |
+| T-CX282 | Scripted dry-run covers both modes for Scripted executor and fixed baseline (four executor×mode paths), with fail-on-call provider spy proving zero provider calls. |
+| T-CX283 | Scorer keeps diagnosis-less terminals in completion/outcome denominators when required; claim-level metrics use claim populations; zero-denominator rules explicit. |
+| T-CX284 | Offline labels `context_obtainable`, `context_valid`, `context_sufficient` never appear in execution-arm inputs. |
+| T-CX285 | Upgrade success reports both full pre-fixed population and conditional-success denominators. |
+| T-CX286 | Parameterized decision function: dominance allowed under equal 100% completion only when all other required conditions hold; negative cases forbid dominance/advantage. |
+| T-CX287 | Full matching-matrix tests for both frozen modes (clipping, harmonic, no-fault, valid inconclusive) on study baseline vs product gates. |
+| T-CX288 | Scored-input validator rejects Scripted/harness-only artifacts even if arm label is rewritten to `product_agent`. |
 
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
@@ -247,3 +261,9 @@ T-CX269–T-CX275 are additive for the D037 Web UI upgrade loop (preset WAV
 materialization and held-bytes upgrade). They supersede UI string assertions in
 T277/T-CX268 that required `/api/v1/runs/synthetic` in `app.js`; the server route
 remains for V0.2 compatibility. No RealLLM acceptance runs are required.
+T-CX276–T-CX288 are additive definitions for the D038 planner-ablation utility
+study (`CONTRACTS_V0_3_CONTEXTUAL.md` §19). Registering these IDs does not
+implement or pass the behaviors. Harness code, Scripted dry-run execution,
+protocol seal, and RealLLM campaign require later explicit grants. They must
+not alter frozen V0.2 §§1–64, sealed v9.11 identities, DSP thresholds, or the
+product planner default.

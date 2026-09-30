@@ -10,7 +10,12 @@
 `docs/superpowers/specs/2026-09-29-single-file-context-guidance-design.md`;
 `docs/superpowers/specs/2026-09-30-d037-upgrade-loop-ui-design.md` (PR #10–#13).
 
-**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX275)
+**D038 planner-ablation study shape (definitions):** §19;
+`docs/superpowers/specs/2026-09-30-s1-planner-ablation-utility-study-design.md`;
+`docs/superpowers/plans/2026-09-30-s1-planner-ablation-utility-study.md`.
+Harness, Scripted dry-run, protocol seal, and RealLLM remain separately gated.
+
+**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX288)
 
 **Live product identity (HEAD):** prompt `v0.3-s1-planner-9.11` with causal
 policy `v9_11_mode_aware_no_fault_recovery` (§15). Historical identities
@@ -644,3 +649,103 @@ Web UI held-bytes upgrade (client state; not a new server DTO):
 4. Measured F0 must never write into the nominal Hz control.
 5. The UI must not auto-attach `clean_periodic` (or any other Demo preset) as a
    reference; only an explicit user file selection is allowed.
+
+## 19. Planner-ablation utility study (D038)
+
+Additive evaluation-study contract for development study
+`study_s1_planner_ablation_dev_1`. This section freezes study identity and
+acceptance obligations. It does **not** authorize harness code, Scripted
+dry-run execution, protocol seal generation, RealLLM campaign execution, or
+product planner replacement.
+
+```text
+study_id: study_s1_planner_ablation_dev_1
+evidence_root: docs/evaluations/v0_3/planner_ablation/
+scored_arms: product_agent | fixed_pipeline
+harness_only_arm: scripted_agent   # optional; never scored vs product_agent
+modes_first_freeze: single_signal | paired_reference
+```
+
+### 19.1 Product-slot entry (D037 path)
+
+Study `product_agent` slots for `single_signal` and `paired_reference` must use:
+
+1. `DiagnosisApplicationService.submit_contextual_wav` with the full keyword
+   surface required by the live service (`test_filename`, `mode`,
+   `reference_data`, `reference_filename`, `nominal_fundamental_hz`,
+   `stimulus_kind`, `user_request`, and optional `channel`);
+2. `DiagnosisApplicationService.wait_for_contextual_terminal` for the resulting
+   run id.
+
+Legacy `submit_wav` / `wait_for_terminal` are forbidden for study product slots.
+`single_signal` must reject reference and nominal stimulus fields per §17.
+
+### 19.2 Matching matrix
+
+Before attributable planner conclusions, both scored arms must satisfy the same
+mode-specific claim-gate matrix for the frozen modes:
+
+| Mode | Clipping support | Harmonic support | `no_supported_fault` | Valid `inconclusive` |
+|------|------------------|------------------|----------------------|----------------------|
+| `single_signal` | §16 Option C: either (a) valid `clipping_mechanism=true` Evidence plus substantial legacy FAIL, or (b) valid `flat_top_detected=true` Evidence plus the same substantial legacy FAIL when `clipping_mechanism` is false. `clipping_mechanism=true` alone is not enough. | Absolute/harmonic description only; no unsupported harmonic `supported_fault` | Legacy clipping clean family plus single-signal no-fault rules as on the product path | Correct when evidence is insufficient; may carry deterministic `context_guidance` per §17 |
+| `paired_reference` | Contextual test family only (`test_clipping_mechanism` plus test-side FAILs); no family mixing | Mode-specific contextual harmonic gate | Contextual test clean family | Correct when context is invalid or insufficient per the sealed oracle |
+
+Positive and negative cases, valid Evidence, mode-specific rule families, and
+same-run references are mandatory. Historical
+`ContextualFixedPipelineBaseline` and the sealed v9.11 campaign path remain
+immutable reuse candidates. The study fixed-pipeline arm must live in an
+additive study module; copy-forward alone does not prove gate equivalence.
+
+### 19.3 Deterministic report parity
+
+Both scored arms must expose equivalent deterministic report fields for:
+
+- `context_guidance` emission when §17 rules apply;
+- omission when those rules do not apply;
+- reason codes and required-input names.
+
+`context_guidance` is never planner skill. Offline labels
+`context_obtainable`, `context_valid`, and `context_sufficient` must not appear
+in execution-arm inputs. A baseline run must not be relabeled `product_agent`
+to reuse product report helpers.
+
+### 19.4 Package boundary
+
+`evaluation/planner_ablation` consumes an injected executor protocol and
+study-owned result fields. It must not import app composition, service, or
+report modules. Real application-service composition for product slots belongs
+in an app-level study adapter.
+
+### 19.5 Scoring identity and decision language
+
+The study uses an independent seal and scorer identity and explicit denominator
+derivation. Reject foreign study identities and wrong derivation. Do not reject
+a result only because a rate numerically equals a historical 17/6-style figure.
+
+Recorded conclusions after a sealed band are exactly one of:
+
+```text
+planner_advantage
+fixed_pipeline_dominance
+insufficient_evidence
+```
+
+Equal 100% completion does not block `fixed_pipeline_dominance` when quality,
+safety, usefulness, and completion are non-inferior and a sealed
+cost/experience metric improves materially, with no unacceptable regression on
+other constrained metrics. Safety failure, missing evaluable population,
+incomplete protocol, failed matching prerequisites, or an unmatched comparison
+must not yield `planner_advantage` or `fixed_pipeline_dominance`. Failure to
+demonstrate a difference is not evidence of equivalence.
+
+Harness-only / Scripted dry-run artifacts carry a distinct execution identity
+and must be rejected by the scored-input validator even if an arm label is
+rewritten to `product_agent`.
+
+### 19.6 Authorization remainder
+
+Wave 1 definitions in this section do not authorize implementation. Later
+grants are required for harness and Scripted dry-run tests (T-CX276–T-CX288
+behavior), protocol seal (including N, uncertainty, mode-level non-inferiority,
+resource bounds, and population identity), RealLLM campaign execution, and any
+product behavior change.

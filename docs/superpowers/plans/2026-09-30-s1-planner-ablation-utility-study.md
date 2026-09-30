@@ -2,12 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Status:** Wave 0 plan revised after Codex adversarial review of `739e214`
-(2026-09-30). **Do not execute Wave 1+** until the operator issues a bounded
-grant after accepting this revised plan. This document alone does not authorize
-CONTRACTS edits, TEST_PLAN registration commits, harness code, Scripted
-dry-run execution, RealLLM, seal generation, or product planner changes.
-Commits of Wave 1+ work require explicit operator authorization
+**Status:** Wave 0 revised after Codex review of `739e214`; Wave 1 definitions
+authorized 2026-09-30 (`授权 planner-ablation Wave 1 definitions`). CONTRACTS
+§19 and T-CX276–T-CX288 are documentation-only. **Do not execute Wave 2+**
+(harness, Scripted dry-run, seal, RealLLM) without a later bounded grant.
+Commits of Wave 2+ work require explicit operator authorization
 (`AGENTS.md` development workflow).
 
 **Date:** 2026-09-30
@@ -63,7 +62,7 @@ campaign grant.
 | Wave | Contents | Requires |
 |------|----------|----------|
 | 0 | This revised plan document | Current revise grant |
-| 1 | Additive CONTRACTS §19 + TEST_PLAN ID text only | Operator accept revised plan, then definitions grant |
+| 1 | Additive CONTRACTS §19 + TEST_PLAN ID text only | Authorized and landed 2026-09-30 |
 | 2 | Tests, study baseline/runner/scorer/sealing code, Scripted dry-run, full verification | Bounded contracts/harness grant after Wave 1 |
 | 3 | Preregistration record + seal using already-reviewed Wave 2 sealing tools | Operator: protocol-seal grant |
 | 4 | RealLLM `product_agent` campaign | Operator: `批准 RealLLM 战役` or equivalent |
@@ -222,24 +221,23 @@ Missing any item blocks sealing. Plan approval does not freeze these.
 - Consumes: D038 study-shape names and this plan's matching/report/seal text
 - Produces: normative §19 text and T-CX acceptance matrix for Wave 2 to cite
 
-- [ ] **Step 1: Draft additive §19 and the test-ID acceptance matrix from D038.**
+- [x] **Step 1: Draft additive §19 and the test-ID acceptance matrix from D038.**
   Wave 1 edits documentation only. Do not create or execute Python tests.
 
-- [ ] **Step 2: Review matching obligations for both frozen modes**, including
+- [x] **Step 2: Review matching obligations for both frozen modes**, including
   clipping, harmonic, `no_supported_fault`, valid inconclusive, same-run
   references, and equivalent deterministic report processing.
 
-- [ ] **Step 3: Register the reviewed test definitions.** Confirm T-CX276–T-CX288
-  (or the next free contiguous block) are unused. ID registration is not
-  evidence that the corresponding behavior has passed.
+- [x] **Step 3: Register the reviewed test definitions.** Confirm T-CX276–T-CX288
+  are unused after T-CX275. ID registration is not evidence that the
+  corresponding behavior has passed.
 
-- [ ] **Step 4: Review the documentation diff and stop at the Wave 1 boundary.**
+- [x] **Step 4: Review the documentation diff and stop at the Wave 1 boundary.**
   Move `test_ids.py`, executable tests, and red/green runs to Wave 2.
 
-- [ ] **Step 5: Commit only when the operator has explicitly authorized commits.**
+- [x] **Step 5: Commit under the Wave 1 definitions grant.**
 
 ```bash
-# only after explicit commit authorization
 git add docs/CONTRACTS_V0_3_CONTEXTUAL.md docs/TEST_PLAN_V0_3_CONTEXTUAL.md
 git commit -m "docs: add planner-ablation study contract §19 and T-CX IDs"
 ```
