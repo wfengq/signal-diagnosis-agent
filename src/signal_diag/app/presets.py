@@ -6,6 +6,7 @@ from collections.abc import Callable
 
 from signal_diag.app.errors import UnknownPresetError
 from signal_diag.app.models import AppErrorDetail, DemoPresetDescriptor, DemoPresetId
+from signal_diag.app.pcm_wav import encode_pcm32_wav
 from signal_diag.signal.models import SignalRecord
 from signal_diag.signal.synthetic import (
     SyntheticCase,
@@ -111,3 +112,12 @@ def build_demo_preset(preset_id: DemoPresetId) -> SignalRecord:
             )
         )
     return builder().record
+
+
+def render_demo_preset_wav(preset_id: DemoPresetId) -> bytes:
+    """Materialize a Demo catalog ID as deterministic mono 32-bit PCM WAV bytes."""
+    record = build_demo_preset(preset_id)
+    return encode_pcm32_wav(
+        record.samples,
+        sample_rate_hz=record.meta.sample_rate_hz,
+    )

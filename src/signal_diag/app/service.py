@@ -37,7 +37,11 @@ from signal_diag.app.models import (
     RunSubmission,
     SourceSummary,
 )
-from signal_diag.app.presets import build_demo_preset, list_demo_presets
+from signal_diag.app.presets import (
+    build_demo_preset,
+    list_demo_presets,
+    render_demo_preset_wav,
+)
 from signal_diag.app.preview import build_waveform_preview
 from signal_diag.app.reporting import project_agent_events
 from signal_diag.app.runs import (
@@ -229,6 +233,9 @@ class DiagnosisApplicationService:
 
     def list_presets(self) -> tuple[DemoPresetDescriptor, ...]:
         return list_demo_presets()
+
+    def render_preset_wav(self, preset_id: DemoPresetId) -> bytes:
+        return render_demo_preset_wav(preset_id)
 
     def get_run(self, run_id: str) -> AppRunSnapshot:
         return self._store.get(run_id)

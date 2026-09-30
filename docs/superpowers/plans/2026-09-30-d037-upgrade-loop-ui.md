@@ -40,25 +40,25 @@ vanilla JS UI, pytest ScriptedPlanner doubles.
 
 ### Task 1: Docs freeze (§18 + T-CX)
 
-- [ ] Commit design + §18 + T-CX269–275
+- [x] Commit design + §18 + T-CX269–275
 
 ### Task 2: Encoder + GET route (T-CX269–272)
 
-- [ ] Failing tests for WAV shape, fidelity anchors, unknown ID, filename leak
-- [ ] Implement `pcm_wav.py` + preset render + API route
-- [ ] Green; identity bridge if product tree drifts
+- [x] Failing tests for WAV shape, fidelity anchors, unknown ID, filename leak
+- [x] Implement `pcm_wav.py` + preset render + API route
+- [x] Green; identity bridge if product tree drifts
 - [ ] Commit
 
 ### Task 3: Guided preset + upgrade service/API tests (T-CX273–274)
 
-- [ ] Harmonic preset bytes → guidance
-- [ ] Upgrade paired/nominal with same test bytes (including after eviction)
+- [x] Harmonic preset bytes → guidance
+- [x] Upgrade paired/nominal with same test bytes (including after eviction)
 - [ ] Commit
 
 ### Task 4: UI wiring (T-CX275) + T277/T-CX268 supersession
 
-- [ ] Held blob; preset GET; upgrade forms; remove UI synthetic POST
-- [ ] Update static UI tests
+- [x] Held blob; preset GET; upgrade forms; remove UI synthetic POST
+- [x] Update static UI tests
 - [ ] Commit
 
 ### Task 5: Verify + PR

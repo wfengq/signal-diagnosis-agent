@@ -241,6 +241,18 @@ def create_app(
         ]
         return JSONResponse(content=items)
 
+    @app.get("/api/v1/presets/{preset_id}/wav")
+    async def preset_wav(request: Request, preset_id: str) -> Response:
+        payload = _service(request).render_preset_wav(cast(DemoPresetId, preset_id))
+        return Response(
+            content=payload,
+            media_type="audio/wav",
+            headers={
+                "Content-Disposition": 'attachment; filename="input.wav"',
+                "Content-Security-Policy": _CSP,
+            },
+        )
+
     @app.get("/api/v1/evaluation-summary")
     async def evaluation_summary() -> JSONResponse:
         summary = load_accepted_evaluation_summary()
