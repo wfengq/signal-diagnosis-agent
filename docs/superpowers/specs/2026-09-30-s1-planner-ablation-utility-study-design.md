@@ -24,7 +24,7 @@ campaign remain separately gated.
 **Open question:** OQ-019 (resolved — study shape approved; see D038)
 
 **Plan:** `docs/superpowers/plans/2026-09-30-s1-planner-ablation-utility-study.md`
-(Wave 0 draft; Wave 1+ gated)
+(Wave 2 harness landed; Wave 3+ gated)
 
 ## 1. Decision summary
 
@@ -265,8 +265,8 @@ Other claims under test:
 |-------|---------------------|-------------------|
 | Study-shape design + OQ-019 / D038 | Approved 2026-09-30 | Shape frozen; later grants still required |
 | writing-plans (docs only) | Plan revised after Codex Wave 0 review 2026-09-30 | n/a |
-| Additive CONTRACTS / TEST_PLAN definitions | Wave 1 landed (§19 / T-CX276–T-CX288) | Harness/Scripted still gated |
-| Harness + Scripted dry-run | No | Same bounded grant after definitions, or a follow-on grant |
+| Additive CONTRACTS / TEST_PLAN definitions | Wave 1 landed (§19 / T-CX276–T-CX288) | n/a |
+| Harness + Scripted dry-run | Wave 2 landed (`evaluation/planner_ablation/`) | Protocol seal still gated |
 | Execution-protocol seal and identity check | No | Before any scored run |
 | RealLLM `product_agent` campaign | No | Explicit RealLLM / campaign authorization |
 | Result review | No | After campaign artifacts exist |

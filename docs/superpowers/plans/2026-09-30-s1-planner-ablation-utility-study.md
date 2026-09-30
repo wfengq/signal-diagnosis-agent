@@ -62,7 +62,7 @@ campaign grant.
 |------|----------|----------|
 | 0 | This revised plan document | Current revise grant |
 | 1 | Additive CONTRACTS §19 + TEST_PLAN ID text only | Authorized and landed 2026-09-30 |
-| 2 | Tests, study baseline/runner/scorer/sealing code, Scripted dry-run, full verification | Bounded contracts/harness grant after Wave 1 |
+| 2 | Tests, study baseline/runner/scorer/sealing code, Scripted dry-run, full verification | Authorized and landed 2026-09-30 |
 | 3 | Preregistration record + seal using already-reviewed Wave 2 sealing tools | Operator: protocol-seal grant |
 | 4 | RealLLM `product_agent` campaign | Operator: `批准 RealLLM 战役` or equivalent |
 | 5 | Result review write-up | After campaign artifacts |
