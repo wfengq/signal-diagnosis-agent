@@ -271,7 +271,7 @@ Other claims under test:
 | Additive CONTRACTS / TEST_PLAN definitions | Wave 1 landed (§19 / T-CX276–T-CX288) | n/a |
 | Harness + Scripted dry-run | Wave 2 landed (`evaluation/planner_ablation/`) | n/a |
 | Execution-protocol seal and identity check | Wave 3 landed (`protocol_seal/`) | Before any scored RealLLM run |
-| RealLLM `product_agent` campaign | Grant received (`批准 RealLLM 战役`); execution blocked on `DEEPSEEK_API_KEY` | Credentials + one scored run |
+| RealLLM `product_agent` campaign | Grant received; operator skipped credential injection | Re-inject `DEEPSEEK_API_KEY` + one scored run |
 | Result review | No | After campaign artifacts exist |
 | Product planner replacement or gate softening | No | New behavior design + contracts + tests + explicit authorization |
 
