@@ -109,12 +109,12 @@ def content_digest(
         raise ValueError("content_digest requires non-empty sequence")
     first = obj[0]
     if isinstance(first, StudySlotKey):
-        payload = _schedule_payload(obj)  # type: ignore[arg-type]
+        digest_payload: object = _schedule_payload(obj)  # type: ignore[arg-type]
     elif isinstance(first, StudyOracleLabel):
-        payload = _oracle_payload(obj)  # type: ignore[arg-type]
+        digest_payload = _oracle_payload(obj)  # type: ignore[arg-type]
     else:
         raise TypeError("content_digest expects StudySlotKey or StudyOracleLabel rows")
-    return sha256(_canonical_json(payload).encode("utf-8")).hexdigest()
+    return sha256(_canonical_json(digest_payload).encode("utf-8")).hexdigest()
 
 
 def _require_sha256_digest(name: str, value: str) -> None:
@@ -160,12 +160,12 @@ def study_input_from_verified_manifest(
 
     schedule_raw = manifest.get("schedule")
     if not isinstance(schedule_raw, Sequence) or isinstance(schedule_raw, (str, bytes)):
-        raise ValueError("manifest schedule must be a list")
+        raise TypeError("manifest schedule must be a list")
     schedule = tuple(StudySlotKey.model_validate(item) for item in schedule_raw)
 
     oracle_raw = manifest.get("oracle")
     if not isinstance(oracle_raw, Sequence) or isinstance(oracle_raw, (str, bytes)):
-        raise ValueError("manifest oracle must be a list")
+        raise TypeError("manifest oracle must be a list")
     oracle = tuple(StudyOracleLabel.model_validate(item) for item in oracle_raw)
 
     for name in (

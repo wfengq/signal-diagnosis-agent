@@ -451,10 +451,20 @@ def test_conclusion_planner_advantage_unique() -> None:
         ),
     )
     study = _study(schedule=(key,), oracle=oracle)
+    evidence = _grounded_clip_evidence()
     product, fixed = _dual_arm_slots(
         product_outcome="supported_fault",
         fixed_outcome="no_supported_fault",
+        fixed_claims=(_grounded_clip_claim(),),
     )
+    fixed = {
+        **fixed,
+        "evidence": evidence,
+    }
+    product = {
+        **product,
+        "evidence": evidence,
+    }
     conclusion = score_planner_ablation_study(
         study=study,
         product_slots=(product,),
@@ -670,12 +680,12 @@ def test_project_fixed_inconclusive_counts_as_completed() -> None:
 def test_project_fixed_true_failure_not_completed() -> None:
     baseline = BaselineRunResult(
         run_id="baseline_failed",
-        status="failed",
+        status="error",
         diagnosis=None,
         observations=(),
         evidence=(),
         tool_history=(),
-        completion_reason="error",
+        completion_reason="runtime_error",
         rule_evaluation_batches=(),
     )
     slot = project_fixed_outcome(
