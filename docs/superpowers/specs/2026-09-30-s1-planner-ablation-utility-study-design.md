@@ -1,9 +1,10 @@
 # S1 default-path utility and planner-ablation study
 
 **Status:** study-shape approved (OQ-019 / D038, operator 2026-09-30).
-Wave 1–2 complete. Wave 3 protocol seal authorized and generated under
-`docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/`.
-RealLLM campaign remains separately gated.
+Wave 1–3 complete (protocol seal under
+`docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/`).
+Wave 4 RealLLM grant received (`批准 RealLLM 战役`); execution blocked on
+`DEEPSEEK_API_KEY` in the Cloud Agent environment.
 
 **Date:** 2026-09-30
 
@@ -25,7 +26,7 @@ RealLLM campaign remains separately gated.
 **Open question:** OQ-019 (resolved — study shape approved; see D038)
 
 **Plan:** `docs/superpowers/plans/2026-09-30-s1-planner-ablation-utility-study.md`
-(Wave 3 protocol seal landed; Wave 4 RealLLM gated)
+(Wave 3 seal landed; Wave 4 runner landed; RealLLM run pending credentials)
 
 ## 1. Decision summary
 
