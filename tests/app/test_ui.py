@@ -187,7 +187,8 @@ def test_t277_complete_interaction_surface() -> None:
     assert "function renderLifecycle" in script
     assert "function renderTerminal" in script
     assert "/api/v1/contextual-runs/wav" in script
-    assert "/api/v1/runs/synthetic" in script
+    assert "/api/v1/presets/" in script and "/wav" in script
+    assert "/api/v1/runs/synthetic" not in script
     assert "/api/v1/runs/" in script or "/api/v1/contextual-runs/" in script
     assert "/report.json" in script
     assert "/report.html" in script
@@ -204,6 +205,10 @@ def test_t277_complete_interaction_surface() -> None:
 async def test_t277_ui_api_paths_complete_a_scripted_run(
     finish_service: DiagnosisApplicationService,
 ) -> None:
+    """UI product path uses contextual preset WAV; V0.2 synthetic remains on server."""
+    from signal_diag.app.presets import render_demo_preset_wav
+    from tests.app.test_api import _contextual_wav_form
+
     async with _client(finish_service) as client:
         root = await client.get("/")
         assert root.status_code == 200
@@ -213,7 +218,46 @@ async def test_t277_ui_api_paths_complete_a_scripted_run(
         presets = await client.get("/api/v1/presets")
         assert [item["preset_id"] for item in presets.json()] == list(PRESET_IDS)
 
+        wav_response = await client.get("/api/v1/presets/clipping/wav")
+        assert wav_response.status_code == 200
+        assert wav_response.content == render_demo_preset_wav("clipping")
+
+        body, content_type = _contextual_wav_form(
+            wav_response.content,
+            mode="single_signal",
+            filename="input.wav",
+        )
         accepted = await client.post(
+            "/api/v1/contextual-runs/wav",
+            content=body,
+            headers={"Content-Type": content_type},
+        )
+        assert accepted.status_code == 202
+        run_id = accepted.json()["run_id"]
+        terminal = await finish_service.wait_for_contextual_terminal(run_id)
+        polled = await client.get(f"/api/v1/contextual-runs/{run_id}")
+        assert polled.status_code == 200
+        payload = polled.json()
+        assert payload["status"] == "completed"
+        assert payload["result"] is not None
+        assert "observations" in payload["result"]
+        assert "evidence" in payload["result"]
+        assert "rule_evaluation_batches" in payload["result"]
+        assert "knowledge_retrievals" in payload["result"]
+        assert payload["trace_events"] is not None
+        assert payload["test_preview"]["points"] is not None
+        json_report = await client.get(
+            f"/api/v1/contextual-runs/{run_id}/report.json"
+        )
+        html_report = await client.get(
+            f"/api/v1/contextual-runs/{run_id}/report.html"
+        )
+        assert json_report.status_code == 200
+        assert html_report.status_code == 200
+        assert terminal.status == "completed"
+
+        # Frozen V0.2 synthetic route remains available for non-UI clients.
+        legacy = await client.post(
             "/api/v1/runs/synthetic",
             json={
                 "preset_id": "clipping",
@@ -221,25 +265,7 @@ async def test_t277_ui_api_paths_complete_a_scripted_run(
                 "channel": "mixdown",
             },
         )
-        assert accepted.status_code == 202
-        run_id = accepted.json()["run_id"]
-        terminal = await finish_service.wait_for_terminal(run_id)
-        polled = await client.get(f"/api/v1/runs/{run_id}")
-        assert polled.status_code == 200
-        body = polled.json()
-        assert body["status"] == "completed"
-        assert body["result"] is not None
-        assert "observations" in body["result"]
-        assert "evidence" in body["result"]
-        assert "rule_evaluation_batches" in body["result"]
-        assert "knowledge_retrievals" in body["result"]
-        assert body["trace_events"] is not None
-        assert body["waveform_preview"]["points"] is not None
-        json_report = await client.get(f"/api/v1/runs/{run_id}/report.json")
-        html_report = await client.get(f"/api/v1/runs/{run_id}/report.html")
-        assert json_report.status_code == 200
-        assert html_report.status_code == 200
-        assert terminal.status == "completed"
+        assert legacy.status_code == 202
 
 
 def test_t278_external_text_never_uses_html_sinks() -> None:
@@ -434,8 +460,35 @@ def test_t_cx268_ui_unknown_wav_uses_contextual_single_signal() -> None:
     assert "/api/v1/contextual-runs/wav" in script
     assert 'body.append("mode", diagnosticMode)' in script
     assert "single_signal" in script
-    assert "/api/v1/runs/synthetic" in script
+    assert "/api/v1/runs/synthetic" not in script
     assert script.count("/api/v1/runs/wav") == 0
     assert "renderGuidance" in script
     assert "guidance-panel" in html
     assert "context_guidance" in script
+
+
+def test_t_cx275_ui_preset_wav_held_bytes_upgrade_controls() -> None:
+    html = _static_text("index.html")
+    script = _static_text("app.js")
+    assert "/api/v1/presets/" in script
+    assert "/wav" in script
+    assert "fetchPresetWavBlob" in script
+    assert 'filename", "input.wav"' in script or "input.wav" in script
+    assert "/api/v1/contextual-runs/wav" in script
+    assert "/api/v1/runs/synthetic" not in script
+    assert "heldTestSignal" in script
+    assert "rememberHeldTestSignal" in script
+    assert 'id="upgrade-controls"' in html
+    assert 'id="upgrade-reference-file"' in html
+    assert 'id="upgrade-nominal-hz"' in html
+    assert 'id="upgrade-paired"' in html
+    assert 'id="upgrade-nominal"' in html
+    assert "submitUpgradePaired" in script
+    assert "submitUpgradeNominal" in script
+    assert "paired_reference" in script
+    assert "nominal_single_tone" in script
+    assert "clean_periodic" not in _function_body(script, "submitUpgradePaired")
+    assert "fundamental_frequency_hz" not in script
+    assert "test_f0_hz" not in _function_body(script, "submitUpgradeNominal")
+    for sink in FORBIDDEN_HTML_SINKS:
+        assert sink not in script

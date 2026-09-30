@@ -95,6 +95,34 @@
     </section>
     <section id="guidance-panel">
       <h2>Context guidance</h2>
+      <div id="upgrade-controls" hidden>
+        <p id="upgrade-help" class="muted">
+          Re-submit the held test WAV with a user-supplied reference or typed
+          nominal fundamental. Measured F0 is never auto-filled.
+        </p>
+        <p>
+          <label for="upgrade-reference-file">Upgrade reference WAV</label>
+          <input
+            id="upgrade-reference-file"
+            name="upgrade_reference_file"
+            type="file"
+            accept=".wav,audio/wav"
+          >
+          <button type="button" id="upgrade-paired">Upgrade as paired reference</button>
+        </p>
+        <p>
+          <label for="upgrade-nominal-hz">Upgrade nominal fundamental (Hz)</label>
+          <input
+            id="upgrade-nominal-hz"
+            name="upgrade_nominal_hz"
+            type="text"
+            inputmode="decimal"
+            autocomplete="off"
+            value=""
+          >
+          <button type="button" id="upgrade-nominal">Upgrade as nominal single tone</button>
+        </p>
+      </div>
     </section>
     <section id="declaration-panel">
       <h2>Declared context</h2>

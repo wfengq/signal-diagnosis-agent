@@ -195,6 +195,13 @@
 | T-CX266 | contextual submit accepts mode=single_signal (test WAV only) and rejects reference/nominal fields. |
 | T-CX267 | completed single_signal inconclusive snapshots attach deterministic context_guidance (including harmonic path). |
 | T-CX268 | API/CLI/UI wire single_signal contextual submit; UI default unknown one-WAV uses contextual single_signal and renders guidance. |
+| T-CX269 | GET /api/v1/presets/{id}/wav returns deterministic mono 48 kHz 32-bit PCM WAV without planner credentials. |
+| T-CX270 | Served preset WAV preserves Demo DSP/tool discrete Evidence vs in-memory preset within float tolerance anchors. |
+| T-CX271 | Unknown preset WAV route returns unknown_preset. |
+| T-CX272 | Preset-derived contextual submit with filename input.wav never places Demo preset IDs in PlannerContext. |
+| T-CX273 | Served harmonic_distortion WAV under ScriptedPlanner emits harmonic_attribution_requires_context guidance. |
+| T-CX274 | Held-bytes upgrade resubmits the same test bytes as paired_reference / nominal_single_tone (survives parent eviction). |
+| T-CX275 | Web UI fetches preset WAV, submits contextual single_signal as input.wav, renders upgrade controls, and does not POST /api/v1/runs/synthetic. |
 
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
@@ -236,3 +243,7 @@ not alter DSP, rule thresholds, planner prompts, causal finish gates, or frozen
 V0.2 endpoints/DTOs. The append-only code-identity bridge
 `d037_single_file_context_guidance` rebinds the live product-tree digest without
 rewriting the sealed OQ-014 behavior-identity row.
+T-CX269–T-CX275 are additive for the D037 Web UI upgrade loop (preset WAV
+materialization and held-bytes upgrade). They supersede UI string assertions in
+T277/T-CX268 that required `/api/v1/runs/synthetic` in `app.js`; the server route
+remains for V0.2 compatibility. No RealLLM acceptance runs are required.
