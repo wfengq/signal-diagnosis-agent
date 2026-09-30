@@ -151,7 +151,7 @@ def completion_denominator(slots: Sequence[Mapping[str, object]]) -> RateMetric:
 def claim_population_denominator(
     slots: Sequence[Mapping[str, object]],
 ) -> RateMetric:
-    """T-CX283: claim population counts grounded claims, not slot placeholders."""
+    """T-CX283: grounding rate over every claim on completed diagnoses."""
     validate_scored_slots(slots)
     grounded = 0
     total = 0

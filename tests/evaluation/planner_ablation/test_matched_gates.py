@@ -6,20 +6,19 @@ from pathlib import Path
 
 import pytest
 
-from signal_diag.evaluation.contextual.baseline import ContextualFixedPipelineBaseline
-from signal_diag.evaluation.contextual.models import ContextualBaselineRequest
 from signal_diag.agent.diagnosis import (
     DiagnosisValidationError,
     _has_harmonic_even_order_structure,
     validate_finish_decision,
 )
 from signal_diag.agent.models import DiagnosisClaim, FinishDecision, TaskAssessment
+from signal_diag.evaluation.contextual.baseline import ContextualFixedPipelineBaseline
+from signal_diag.evaluation.contextual.models import ContextualBaselineRequest
 from signal_diag.evaluation.planner_ablation.baseline import (
     PlannerAblationFixedPipelineBaseline,
     paired_clipping_supported,
     single_signal_clipping_supported,
 )
-from signal_diag.tools.evidence import Evidence
 from signal_diag.evaluation.planner_ablation.models import (
     PlannerAblationBaselineRequest,
 )
@@ -34,6 +33,7 @@ from signal_diag.signal.synthetic import (
     generate_sine,
     generate_white_noise,
 )
+from signal_diag.tools.evidence import Evidence
 from signal_diag.tools.service import SignalToolService
 from tests.conftest import store_synthetic_case
 
