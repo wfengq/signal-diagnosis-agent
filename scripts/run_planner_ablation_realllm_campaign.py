@@ -34,7 +34,9 @@ from signal_diag.evaluation.planner_ablation.models import (
 from signal_diag.evaluation.planner_ablation.report_fields import (
     derive_context_guidance_from_baseline,
 )
-from signal_diag.evaluation.planner_ablation.sealing import verify_planner_ablation_bundle
+from signal_diag.evaluation.planner_ablation.sealing import (
+    verify_planner_ablation_bundle,
+)
 from signal_diag.evaluation.planner_ablation.study_score import (
     build_study_comparison_metrics,
     project_fixed_outcome,
@@ -205,7 +207,7 @@ async def _run_product_arm(
         started = time.perf_counter()
         try:
             outcome = await executor.execute_product_slot(request)
-        except Exception as exc:  # noqa: BLE001 - sealed infra stop boundary
+        except Exception as exc:
             elapsed = time.perf_counter() - started
             error = f"{type(exc).__name__}: {exc}"
             record = {
@@ -311,7 +313,7 @@ async def _run_fixed_arm(
         started = time.perf_counter()
         try:
             result = await baseline.run(request)
-        except Exception as exc:  # noqa: BLE001 - sealed infra stop boundary
+        except Exception as exc:
             elapsed = time.perf_counter() - started
             error = f"{type(exc).__name__}: {exc}"
             record = {
