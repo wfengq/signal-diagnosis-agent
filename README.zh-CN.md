@@ -76,8 +76,9 @@ Phase 5 accepted; V0.2 complete demonstrable vertical slice
 
 **身份说明：** HEAD 上 `signal-diag serve` 使用 prompt `v0.3-s1-planner-9.11`。
 单 WAV / 公开 presets 路径偏保守，不一定复现保留的 Phase 5 clipping Demo
-结果。若要复现已验收 V0.2 Demo，请 checkout `b48790c`（或存在时的 `ff16e2a` /
-tag `v0.2.0`）。
+结果。HEAD Web UI 将 presets 走情境 `single_signal`；谐波 inconclusive 时可能
+显示 `context_guidance` 与升级控件（用户上传参考 WAV 或手输名义 Hz）。若要复现
+已验收 V0.2 Demo，请 checkout `b48790c`（或存在时的 `ff16e2a` / tag `v0.2.0`）。
 [docs/demo/phase5/v0_2_acceptance/](docs/demo/phase5/v0_2_acceptance/README.md)
 中的产物属于该锚点证据，不是对 HEAD 的承诺。
 
@@ -184,4 +185,4 @@ no-supported-fault。Exit 1 表示 Agent/runtime 或应用失败。Exit 2
 - [Architecture](docs/ARCHITECTURE_V0_2.md)
 - [Frozen contracts](docs/CONTRACTS_V0_2.md)
 - [Acceptance plan T001–T285](docs/TEST_PLAN_V0_2.md)
-- [Design decisions D001–D031](docs/DECISIONS.md)
+- [Design decisions D001–D037](docs/DECISIONS.md)

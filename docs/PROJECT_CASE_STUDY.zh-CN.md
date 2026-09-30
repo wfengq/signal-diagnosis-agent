@@ -261,6 +261,12 @@ claim 级同次运行引用核算，以及从不可变结果文件的确定性�
 情境最终外部测试。更早的 V0.2 外部 WAV
 `below_target` 结果仍是证据链的一部分。
 
+产品框架 D037 随后将单文件定为 HEAD 默认体验：
+presets 保持未知信号语义；谐波 inconclusive 发出确定性
+`context_guidance`；Web UI 可用用户提供的参考或手输名义频率，
+重提同一批 held 测试字节。这在不软化单文件门禁、也不用 HEAD
+质量数字替代 V0.2 **79/80** 的前提下，闭合了访问者闭环。
+
 ### 对外诚实表述
 
 简洁且可支撑的描述是：
@@ -300,7 +306,7 @@ V0.2 仍然狭窄。它不声称通用音频诊断、硬件
 - [Frozen architecture](ARCHITECTURE_V0_2.md)
 - [Frozen contracts](CONTRACTS_V0_2.md)
 - [T001–T285 acceptance plan](TEST_PLAN_V0_2.md)
-- [D001–D031 decisions](DECISIONS.md)
+- [D001–D037 decisions](DECISIONS.md)
 - [Historical and accepted evaluation bundles](evaluations/)
 - [Accepted official v8.1 bundle](evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/)
 - [Real product Demo](demo/phase5/v0_2_acceptance/README.md)
