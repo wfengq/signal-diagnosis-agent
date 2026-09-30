@@ -8,14 +8,15 @@ import pytest
 
 from signal_diag.agent.diagnosis import (
     DiagnosisValidationError,
-    _has_harmonic_even_order_structure,
     validate_finish_decision,
 )
 from signal_diag.agent.models import DiagnosisClaim, FinishDecision, TaskAssessment
 from signal_diag.evaluation.contextual.baseline import ContextualFixedPipelineBaseline
 from signal_diag.evaluation.contextual.models import ContextualBaselineRequest
 from signal_diag.evaluation.planner_ablation.baseline import (
+    _PAIRED_HARMONIC_RULES,
     PlannerAblationFixedPipelineBaseline,
+    _matching,
     paired_clipping_supported,
     single_signal_clipping_supported,
 )
@@ -196,29 +197,60 @@ async def test_t_cx287_single_signal_inconclusive_valid(
     assert result.diagnosis.outcome == "inconclusive"
 
 
-def test_paired_harmonic_even_order_gate_matches_product_validator() -> None:
-    """Study baseline and product both require even_order_present for harmonic supported_fault."""
-    claim = DiagnosisClaim(
-        claim_id="claim_harmonic_no_even",
-        fault_type="harmonic_distortion",
-        statement="Elevated THD alone cannot support harmonic_distortion.",
-        evidence_refs=("ev_thd",),
-        rule_refs=(),
+def _paired_harmonic_rule(
+    evaluation_id: str,
+    rule_id: str,
+    *,
+    judgment: str = "pass",
+) -> RuleEvaluation:
+    return RuleEvaluation(
+        evaluation_id=evaluation_id,
+        rule_id=rule_id,
+        judgment=judgment,  # type: ignore[arg-type]
+        observed_value=None,
+        comparator="eq",
+        threshold=True,
+        profile_id="profile_s1_contextual_comparison_v9_10",
+        profile_version="1.0.0",
+        evidence_refs=(),
     )
+
+
+def _paired_harmonic_rules_fixture() -> tuple[RuleEvaluation, ...]:
+    return (
+        _paired_harmonic_rule("ruleval_ctx", "rule_contextual_analysis_valid"),
+        _paired_harmonic_rule("ruleval_f0", "rule_contextual_f0_compatible"),
+        _paired_harmonic_rule("ruleval_ref_ratio", "rule_reference_clipping_ratio_acceptable"),
+        _paired_harmonic_rule("ruleval_ref_flat", "rule_reference_flat_top_absent"),
+        _paired_harmonic_rule(
+            "ruleval_growth",
+            "rule_even_harmonic_growth_acceptable",
+            judgment="fail",
+        ),
+    )
+
+
+def test_paired_harmonic_v911_and_baseline_match_without_even_order() -> None:
+    """v9.11 paired harmonic gate is the five contextual rules only (no even_order_present)."""
+    rules = _paired_harmonic_rules_fixture()
     evidence = (
         Evidence(
-            evidence_id="ev_thd",
+            evidence_id="ev_ctx",
             call_id="call_1",
-            source_tool="analyze_harmonic_distortion",
-            metric="thd_percent",
-            value=9.0,
+            source_tool="analyze_contextual_distortion",
+            metric="test_series_kind",
+            value="native_odd_series",
             validity="valid",
             channel="mixdown",
         ),
     )
-    evidence_by_id = {item.evidence_id: item for item in evidence}
-    assert _has_harmonic_even_order_structure(claim, evidence_by_id) is False
-
+    claim = DiagnosisClaim(
+        claim_id="claim_harmonic_paired",
+        fault_type="harmonic_distortion",
+        statement="Harmonic distortion supported by contextual paired gate.",
+        evidence_refs=("ev_ctx",),
+        rule_refs=tuple(item.evaluation_id for item in rules),
+    )
     decision = FinishDecision(
         task_assessment=TaskAssessment(
             task_type="distortion_analysis",
@@ -229,32 +261,37 @@ def test_paired_harmonic_even_order_gate_matches_product_validator() -> None:
         claims=(claim,),
         confidence_label="medium",
     )
-    with pytest.raises(DiagnosisValidationError, match="even_order_present"):
+    context = StimulusContext(
+        mode="paired_reference",
+        test_signal_id="sig_test",
+        reference_signal_id="sig_reference",
+        assertion_source="evaluation_manifest",
+    )
+    validate_finish_decision(
+        decision,
+        known_evidence_ids=frozenset(item.evidence_id for item in evidence),
+        known_rule_evaluation_ids=frozenset(item.evaluation_id for item in rules),
+        task_assessment=decision.task_assessment,
+        evidence=evidence,
+        rule_evaluations=rules,
+        stimulus_context=context,
+        causal_policy_version="v9_11_mode_aware_no_fault_recovery",
+    )
+    assert _matching(rules, _PAIRED_HARMONIC_RULES) is not None
+
+    incomplete = rules[:-1]
+    with pytest.raises(DiagnosisValidationError):
         validate_finish_decision(
             decision,
-            known_evidence_ids=frozenset(evidence_by_id),
+            known_evidence_ids=frozenset(item.evidence_id for item in evidence),
+            known_rule_evaluation_ids=frozenset(item.evaluation_id for item in incomplete),
             task_assessment=decision.task_assessment,
             evidence=evidence,
-            causal_policy_version="v9_4_legacy",
+            rule_evaluations=incomplete,
+            stimulus_context=context,
+            causal_policy_version="v9_11_mode_aware_no_fault_recovery",
         )
-
-    class _SeriesEvidence:
-        def __init__(self, metric: str, value: str, validity: str = "valid") -> None:
-            self.metric = metric
-            self.value = value
-            self.validity = validity
-
-    harmonic_rules: list[object] | None = [object()]
-    analysis_evidence = (_SeriesEvidence("test_series_kind", "native_odd_series"),)
-    even_order = any(
-        item.metric == "test_series_kind"
-        and item.value == "even_order_present"
-        and item.validity == "valid"
-        for item in analysis_evidence
-    )
-    if harmonic_rules is not None and not even_order:
-        harmonic_rules = None
-    assert harmonic_rules is None
+    assert _matching(incomplete, _PAIRED_HARMONIC_RULES) is None
 
 
 def test_t_cx277_negative_mechanism_without_substantial_fail() -> None:
@@ -278,6 +315,36 @@ def test_t_cx278_negative_paired_legacy_without_test_family() -> None:
 
     evidence = (_Ev("clipping_mechanism", True), _Ev("test_clipping_mechanism", False))
     assert paired_clipping_supported(evidence, ()) is False
+
+
+@pytest.mark.asyncio
+async def test_t_cx287_paired_harmonic_supported_without_even_order_series(
+    repository: InMemorySignalRepository,
+) -> None:
+    reference = generate_sine(frequency_hz=440.0, duration_s=0.5, amplitude=0.5)
+    harmonic = generate_harmonic_sine(
+        fundamental_hz=440.0,
+        harmonic_ratios={2: 0.18, 3: 0.08},
+        duration_s=0.5,
+        fundamental_amplitude=0.5,
+    )
+    repository.put(reference.record)
+    repository.put(harmonic.record)
+    result = await _study_baseline(repository).run(
+        _request(
+            case_id="paired_harmonic",
+            signal_id=harmonic.record.meta.signal_id,
+            mode="paired_reference",
+            reference_signal_id=reference.record.meta.signal_id,
+        )
+    )
+    assert result.diagnosis is not None
+    assert result.diagnosis.outcome == "supported_fault"
+    harmonic_claim = next(
+        (c for c in result.diagnosis.claims if c.fault_type == "harmonic_distortion"),
+        None,
+    )
+    assert harmonic_claim is not None
 
 
 @pytest.mark.asyncio

@@ -12,10 +12,19 @@ from signal_diag.app.service import (
     PlannerFactory,
 )
 from signal_diag.evaluation.planner_ablation.models import (
+    ExecutionIdentity,
     ProductSlotOutcome,
     ProductSlotRequest,
     StudyContextGuidanceView,
 )
+
+_APPROVED_PRODUCT_PLANNER_CLASS = "RealLLMPlanner"
+
+
+def _execution_identity_for_planner(planner_class: str) -> ExecutionIdentity:
+    if planner_class == _APPROVED_PRODUCT_PLANNER_CLASS:
+        return "product_campaign"
+    return "harness_only"
 
 
 def _map_guidance(
@@ -80,5 +89,5 @@ class AppProductSlotExecutor:
             result=snapshot.result,
             context_guidance=_map_guidance(guidance),
             planner_class=executed_planner_class,
-            execution_identity="product_campaign",
+            execution_identity=_execution_identity_for_planner(executed_planner_class),
         )

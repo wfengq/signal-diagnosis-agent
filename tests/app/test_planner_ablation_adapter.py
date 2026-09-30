@@ -20,6 +20,11 @@ from signal_diag.agent.planner import PROMPT_VERSION
 from signal_diag.app.models import PlannerIdentity
 from signal_diag.app.planner_ablation_adapter import AppProductSlotExecutor
 from signal_diag.app.service import ApplicationDependencies, DiagnosisApplicationService
+from signal_diag.evaluation.planner_ablation.identity import (
+    PLANNER_ABLATION_SCORING_IDENTITY,
+    PLANNER_ABLATION_STUDY_ID,
+    validate_scored_campaign_input,
+)
 from signal_diag.evaluation.planner_ablation.models import ProductSlotRequest
 from signal_diag.knowledge.index import KnowledgeIndex
 from signal_diag.rules.engine import RuleEngine
@@ -171,3 +176,47 @@ async def test_t_cx276_paired_reference_contextual_submit_kwargs(
     )
     assert outcome.mode == "paired_reference"
     assert outcome.terminal_status == "completed"
+
+
+@pytest.mark.asyncio
+async def test_t_cx288_adapter_marks_test_double_harness_only(
+    service: DiagnosisApplicationService,
+) -> None:
+    harmonic = generate_harmonic_sine(
+        fundamental_hz=440.0,
+        harmonic_ratios={2: 0.12, 3: 0.06},
+        sample_rate_hz=8_000,
+        duration_s=0.25,
+        fundamental_amplitude=0.5,
+    )
+    executor = AppProductSlotExecutor(service)
+    outcome = await executor.execute_product_slot(
+        ProductSlotRequest(
+            case_id="harness_probe",
+            test_wav_bytes=_wav_from_case(harmonic),
+            mode="single_signal",
+            user_request=USER_REQUEST,
+        )
+    )
+    assert outcome.planner_class == "_ImmediateFinishPlanner"
+    assert outcome.execution_identity == "harness_only"
+    with pytest.raises(ValueError, match="harness_only"):
+        validate_scored_campaign_input(
+            {
+                "arm": "product_agent",
+                "execution_identity": outcome.execution_identity,
+                "planner_class": outcome.planner_class,
+                "study_id": PLANNER_ABLATION_STUDY_ID,
+                "scoring_identity": PLANNER_ABLATION_SCORING_IDENTITY,
+            }
+        )
+    with pytest.raises(ValueError, match="RealLLMPlanner"):
+        validate_scored_campaign_input(
+            {
+                "arm": "product_agent",
+                "execution_identity": "product_campaign",
+                "planner_class": outcome.planner_class,
+                "study_id": PLANNER_ABLATION_STUDY_ID,
+                "scoring_identity": PLANNER_ABLATION_SCORING_IDENTITY,
+            }
+        )

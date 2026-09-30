@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -23,6 +24,7 @@ class StudyDecisionProtocol(BaseModel):
     non_inferiority_max_gap: float = Field(gt=0.0, lt=1.0)
     material_improvement_ratio: float = Field(gt=0.0, lt=1.0)
     n_unit: str = Field(min_length=1)
+    advantage_endpoint: Literal["quality", "usefulness"] = "quality"
 
 
 class StudyComparisonMetrics(BaseModel):
@@ -83,13 +85,23 @@ def decide_study_conclusion(
     ):
         return StudyConclusion.FIXED_PIPELINE_DOMINANCE
 
-    quality_gap = metrics.product_primary_quality - metrics.fixed_primary_quality
-    if (
-        quality_gap > gap
-        and metrics.product_safety_ok
-        and metrics.product_completion >= metrics.fixed_completion - gap
-        and metrics.product_usefulness >= metrics.fixed_usefulness - gap
-    ):
-        return StudyConclusion.PLANNER_ADVANTAGE
+    if protocol.advantage_endpoint == "usefulness":
+        usefulness_gap = metrics.product_usefulness - metrics.fixed_usefulness
+        if (
+            usefulness_gap > gap
+            and metrics.product_safety_ok
+            and metrics.product_completion >= metrics.fixed_completion - gap
+            and metrics.product_primary_quality >= metrics.fixed_primary_quality - gap
+        ):
+            return StudyConclusion.PLANNER_ADVANTAGE
+    else:
+        quality_gap = metrics.product_primary_quality - metrics.fixed_primary_quality
+        if (
+            quality_gap > gap
+            and metrics.product_safety_ok
+            and metrics.product_completion >= metrics.fixed_completion - gap
+            and metrics.product_usefulness >= metrics.fixed_usefulness - gap
+        ):
+            return StudyConclusion.PLANNER_ADVANTAGE
 
     return StudyConclusion.INSUFFICIENT_EVIDENCE

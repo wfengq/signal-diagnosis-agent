@@ -5,7 +5,9 @@ from __future__ import annotations
 import json
 from hashlib import sha256
 from pathlib import Path
+from typing import Any
 
+from signal_diag.evaluation.planner_ablation.decision import StudyDecisionProtocol
 from signal_diag.evaluation.planner_ablation.identity import (
     PLANNER_ABLATION_SCORING_IDENTITY,
     PLANNER_ABLATION_STUDY_ID,
@@ -20,9 +22,21 @@ _REQUIRED_MANIFEST_KEYS = frozenset(
         "scoring_identity",
         "denominator_derivation",
         "decision_protocol",
+        "population_identity",
+        "oracle_identity",
+        "input_identity",
+        "code_identity",
     }
 )
 _REQUIRED_INDEX_FILES = frozenset({"manifest.json", "seal_meta.json"})
+_IDENTITY_BINDING_KEYS = frozenset(
+    {
+        "population_identity",
+        "oracle_identity",
+        "input_identity",
+        "code_identity",
+    }
+)
 
 
 def _sha256_bytes(payload: bytes) -> str:
@@ -31,6 +45,14 @@ def _sha256_bytes(payload: bytes) -> str:
 
 def _sha256_file(path: Path) -> str:
     return _sha256_bytes(path.read_bytes())
+
+
+def _parse_decision_protocol(raw: object) -> StudyDecisionProtocol:
+    if raw is None:
+        raise ValueError("decision_protocol must not be null")
+    if not isinstance(raw, dict):
+        raise TypeError("decision_protocol must be a structured object")
+    return StudyDecisionProtocol.model_validate(raw)
 
 
 def _validate_manifest_protocol(
@@ -49,6 +71,19 @@ def _validate_manifest_protocol(
         raise ValueError("manifest scoring_identity mismatch")
     if manifest["denominator_derivation"] != denominator_derivation:
         raise ValueError("manifest denominator_derivation mismatch")
+    for key in _IDENTITY_BINDING_KEYS:
+        value = manifest.get(key)
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"manifest {key} must be a non-empty string")
+    protocol = _parse_decision_protocol(manifest.get("decision_protocol"))
+    if protocol.study_id != study_id:
+        raise ValueError("decision_protocol study_id mismatch")
+    if protocol.scoring_identity != scoring_identity:
+        raise ValueError("decision_protocol scoring_identity mismatch")
+    if scoring_identity != PLANNER_ABLATION_SCORING_IDENTITY:
+        raise ValueError("manifest scoring_identity mismatch")
+    if study_id != PLANNER_ABLATION_STUDY_ID:
+        raise ValueError("manifest study_id mismatch")
 
 
 def seal_planner_ablation_bundle(
@@ -64,7 +99,7 @@ def seal_planner_ablation_bundle(
         scoring_identity=scoring_identity,
         derivation=denominator_derivation,
     )
-    protocol_manifest = {
+    protocol_manifest: dict[str, Any] = {
         **manifest,
         "study_id": study_id,
         "scoring_identity": scoring_identity,

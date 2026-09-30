@@ -140,6 +140,26 @@ def test_t_cx279_guidance_omitted_when_not_inconclusive() -> None:
         }
     )
     assert derive_context_guidance_from_agent_result(mode="single_signal", result=diagnosed) is None
+    baseline = BaselineRunResult(
+        run_id="baseline_done",
+        status="success",
+        diagnosis=BaselineDiagnosis(
+            run_id="baseline_done",
+            outcome="no_supported_fault",
+            claims=(),
+            confidence_label="medium",
+            tool_call_count=1,
+            rule_evaluation_batches=(),
+        ),
+        observations=(),
+        evidence=result.evidence,
+        tool_history=(),
+        completion_reason="baseline_completed",
+        rule_evaluation_batches=(),
+    )
+    assert (
+        derive_context_guidance_from_baseline(mode="single_signal", baseline=baseline) is None
+    )
 
 
 def test_t_cx279_guidance_never_planner_skill() -> None:

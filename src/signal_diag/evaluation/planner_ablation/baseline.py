@@ -343,14 +343,6 @@ class PlannerAblationFixedPipelineBaseline:
         harmonic_rules: list[RuleEvaluation] | None = None
         if context.mode == "paired_reference":
             harmonic_rules = _matching(evaluations, _PAIRED_HARMONIC_RULES)
-            even_order = any(
-                item.metric == "test_series_kind"
-                and item.value == "even_order_present"
-                and item.validity == "valid"
-                for item in analysis.evidence
-            )
-            if harmonic_rules is not None and not even_order:
-                harmonic_rules = None
 
         if harmonic_rules is not None:
             even_order_refs = tuple(

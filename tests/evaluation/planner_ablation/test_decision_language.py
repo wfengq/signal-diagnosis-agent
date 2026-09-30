@@ -138,6 +138,26 @@ def test_t_cx280_rejects_foreign_study_and_derivation() -> None:
         )
 
 
+def test_t_cx286_planner_advantage_on_usefulness_endpoint_counterexample() -> None:
+    protocol = _protocol(advantage_endpoint="usefulness")
+    metrics = _metrics(
+        product_primary_quality=0.9,
+        fixed_primary_quality=0.9,
+        product_usefulness=0.9,
+        fixed_usefulness=0.6,
+        product_completion=1.0,
+        fixed_completion=1.0,
+        fixed_latency_improvement_ratio=0.05,
+    )
+    assert decide_study_conclusion(protocol, metrics) == StudyConclusion.PLANNER_ADVANTAGE
+
+    quality_protocol = _protocol(advantage_endpoint="quality")
+    assert (
+        decide_study_conclusion(quality_protocol, metrics)
+        == StudyConclusion.INSUFFICIENT_EVIDENCE
+    )
+
+
 def test_decision_module_has_no_hardcoded_live_n_defaults() -> None:
     import signal_diag.evaluation.planner_ablation.decision as decision_module
 

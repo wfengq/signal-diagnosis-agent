@@ -63,9 +63,16 @@ def validate_scored_campaign_input(record: Mapping[str, object]) -> None:
         raise ValueError(f"unknown scored arm: {arm}")
     if arm == "scripted_agent":
         raise ValueError("scripted_agent arm is harness-only")
-    if arm == "product_agent" and execution_identity != "product_campaign":
-        raise ValueError("product_agent arm requires product_campaign execution_identity")
-
     planner_class = str(record.get("planner_class", ""))
+    if arm == "product_agent":
+        if execution_identity != "product_campaign":
+            raise ValueError("product_agent arm requires product_campaign execution_identity")
+        if planner_class != "RealLLMPlanner":
+            raise ValueError(
+                "product_campaign product_agent requires RealLLMPlanner provenance"
+            )
+    if arm == "fixed_pipeline" and planner_class == "RealLLMPlanner":
+        raise ValueError("fixed_pipeline arm cannot claim RealLLMPlanner provenance")
+
     if planner_class.endswith("ScriptedPlanner"):
         raise ValueError("ScriptedPlanner artifacts are not scored product_agent evidence")

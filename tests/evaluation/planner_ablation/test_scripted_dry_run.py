@@ -259,7 +259,7 @@ def test_t_cx288_rejects_harness_only_relabeled_as_product_agent() -> None:
                 "planner_class": "RealLLMPlanner",
             }
         )
-    with pytest.raises(ValueError, match="ScriptedPlanner"):
+    with pytest.raises(ValueError, match="RealLLMPlanner"):
         validate_scored_campaign_input(
             {
                 **provenance,
