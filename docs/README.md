@@ -95,6 +95,8 @@ the root README read like a task ledger.
   real product Demo, T224–T285.
 - V0.3 additive (HEAD): contextual modes, D037 single-file default with
   `context_guidance` and Web UI held-bytes upgrade (§17–§18 / T-CX264–T-CX275).
+- Open design (OQ-019): [S1 planner-ablation utility study](superpowers/specs/2026-09-30-s1-planner-ablation-utility-study-design.md)
+  (design-only; no harness or RealLLM grant).
 
 The [engineering case study](PROJECT_CASE_STUDY.md) is the concise narrative;
 the specs, plans, Git history, and committed bundles are the detailed evidence.
