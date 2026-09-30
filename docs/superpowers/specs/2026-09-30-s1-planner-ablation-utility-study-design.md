@@ -3,8 +3,9 @@
 **Status:** study-shape approved (OQ-019 / D038, operator 2026-09-30).
 Wave 1–3 complete (protocol seal under
 `docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/`).
-Wave 4 RealLLM grant received (`批准 RealLLM 战役`); execution blocked on
-`DEEPSEEK_API_KEY` in the Cloud Agent environment.
+Wave 4 RealLLM grant received (`批准 RealLLM 战役`); execution blocked after
+operator skipped `DEEPSEEK_API_KEY` injection (and rejected DeepSeek egress
+request). No Scripted fallback.
 
 **Date:** 2026-09-30
 

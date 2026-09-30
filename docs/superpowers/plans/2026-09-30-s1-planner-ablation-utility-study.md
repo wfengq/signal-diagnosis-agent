@@ -465,7 +465,8 @@ Operator grant received: `批准 RealLLM 战役`.
   (arm-major RealLLM then fixed; seal verify; no Scripted fallback;
   infrastructure failure stops campaign)
 - [ ] Preflight: seal identity, credentials present, no Scripted fallback
-  (**blocked:** `DEEPSEEK_API_KEY` missing in this environment)
+  (**blocked:** operator skipped `DEEPSEEK_API_KEY` injection; network allow
+  for `api.deepseek.com` was also rejected. No Scripted fallback.)
 - [ ] Execute arm-major campaign once
 - [ ] Persist additive artifacts under
   `docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/agent_realllm_campaign_1/`
