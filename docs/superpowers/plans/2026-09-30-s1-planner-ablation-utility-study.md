@@ -63,7 +63,7 @@ campaign grant.
 | 0 | This revised plan document | Current revise grant |
 | 1 | Additive CONTRACTS §19 + TEST_PLAN ID text only | Authorized and landed 2026-09-30 |
 | 2 | Tests, study baseline/runner/scorer/sealing code, Scripted dry-run, full verification | Authorized and landed 2026-09-30 |
-| 3 | Preregistration record + seal using already-reviewed Wave 2 sealing tools | Operator: protocol-seal grant |
+| 3 | Preregistration record + seal using already-reviewed Wave 2 sealing tools | Authorized 2026-09-30; additive seal under `docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/protocol_seal/` |
 | 4 | RealLLM `product_agent` campaign | Operator: `批准 RealLLM 战役` or equivalent |
 | 5 | Result review write-up | After campaign artifacts |
 | 6 | Product change (if any) | Separate behavior design + auth |
@@ -440,15 +440,21 @@ git commit -m "feat(evaluation): planner-ablation decision language and identity
 **Files:**
 - Create: `docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/preregistration.md`
 - Create: seal directory + checksums using **already-reviewed** Wave 2 sealing code
+- Create: `scripts/seal_planner_ablation_protocol.py`
+- Create: `tests/evaluation/planner_ablation/test_protocol_seal_bundle.py`
 
 Wave 3 uses already-reviewed sealing code. This grant does not authorize new
 harness or sealing implementation.
 
-- [ ] Before sealing, approve every item in **Seal blockers** above
-- [ ] Freeze case list, arm order, populations, numeric bands, identities
-- [ ] Verify seal rejects foreign study identities / wrong derivation
-- [ ] Commit additive seal only when commits are authorized
-- [ ] Stop. Do not run RealLLM
+- [x] Before sealing, approve every item in **Seal blockers** above
+  (recorded in `preregistration.md`)
+- [x] Freeze case list, arm order, populations, numeric bands, identities
+  (10 dual-mode cases; 20 schedule keys; 40 scorable slots; gap `0.025`)
+- [x] Verify seal with Wave 2 helpers and
+  `study_input_from_verified_manifest` (foreign-identity rejection remains
+  covered by Wave 2 sealing tests)
+- [x] Commit additive seal under operator protocol-seal grant
+- [x] Stop. Do not run RealLLM
 
 ### Task 9: RealLLM campaign (Wave 4) — separate grant only
 
@@ -479,10 +485,10 @@ harness or sealing implementation.
 
 ## Stop conditions
 
-Wave 2 harness is implemented. Stop for operator / strong-model review before
-Wave 3.
+Wave 3 protocol seal is generated and verified under
+`docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/`.
+Stop before RealLLM campaign execution.
 
-Suggested next operator phrases:
+Suggested next operator phrase:
 
-- Wave 3: `授权 planner-ablation protocol seal`
 - Wave 4: `批准 RealLLM 战役`
