@@ -1,13 +1,13 @@
 # S1 default-path utility and planner-ablation study
 
-**Status:** design draft, study-shape only (operator authorized design-only
-2026-09-30; revised after Codex adversarial review the same day). This is not
-an executable experiment protocol, implementation grant, or RealLLM campaign
+**Status:** study-shape approved (OQ-019 / D038, operator 2026-09-30; revised
+after Codex adversarial review the same day). This is not an executable
+experiment protocol, writing-plans grant, harness grant, or RealLLM campaign
 grant.
 
 **Date:** 2026-09-30
 
-**Product decisions:** D003–D006, D009, D016, D037; AGENTS.md scope gates
+**Product decisions:** D003–D006, D009, D016, D037, D038; AGENTS.md scope gates
 
 **Related evidence:**
 
@@ -22,10 +22,9 @@ grant.
   HEAD finish gates are not yet matched; D037 entry must be measured; equal
   completion must not block a fixed-pipeline dominance conclusion
 
-**Open question:** OQ-019
+**Open question:** OQ-019 (resolved — study shape approved; see D038)
 
-**Plan:** not written until OQ-019 study-shape approval and a separate
-documentation-only writing-plans grant
+**Plan:** not written until a separate documentation-only writing-plans grant
 
 ## 1. Decision summary
 
@@ -264,7 +263,7 @@ Other claims under test:
 
 | Layer | This design package | Needs later grant |
 |-------|---------------------|-------------------|
-| Study-shape design + OQ-019 | Yes (this document, after revise) | Operator approval freezes shape only |
+| Study-shape design + OQ-019 / D038 | Approved 2026-09-30 | Shape frozen; later grants still required |
 | writing-plans (docs only) | No | Separate documentation-only grant after shape approval |
 | Additive CONTRACTS / TEST_PLAN definitions | No | Bounded grant; definitions before code |
 | Harness + Scripted dry-run | No | Same bounded grant after definitions, or a follow-on grant |
@@ -307,5 +306,6 @@ word and a revised design review accepts that change:
   `baseline.py`, `CONTRACTS_V0_3_CONTEXTUAL.md` §16–§17, and
   `app/contextual_campaign.py`, then folded into §§1, 4–8.
 - No product code or live-model runs in the design PR.
-- Operator approval of revised OQ-019 freezes study shape only. Executable
-  protocol freeze waits for the later plan and seal.
+- Operator approved revised OQ-019 / D038 on 2026-09-30 (study shape only).
+  Executable protocol freeze waits for a writing-plans grant, the plan, and a
+  later seal.
