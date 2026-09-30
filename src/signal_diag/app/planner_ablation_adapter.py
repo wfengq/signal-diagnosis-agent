@@ -2,8 +2,15 @@
 
 from __future__ import annotations
 
-from signal_diag.app.context_guidance import build_context_guidance
-from signal_diag.app.service import DiagnosisApplicationService
+from dataclasses import replace
+from typing import cast
+
+from signal_diag.agent.planner import PlannerModel
+from signal_diag.app.service import (
+    ApplicationDependencies,
+    DiagnosisApplicationService,
+    PlannerFactory,
+)
 from signal_diag.evaluation.planner_ablation.models import (
     ProductSlotOutcome,
     ProductSlotRequest,
@@ -37,30 +44,41 @@ class AppProductSlotExecutor:
         self,
         request: ProductSlotRequest,
     ) -> ProductSlotOutcome:
-        submission = await self._service.submit_contextual_wav(
-            request.test_wav_bytes,
-            test_filename=request.test_filename,
-            mode=request.mode,
-            reference_data=request.reference_wav_bytes,
-            reference_filename=request.reference_filename,
-            nominal_fundamental_hz=None,
-            stimulus_kind=None,
-            user_request=request.user_request,
+        dependencies: ApplicationDependencies = self._service._dependencies
+        executed_planner_class = ""
+
+        def tracking_factory() -> PlannerModel:
+            nonlocal executed_planner_class
+            planner = dependencies.planner_factory()
+            executed_planner_class = type(planner).__name__
+            return planner
+
+        tracked_factory = cast(PlannerFactory, tracking_factory)
+        self._service._dependencies = replace(
+            dependencies,
+            planner_factory=tracked_factory,
         )
-        snapshot = await self._service.wait_for_contextual_terminal(submission.run_id)
-        guidance = snapshot.context_guidance
-        if guidance is None and snapshot.result is not None:
-            guidance = build_context_guidance(
+        try:
+            submission = await self._service.submit_contextual_wav(
+                request.test_wav_bytes,
+                test_filename=request.test_filename,
                 mode=request.mode,
-                result=snapshot.result,
+                reference_data=request.reference_wav_bytes,
+                reference_filename=request.reference_filename,
+                nominal_fundamental_hz=None,
+                stimulus_kind=None,
+                user_request=request.user_request,
             )
-        planner_class = type(self._service._dependencies.planner_factory()).__name__
+            snapshot = await self._service.wait_for_contextual_terminal(submission.run_id)
+        finally:
+            self._service._dependencies = dependencies
+        guidance = snapshot.context_guidance
         return ProductSlotOutcome(
             run_id=snapshot.run_id,
             mode=request.mode,
             terminal_status="completed" if snapshot.status == "completed" else "failed",
             result=snapshot.result,
             context_guidance=_map_guidance(guidance),
-            planner_class=planner_class,
+            planner_class=executed_planner_class,
             execution_identity="product_campaign",
         )

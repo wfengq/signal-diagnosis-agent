@@ -26,9 +26,6 @@ def _protocol(**overrides: object) -> StudyDecisionProtocol:
         "non_inferiority_max_gap": 0.05,
         "material_improvement_ratio": 0.20,
         "n_unit": "scorable_slots",
-        "require_matched_comparison": True,
-        "require_evaluable_population": True,
-        "require_complete_protocol": True,
     }
     base.update(overrides)
     return StudyDecisionProtocol(**base)  # type: ignore[arg-type]
@@ -38,6 +35,8 @@ def _metrics(**overrides: object) -> StudyComparisonMetrics:
     base = {
         "product_primary_quality": 0.9,
         "fixed_primary_quality": 0.88,
+        "product_usefulness": 0.9,
+        "fixed_usefulness": 0.88,
         "product_completion": 1.0,
         "fixed_completion": 1.0,
         "product_safety_ok": True,
@@ -55,6 +54,21 @@ def _metrics(**overrides: object) -> StudyComparisonMetrics:
 
 def test_t_cx286_fixed_dominance_at_equal_completion() -> None:
     conclusion = decide_study_conclusion(_protocol(), _metrics())
+    assert conclusion == StudyConclusion.FIXED_PIPELINE_DOMINANCE
+
+
+def test_t_cx286_fixed_dominance_with_non_hundred_percent_completion() -> None:
+    conclusion = decide_study_conclusion(
+        _protocol(),
+        _metrics(
+            product_completion=0.92,
+            fixed_completion=0.90,
+            product_primary_quality=0.88,
+            fixed_primary_quality=0.87,
+            product_usefulness=0.86,
+            fixed_usefulness=0.85,
+        ),
+    )
     assert conclusion == StudyConclusion.FIXED_PIPELINE_DOMINANCE
 
 
@@ -87,12 +101,28 @@ def test_t_cx286_insufficient_on_regression_and_unmatched() -> None:
         decide_study_conclusion(_protocol(), _metrics(evaluable_population=False))
         == StudyConclusion.INSUFFICIENT_EVIDENCE
     )
+    assert (
+        decide_study_conclusion(_protocol(), _metrics(protocol_complete=False))
+        == StudyConclusion.INSUFFICIENT_EVIDENCE
+    )
+    assert (
+        decide_study_conclusion(_protocol(), _metrics(matched_comparison=False))
+        == StudyConclusion.INSUFFICIENT_EVIDENCE
+    )
 
 
 def test_t_cx286_dominance_blocked_without_material_improvement() -> None:
     conclusion = decide_study_conclusion(
         _protocol(),
         _metrics(fixed_latency_improvement_ratio=0.05),
+    )
+    assert conclusion == StudyConclusion.INSUFFICIENT_EVIDENCE
+
+
+def test_t_cx286_dominance_blocked_when_completion_regresses() -> None:
+    conclusion = decide_study_conclusion(
+        _protocol(),
+        _metrics(product_completion=0.90, fixed_completion=0.70),
     )
     assert conclusion == StudyConclusion.INSUFFICIENT_EVIDENCE
 

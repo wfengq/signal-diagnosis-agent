@@ -26,6 +26,8 @@ from signal_diag.evaluation.planner_ablation.campaign import (
     run_four_path_harness_dry_run,
 )
 from signal_diag.evaluation.planner_ablation.identity import (
+    PLANNER_ABLATION_SCORING_IDENTITY,
+    PLANNER_ABLATION_STUDY_ID,
     validate_scored_campaign_input,
 )
 from signal_diag.evaluation.planner_ablation.models import (
@@ -202,17 +204,24 @@ async def test_t_cx282_four_executor_mode_paths_zero_provider_calls(
                 assertion_source="evaluation_manifest",
             ),
         ),
-        provider_calls=provider_spy.calls,
+        provider=provider_spy,
     )
     assert len(results) == 4
     assert provider_spy.calls == 0
     assert all(item.execution_identity == "harness_only" for item in results)
+    assert results[0].planner_class == "_ImmediateFinishPlanner"
+    assert results[2].planner_class == "PlannerAblationFixedPipelineBaseline"
 
 
 def test_t_cx288_rejects_harness_only_relabeled_as_product_agent() -> None:
+    provenance = {
+        "study_id": PLANNER_ABLATION_STUDY_ID,
+        "scoring_identity": PLANNER_ABLATION_SCORING_IDENTITY,
+    }
     with pytest.raises(ValueError, match="harness_only"):
         validate_scored_campaign_input(
             {
+                **provenance,
                 "arm": "product_agent",
                 "execution_identity": "harness_only",
                 "planner_class": "RealLLMPlanner",
@@ -221,8 +230,17 @@ def test_t_cx288_rejects_harness_only_relabeled_as_product_agent() -> None:
     with pytest.raises(ValueError, match="ScriptedPlanner"):
         validate_scored_campaign_input(
             {
+                **provenance,
                 "arm": "product_agent",
                 "execution_identity": "product_campaign",
                 "planner_class": "ScriptedPlanner",
+            }
+        )
+    with pytest.raises(ValueError, match="missing scored provenance"):
+        validate_scored_campaign_input(
+            {
+                "arm": "product_agent",
+                "execution_identity": "product_campaign",
+                "planner_class": "RealLLMPlanner",
             }
         )

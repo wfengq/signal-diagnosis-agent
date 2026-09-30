@@ -1278,6 +1278,7 @@ _PHASE5_ALLOWED_UPSTREAM_PATHS = {
 _V03_ADDITIVE_PATH_PREFIXES: tuple[str, ...] = (
     "src/signal_diag/evaluation/external/",
     "src/signal_diag/evaluation/contextual/",
+    "src/signal_diag/evaluation/planner_ablation/",
 )
 _V03_ADDITIVE_EXACT_PATHS = frozenset(
     {

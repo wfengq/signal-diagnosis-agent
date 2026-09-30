@@ -23,9 +23,6 @@ class StudyDecisionProtocol(BaseModel):
     non_inferiority_max_gap: float = Field(gt=0.0, lt=1.0)
     material_improvement_ratio: float = Field(gt=0.0, lt=1.0)
     n_unit: str = Field(min_length=1)
-    require_matched_comparison: bool = True
-    require_evaluable_population: bool = True
-    require_complete_protocol: bool = True
 
 
 class StudyComparisonMetrics(BaseModel):
@@ -33,6 +30,8 @@ class StudyComparisonMetrics(BaseModel):
 
     product_primary_quality: float = Field(ge=0.0, le=1.0)
     fixed_primary_quality: float = Field(ge=0.0, le=1.0)
+    product_usefulness: float = Field(ge=0.0, le=1.0)
+    fixed_usefulness: float = Field(ge=0.0, le=1.0)
     product_completion: float = Field(ge=0.0, le=1.0)
     fixed_completion: float = Field(ge=0.0, le=1.0)
     product_safety_ok: bool
@@ -51,37 +50,45 @@ def decide_study_conclusion(
 ) -> StudyConclusion:
     if metrics.unmatched_comparison or not metrics.matched_comparison:
         return StudyConclusion.INSUFFICIENT_EVIDENCE
-    if protocol.require_evaluable_population and not metrics.evaluable_population:
+    if not metrics.evaluable_population:
         return StudyConclusion.INSUFFICIENT_EVIDENCE
-    if protocol.require_complete_protocol and not metrics.protocol_complete:
+    if not metrics.protocol_complete:
         return StudyConclusion.INSUFFICIENT_EVIDENCE
     if not metrics.product_safety_ok or not metrics.fixed_safety_ok:
         return StudyConclusion.INSUFFICIENT_EVIDENCE
     if metrics.constrained_metric_regression:
         return StudyConclusion.INSUFFICIENT_EVIDENCE
 
-    quality_gap = metrics.product_primary_quality - metrics.fixed_primary_quality
-    non_inferior = quality_gap <= protocol.non_inferiority_max_gap
+    gap = protocol.non_inferiority_max_gap
+    quality_non_inferior = (
+        metrics.fixed_primary_quality >= metrics.product_primary_quality - gap
+    )
+    usefulness_non_inferior = (
+        metrics.fixed_usefulness >= metrics.product_usefulness - gap
+    )
+    completion_non_inferior = (
+        metrics.fixed_completion >= metrics.product_completion - gap
+    )
     materially_faster = (
         metrics.fixed_latency_improvement_ratio >= protocol.material_improvement_ratio
     )
-    equal_completion = (
-        metrics.product_completion == 1.0 and metrics.fixed_completion == 1.0
-    )
 
     if (
-        equal_completion
-        and non_inferior
+        quality_non_inferior
+        and usefulness_non_inferior
+        and completion_non_inferior
         and metrics.fixed_safety_ok
         and materially_faster
         and not metrics.constrained_metric_regression
     ):
         return StudyConclusion.FIXED_PIPELINE_DOMINANCE
 
+    quality_gap = metrics.product_primary_quality - metrics.fixed_primary_quality
     if (
-        metrics.product_primary_quality > metrics.fixed_primary_quality + protocol.non_inferiority_max_gap
+        quality_gap > gap
         and metrics.product_safety_ok
-        and metrics.product_completion >= metrics.fixed_completion
+        and metrics.product_completion >= metrics.fixed_completion - gap
+        and metrics.product_usefulness >= metrics.fixed_usefulness - gap
     ):
         return StudyConclusion.PLANNER_ADVANTAGE
 

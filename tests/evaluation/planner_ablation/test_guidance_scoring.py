@@ -11,6 +11,10 @@ from signal_diag.agent.models import (
 )
 from signal_diag.app.context_guidance import build_context_guidance
 from signal_diag.evaluation.models import BaselineDiagnosis, BaselineRunResult
+from signal_diag.evaluation.planner_ablation.identity import (
+    PLANNER_ABLATION_SCORING_IDENTITY,
+    PLANNER_ABLATION_STUDY_ID,
+)
 from signal_diag.evaluation.planner_ablation.labels import guidance_attribution_label
 from signal_diag.evaluation.planner_ablation.report_fields import (
     derive_context_guidance_from_agent_result,
@@ -18,13 +22,27 @@ from signal_diag.evaluation.planner_ablation.report_fields import (
     guidance_parity_equal,
 )
 from signal_diag.evaluation.planner_ablation.scoring import (
+    ScoringPopulationError,
     claim_population_denominator,
-    completion_denominator,
+    diagnosis_completion_rate,
     reject_offline_context_labels_on_execution_inputs,
     score_guidance_fields,
+    terminal_reach_rate,
     upgrade_success_denominators,
 )
 from signal_diag.tools.evidence import Evidence
+
+
+def _scored_slot(**fields: object) -> dict[str, object]:
+    base = {
+        "arm": "product_agent",
+        "execution_identity": "product_campaign",
+        "planner_class": "RealLLMPlanner",
+        "study_id": PLANNER_ABLATION_STUDY_ID,
+        "scoring_identity": PLANNER_ABLATION_SCORING_IDENTITY,
+    }
+    base.update(fields)
+    return base
 
 
 def _agent_inconclusive_with_harmonic() -> AgentRunResult:
@@ -136,15 +154,74 @@ def test_t_cx284_rejects_offline_labels_on_execution_inputs() -> None:
         )
 
 
-def test_t_cx283_completion_denominator_includes_diagnosis_less() -> None:
+def test_t_cx283_terminal_reach_and_diagnosis_completion_diverge() -> None:
     slots = (
-        {"terminal_reached": True, "completed_diagnosis": False},
-        {"terminal_reached": True, "completed_diagnosis": True},
-        {"terminal_reached": False, "completed_diagnosis": False},
+        _scored_slot(terminal_reached=True, completed_diagnosis=False),
+        _scored_slot(terminal_reached=True, completed_diagnosis=True),
+        _scored_slot(terminal_reached=False, completed_diagnosis=False),
     )
-    rate = completion_denominator(slots)
-    assert rate.denominator == 3
-    assert rate.numerator == 2
+    terminal = terminal_reach_rate(slots)
+    completion = diagnosis_completion_rate(slots)
+    assert terminal.denominator == 3
+    assert terminal.numerator == 2
+    assert completion.denominator == 3
+    assert completion.numerator == 1
+
+
+def test_t_cx283_claim_population_counts_grounded_claims_only() -> None:
+    evidence = (
+        Evidence(
+            evidence_id="ev_1",
+            call_id="call_1",
+            source_tool="detect_clipping",
+            metric="clipping_ratio",
+            value=0.02,
+            validity="valid",
+            channel="mixdown",
+        ),
+    )
+    slots = (
+        _scored_slot(
+            completed_diagnosis=True,
+            evidence=evidence,
+            rule_evaluation_batches=(),
+            claims=(
+                {
+                    "claim_id": "c1",
+                    "evidence_refs": ("ev_1",),
+                    "rule_refs": (),
+                },
+                {
+                    "claim_id": "c2",
+                    "evidence_refs": ("ev_missing",),
+                    "rule_refs": (),
+                },
+            ),
+        ),
+        _scored_slot(completed_diagnosis=False, claims=({"claim_id": "c3"},)),
+    )
+    population = claim_population_denominator(slots)
+    assert population.numerator == 1
+    assert population.denominator == 1
+
+
+def test_t_cx283_zero_claim_population_is_not_evaluable() -> None:
+    with pytest.raises(ScoringPopulationError, match="not evaluable"):
+        claim_population_denominator(
+            (
+                _scored_slot(completed_diagnosis=True, claims=()),
+                _scored_slot(
+                    completed_diagnosis=True,
+                    claims=(
+                        {
+                            "claim_id": "bad",
+                            "evidence_refs": ("missing",),
+                            "rule_refs": (),
+                        },
+                    ),
+                ),
+            )
+        )
 
 
 def test_t_cx285_upgrade_success_reports_both_denominators() -> None:
@@ -155,6 +232,3 @@ def test_t_cx285_upgrade_success_reports_both_denominators() -> None:
     )
     assert full.denominator == 12
     assert conditional.denominator == 6
-    assert claim_population_denominator(
-        [{"completed_diagnosis": True}, {"completed_diagnosis": True}]
-    ).denominator == 2
