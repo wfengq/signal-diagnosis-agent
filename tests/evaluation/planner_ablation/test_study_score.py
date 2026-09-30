@@ -31,11 +31,14 @@ from signal_diag.evaluation.planner_ablation.study_score import (
     StudySlotKey,
     VerifiedStudyInput,
     build_study_comparison_metrics,
+    content_digest,
     primary_quality_rate,
     project_fixed_outcome,
     project_product_outcome,
     score_planner_ablation_study,
+    study_input_from_verified_manifest,
     unsupported_positive_claim_rate,
+    verified_study_input,
     verify_study_input,
 )
 from signal_diag.tools.evidence import Evidence
@@ -54,13 +57,8 @@ def _protocol(**overrides: object) -> StudyDecisionProtocol:
     return StudyDecisionProtocol(**base)  # type: ignore[arg-type]
 
 
-def _identities() -> dict[str, str]:
-    return {
-        "population_identity": "pop_dev_1",
-        "oracle_identity": "oracle_dev_1",
-        "input_identity": "input_dev_1",
-        "code_identity": "code_dev_1",
-    }
+_TEST_INPUT_IDENTITY = "a" * 64
+_TEST_CODE_IDENTITY = "b" * 64
 
 
 def _study(
@@ -69,11 +67,12 @@ def _study(
     oracle: tuple[StudyOracleLabel, ...],
     **protocol_kw: object,
 ) -> VerifiedStudyInput:
-    return VerifiedStudyInput(
+    return verified_study_input(
         protocol=_protocol(**protocol_kw),
         schedule=schedule,
         oracle=oracle,
-        **_identities(),
+        input_identity=_TEST_INPUT_IDENTITY,
+        code_identity=_TEST_CODE_IDENTITY,
     )
 
 
@@ -250,7 +249,7 @@ def test_zero_claim_population_blocks_evaluable_population() -> None:
     assert built.metrics.evaluable_population is False
     assert built.metrics.product_safety_ok is False
     assert built.metrics.fixed_safety_ok is False
-    assert built.population_identity == "pop_dev_1"
+    assert built.population_identity == content_digest((key,))
 
 
 def test_behavioral_failure_stays_in_completion_denominator() -> None:
@@ -274,7 +273,10 @@ def test_empty_oracle_rejects_and_cannot_yield_fixed_dominance() -> None:
             protocol=_protocol(),
             schedule=(key,),
             oracle=(),
-            **_identities(),
+            population_identity=content_digest((key,)),
+            oracle_identity=_TEST_CODE_IDENTITY,
+            input_identity=_TEST_INPUT_IDENTITY,
+            code_identity=_TEST_CODE_IDENTITY,
         )
     product, fixed = _dual_arm_slots()
     with pytest.raises(ValueError):
@@ -283,7 +285,10 @@ def test_empty_oracle_rejects_and_cannot_yield_fixed_dominance() -> None:
                 protocol=_protocol(),
                 schedule=(key,),
                 oracle=(),
-                **_identities(),
+                population_identity=content_digest((key,)),
+                oracle_identity=_TEST_CODE_IDENTITY,
+                input_identity=_TEST_INPUT_IDENTITY,
+                code_identity=_TEST_CODE_IDENTITY,
             ),
             product_slots=(product,),
             fixed_slots=(fixed,),
@@ -342,6 +347,13 @@ def test_quality_failure_stays_in_primary_denominator() -> None:
     assert rate.numerator == 1
     assert rate.denominator == 2
     assert rate.value == 0.5
+
+    from signal_diag.evaluation.planner_ablation.study_score import (
+        _schedule_diagnosis_completion_rate,
+    )
+
+    completion = _schedule_diagnosis_completion_rate((product_ok, product_fail))
+    assert completion == 0.5
 
 
 def test_duplicate_schedule_oracle_and_slot_keys_reject() -> None:
@@ -458,6 +470,30 @@ def test_conclusion_fixed_pipeline_dominance_unique() -> None:
         StudyOracleLabel(
             case_id="clip_case",
             mode="single_signal",
+            expected_outcome="supported_fault",
+            expected_causal_faults=("clipping",),
+        ),
+    )
+    study = _study(schedule=(key,), oracle=oracle)
+    product, fixed = _dual_arm_slots(
+        product_outcome="supported_fault",
+        fixed_outcome="supported_fault",
+    )
+    conclusion = score_planner_ablation_study(
+        study=study,
+        product_slots=(product,),
+        fixed_slots=(fixed,),
+        fixed_latency_improvement_ratio=0.25,
+    )
+    assert conclusion == StudyConclusion.FIXED_PIPELINE_DOMINANCE
+
+
+def test_zero_positive_claims_block_dominance() -> None:
+    key = StudySlotKey(case_id="clip_case", mode="single_signal")
+    oracle = (
+        StudyOracleLabel(
+            case_id="clip_case",
+            mode="single_signal",
             expected_outcome="no_supported_fault",
             expected_causal_faults=(),
         ),
@@ -492,7 +528,7 @@ def test_conclusion_fixed_pipeline_dominance_unique() -> None:
         fixed_slots=(fixed,),
         fixed_latency_improvement_ratio=0.25,
     )
-    assert conclusion == StudyConclusion.FIXED_PIPELINE_DOMINANCE
+    assert conclusion == StudyConclusion.INSUFFICIENT_EVIDENCE
 
 
 def test_conclusion_insufficient_evidence_safety_fail_unique() -> None:
@@ -601,6 +637,181 @@ def test_project_product_and_fixed_outcome_into_scoring_slots() -> None:
     assert fixed_slot["case_id"] == "clip_case"
 
 
+def test_project_fixed_inconclusive_counts_as_completed() -> None:
+    evidence = _grounded_clip_evidence()
+    baseline = BaselineRunResult(
+        run_id="baseline_inconclusive",
+        status="inconclusive",
+        diagnosis=BaselineDiagnosis(
+            run_id="baseline_inconclusive",
+            outcome="inconclusive",
+            claims=(),
+            confidence_label="low",
+            tool_call_count=1,
+            rule_evaluation_batches=(),
+        ),
+        observations=(),
+        evidence=evidence,
+        tool_history=(),
+        completion_reason="insufficient_evidence",
+        rule_evaluation_batches=(),
+    )
+    slot = project_fixed_outcome(
+        FixedPipelineOutcome(
+            case_id="noise_case",
+            mode="single_signal",
+            baseline_result=baseline,
+        )
+    )
+    assert slot["completed_diagnosis"] is True
+    assert slot["diagnosis_outcome"] == "inconclusive"
+
+
+def test_project_fixed_true_failure_not_completed() -> None:
+    baseline = BaselineRunResult(
+        run_id="baseline_failed",
+        status="failed",
+        diagnosis=None,
+        observations=(),
+        evidence=(),
+        tool_history=(),
+        completion_reason="error",
+        rule_evaluation_batches=(),
+    )
+    slot = project_fixed_outcome(
+        FixedPipelineOutcome(
+            case_id="fail_case",
+            mode="single_signal",
+            baseline_result=baseline,
+        )
+    )
+    assert slot["completed_diagnosis"] is False
+
+
+def test_descheduled_slot_rejects_at_score() -> None:
+    key = StudySlotKey(case_id="a", mode="single_signal")
+    oracle = (
+        StudyOracleLabel(
+            case_id="a",
+            mode="single_signal",
+            expected_outcome="no_supported_fault",
+        ),
+    )
+    study = _study(schedule=(key,), oracle=oracle)
+    product, fixed = _dual_arm_slots(case_id="a")
+    product = {**product, "scheduled": False}
+    with pytest.raises(ValueError, match="descheduled"):
+        build_study_comparison_metrics(
+            study=study,
+            product_slots=(product,),
+            fixed_slots=(fixed,),
+        )
+
+
+def test_oracle_identity_binds_content() -> None:
+    key = StudySlotKey(case_id="a", mode="single_signal")
+    oracle = (
+        StudyOracleLabel(
+            case_id="a",
+            mode="single_signal",
+            expected_outcome="no_supported_fault",
+        ),
+    )
+    with pytest.raises(ValueError, match="oracle_identity"):
+        VerifiedStudyInput(
+            protocol=_protocol(),
+            schedule=(key,),
+            oracle=oracle,
+            population_identity=content_digest((key,)),
+            oracle_identity="c" * 64,
+            input_identity=_TEST_INPUT_IDENTITY,
+            code_identity=_TEST_CODE_IDENTITY,
+        )
+
+
+def test_study_input_from_verified_manifest_round_trip() -> None:
+    key = StudySlotKey(case_id="m1", mode="paired_reference")
+    oracle = (
+        StudyOracleLabel(
+            case_id="m1",
+            mode="paired_reference",
+            expected_outcome="inconclusive",
+        ),
+    )
+    study = _study(schedule=(key,), oracle=oracle)
+    manifest: dict[str, object] = {
+        "study_id": PLANNER_ABLATION_STUDY_ID,
+        "scoring_identity": PLANNER_ABLATION_SCORING_IDENTITY,
+        "decision_protocol": study.protocol.model_dump(),
+        "schedule": [key.model_dump()],
+        "oracle": [oracle[0].model_dump()],
+        "population_identity": study.population_identity,
+        "oracle_identity": study.oracle_identity,
+        "input_identity": study.input_identity,
+        "code_identity": study.code_identity,
+    }
+    parsed = study_input_from_verified_manifest(manifest)
+    assert parsed == study
+
+
+def test_study_input_from_verified_manifest_rejects_tampered_oracle() -> None:
+    key = StudySlotKey(case_id="m1", mode="single_signal")
+    oracle = (
+        StudyOracleLabel(
+            case_id="m1",
+            mode="single_signal",
+            expected_outcome="no_supported_fault",
+        ),
+    )
+    study = _study(schedule=(key,), oracle=oracle)
+    manifest: dict[str, object] = {
+        "study_id": PLANNER_ABLATION_STUDY_ID,
+        "scoring_identity": PLANNER_ABLATION_SCORING_IDENTITY,
+        "decision_protocol": study.protocol.model_dump(),
+        "schedule": [key.model_dump()],
+        "oracle": [
+            {
+                **oracle[0].model_dump(),
+                "expected_outcome": "supported_fault",
+                "expected_causal_faults": ("clipping",),
+            }
+        ],
+        "population_identity": study.population_identity,
+        "oracle_identity": study.oracle_identity,
+        "input_identity": study.input_identity,
+        "code_identity": study.code_identity,
+    }
+    with pytest.raises(ValueError, match="oracle_identity"):
+        study_input_from_verified_manifest(manifest)
+
+
+def test_study_input_from_verified_manifest_rejects_protocol_mismatch() -> None:
+    key = StudySlotKey(case_id="m1", mode="single_signal")
+    oracle = (
+        StudyOracleLabel(
+            case_id="m1",
+            mode="single_signal",
+            expected_outcome="no_supported_fault",
+        ),
+    )
+    study = _study(schedule=(key,), oracle=oracle)
+    protocol = study.protocol.model_dump()
+    protocol["study_id"] = "study_foreign"
+    manifest: dict[str, object] = {
+        "study_id": PLANNER_ABLATION_STUDY_ID,
+        "scoring_identity": PLANNER_ABLATION_SCORING_IDENTITY,
+        "decision_protocol": protocol,
+        "schedule": [key.model_dump()],
+        "oracle": [oracle[0].model_dump()],
+        "population_identity": study.population_identity,
+        "oracle_identity": study.oracle_identity,
+        "input_identity": study.input_identity,
+        "code_identity": study.code_identity,
+    }
+    with pytest.raises(ValueError, match="protocol identity mismatch"):
+        study_input_from_verified_manifest(manifest)
+
+
 def test_verify_study_input_rejects_foreign_protocol() -> None:
     key = StudySlotKey(case_id="c1", mode="single_signal")
     oracle = (
@@ -614,7 +825,101 @@ def test_verify_study_input_rejects_foreign_protocol() -> None:
         protocol=_protocol(study_id="foreign"),
         schedule=(key,),
         oracle=oracle,
-        **_identities(),
+        population_identity=content_digest((key,)),
+        oracle_identity=content_digest(oracle),
+        input_identity=_TEST_INPUT_IDENTITY,
+        code_identity=_TEST_CODE_IDENTITY,
     )
     with pytest.raises(ValueError, match="foreign study"):
         verify_study_input(study)
+
+
+@pytest.mark.asyncio
+async def test_baseline_inconclusive_integration_scores_completed(
+    repository: object,
+) -> None:
+    from signal_diag.signal.repository import InMemorySignalRepository
+    from signal_diag.signal.synthetic import generate_sine, generate_white_noise
+    from tests.evaluation.planner_ablation.test_matched_gates import (
+        _request,
+        _study_baseline,
+    )
+
+    repo = repository
+    assert isinstance(repo, InMemorySignalRepository)
+    baseline_runner = _study_baseline(repo)
+
+    noise = generate_white_noise(duration_s=0.5, seed=287)
+    repo.put(noise.record)
+    single_baseline = await baseline_runner.run(
+        _request(
+            case_id="single_inconclusive",
+            signal_id=noise.record.meta.signal_id,
+            mode="single_signal",
+        )
+    )
+    reference = generate_sine(frequency_hz=440.0, duration_s=0.5, amplitude=0.5)
+    paired_noise = generate_white_noise(duration_s=0.5, seed=288)
+    repo.put(reference.record)
+    repo.put(paired_noise.record)
+    paired_baseline = await baseline_runner.run(
+        _request(
+            case_id="paired_inconclusive",
+            signal_id=paired_noise.record.meta.signal_id,
+            mode="paired_reference",
+            reference_signal_id=reference.record.meta.signal_id,
+        )
+    )
+
+    schedule = (
+        StudySlotKey(case_id="single_inconclusive", mode="single_signal"),
+        StudySlotKey(case_id="paired_inconclusive", mode="paired_reference"),
+    )
+    oracle = (
+        StudyOracleLabel(
+            case_id="single_inconclusive",
+            mode="single_signal",
+            expected_outcome="inconclusive",
+        ),
+        StudyOracleLabel(
+            case_id="paired_inconclusive",
+            mode="paired_reference",
+            expected_outcome="inconclusive",
+        ),
+    )
+    study = _study(schedule=schedule, oracle=oracle)
+
+    fixed_slots: list[dict[str, object]] = []
+    product_slots: list[dict[str, object]] = []
+    for case_id, mode, baseline_result in (
+        ("single_inconclusive", "single_signal", single_baseline),
+        ("paired_inconclusive", "paired_reference", paired_baseline),
+    ):
+        assert baseline_result.diagnosis is not None
+        assert baseline_result.diagnosis.outcome == "inconclusive"
+        fixed = project_fixed_outcome(
+            FixedPipelineOutcome(
+                case_id=case_id,
+                mode=mode,  # type: ignore[arg-type]
+                baseline_result=baseline_result,
+            )
+        )
+        assert fixed["completed_diagnosis"] is True
+        fixed_slots.append(fixed)
+        product_slots.append(
+            {
+                **fixed,
+                "arm": "product_agent",
+                "planner_class": "RealLLMPlanner",
+            }
+        )
+
+    built = build_study_comparison_metrics(
+        study=study,
+        product_slots=product_slots,
+        fixed_slots=fixed_slots,
+    )
+    assert built.metrics.product_completion == 1.0
+    assert built.metrics.fixed_completion == 1.0
+    assert built.metrics.product_primary_quality == 1.0
+    assert built.metrics.fixed_primary_quality == 1.0

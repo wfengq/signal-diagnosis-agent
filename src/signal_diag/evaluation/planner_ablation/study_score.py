@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import json
+import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from hashlib import sha256
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -27,11 +30,15 @@ from signal_diag.evaluation.planner_ablation.models import (
 from signal_diag.evaluation.planner_ablation.scoring import (
     ScoringPopulationError,
     claim_population_denominator,
-    diagnosis_completion_rate,
     validate_scored_slots,
 )
 
 _POSITIVE_FAULT_TYPES = frozenset({"clipping", "harmonic_distortion"})
+_SHA256_HEX_RE = re.compile(r"^[a-f0-9]{64}$")
+
+
+def _canonical_json(payload: object) -> str:
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"))
 
 
 class StudySlotKey(BaseModel):
@@ -75,6 +82,111 @@ class VerifiedStudyInput(BaseModel):
     def _verify_on_build(self) -> VerifiedStudyInput:
         verify_study_input(self)
         return self
+
+
+def _schedule_payload(schedule: Sequence[StudySlotKey]) -> list[dict[str, str]]:
+    """Schedule digest uses preregistered order (not sorted)."""
+    return [{"case_id": key.case_id, "mode": key.mode} for key in schedule]
+
+
+def _oracle_payload(oracle: Sequence[StudyOracleLabel]) -> list[dict[str, object]]:
+    return [
+        {
+            "case_id": label.case_id,
+            "mode": label.mode,
+            "expected_outcome": label.expected_outcome,
+            "expected_causal_faults": list(label.expected_causal_faults),
+        }
+        for label in oracle
+    ]
+
+
+def content_digest(
+    obj: Sequence[StudySlotKey] | Sequence[StudyOracleLabel],
+) -> str:
+    """SHA-256 hex digest of canonical schedule or oracle label content."""
+    if not obj:
+        raise ValueError("content_digest requires non-empty sequence")
+    first = obj[0]
+    if isinstance(first, StudySlotKey):
+        payload = _schedule_payload(obj)  # type: ignore[arg-type]
+    elif isinstance(first, StudyOracleLabel):
+        payload = _oracle_payload(obj)  # type: ignore[arg-type]
+    else:
+        raise TypeError("content_digest expects StudySlotKey or StudyOracleLabel rows")
+    return sha256(_canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def _require_sha256_digest(name: str, value: str) -> None:
+    if not _SHA256_HEX_RE.fullmatch(value):
+        raise ValueError(f"{name} must be a 64-character sha256 hex digest")
+
+
+def verified_study_input(
+    *,
+    protocol: StudyDecisionProtocol,
+    schedule: tuple[StudySlotKey, ...],
+    oracle: tuple[StudyOracleLabel, ...],
+    input_identity: str,
+    code_identity: str,
+) -> VerifiedStudyInput:
+    """Build verified input with population/oracle identities bound to content."""
+    return VerifiedStudyInput(
+        protocol=protocol,
+        schedule=schedule,
+        oracle=oracle,
+        population_identity=content_digest(schedule),
+        oracle_identity=content_digest(oracle),
+        input_identity=input_identity,
+        code_identity=code_identity,
+    )
+
+
+def study_input_from_verified_manifest(
+    manifest: Mapping[str, object],
+) -> VerifiedStudyInput:
+    """Parse a sealed manifest dict into verified study input (content-bound)."""
+    protocol_raw = manifest.get("decision_protocol")
+    if protocol_raw is None:
+        raise ValueError("manifest missing decision_protocol")
+    protocol = StudyDecisionProtocol.model_validate(protocol_raw)
+    if "study_id" in manifest and manifest["study_id"] != protocol.study_id:
+        raise ValueError("protocol identity mismatch")
+    if (
+        "scoring_identity" in manifest
+        and manifest["scoring_identity"] != protocol.scoring_identity
+    ):
+        raise ValueError("protocol identity mismatch")
+
+    schedule_raw = manifest.get("schedule")
+    if not isinstance(schedule_raw, Sequence) or isinstance(schedule_raw, (str, bytes)):
+        raise ValueError("manifest schedule must be a list")
+    schedule = tuple(StudySlotKey.model_validate(item) for item in schedule_raw)
+
+    oracle_raw = manifest.get("oracle")
+    if not isinstance(oracle_raw, Sequence) or isinstance(oracle_raw, (str, bytes)):
+        raise ValueError("manifest oracle must be a list")
+    oracle = tuple(StudyOracleLabel.model_validate(item) for item in oracle_raw)
+
+    for name in (
+        "population_identity",
+        "oracle_identity",
+        "input_identity",
+        "code_identity",
+    ):
+        value = manifest.get(name)
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"manifest {name} must be a non-empty string")
+
+    return VerifiedStudyInput(
+        protocol=protocol,
+        schedule=schedule,
+        oracle=oracle,
+        population_identity=str(manifest["population_identity"]),
+        oracle_identity=str(manifest["oracle_identity"]),
+        input_identity=str(manifest["input_identity"]),
+        code_identity=str(manifest["code_identity"]),
+    )
 
 
 def _format_key_set(
@@ -125,6 +237,15 @@ def verify_study_input(study: VerifiedStudyInput) -> None:
             )
         raise ValueError(f"oracle has keys not in schedule: {_format_key_set(extra)}")
 
+    expected_population = content_digest(tuple(schedule_keys))
+    if study.population_identity != expected_population:
+        raise ValueError("population_identity does not match schedule content")
+    expected_oracle = content_digest(study.oracle)
+    if study.oracle_identity != expected_oracle:
+        raise ValueError("oracle_identity does not match oracle content")
+    _require_sha256_digest("input_identity", study.input_identity)
+    _require_sha256_digest("code_identity", study.code_identity)
+
 
 def _validate_protocol(protocol: StudyDecisionProtocol) -> None:
     if protocol.study_id != PLANNER_ABLATION_STUDY_ID:
@@ -160,6 +281,10 @@ def _index_arm_slots(
     indexed: dict[StudySlotKey, Mapping[str, object]] = {}
     for slot in slots:
         key = _slot_key_from_mapping(slot)
+        if slot.get("scheduled", True) is False:
+            raise ValueError(
+                f"{arm} slot descheduled against frozen schedule: {key.case_id}/{key.mode}"
+            )
         if key in indexed:
             raise ValueError(f"duplicate slot key in {arm}: {key.case_id}/{key.mode}")
         indexed[key] = slot
@@ -176,10 +301,6 @@ def _index_arm_slots(
             f"{arm} has slots not in schedule: {_format_key_set(extra)}"
         )
     return indexed
-
-
-def _scheduled_slots(slots: Sequence[Mapping[str, object]]) -> list[Mapping[str, object]]:
-    return [slot for slot in slots if slot.get("scheduled", True) is not False]
 
 
 def _claim_mapping(claim: object) -> Mapping[str, object] | None:
@@ -276,7 +397,7 @@ def unsupported_positive_claim_rate(
             ):
                 unsupported += 1
     if positive == 0:
-        return None, True
+        return None, False
     return unsupported / positive, unsupported == 0
 
 
@@ -355,12 +476,21 @@ def _is_useful_terminal(slot: Mapping[str, object]) -> bool:
     return False
 
 
-def usefulness_rate(slots: Sequence[Mapping[str, object]]) -> float:
-    scheduled = _scheduled_slots(slots)
-    if not scheduled:
+def _schedule_diagnosis_completion_rate(slots: Sequence[Mapping[str, object]]) -> float:
+    """Completion over the preregistered schedule population (no deschedule filter)."""
+    validate_scored_slots(slots)
+    if not slots:
         return 0.0
-    useful = sum(1 for slot in scheduled if _is_useful_terminal(slot))
-    return useful / len(scheduled)
+    numerator = sum(1 for slot in slots if slot.get("completed_diagnosis") is True)
+    return numerator / len(slots)
+
+
+def usefulness_rate(slots: Sequence[Mapping[str, object]]) -> float:
+    validate_scored_slots(slots)
+    if not slots:
+        return 0.0
+    useful = sum(1 for slot in slots if _is_useful_terminal(slot))
+    return useful / len(slots)
 
 
 @dataclass(frozen=True)
@@ -413,8 +543,8 @@ def build_study_comparison_metrics(
     )
     fixed_quality = _schedule_quality_rate(fixed_by_key, oracle_by_key, study.schedule)
 
-    product_completion = diagnosis_completion_rate(product_slots_ordered).value
-    fixed_completion = diagnosis_completion_rate(fixed_slots_ordered).value
+    product_completion = _schedule_diagnosis_completion_rate(product_slots_ordered)
+    fixed_completion = _schedule_diagnosis_completion_rate(fixed_slots_ordered)
 
     def _grounding_ok(slots: Sequence[Mapping[str, object]]) -> bool:
         try:
@@ -510,7 +640,6 @@ def project_product_outcome(
     case_id: str,
     study_id: str = PLANNER_ABLATION_STUDY_ID,
     scoring_identity: str = PLANNER_ABLATION_SCORING_IDENTITY,
-    scheduled: bool = True,
 ) -> dict[str, object]:
     """Map a product-slot terminal into a scored campaign slot mapping."""
     result = outcome.result
@@ -524,7 +653,7 @@ def project_product_outcome(
         "scoring_identity": scoring_identity,
         "case_id": case_id,
         "mode": outcome.mode,
-        "scheduled": scheduled,
+        "scheduled": True,
         "completed_diagnosis": completed,
         "diagnosis_outcome": diagnosis.outcome if diagnosis is not None else None,
         "claims": _claims_from_diagnosis(diagnosis),
@@ -540,12 +669,11 @@ def project_fixed_outcome(
     *,
     study_id: str = PLANNER_ABLATION_STUDY_ID,
     scoring_identity: str = PLANNER_ABLATION_SCORING_IDENTITY,
-    scheduled: bool = True,
 ) -> dict[str, object]:
     """Map a fixed-pipeline terminal into a scored campaign slot mapping."""
     baseline = outcome.baseline_result
     diagnosis = baseline.diagnosis
-    completed = baseline.status == "success" and diagnosis is not None
+    completed = diagnosis is not None and baseline.status in {"success", "inconclusive"}
     return {
         "arm": "fixed_pipeline",
         "execution_identity": "product_campaign",
@@ -554,7 +682,7 @@ def project_fixed_outcome(
         "scoring_identity": scoring_identity,
         "case_id": outcome.case_id,
         "mode": outcome.mode,
-        "scheduled": scheduled,
+        "scheduled": True,
         "completed_diagnosis": completed,
         "diagnosis_outcome": diagnosis.outcome if diagnosis is not None else None,
         "claims": _claims_from_diagnosis(diagnosis),
