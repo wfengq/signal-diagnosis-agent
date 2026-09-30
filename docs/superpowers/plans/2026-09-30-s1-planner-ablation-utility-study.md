@@ -2,12 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Status:** Wave 0 revised after Codex review of `739e214`; Wave 1 definitions
-authorized 2026-09-30 (`授权 planner-ablation Wave 1 definitions`). CONTRACTS
-§19 and T-CX276–T-CX288 are documentation-only. **Do not execute Wave 2+**
-(harness, Scripted dry-run, seal, RealLLM) without a later bounded grant.
-Commits of Wave 2+ work require explicit operator authorization
-(`AGENTS.md` development workflow).
+**Status:** Wave 0 revised; Wave 1 definitions landed; Wave 2 harness authorized
+2026-09-30 (`授权 planner-ablation contracts+harness`) and implemented under
+`evaluation/planner_ablation/` + `app/planner_ablation_adapter.py`. **Do not
+execute Wave 3+** (protocol seal with frozen cases, RealLLM) without a later
+bounded grant.
 
 **Date:** 2026-09-30
 
@@ -480,13 +479,10 @@ harness or sealing implementation.
 
 ## Stop conditions
 
-After this Wave 0 revise: update PR #17 and wait for strong-model / operator
-accept.
+Wave 2 harness is implemented. Stop for operator / strong-model review before
+Wave 3.
 
 Suggested next operator phrases:
 
-- Re-review only: paste Codex brief again on the new tip
-- Wave 1 after accept: `授权 planner-ablation Wave 1 definitions`
-- Wave 1+2 after accept: `授权 planner-ablation contracts+harness`
 - Wave 3: `授权 planner-ablation protocol seal`
 - Wave 4: `批准 RealLLM 战役`

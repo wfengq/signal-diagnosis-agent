@@ -1,9 +1,8 @@
 # S1 default-path utility and planner-ablation study
 
 **Status:** study-shape approved (OQ-019 / D038, operator 2026-09-30).
-Wave 1 definitions authorized and recorded in CONTRACTS §19 /
-T-CX276–T-CX288. This is not a harness, protocol-seal, or RealLLM campaign
-grant.
+Wave 1 definitions and Wave 2 harness authorized. Protocol seal and RealLLM
+campaign remain separately gated.
 
 **Date:** 2026-09-30
 
