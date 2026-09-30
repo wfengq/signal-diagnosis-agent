@@ -464,15 +464,16 @@ Operator grant received: `批准 RealLLM 战役`.
   `scripts/run_planner_ablation_realllm_campaign.py`
   (arm-major RealLLM then fixed; seal verify; no Scripted fallback;
   infrastructure failure stops campaign)
-- [ ] Preflight: seal identity, credentials present, no Scripted fallback
-  (**blocked:** operator skipped `DEEPSEEK_API_KEY` injection; network allow
-  for `api.deepseek.com` was also rejected. No Scripted fallback.)
-- [ ] Execute arm-major campaign once
-- [ ] Persist additive artifacts under
+- [x] Preflight: seal identity, credentials present, RealLLMPlanner,
+  `scripted_fallback=false`
+- [x] Execute arm-major campaign once (40/40 terminal slots)
+- [x] Persist additive artifacts under
   `docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/agent_realllm_campaign_1/`
-- [ ] Do not rewrite historical bundles
-- [ ] Emit `StudyConclusion` from sealed scorer
-- [ ] Stop for result review; do not change product planner
+- [x] Do not rewrite historical bundles / protocol_seal
+- [x] Emit `StudyConclusion` from sealed scorer:
+  **`fixed_pipeline_dominance`**
+  (quality/usefulness/completion tied; fixed ~99.8% faster; both safety_ok)
+- [x] Stop for result review; do not change product planner
 
 ### Task 10: Result review (Wave 5)
 

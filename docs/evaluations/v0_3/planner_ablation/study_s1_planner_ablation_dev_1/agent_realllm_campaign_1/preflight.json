@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-09-30T16:55:10.313433Z",
+  "deepseek_base_url_set": false,
+  "deepseek_model": "deepseek-v4-flash",
+  "oracle_rows": 20,
+  "planner_class": "RealLLMPlanner",
+  "schedule_keys": 20,
+  "scorable_slot_count": 40,
+  "scoring_identity": "signal_diag.planner_ablation_scoring",
+  "scripted_fallback": false,
+  "status": "preflight_ok",
+  "study_id": "study_s1_planner_ablation_dev_1"
+}

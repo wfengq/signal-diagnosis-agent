@@ -3,9 +3,10 @@
 **Status:** study-shape approved (OQ-019 / D038, operator 2026-09-30).
 Wave 1–3 complete (protocol seal under
 `docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/`).
-Wave 4 RealLLM grant received (`批准 RealLLM 战役`); execution blocked after
-operator skipped `DEEPSEEK_API_KEY` injection (and rejected DeepSeek egress
-request). No Scripted fallback.
+Wave 4 RealLLM campaign completed under
+`study_s1_planner_ablation_dev_1/agent_realllm_campaign_1/`;
+sealed conclusion `fixed_pipeline_dominance`. Wave 5 result review pending.
+Product planner changes remain unauthorized.
 
 **Date:** 2026-09-30
 
@@ -27,7 +28,7 @@ request). No Scripted fallback.
 **Open question:** OQ-019 (resolved — study shape approved; see D038)
 
 **Plan:** `docs/superpowers/plans/2026-09-30-s1-planner-ablation-utility-study.md`
-(Wave 3 seal landed; Wave 4 runner landed; RealLLM run pending credentials)
+(Wave 4 campaign landed; conclusion `fixed_pipeline_dominance`; Wave 5 review)
 
 ## 1. Decision summary
 
@@ -271,8 +272,8 @@ Other claims under test:
 | Additive CONTRACTS / TEST_PLAN definitions | Wave 1 landed (§19 / T-CX276–T-CX288) | n/a |
 | Harness + Scripted dry-run | Wave 2 landed (`evaluation/planner_ablation/`) | n/a |
 | Execution-protocol seal and identity check | Wave 3 landed (`protocol_seal/`) | Before any scored RealLLM run |
-| RealLLM `product_agent` campaign | Grant received; operator skipped credential injection | Re-inject `DEEPSEEK_API_KEY` + one scored run |
-| Result review | No | After campaign artifacts exist |
+| RealLLM `product_agent` campaign | Landed (`agent_realllm_campaign_1/`, `fixed_pipeline_dominance`) | n/a |
+| Result review | No | Explicit Wave 5 review grant |
 | Product planner replacement or gate softening | No | New behavior design + contracts + tests + explicit authorization |
 
 Recommended next grant after shape approval: **writing-plans only**.
@@ -299,7 +300,7 @@ word and a revised design review accepts that change:
 |---------|--------------|
 | Study stays evaluation-only; product planner unchanged | `替换产品 planner` |
 | Fresh development cases; do not re-score sealed v9.11/V0.2 official slots as this study | `复用密封包` |
-| RealLLM campaign not started by this PR | `批准 RealLLM 战役` (received; run pending credentials) |
+| RealLLM campaign not started by this PR | `批准 RealLLM 战役` (executed; review next) |
 | First freeze requires `paired_reference` plus `single_signal` utility metrics | `只要 single_signal` |
 
 ## 11. Verification of this design package

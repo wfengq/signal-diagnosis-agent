@@ -1,0 +1,22 @@
+{
+  "fixed_latency_improvement_ratio": 0.9981447577324417,
+  "metrics": {
+    "constrained_metric_regression": false,
+    "evaluable_population": true,
+    "fixed_completion": 1.0,
+    "fixed_latency_improvement_ratio": 0.9981447577324417,
+    "fixed_primary_quality": 0.85,
+    "fixed_safety_ok": true,
+    "fixed_usefulness": 0.75,
+    "matched_comparison": true,
+    "product_completion": 1.0,
+    "product_primary_quality": 0.85,
+    "product_safety_ok": true,
+    "product_usefulness": 0.75,
+    "protocol_complete": true,
+    "unmatched_comparison": false
+  },
+  "population_identity": "c69db6c69d3dd285c2bd572e6013625f7eb2ae761d736a38a55008fdee13f8b6",
+  "scored_at": "2026-09-30T16:56:46.668597Z",
+  "study_conclusion": "fixed_pipeline_dominance"
+}
