@@ -561,7 +561,7 @@ unchanged.
    `harmonic_distortion` preset may end `inconclusive` under HEAD single-file
    gates by design; do not inject generator-known stimulus into presets to make
    Demo look stronger than a real one-file user. Guidance after inconclusive is
-   the remediation (see pending context-guidance design).
+   the remediation (shipped; see Implementation status below).
 3. **Public quality claims:** until a separate held-out design is authorized,
    HEAD default-path quality numbers are not cited. The official **79/80**
    remains attached only to V0.2 acceptance at `b48790c` /
@@ -578,8 +578,18 @@ support evidence-backed “added vs inherent” judgments.
 **Long-term vision:** D016 remains open (extensible signal test & fault
 diagnosis). Noise/SNR, drift, sensors, CSV, etc. are not shipped.
 
-**Next behavior change (authorized 2026-09-29; implemented on
-`cursor/product-def-context-guidance-0d26`):** deterministic `context_guidance`
-on single-file `inconclusive` so the user can upgrade to reference/nominal with
-the same test file. Spec:
-`docs/superpowers/specs/2026-09-29-single-file-context-guidance-design.md`.
+**Implementation status (merged):**
+
+1. Deterministic `context_guidance` on single-file `inconclusive` (CONTRACTS
+   V0.3 §17; T-CX264–T-CX268; PR #10 / #11 evidence trail). Spec:
+   `docs/superpowers/specs/2026-09-29-single-file-context-guidance-design.md`.
+2. Web UI upgrade loop (CONTRACTS V0.3 §18; T-CX269–T-CX275; PR #12): Demo
+   presets materialize as PCM WAV and submit via contextual `single_signal`;
+   the UI holds test bytes and re-submits as `paired_reference` /
+   `nominal_single_tone` from the guidance panel. Frozen V0.2
+   `POST /api/v1/runs/synthetic` remains for compatibility; the Web UI product
+   path no longer posts it. Spec:
+   `docs/superpowers/specs/2026-09-30-d037-upgrade-loop-ui-design.md`.
+
+Further product-behavior changes still require a new written design, contract
+additions, test IDs, and explicit authorization.

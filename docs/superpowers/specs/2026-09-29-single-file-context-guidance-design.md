@@ -1,6 +1,8 @@
 # Single-file inconclusive → context guidance
 
-**Status:** approved design (operator `通过` 2026-09-29); implementation authorized
+**Status:** implemented and merged (PR #10; RealLLM single_signal evidence PR
+#11; operator `通过` 2026-09-29). Web UI held-bytes upgrade loop follows in
+`2026-09-30-d037-upgrade-loop-ui-design.md` (PR #12).
 
 **Date:** 2026-09-29
 

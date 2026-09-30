@@ -11,3 +11,4 @@ real_model_eval_output/
 /.superpowers/
 /.sdd-*.md
 /private/
+.cursor/skills/verify-signal-diagnosis-agent/evidence/

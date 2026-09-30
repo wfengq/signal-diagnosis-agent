@@ -91,9 +91,11 @@ Requires Python 3.11 or 3.12 and a local DeepSeek API key. Never commit the key.
 
 **Identity note:** `signal-diag serve` on HEAD runs prompt
 `v0.3-s1-planner-9.11`. Single-WAV / public presets are conservative and may
-not reproduce the retained Phase 5 clipping Demo outcomes. To replay the
-accepted V0.2 Demo path, check out `b48790c` (or `ff16e2a` / tag `v0.2.0` when
-present). Retained artifacts under
+not reproduce the retained Phase 5 clipping Demo outcomes. On HEAD the Web UI
+submits presets through contextual `single_signal`; inconclusive harmonic runs
+may show `context_guidance` with upgrade controls (user-supplied reference WAV
+or typed nominal Hz). To replay the accepted V0.2 Demo path, check out
+`b48790c` (or `ff16e2a` / tag `v0.2.0` when present). Retained artifacts under
 [docs/demo/phase5/v0_2_acceptance/](docs/demo/phase5/v0_2_acceptance/README.md)
 are evidence from that anchor, not a promise about HEAD.
 
