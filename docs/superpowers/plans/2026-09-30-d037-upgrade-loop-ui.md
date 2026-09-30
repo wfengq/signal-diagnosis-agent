@@ -47,22 +47,22 @@ vanilla JS UI, pytest ScriptedPlanner doubles.
 - [x] Failing tests for WAV shape, fidelity anchors, unknown ID, filename leak
 - [x] Implement `pcm_wav.py` + preset render + API route
 - [x] Green; identity bridge if product tree drifts
-- [ ] Commit
+- [x] Commit
 
 ### Task 3: Guided preset + upgrade service/API tests (T-CX273–274)
 
 - [x] Harmonic preset bytes → guidance
 - [x] Upgrade paired/nominal with same test bytes (including after eviction)
-- [ ] Commit
+- [x] Commit
 
 ### Task 4: UI wiring (T-CX275) + T277/T-CX268 supersession
 
 - [x] Held blob; preset GET; upgrade forms; remove UI synthetic POST
 - [x] Update static UI tests
-- [ ] Commit
+- [x] Commit
 
 ### Task 5: Verify + PR
 
-- [ ] Focused + full pytest; ruff; mypy; architecture; git diff --check
-- [ ] Browser walkthrough with ScriptedPlanner test app (labeled)
-- [ ] Open PR
+- [x] Focused + full pytest; ruff; mypy; architecture; git diff --check
+- [x] Browser walkthrough with ScriptedPlanner test app (labeled)
+- [x] Open PR
