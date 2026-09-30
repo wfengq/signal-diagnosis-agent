@@ -2,7 +2,7 @@
 
 **Status:** Active
 **Current architecture version:** V0.2 accepted; HEAD may run V0.3 contextual product identity
-**Last updated:** 2026-09-29
+**Last updated:** 2026-09-30
 
 This file records approved decisions that affect implementation. Historical V0.1
 documents are preserved under `docs/archive/v0.1/`.
@@ -593,3 +593,37 @@ diagnosis). Noise/SNR, drift, sensors, CSV, etc. are not shipped.
 
 Further product-behavior changes still require a new written design, contract
 additions, test IDs, and explicit authorization.
+
+## D038 — OQ-019 S1 planner-ablation study-shape freeze
+
+**Decision (operator 2026-09-30):** Approve the revised study shape in
+`docs/superpowers/specs/2026-09-30-s1-planner-ablation-utility-study-design.md`
+for `study_s1_planner_ablation_dev_1`.
+
+Frozen by this decision:
+
+1. Research question: whether HEAD `RealLLMPlanner` earns its complexity versus
+   a truth-free `fixed_pipeline` under matched conditions on fresh development
+   cases.
+2. Scored arms: `product_agent` and `fixed_pipeline` only.
+   `scripted_agent` may appear later for harness acceptance and never enters the
+   scored comparison.
+3. Modes for the first freeze: `single_signal` on the D037 contextual entry
+   path, plus `paired_reference` as the required upgrade arm.
+4. Evidence root: additive `docs/evaluations/v0_3/planner_ablation/`.
+5. Historical `ContextualFixedPipelineBaseline` and the contextual campaign
+   adapter are reuse candidates. Matching of claim gates, D037 entry,
+   deterministic report processing, and an independent scoring identity remains
+   a prerequisite for attributable planner conclusions.
+6. Study results do not authorize product planner replacement, gate softening,
+   or sealed-bundle rewrites.
+
+Not authorized by this decision:
+
+- writing-plans (needs a separate documentation-only grant);
+- additive CONTRACTS / TEST_PLAN IDs, harness code, or Scripted dry-run;
+- RealLLM / campaign execution;
+- executable protocol seal (case list, numeric bands, retries) before the later
+  plan and preregistration.
+
+Related: OQ-019 resolved as study-shape approved 2026-09-30.

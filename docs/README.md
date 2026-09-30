@@ -44,9 +44,10 @@ Read these before changing behavior or public interfaces:
    §§1–§64.
 3. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) — deterministic T001–T285 and
    separately gated real-model evaluation/Demo requirements.
-4. [DECISIONS.md](DECISIONS.md) — D001–D037 architectural and process choices.
-5. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — OQ-001–OQ-018 (OQ-013–OQ-018
-   hygiene dispositions resolve HEAD vs frozen V0.2 documentation gaps).
+4. [DECISIONS.md](DECISIONS.md) — D001–D038 architectural and process choices.
+5. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — OQ-001–OQ-019 (OQ-013–OQ-018
+   hygiene dispositions resolve HEAD vs frozen V0.2 documentation gaps;
+   OQ-019 / D038 freezes the S1 planner-ablation study shape only).
 6. [CONTRACTS_V0_3_CONTEXTUAL.md](CONTRACTS_V0_3_CONTEXTUAL.md) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) — additive
    HEAD / contextual surfaces including D037 §17–§18
@@ -94,6 +95,8 @@ the root README read like a task ledger.
   real product Demo, T224–T285.
 - V0.3 additive (HEAD): contextual modes, D037 single-file default with
   `context_guidance` and Web UI held-bytes upgrade (§17–§18 / T-CX264–T-CX275).
+- Approved study shape (OQ-019 / D038): [S1 planner-ablation utility study](superpowers/specs/2026-09-30-s1-planner-ablation-utility-study-design.md)
+  (shape only; writing-plans, harness, and RealLLM still need later grants).
 
 The [engineering case study](PROJECT_CASE_STUDY.md) is the concise narrative;
 the specs, plans, Git history, and committed bundles are the detailed evidence.

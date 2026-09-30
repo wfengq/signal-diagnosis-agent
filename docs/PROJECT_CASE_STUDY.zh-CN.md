@@ -306,7 +306,7 @@ V0.2 仍然狭窄。它不声称通用音频诊断、硬件
 - [Frozen architecture](ARCHITECTURE_V0_2.md)
 - [Frozen contracts](CONTRACTS_V0_2.md)
 - [T001–T285 acceptance plan](TEST_PLAN_V0_2.md)
-- [D001–D037 decisions](DECISIONS.md)
+- [D001–D038 decisions](DECISIONS.md)
 - [Historical and accepted evaluation bundles](evaluations/)
 - [Accepted official v8.1 bundle](evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/)
 - [Real product Demo](demo/phase5/v0_2_acceptance/README.md)

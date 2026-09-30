@@ -218,4 +218,4 @@ historical reading paths.
 - [Architecture](docs/ARCHITECTURE_V0_2.md)
 - [Frozen contracts](docs/CONTRACTS_V0_2.md)
 - [Acceptance plan T001–T285](docs/TEST_PLAN_V0_2.md)
-- [Design decisions D001–D037](docs/DECISIONS.md)
+- [Design decisions D001–D038](docs/DECISIONS.md)
