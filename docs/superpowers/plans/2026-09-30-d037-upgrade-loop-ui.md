@@ -3,6 +3,8 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development
 > or poteto Feature playbook. Checkbox steps for tracking.
 
+**Status:** complete — merged via PR #12; post-merge hygiene PR #13.
+
 **Goal:** Presets and uploads share one contextual submit path with held-bytes
 upgrade CTAs after `context_guidance`.
 

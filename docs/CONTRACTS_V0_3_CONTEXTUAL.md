@@ -6,11 +6,16 @@
 
 **Design:** `docs/superpowers/specs/2026-09-04-v0-3-contextual-reference-diagnosis-design.md`
 
+**D037 product framing (shipped):** §17–§18;
+`docs/superpowers/specs/2026-09-29-single-file-context-guidance-design.md`;
+`docs/superpowers/specs/2026-09-30-d037-upgrade-loop-ui-design.md` (PR #10–#13).
+
 **Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX275)
 
 **Live product identity (HEAD):** prompt `v0.3-s1-planner-9.11` with causal
 policy `v9_11_mode_aware_no_fault_recovery` (§15). Historical identities
-through v9.10 remain immutable.
+through v9.10 remain immutable. Default user path is single-file with optional
+reference/nominal upgrades (D037).
 
 ## 1. Scope
 
