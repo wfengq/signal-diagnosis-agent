@@ -1,0 +1,3 @@
+CMD: .venv/bin/signal-diag diagnose contextual .cursor/skills/verify-signal-diagnosis-agent/evidence/harmonic_sine_single_signal.wav --mode single_signal --channel mixdown --output json --html-output .cursor/skills/verify-signal-diagnosis-agent/evidence/single-signal-harmonic-report.html
+exit_code=0
+text_exit_code=0

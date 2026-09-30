@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Contextual diagnosis report run_3d7b52a1e6834ff8beb4e0ed5c8830d1</title>
+<style>
+body{font-family:sans-serif;margin:1.5rem;color:#111;background:#fff}
+section{margin-bottom:1.5rem}h1,h2{margin:0 0 .75rem}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:.25rem 1rem}
+dt{font-weight:600}table{border-collapse:collapse;width:100%}
+th,td{border:1px solid #ccc;padding:.35rem;text-align:left}
+.preview-note{font-style:italic}
+</style>
+</head>
+<body>
+<h1 id="report-run_3d7b52a1e6834ff8beb4e0ed5c8830d1">Contextual diagnosis report</h1>
+<section id="identity">
+<h2>Run identity</h2>
+<dl>
+<dt>schema</dt><dd>1.0.0</dd>
+<dt>generated_at</dt><dd>2026-09-30T02:22:49.535413Z</dd>
+<dt>run_id</dt><dd>run_3d7b52a1e6834ff8beb4e0ed5c8830d1</dd>
+<dt>status</dt><dd>completed</dd>
+<dt>channel</dt><dd>mixdown</dd>
+<dt>question</dt><dd>Why does this signal sound distorted?</dd>
+</dl>
+</section>
+<section id="declared-context">
+<h2>Declared context</h2>
+<dl>
+<dt>mode</dt><dd>single_signal</dd>
+<dt>assertion_source</dt><dd>user_supplied</dd>
+<dt>test_signal_id</dt><dd>sig_c2de9f0035514889bc634d229b980a08</dd>
+<dt>reference_signal_id</dt><dd></dd>
+<dt>nominal_fundamental_hz</dt><dd></dd>
+<dt>stimulus_kind</dt><dd></dd>
+</dl>
+<p>StimulusContext is declared provenance, not measured Evidence.</p>
+</section>
+<section id="effective-capabilities">
+<h2>Effective capabilities</h2>
+<dl>
+<dt>clipping</dt><dd>True</dd>
+<dt>absolute_harmonic_description</dt><dd>True</dd>
+<dt>nominal_harmonic_attribution</dt><dd>False</dd>
+<dt>paired_harmonic_attribution</dt><dd>False</dd>
+</dl>
+</section>
+<section id="test-source">
+<h2>Test source</h2>
+<dl>
+<dt>kind</dt><dd>wav</dd>
+<dt>filename</dt><dd>harmonic_sine_single_signal.wav</dd>
+<dt>sample_rate_hz</dt><dd>48000</dd>
+<dt>channels</dt><dd>1</dd>
+</dl>
+</section>
+<section id="reference-source">
+<h2>Reference source</h2>
+<p>No reference source for this mode.</p>
+</section>
+<section id="planner">
+<h2>Planner identity</h2>
+<dl>
+<dt>provider</dt><dd>deepseek</dd>
+<dt>model</dt><dd>deepseek-v4-flash</dd>
+<dt>prompt</dt><dd>v0.3-s1-planner-9.11</dd>
+</dl>
+<p>uncertified by Phase 4.3.1</p>
+</section>
+<section id="preview">
+<h2>Test waveform preview</h2>
+<p class="preview-note">visualization only</p>
+<p>points: 1000 / 48000 samples at 48000 Hz</p>
+</section>
+<section id="trace">
+<h2>Trace</h2>
+<table><thead><tr><th>index</th><th>kind</th><th>action</th><th>status</th><th>refs</th></tr></thead><tbody>
+<tr id="event-0"><td>0</td><td>planner</td><td>call_tool</td><td>decision</td><td></td></tr>
+<tr id="event-1"><td>1</td><td>observation</td><td>detect_clipping</td><td>success</td><td><a href="#evidence-ev_detect_clipping_detect_clipping_000000_000">ev_detect_clipping_detect_clipping_000000_000</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_001">ev_detect_clipping_detect_clipping_000000_001</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_002">ev_detect_clipping_detect_clipping_000000_002</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_003">ev_detect_clipping_detect_clipping_000000_003</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_004">ev_detect_clipping_detect_clipping_000000_004</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_005">ev_detect_clipping_detect_clipping_000000_005</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_006">ev_detect_clipping_detect_clipping_000000_006</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_007">ev_detect_clipping_detect_clipping_000000_007</a></td></tr>
+<tr id="event-2"><td>2</td><td>rule</td><td>profile_s1_distortion</td><td>completed</td><td><a href="#rule-ruleval_237883d67b741c3e">ruleval_237883d67b741c3e</a>, <a href="#rule-ruleval_cd9664555eb15b8d">ruleval_cd9664555eb15b8d</a>, <a href="#rule-ruleval_a670d5d62d79c436">ruleval_a670d5d62d79c436</a>, <a href="#rule-ruleval_85b5a3bed3ae119d">ruleval_85b5a3bed3ae119d</a>, <a href="#rule-ruleval_26d0fc73df26e5ec">ruleval_26d0fc73df26e5ec</a></td></tr>
+<tr id="event-3"><td>3</td><td>planner</td><td>call_tool</td><td>decision</td><td></td></tr>
+<tr id="event-4"><td>4</td><td>observation</td><td>analyze_harmonic_distortion</td><td>success</td><td><a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000</a>, <a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001</a>, <a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002</a>, <a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003</a>, <a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004</a>, <a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005</a></td></tr>
+<tr id="event-5"><td>5</td><td>rule</td><td>profile_s1_distortion</td><td>completed</td><td><a href="#rule-ruleval_38fe5da121211b53">ruleval_38fe5da121211b53</a>, <a href="#rule-ruleval_647a15f86ebdd157">ruleval_647a15f86ebdd157</a>, <a href="#rule-ruleval_c85b8fa7d41509b4">ruleval_c85b8fa7d41509b4</a>, <a href="#rule-ruleval_894c03c944d04c9b">ruleval_894c03c944d04c9b</a>, <a href="#rule-ruleval_b0ad784d844be36d">ruleval_b0ad784d844be36d</a></td></tr>
+<tr id="event-6"><td>6</td><td>planner</td><td>finish</td><td>decision</td><td></td></tr>
+</tbody></table>
+</section>
+<section id="diagnosis">
+<h2>Diagnosis</h2>
+<dl>
+<dt>outcome</dt><dd>inconclusive</dd>
+<dt>termination</dt><dd>planner_finished</dd>
+</dl>
+<article id="claim-claim_thd_fail_no_mechanism">
+<h3>claim_thd_fail_no_mechanism</h3>
+<p>Harmonic measurement is valid and the THD rule is FAIL, but no same-run Evidence establishes a causal S1 distortion mechanism; clipping is excluded by same-run Evidence.</p>
+<p>fault: inconclusive</p>
+<p>evidence: <a href="#evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002">ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002</a>, <a href="#evidence-ev_detect_clipping_detect_clipping_000000_007">ev_detect_clipping_detect_clipping_000000_007</a></p>
+<p>rules: <a href="#rule-ruleval_b0ad784d844be36d">ruleval_b0ad784d844be36d</a>, <a href="#rule-ruleval_894c03c944d04c9b">ruleval_894c03c944d04c9b</a></p>
+<p>knowledge: </p>
+</article>
+</section>
+<section id="context-guidance">
+<h2>Context guidance</h2>
+<p>Same-run measurements are not enough to attribute added harmonic distortion from a single file. Provide a clean reference WAV (paired_reference) or declare a single-tone stimulus with nominal_fundamental_hz (nominal_single_tone) to unlock evidence-backed harmonic attribution.</p>
+<dl>
+<dt>reason_codes</dt><dd>harmonic_attribution_requires_context</dd>
+<dt>unlockable_modes</dt><dd>paired_reference, nominal_single_tone</dd>
+</dl>
+<p>paired_reference: reference_wav</p>
+<p>nominal_single_tone: nominal_fundamental_hz, stimulus_kind=single_tone</p>
+</section>
+<section id="measured-evidence">
+<h2>Measured Evidence</h2>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_000"><p>ev_detect_clipping_detect_clipping_000000_000 clipping_detected False</p></article>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_001"><p>ev_detect_clipping_detect_clipping_000000_001 clipping_ratio 0.0</p></article>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_002"><p>ev_detect_clipping_detect_clipping_000000_002 clipped_samples 0</p></article>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_003"><p>ev_detect_clipping_detect_clipping_000000_003 clipping_events 0</p></article>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_004"><p>ev_detect_clipping_detect_clipping_000000_004 peak_abs 0.499114990234375</p></article>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_005"><p>ev_detect_clipping_detect_clipping_000000_005 full_scale_detected False</p></article>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_006"><p>ev_detect_clipping_detect_clipping_000000_006 flat_top_detected False</p></article>
+<article id="evidence-ev_detect_clipping_detect_clipping_000000_007"><p>ev_detect_clipping_detect_clipping_000000_007 clipping_mechanism False</p></article>
+<article id="evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000"><p>ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000 valid True</p></article>
+<article id="evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001"><p>ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001 fundamental_frequency_hz 220.1834862385321</p></article>
+<article id="evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"><p>ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002 thd_percent 12.649214053909969</p></article>
+<article id="evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003"><p>ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_003 series_kind even_order_present</p></article>
+<article id="evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004"><p>ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_004 harmonic_order_2_relative_amplitude 0.12000103817706297</p></article>
+<article id="evidence-ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005"><p>ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_005 harmonic_order_3_relative_amplitude 0.040000155670211895</p></article>
+</section>
+<section id="rules">
+<h2>Rule evaluations</h2>
+<article id="rule-ruleval_237883d67b741c3e"><p>ruleval_237883d67b741c3e profile_s1_distortion 1.0.0-demo pass</p></article>
+<article id="rule-ruleval_cd9664555eb15b8d"><p>ruleval_cd9664555eb15b8d profile_s1_distortion 1.0.0-demo pass</p></article>
+<article id="rule-ruleval_a670d5d62d79c436"><p>ruleval_a670d5d62d79c436 profile_s1_distortion 1.0.0-demo pass</p></article>
+<article id="rule-ruleval_85b5a3bed3ae119d"><p>ruleval_85b5a3bed3ae119d profile_s1_distortion 1.0.0-demo not_applicable</p></article>
+<article id="rule-ruleval_26d0fc73df26e5ec"><p>ruleval_26d0fc73df26e5ec profile_s1_distortion 1.0.0-demo not_applicable</p></article>
+<article id="rule-ruleval_38fe5da121211b53"><p>ruleval_38fe5da121211b53 profile_s1_distortion 1.0.0-demo not_applicable</p></article>
+<article id="rule-ruleval_647a15f86ebdd157"><p>ruleval_647a15f86ebdd157 profile_s1_distortion 1.0.0-demo not_applicable</p></article>
+<article id="rule-ruleval_c85b8fa7d41509b4"><p>ruleval_c85b8fa7d41509b4 profile_s1_distortion 1.0.0-demo not_applicable</p></article>
+<article id="rule-ruleval_894c03c944d04c9b"><p>ruleval_894c03c944d04c9b profile_s1_distortion 1.0.0-demo pass</p></article>
+<article id="rule-ruleval_b0ad784d844be36d"><p>ruleval_b0ad784d844be36d profile_s1_distortion 1.0.0-demo fail</p></article>
+</section>
+<section id="knowledge">
+<h2>Knowledge</h2>
+</section>
+<section id="limitations">
+<h2>Comparison limitations</h2>
+<p>THD rule FAIL establishes elevated harmonic content relative to the configured threshold, not causal harmonic_distortion without additional distortion-mechanism Evidence.</p>
+<p>Signal is single_signal mode with no reference or declared single-tone context; causal S1 harmonic attribution cannot be established from absolute harmonic content alone.</p>
+</section>
+<section id="notes">
+<h2>Warnings and errors</h2>
+</section>
+<section id="limits">
+<h2>Limits</h2>
+<p>profile_s1_distortion 1.0.0-demo demonstration settings (1% clipping, 5% THD), not industry standards or SLAs.</p>
+</section>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "feature_id": "diagnose-wav / contextual single_signal RealLLM",
+  "entry_point": "signal-diag diagnose contextual ... --mode single_signal",
+  "planner_configured_health": true,
+  "planner_identity": {
+    "model": "deepseek-v4-flash",
+    "phase4_certified_default": false,
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "provider": "deepseek"
+  },
+  "used_scripted_planner": false,
+  "mode": "single_signal",
+  "outcome": "inconclusive",
+  "status": "inconclusive",
+  "context_guidance_present": true,
+  "reason_codes": [
+    "harmonic_attribution_requires_context"
+  ],
+  "summary": "Same-run measurements are not enough to attribute added harmonic distortion from a single file. Provide a clean reference WAV (paired_reference) or declare a single-tone stimulus with nominal_fundamental_hz (nominal_single_tone) to unlock evidence-backed harmonic attribution.",
+  "forbidden_phrases": {
+    "可能是": false,
+    "likely": false
+  },
+  "cli_exit_code": 0,
+  "artifacts": [
+    "git-head.txt",
+    "doctor.json",
+    "health.json",
+    "harmonic_sine_single_signal.wav",
+    "diagnose-single-signal-cmd.txt",
+    "diagnose-single-signal.err.txt",
+    "diagnose-single-signal-text.txt",
+    "single-signal-harmonic-report.json",
+    "single-signal-harmonic-report.html",
+    "checks-single-signal-realllm.json"
+  ],
+  "pass": true
+}
