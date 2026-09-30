@@ -23,9 +23,13 @@ and causal policy `v9_11_mode_aware_no_fault_recovery`. Reports are
 **uncertified by Phase 4.3.1**. **Default user path is single-file**
 (`single_signal`): clipping may be confirmed; harmonic attribution stays
 conservative without reference/nominal context (D037). Optional upgrades:
-`paired_reference` and `nominal_single_tone`. Do not cite HEAD quality numbers
-in place of the V0.2 **79/80**. To demonstrate the accepted V0.2 product, check
-out `ff16e2a` / `b48790c` rather than assuming HEAD matches those artifacts.
+`paired_reference` and `nominal_single_tone`. HEAD Web UI materializes Demo
+presets as PCM WAV, submits them through contextual `single_signal`, and after
+`context_guidance` can re-submit held test bytes with a user reference or typed
+nominal Hz (CONTRACTS_V0_3_CONTEXTUAL §17–§18). Do not cite HEAD quality
+numbers in place of the V0.2 **79/80**. To demonstrate the accepted V0.2
+product, check out `ff16e2a` / `b48790c` rather than assuming HEAD matches
+those artifacts.
 
 Phase 1–5 contracts (`CONTRACTS_V0_2.md` §§1–64) remain frozen byte-stable.
 Additive V0.3 surfaces live in `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and

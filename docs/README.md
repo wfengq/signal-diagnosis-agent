@@ -49,7 +49,9 @@ Read these before changing behavior or public interfaces:
    hygiene dispositions resolve HEAD vs frozen V0.2 documentation gaps).
 6. [CONTRACTS_V0_3_CONTEXTUAL.md](CONTRACTS_V0_3_CONTEXTUAL.md) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) — additive
-   HEAD / contextual surfaces (do not edit frozen §§1–64).
+   HEAD / contextual surfaces including D037 §17–§18
+   (`context_guidance`, preset WAV, held-bytes upgrade; do not edit frozen
+   §§1–64).
 7. [EXTERNAL_VALIDATION_CONTRACTS_V0_2.md](EXTERNAL_VALIDATION_CONTRACTS_V0_2.md)
    and [EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md](EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md)
    — external-WAV study contracts.
@@ -90,6 +92,8 @@ the root README read like a task ledger.
   development and official both `meets_target`, T216–T223.
 - Phase 5: WAV, CLI/API/UI/reporting, packaging, dual Python verification, and
   real product Demo, T224–T285.
+- V0.3 additive (HEAD): contextual modes, D037 single-file default with
+  `context_guidance` and Web UI held-bytes upgrade (§17–§18 / T-CX264–T-CX275).
 
 The [engineering case study](PROJECT_CASE_STUDY.md) is the concise narrative;
 the specs, plans, Git history, and committed bundles are the detailed evidence.

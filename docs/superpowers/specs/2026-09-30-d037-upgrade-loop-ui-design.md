@@ -1,6 +1,7 @@
 # D037 single-file upgrade loop (Web UI)
 
-**Status:** authorized design (operator Feature grant 2026-09-30)
+**Status:** implemented and merged (PR #12 on
+`codex/v0.2-real-world-validation`; operator Feature grant 2026-09-30)
 
 **Date:** 2026-09-30
 

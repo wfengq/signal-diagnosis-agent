@@ -275,6 +275,13 @@ industrial validation, production certification, general audio diagnosis, or
 a contextual final external test. The earlier V0.2 external-WAV
 `below_target` result remains part of the evidence trail.
 
+Product framing D037 then made single-file the default HEAD experience:
+presets stay unknown-signal, inconclusive harmonic runs emit deterministic
+`context_guidance`, and the Web UI can re-submit the same held test bytes with
+a user-supplied reference or typed nominal frequency. That closes the visitor
+loop without softening single-file gates or citing HEAD quality numbers in
+place of the V0.2 **79/80**.
+
 ### Honest public positioning
 
 A concise, supportable description is:
@@ -315,7 +322,7 @@ the accepted result.
 - [Frozen architecture](ARCHITECTURE_V0_2.md)
 - [Frozen contracts](CONTRACTS_V0_2.md)
 - [T001–T285 acceptance plan](TEST_PLAN_V0_2.md)
-- [D001–D031 decisions](DECISIONS.md)
+- [D001–D037 decisions](DECISIONS.md)
 - [Historical and accepted evaluation bundles](evaluations/)
 - [Accepted official v8.1 bundle](evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/)
 - [Real product Demo](demo/phase5/v0_2_acceptance/README.md)
