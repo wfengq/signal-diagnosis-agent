@@ -338,17 +338,19 @@ User decision: append historical EV-C026+ entries + keep pyproject 0.2.0 with RE
 
 ---
 
-## OQ-019 — S1 planner-ablation utility study (design freeze)
+## OQ-019 — S1 planner-ablation utility study (study-shape freeze)
 
 ```text
 ID: OQ-019
 Date: 2026-09-30
 Status: open
-Affected document and section: AGENTS.md scope gates; CONTRACTS_V0_3_CONTEXTUAL.md §11 (campaigns / fixed_pipeline); evaluation/contextual/; docs/evaluations/v0_3/contextual/V9_11_CONTEXTUAL_VALIDATION_ACCEPTANCE_REPORT.md
+Affected document and section: AGENTS.md scope gates; CONTRACTS_V0_3_CONTEXTUAL.md §11 / §16 / §17; evaluation/contextual/; app/contextual_campaign.py; docs/evaluations/v0_3/contextual/V9_11_CONTEXTUAL_VALIDATION_ACCEPTANCE_REPORT.md
 Observed problem: v9.11 showed truth-free fixed_pipeline at 17/17 outcome and causal exact-set accuracy while the contextual Agent was 16/17, with retained diagnosis-less failure 675073735bc06f76. Sealed studies do not answer whether RealLLMPlanner earns its complexity on a fresh matched set that includes the D037 single_signal default path and upgrade utility metrics.
-Why the current contract cannot represent a correct implementation: Frozen V0.2 / v9.11 campaign identities and AGENTS.md RealLLM campaign gates forbid silent re-scoring or product planner replacement. A new study needs an explicit design, additive evidence tree, and layered authorization before harness or live-model work.
-Minimal proposed change: Accept docs/superpowers/specs/2026-09-30-s1-planner-ablation-utility-study-design.md as the design freeze for study_s1_planner_ablation_dev_1 (Option A: product_agent vs fixed_pipeline on fresh development cases). Do not change product planner, DSP, prompts, or sealed bundles in this OQ. Later layers require separate grants: CONTRACTS / TEST_PLAN IDs, harness + Scripted dry-run, RealLLM product_agent campaign, and any planner replacement.
-Compatibility impact: Documentation and open-question register only until implementation is authorized. Additive docs/evaluations/v0_3/planner_ablation/ tree when harness work begins.
-Test impact: None in the design PR. Future harness work needs new T-CX (or equivalent) IDs under an approved TEST_PLAN revision.
-User decision: pending — design-only authorization issued 2026-09-30; approval of this OQ freezes the study shape before any writing-plans or harness PR
+Why a new authorization boundary is required: Existing contracts preserve historical V0.2 / v9.11 identities and do not authorize this new study. The study requires its own additive protocol, execution identity, evidence tree, and staged authorization. No defect in frozen V0.2 §§1–64 is asserted.
+Minimal proposed change: Accept the revised docs/superpowers/specs/2026-09-30-s1-planner-ablation-utility-study-design.md as a study-shape freeze only for study_s1_planner_ablation_dev_1. Scored arms are product_agent and truth-free fixed_pipeline on fresh development cases, with single_signal and at least one contextual upgrade mode (default paired_reference). scripted_agent is harness-only and excluded from scored comparisons. Evidence is additive under docs/evaluations/v0_3/planner_ablation/.
+Matching prerequisite: The historical baseline and contextual harness are reuse candidates, not proof that the arms already share HEAD mode-specific claim gates, the D037 application boundary, or equivalent deterministic report processing. The later plan must establish these conditions; any required behavior change needs an explicit additive design and authorization.
+Protocol prerequisite: Before scored execution, approve and seal paired case/mode populations, valid-inconclusive treatment, primary metrics, non-inferiority and material-improvement criteria, uncertainty handling, repetition/retry/stop rules, resource limits, and execution identities. Equal completion must not prevent a fixed-pipeline dominance conclusion. Failure to demonstrate a difference is not evidence of equivalence. Study results do not authorize product changes.
+Compatibility impact: Documentation and open-question register only until later grants. Additive docs/evaluations/v0_3/planner_ablation/ tree when harness work begins.
+Test impact: None in the design PR. Future harness work needs new T-CX (or equivalent) IDs under an approved TEST_PLAN revision after a writing-plans grant and definition-before-implementation sequencing.
+User decision: pending — design-only authorization issued 2026-09-30. Approval freezes study shape only. Writing-plans requires a separate documentation-only grant. Additive contracts/test definitions and harness/Scripted implementation may share a later bounded grant, with definitions preceding implementation. RealLLM execution and product changes require subsequent explicit grants. Reversal words request scope changes and do not bypass these gates.
 ```
