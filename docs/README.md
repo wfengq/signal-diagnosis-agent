@@ -45,8 +45,9 @@ Read these before changing behavior or public interfaces:
 3. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) — deterministic T001–T285 and
    separately gated real-model evaluation/Demo requirements.
 4. [DECISIONS.md](DECISIONS.md) — D001–D037 architectural and process choices.
-5. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — OQ-001–OQ-018 (OQ-013–OQ-018
-   hygiene dispositions resolve HEAD vs frozen V0.2 documentation gaps).
+5. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — OQ-001–OQ-019 (OQ-013–OQ-018
+   hygiene dispositions resolve HEAD vs frozen V0.2 documentation gaps;
+   OQ-019 is the open S1 planner-ablation utility study design freeze).
 6. [CONTRACTS_V0_3_CONTEXTUAL.md](CONTRACTS_V0_3_CONTEXTUAL.md) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) — additive
    HEAD / contextual surfaces including D037 §17–§18

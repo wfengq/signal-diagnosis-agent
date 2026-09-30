@@ -1,7 +1,7 @@
 # Open Contract and Architecture Questions
 
 **Status:** Active register
-**Current open questions:** 0 open; 18 resolved (OQ-001–OQ-018)
+**Current open questions:** 1 open (OQ-019); 18 resolved (OQ-001–OQ-018)
 
 Use this file only for concrete issues that may require changing an approved
 contract or architectural boundary.
@@ -334,4 +334,21 @@ Minimal proposed change: Either append EV-C026+ as historical/superseded entries
 Compatibility impact: Docs only for this pass.
 Test impact: Do not change v0.2.0 tag preservation tests.
 User decision: append historical EV-C026+ entries + keep pyproject 0.2.0 with README disclosure (2026-09-29)
+```
+
+---
+
+## OQ-019 — S1 planner-ablation utility study (design freeze)
+
+```text
+ID: OQ-019
+Date: 2026-09-30
+Status: open
+Affected document and section: AGENTS.md scope gates; CONTRACTS_V0_3_CONTEXTUAL.md §11 (campaigns / fixed_pipeline); evaluation/contextual/; docs/evaluations/v0_3/contextual/V9_11_CONTEXTUAL_VALIDATION_ACCEPTANCE_REPORT.md
+Observed problem: v9.11 showed truth-free fixed_pipeline at 17/17 outcome and causal exact-set accuracy while the contextual Agent was 16/17, with retained diagnosis-less failure 675073735bc06f76. Sealed studies do not answer whether RealLLMPlanner earns its complexity on a fresh matched set that includes the D037 single_signal default path and upgrade utility metrics.
+Why the current contract cannot represent a correct implementation: Frozen V0.2 / v9.11 campaign identities and AGENTS.md RealLLM campaign gates forbid silent re-scoring or product planner replacement. A new study needs an explicit design, additive evidence tree, and layered authorization before harness or live-model work.
+Minimal proposed change: Accept docs/superpowers/specs/2026-09-30-s1-planner-ablation-utility-study-design.md as the design freeze for study_s1_planner_ablation_dev_1 (Option A: product_agent vs fixed_pipeline on fresh development cases). Do not change product planner, DSP, prompts, or sealed bundles in this OQ. Later layers require separate grants: CONTRACTS / TEST_PLAN IDs, harness + Scripted dry-run, RealLLM product_agent campaign, and any planner replacement.
+Compatibility impact: Documentation and open-question register only until implementation is authorized. Additive docs/evaluations/v0_3/planner_ablation/ tree when harness work begins.
+Test impact: None in the design PR. Future harness work needs new T-CX (or equivalent) IDs under an approved TEST_PLAN revision.
+User decision: pending — design-only authorization issued 2026-09-30; approval of this OQ freezes the study shape before any writing-plans or harness PR
 ```
