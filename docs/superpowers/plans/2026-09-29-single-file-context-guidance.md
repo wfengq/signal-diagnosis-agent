@@ -2,6 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+**Status:** complete — merged via PR #10 (guidance) / #11 (RealLLM evidence);
+Web UI held-bytes upgrade closed in PR #12; post-merge hygiene PR #13.
+
 **Goal:** When a contextual `single_signal` run ends `inconclusive` for missing attribution context, attach a deterministic `context_guidance` block and accept `mode=single_signal` on contextual WAV submit (D037 / approved design).
 
 **Architecture:** Pure app-layer additive DTO + pure function deriving guidance from mode + `AgentRunResult`; extend multipart/service mode union; keep V0.2 endpoints and agent/DSP/rules untouched.
@@ -46,7 +49,7 @@
 **Interfaces:**
 - Produces: `ContextGuidanceReasonCode`, `ContextGuidance` model, `build_context_guidance(*, mode, result: AgentRunResult | None) -> ContextGuidance | None`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 # tests/app/test_context_guidance.py
@@ -59,13 +62,13 @@ from signal_diag.app.context_guidance import build_context_guidance
 # For mode paired_reference inconclusive → None
 ```
 
-- [ ] **Step 2: Run** `pytest tests/app/test_context_guidance.py -q` → expect FAIL (import/missing)
+- [x] **Step 2: Run** `pytest tests/app/test_context_guidance.py -q` → expect FAIL (import/missing)
 
-- [ ] **Step 3: Implement** `context_guidance.py` with frozen Pydantic models and templates keyed by reason codes; detect harmonic attribution gap via diagnosis outcome + claim/evidence heuristics documented in §17 (prefer: outcome `inconclusive` + any valid Evidence metric in `{"thd_percent","even_order_present","fundamental_relative_energy"}` OR empty claims with successful harmonic tool observation — keep rule simple and tested).
+- [x] **Step 3: Implement** `context_guidance.py` with frozen Pydantic models and templates keyed by reason codes; detect harmonic attribution gap via diagnosis outcome + claim/evidence heuristics documented in §17 (prefer: outcome `inconclusive` + any valid Evidence metric in `{"thd_percent","even_order_present","fundamental_relative_energy"}` OR empty claims with successful harmonic tool observation — keep rule simple and tested).
 
-- [ ] **Step 4: pytest green**
+- [x] **Step 4: pytest green**
 
-- [ ] **Step 5: Commit** `test+feat: deterministic context_guidance builder (T-CX264/265)`
+- [x] **Step 5: Commit** `test+feat: deterministic context_guidance builder (T-CX264/265)`
 
 ---
 
@@ -83,13 +86,13 @@ from signal_diag.app.context_guidance import build_context_guidance
 - Consumes: `build_context_guidance`
 - Produces: `ContextualAppRunSnapshot.context_guidance: ContextGuidance | None = None`; multipart accepts `single_signal`
 
-- [ ] **Step 1: Failing tests** — submit_contextual_wav mode=single_signal with wav bytes succeeds; completed inconclusive run exposes context_guidance; paired submit unchanged.
+- [x] **Step 1: Failing tests** — submit_contextual_wav mode=single_signal with wav bytes succeeds; completed inconclusive run exposes context_guidance; paired submit unchanged.
 
-- [ ] **Step 2: pytest fail**
+- [x] **Step 2: pytest fail**
 
-- [ ] **Step 3: Implement** mode=`single_signal` validation (reject reference; reject nominal fields); `_queued_capabilities("single_signal")` → clipping + absolute_harmonic_description only; on `mark_completed` path set `context_guidance=build_context_guidance(...)`.
+- [x] **Step 3: Implement** mode=`single_signal` validation (reject reference; reject nominal fields); `_queued_capabilities("single_signal")` → clipping + absolute_harmonic_description only; on `mark_completed` path set `context_guidance=build_context_guidance(...)`.
 
-- [ ] **Step 4: green + commit** `feat: contextual single_signal submit and guidance field`
+- [x] **Step 4: green + commit** `feat: contextual single_signal submit and guidance field`
 
 ---
 
@@ -101,8 +104,8 @@ from signal_diag.app.context_guidance import build_context_guidance
 - Modify: `src/signal_diag/app/static/app.js` (+ `index.html` if needed) — default unknown WAV uses contextual endpoint with mode single_signal; render guidance + upgrade hints
 - Test: extend existing app UI/API tests if present; else ScriptedPlanner service-level coverage already in Task 2; add lightweight JS-free API test for multipart mode=single_signal
 
-- [ ] **Step 1–4:** TDD where Python tests exist; manual static change for JS with verify skill optional
-- [ ] **Step 5: Commit** `feat: wire single_signal guidance through API/UI`
+- [x] **Step 1–4:** TDD where Python tests exist; manual static change for JS with verify skill optional
+- [x] **Step 5: Commit** `feat: wire single_signal guidance through API/UI`
 
 ---
 
@@ -112,10 +115,10 @@ from signal_diag.app.context_guidance import build_context_guidance
 - Modify: design spec status → approved
 - Modify: `AGENTS.md` / README only if needed (already D037)
 
-- [ ] Run: `pytest tests/app/test_context_guidance.py tests/app/test_contextual_service.py tests/app/test_contextual_models.py -q`
-- [ ] Run: `ruff check --no-cache src/signal_diag/app tests/app` and `mypy --no-incremental src/signal_diag/app`
-- [ ] Push PR #10; mark ready when green
-- [ ] Commit: `docs: mark context-guidance design approved; register T-CX264–268`
+- [x] Run: `pytest tests/app/test_context_guidance.py tests/app/test_contextual_service.py tests/app/test_contextual_models.py -q`
+- [x] Run: `ruff check --no-cache src/signal_diag/app tests/app` and `mypy --no-incremental src/signal_diag/app`
+- [x] Push PR #10; mark ready when green
+- [x] Commit: `docs: mark context-guidance design approved; register T-CX264–268`
 
 ## Spec coverage check
 
