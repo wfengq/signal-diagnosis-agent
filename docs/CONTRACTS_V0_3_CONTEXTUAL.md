@@ -6,7 +6,7 @@
 
 **Design:** `docs/superpowers/specs/2026-09-04-v0-3-contextual-reference-diagnosis-design.md`
 
-**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX268)
+**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX275)
 
 **Live product identity (HEAD):** prompt `v0.3-s1-planner-9.11` with causal
 policy `v9_11_mode_aware_no_fault_recovery` (§15). Historical identities
@@ -611,3 +611,31 @@ Web UI default “Unknown one-WAV signal” submits through the contextual
 endpoint as `mode=single_signal`. Legacy `POST /api/v1/runs/wav` remains for
 compatibility and does not gain `context_guidance`. Nominal Hz must never be
 auto-filled from measured F0.
+
+## 18. Demo preset WAV materialization and held-bytes upgrade (D037 UI)
+
+Additive read-only route (no planner credentials):
+
+```text
+GET /api/v1/presets/{preset_id}/wav → 200 audio/wav
+```
+
+- Body is mono 48 kHz **32-bit integer PCM** WAV for a Demo catalog ID.
+- Bytes are deterministic for a given ID.
+- Unknown ID → `unknown_preset` (same code family as existing preset errors).
+- Response must not place a Demo preset ID in `Content-Disposition` filename.
+- Frozen `POST /api/v1/runs/synthetic` remains for V0.2 compatibility; the Web UI
+  product path must not use it for diagnosis after this section.
+
+Web UI held-bytes upgrade (client state; not a new server DTO):
+
+1. After a contextual submit (upload or preset-materialized WAV), the UI retains
+   the exact test WAV bytes used for that submit.
+2. Preset-materialized submits use multipart filename `input.wav` so no Demo
+   preset ID enters `PlannerContext.signal_meta.filename`.
+3. When `context_guidance` is present, the UI may re-submit the held test bytes
+   as `paired_reference` (user-supplied reference WAV) or `nominal_single_tone`
+   (user-typed `nominal_fundamental_hz` + `stimulus_kind=single_tone`).
+4. Measured F0 must never write into the nominal Hz control.
+5. The UI must not auto-attach `clean_periodic` (or any other Demo preset) as a
+   reference; only an explicit user file selection is allowed.
