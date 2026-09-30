@@ -269,7 +269,7 @@ Other claims under test:
 | Additive CONTRACTS / TEST_PLAN definitions | Wave 1 landed (§19 / T-CX276–T-CX288) | n/a |
 | Harness + Scripted dry-run | Wave 2 landed (`evaluation/planner_ablation/`) | n/a |
 | Execution-protocol seal and identity check | Wave 3 landed (`protocol_seal/`) | Before any scored RealLLM run |
-| RealLLM `product_agent` campaign | No | Explicit RealLLM / campaign authorization |
+| RealLLM `product_agent` campaign | Grant received (`批准 RealLLM 战役`); execution blocked on `DEEPSEEK_API_KEY` | Credentials + one scored run |
 | Result review | No | After campaign artifacts exist |
 | Product planner replacement or gate softening | No | New behavior design + contracts + tests + explicit authorization |
 
@@ -297,7 +297,7 @@ word and a revised design review accepts that change:
 |---------|--------------|
 | Study stays evaluation-only; product planner unchanged | `替换产品 planner` |
 | Fresh development cases; do not re-score sealed v9.11/V0.2 official slots as this study | `复用密封包` |
-| RealLLM campaign not started by this PR | `批准 RealLLM 战役` |
+| RealLLM campaign not started by this PR | `批准 RealLLM 战役` (received; run pending credentials) |
 | First freeze requires `paired_reference` plus `single_signal` utility metrics | `只要 single_signal` |
 
 ## 11. Verification of this design package

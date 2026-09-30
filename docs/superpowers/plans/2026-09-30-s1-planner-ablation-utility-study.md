@@ -458,10 +458,17 @@ harness or sealing implementation.
 
 ### Task 9: RealLLM campaign (Wave 4) — separate grant only
 
+Operator grant received: `批准 RealLLM 战役`.
+
+- [x] Campaign runner added:
+  `scripts/run_planner_ablation_realllm_campaign.py`
+  (arm-major RealLLM then fixed; seal verify; no Scripted fallback;
+  infrastructure failure stops campaign)
 - [ ] Preflight: seal identity, credentials present, no Scripted fallback
+  (**blocked:** `DEEPSEEK_API_KEY` missing in this environment)
 - [ ] Execute arm-major campaign once
 - [ ] Persist additive artifacts under
-  `docs/evaluations/v0_3/planner_ablation/...`
+  `docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/agent_realllm_campaign_1/`
 - [ ] Do not rewrite historical bundles
 - [ ] Emit `StudyConclusion` from sealed scorer
 - [ ] Stop for result review; do not change product planner
