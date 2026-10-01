@@ -20,13 +20,25 @@ from signal_diag.agent.models import (
     TaskAssessment,
 )
 from signal_diag.agent.planner import PROMPT_VERSION, RealLLMPlanner
-from signal_diag.app.models import PlannerIdentity
-from signal_diag.app.pcm_wav import encode_pcm32_wav
-from signal_diag.app.planner_ablation_v2_adapter import (
-    _failure_kind_for_execute_error,
-    build_fixed_arm_session,
-    build_product_arm_session,
+from signal_diag.app.models import (
+    AppErrorDetail,
+    PlannerIdentity,
+    SourceSummary,
+    WaveformPoint,
+    WaveformPreview,
 )
+from signal_diag.agent.models import AgentRunResult
+from signal_diag.agent.policies import AgentLimits
+from signal_diag.agent.runtime import DistortionDiagnosisRuntime
+from signal_diag.app import service as app_service_module
+from signal_diag.evaluation.planner_ablation.v2.campaign import run_schedule
+from signal_diag.evaluation.planner_ablation.v2.models import (
+    CanonicalRequest,
+    Schedule,
+    SlotKey,
+    StudyProtocolV2,
+)
+from signal_diag.signal.context import EffectiveCapabilities, StimulusContext
 from signal_diag.app.service import ApplicationDependencies, DiagnosisApplicationService
 from signal_diag.evaluation.planner_ablation.baseline import (
     _PAIRED_HARMONIC_RULES,
@@ -678,3 +690,233 @@ async def test_t_cx294_provenance_harness_only_for_scripted_and_fake_client(
     )
     await fixed.aclose()
     assert provider_spy.calls == 0
+
+
+class _OSErrorOnDecidePlanner:
+    async def decide(self, context: PlannerContext) -> AgentDecision:
+        del context
+        raise OSError("disk full during decide")
+
+
+class _AlwaysCallToolPlanner:
+    async def decide(self, context: PlannerContext) -> AgentDecision:
+        del context
+        return CallToolDecision(
+            call=DetectClippingCall(args=ClippingInput()),
+            purpose="budget probe",
+            task_assessment=_ASSESSMENT,
+        )
+
+
+def _minimal_contextual_snapshot(
+    *,
+    status: Literal["completed", "failed"],
+    application_error: AppErrorDetail | None = None,
+    result: AgentRunResult | None = None,
+) -> ContextualAppRunSnapshot:
+    test_source = SourceSummary(
+        source_kind="wav",
+        display_name="test.wav",
+        sample_rate_hz=8_000,
+        channels=1,
+        num_frames=100,
+        duration_s=0.0125,
+        bits_per_sample=32,
+    )
+    preview = WaveformPreview(
+        sample_rate_hz=8_000,
+        original_num_samples=1,
+        points=(WaveformPoint(sample_index=0, time_s=0.0, amplitude=0.0),),
+    )
+    identity = PlannerIdentity(
+        provider="deepseek",
+        model="deepseek-v4-flash",
+        prompt_version=PROMPT_VERSION,
+        phase4_certified_default=True,
+    )
+    stimulus = StimulusContext(
+        mode="single_signal",
+        test_signal_id="sig_test",
+        assertion_source="user_supplied",
+    )
+    common = dict(
+        run_id="run_ctx_test",
+        created_at=NOW,
+        started_at=NOW,
+        finished_at=NOW,
+        user_request=DEFAULT_STUDY_QUESTION,
+        analyzed_channel="mixdown",
+        test_source=test_source,
+        reference_source=None,
+        stimulus_context=stimulus,
+        effective_capabilities=EffectiveCapabilities(clipping=True),
+        test_preview=preview,
+        planner_identity=identity,
+    )
+    if status == "completed":
+        return ContextualAppRunSnapshot(
+            status="completed",
+            result=result,
+            **common,
+        )
+    return ContextualAppRunSnapshot(
+        status="failed",
+        application_error=application_error,
+        **common,
+    )
+
+
+def test_failure_cause_from_product_snapshot_internal_error_is_infrastructure() -> None:
+    snapshot = _minimal_contextual_snapshot(
+        status="failed",
+        application_error=AppErrorDetail(
+            code="internal_error",
+            message="diagnosis execution failed",
+        ),
+    )
+    status, cause = _failure_cause_from_product_snapshot(snapshot, None)
+    assert status == "failed"
+    assert cause is not None
+    assert cause.kind == "infrastructure"
+    assert cause.detail.startswith("internal_error:")
+
+
+def test_failure_cause_from_product_snapshot_runtime_error_termination() -> None:
+    result = AgentRunResult(
+        run_id="run_agent",
+        status="error",
+        diagnosis=None,
+        observations=(),
+        evidence=(),
+        tool_history=(),
+        termination_reason="runtime_error",
+        errors=("planner exploded",),
+    )
+    snapshot = _minimal_contextual_snapshot(status="completed", result=result)
+    status, cause = _failure_cause_from_product_snapshot(snapshot, result)
+    assert status == "failed"
+    assert cause is not None
+    assert cause.kind == "infrastructure"
+    assert cause.detail == "runtime_error"
+
+
+def test_failure_cause_from_product_snapshot_max_tool_calls_is_behavioral() -> None:
+    result = AgentRunResult(
+        run_id="run_agent",
+        status="error",
+        diagnosis=None,
+        observations=(),
+        evidence=(),
+        tool_history=(),
+        termination_reason="max_tool_calls",
+    )
+    snapshot = _minimal_contextual_snapshot(status="completed", result=result)
+    status, cause = _failure_cause_from_product_snapshot(snapshot, result)
+    assert status == "failed"
+    assert cause is not None
+    assert cause.kind == "behavioral"
+    assert cause.detail == "max_tool_calls"
+
+
+def _mini_two_slot_schedule() -> Schedule:
+    request = ByteRequest(
+        mode="single_signal",
+        test_wav_bytes=_wav_from_case(
+            generate_sine(frequency_hz=440.0, sample_rate_hz=8_000, duration_s=0.1)
+        ),
+        question=DEFAULT_STUDY_QUESTION,
+    )
+    key_a = "a" * 64
+    key_b = "b" * 64
+    canonical = (
+        CanonicalRequest(
+            request_key=key_a,
+            mode="single_signal",
+            representative_scenario_id="scenario_a",
+            byte_request=request,
+        ),
+        CanonicalRequest(
+            request_key=key_b,
+            mode="single_signal",
+            representative_scenario_id="scenario_b",
+            byte_request=request,
+        ),
+    )
+    slots = (
+        SlotKey(request_key=key_a, arm="product_agent", round_index=0),
+        SlotKey(request_key=key_b, arm="product_agent", round_index=0),
+    )
+    return Schedule(
+        canonical_requests=canonical,
+        scenario_aliases={},
+        slots=slots,
+        schedule_digest="c" * 64,
+    )
+
+
+@pytest.mark.asyncio
+async def test_product_oserror_on_decide_stops_campaign() -> None:
+    service = _product_service(planner_factory=lambda: _OSErrorOnDecidePlanner())
+    schedule = _mini_two_slot_schedule()
+    protocol = StudyProtocolV2(deadline_s=30.0)
+
+    async def factory(slot: SlotKey) -> object:
+        del slot
+        return build_product_arm_session(service, offline_session=True)
+
+    record = await run_schedule(
+        schedule,
+        protocol,
+        factory,
+        execution_mode="offline",
+        wall_timeout=False,
+    )
+    await service.aclose()
+    assert record.status == "infrastructure_stopped"
+    assert record.unstarted_slot_count >= 1
+    first = record.slot_records[0]
+    assert first.terminal is not None
+    assert first.terminal.failure_cause is not None
+    assert first.terminal.failure_cause.kind in {"infrastructure", "unknown"}
+    assert record.slot_records[1].status == "unstarted"
+
+
+@pytest.mark.asyncio
+async def test_product_budget_exhaustion_continues_campaign(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    real_init = DistortionDiagnosisRuntime.__init__
+
+    def _limited_init(self: DistortionDiagnosisRuntime, *args: object, **kwargs: object) -> None:
+        kwargs["limits"] = AgentLimits(max_tool_calls=1)
+        real_init(self, *args, **kwargs)
+
+    monkeypatch.setattr(
+        app_service_module.DistortionDiagnosisRuntime,
+        "__init__",
+        _limited_init,
+    )
+    service = _product_service(planner_factory=lambda: _AlwaysCallToolPlanner())
+    schedule = _mini_two_slot_schedule()
+    protocol = StudyProtocolV2(deadline_s=60.0)
+    attempts: list[SlotKey] = []
+
+    async def factory(slot: SlotKey) -> object:
+        attempts.append(slot)
+        return build_product_arm_session(service, offline_session=True)
+
+    record = await run_schedule(
+        schedule,
+        protocol,
+        factory,
+        execution_mode="offline",
+        wall_timeout=False,
+    )
+    await service.aclose()
+    assert len(attempts) == 2
+    assert record.status == "completed"
+    assert record.slot_records[0].terminal is not None
+    assert record.slot_records[0].terminal.failure_cause is not None
+    assert record.slot_records[0].terminal.failure_cause.kind == "behavioral"
+    assert record.slot_records[1].status in {"completed", "failed"}
+    assert record.slot_records[1].status != "unstarted"

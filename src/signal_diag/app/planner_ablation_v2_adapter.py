@@ -8,9 +8,11 @@ from dataclasses import dataclass, field, replace
 from typing import Literal
 
 from signal_diag.agent.models import (
+    AgentRunResult,
     StructuredDiagnosis,
     TaskAssessment,
 )
+from signal_diag.app.contextual_models import ContextualAppRunSnapshot
 from signal_diag.agent.planner import PlannerModel
 from signal_diag.app.service import (
     ApplicationDependencies,
@@ -70,6 +72,54 @@ _DEFAULT_ASSESSMENT = TaskAssessment(
     hypotheses=("clipping", "harmonic_distortion"),
 )
 _ExecuteFailureKind = Literal["infrastructure", "behavioral", "unknown"]
+_BEHAVIORAL_TERMINATION_REASONS = frozenset(
+    {
+        "max_tool_calls",
+        "max_planner_retries",
+        "max_rule_evaluations",
+        "max_knowledge_retrievals",
+        "no_progress",
+    }
+)
+_INFRASTRUCTURE_APPLICATION_ERROR_CODES = frozenset(
+    {"internal_error", "runtime_error", "provider_error"}
+)
+
+
+def _failure_cause_from_product_snapshot(
+    snapshot: ContextualAppRunSnapshot,
+    result: AgentRunResult | None,
+) -> tuple[Literal["completed", "failed"], FailureCause | None]:
+    diagnosis = result.diagnosis if result is not None else None
+    if snapshot.status == "completed" and result is not None and diagnosis is not None:
+        return "completed", None
+
+    app_err = snapshot.application_error
+    if app_err is not None:
+        detail = f"{app_err.code}:{app_err.message}"
+        if app_err.code in _INFRASTRUCTURE_APPLICATION_ERROR_CODES:
+            return "failed", FailureCause(kind="infrastructure", detail=detail)
+        if app_err.code == "trace_integrity_error":
+            return "failed", FailureCause(kind="unknown", detail=detail)
+        lowered = app_err.message.lower()
+        if any(marker in lowered for marker in _BEHAVIORAL_TERMINATION_MARKERS):
+            return "failed", FailureCause(kind="behavioral", detail=detail)
+        return "failed", FailureCause(kind="unknown", detail=detail)
+
+    if result is not None:
+        reason = result.termination_reason
+        if reason in _BEHAVIORAL_TERMINATION_REASONS:
+            return "failed", FailureCause(kind="behavioral", detail=reason)
+        if reason == "runtime_error":
+            return "failed", FailureCause(kind="infrastructure", detail=reason)
+        if reason == "unsupported_task":
+            return "failed", FailureCause(kind="behavioral", detail=reason)
+        if diagnosis is None:
+            detail = reason or "diagnosis missing"
+            return "failed", FailureCause(kind="unknown", detail=detail)
+        return "completed", None
+
+    return "failed", FailureCause(kind="unknown", detail=snapshot.status)
 
 
 def _failure_kind_for_execute_error(error: BaseException) -> _ExecuteFailureKind:
@@ -334,20 +384,7 @@ class ProductArmSession:
             offline_session=self._offline_session,
         )
         diagnosis = result.diagnosis if result is not None else None
-        status: Literal["completed", "failed"]
-        failure: FailureCause | None
-        if snapshot.status == "completed" and diagnosis is not None:
-            status = "completed"
-            failure = None
-        elif snapshot.status == "completed" and diagnosis is None:
-            status = "failed"
-            failure = FailureCause(kind="behavioral", detail="diagnosis missing")
-        else:
-            status = "failed"
-            failure = FailureCause(
-                kind="behavioral",
-                detail=snapshot.status if hasattr(snapshot, "status") else "failed",
-            )
+        status, failure = _failure_cause_from_product_snapshot(snapshot, result)
 
         terminal = StudyTerminal(
             run_id=snapshot.run_id,
