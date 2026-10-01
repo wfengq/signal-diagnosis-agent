@@ -215,15 +215,14 @@ class ProductArmSession:
 
     @property
     def background_worker_alive(self) -> bool:
+        # Store status is authoritative for in-flight work (queue may be empty
+        # while the executor is awaiting item.execute()). Idle worker tasks that
+        # only wait on an empty queue are not "leaked" background work.
         store = self._service._contextual_store
-        if any(
+        return any(
             snapshot.status in ("queued", "running")
             for snapshot in store._snapshots.values()
-        ):
-            return True
-        executor = self._service._contextual_executor
-        worker = executor._worker
-        return worker is not None and not worker.done() and not executor._queue.empty()
+        )
 
     async def execute(self, request: ByteRequest) -> StudyTerminal:
         if not isinstance(request, ByteRequest):

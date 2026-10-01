@@ -906,9 +906,15 @@ def evaluate_prerequisites(
     provenance_ok = True
     if campaign_complete:
         for terminal in indexed.values():
-            if terminal.arm != "product_agent":
-                continue
-            scored_record = terminal_to_scored_record(terminal)
+            scored_record = terminal_to_scored_record(
+                terminal,
+                study_id=study.protocol.study_id,
+                scoring_identity=study.protocol.scoring_identity,
+                verified_online_context=(
+                    terminal.provenance.execution_identity == "product_campaign"
+                    and not terminal.provenance.offline_session
+                ),
+            )
             try:
                 validate_scored_product_ingestion(scored_record)
             except ProvenanceRejection:
