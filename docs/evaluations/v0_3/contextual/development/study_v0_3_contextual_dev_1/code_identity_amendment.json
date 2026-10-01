@@ -235,7 +235,7 @@
     "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
     "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
     "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
-    "product_tree_sha256": "97bbc1d334f8eb6e13ded577f61eeea33e3067f5eaf6ecf8d7083f6bfeb49ed9",
+    "product_tree_sha256": "7b9299d22c1a0103f81731624cec9ccc0be05eac6370f5c24ae68f23b19d34b3",
     "prompt_version": "v0.3-s1-planner-9.11",
     "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
     "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
