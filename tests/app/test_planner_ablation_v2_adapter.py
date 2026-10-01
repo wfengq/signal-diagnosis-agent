@@ -12,6 +12,7 @@ import pytest
 from signal_diag.agent.diagnosis import validate_finish_decision
 from signal_diag.agent.models import (
     AgentDecision,
+    AgentRunResult,
     AnalyzeHarmonicDistortionCall,
     CallToolDecision,
     DetectClippingCall,
@@ -20,6 +21,9 @@ from signal_diag.agent.models import (
     TaskAssessment,
 )
 from signal_diag.agent.planner import PROMPT_VERSION, RealLLMPlanner
+from signal_diag.agent.policies import AgentLimits
+from signal_diag.agent.runtime import DistortionDiagnosisRuntime
+from signal_diag.app import service as app_service_module
 from signal_diag.app.contextual_models import ContextualAppRunSnapshot
 from signal_diag.app.models import (
     AppErrorDetail,
@@ -35,18 +39,6 @@ from signal_diag.app.planner_ablation_v2_adapter import (
     build_fixed_arm_session,
     build_product_arm_session,
 )
-from signal_diag.agent.models import AgentRunResult
-from signal_diag.agent.policies import AgentLimits
-from signal_diag.agent.runtime import DistortionDiagnosisRuntime
-from signal_diag.app import service as app_service_module
-from signal_diag.evaluation.planner_ablation.v2.campaign import run_schedule
-from signal_diag.evaluation.planner_ablation.v2.models import (
-    CanonicalRequest,
-    Schedule,
-    SlotKey,
-    StudyProtocolV2,
-)
-from signal_diag.signal.context import EffectiveCapabilities, StimulusContext
 from signal_diag.app.service import ApplicationDependencies, DiagnosisApplicationService
 from signal_diag.evaluation.planner_ablation.baseline import (
     _PAIRED_HARMONIC_RULES,
@@ -56,9 +48,14 @@ from signal_diag.evaluation.planner_ablation.baseline import (
     single_signal_clipping_supported,
 )
 from signal_diag.evaluation.planner_ablation.report_fields import guidance_parity_equal
+from signal_diag.evaluation.planner_ablation.v2.campaign import run_schedule
 from signal_diag.evaluation.planner_ablation.v2.models import (
     DEFAULT_STUDY_QUESTION,
     ByteRequest,
+    CanonicalRequest,
+    Schedule,
+    SlotKey,
+    StudyProtocolV2,
 )
 from signal_diag.evaluation.planner_ablation.v2.timing import (
     ControlledClock,
@@ -69,6 +66,7 @@ from signal_diag.knowledge.index import KnowledgeIndex
 from signal_diag.rules.engine import RuleEngine
 from signal_diag.rules.loader import YamlRuleProfileLoader
 from signal_diag.signal import InMemorySignalRepository
+from signal_diag.signal.context import EffectiveCapabilities, StimulusContext
 from signal_diag.signal.synthetic import (
     generate_clipped_sine,
     generate_harmonic_sine,
@@ -748,20 +746,20 @@ def _minimal_contextual_snapshot(
         assertion_source="user_supplied",
     )
     run_id = "run_" + "a" * 32
-    common = dict(
-        run_id=run_id,
-        created_at=NOW,
-        started_at=NOW,
-        finished_at=NOW,
-        user_request=DEFAULT_STUDY_QUESTION,
-        analyzed_channel="mixdown",
-        test_source=test_source,
-        reference_source=None,
-        stimulus_context=stimulus,
-        effective_capabilities=EffectiveCapabilities(clipping=True),
-        test_preview=preview,
-        planner_identity=identity,
-    )
+    common = {
+        "run_id": run_id,
+        "created_at": NOW,
+        "started_at": NOW,
+        "finished_at": NOW,
+        "user_request": DEFAULT_STUDY_QUESTION,
+        "analyzed_channel": "mixdown",
+        "test_source": test_source,
+        "reference_source": None,
+        "stimulus_context": stimulus,
+        "effective_capabilities": EffectiveCapabilities(clipping=True),
+        "test_preview": preview,
+        "planner_identity": identity,
+    }
     if status == "completed":
         return ContextualAppRunSnapshot(
             status="completed",
