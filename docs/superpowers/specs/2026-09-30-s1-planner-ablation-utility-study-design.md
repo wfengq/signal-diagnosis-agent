@@ -3,10 +3,11 @@
 **Status:** study-shape approved (OQ-019 / D038, operator 2026-09-30).
 Wave 1–3 complete (protocol seal under
 `docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/`).
-Wave 4 RealLLM campaign completed under
-`study_s1_planner_ablation_dev_1/agent_realllm_campaign_1/`;
-sealed conclusion `fixed_pipeline_dominance`. Wave 5 result review pending.
-Product planner changes remain unauthorized.
+Wave 4 campaign artifacts retained under
+`study_s1_planner_ablation_dev_1/agent_realllm_campaign_1/`
+(machine enum `fixed_pipeline_dominance`). Wave 5 protocol-deviation review
+**does not accept** formal dominance (timing boundary mismatch; single oracle
+defects). Product planner changes remain unauthorized.
 
 **Date:** 2026-09-30
 
@@ -28,7 +29,7 @@ Product planner changes remain unauthorized.
 **Open question:** OQ-019 (resolved — study shape approved; see D038)
 
 **Plan:** `docs/superpowers/plans/2026-09-30-s1-planner-ablation-utility-study.md`
-(Wave 4 campaign landed; conclusion `fixed_pipeline_dominance`; Wave 5 review)
+(Wave 5 review landed; formal dominance not accepted)
 
 ## 1. Decision summary
 
@@ -272,8 +273,8 @@ Other claims under test:
 | Additive CONTRACTS / TEST_PLAN definitions | Wave 1 landed (§19 / T-CX276–T-CX288) | n/a |
 | Harness + Scripted dry-run | Wave 2 landed (`evaluation/planner_ablation/`) | n/a |
 | Execution-protocol seal and identity check | Wave 3 landed (`protocol_seal/`) | Before any scored RealLLM run |
-| RealLLM `product_agent` campaign | Landed (`agent_realllm_campaign_1/`, `fixed_pipeline_dominance`) | n/a |
-| Result review | No | Explicit Wave 5 review grant |
+| RealLLM `product_agent` campaign | Landed (`agent_realllm_campaign_1/`; machine enum retained) | n/a |
+| Result review | Wave 5 protocol-deviation report landed; formal dominance not accepted | Later grants for shared-boundary rerun / oracle redesign / product change |
 | Product planner replacement or gate softening | No | New behavior design + contracts + tests + explicit authorization |
 
 Recommended next grant after shape approval: **writing-plans only**.

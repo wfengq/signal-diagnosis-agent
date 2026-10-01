@@ -471,15 +471,22 @@ Operator grant received: `批准 RealLLM 战役`.
   `docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/agent_realllm_campaign_1/`
 - [x] Do not rewrite historical bundles / protocol_seal
 - [x] Emit `StudyConclusion` from sealed scorer:
-  **`fixed_pipeline_dominance`**
-  (quality/usefulness/completion tied; fixed ~99.8% faster; both safety_ok)
+  **`fixed_pipeline_dominance`** (machine artifact; Wave 5 does **not**
+  accept it as protocol-conformant dominance)
 - [x] Stop for result review; do not change product planner
 
 ### Task 10: Result review (Wave 5)
 
-- [ ] Write acceptance/review report citing sealed metrics and conclusion enum
-- [ ] List matching caveats if any residual system-effect confounds remain
-- [ ] Explicitly state that product changes remain unauthorized
+Operator grant (Codex revise unique recommendation): Wave 5
+protocol-deviation review report only.
+
+- [x] Write protocol-deviation review citing sealed metrics and conclusion enum:
+  `docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/WAVE5_PROTOCOL_DEVIATION_REVIEW.md`
+- [x] List protocol deviations and oracle defects (timing boundary; single
+  oracle collisions / natural-even gate conflict; non-inferiority wording;
+  seal verify/regenerate confusion)
+- [x] Explicitly state formal dominance **not accepted**; product changes
+  remain unauthorized; no RealLLM re-run / seal rebuild / artifact rewrite
 
 ## Self-review (Wave 0 revise)
 
@@ -494,10 +501,14 @@ Operator grant received: `批准 RealLLM 战役`.
 
 ## Stop conditions
 
-Wave 3 protocol seal is generated and verified under
-`docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/`.
-Stop before RealLLM campaign execution.
+Wave 5 protocol-deviation review is written under
+`study_s1_planner_ablation_dev_1/WAVE5_PROTOCOL_DEVIATION_REVIEW.md`.
+Formal `fixed_pipeline_dominance` is **not accepted**. No product planner
+change. No RealLLM re-run from this grant.
 
-Suggested next operator phrase:
+Suggested later operator phrases (each separate):
 
-- Wave 4: `批准 RealLLM 战役`
+- shared-boundary latency re-measurement
+- oracle / population redesign (new seal)
+- read-only seal verify tooling
+- product planner change (only with new design + contracts + tests)
