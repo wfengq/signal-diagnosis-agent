@@ -521,4 +521,9 @@ def test_no_real_seal_under_dev2_evidence_root() -> None:
     assert DEV2_ROOT.is_dir()
     assert not (DEV2_ROOT / "protocol_seal").exists()
     names = {path.name for path in DEV2_ROOT.iterdir()}
-    assert names <= {"design_inputs.md", "OFFLINE_ACCEPTANCE.md"}
+    assert names <= {
+        "design_inputs.md",
+        "OFFLINE_ACCEPTANCE.md",
+        "LABEL_REVIEW.md",
+        "BUDGET_BOUNDS.md",
+    }

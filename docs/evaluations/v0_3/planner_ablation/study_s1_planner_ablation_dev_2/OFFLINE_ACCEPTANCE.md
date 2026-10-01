@@ -162,7 +162,7 @@ Offline implementation PR #18 merged to `codex/v0.2-real-world-validation` at `5
 ## Seal prerequisites (concrete checklist)
 
 1. ~~Independent offline reviewer records approval for all ten oracle rows, alias, U/C/G, targets~~ — done in `LABEL_REVIEW.md` (`approved=true`). Optional Codex design-owner re-ack.
-2. Resolve remaining `inspect_limits` blockers — see `BUDGET_BOUNDS.md`. Still open: `unknown_max_tokens_bound`, input/output token bounds, `unavailable_retry_telemetry`. Conditional request ceiling `57×28×3=4788` is audit-derived only until accepted into sealed config; `seal_ready` remains **false**.
+2. Resolve remaining `inspect_limits` blockers — see `BUDGET_BOUNDS.md`. Still open: `unknown_max_tokens_bound`, input/output token bounds, `unavailable_retry_telemetry`. Conditional SDK attempt ceiling `57×28×3=4788` is audit-derived only (not a proven HTTP send ceiling); `seal_ready` remains **false**.
 3. Separate **seal grant** naming the concrete candidate manifest, schedule digest, decision bands, and budgets.
 4. Separate **commit authorization** so the sealed implementation identity can bind an immutable commit.
 5. Generate seal only into a **new** destination; never regenerate `dev_1`; never treat offline acceptance as the seal.

@@ -1,8 +1,8 @@
 # Budget bounds audit: `study_s1_planner_ablation_dev_2`
 
-**Scope:** Task 5 `inspect_limits` preseal readiness — offline source/SDK audit only.  
-**Not a protocol seal.** No `protocol_seal/` created.  
-**Not a RealLLM grant.** No provider/network calls. No product planner/composition patches.  
+**Scope:** Task 5 `inspect_limits` preseal readiness — offline source/SDK audit only.
+**Not a protocol seal.** No `protocol_seal/` created.
+**Not a RealLLM grant.** No provider/network calls. No product planner/composition patches.
 **Explicit:** green offline tests ≠ live-run readiness; no RealLLM grant implied.
 
 Audit environment (this workspace, 2026-10-01):
@@ -90,7 +90,7 @@ class AgentLimits(BaseModel):
     max_knowledge_retrievals: int = Field(default=4, ge=0)
 ```
 
-`DistortionDiagnosisRuntime` defaults to these limits (`runtime.py` `_DEFAULT_LIMITS = AgentLimits()`, ctor `limits: AgentLimits = _DEFAULT_LIMITS`).  
+`DistortionDiagnosisRuntime` defaults to these limits (`runtime.py` `_DEFAULT_LIMITS = AgentLimits()`, ctor `limits: AgentLimits = _DEFAULT_LIMITS`).
 `DiagnosisApplicationService` constructs the runtime **without** overriding `limits` (e.g. `service.py` ~373–381 and ~540–548), so product path uses defaults.
 
 Audited AgentLimits defaults match `AUDITED_AGENT_LIMIT_DEFAULTS` (tool=8, planner_retries=2, no_progress=2, rules=4, knowledge=4). These are **not** a planner-call bound by themselves (tool count ≠ planner calls).
@@ -152,7 +152,9 @@ Installed package `openai==3.20.0`:
 | Retry loop | `for retries_taken in range(max_retries + 1)` | `openai/_base_client.py` sync ~1123, async ~1749 |
 | Transport attempts per `create` | **3** (= 1 initial + 2 retries) when `max_retries=2` | derived from loop |
 
-`AsyncOpenAI(api_key=..., base_url=...)` as constructed by product therefore inherits timeout=600s / max_retries=2 / up to 3 HTTP attempts per logical chat completion.
+`AsyncOpenAI(api_key=..., base_url=...)` as constructed by product therefore inherits SDK-default timeout=600s and `max_retries=2`, yielding up to **3 SDK retry-loop attempts** per logical chat completion. That figure is **not** a proven HTTP send ceiling: the OpenAI Python client enables default redirects, so a single retry-loop attempt may issue multiple HTTP sends (offline mock with SDK 3.5.0 produced 4 sends from one call after three 307s; official 3.20.0 source also enables redirects — illustrative of the distinction, not a Cloud install proof).
+
+These are **audited SDK defaults**, not product-coded overrides. Recording them as audit facts does **not** authorize flipping `request_timeout_explicit`, `transport_retry_override_explicit`, or related EffectiveConfiguration gates. Accepting defaults into gate semantics requires a separate design.
 
 **Caveat:** `uv.lock` records `openai==3.6.0` while this environment has `3.20.0`. Seal must re-bind the **actual** seal-time installed version; this audit records the environment under test.
 
@@ -195,14 +197,14 @@ Campaign-level slot retry is separately `forbidden` (`campaign_retry_policy="for
 | Blocker | Status | Numeric / reason |
 |---------|--------|------------------|
 | `unknown_max_tokens_bound` | **BLOCKER remains** | Product `chat.completions.create` omits `max_tokens` / `max_completion_tokens`. No in-repo verified provider max-output pin. Resolving requires separate product design + authorization to set an explicit bound (or a verified provider-spec pin accepted into EffectiveConfiguration). |
-| `unknown_provider_request_timeout` | **Audit-resolved (SDK default)** | Client effective timeout **600 s** read (connect **5 s**) from `openai.DEFAULT_TIMEOUT` when product does not pass `timeout`. Not a product-coded constant; seal must snapshot `request_timeout_explicit=True`, `request_timeout_s=600.0` (or tighter product override under a separate grant). |
-| `unknown_transport_attempts_per_call_bound` | **Audit-resolved (SDK default)** | **`3`** attempts per logical `create` = `DEFAULT_MAX_RETRIES(2)+1`. Product does not override `max_retries`. |
+| `unknown_provider_request_timeout` | **Audit fact (SDK default); gate not cleared** | Client effective timeout **600 s** read (connect **5 s**) from `openai.DEFAULT_TIMEOUT` when product does not pass `timeout`. This is an audited default, **not** an explicit product override. Do **not** set `request_timeout_explicit=True` from this audit alone. Clearing the inspect gate / accepting defaults into sealed config needs a separate design. |
+| `unknown_transport_attempts_per_call_bound` | **Audit fact (SDK default); gate not cleared** | **`3`** SDK retry-loop attempts per logical `create` = `DEFAULT_MAX_RETRIES(2)+1`. Product does not override `max_retries`. Do **not** set `transport_retry_override_explicit=True` from this audit alone. Real HTTP send ceiling additionally needs redirect/transport analysis (see §1.5). |
 | `unavailable_retry_telemetry` | **BLOCKER remains** | Study `collect_resource_telemetry` leaves `transport_attempt_count=None`. Product path does not expose SDK `retries_taken` / actual retry counts into study telemetry. Knowing the **max** attempts ≠ available **actual** retry telemetry. |
 | `unknown_planner_calls_per_slot_bound` | **Audit-resolved (control-flow)** | **`28`** logical planner calls/slot under §2 assumptions. Still not equal to tool count 8. Companion note `agent_limits_do_not_prove_planner_call_bound:tool_count_is_not_planner_calls` remains correct as a warning against naive tool→planner equating; the 28 figure is a derived control-flow ceiling, not `max_tool_calls`. |
 | `unknown_input_token_bound` | **BLOCKER remains** | No product max input tokens; prompt/context size not reduced to a sealed token ceiling. Growing planner context with tools/knowledge has no explicit token cap. |
 | `unknown_output_token_bound` | **BLOCKER remains** | No `max_tokens` on the request; output length not product-bounded. |
 | `unknown_provider_sdk_identity` | **Audit-resolved for this env (with drift caveat)** | Identity: OpenAI Python SDK **`openai==3.20.0`** installed; no DeepSeek-native SDK. `uv.lock` has `3.6.0`; `pyproject` only `>=1.0`. Seal must re-record exact seal-time version — do not treat lockfile and install as interchangeable. |
-| `worst_case_requests_uncomputable` | **Conditionally computable; inspect still blocked** | If planner bound **28** and transport bound **3** are accepted: `57 * 28 * 3 = 4788` worst-case HTTP attempts across product slots. Default `snapshot_effective_configuration()` still omits those fields, so `inspect_limits` still emits this blocker until config is populated. Worst-case **tokens** remain uncomputable while input/output token bounds are unknown. |
+| `worst_case_requests_uncomputable` | **Conditionally computable as SDK attempts; inspect still blocked** | If planner bound **28** and SDK retry-loop bound **3** are accepted: `57 * 28 * 3 = 4788` is a **conditional SDK attempt ceiling**, **not** a proven HTTP send ceiling (redirects may multiply sends). Default `snapshot_effective_configuration()` still omits those fields, so `inspect_limits` still emits this blocker until config is populated under an authorized gate design. Worst-case **tokens** remain uncomputable while input/output token bounds are unknown. |
 
 ### Temperature / thinking (already non-blocking when snapped)
 
@@ -210,26 +212,36 @@ Product sets `temperature=0.0` and thinking disabled. Default `snapshot_effectiv
 
 ---
 
-## 4. Worst-case request arithmetic (conditional)
+## 4. Worst-case arithmetic (conditional SDK attempts)
 
-Only if both factors are accepted as sealed EffectiveConfiguration facts:
+Summary of audited ceilings (documentation only; gates unchanged):
 
 ```text
-worst_case_requests = PRODUCT_SLOT_COUNT_V2
-                    * planner_calls_per_slot_bound
-                    * transport_attempts_per_call_bound
-                    = 57 * 28 * 3
-                    = 4788
+28 是当前 runtime/policy 下的保守 logical planner-call 上界。
+57×28×3=4788 是条件 SDK attempt 上界，不是已证明的 HTTP send 上界。
+SDK 默认 timeout/retry 的审计事实不构成显式 override，也不自动清除现有门禁。
 ```
+
+Only if both factors are later accepted into sealed EffectiveConfiguration under a separate gate-design grant:
+
+```text
+conditional_sdk_attempt_ceiling = PRODUCT_SLOT_COUNT_V2
+                                * planner_calls_per_slot_bound
+                                * sdk_retry_loop_attempts_per_call
+                                = 57 * 28 * 3
+                                = 4788
+```
+
+This is **not** `worst_case_http_sends`. HTTP send upper bounds require separate redirect/transport analysis.
 
 Token ceilings:
 
 ```text
-worst_case_input_tokens  = worst_case_requests * input_token_bound_per_call   # UNKNOWN
-worst_case_output_tokens = worst_case_requests * output_token_bound_per_call  # UNKNOWN
+worst_case_input_tokens  = conditional_sdk_attempt_ceiling * input_token_bound_per_call   # UNKNOWN
+worst_case_output_tokens = conditional_sdk_attempt_ceiling * output_token_bound_per_call  # UNKNOWN
 ```
 
-Do **not** treat 4788 as an authorized live-run budget until EffectiveConfiguration carries the bounds, retry telemetry policy is addressed, and token bounds exist under an explicit grant.
+Do **not** treat 4788 as an authorized live-run budget or HTTP send ceiling until EffectiveConfiguration carries authorized bounds, retry telemetry policy is addressed, token bounds exist, and HTTP/redirect behavior is separately bound.
 
 ---
 
@@ -242,9 +254,9 @@ On default offline snapshot (`snapshot_effective_configuration()` + `inspect_lim
 | `execution_blocked` | `true` | **No** — `unknown_max_tokens_bound`, `unavailable_retry_telemetry`, `unknown_input_token_bound`, `unknown_output_token_bound` remain. |
 | `seal_ready` | `false` (hardcoded in `inspect_limits`; also requires complete token worst-case via `compute_seal_readiness`) | **No** — token bounds and retry telemetry still missing. Label review is separately recorded as approved in `LABEL_REVIEW.md` / `OFFLINE_ACCEPTANCE.md` and does not clear these budget blockers. |
 
-Optional study-side population of SDK timeout / transport / planner-call / SDK-version fields into `EffectiveConfiguration` would clear **some** blockers without product behavior change, but **cannot** clear token or retry-telemetry blockers without either:
+Optional study-side population of SDK timeout / transport / planner-call / SDK-version fields into `EffectiveConfiguration` would clear **some** blockers only after a separate design decides that audited defaults may satisfy those gates. This audit alone must **not** flip `*_explicit` / `*_override_explicit`. It **cannot** clear token or retry-telemetry blockers without either:
 
-1. product changes (explicit `max_tokens`, timeout/retry overrides, retry observation) under separate design/authorization; or  
+1. product changes (explicit `max_tokens`, timeout/retry overrides, retry observation) under separate design/authorization; or
 2. an authorized, verified provider-spec binding accepted as configuration facts (still not a silent product invent-limits patch).
 
 **No product composition/planner patch was made in this audit.** Prefer documentation over inventing limits in code.
@@ -272,6 +284,8 @@ None of the above is authorized by this document.
 
 ## 8. Readiness one-liner
 
-Offline audit **derives** planner-call ceiling **28**, transport attempts/call **3**, client timeout **600 s**, and SDK identity **`openai==3.20.0` (this env)**; request ceiling **4788** is arithmetically available from those factors.  
-**`execution_blocked` / `seal_ready` do not flip:** max tokens, input/output token bounds, and retry telemetry remain blockers.  
+Offline audit **derives** conservative logical planner-call ceiling **28**, SDK retry-loop attempts/call **3**, SDK-default client timeout **600 s**, and SDK identity **`openai==3.20.0` (this env)**. Arithmetic **4788** is a **conditional SDK attempt ceiling**, not a proven HTTP send ceiling. Audited defaults do not constitute explicit overrides and do not auto-clear inspect gates.
+
+**`execution_blocked` / `seal_ready` do not flip:** max tokens, input/output token bounds, and retry telemetry remain blockers.
+
 **Green offline tests ≠ live-run readiness; no RealLLM grant implied.**
