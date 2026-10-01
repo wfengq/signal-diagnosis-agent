@@ -30,13 +30,15 @@ Baseline commit (PR #17 merge / Task 7 starting point):
 
 | Field | Value |
 |-------|-------|
-| `design_inputs.md` review_status | `pending` |
-| approved | `false` |
-| implementer self-check | construction/gates consistency recorded in `design_inputs.md` |
-| independent / operator review | **pending** — required before any seal |
+| `design_inputs.md` review_status | `independent_offline_review_complete` |
+| approved | `true` (independent offline reviewer, 2026-10-01) |
+| evidence | `LABEL_REVIEW.md` + updated `design_inputs.md` review records |
+| implementer self-check | superseded; does not substitute for seal grant |
+| Codex / design-owner re-ack | recommended under current role split (design=Codex); not a seal |
 | fabricated signoff | **none** |
 
-Unresolved disagreement or pending independent review **blocks seal**. This offline acceptance does not expand into a new campaign.
+Independent offline label review no longer blocks seal candidate readiness on label grounds.
+Seal, RealLLM, and product changes remain separately gated.
 
 ## Configuration / budget blockers (Task 5 `inspect_limits`)
 
@@ -150,19 +152,20 @@ They do **not** prove:
 
 | Gate | Still required before… |
 |------|-------------------------|
-| Independent label review + operator approval of `design_inputs.md` | seal candidate readiness |
+| Operator acceptance of label review + remaining budget closure | seal candidate readiness |
 | Seal grant on concrete candidate manifest, schedule, bands, budgets | creating `protocol_seal/` under this study root |
-| Commit / push / merge authorization | publishing this offline diff |
 | RealLLM grant with sealed identity + numerical request/token budget | any provider/network campaign |
 | Separate product design + contracts + tests + operator auth | any product planner / composition change |
 
+Offline implementation PR #18 merged to `codex/v0.2-real-world-validation` at `5d0a325` (tip `e118be5`). Label/budget follow-up lives on a separate preseal docs branch.
+
 ## Seal prerequisites (concrete checklist)
 
-1. Independent offline reviewer records approval (or revises proposal) for all ten oracle rows, alias, U/C/G, targets — no threshold relaxation.
-2. Resolve every `inspect_limits` blocker above; publish numerical worst-case request/token budget for 57 product slots.
+1. ~~Independent offline reviewer records approval for all ten oracle rows, alias, U/C/G, targets~~ — done in `LABEL_REVIEW.md` (`approved=true`). Optional Codex design-owner re-ack.
+2. Resolve remaining `inspect_limits` blockers — see `BUDGET_BOUNDS.md`. Still open: `unknown_max_tokens_bound`, input/output token bounds, `unavailable_retry_telemetry`. Conditional SDK attempt ceiling `57×28×3=4788` is audit-derived only (not a proven HTTP send ceiling); `seal_ready` remains **false**.
 3. Separate **seal grant** naming the concrete candidate manifest, schedule digest, decision bands, and budgets.
 4. Separate **commit authorization** so the sealed implementation identity can bind an immutable commit.
-5. Generate seal only into a **new** destination; never regenerate `dev_1`; never treat this offline acceptance as the seal.
+5. Generate seal only into a **new** destination; never regenerate `dev_1`; never treat offline acceptance as the seal.
 6. Only after seal verify: separate **RealLLM grant** with exact seal digest and budget — still no product-composition change without its own grant.
 
 ## Candidate manifest description (unsealed)
@@ -171,4 +174,4 @@ A future seal candidate must bind: unique-request schedule + aliases; scenario/s
 
 ---
 
-Prepared under Task 7 offline implementation grant. Changes intentionally left **uncommitted**. No real seal created. No RealLLM run.
+Task 7 offline implementation merged via PR #18. Post-merge label review + budget audit recorded under operator grant (2026-10-01). No real seal created. No RealLLM run.

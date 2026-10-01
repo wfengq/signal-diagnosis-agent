@@ -118,9 +118,48 @@ Registered before execution; arms never receive these labels.
 
 | Field | Value |
 |-------|-------|
-| review_status | `pending` |
-| approved | `false` |
-| note | Independent offline reviewer must check all ten rows, alias, U/C/G, and targets before any seal grant. Disagreement revises this unsealed proposal; do not relax DSP thresholds or finish gates. |
+| review_status | `independent_offline_review_complete` |
+| approved | `true` |
+| note | Independent offline label review recorded below. No construction/gates disagreement found. This approval does **not** create a protocol seal, authorize RealLLM, or relax thresholds. |
+
+### Independent offline label review
+
+| Field | Value |
+|-------|-------|
+| reviewer | `independent_offline_reviewer` (subagent) |
+| reviewed_at | 2026-10-01 |
+| independence | Reviewer did **not** implement the harness. Neither `product_agent` nor `fixed_pipeline` diagnosis outputs were used as oracle truth. Prior-output exposure motivating redesign remains disclosed above. |
+| sources_checked | `dev_1` seal `protocol_seal/manifest.json` case_sources/oracle; `dev_1` preregistration; contextual `case_build_record.json` / `contextual_manifest.json`; WAV SHA-256 identities; design §5; `CONTRACTS_V0_3_CONTEXTUAL.md` §8/§15/§16 Option C / §17; demonstration profile thresholds 1% clipping / 5% THD / 5% even-harmonic growth; independent DSP re-measure of test WAV clipping/THD and paired contextual growth |
+| status | `approved` |
+| approved | `true` |
+| blockers | none |
+| threshold_stance | Do **not** relax DSP thresholds or finish gates. |
+
+#### Per-scenario verdicts
+
+| Scenario ID | Verdict | Rationale (construction / gates) |
+|-------------|---------|----------------------------------|
+| `825a759a0ea47bb7` | approve | Clean identity transform; test==ref bytes; DSP: no clipping mechanism, ratio 0, THD ≈0.11% ≪ 5%. Single and paired `no_supported_fault` match mode-aware clean gates. |
+| `857fac53e4d2e57e` | approve | Hard-clip construction; DSP: mechanism true, ratio ≈23.8% ≫ 1%, flat-top true; paired even-growth ≈0.15% ≪ 5% (no independent harmonic). Exact `{clipping}` both modes. Option C / §8 clipping path satisfied without threshold change. |
+| `abd9010438d4ad93` | approve | Hard-clip on bass master; DSP: mechanism true, ratio ≈13.4% ≫ 1%; paired even-growth ≈0.01% ≪ 5%. Exact `{clipping}` both modes. |
+| `a4a0853be9983f8c` | approve | Second-harmonic ampnorm construction. Single: THD ≈7.48% > 5% but §8 forbids single-file causal harmonic → `inconclusive`. Paired: valid comparison, even-growth ≈7.23% > 5% → exact `{harmonic_distortion}`. |
+| `2be730b9113701de` | approve | Same harmonic transform on bass_b. Single THD ≈10.34% → `inconclusive`; paired even-growth ≈9.91% > 5% → exact `{harmonic_distortion}`. |
+| `6fb80bbda391c26c` | approve | Harmonic-then-clip construction. Single: mechanism true, ratio ≈2.56% > 1% → clipping only (harmonic not attributable without context). Paired: clipping plus even-growth ≈8.81% > 5% → exact `{clipping, harmonic_distortion}`. |
+| `aa9b4a91b0253c33` | approve | Same combined order on organ_a. Single ratio ≈6.53% → clipping only; paired even-growth ≈6.41% > 5% → exact `{clipping, harmonic_distortion}`. |
+| `393940e92c58cf0b` | approve | Adjacent-window natural control; construction growth ≈0.09%. Single THD ≈12.63% > 5% demo gate → cannot finish `no_supported_fault` without context → `inconclusive` (corrects sealed `dev_1` single label). Paired valid, growth ≪ 5% → `no_supported_fault`. |
+| `04f4068ec91d2621` | approve | Twin natural control; construction growth ≈0.01%. Single THD ≈8.47% > 5% → `inconclusive`; paired `no_supported_fault`. Same correction vs sealed `dev_1` single. |
+| `163185980dc8f7a4` | approve | Invalid cross-master ref (`fundamental_incompatible`). Test SHA-256 identical to clean `825a…` → equal single request identity requires equal oracle → single `no_supported_fault` (corrects sealed `dev_1` single `inconclusive`). Paired stays `inconclusive`. |
+
+#### Alias / mapping / populations
+
+| Item | Verdict | Rationale |
+|------|---------|-----------|
+| Alias `163185980dc8f7a4` → `825a759a0ea47bb7` (single only) | approve | Identical test-byte hash `ea04bd30…`; paired refs differ (`ea04bd30…` vs `b0c7ea55…`). Schedule 9+10=19 keys/arm/round is consistent. |
+| Source/master table (7 parents) | approve | Matches sealed `dev_1` `case_sources` and contextual build record; no fresh-source claim. |
+| U (7) / C (6) / G (4) | approve | Matches design §5.3: U = two harmonic + two combined + two natural + invalid negative control; C excludes invalid (obtainable but not valid/sufficient); G = harmonic + natural singles only (guidance-eligible under §17 inconclusive path). |
+| Upgrade targets | approve | Harmonic attribution; additional harmonic coverage beyond clipping; supported no-fault for naturals; invalid target **none**. |
+
+Overall: **approved=true**. No revise blockers. Seal remains separately gated.
 
 ### Implementer construction/gates self-check (not independent signoff)
 
@@ -128,11 +167,11 @@ Registered before execution; arms never receive these labels.
 |-------|-------|
 | checker | Task 7 implementer (study offline acceptance) |
 | checked_at | 2026-10-01 |
-| status | `pending_operator_independent_review` |
+| status | `superseded_by_independent_offline_review` |
 | approved | `false` |
 | scope | Consistency check of the ten proposed oracle rows, source/master mapping, alias `163185980dc8f7a4`→`825a759a0ea47bb7`, U/C/G membership (7/6/4), and upgrade targets against construction labels and versioned gates — **not** treating either arm's answer as truth. |
 | outcome | Rows and populations match the approved design §5 construction proposal and `validate_labels` structural checks. No unresolved construction disagreement found by the implementer. |
-| blocker | Independent offline label review remains **required**. This self-check does **not** fabricate operator or independent-reviewer signoff. Unresolved disagreement or pending independent review blocks any protocol seal. |
+| blocker | Historical note only: independent offline label review was still required at self-check time. That review is now recorded above (`approved=true`). Self-check still does **not** substitute for operator seal grant. |
 | prior_output_exposure | Disclosed above; prior Wave 5 / `dev_1` product and fixed-pipeline outputs motivated the redesign and must not serve as oracle truth. |
 
 Demonstration thresholds remain 1% clipping and 5% THD; they are not industry

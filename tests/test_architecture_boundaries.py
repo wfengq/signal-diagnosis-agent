@@ -1696,4 +1696,9 @@ def test_t_cx301_dev1_reproducer_and_evidence_root_untouched() -> None:
     assert dev2.is_dir()
     assert not (dev2 / "protocol_seal").exists()
     names = {path.name for path in dev2.iterdir() if path.name != "__pycache__"}
-    assert names <= {"design_inputs.md", "OFFLINE_ACCEPTANCE.md"}
+    assert names <= {
+        "design_inputs.md",
+        "OFFLINE_ACCEPTANCE.md",
+        "LABEL_REVIEW.md",
+        "BUDGET_BOUNDS.md",
+    }
