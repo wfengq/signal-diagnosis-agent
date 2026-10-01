@@ -179,11 +179,11 @@ Task 7 offline implementation merged via PR #18. Post-merge label review + budge
 ## Token/transport telemetry offline implementation (Tasks 2–7)
 
 **Status:** `offline_implementation_pending_revision` — Codex tip `218c2fa` P1/P2
-recheck fixes applied in this revision (candidate validation enforcement, event-graph
-recompute, fixed-arm digests, mount/proxy transport observation, unsupported profile
-blocking, proof provenance authentication, token exposure). **Not** claiming
-`offline_implementation_accepted` until independent recheck. Not
-`resource_bounds_complete`, not `candidate_verified`, not seal, not RealLLM.
+recheck fixes remain under independent recheck. Follow-up closes CI openai
+install drift for MockTransport observation (fixture profile + explicit offline
+boundary; audited unsupported without boundary still refuses). **Not** claiming
+`offline_implementation_accepted`. Not `resource_bounds_complete`, not
+`candidate_verified`, not seal, not RealLLM.
 
 Honest external blockers remain open: HTTP/token bound admission, unaccepted provider
 model mapping, lockfile↔install drift. Gates must not be loosened to clear them.
@@ -195,34 +195,28 @@ No commit/push/seal/RealLLM under this grant.
 
 ```text
 $ export PATH="/home/ubuntu/.local/bin:$PATH"
-$ pytest tests/agent/test_provider_telemetry.py tests/agent/test_telemetry.py \
-    tests/agent/test_runtime_telemetry.py \
+$ PYTHONPATH=/tmp/openai322pkg:$PYTHONPATH python3 -c "import openai; print(openai.__version__)"
+3.22.1
+$ PYTHONPATH=/tmp/openai322pkg:$PYTHONPATH python3 -m pytest tests/agent/test_provider_telemetry.py -q
+12 passed
+
+$ python3 -m pytest tests/agent/test_provider_telemetry.py \
     tests/evaluation/planner_ablation/v2/test_resource_telemetry.py \
-    tests/evaluation/planner_ablation/v2/test_resource_budget.py \
     tests/evaluation/planner_ablation/v2/test_resource_candidate.py \
     tests/evaluation/planner_ablation/v2/test_offline_acceptance.py \
+    tests/evaluation/planner_ablation/v2/test_campaign.py \
     tests/app/test_planner_ablation_v2_adapter.py -q
-52 passed
-
-$ pytest tests/evaluation/planner_ablation tests/agent/test_real_llm_planner.py \
-    tests/evaluation/test_recording.py tests/test_architecture_boundaries.py -q
-(+ focused overlap) 326 passed total across required sets
-
-$ ruff check --no-cache src tests scripts
-All checks passed!
-
-$ mypy --no-incremental src
-Success: no issues found in 132 source files
+75 passed
 
 $ git diff --check
 (exit 0)
 ```
 
 Installed observation profile here: `openai==3.20.0` matches reviewed
-`RESOURCE_BOUNDS.md` digests (`ad8a3f77…`). CI may install a different
-`openai>=1.0` resolution; audited support then latches unsupported, while
-offline MockTransport fixture attach may still observe hooks without claiming
-reviewed capability.
+`RESOURCE_BOUNDS.md` digests. CI may resolve `openai>=1.0` to `3.22.1`; audited
+support then latches unsupported. Offline MockTransport tests attach only via
+`build_fixture_sdk_observation_profile()` plus
+`allow_fixture_offline_boundary=True`, and never claim reviewed capability.
 
 ### Remaining seal / budget blockers (honest)
 
@@ -261,6 +255,9 @@ Conditional SDK ceiling `57×28×3=4788` remains documentation/admission arithme
 ### Full offline schedule paths
 
 1. Existing 114-slot Scripted/fixed harness path — **unchanged**; product usage remains unknown; no resource-policy gate; zero real provider calls.
-2. Resource-policy harness path (when enabled) — exact `RealLLMPlanner` + offline native MockTransport; audited SDK profile required; remains `harness_only` / non-scored; zero real provider calls.
+2. Resource-policy harness path (when enabled) — Scripted/RecordingPlanner +
+   observers with unique schedule-slot digests; remains `harness_only` /
+   non-scored; zero real provider calls. MockTransport SDK observation uses the
+   fixture offline boundary, not an audited-supported claim.
 
 No `protocol_seal/` under `study_s1_planner_ablation_dev_2`. Evidence docs: existing names plus `RESOURCE_BOUNDS.md` only.

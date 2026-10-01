@@ -17,6 +17,7 @@ from signal_diag.agent.planner import (
 from signal_diag.agent.provider_telemetry import (
     attach_sdk_observation,
     build_audited_sdk_observation_profile,
+    build_fixture_sdk_observation_profile,
 )
 from signal_diag.agent.telemetry import (
     HttpSendEvent,
@@ -121,6 +122,22 @@ def _binding() -> tuple[TelemetryBinding, list[TelemetryEvent]]:
     return TelemetryBinding(slot_id="slot_provider", sink=events.append), events
 
 
+def _attach_offline_observation(client: Any, binding: TelemetryBinding) -> Any:
+    """MockTransport harness attach: fixture profile + explicit offline boundary.
+
+    Production audited support is a separate gate. Offline observation tests must
+    not collapse when the installed openai tuple drifts from RESOURCE_BOUNDS.
+    """
+    binding.allow_fixture_offline_boundary = True
+    profile = build_fixture_sdk_observation_profile()
+    return attach_sdk_observation(
+        client,
+        binding=binding,
+        profile=profile,
+        allow_fixture_offline_boundary=True,
+    )
+
+
 def _counts(events: list[TelemetryEvent]) -> dict[str, int]:
     return {
         "logical_call_count": sum(
@@ -151,9 +168,10 @@ async def test_retry_three_attempts_one_call() -> None:
         return httpx.Response(200, json=_chat_completion_body(content=_valid_decision_json()))
 
     binding, events = _binding()
-    profile = build_audited_sdk_observation_profile()
     client = _mock_client(handler)
-    attach_sdk_observation(client, binding=binding, profile=profile)
+    desc = _attach_offline_observation(client, binding)
+    assert desc.origin == "mock_native"
+    assert desc.profile_supported is False
     planner = RealLLMPlanner(
         provider="deepseek",
         api_key="k",
@@ -181,9 +199,8 @@ async def test_redirect_four_sends_one_sdk_attempt() -> None:
         return httpx.Response(200, json=_chat_completion_body(content=_valid_decision_json()))
 
     binding, events = _binding()
-    profile = build_audited_sdk_observation_profile()
     client = _mock_client(handler)
-    attach_sdk_observation(client, binding=binding, profile=profile)
+    _attach_offline_observation(client, binding)
     planner = RealLLMPlanner(
         provider="deepseek",
         api_key="k",
@@ -210,9 +227,8 @@ async def test_usage_survives_invalid_planner_json() -> None:
         )
 
     binding, events = _binding()
-    profile = build_audited_sdk_observation_profile()
     client = _mock_client(handler)
-    attach_sdk_observation(client, binding=binding, profile=profile)
+    _attach_offline_observation(client, binding)
     planner = RealLLMPlanner(
         provider="deepseek",
         api_key="k",
@@ -235,9 +251,8 @@ async def test_lost_response_has_unknown_usage() -> None:
         raise httpx.ReadError("connection lost after dispatch")
 
     binding, events = _binding()
-    profile = build_audited_sdk_observation_profile()
     client = _mock_client(handler)
-    attach_sdk_observation(client, binding=binding, profile=profile)
+    _attach_offline_observation(client, binding)
     planner = RealLLMPlanner(
         provider="deepseek",
         api_key="k",
@@ -313,9 +328,8 @@ async def test_observed_and_unobserved_sdk_requests_match() -> None:
 
     # Observed
     binding, _events = _binding()
-    profile = build_audited_sdk_observation_profile()
     client_b = _mock_client(handler)
-    attach_sdk_observation(client_b, binding=binding, profile=profile)
+    _attach_offline_observation(client_b, binding)
     planner_b = RealLLMPlanner(
         provider="deepseek",
         api_key="k",
@@ -392,7 +406,6 @@ async def test_mounted_transport_path_is_observed() -> None:
         return httpx.Response(200, json=_chat_completion_body(content=_valid_decision_json()))
 
     binding, events = _binding()
-    profile = build_audited_sdk_observation_profile()
     mount_transport = httpx.MockTransport(handler)
     # Default transport would miss; mount is the actual dispatch path.
     http_client = httpx.AsyncClient(
@@ -407,8 +420,9 @@ async def test_mounted_transport_path_is_observed() -> None:
         base_url="https://example.test/v1",
         http_client=http_client,
     )
-    desc = attach_sdk_observation(client, binding=binding, profile=profile)
-    assert desc.origin in {"canonical_sdk", "mock_native"}
+    desc = _attach_offline_observation(client, binding)
+    assert desc.origin == "mock_native"
+    assert desc.profile_supported is False
     planner = RealLLMPlanner(
         provider="deepseek",
         api_key="k",
@@ -422,6 +436,71 @@ async def test_mounted_transport_path_is_observed() -> None:
     ]
     assert len(bodies) == 1
     assert len(http_starts) >= 1
+
+
+@pytest.mark.asyncio
+async def test_audited_unsupported_without_boundary_does_not_observe() -> None:
+    """CI drift shape: audited profile unsupported must not silently observe."""
+    from dataclasses import replace
+
+    def _retry_handler() -> Any:
+        calls = {"n": 0}
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            calls["n"] += 1
+            if calls["n"] < 3:
+                return httpx.Response(500, json={"error": {"message": "boom"}})
+            return httpx.Response(
+                200, json=_chat_completion_body(content=_valid_decision_json())
+            )
+
+        return handler
+
+    audited = build_audited_sdk_observation_profile()
+    unsupported_audited = replace(
+        audited,
+        supported=False,
+        blockers=(
+            "openai_version_unsupported:3.22.1",
+            "openai_source_digest_drift_vs_reviewed",
+        ),
+    )
+    binding_blocked, events_blocked = _binding()
+    client_blocked = _mock_client(_retry_handler())
+    desc_blocked = attach_sdk_observation(
+        client_blocked,
+        binding=binding_blocked,
+        profile=unsupported_audited,
+    )
+    assert desc_blocked.origin == "unsupported"
+    assert binding_blocked.invalid is True
+    planner_blocked = RealLLMPlanner(
+        provider="deepseek",
+        api_key="k",
+        base_url="https://example.test/v1",
+        client=client_blocked,  # type: ignore[arg-type]
+    )
+    bind_planner_telemetry(planner_blocked, binding=binding_blocked)
+    await planner_blocked.decide(_context())
+    blocked_counts = _counts(events_blocked)
+    assert blocked_counts["sdk_attempt_count"] == 0
+    assert blocked_counts["http_send_attempt_count"] == 0
+
+    binding_ok, events_ok = _binding()
+    client_ok = _mock_client(_retry_handler())
+    desc_ok = _attach_offline_observation(client_ok, binding_ok)
+    assert desc_ok.origin == "mock_native"
+    planner_ok = RealLLMPlanner(
+        provider="deepseek",
+        api_key="k",
+        base_url="https://example.test/v1",
+        client=client_ok,  # type: ignore[arg-type]
+    )
+    bind_planner_telemetry(planner_ok, binding=binding_ok)
+    await planner_ok.decide(_context())
+    ok_counts = _counts(events_ok)
+    assert ok_counts["logical_call_count"] == 1
+    assert ok_counts["sdk_attempt_count"] == 3
 
 
 def test_unsupported_canonical_profile_does_not_attach_hooks() -> None:
