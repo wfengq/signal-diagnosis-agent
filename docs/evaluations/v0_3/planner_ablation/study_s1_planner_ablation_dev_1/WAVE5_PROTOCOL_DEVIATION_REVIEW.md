@@ -162,25 +162,26 @@ Product `single_signal` slots with `outcome=inconclusive`: **4/4** emitted
 `harmonic_attribution_requires_context`. Guidance presence is deterministic
 product behavior under D037, not planner skill.
 
-## Upgrade success (T-CX285 style denominators)
+## Upgrade path (descriptive paired-oracle matches only)
 
-Upgrade-relevant cases are those whose frozen single oracle differs from the
-paired oracle:
+This section reports a descriptive paired-oracle match rate on four
+cases selected by differences between the frozen mode-specific oracles.
+Both arms matched the paired oracle on 4/4 selected cases.
 
-`a4a0853be9983f8c`, `2be730b9113701de`, `6fb80bbda391c26c`, `aa9b4a91b0253c33`
-(pre-fixed population **N = 4**).
+Selected cases (post-hoc selection by single vs paired oracle difference):
 
-On this run, no candidate already satisfied the paired oracle on the single
-slot, so the conditional population is also **4**.
+`a4a0853be9983f8c`, `2be730b9113701de`, `6fb80bbda391c26c`, `aa9b4a91b0253c33`.
 
-| Arm | Conditional successes | Full pre-fixed | Conditional |
-|-----|----------------------:|---------------:|------------:|
-| product | 4 | 4/4 = 1.0 | 4/4 = 1.0 |
-| fixed | 4 | 4/4 = 1.0 | 4/4 = 1.0 |
+The seal did not explicitly preregister this upgrade-population selection
+rule. These figures are therefore not accepted as formal full-population
+or conditional upgrade-success estimates.
 
-Both arms unlock the paired oracle on every upgrade-relevant case. This is
-matching evidence for the upgrade path. It does not repair the timing-boundary
-defect that blocks formal dominance.
+Conditional eligibility requires independently established valid and
+sufficient in-protocol context. Failure to satisfy the paired oracle
+before upgrading does not establish that eligibility.
+
+These descriptive matches do not repair the timing-boundary defect that
+blocks formal dominance.
 
 ## P2 notes (non-blocking for this report)
 
@@ -210,7 +211,7 @@ grant.
 | Formal quality / usefulness / completion / safety arithmetic | Accepted as recomputation |
 | Mode-stratified 7/10 + 10/10 quality | Accepted |
 | Oracle defect analysis for three single misses | Accepted as review finding |
-| Upgrade full and conditional 4/4 both arms | Accepted as descriptive metrics |
+| Descriptive paired-oracle match 4/4 on four post-hoc-selected cases | Accepted as descriptive only; **not** formal upgrade success |
 | Machine enum `fixed_pipeline_dominance` | Retained as artifact only |
 | Protocol-conformant fixed-pipeline **dominance** | **Not accepted** |
 | Product planner replacement or gate softening | **Unauthorized** |
