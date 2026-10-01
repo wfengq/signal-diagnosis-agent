@@ -533,3 +533,42 @@ def test_unsupported_canonical_profile_does_not_attach_hooks() -> None:
     assert desc2.profile_supported is False
     assert desc2.origin == "mock_native"
     assert binding2.observation_descriptor is not None
+
+
+def test_mock_transport_is_never_canonical_sdk() -> None:
+    profile = build_audited_sdk_observation_profile()
+    binding, _events = _binding()
+    client = _mock_client(lambda request: httpx.Response(204))
+    desc = attach_sdk_observation(
+        client,
+        binding=binding,
+        profile=profile,
+        allow_fixture_offline_boundary=False,
+    )
+    assert desc.origin != "canonical_sdk"
+    if profile.supported:
+        assert desc.origin == "mock_native"
+        assert desc.profile_supported is False
+        assert desc.fixture_only is True
+
+
+@pytest.mark.asyncio
+async def test_same_transport_object_is_observed_once() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json=_chat_completion_body(content=_valid_decision_json()))
+
+    binding, events = _binding()
+    client = _mock_client(handler)
+    http_client = client._client
+    # Same object also exposed as the proxy transport. Observation must wrap it once.
+    http_client._proxy_transport = http_client._transport
+    _attach_offline_observation(client, binding)
+    planner = RealLLMPlanner(
+        provider="deepseek",
+        api_key="k",
+        base_url="https://example.test/v1",
+        client=client,  # type: ignore[arg-type]
+    )
+    bind_planner_telemetry(planner, binding=binding)
+    await planner.decide(_context())
+    assert _counts(events)["http_send_attempt_count"] == 1
