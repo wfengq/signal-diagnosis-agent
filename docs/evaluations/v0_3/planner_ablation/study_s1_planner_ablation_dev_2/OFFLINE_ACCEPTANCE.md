@@ -195,6 +195,39 @@ model mapping, lockfile↔install drift. Gates must not be loosened to clear the
 Observation defaults **off**. Public `RealLLMPlanner` constructors/payloads unchanged.
 No commit/push/seal/RealLLM under this grant.
 
+### P1C/P1E/P2 follow-up verification (this environment)
+
+```text
+$ python3 -m pytest tests/evaluation/planner_ablation/v2/test_resource_candidate.py \
+    tests/evaluation/planner_ablation/v2/test_resource_telemetry.py \
+    tests/evaluation/planner_ablation/v2/test_campaign.py \
+    tests/evaluation/planner_ablation/v2/test_resource_budget.py \
+    tests/evaluation/planner_ablation/v2/test_offline_acceptance.py \
+    tests/app/test_planner_ablation_v2_adapter.py \
+    tests/evaluation/planner_ablation/v2/test_sealing.py -q
+77 passed
+
+$ python3 -m ruff check src/signal_diag/evaluation/planner_ablation/v2/campaign.py \
+    src/signal_diag/evaluation/planner_ablation/v2/sealing.py \
+    src/signal_diag/evaluation/planner_ablation/v2/resource_telemetry.py \
+    src/signal_diag/evaluation/planner_ablation/v2/resource_models.py \
+    tests/evaluation/planner_ablation/v2/test_campaign.py \
+    tests/evaluation/planner_ablation/v2/test_resource_candidate.py \
+    tests/evaluation/planner_ablation/v2/test_resource_telemetry.py
+All checks passed
+
+$ python3 -m mypy --no-incremental src/signal_diag/evaluation/planner_ablation/v2/campaign.py \
+    src/signal_diag/evaluation/planner_ablation/v2/sealing.py \
+    src/signal_diag/evaluation/planner_ablation/v2/resource_telemetry.py \
+    src/signal_diag/evaluation/planner_ablation/v2/resource_models.py
+Success: no issues found in 4 source files
+
+$ git diff --check origin/cursor/s1-dev2-telemetry-impl-0d26...HEAD
+(exit 0)
+```
+
+Still `offline_implementation_pending_revision`. Codex recheck is still required.
+
 ### Revision verification (this environment)
 
 ```text
