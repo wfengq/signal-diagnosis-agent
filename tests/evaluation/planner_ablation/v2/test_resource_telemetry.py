@@ -467,3 +467,177 @@ def test_incomplete_send_coverage_keeps_exact_total_unknown() -> None:
     assert ledger.reported_usage_subtotal.total_tokens == 26
     assert ledger.exact_total_tokens is None
     assert any("incomplete_send_usage_coverage" in b for b in ledger.blockers)
+
+
+def _open_token_assessment(**overrides: object) -> ResourceAssessment:
+    payload: dict[str, object] = {
+        "planner_turn_ceiling": 4,
+        "sdk_attempt_factor": 1,
+        "http_send_factor": 1,
+        "http_send_ceiling": 2,
+        "sdk_attempt_ceiling_per_slot": 4,
+        "logical_call_ceiling": 4,
+        "execution_blocked": False,
+        "blockers": (),
+        "seal_ready": False,
+        "fixture_only": True,
+    }
+    payload.update(overrides)
+    return ResourceAssessment(**payload)  # type: ignore[arg-type]
+
+
+def _send_events(send_id: str, *, usage: dict[str, object] | None = None) -> tuple[dict[str, object], ...]:
+    events: list[dict[str, object]] = [
+        {
+            "kind": "http_send",
+            "phase": "start",
+            "correlation_id": send_id,
+            "send_id": send_id,
+        },
+        {
+            "kind": "http_send",
+            "phase": "end",
+            "correlation_id": send_id,
+            "send_id": send_id,
+            "outcome": "success" if usage is not None else "http_error",
+        },
+    ]
+    if usage is not None:
+        events.append(usage)
+    return tuple(events)
+
+
+def _counted_ledger(
+    events: tuple[dict[str, object], ...],
+    *,
+    exact_total_tokens: int | None,
+    potential_token_exposure: int | None = None,
+    reported: ReportedUsage | None = None,
+    incomplete: bool = True,
+    closed: bool = False,
+) -> SlotResourceLedger:
+    http_count = sum(
+        1
+        for event in events
+        if event.get("kind") == "http_send" and event.get("phase") == "start"
+    )
+    return SlotResourceLedger(
+        slot_key_digest="digest_token_slot",
+        run_id="run_token",
+        events=events,
+        planner_turn_count=0,
+        repair_attempt_count=0,
+        logical_call_count=0,
+        sdk_attempt_count=0,
+        http_send_attempt_count=http_count,
+        reported_usage_subtotal=reported,
+        exact_total_tokens=exact_total_tokens,
+        potential_token_exposure=potential_token_exposure,
+        worker_drained=True,
+        telemetry_invalid=False,
+        incomplete=incomplete,
+        closed=closed,
+    )
+
+
+def test_incomplete_send_with_unknown_token_ceiling_blocks_exposure() -> None:
+    ledger = _counted_ledger(_send_events("h1"), exact_total_tokens=None)
+    observation = aggregate_resource_ledger(
+        ledger,
+        assessment=_open_token_assessment(),
+    )
+    assert observation.potential_token_exposure is None
+    assert "unknown_token_exposure_for_incomplete_send" in observation.blockers
+
+
+def test_exposure_and_exact_usage_over_campaign_ceilings_block() -> None:
+    assessment = _open_token_assessment(
+        http_send_ceiling=1,
+        input_token_ceiling=10,
+        output_token_ceiling=10,
+    )
+    exposed = aggregate_resource_ledger(
+        _counted_ledger(
+            _send_events("h1") + _send_events("h2"),
+            exact_total_tokens=None,
+        ),
+        assessment=assessment,
+    )
+    assert exposed.potential_token_exposure == 40
+    assert "potential_token_exposure_exceeds_campaign_ceiling" in exposed.blockers
+
+    usage = {
+        "kind": "usage",
+        "status": "complete",
+        "send_id": "h1",
+        "prompt_tokens": 50,
+        "completion_tokens": 1,
+        "total_tokens": 51,
+    }
+    reported = ReportedUsage(prompt_tokens=50, completion_tokens=1, total_tokens=51)
+    over_usage = aggregate_resource_ledger(
+        _counted_ledger(
+            _send_events("h1", usage=usage),
+            exact_total_tokens=51,
+            reported=reported,
+            incomplete=False,
+            closed=True,
+        ),
+        assessment=assessment,
+    )
+    assert "input_token_ceiling_exceeded" in over_usage.blockers
+    assert "exact_token_total_exceeds_campaign_ceiling" in over_usage.blockers
+
+
+def test_campaign_totals_compare_reported_and_exact_tokens() -> None:
+    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+        ResourceObservation,
+    )
+    from signal_diag.evaluation.planner_ablation.v2.resource_telemetry import (
+        validate_campaign_resource_totals,
+    )
+
+    usage = ReportedUsage(prompt_tokens=80, completion_tokens=30, total_tokens=110)
+    observation = ResourceObservation(
+        planner_turn_count=1,
+        repair_attempt_count=0,
+        logical_call_count=1,
+        sdk_attempt_count=1,
+        http_send_attempt_count=1,
+        reported_usage_subtotal=usage,
+        exact_total_tokens=110,
+        acceptance_blocked=False,
+        incomplete=False,
+    )
+    assessment = _open_token_assessment(
+        input_token_ceiling=100,
+        output_token_ceiling=40,
+        http_send_ceiling=4,
+    )
+    blocked = validate_campaign_resource_totals(
+        [observation, observation],
+        assessment=assessment,
+    )
+    assert "campaign_input_token_ceiling_exceeded" in blocked
+    assert "campaign_output_token_ceiling_exceeded" in blocked
+    assert "campaign_exact_token_ceiling_exceeded" in blocked
+
+    within = ResourceObservation(
+        planner_turn_count=1,
+        repair_attempt_count=0,
+        logical_call_count=1,
+        sdk_attempt_count=1,
+        http_send_attempt_count=1,
+        reported_usage_subtotal=ReportedUsage(
+            prompt_tokens=10,
+            completion_tokens=5,
+            total_tokens=15,
+        ),
+        exact_total_tokens=15,
+        acceptance_blocked=False,
+        incomplete=False,
+    )
+    clear = validate_campaign_resource_totals([within], assessment=assessment)
+    assert "campaign_input_token_ceiling_exceeded" not in clear
+    assert "campaign_output_token_ceiling_exceeded" not in clear
+    assert "campaign_exact_token_ceiling_exceeded" not in clear

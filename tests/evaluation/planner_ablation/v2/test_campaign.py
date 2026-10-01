@@ -628,3 +628,178 @@ async def test_late_callback_prevents_next_slot() -> None:
     assert started == [_KEY_A]
     assert record.status == "resource_stopped"
     assert record.slot_records[1].status == "unstarted"
+
+
+class _DefaultObserverFixedSession(_ScriptedSession):
+    """Fixed-slot session whose snapshot keeps the observer default digest."""
+
+    def __init__(self, factory, observer) -> None:  # type: ignore[no-untyped-def]
+        super().__init__(factory)
+        self._observer = observer
+
+    def resource_snapshot(self, *, worker_drained: bool):
+        from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+            SlotResourceLedger,
+        )
+
+        snapshot = self._observer.resource_snapshot(worker_drained=worker_drained)
+        return SlotResourceLedger(
+            slot_key_digest=self._observer.slot_id,
+            run_id=getattr(snapshot, "run_id", None),
+            events=(),
+            planner_turn_count=0,
+            repair_attempt_count=0,
+            logical_call_count=0,
+            sdk_attempt_count=0,
+            http_send_attempt_count=0,
+            reported_usage_subtotal=None,
+            exact_total_tokens=0,
+            potential_token_exposure=0,
+            pending_event_ids=(),
+            worker_drained=worker_drained,
+            telemetry_invalid=False,
+            incomplete=False,
+            blockers=(),
+            closed=bool(worker_drained and getattr(snapshot, "run_id", None)),
+        )
+
+
+@pytest.mark.asyncio
+async def test_default_fixed_observers_do_not_share_slot_digest() -> None:
+    from signal_diag.app.planner_ablation_v2_adapter import StudyResourceObserver
+    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+        ResourceAssessment,
+    )
+
+    slots = (
+        SlotKey(request_key=_KEY_A, arm="fixed_pipeline", round_index=0),
+        SlotKey(request_key=_KEY_B, arm="fixed_pipeline", round_index=0),
+    )
+    schedule = _mini_schedule(slots=slots)
+    assessment = ResourceAssessment(
+        planner_turn_ceiling=28,
+        sdk_attempt_factor=1,
+        http_send_factor=1,
+        logical_call_ceiling=57,
+        sdk_attempt_ceiling=57,
+        sdk_attempt_ceiling_per_slot=28,
+        http_send_ceiling=57,
+        blockers=(),
+        execution_blocked=False,
+        seal_ready=False,
+        fixture_only=True,
+    )
+
+    async def factory(slot: SlotKey) -> _DefaultObserverFixedSession:
+        observer = StudyResourceObserver()
+        assert observer.slot_id == "slot"
+
+        def build(request: ByteRequest) -> StudyTerminal:
+            del request
+            terminal = _completed(slot).model_copy(
+                update={"run_id": f"run_{slot.request_key}"}
+            )
+            observer.associate_run_id(terminal.run_id)
+            return terminal
+
+        return _DefaultObserverFixedSession(build, observer)
+
+    record = await run_schedule(
+        schedule,
+        StudyProtocolV2(deadline_s=30.0),
+        factory,
+        execution_mode="offline",
+        wall_timeout=False,
+        resource_policy="planner_ablation_resource_v1",
+        resource_assessment=assessment,
+    )
+    attempted = [item for item in record.slot_records if item.resource_ledger is not None]
+    assert len(attempted) == 2
+    digests = [
+        str(item.resource_ledger["slot_key_digest"])  # type: ignore[index]
+        for item in attempted
+    ]
+    assert digests == [
+        f"{_KEY_A}:fixed_pipeline:0",
+        f"{_KEY_B}:fixed_pipeline:0",
+    ]
+    assert len(set(digests)) == 2
+
+
+class _CeilingObserverSession(_ScriptedSession):
+    def __init__(self, factory, observer) -> None:  # type: ignore[no-untyped-def]
+        super().__init__(factory)
+        self._observer = observer
+
+    def resource_snapshot(self, *, worker_drained: bool):
+        return self._observer.resource_snapshot(worker_drained=worker_drained)
+
+
+@pytest.mark.asyncio
+async def test_run_schedule_admits_per_send_token_ceilings_before_snapshot() -> None:
+    from signal_diag.agent.telemetry import HttpSendEvent
+    from signal_diag.app.planner_ablation_v2_adapter import StudyResourceObserver
+    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+        ResourceAssessment,
+    )
+
+    slots = (SlotKey(request_key=_KEY_A, arm="product_agent", round_index=0),)
+    schedule = _mini_schedule(slots=slots)
+    observer = StudyResourceObserver()
+    assert observer.admitted_per_send_input_tokens is None
+    assert observer.admitted_per_send_output_tokens is None
+    binding = observer.make_binding()
+    binding.sink(  # type: ignore[operator]
+        HttpSendEvent(
+            sequence_id="hs",
+            correlation_id="http_0",
+            phase="start",
+            send_id="http_0",
+            monotonic_s=0.0,
+        )
+    )
+    binding.sink(  # type: ignore[operator]
+        HttpSendEvent(
+            sequence_id="he",
+            correlation_id="http_0",
+            phase="end",
+            send_id="http_0",
+            outcome="http_error",
+            status_code=500,
+            monotonic_s=0.1,
+        )
+    )
+    assessment = ResourceAssessment(
+        planner_turn_ceiling=4,
+        sdk_attempt_factor=1,
+        http_send_factor=1,
+        http_send_ceiling=2,
+        input_token_ceiling=200,
+        output_token_ceiling=100,
+        execution_blocked=False,
+        blockers=(),
+        seal_ready=False,
+        fixture_only=True,
+    )
+
+    async def factory(slot: SlotKey) -> _CeilingObserverSession:
+        def build(request: ByteRequest) -> StudyTerminal:
+            del request
+            terminal = _completed(slot)
+            observer.associate_run_id(terminal.run_id)
+            return terminal
+
+        return _CeilingObserverSession(build, observer)
+
+    record = await run_schedule(
+        schedule,
+        StudyProtocolV2(deadline_s=30.0),
+        factory,
+        execution_mode="offline",
+        wall_timeout=False,
+        resource_policy="planner_ablation_resource_v1",
+        resource_assessment=assessment,
+    )
+    ledger = record.slot_records[0].resource_ledger
+    assert ledger is not None
+    assert ledger["potential_token_exposure"] == 150

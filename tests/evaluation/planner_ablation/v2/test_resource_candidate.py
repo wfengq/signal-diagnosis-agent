@@ -122,3 +122,232 @@ def test_invalid_resource_extension_prefix_is_rejected_by_startswith() -> None:
     assert result.ready is False
     assert any(r.startswith("invalid_resource_extension") for r in result.reasons)
     assert "invalid_resource_extension" not in result.reasons
+
+
+def _file_sha256(relative: str) -> str:
+    import hashlib
+
+    return hashlib.sha256((PROJECT_ROOT / relative).read_bytes()).hexdigest()
+
+
+def _candidate_with_proof_reference(
+    reference: str,
+    digest: str,
+    *,
+    capability_updates: dict[str, object] | None = None,
+    provider_updates: dict[str, object] | None = None,
+) -> CandidateManifestV2:
+    from signal_diag.evaluation.planner_ablation.v2.campaign import (
+        snapshot_effective_configuration,
+    )
+    from signal_diag.evaluation.planner_ablation.v2.models import LabelReviewResult
+    from signal_diag.evaluation.planner_ablation.v2.resource_budget import (
+        assess_resource_budget,
+    )
+    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+        BoundFact,
+        ObservationCapability,
+        ProviderLimitsBinding,
+        ResourceCandidateExtension,
+        ResourceProofBundle,
+        SdkProfileAudit,
+    )
+
+    fact = BoundFact(
+        name="planner_turn_ceiling",
+        value=28,
+        unit="planner_turns_per_slot",
+        origin="control_flow_proof",
+        applicable_path="runtime",
+        proof_digest=digest,
+        code_identity="b" * 64,
+        dependency_identity="openai==3.20.0",
+        acceptance_reference=reference,
+        scope="admitted",
+    )
+    sdk = SdkProfileAudit(
+        openai_version="3.20.0",
+        openai_source_digest="c" * 64,
+        native_http_family="httpx",
+        native_http_version="0.28.1",
+        httpcore_version="1.0.9",
+        source_file_digests={"openai/_base_client.py": "d" * 64},
+        max_retries_default=2,
+        sdk_attempts_per_call=3,
+        prepare_options_hook="AsyncAPIClient._prepare_options",
+        send_request_hook="AsyncAPIClient._send_request",
+        native_dispatch_hook="httpx.AsyncClient.send",
+        supported=True,
+        fixture_only=True,
+    )
+    provider = ProviderLimitsBinding(
+        endpoint_origin="https://api.deepseek.com",
+        requested_model="deepseek-v4-flash",
+        declared_route="deepseek-v4.1-flash",
+        source_date="2026-10-01",
+        source_digest="2" * 64,
+        token_limit_scope="unknown",
+        authentication_mode="bearer_api_key",
+        model_mapping_accepted=False,
+        fixture_only=True,
+    )
+    proofs = ResourceProofBundle(
+        planner_turn_ceiling=fact,
+        sdk_profile=sdk,
+        provider_limits=provider,
+        fixture_only=True,
+    )
+    capability = ObservationCapability(
+        telemetry_schema="planner_ablation_telemetry_v1",
+        resource_policy="planner_ablation_resource_v1",
+        sdk_profile=sdk,
+        observes_planner_turns=True,
+        observes_repairs=True,
+        observes_sdk_attempts=True,
+        observes_http_sends=True,
+        observes_usage=True,
+        offline_evidence_digest="1" * 64,
+        fixture_only=True,
+    )
+    assessment = assess_resource_budget(
+        snapshot_effective_configuration(),
+        proofs,
+        capability,
+    )
+    extension = ResourceCandidateExtension(
+        resource_policy="planner_ablation_resource_v1",
+        telemetry_schema="planner_ablation_telemetry_v1",
+        proofs=proofs,
+        capability=capability,
+        assessment=assessment,
+        provider_dependency_identity="openai==3.20.0",
+        label_review_digest="e" * 64,
+        label_population_digest="f" * 64,
+        code_identity="a" * 64,
+        extension_digest="9" * 64,
+        fixture_only=True,
+    )
+    payload = extension.model_dump(mode="json")
+    if capability_updates:
+        payload["capability"].update(capability_updates)
+    if provider_updates:
+        payload["proofs"]["provider_limits"].update(provider_updates)
+    return CandidateManifestV2.model_construct(
+        resource_extension=payload,
+        label_review=LabelReviewResult(approved=False),
+        effective_configuration=snapshot_effective_configuration(),
+    )
+
+
+def test_free_form_proof_reference_is_not_authenticated() -> None:
+    result = validate_resource_candidate(
+        _candidate_with_proof_reference("operator_note_not_a_file", "a" * 64),
+        repository_root=PROJECT_ROOT,
+    )
+    assert result.ready is False
+    assert (
+        "proof_acceptance_reference_not_repo_path:planner_turn_ceiling"
+        in result.reasons
+        or "missing_proof_acceptance_file:planner_turn_ceiling" in result.reasons
+        or any(
+            reason.startswith("proof_acceptance_path")
+            and reason.endswith("planner_turn_ceiling")
+            for reason in result.reasons
+        )
+    )
+
+
+def test_repo_proof_reference_must_match_file_bytes() -> None:
+    wrong = validate_resource_candidate(
+        _candidate_with_proof_reference("docs/README.md", "a" * 64),
+        repository_root=PROJECT_ROOT,
+    )
+    assert wrong.ready is False
+    assert "proof_acceptance_content_mismatch:planner_turn_ceiling" in wrong.reasons
+
+    matched = validate_resource_candidate(
+        _candidate_with_proof_reference(
+            "docs/README.md",
+            _file_sha256("docs/README.md"),
+        ),
+        repository_root=PROJECT_ROOT,
+    )
+    assert matched.ready is False
+    assert "proof_acceptance_content_mismatch:planner_turn_ceiling" not in matched.reasons
+    assert (
+        "proof_acceptance_reference_not_repo_path:planner_turn_ceiling"
+        not in matched.reasons
+    )
+    assert "missing_proof_acceptance_file:planner_turn_ceiling" not in matched.reasons
+
+
+def test_non_fixture_offline_evidence_requires_repo_file() -> None:
+    forged = validate_resource_candidate(
+        _candidate_with_proof_reference(
+            "docs/README.md",
+            _file_sha256("docs/README.md"),
+            capability_updates={
+                "fixture_only": False,
+                "offline_evidence_reference": "operator_note_not_a_file",
+                "offline_evidence_digest": "1" * 64,
+            },
+        ),
+        repository_root=PROJECT_ROOT,
+    )
+    assert forged.ready is False
+    assert "unauthenticated_offline_evidence" in forged.reasons
+    assert not any(
+        reason.startswith("invalid_resource_extension") for reason in forged.reasons
+    )
+
+    digest = _file_sha256("docs/README.md")
+    matched = validate_resource_candidate(
+        _candidate_with_proof_reference(
+            "docs/README.md",
+            digest,
+            capability_updates={
+                "fixture_only": False,
+                "offline_evidence_reference": "docs/README.md",
+                "offline_evidence_digest": digest,
+            },
+        ),
+        repository_root=PROJECT_ROOT,
+    )
+    assert matched.ready is False
+    assert "unauthenticated_offline_evidence" not in matched.reasons
+
+
+def test_non_fixture_provider_limits_source_requires_repo_file() -> None:
+    forged = validate_resource_candidate(
+        _candidate_with_proof_reference(
+            "docs/README.md",
+            _file_sha256("docs/README.md"),
+            provider_updates={
+                "fixture_only": False,
+                "source_reference": "operator_note_not_a_file",
+                "source_digest": "2" * 64,
+            },
+        ),
+        repository_root=PROJECT_ROOT,
+    )
+    assert forged.ready is False
+    assert "unauthenticated_provider_limits_source" in forged.reasons
+    assert not any(
+        reason.startswith("invalid_resource_extension") for reason in forged.reasons
+    )
+
+    digest = _file_sha256("docs/README.md")
+    matched = validate_resource_candidate(
+        _candidate_with_proof_reference(
+            "docs/README.md",
+            digest,
+            provider_updates={
+                "fixture_only": False,
+                "source_reference": "docs/README.md",
+                "source_digest": digest,
+            },
+        ),
+        repository_root=PROJECT_ROOT,
+    )
+    assert matched.ready is False
+    assert "unauthenticated_provider_limits_source" not in matched.reasons
