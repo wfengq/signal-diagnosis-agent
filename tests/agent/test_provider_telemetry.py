@@ -123,11 +123,6 @@ def _binding() -> tuple[TelemetryBinding, list[TelemetryEvent]]:
 
 
 def _attach_offline_observation(client: Any, binding: TelemetryBinding) -> Any:
-    """MockTransport harness attach: fixture profile + explicit offline boundary.
-
-    Production audited support is a separate gate. Offline observation tests must
-    not collapse when the installed openai tuple drifts from RESOURCE_BOUNDS.
-    """
     binding.allow_fixture_offline_boundary = True
     profile = build_fixture_sdk_observation_profile()
     return attach_sdk_observation(
@@ -440,7 +435,6 @@ async def test_mounted_transport_path_is_observed() -> None:
 
 @pytest.mark.asyncio
 async def test_audited_unsupported_without_boundary_does_not_observe() -> None:
-    """CI drift shape: audited profile unsupported must not silently observe."""
     from dataclasses import replace
 
     def _retry_handler() -> Any:
@@ -478,7 +472,7 @@ async def test_audited_unsupported_without_boundary_does_not_observe() -> None:
         provider="deepseek",
         api_key="k",
         base_url="https://example.test/v1",
-        client=client_blocked,  # type: ignore[arg-type]
+        client=client_blocked,
     )
     bind_planner_telemetry(planner_blocked, binding=binding_blocked)
     await planner_blocked.decide(_context())
@@ -494,7 +488,7 @@ async def test_audited_unsupported_without_boundary_does_not_observe() -> None:
         provider="deepseek",
         api_key="k",
         base_url="https://example.test/v1",
-        client=client_ok,  # type: ignore[arg-type]
+        client=client_ok,
     )
     bind_planner_telemetry(planner_ok, binding=binding_ok)
     await planner_ok.decide(_context())
