@@ -240,7 +240,7 @@ On default offline snapshot (`snapshot_effective_configuration()` + `inspect_lim
 | Field | Current | Can flip from this audit alone? |
 |-------|---------|----------------------------------|
 | `execution_blocked` | `true` | **No** — `unknown_max_tokens_bound`, `unavailable_retry_telemetry`, `unknown_input_token_bound`, `unknown_output_token_bound` remain. |
-| `seal_ready` | `false` (hardcoded in `inspect_limits`; also requires complete token worst-case via `compute_seal_readiness`) | **No** — token bounds and retry telemetry still missing; label review also still pending per `OFFLINE_ACCEPTANCE.md`. |
+| `seal_ready` | `false` (hardcoded in `inspect_limits`; also requires complete token worst-case via `compute_seal_readiness`) | **No** — token bounds and retry telemetry still missing. Label review is separately recorded as approved in `LABEL_REVIEW.md` / `OFFLINE_ACCEPTANCE.md` and does not clear these budget blockers. |
 
 Optional study-side population of SDK timeout / transport / planner-call / SDK-version fields into `EffectiveConfiguration` would clear **some** blockers without product behavior change, but **cannot** clear token or retry-telemetry blockers without either:
 
