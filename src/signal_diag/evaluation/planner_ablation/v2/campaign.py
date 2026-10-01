@@ -637,6 +637,8 @@ async def run_schedule(
     verified_seal_digest: str | None = None,
     authorization_reference: str | None = None,
     wall_timeout: bool = True,
+    resource_policy: str | None = None,
+    resource_assessment: object | None = None,
 ) -> CampaignRecord:
     """Execute the frozen schedule sequentially with typed failure accounting.
 
@@ -663,6 +665,7 @@ async def run_schedule(
     status: CampaignStatus = "completed"
     stopped_after: SlotKey | None = None
     limitations: list[str] = []
+    resource_path = resource_policy == "planner_ablation_resource_v1"
 
     for index, slot in enumerate(schedule.slots):
         if stopped_after is not None:
@@ -692,7 +695,58 @@ async def run_schedule(
             clock=tick,
             wall_timeout_s=wall_timeout_s,
         )
+        resource_ledger = None
+        resource_observation = None
+        resource_stop_reason = None
+        resource_stop = False
         telemetry = collect_resource_telemetry(terminal)
+        if resource_path:
+            from signal_diag.evaluation.planner_ablation.v2.resource_telemetry import (
+                aggregate_resource_ledger,
+                project_legacy_resource_telemetry,
+            )
+
+            snapshot_fn = getattr(session, "resource_snapshot", None)
+            if snapshot_fn is None:
+                resource_stop = True
+                resource_stop_reason = "missing_resource_snapshot_capability"
+                limitations.append(resource_stop_reason)
+            else:
+                ledger = snapshot_fn(worker_drained=not drain_failed and not _session_background_worker_alive(session))
+                resource_ledger = ledger.model_dump(mode="json")
+                if resource_assessment is None:
+                    resource_stop = True
+                    resource_stop_reason = "missing_resource_assessment"
+                else:
+                    observation = aggregate_resource_ledger(
+                        ledger, assessment=resource_assessment  # type: ignore[arg-type]
+                    )
+                    resource_observation = observation.model_dump(mode="json")
+                    if observation.acceptance_blocked or not ledger.closed:
+                        resource_stop = True
+                        resource_stop_reason = (
+                            observation.blockers[0]
+                            if observation.blockers
+                            else "resource_ledger_incomplete"
+                        )
+                    projected = project_legacy_resource_telemetry(
+                        observation,
+                        tool_call_count=len(terminal.tool_history),
+                        rule_evaluation_count=sum(
+                            len(batch.evaluations)
+                            for batch in terminal.rule_evaluation_batches
+                        ),
+                        fixed_zero_use=(
+                            slot.arm == "fixed_pipeline"
+                            and observation.exact_total_tokens == 0
+                        ),
+                    )
+                    telemetry = ResourceTelemetry(
+                        **projected,  # type: ignore[arg-type]
+                        credentials_redacted=True,
+                        raw_waveform_persisted=False,
+                        raw_fft_persisted=False,
+                    )
         slot_status: Literal["completed", "failed"]
         if terminal.status == "completed":
             slot_status = "completed"
@@ -704,12 +758,33 @@ async def run_schedule(
             attempt_count=1,
             terminal=terminal,
             resource_telemetry=telemetry,
+            resource_ledger=resource_ledger,
+            resource_observation=resource_observation,
+            resource_stop_reason=resource_stop_reason,
             teardown_duration_s=teardown_duration,
             teardown_error=teardown_error,
             drain_failed=drain_failed,
-            stop_campaign=stop_campaign,
+            stop_campaign=stop_campaign or resource_stop,
         )
         records.append(attempt)
+
+        if resource_stop:
+            status = "resource_stopped"
+            stopped_after = slot
+            limitations.append(
+                f"resource_stopped_after_slot_index={index}:{slot.arm}:{slot.round_index}"
+            )
+            if resource_stop_reason:
+                limitations.append(resource_stop_reason)
+            for remaining in schedule.slots[index + 1 :]:
+                records.append(
+                    SlotAttemptRecord(
+                        slot_key=remaining,
+                        status="unstarted",
+                        attempt_count=0,
+                    )
+                )
+            break
 
         if stop_campaign or drain_failed:
             status = "infrastructure_stopped"
@@ -734,7 +809,7 @@ async def run_schedule(
         raise RuntimeError("campaign failed to cover full schedule")
 
     attempted = sum(1 for item in records if item.attempt_count == 1)
-    completed = sum(1 for item in records if item.status == "completed")
+    completed = sum(1 for item in records if item.attempt_count == 1 and item.status == "completed")
     failed = sum(1 for item in records if item.status == "failed")
     unstarted = sum(1 for item in records if item.status == "unstarted")
     accepted = status == "completed" and unstarted == 0
@@ -752,6 +827,7 @@ async def run_schedule(
         stopped_after=stopped_after,
         accepted_conclusion_available=accepted,
         budget_assessment=budget_assessment,
+        resource_policy=resource_policy,
         schedule_order_preserved=True,
         campaign_retry_policy="forbidden",
         limitations=tuple(limitations),

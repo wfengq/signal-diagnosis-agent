@@ -43,6 +43,9 @@ from signal_diag.evaluation.planner_ablation.v2.population import (
     load_proposed_scenarios,
     normalize_question,
 )
+from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+    ResourceCandidateValidation,
+)
 
 _CHECKSUM_LINE = "{digest}  {name}\n"
 _DEV1_STUDY_ID = "study_s1_planner_ablation_dev_1"
@@ -77,6 +80,7 @@ _DEPENDENCY_NAMES = (
     "PyYAML",
     "fastapi",
     "httpx",
+    "openai",
 )
 _EXCLUDED_SUFFIXES = frozenset({".pyc", ".pyo"})
 _EXCLUDED_NAME_PARTS = ("__pycache__", ".git")
@@ -879,6 +883,121 @@ def verify_manifest(
         code_identity=candidate.code_identity,
         construction_path="verify_manifest",
         pinned_causal_policy="v9_11_mode_aware_no_fault_recovery",
+        resource_policy=(
+            str(candidate.resource_extension.get("resource_policy"))
+            if isinstance(candidate.resource_extension, dict)
+            and candidate.resource_extension.get("resource_policy")
+            else None
+        ),
+        resource_extension=candidate.resource_extension,
+    )
+
+
+def validate_resource_candidate(
+    candidate: CandidateManifestV2,
+    *,
+    repository_root: Path,
+) -> ResourceCandidateValidation:
+    """Recompute resource proofs/readiness without SDK client construction or seal writes."""
+    from signal_diag.evaluation.planner_ablation.v2.resource_budget import (
+        assess_resource_budget,
+    )
+    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+        ResourceCandidateExtension,
+    )
+
+    reasons: list[str] = []
+    extension_raw = candidate.resource_extension
+    if extension_raw is None:
+        return ResourceCandidateValidation(
+            ready=False,
+            reasons=("missing_resource_extension",),
+            assessment=None,
+            recomputed_extension_digest=None,
+            fixture_only=True,
+        )
+    try:
+        extension = ResourceCandidateExtension.model_validate(extension_raw)
+    except Exception as error:  # noqa: BLE001
+        return ResourceCandidateValidation(
+            ready=False,
+            reasons=(f"invalid_resource_extension:{type(error).__name__}",),
+            assessment=None,
+            recomputed_extension_digest=None,
+            fixture_only=True,
+        )
+
+    if extension.resource_policy != "planner_ablation_resource_v1":
+        reasons.append("resource_policy_mismatch")
+    if extension.telemetry_schema != "planner_ablation_telemetry_v1":
+        reasons.append("telemetry_schema_mismatch")
+    if extension.fixture_only:
+        reasons.append("fixture_only_resource_extension")
+
+    # Label review must bind approved population; caller booleans are insufficient.
+    if not candidate.label_review.approved:
+        reasons.append("label_review_not_approved")
+    label_digest = _digest_payload(candidate.label_review.model_dump(mode="json"))
+    if label_digest != extension.label_review_digest:
+        reasons.append("label_review_digest_mismatch")
+
+    bindings = collect_code_bindings(repository_root.resolve())
+    if bindings.aggregate_code_identity != extension.code_identity:
+        reasons.append("code_identity_mismatch")
+    if "openai" not in bindings.dependency_versions:
+        reasons.append("missing_openai_dependency_binding")
+    elif extension.provider_dependency_identity not in {
+        f"openai=={bindings.dependency_versions['openai']}",
+        bindings.dependency_versions["openai"],
+    }:
+        reasons.append("provider_dependency_identity_mismatch")
+
+    config = candidate.effective_configuration or EffectiveConfiguration()
+    assessment = assess_resource_budget(
+        config,
+        extension.proofs,
+        extension.capability,
+    )
+    if assessment.execution_blocked:
+        reasons.extend(assessment.blockers)
+        reasons.append("resource_assessment_blocked")
+    if assessment.model_dump(mode="json") != extension.assessment.model_dump(mode="json"):
+        reasons.append("assessment_recompute_mismatch")
+
+    recomputed_digest = _digest_payload(
+        {
+            "resource_policy": extension.resource_policy,
+            "telemetry_schema": extension.telemetry_schema,
+            "proofs": extension.proofs.model_dump(mode="json"),
+            "capability": extension.capability.model_dump(mode="json"),
+            "assessment": assessment.model_dump(mode="json"),
+            "provider_dependency_identity": extension.provider_dependency_identity,
+            "label_review_digest": extension.label_review_digest,
+            "label_population_digest": extension.label_population_digest,
+            "code_identity": extension.code_identity,
+        }
+    )
+    if recomputed_digest != extension.extension_digest:
+        reasons.append("extension_digest_mismatch")
+
+    # Production readiness never trusts make_complete_budget_assessment fixtures.
+    if (
+        candidate.budget_assessment is not None
+        and candidate.budget_assessment.seal_ready
+        and candidate.budget_assessment.blockers == ()
+    ):
+        # Still require resource assessment independently; fixture completeness
+        # alone never authorizes production readiness.
+        pass
+
+    unique = tuple(dict.fromkeys(reasons))
+    ready = len(unique) == 0 and not assessment.execution_blocked
+    return ResourceCandidateValidation(
+        ready=ready,
+        reasons=unique,
+        assessment=assessment,
+        recomputed_extension_digest=recomputed_digest,
+        fixture_only=extension.fixture_only,
     )
 
 

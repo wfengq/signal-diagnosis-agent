@@ -1286,6 +1286,8 @@ _V03_ADDITIVE_EXACT_PATHS = frozenset(
         "src/signal_diag/agent/planner.py",
         "src/signal_diag/agent/models.py",
         "src/signal_diag/agent/state.py",
+        "src/signal_diag/agent/telemetry.py",
+        "src/signal_diag/agent/provider_telemetry.py",
         "src/signal_diag/app/composition.py",
         "src/signal_diag/dsp/__init__.py",
         "src/signal_diag/dsp/contextual.py",
@@ -1294,6 +1296,7 @@ _V03_ADDITIVE_EXACT_PATHS = frozenset(
         "src/signal_diag/dsp/harmonics.py",
         "src/signal_diag/dsp/models.py",
         "src/signal_diag/evaluation/runner.py",
+        "src/signal_diag/evaluation/recording.py",
         "src/signal_diag/evaluation/external/reference_harmonics.py",
         "src/signal_diag/dsp/clipping.py",
         "src/signal_diag/tools/contracts.py",
@@ -1701,4 +1704,5 @@ def test_t_cx301_dev1_reproducer_and_evidence_root_untouched() -> None:
         "OFFLINE_ACCEPTANCE.md",
         "LABEL_REVIEW.md",
         "BUDGET_BOUNDS.md",
+        "RESOURCE_BOUNDS.md",
     }

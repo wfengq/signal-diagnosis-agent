@@ -173,8 +173,26 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
         d038_dev2["current_implementation_sha256"]
     )
     assert d038_snapshot["current_implementation_sha256"] == (
-        contextual_implementation_sha256()
+        "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3"
     )
-    assert d038_snapshot["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert d038_snapshot["product_tree_sha256"] == (
+        "7b9299d22c1a0103f81731624cec9ccc0be05eac6370f5c24ae68f23b19d34b3"
+    )
     assert d038_snapshot["prompt_sha256"] == oq014["prompt_sha256"]
     assert d038_snapshot["model_calls"] == 0
+    d038_telemetry = next(
+        row
+        for row in rows
+        if row["amendment_id"]
+        == "d038_planner_ablation_dev_2_token_transport_telemetry"
+    )
+    assert d038_telemetry["amendment_kind"] == "append_only_code_identity"
+    assert d038_telemetry["prior_bridge_current_implementation_sha256"] == (
+        d038_snapshot["current_implementation_sha256"]
+    )
+    assert d038_telemetry["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d038_telemetry["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert d038_telemetry["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d038_telemetry["model_calls"] == 0

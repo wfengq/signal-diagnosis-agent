@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import threading
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
@@ -12,7 +13,12 @@ from signal_diag.agent.models import (
     StructuredDiagnosis,
     TaskAssessment,
 )
-from signal_diag.agent.planner import PlannerModel
+from signal_diag.agent.planner import (
+    PlannerModel,
+    RealLLMPlanner,
+    bind_planner_telemetry,
+)
+from signal_diag.agent.telemetry import TelemetryBinding, TelemetryEvent
 from signal_diag.app.contextual_models import ContextualAppRunSnapshot
 from signal_diag.app.service import (
     ApplicationDependencies,
@@ -133,23 +139,209 @@ def _failure_kind_for_execute_error(error: BaseException) -> _ExecuteFailureKind
 
 @dataclass
 class StudyResourceObserver:
-    """Study-owned observer. Does not alter product return data, retries, or payloads."""
+    """Per-slot collector. Factory diagnostics stay separate from turn/call counts."""
 
+    slot_id: str = "slot"
+    max_events: int = 10_000
     records: list[ResourceTelemetry] = field(default_factory=list)
     planner_factory_calls: int = 0
+    _events: list[object] = field(default_factory=list)
+    _lock: threading.Lock = field(default_factory=threading.Lock)
+    _invalid: bool = False
+    _invalid_reasons: list[str] = field(default_factory=list)
+    _run_id: str | None = None
+    _binding: TelemetryBinding | None = None
 
     def note_planner_factory_call(self) -> None:
         self.planner_factory_calls += 1
 
+    def make_binding(self) -> TelemetryBinding:
+        def sink(event: TelemetryEvent) -> None:
+            with self._lock:
+                if len(self._events) >= self.max_events:
+                    self._invalid = True
+                    if "telemetry_buffer_overflow" not in self._invalid_reasons:
+                        self._invalid_reasons.append("telemetry_buffer_overflow")
+                    return
+                self._events.append(event)
+
+        binding = TelemetryBinding(
+            slot_id=self.slot_id,
+            sink=sink,
+            max_events=self.max_events,
+        )
+        self._binding = binding
+        return binding
+
+    def associate_run_id(self, run_id: str | None) -> None:
+        if run_id is None:
+            return
+        if self._run_id is not None and self._run_id != run_id:
+            self._invalid = True
+            self._invalid_reasons.append("conflicting_run_id")
+            return
+        self._run_id = run_id
+
     def observe_terminal(self, terminal: StudyTerminal) -> ResourceTelemetry:
         telemetry = collect_resource_telemetry(terminal)
-        # Factory invocations are study-side construction counts, not provider calls.
         if self.planner_factory_calls and telemetry.planner_call_count is None:
-            # Still leave planner_call_count unknown: factory ≠ runtime planner turns.
             pass
         self.records.append(telemetry)
         return telemetry
 
+    def resource_snapshot(self, *, worker_drained: bool) -> object:
+        from signal_diag.agent.telemetry import (
+            HttpSendEvent,
+            LogicalCallEvent,
+            PlannerTurnEvent,
+            RepairEvent,
+            SdkAttemptEvent,
+            UsageObservation,
+        )
+        from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+            ReportedUsage,
+            SlotResourceLedger,
+        )
+        from signal_diag.evaluation.planner_ablation.v2.resource_telemetry import (
+            sum_reported_usage,
+        )
+
+        with self._lock:
+            events = list(self._events)
+            invalid = self._invalid
+            reasons = list(self._invalid_reasons)
+            run_id = self._run_id
+            binding = self._binding
+
+        if binding is not None and getattr(binding, "invalid", False):
+            invalid = True
+            reasons.extend(getattr(binding, "invalid_reasons", []))
+
+        pending: list[str] = []
+        starts: dict[str, str] = {}
+        ends: set[str] = set()
+        for event in events:
+            kind = getattr(event, "kind", None)
+            phase = getattr(event, "phase", None)
+            seq = getattr(event, "sequence_id", "")
+            if phase == "start":
+                corr = getattr(event, "correlation_id", seq)
+                starts[corr] = kind or ""
+            elif phase == "end":
+                corr = getattr(event, "correlation_id", seq)
+                ends.add(corr)
+
+        for corr, kind in starts.items():
+            if corr not in ends:
+                pending.append(corr)
+                invalid = True
+                reasons.append(f"missing_end:{kind}:{corr}")
+
+        # Detect duplicate phase for same correlation.
+        seen_phase: set[tuple[str, str]] = set()
+        for event in events:
+            phase = getattr(event, "phase", None)
+            corr = getattr(event, "correlation_id", None)
+            if phase and corr:
+                key = (corr, phase)
+                if key in seen_phase:
+                    invalid = True
+                    reasons.append(f"duplicate_phase:{corr}:{phase}")
+                seen_phase.add(key)
+
+        turn_count = sum(
+            1 for e in events if isinstance(e, PlannerTurnEvent) and e.phase == "start"
+        )
+        repair_count = sum(1 for e in events if isinstance(e, RepairEvent))
+        logical_count = sum(
+            1 for e in events if isinstance(e, LogicalCallEvent) and e.phase == "start"
+        )
+        sdk_count = sum(
+            1 for e in events if isinstance(e, SdkAttemptEvent) and e.phase == "start"
+        )
+        http_count = sum(
+            1 for e in events if isinstance(e, HttpSendEvent) and e.phase == "start"
+        )
+
+        usages: list[ReportedUsage] = []
+        usage_complete = True
+        usage_events = [e for e in events if isinstance(e, UsageObservation)]
+        if not usage_events and logical_count > 0:
+            usage_complete = False
+            reasons.append("missing_usage_observations")
+        for usage in usage_events:
+            if usage.status != "complete":
+                usage_complete = False
+                reasons.append(f"usage_{usage.status}")
+                continue
+            if (
+                usage.prompt_tokens is None
+                or usage.completion_tokens is None
+                or usage.total_tokens is None
+            ):
+                usage_complete = False
+                reasons.append("usage_incomplete_fields")
+                continue
+            try:
+                usages.append(
+                    ReportedUsage(
+                        prompt_tokens=usage.prompt_tokens,
+                        completion_tokens=usage.completion_tokens,
+                        total_tokens=usage.total_tokens,
+                    )
+                )
+            except Exception:  # noqa: BLE001
+                invalid = True
+                usage_complete = False
+                reasons.append("usage_validation_failed")
+
+        subtotal = sum_reported_usage(usages)
+        exact_total = (
+            subtotal.total_tokens
+            if usage_complete and subtotal is not None and not pending and worker_drained
+            else None
+        )
+        if (
+            logical_count == 0
+            and turn_count >= 0
+            and worker_drained
+            and not pending
+            and not usage_events
+        ):
+            # Fixed / no-provider path may have zero usage with complete ledger.
+            exact_total = 0 if turn_count == 0 else exact_total
+
+        incomplete = (not worker_drained) or bool(pending) or (not usage_complete and logical_count > 0)
+        closed = worker_drained and not pending and not incomplete and not invalid
+        unique_reasons = tuple(dict.fromkeys(reasons))
+        serialized_events = tuple(
+            {
+                "kind": getattr(e, "kind", None),
+                "phase": getattr(e, "phase", None),
+                "sequence_id": getattr(e, "sequence_id", None),
+                "correlation_id": getattr(e, "correlation_id", None),
+            }
+            for e in events
+        )
+        return SlotResourceLedger(
+            slot_key_digest=self.slot_id,
+            run_id=run_id,
+            events=serialized_events,
+            planner_turn_count=turn_count,
+            repair_attempt_count=repair_count,
+            logical_call_count=logical_count,
+            sdk_attempt_count=sdk_count,
+            http_send_attempt_count=http_count,
+            reported_usage_subtotal=subtotal,
+            exact_total_tokens=exact_total,
+            potential_token_exposure=None,
+            pending_event_ids=tuple(pending),
+            worker_drained=worker_drained,
+            telemetry_invalid=invalid,
+            incomplete=incomplete,
+            blockers=unique_reasons,
+            closed=closed,
+        )
 
 def _map_guidance(guidance: object | None) -> StudyContextGuidanceView | None:
     if guidance is None:
@@ -297,6 +489,16 @@ class ProductArmSession:
                 executed_planner_class == _APPROVED_PRODUCT_PLANNER_CLASS
                 and getattr(planner, "_client", None) is not None
             )
+            if self._observer is not None:
+                target: object = planner
+                # RecordingPlanner forwards via property; bind the inner exact planner.
+                inner = getattr(planner, "_planner", None)
+                if type(inner) is RealLLMPlanner:
+                    target = inner
+                if type(target) is RealLLMPlanner and getattr(
+                    target, "_planner_telemetry_binding", None
+                ) is None:
+                    bind_planner_telemetry(target, binding=self._observer.make_binding())
             return planner
 
         self._service._dependencies = replace(
@@ -328,6 +530,8 @@ class ProductArmSession:
             )
             markers.append(_phase_marker(self._clock, "execution", self._phase_advances))
             snapshot = await self._service.wait_for_contextual_terminal(submission.run_id)
+            if self._observer is not None:
+                self._observer.associate_run_id(submission.run_id)
             markers[-1] = PhaseMarker(
                 phase="execution",
                 started_at=markers[-1].started_at,
@@ -417,6 +621,11 @@ class ProductArmSession:
     async def aclose(self) -> None:
         if self._owns_service_lifecycle:
             await self._service.aclose()
+
+    def resource_snapshot(self, *, worker_drained: bool) -> object:
+        if self._observer is None:
+            raise AttributeError("resource_snapshot unavailable without observer")
+        return self._observer.resource_snapshot(worker_drained=worker_drained)
 
 
 def _task_assessment_from_diagnosis(
@@ -616,6 +825,35 @@ class FixedArmSession:
 
     async def aclose(self) -> None:
         return None
+
+    def resource_snapshot(self, *, worker_drained: bool) -> object:
+        from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+            ReportedUsage,
+            SlotResourceLedger,
+        )
+
+        # Fixed arm has no provider path; audited zero-use when drained.
+        return SlotResourceLedger(
+            slot_key_digest="fixed",
+            run_id=None,
+            events=(),
+            planner_turn_count=0,
+            repair_attempt_count=0,
+            logical_call_count=0,
+            sdk_attempt_count=0,
+            http_send_attempt_count=0,
+            reported_usage_subtotal=ReportedUsage(
+                prompt_tokens=0, completion_tokens=0, total_tokens=0
+            ),
+            exact_total_tokens=0,
+            potential_token_exposure=0,
+            pending_event_ids=(),
+            worker_drained=worker_drained,
+            telemetry_invalid=False,
+            incomplete=not worker_drained,
+            blockers=() if worker_drained else ("worker_not_drained",),
+            closed=worker_drained,
+        )
 
 
 def build_product_arm_session(

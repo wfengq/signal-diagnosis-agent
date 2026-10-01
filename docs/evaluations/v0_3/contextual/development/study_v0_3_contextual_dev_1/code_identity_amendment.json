@@ -244,5 +244,22 @@
     "calibration_recompute_unchanged": true,
     "selected_threshold_percent_unchanged": 5.0,
     "model_calls": 0
+  },
+  {
+    "amendment_id": "d038_planner_ablation_dev_2_token_transport_telemetry",
+    "amendment_kind": "append_only_code_identity",
+    "created_at_utc": "2026-10-01T13:30:00+00:00",
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "product_tree_sha256": "d61adea9f5a2dd2c9f29bd28b5426a2fb8d6e3ffe5b80659da4403b112ce2690",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "scope": "D038 token/transport telemetry offline implementation: default-off agent telemetry.py and provider_telemetry.py; RealLLMPlanner/runtime Observation binding; RecordingPlanner forwarding; app StudyResourceObserver resource ledgers; evaluation resource_models/budget/telemetry and resource_stopped campaign/prerequisite gates; no seal, RealLLM, product request caps, or frozen V0.2 contract mutation",
+    "qualification_recompute_unchanged": true,
+    "calibration_recompute_unchanged": true,
+    "selected_threshold_percent_unchanged": 5.0,
+    "model_calls": 0
   }
 ]

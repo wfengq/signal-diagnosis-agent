@@ -25,6 +25,15 @@ from .prompts import (
     _PlannerPromptSpec,
 )
 from .prompts_v03 import _S1_PROMPT_V9_11
+from .telemetry import (
+    CallOutcome,
+    LogicalCallEvent,
+    PlannerTurnEvent,
+    SdkObservationProfile,
+    TelemetryBinding,
+    TurnOutcome,
+    emit_safely,
+)
 
 # DeepSeek V4 Flash official API model ID (OpenAI-compatible endpoint).
 DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
@@ -389,6 +398,9 @@ class RealLLMPlanner:
         self._base_url = base_url
         self._model = model
         self._client = client
+        # Opt-in observation; default remains unbound / off.
+        self._planner_telemetry_binding: TelemetryBinding | None = None
+        self._telemetry_decide_active: bool = False
 
     @property
     def prompt_version(self) -> str:
@@ -406,16 +418,69 @@ class RealLLMPlanner:
         self,
         context: PlannerContext,
     ) -> AgentDecision:
-        if self._provider is None:
-            raise PlannerOutputError(
-                "RealLLMPlanner is not configured: no LLM provider selected. "
-                "Set provider credentials before running real-model evaluation."
+        binding = self._planner_telemetry_binding
+        turn_id = ""
+        correlation_id = ""
+        if binding is not None:
+            turn_id = binding.new_id("turn")
+            correlation_id = turn_id
+            self._telemetry_decide_active = True
+            emit_safely(
+                binding,
+                PlannerTurnEvent(
+                    sequence_id=binding.new_id("seq"),
+                    correlation_id=correlation_id,
+                    phase="start",
+                    turn_id=turn_id,
+                    monotonic_s=binding.clock(),
+                ),
             )
-        if self._provider != "deepseek":
-            raise PlannerOutputError(
-                f"RealLLMPlanner provider {self._provider!r} is not implemented"
-            )
-        return await self._decide_deepseek(context)
+        outcome: TurnOutcome = "unknown"
+        logical_submitted = False
+        try:
+            if self._provider is None:
+                outcome = "configuration_error"
+                raise PlannerOutputError(
+                    "RealLLMPlanner is not configured: no LLM provider selected. "
+                    "Set provider credentials before running real-model evaluation."
+                )
+            if self._provider != "deepseek":
+                outcome = "configuration_error"
+                raise PlannerOutputError(
+                    f"RealLLMPlanner provider {self._provider!r} is not implemented"
+                )
+            decision = await self._decide_deepseek(context)
+            outcome = "success"
+            logical_submitted = True
+            return decision
+        except PlannerOutputError as error:
+            if outcome == "unknown":
+                outcome = "planner_output_error"
+            # Configuration errors never submit a logical completion.
+            if "not configured" in str(error) or "not implemented" in str(error):
+                logical_submitted = False
+            else:
+                logical_submitted = True
+            raise
+        except BaseException:
+            if outcome == "unknown":
+                outcome = "unknown"
+            raise
+        finally:
+            if binding is not None:
+                emit_safely(
+                    binding,
+                    PlannerTurnEvent(
+                        sequence_id=binding.new_id("seq"),
+                        correlation_id=correlation_id,
+                        phase="end",
+                        turn_id=turn_id,
+                        monotonic_s=binding.clock(),
+                        outcome=outcome,
+                        logical_completion_submitted=logical_submitted,
+                    ),
+                )
+                self._telemetry_decide_active = False
 
     async def _decide_deepseek(self, context: PlannerContext) -> AgentDecision:
         api_key, base_url, model = _resolve_deepseek_config(
@@ -423,31 +488,133 @@ class RealLLMPlanner:
             base_url=self._base_url,
             model=self._model,
         )
+        binding = self._planner_telemetry_binding
+        profile = None
+        if binding is not None:
+            from .provider_telemetry import build_audited_sdk_observation_profile
+
+            profile = build_audited_sdk_observation_profile()
         client = self._client or _create_async_openai_client(
             api_key=api_key,
             base_url=base_url,
+            binding=binding,
+            profile=profile,
         )
-        response = await client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": self._prompt_spec.system_prompt},
-                {
-                    "role": "user",
-                    "content": _build_user_message(
-                        context,
-                        prompt_version=self.prompt_version,
+        call_id = ""
+        correlation_id = ""
+        if binding is not None:
+            call_id = binding.new_id("call")
+            correlation_id = call_id
+            emit_safely(
+                binding,
+                LogicalCallEvent(
+                    sequence_id=binding.new_id("seq"),
+                    correlation_id=correlation_id,
+                    phase="start",
+                    turn_id=binding.current_turn_id or "",
+                    call_id=call_id,
+                    monotonic_s=binding.clock(),
+                    parent_id=binding.current_turn_id,
+                ),
+            )
+        call_outcome: CallOutcome = "unknown"
+        try:
+            response = await client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": self._prompt_spec.system_prompt},
+                    {
+                        "role": "user",
+                        "content": _build_user_message(
+                            context,
+                            prompt_version=self.prompt_version,
+                        ),
+                    },
+                ],
+                response_format=_deepseek_response_format(),
+                temperature=0.0,
+                extra_body={"thinking": {"type": "disabled"}},
+            )
+            if binding is not None:
+                from .provider_telemetry import emit_usage_from_response
+
+                emit_usage_from_response(binding, response)
+            message = response.choices[0].message
+            raw_content = message.content
+            if not raw_content:
+                call_outcome = "empty_content"
+                raise PlannerOutputError("planner returned empty content")
+            try:
+                decision = _parse_agent_decision(raw_content)
+            except PlannerOutputError:
+                call_outcome = "invalid_json"
+                raise
+            call_outcome = "success"
+            return decision
+        except PlannerOutputError:
+            raise
+        except BaseException:
+            if call_outcome == "unknown":
+                call_outcome = "transport_error"
+            raise
+        finally:
+            if binding is not None and call_id:
+                emit_safely(
+                    binding,
+                    LogicalCallEvent(
+                        sequence_id=binding.new_id("seq"),
+                        correlation_id=correlation_id,
+                        phase="end",
+                        turn_id=binding.current_turn_id or "",
+                        call_id=call_id,
+                        monotonic_s=binding.clock(),
+                        outcome=call_outcome,
+                        parent_id=binding.current_turn_id,
                     ),
-                },
-            ],
-            response_format=_deepseek_response_format(),
-            temperature=0.0,
-            extra_body={"thinking": {"type": "disabled"}},
-        )
-        message = response.choices[0].message
-        raw_content = message.content
-        if not raw_content:
-            raise PlannerOutputError("planner returned empty content")
-        return _parse_agent_decision(raw_content)
+                )
+
+
+def bind_planner_telemetry(
+    planner: RealLLMPlanner,
+    *,
+    binding: TelemetryBinding,
+) -> None:
+    """Bind opt-in observation to an idle exact RealLLMPlanner instance."""
+    if type(planner) is not RealLLMPlanner:
+        raise TypeError("bind_planner_telemetry requires an exact RealLLMPlanner")
+    if planner._telemetry_decide_active:
+        raise RuntimeError("cannot bind telemetry while decide() is active")
+    if planner._planner_telemetry_binding is not None:
+        raise RuntimeError("planner telemetry binding already set")
+    planner._planner_telemetry_binding = binding
+
+
+def _create_async_openai_client(
+    *,
+    api_key: str,
+    base_url: str,
+    binding: TelemetryBinding | None = None,
+    profile: SdkObservationProfile | None = None,
+) -> _ChatClient:
+    try:
+        from openai import AsyncOpenAI  # type: ignore[import-not-found]
+    except ImportError as error:
+        raise PlannerOutputError(
+            "RealLLMPlanner requires the optional llm dependency. "
+            "Install with: pip install 'signal-diagnosis-agent[llm]'"
+        ) from error
+    # Unobserved callers keep the historical two-argument construction path.
+    if binding is None and profile is None:
+        return AsyncOpenAI(api_key=api_key, base_url=base_url)
+    client = AsyncOpenAI(api_key=api_key, base_url=base_url)
+    if binding is not None and profile is not None:
+        from .provider_telemetry import attach_sdk_observation
+
+        attach_sdk_observation(client, binding=binding, profile=profile)
+    elif binding is not None and profile is None:
+        # Binding without an audited profile is allowed for turn/call events only.
+        pass
+    return client
 
 
 class _Phase4V4RealLLMPlanner(RealLLMPlanner):
@@ -472,14 +639,3 @@ class _Phase4V8RealLLMPlanner(RealLLMPlanner):
 
 class _Phase4V8_1RealLLMPlanner(RealLLMPlanner):
     _prompt_spec: ClassVar[_PlannerPromptSpec] = _S1_PROMPT_V8_1
-
-
-def _create_async_openai_client(*, api_key: str, base_url: str) -> _ChatClient:
-    try:
-        from openai import AsyncOpenAI  # type: ignore[import-not-found]
-    except ImportError as error:
-        raise PlannerOutputError(
-            "RealLLMPlanner requires the optional llm dependency. "
-            "Install with: pip install 'signal-diagnosis-agent[llm]'"
-        ) from error
-    return AsyncOpenAI(api_key=api_key, base_url=base_url)

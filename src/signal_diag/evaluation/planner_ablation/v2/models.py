@@ -445,6 +445,7 @@ class PrerequisiteReport(BaseModel):
     fixed_safety_ok: bool
     positive_claims_evaluable: bool
     pinned_gate_identity_ok: bool
+    resource_observation_ok: bool | None = None
     reason_codes: tuple[str, ...] = ()
     all_passed: bool
 
@@ -480,13 +481,20 @@ class VerifiedStudyV2(BaseModel):
     pinned_causal_policy: Literal["v9_11_mode_aware_no_fault_recovery"] = (
         "v9_11_mode_aware_no_fault_recovery"
     )
+    resource_policy: str | None = None
+    resource_extension: dict[str, object] | None = None
 
 
 # --- Task 5: campaign execution, limits, resource telemetry (study-only) ---
 
 PRODUCT_SLOT_COUNT_V2: Literal[57] = 57
 SlotAttemptStatus = Literal["unstarted", "attempted", "completed", "failed"]
-CampaignStatus = Literal["completed", "infrastructure_stopped", "blocked"]
+CampaignStatus = Literal[
+    "completed",
+    "infrastructure_stopped",
+    "blocked",
+    "resource_stopped",
+]
 ExecutionMode = Literal["offline", "online"]
 AUDITED_AGENT_LIMIT_DEFAULTS: dict[str, int] = {
     "max_tool_calls": 8,
@@ -572,6 +580,9 @@ class SlotAttemptRecord(BaseModel):
     attempt_count: int = Field(ge=0, le=1)
     terminal: StudyTerminal | None = None
     resource_telemetry: ResourceTelemetry | None = None
+    resource_ledger: dict[str, object] | None = None
+    resource_observation: dict[str, object] | None = None
+    resource_stop_reason: str | None = None
     teardown_duration_s: float | None = None
     teardown_error: str | None = None
     drain_failed: bool = False
@@ -608,6 +619,7 @@ class CampaignRecord(BaseModel):
     stopped_after: SlotKey | None = None
     accepted_conclusion_available: bool = False
     budget_assessment: BudgetAssessment | None = None
+    resource_policy: str | None = None
     schedule_order_preserved: bool = True
     campaign_retry_policy: Literal["forbidden"] = "forbidden"
     limitations: tuple[str, ...] = ()
@@ -696,6 +708,7 @@ class CandidateManifestV2(BaseModel):
     operator_authorization_references: tuple[str, ...] = ()
     effective_configuration: EffectiveConfiguration | None = None
     budget_assessment: BudgetAssessment | None = None
+    resource_extension: dict[str, object] | None = None
     question: str = Field(min_length=1, max_length=2_000)
     channel: ChannelPolicy = "mixdown"
     segment_policy: SegmentPolicy = "full_signal"

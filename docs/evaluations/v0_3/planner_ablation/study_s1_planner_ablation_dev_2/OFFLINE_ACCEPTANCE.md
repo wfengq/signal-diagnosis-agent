@@ -175,3 +175,53 @@ A future seal candidate must bind: unique-request schedule + aliases; scenario/s
 ---
 
 Task 7 offline implementation merged via PR #18. Post-merge label review + budget audit recorded under operator grant (2026-10-01). No real seal created. No RealLLM run.
+
+## Token/transport telemetry offline implementation (Tasks 2–7)
+
+**Status:** `offline_implementation_accepted` for observation/validation under the
+audited OpenAI Python **3.20.0** / httpx profile — **not** `resource_bounds_complete`,
+**not** `candidate_verified`, **not** seal, **not** RealLLM.
+
+Observation defaults **off**. Public `RealLLMPlanner` constructors/payloads unchanged.
+No commit/push/seal/RealLLM under this grant.
+
+### Remaining seal / budget blockers (honest)
+
+| Blocker | Status |
+|---------|--------|
+| `unproved_http_send_bound` | open — no admitted HTTP factor `H` |
+| `unproven_failed_attempt_token_bound` | open — context capacity ≠ failed-attempt exposure |
+| `unknown_input_token_bound` / `unknown_output_token_bound` | open |
+| `unaccepted_provider_model_mapping` | open — legacy `deepseek-v4-flash` route unaccepted |
+| Lockfile `openai==3.6.0` vs installed `3.20.0` | recorded drift; re-bind at seal time |
+| Legacy `inspect_limits` explicit-flag path | still `execution_blocked=True` |
+
+Conditional SDK ceiling `57×28×3=4788` remains documentation/admission arithmetic only.
+
+### T-CX303–T-CX318 → tests mapping
+
+| ID | Owning tests |
+|----|--------------|
+| T-CX303 | `tests/evaluation/planner_ablation/v2/test_resource_budget.py` |
+| T-CX304 | `test_resource_budget.py`; `tests/agent/test_provider_telemetry.py` |
+| T-CX305 | `test_resource_budget.py`; sealing resource validation |
+| T-CX306 | `tests/agent/test_telemetry.py`; `test_provider_telemetry.py`; `test_real_llm_planner.py` |
+| T-CX307 | `test_runtime_telemetry.py`; `test_telemetry.py`; adapter observer |
+| T-CX308 | `test_runtime_telemetry.py` |
+| T-CX309 | `test_provider_telemetry.py` (`test_retry_three_attempts_one_call`) |
+| T-CX310 | `test_provider_telemetry.py` (`test_redirect_four_sends_one_sdk_attempt`) |
+| T-CX311 | `test_provider_telemetry.py` (`test_lost_response_has_unknown_usage`) |
+| T-CX312 | `test_resource_telemetry.py`; `test_provider_telemetry.py` |
+| T-CX313 | `test_resource_telemetry.py`; campaign resource_stopped path |
+| T-CX314 | adapter/campaign drain + observer isolation |
+| T-CX315 | sealing/offline acceptance resource negative cases |
+| T-CX316 | `test_resource_budget.py` |
+| T-CX317 | `validate_resource_candidate` / sealing tests |
+| T-CX318 | offline schedule paths; architecture whitelist includes `RESOURCE_BOUNDS.md` only |
+
+### Full offline schedule paths
+
+1. Existing 114-slot Scripted/fixed harness path — **unchanged**; product usage remains unknown; no resource-policy gate; zero real provider calls.
+2. Resource-policy harness path (when enabled) — exact `RealLLMPlanner` + offline native MockTransport; audited SDK profile required; remains `harness_only` / non-scored; zero real provider calls.
+
+No `protocol_seal/` under `study_s1_planner_ablation_dev_2`. Evidence docs: existing names plus `RESOURCE_BOUNDS.md` only.

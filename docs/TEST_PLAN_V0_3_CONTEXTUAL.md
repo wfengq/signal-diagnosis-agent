@@ -31,6 +31,7 @@
 | T-CX231..240 | v9.10 contextual clipping recovery |
 | T-CX276..288 | D038 planner-ablation utility study (definitions; harness gated) |
 | T-CX289..302 | D038 protocol revision / study_s1_planner_ablation_dev_2 (definitions; seal/RealLLM gated) |
+| T-CX303..318 | D038 token/transport telemetry / study_s1_planner_ablation_dev_2 (definitions; seal/RealLLM gated) |
 
 ## Registered identities (Task 1)
 
@@ -231,6 +232,22 @@
 | T-CX300 | Full input/code/seal binding; readonly verify; generation refuses existing populated and empty destinations; foreign identity and mutated bindings fail. |
 | T-CX301 | Dev_1 reproducer and preserved assets unchanged; `evaluation` must not import app composition; public product builder/default and historical contextual baseline unchanged. |
 | T-CX302 | Full offline schedule acceptance with fail-on-call provider spy (zero calls); review_status remains pending; no formal seal or RealLLM during offline acceptance. |
+| T-CX303 | Honest origins/default flags; unknown and legacy gates remain blocked. |
+| T-CX304 | Actual SDK/native transport/source identity; dependency drift rejected. |
+| T-CX305 | Requested/declared/returned model policy and acceptance binding. |
+| T-CX306 | Observation on/off preserves payload, planner type, diagnosis and exception behavior. |
+| T-CX307 | Actual turns/calls, no factory/wrapper double counts; conditional control-flow ceiling. |
+| T-CX308 | All parse/reject budget-consumption events; SDK retries are separate. |
+| T-CX309 | 500/500/200 attempt trace and usage before planner parsing. |
+| T-CX310 | Redirect/send/authentication/lower-transport units and bounds. |
+| T-CX311 | Failure/cancellation/lost-response observations and unknown tokens. |
+| T-CX312 | Strict usage validation, subdivisions and missing data. |
+| T-CX313 | Incomplete/invalid ledger, partial totals and bound violations. |
+| T-CX314 | Slot isolation, late callbacks and real worker drain. |
+| T-CX315 | Fixture/Scripted/fake/native-mock/forged-context ingestion rejection. |
+| T-CX316 | Derived SDK/HTTP/token budgets and fail-closed unknown factors. |
+| T-CX317 | Full candidate/review/proof/code/dependency binding; no synthetic shortcuts. |
+| T-CX318 | Offline schedule, zero live calls, historical/package preservation. |
 
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
@@ -291,3 +308,18 @@ protocol seal, RealLLM campaign, product changes, and commit/push/merge remain
 separately gated. They must not alter §19 / `dev_1` meanings, frozen V0.2
 §§1–64, sealed v9.11 identities, DSP thresholds, or the product planner
 default.
+T-CX303–T-CX318 are additive definitions for D038 token/transport telemetry
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §21; study `study_s1_planner_ablation_dev_2`).
+Registering these IDs does not implement or pass the behaviors. They preserve
+T-CX299's requirement for actual resource telemetry; ceiling-only estimates
+are not a substitute. Later T285 additive paths for this feature are exactly
+`src/signal_diag/agent/telemetry.py`,
+`src/signal_diag/agent/provider_telemetry.py`, and
+`src/signal_diag/evaluation/recording.py`. Unsealed evidence may add only
+`RESOURCE_BOUNDS.md` under the `dev_2` study root; `protocol_seal/` remains
+forbidden. Offline observation, source-aware admission, architecture allowlist
+edits, formal seal, RealLLM, concrete numeric budget acceptance,
+provider-model mapping acceptance, product request caps, and commit/push/merge
+remain separately gated. They must not alter §19 / §20 / `dev_1` meanings,
+T-CX001–T-CX302 definitions, frozen V0.2 §§1–64, sealed v9.11 identities, DSP
+thresholds, or the product planner default.

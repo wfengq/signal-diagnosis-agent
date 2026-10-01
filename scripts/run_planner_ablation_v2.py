@@ -176,9 +176,11 @@ def _run_online_refusal(args: argparse.Namespace, output_dir: Path) -> dict[str,
             },
         )
         raise
-    raise CampaignPreflightError(
-        "online mode passed preflight unexpectedly; refusing to construct network client"
-    )
+        raise CampaignPreflightError(
+            "online mode passed preflight unexpectedly; refusing to construct "
+            "network client (resource-policy production generation requires a "
+            "later grant; unresolved resource blockers remain)"
+        )
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -23,6 +23,7 @@ from signal_diag.evaluation.planner_ablation.v2.models import (
     PINNED_CAUSAL_POLICY_V2,
     ArmModeRoundCell,
     ArmModeTotals,
+    CampaignRecord,
     DescriptiveAcrossRoundSummary,
     GuidanceCell,
     LabelReviewResult,
@@ -790,6 +791,8 @@ def calculate_metrics(
 def evaluate_prerequisites(
     study: VerifiedStudyV2,
     records: Sequence[StudyTerminal],
+    *,
+    campaign: CampaignRecord | None = None,
 ) -> PrerequisiteReport:
     """Derive matching/safety/completeness; fail closed with reason codes."""
     reasons: list[str] = []
@@ -922,6 +925,46 @@ def evaluate_prerequisites(
                 reasons.append("provenance_rejected")
                 break
 
+    resource_observation_ok: bool | None = None
+    if study.resource_policy == "planner_ablation_resource_v1":
+        resource_observation_ok = False
+        if campaign is None:
+            reasons.append("resource_campaign_missing")
+        elif campaign.resource_policy != "planner_ablation_resource_v1":
+            reasons.append("resource_policy_mismatch")
+        elif len(campaign.slot_records) != len(study.schedule.slots):
+            reasons.append("resource_slot_coverage_mismatch")
+        else:
+            ok = True
+            for slot_record in campaign.slot_records:
+                if slot_record.status == "unstarted":
+                    # Resource stop may leave trailing unstarted slots; still fail.
+                    ok = False
+                    reasons.append("resource_unstarted_slots")
+                    break
+                obs = slot_record.resource_observation
+                ledger = slot_record.resource_ledger
+                if obs is None or ledger is None:
+                    ok = False
+                    reasons.append("resource_ledger_missing")
+                    break
+                if obs.get("acceptance_blocked") or ledger.get("incomplete") or ledger.get(
+                    "telemetry_invalid"
+                ):
+                    ok = False
+                    reasons.append("resource_observation_blocked")
+                    break
+                if not ledger.get("closed"):
+                    ok = False
+                    reasons.append("resource_ledger_not_closed")
+                    break
+            if campaign.status == "resource_stopped":
+                ok = False
+                reasons.append("resource_stopped")
+            resource_observation_ok = ok
+        if resource_observation_ok is False and "resource_observation_failed" not in reasons:
+            reasons.append("resource_observation_failed")
+
     # Deduplicate reason codes while preserving order.
     seen: set[str] = set()
     unique_reasons: list[str] = []
@@ -944,6 +987,7 @@ def evaluate_prerequisites(
         and fixed_safety_ok
         and positive_claims_evaluable
         and pinned_gate_identity_ok
+        and (resource_observation_ok is not False)
     )
     return PrerequisiteReport(
         identity_ok=identity_ok,
@@ -956,6 +1000,7 @@ def evaluate_prerequisites(
         fixed_safety_ok=fixed_safety_ok,
         positive_claims_evaluable=positive_claims_evaluable,
         pinned_gate_identity_ok=pinned_gate_identity_ok,
+        resource_observation_ok=resource_observation_ok,
         reason_codes=tuple(unique_reasons),
         all_passed=all_passed,
     )
