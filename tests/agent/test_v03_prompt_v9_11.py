@@ -140,6 +140,41 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert d038["current_implementation_sha256"] == (
         contextual_implementation_sha256()
     )
-    assert d038["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert d038["product_tree_sha256"] == (
+        "7dec1d095144ea44468c1d531c7ef0af52b363f684b446291a654404a3be120f"
+    )
     assert d038["prompt_sha256"] == oq014["prompt_sha256"]
     assert d038["model_calls"] == 0
+    d038_dev2 = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d038_planner_ablation_protocol_revision_dev_2"
+    )
+    assert d038_dev2["amendment_kind"] == "append_only_code_identity"
+    assert d038_dev2["prior_bridge_current_implementation_sha256"] == (
+        d038["current_implementation_sha256"]
+    )
+    assert d038_dev2["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d038_dev2["product_tree_sha256"] == (
+        "18221d0936e667e44c38275bdb0e36e54bf74e4b6c58d6dfc82b607299925de6"
+    )
+    assert d038_dev2["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d038_dev2["model_calls"] == 0
+    d038_snapshot = next(
+        row
+        for row in rows
+        if row["amendment_id"]
+        == "d038_planner_ablation_dev_2_snapshot_failure_classification"
+    )
+    assert d038_snapshot["amendment_kind"] == "append_only_code_identity"
+    assert d038_snapshot["prior_bridge_current_implementation_sha256"] == (
+        d038_dev2["current_implementation_sha256"]
+    )
+    assert d038_snapshot["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d038_snapshot["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert d038_snapshot["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d038_snapshot["model_calls"] == 0

@@ -1590,3 +1590,110 @@ def test_t285_phase5_cumulative_contract_is_registered() -> None:
     assert not frozen_hits, "frozen Phase 1–4.3.1 paths drifted:\n" + "\n".join(
         frozen_hits
     )
+
+
+# ---------------------------------------------------------------------------
+# T-CX301: planner-ablation v2 preservation and evaluation ↛ app
+# ---------------------------------------------------------------------------
+
+_PLANNER_ABLATION_V2_BASELINE = "8962747ade7052584f3ddcd25e50ad42992273cc"
+_V2_PRESERVED_DIGESTS: dict[str, str] = {
+    "src/signal_diag/app/composition.py": (
+        "578ced2aa3341a634ec6108a8a5c228623f4614610d154d3ace4cedb3b443fe3"
+    ),
+    "src/signal_diag/evaluation/contextual/baseline.py": (
+        "324af058471ecb89537ce6e1760fae7fecfdc259262e3e5834911f2b1a0edfd0"
+    ),
+    (
+        "docs/evaluations/v0_3/planner_ablation/"
+        "study_s1_planner_ablation_dev_1/protocol_seal/manifest.json"
+    ): "2c6e0914f72feffdd6a9bf0d854c83a73562d69d4d7be113e95df08fca1ca0dc",
+    (
+        "docs/evaluations/v0_3/planner_ablation/"
+        "study_s1_planner_ablation_dev_1/protocol_seal/seal_meta.json"
+    ): "ac513bc99e71f8dfaa725d9bba2c93915f7bd934bb78ae49557d27c4935a3032",
+    (
+        "docs/evaluations/v0_3/planner_ablation/"
+        "study_s1_planner_ablation_dev_1/protocol_seal/seal.sha256"
+    ): "2388b52db40d090f14c110f5ba74ec02aeb7fc0afff76524e8c5b58300e57de6",
+}
+
+
+def test_t_cx301_planner_ablation_v2_evaluation_does_not_import_app() -> None:
+    """T-CX301: evaluation/planner_ablation/v2 must not import app composition."""
+    root = SRC_ROOT / "evaluation" / "planner_ablation" / "v2"
+    assert root.is_dir()
+    violations: list[str] = []
+    for path in sorted(root.rglob("*.py")):
+        hits = _imports_app(_modules_imported_from(path))
+        violations.extend(
+            f"{path.relative_to(PROJECT_ROOT)} imports {module}" for module in hits
+        )
+    # Parent planner_ablation package (non-v2) also remains app-free.
+    parent = SRC_ROOT / "evaluation" / "planner_ablation"
+    for path in sorted(parent.glob("*.py")):
+        hits = _imports_app(_modules_imported_from(path))
+        violations.extend(
+            f"{path.relative_to(PROJECT_ROOT)} imports {module}" for module in hits
+        )
+    assert not violations, "planner_ablation must not import app:\n" + "\n".join(
+        violations
+    )
+
+
+def test_t_cx301_public_product_builder_and_historical_baseline_preserved() -> None:
+    """T-CX301: public product builder/default and historical contextual baseline."""
+    composition_path = SRC_ROOT / "app" / "composition.py"
+    composition = composition_path.read_text(encoding="utf-8")
+    assert "def build_product_service(" in composition
+    assert "RealLLMPlanner(" in composition
+    assert "ScriptedPlanner" not in composition
+    tree = ast.parse(composition, filename=str(composition_path))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            name = getattr(node.func, "id", None) or getattr(node.func, "attr", None)
+            assert name != "ScriptedPlanner"
+
+    for relative, expected in _V2_PRESERVED_DIGESTS.items():
+        path = PROJECT_ROOT / relative
+        assert path.is_file(), f"missing preserved asset: {relative}"
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        assert digest == expected, (
+            f"preserved asset drifted: {relative}\n"
+            f"expected={expected}\nactual={digest}\n"
+            f"baseline={_PLANNER_ABLATION_V2_BASELINE}"
+        )
+        # Confirm baseline commit still carries the same bytes.
+        shown = subprocess.run(
+            ["git", "show", f"{_PLANNER_ABLATION_V2_BASELINE}:{relative}"],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            check=False,
+        )
+        assert shown.returncode == 0, shown.stderr.decode("utf-8", errors="replace")
+        baseline_digest = hashlib.sha256(shown.stdout).hexdigest()
+        assert baseline_digest == expected
+
+
+def test_t_cx301_dev1_reproducer_and_evidence_root_untouched() -> None:
+    """T-CX301: dev_1 seal/files unchanged; no real seal under dev_2."""
+    dev1 = (
+        PROJECT_ROOT
+        / "docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1"
+    )
+    assert (dev1 / "protocol_seal" / "manifest.json").is_file()
+    assert (dev1 / "protocol_seal" / "seal.sha256").is_file()
+    for relative, expected in _V2_PRESERVED_DIGESTS.items():
+        if "dev_1" not in relative:
+            continue
+        digest = hashlib.sha256((PROJECT_ROOT / relative).read_bytes()).hexdigest()
+        assert digest == expected
+
+    dev2 = (
+        PROJECT_ROOT
+        / "docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_2"
+    )
+    assert dev2.is_dir()
+    assert not (dev2 / "protocol_seal").exists()
+    names = {path.name for path in dev2.iterdir() if path.name != "__pycache__"}
+    assert names <= {"design_inputs.md", "OFFLINE_ACCEPTANCE.md"}

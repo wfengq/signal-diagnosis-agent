@@ -15,7 +15,13 @@
 `docs/superpowers/plans/2026-09-30-s1-planner-ablation-utility-study.md`.
 Harness, Scripted dry-run, protocol seal, and RealLLM remain separately gated.
 
-**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX288)
+**D038 protocol revision (dev_2 definitions):** §20;
+`docs/superpowers/specs/2026-10-01-s1-planner-ablation-protocol-revision-design.md`;
+`docs/superpowers/plans/2026-10-01-s1-planner-ablation-protocol-revision.md`.
+Approved design values await a concrete seal; formal seal, RealLLM, and
+product changes remain separately gated.
+
+**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX302)
 
 **Live product identity (HEAD):** prompt `v0.3-s1-planner-9.11` with causal
 policy `v9_11_mode_aware_no_fault_recovery` (§15). Historical identities
@@ -749,3 +755,233 @@ grants are required for harness and Scripted dry-run tests (T-CX276–T-CX288
 behavior), protocol seal (including N, uncertainty, mode-level non-inferiority,
 resource bounds, and population identity), RealLLM campaign execution, and any
 product behavior change.
+
+## 20. Planner-ablation protocol revision (dev_2)
+
+Additive study contract for follow-up development study
+`study_s1_planner_ablation_dev_2`. This section registers observable protocol
+behavior for identity, timing, populations, decision bands, provenance, failure
+accounting, and staged authority. Numerical and schedule values below are
+**approved design choices awaiting a concrete seal**, not already sealed
+protocol values. This section does **not** authorize a formal protocol seal,
+RealLLM campaign execution, product planner/gate changes, or rewriting of
+§19 / `study_s1_planner_ablation_dev_1` evidence.
+
+```text
+study_id: study_s1_planner_ablation_dev_2
+scorer: signal_diag.planner_ablation_scoring version 2.0.0-dev.1
+evidence_root: docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_2/
+scored_arms: product_agent | fixed_pipeline
+modes: single_signal | paired_reference
+timing_contract: encoded_bytes_to_terminal_v1
+```
+
+The old study `study_s1_planner_ablation_dev_1`, its identity validator, seal,
+campaign artifacts, and machine enum remain immutable evidence. Formal
+dominance was not accepted for that study. A later implementation must add
+explicit version dispatch or a separate v2 model/scorer while preserving the
+dev_1 reproducer and foreign-identity rejection. Proposed design values must
+not be interpreted as already-sealed protocol bindings.
+
+### 20.1 Request identity, aliases, and schedule
+
+A request identity is derived from mode, test-byte hash, reference-byte hash
+when present, nominal context when present, channel/segment representation
+policy, and normalized user request. Scenario IDs, role names, filenames, and
+hidden truth labels do not distinguish otherwise identical analysis requests.
+Execution filenames are constant `input.wav` and `reference.wav`.
+
+Equal request identities must carry equal oracle outcome and exact causal-fault
+sets. Duplicate identical single-mode requests share one execution and one
+scored unit via an explicit alias; the proposed schedule therefore has nine
+unique single requests and ten paired requests (19 keys per arm per
+repetition). Scenario-oriented tables may show aliases but must not double-count
+the shared result in primary metrics.
+
+Three repetitions of each unique request on each arm yield 114 scheduled
+executions, including 57 product executions. Repetitions are fixed in advance
+and include unsuccessful runs. Canonical request-key order is frozen; for key
+index `i` and repetition `r`, execute product then fixed when `(i + r)` is
+even, fixed then product otherwise, with repetition as the outer loop. Seal of
+the complete expanded slot list is a later grant; dynamic reorder after error
+is forbidden.
+
+### 20.2 Mode-specific oracles and fixed populations
+
+Oracles are mode-specific. A bad paired reference withheld in single mode must
+not alter that single request's oracle. Labels require recorded rationales from
+source transformations, stimulus context, deterministic measurement validity,
+and versioned gates. Neither product output nor the study baseline diagnosis
+may serve as oracle. Prior-output exposure motivating the redesign must stay
+disclosed. Independent offline label review must check all rows before any
+seal; disagreement revises the unsealed proposal and must not relax DSP
+thresholds or finish gates. Demonstration thresholds (1% clipping, 5% THD)
+remain demonstration values, not industry standards.
+
+Upgrade population U, conditional population C, and guidance-eligible
+population G are registered before execution from construction labels, not from
+guidance emission, initial diagnosis, completion, or final success. Proposed
+sizes subject to offline review are `|U|=7`, `|C|=6`, and `|G|=4`. No execution
+arm receives these labels. Zero conditional population is not evaluable and
+never 100% success. Missing guidance remains in the guidance denominator.
+
+### 20.3 Common request timing
+
+The primary timing endpoint is request latency from encoded WAV bytes in memory
+to a terminal study result with deterministic guidance materialized. Named
+events are `request_start` and `terminal_result_ready` under timing contract
+`encoded_bytes_to_terminal_v1`.
+
+Before either arm's timer: validate frozen manifest and input hashes, read
+encoded WAV files into memory, and prepare a fresh empty execution container.
+Imports and immutable profile/corpus loading may occur here. Container
+preparation must not decode this slot's WAV, analyze its signal, call the
+provider, construct a diagnosis, or populate a result cache.
+
+Inside the timer both arms must perform WAV decoding and identical
+channel/segment selection; analysis-record creation, repository insertion, and
+context construction; diagnosis execution with pinned profiles and finish
+gates; required deterministic postprocessing and context guidance; and
+construction of the complete study terminal result. Stop only when that result
+or a classified terminal failure exists. Serialize artifacts, calculate
+metrics, and write checksums after stopping. Container teardown is outside
+request latency and recorded separately. No overlapping requests or warm-up
+provider calls are permitted.
+
+The fixed adapter must receive encoded bytes, not pre-decoded signal IDs, and
+must include both test/reference decoding in paired mode plus guidance
+construction before its terminal marker. The product adapter keeps the complete
+contextual submission and contextual waiter, including D037's single-file path.
+Residual product application work (for example preview/event projection) must
+be recorded explicitly; it must not be removed by post-hoc time subtraction or
+by silently changing the product path. The outer common interval is
+authoritative; partial phase timings are diagnostic only. Every report must
+qualify that this is a request-level system comparison, not pure planner-only
+attribution.
+
+A proposed common outer slot deadline is 120 seconds. Offline tests must prove
+injected decode/execution/guidance delays are included and serialization delays
+after terminal readiness are excluded. Absent/out-of-order timing markers, wrong
+timing-contract version, or pre-decoded fixed inputs must reject
+`matched_comparison`; that flag is derived, never a constant true.
+
+### 20.4 Matching, report parity, and provenance
+
+Both scored arms remain subject to the §19.2 mode-specific claim-gate matrix
+and §19.3 deterministic report-parity obligations, including D037 guidance
+fields. Product slots continue to use complete `submit_contextual_wav` /
+`wait_for_contextual_terminal` (§19.1). Matching proofs and gate identity
+(including `v9_11_mode_aware_no_fault_recovery` and §16 Option C) remain
+prerequisites for attributable comparison.
+
+Execution provenance records the actual concrete planner/provider mode from
+session construction and execution, never from an input arm label. Scripted,
+fake-client `RealLLMPlanner`, synthetic fixtures, and any offline session carry
+immutable `harness_only` provenance. Relabeled offline artifacts must be
+rejected for scored product ingestion. Exact approved product type/prompt and
+verified online execution context are required for future scored ingestion; a
+class-name string alone is insufficient.
+
+### 20.5 Metrics and decision bands
+
+Per mode and repetition, report:
+
+- primary quality as exact outcome-plus-causal-set accuracy over every unique
+  scheduled request; missing diagnosis scores zero; outcome-only accuracy is
+  secondary;
+- useful-terminal rate: completed and oracle-compatible supported fault or
+  justified `no_supported_fault`, with semantic claim/rule support; incorrect
+  confident output is not useful;
+- completion including a valid inconclusive diagnosis;
+- unsupported positive claims and grounding with explicit counts and
+  zero-denominator states;
+- shared-boundary latency mean, median, nearest-rank p95, and maximum,
+  including behavioral failure time;
+- actual tool/rule/planner/repair/transport/token telemetry;
+- upgrade and guidance metrics from the fixed U/C/G populations.
+
+Per-arm denominators are 9 single and 10 paired per repetition, or 27 and 30
+across repetitions. Total execution count 114 is never a per-arm denominator.
+Related scenarios and repetitions do not create independent samples. No
+p-values or generalization intervals are claimed for this known development
+calibration set.
+
+Claim safety requires valid same-run references and evidence/rule support for
+the declared fault under that mode. Reference existence alone is not semantic
+safety. Each arm/mode/round must have an evaluable positive-claim population;
+zero claims or missing claim data block a positive study conclusion.
+
+Proposed accepted decision conditions (engineering bands awaiting seal, not
+statistical non-inferiority claims):
+
+1. All identity, timing, oracle, report-parity, and matching prerequisites
+   pass; the entire planned campaign completes; both arms pass safety.
+   Otherwise the accepted conclusion is `insufficient_evidence` with explicit
+   reason codes.
+2. `fixed_pipeline_dominance` requires zero accepted quality, usefulness,
+   completion, upgrade, or guidance regression in every mode/round (non-
+   inferiority margin exactly zero — not a tiny epsilon). It also requires at
+   least 20% mean latency reduction and 100 ms absolute mean saving in each
+   mode/round, with no regression in fixed p95 or mean tool-action count.
+3. `planner_advantage` uses quality as the sole primary superiority endpoint:
+   at least one additional correctly diagnosed unique request in the same mode
+   in each round, with no quality regression in the other mode and no
+   usefulness/completion/upgrade/guidance regression. Utility-only improvement
+   is secondary evidence.
+4. Other complete comparisons yield `insufficient_evidence`. Equal performance
+   alone does not establish equivalence outside the frozen development band.
+
+The scorer must independently derive matched status and constrained regressions
+from verified records; callers cannot assert them with default booleans.
+Machine metrics, prerequisite results, and accepted review status remain
+distinct fields. No enum authorizes product replacement.
+
+### 20.6 Failure accounting and resource bounds
+
+Each scheduled slot has one campaign attempt. Product-internal repair and
+provider-transport retries retain their pinned product configuration; changing
+those limits is not a campaign-level retry policy. Infrastructure failures —
+including provider authentication/transport exhaustion, persistence failure, or
+deadline expiry without a valid terminal result — stop the campaign. Preserve
+started and unstarted schedule slots; no accepted conclusion is available from
+a truncated campaign. Product behavioral failures already represented by the
+runtime, including exhausted diagnosis/repair budgets, continue and remain
+failures in their denominators. Classification must use typed causes.
+
+Before seal, record exact product runtime limits, request timeout, provider
+retry policy, model/prompt/settings, and token limits supported by that
+provider path. Before a RealLLM grant, present a numerical worst-case
+request/token budget derived from those limits and the 57 scheduled product
+executions. Unknown limits, unavailable retry telemetry, or an unbounded
+request configuration block execution.
+
+### 20.7 Package boundary, sealing, and staged authority
+
+Keep `evaluation` independent of `app`. App-owned study adapters map byte
+requests through the product service or fixed pipeline to study-owned fields.
+Evaluation owns schedules, oracle/eligibility labels, verified population
+identities, pure metrics, and decision logic. Do not add a fixed product route,
+change product composition, or change the historical contextual baseline.
+
+A later sealed manifest must bind the unique-request schedule, aliases,
+scenario/source/master relations, every mode oracle and offline label-review
+record, U/C/G membership, timing/lifecycle/order/repetitions/limits/decision
+bands, original WAV and canonical request hashes, immutable implementation
+commit and product/prompt/profile/corpus/study-code hashes, dependency/runtime
+versions, and operator authorization references. Preflight recomputes
+file/input/code hashes. Generation refuses any existing destination, including
+an empty directory. Verification is read-only. No tool may regenerate `dev_1`
+as a migration step.
+
+Staged authority remains:
+
+1. definitions and study-only offline implementation under their grants;
+2. separate seal grant on a concrete candidate manifest, label review,
+   schedule, numeric bands, and budgets;
+3. separate RealLLM grant with exact sealed identity and numerical
+   request/token budget;
+4. any product planner change requires a separate product design, contracts,
+   tests, and operator implementation authorization.
+
+Offline acceptance must neither score historical RealLLM outputs under the
+revised oracle as new study evidence nor call a provider to test connectivity.
