@@ -178,16 +178,20 @@ Task 7 offline implementation merged via PR #18. Post-merge label review + budge
 
 ## Token/transport telemetry offline implementation (Tasks 2–7)
 
-**Status:** `offline_implementation_pending_revision` — Codex tip `218c2fa` P1/P2
-recheck fixes remain under independent recheck. Follow-up closes CI openai
-install drift for MockTransport observation (fixture profile + explicit offline
-boundary; audited unsupported without boundary still refuses). P1C/P1E/P2
-follow-up on this branch rebinds default slot digests in `run_schedule`,
-requires repository files for proof references and for non-fixture offline
-evidence and provider-limit digests, and blocks unknown or over-ceiling token
-exposure. Still pending Codex recheck. **Not** claiming
-`offline_implementation_accepted`. Not `resource_bounds_complete`, not
-`candidate_verified`, not seal, not RealLLM.
+**Status:** `offline_implementation_pending_revision` — code revise `32d2419`
+(failing repros `756e8f8`) on `cursor/s1-dev2-telemetry-impl-0d26`. Independent
+recheck is still required. **Not** claiming `offline_implementation_accepted`.
+Not `resource_bounds_complete`, not `candidate_verified`, not seal, not RealLLM.
+
+This revise closes the confirmed P1 gaps without clearing external blockers:
+
+- P1A. `reject_online_preflight` rejects `make_complete_budget_assessment` plus arbitrary seal/grant strings. Online mode and the resource-policy path refuse before `session_factory` when the policy, a non-blocked assessment, or a `VerifiedResourceAdmission` is missing. `legacy_fixture_seal` survives `generate_seal` → `verify_manifest` as `construction_path=legacy_fixture_seal`.
+- P1B. `aggregate_resource_ledger` pairs `planner_turn`, `logical_call`, `sdk_attempt`, and `http_send`. Unpaired events and claimed closure that does not match the graph are blockers. Exact zero on an empty graph is accepted only when the caller passes `fixed_zero_use` (fixed-pipeline slots). An empty product ledger with exact 0 is blocked.
+- P1C. A redirect without a `reviewed:` zero-use proof sets `exact_total_tokens` to null, keeps the usage subtotal and potential exposure, and sets `acceptance_blocked`.
+- P1D. Bound-fact files must be `RESOURCE_BOUNDS.md`, `BUDGET_BOUNDS.md`, `LABEL_REVIEW.md`, `OFFLINE_ACCEPTANCE.md`, or `design_inputs.md` under this study. Anything else, including `docs/README.md`, is `proof_acceptance_inapplicable_file`. Non-fixture readiness binds the on-disk `LABEL_REVIEW.md`; `approved=True` on the caller object is not that binding. `MockTransport` and the fixture offline boundary stay `mock_native`. `validate_resource_candidate` takes optional `installed_sdk_identity` and does not import the SDK.
+- P1E. `run_schedule` does not overwrite a slot digest. A mismatch with `{request_key}:{arm}:{round_index}` is `slot_digest_mismatch` and stops the resource path. Scoring requires that same digest, not uniqueness alone.
+- P1F. `test_full_schedule_resource_path_is_harness_only` runs all 114 slots through exact `RealLLMPlanner`, `RecordingPlanner`, the real service, and `MockTransport`, with `allow_fixture_offline_boundary`. Hosts stay `example.test`. Provenance stays `harness_only`. A final-slot resource failure blocks `planner_advantage` and `fixed_pipeline_dominance`.
+- P2. `ReportedUsage` rejects booleans and negative subdivisions before coercion. Transport observation wraps each transport object once. Resource `seal_ready` follows the resource assessment, not the legacy explicit-flag gate. Legacy `inspect_limits` stays blocked.
 
 Honest external blockers remain open: HTTP/token bound admission, unaccepted provider
 model mapping, lockfile↔install drift. Gates must not be loosened to clear them.
@@ -227,6 +231,40 @@ $ git diff --check origin/cursor/s1-dev2-telemetry-impl-0d26...HEAD
 ```
 
 Still `offline_implementation_pending_revision`. Codex recheck is still required.
+
+### Codex P1/P2 revise verification (this environment, openai 3.20.0)
+
+```text
+$ python3 -m pytest tests/evaluation/planner_ablation/v2 \
+    tests/app/test_planner_ablation_v2_adapter.py \
+    tests/agent/test_provider_telemetry.py \
+    tests/agent/test_telemetry.py \
+    tests/agent/test_runtime_telemetry.py -q
+158 passed in 48.61s
+
+$ python3 -m ruff check src/signal_diag/evaluation/planner_ablation/v2 \
+    src/signal_diag/agent/provider_telemetry.py \
+    src/signal_diag/app/planner_ablation_v2_adapter.py \
+    tests/evaluation/planner_ablation/v2 \
+    tests/agent/test_provider_telemetry.py
+All checks passed
+
+$ python3 -m mypy --no-incremental \
+    src/signal_diag/evaluation/planner_ablation/v2/campaign.py \
+    src/signal_diag/evaluation/planner_ablation/v2/sealing.py \
+    src/signal_diag/evaluation/planner_ablation/v2/resource_telemetry.py \
+    src/signal_diag/evaluation/planner_ablation/v2/resource_models.py \
+    src/signal_diag/evaluation/planner_ablation/v2/resource_budget.py \
+    src/signal_diag/evaluation/planner_ablation/v2/scoring.py \
+    src/signal_diag/agent/provider_telemetry.py \
+    src/signal_diag/app/planner_ablation_v2_adapter.py
+Success: no issues found in 8 source files
+
+$ git diff --check f590efc...HEAD
+(exit 0)
+```
+
+Still `offline_implementation_pending_revision`. No seal. No live provider call.
 
 ### Revision verification (this environment)
 
@@ -292,9 +330,9 @@ Conditional SDK ceiling `57×28×3=4788` remains documentation/admission arithme
 ### Full offline schedule paths
 
 1. Existing 114-slot Scripted/fixed harness path — **unchanged**; product usage remains unknown; no resource-policy gate; zero real provider calls.
-2. Resource-policy harness path (when enabled) — Scripted/RecordingPlanner +
-   observers with unique schedule-slot digests; remains `harness_only` /
-   non-scored; zero real provider calls. MockTransport SDK observation uses the
-   fixture offline boundary, not an audited-supported claim.
+2. Resource-policy harness path — exact `RealLLMPlanner` wrapped by
+   `RecordingPlanner`, real service, `MockTransport` on `example.test`, all 114
+   slots attempted. Provenance stays `harness_only`. The fixture offline boundary
+   is not an audited production profile and is not a scored conclusion.
 
 No `protocol_seal/` under `study_s1_planner_ablation_dev_2`. Evidence docs: existing names plus `RESOURCE_BOUNDS.md` only.
