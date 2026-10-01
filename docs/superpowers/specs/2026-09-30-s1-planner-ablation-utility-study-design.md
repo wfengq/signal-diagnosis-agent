@@ -1,9 +1,13 @@
 # S1 default-path utility and planner-ablation study
 
-**Status:** study-shape approved (OQ-019 / D038, operator 2026-09-30; revised
-after Codex adversarial review the same day). This is not an executable
-experiment protocol, writing-plans grant, harness grant, or RealLLM campaign
-grant.
+**Status:** study-shape approved (OQ-019 / D038, operator 2026-09-30).
+Wave 1–3 complete (protocol seal under
+`docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/`).
+Wave 4 campaign artifacts retained under
+`study_s1_planner_ablation_dev_1/agent_realllm_campaign_1/`
+(machine enum `fixed_pipeline_dominance`). Wave 5 protocol-deviation review
+**does not accept** formal dominance (timing boundary mismatch; single oracle
+defects). Product planner changes remain unauthorized.
 
 **Date:** 2026-09-30
 
@@ -24,7 +28,8 @@ grant.
 
 **Open question:** OQ-019 (resolved — study shape approved; see D038)
 
-**Plan:** not written until a separate documentation-only writing-plans grant
+**Plan:** `docs/superpowers/plans/2026-09-30-s1-planner-ablation-utility-study.md`
+(Wave 5 review landed; formal dominance not accepted)
 
 ## 1. Decision summary
 
@@ -264,12 +269,12 @@ Other claims under test:
 | Layer | This design package | Needs later grant |
 |-------|---------------------|-------------------|
 | Study-shape design + OQ-019 / D038 | Approved 2026-09-30 | Shape frozen; later grants still required |
-| writing-plans (docs only) | No | Separate documentation-only grant after shape approval |
-| Additive CONTRACTS / TEST_PLAN definitions | No | Bounded grant; definitions before code |
-| Harness + Scripted dry-run | No | Same bounded grant after definitions, or a follow-on grant |
-| Execution-protocol seal and identity check | No | Before any scored run |
-| RealLLM `product_agent` campaign | No | Explicit RealLLM / campaign authorization |
-| Result review | No | After campaign artifacts exist |
+| writing-plans (docs only) | Plan revised after Codex Wave 0 review 2026-09-30 | n/a |
+| Additive CONTRACTS / TEST_PLAN definitions | Wave 1 landed (§19 / T-CX276–T-CX288) | n/a |
+| Harness + Scripted dry-run | Wave 2 landed (`evaluation/planner_ablation/`) | n/a |
+| Execution-protocol seal and identity check | Wave 3 landed (`protocol_seal/`) | Before any scored RealLLM run |
+| RealLLM `product_agent` campaign | Landed (`agent_realllm_campaign_1/`; machine enum retained) | n/a |
+| Result review | Wave 5 protocol-deviation report landed; formal dominance not accepted | Later grants for shared-boundary rerun / oracle redesign / product change |
 | Product planner replacement or gate softening | No | New behavior design + contracts + tests + explicit authorization |
 
 Recommended next grant after shape approval: **writing-plans only**.
@@ -296,7 +301,7 @@ word and a revised design review accepts that change:
 |---------|--------------|
 | Study stays evaluation-only; product planner unchanged | `替换产品 planner` |
 | Fresh development cases; do not re-score sealed v9.11/V0.2 official slots as this study | `复用密封包` |
-| RealLLM campaign not started by this PR | `批准 RealLLM 战役` |
+| RealLLM campaign not started by this PR | `批准 RealLLM 战役` (executed; review next) |
 | First freeze requires `paired_reference` plus `single_signal` utility metrics | `只要 single_signal` |
 
 ## 11. Verification of this design package

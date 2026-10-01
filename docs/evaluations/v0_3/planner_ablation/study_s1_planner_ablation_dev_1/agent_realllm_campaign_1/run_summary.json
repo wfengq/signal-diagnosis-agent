@@ -1,0 +1,34 @@
+{
+  "arm_order": [
+    "product_agent",
+    "fixed_pipeline"
+  ],
+  "completed_at": "2026-09-30T16:56:46.666160Z",
+  "fixed_latency_improvement_ratio": 0.9981447577324417,
+  "fixed_mean_latency_s": 0.008912520899320953,
+  "fixed_slots": 20,
+  "metrics": {
+    "constrained_metric_regression": false,
+    "evaluable_population": true,
+    "fixed_completion": 1.0,
+    "fixed_latency_improvement_ratio": 0.9981447577324417,
+    "fixed_primary_quality": 0.85,
+    "fixed_safety_ok": true,
+    "fixed_usefulness": 0.75,
+    "matched_comparison": true,
+    "product_completion": 1.0,
+    "product_primary_quality": 0.85,
+    "product_safety_ok": true,
+    "product_usefulness": 0.75,
+    "protocol_complete": true,
+    "unmatched_comparison": false
+  },
+  "product_mean_latency_s": 4.803966066949579,
+  "product_slots": 20,
+  "scored": true,
+  "scoring_identity": "signal_diag.planner_ablation_scoring",
+  "scripted_fallback": false,
+  "status": "completed",
+  "study_conclusion": "fixed_pipeline_dominance",
+  "study_id": "study_s1_planner_ablation_dev_1"
+}

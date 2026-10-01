@@ -36,5 +36,15 @@ route through **pstack `/poteto-mode`** as the default workflow.
 6. Respect frozen V0.2 contracts in `AGENTS.md` / `docs/CONTRACTS_V0_2.md`: no
    silent product behavior changes, no ScriptedPlanner product fallback, no
    rewriting accepted evaluation or Demo assets.
+7. **Strong-model work never silently falls back to the parent/default model.**
+   Roles that pstack routes to judgment/prose/hardest models (including
+   adversarial review of designs and implementation plans, `interrogate`,
+   architect synthesis when those roles require a strong model) must use the
+   configured strong model. If that Task fails (usage limit, spend cap, model
+   unavailable), **stop that judgment pass**, give the operator a paste-ready
+   Codex/external-strong-model brief with PR/commit links, and wait. Do not
+   complete the strong-review deliverable yourself on the parent/default model
+   and present it as the strong-model result. Mechanical docs edits and
+   applying an already-returned Codex critique remain allowed on the parent.
 
 Name principles you actually applied (from leaf SKILL.md files read this session).

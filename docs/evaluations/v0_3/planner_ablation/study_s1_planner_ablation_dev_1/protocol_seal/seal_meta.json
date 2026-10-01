@@ -1,0 +1,5 @@
+{
+  "denominator_derivation": "completion_slots",
+  "scoring_identity": "signal_diag.planner_ablation_scoring",
+  "study_id": "study_s1_planner_ablation_dev_1"
+}
