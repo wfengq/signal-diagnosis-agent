@@ -116,14 +116,60 @@ def test_usage_totals_and_subdivisions_are_strict() -> None:
 
 
 def test_partial_usage_is_not_exact_campaign_total() -> None:
+    events = (
+        {"kind": "planner_turn", "phase": "start", "correlation_id": "t1"},
+        {"kind": "planner_turn", "phase": "end", "correlation_id": "t1"},
+        {"kind": "logical_call", "phase": "start", "correlation_id": "c1"},
+        {"kind": "logical_call", "phase": "end", "correlation_id": "c1"},
+        {"kind": "sdk_attempt", "phase": "start", "correlation_id": "a1"},
+        {"kind": "sdk_attempt", "phase": "end", "correlation_id": "a1"},
+        {
+            "kind": "http_send",
+            "phase": "start",
+            "correlation_id": "h1",
+            "send_id": "h1",
+        },
+        {
+            "kind": "http_send",
+            "phase": "end",
+            "correlation_id": "h1",
+            "send_id": "h1",
+            "outcome": "success",
+        },
+        {
+            "kind": "usage",
+            "status": "complete",
+            "send_id": "h1",
+            "prompt_tokens": 16,
+            "completion_tokens": 10,
+            "total_tokens": 26,
+        },
+    )
+    # Second send missing usage → partial.
+    events = events + (
+        {
+            "kind": "http_send",
+            "phase": "start",
+            "correlation_id": "h2",
+            "send_id": "h2",
+        },
+        {
+            "kind": "http_send",
+            "phase": "end",
+            "correlation_id": "h2",
+            "send_id": "h2",
+            "outcome": "http_error",
+        },
+    )
     ledger = SlotResourceLedger(
         slot_key_digest="slot",
-        events=(),
+        run_id="run_partial",
+        events=events,
         planner_turn_count=1,
         repair_attempt_count=0,
         logical_call_count=1,
         sdk_attempt_count=1,
-        http_send_attempt_count=1,
+        http_send_attempt_count=2,
         reported_usage_subtotal=ReportedUsage(
             prompt_tokens=16, completion_tokens=10, total_tokens=26
         ),
@@ -145,9 +191,36 @@ def test_per_slot_ceiling_not_campaign_ceiling() -> None:
     assessment = _assessment()
     # Campaign SDK ceiling is 57*28*3; a single slot with 85 attempts exceeds
     # per-slot 28*3=84 even though it is far below the campaign total.
+    events = []
+    for idx in range(28):
+        events.append({"kind": "planner_turn", "phase": "start", "correlation_id": f"t{idx}"})
+        events.append({"kind": "planner_turn", "phase": "end", "correlation_id": f"t{idx}"})
+        events.append({"kind": "logical_call", "phase": "start", "correlation_id": f"c{idx}"})
+        events.append({"kind": "logical_call", "phase": "end", "correlation_id": f"c{idx}"})
+    for idx in range(85):
+        events.append({"kind": "sdk_attempt", "phase": "start", "correlation_id": f"a{idx}"})
+        events.append({"kind": "sdk_attempt", "phase": "end", "correlation_id": f"a{idx}"})
+        events.append(
+            {
+                "kind": "http_send",
+                "phase": "start",
+                "correlation_id": f"h{idx}",
+                "send_id": f"h{idx}",
+            }
+        )
+        events.append(
+            {
+                "kind": "http_send",
+                "phase": "end",
+                "correlation_id": f"h{idx}",
+                "send_id": f"h{idx}",
+                "outcome": "success",
+            }
+        )
     ledger = SlotResourceLedger(
         slot_key_digest="slot",
-        events=(),
+        run_id="run_ceiling",
+        events=tuple(events),
         planner_turn_count=28,
         repair_attempt_count=0,
         logical_call_count=28,
@@ -163,6 +236,115 @@ def test_per_slot_ceiling_not_campaign_ceiling() -> None:
     assert "sdk_attempt_ceiling_exceeded" in obs.blockers
     assert assessment.sdk_attempt_ceiling == 57 * 28 * 3
     assert assessment.sdk_attempt_ceiling_per_slot == 28 * 3
+
+
+def test_empty_event_unknown_counts_cannot_pass_closed_acceptance() -> None:
+    assessment = _assessment()
+    assert assessment.execution_blocked is True
+    ledger = SlotResourceLedger(
+        slot_key_digest="digest_unique_a",
+        run_id=None,
+        events=(),
+        planner_turn_count=None,
+        repair_attempt_count=None,
+        logical_call_count=None,
+        sdk_attempt_count=None,
+        http_send_attempt_count=None,
+        exact_total_tokens=None,
+        worker_drained=True,
+        telemetry_invalid=False,
+        incomplete=False,
+        closed=True,
+    )
+    obs = aggregate_resource_ledger(ledger, assessment=assessment)
+    assert obs.acceptance_blocked is True
+    assert "missing_run_id_association" in obs.blockers
+    assert any(b.startswith("unknown_count:") for b in obs.blockers)
+    assert "resource_assessment_execution_blocked" in obs.blockers
+
+
+def test_campaign_unknown_counts_do_not_become_zero() -> None:
+    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+        ResourceObservation,
+    )
+    from signal_diag.evaluation.planner_ablation.v2.resource_telemetry import (
+        validate_campaign_resource_totals,
+    )
+
+    assessment = _assessment()
+    observations = [
+        ResourceObservation(
+            planner_turn_count=None,
+            repair_attempt_count=0,
+            logical_call_count=None,
+            sdk_attempt_count=None,
+            http_send_attempt_count=None,
+            acceptance_blocked=True,
+            incomplete=True,
+        )
+        for _ in range(3)
+    ]
+    blockers = validate_campaign_resource_totals(observations, assessment=assessment)
+    assert "campaign_unknown_sdk_attempt_count" in blockers
+    assert "campaign_unknown_http_send_attempt_count" in blockers
+    assert "campaign_unknown_planner_turn_count" in blockers
+
+
+def test_redirect_reserves_exposure_not_zero_use_proof() -> None:
+    from signal_diag.agent.telemetry import HttpSendEvent, UsageObservation
+    from signal_diag.app.planner_ablation_v2_adapter import StudyResourceObserver
+
+    observer = StudyResourceObserver(
+        slot_id="slot_redirect",
+        admitted_per_send_input_tokens=100,
+        admitted_per_send_output_tokens=50,
+    )
+    observer.associate_run_id("run_redirect")
+    binding = observer.make_binding()
+    for idx, outcome in enumerate(("redirect", "redirect", "success")):
+        send_id = f"http_{idx}"
+        binding.sink(  # type: ignore[operator]
+            HttpSendEvent(
+                sequence_id=f"hs_{idx}",
+                correlation_id=send_id,
+                phase="start",
+                send_id=send_id,
+                monotonic_s=float(idx),
+            )
+        )
+        binding.sink(  # type: ignore[operator]
+            HttpSendEvent(
+                sequence_id=f"he_{idx}",
+                correlation_id=send_id,
+                phase="end",
+                send_id=send_id,
+                outcome=outcome,  # type: ignore[arg-type]
+                status_code=307 if outcome == "redirect" else 200,
+                monotonic_s=float(idx) + 0.1,
+            )
+        )
+    binding.sink(  # type: ignore[operator]
+        UsageObservation(
+            sequence_id="u_final",
+            correlation_id="usage_final",
+            send_id="http_2",
+            status="complete",
+            prompt_tokens=16,
+            completion_tokens=10,
+            total_tokens=26,
+            monotonic_s=2.2,
+        )
+    )
+    ledger = observer.resource_snapshot(worker_drained=True)
+    assert ledger.exact_total_tokens == 26
+    assert ledger.potential_token_exposure == 2 * (100 + 50)
+    obs = aggregate_resource_ledger(ledger, assessment=_assessment())
+    # Assessment lacks admitted per-send ceilings → exposure stays unknown at
+    # recompute, while the observer-reserved exposure remains on the ledger.
+    assert obs.potential_token_exposure is None
+    assert obs.acceptance_blocked is True  # assessment still blocked honestly
+    assert "potential_token_exposure_mismatch" not in obs.blockers
+
 
 
 def test_slot_ledger_rejects_orphan_duplicate_and_missing_end() -> None:
@@ -244,6 +426,7 @@ def test_incomplete_send_coverage_keeps_exact_total_unknown() -> None:
 
     observer = StudyResourceObserver(slot_id="slot_cov")
     binding = observer.make_binding()
+    observer.associate_run_id("run_cov")
     # Two HTTP sends; usage only for the final one (500 then 200 pattern).
     for idx, outcome in enumerate(("http_error", "success")):
         send_id = f"http_{idx}"

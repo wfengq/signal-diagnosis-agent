@@ -145,6 +145,9 @@ class StudyResourceObserver:
     max_events: int = 10_000
     records: list[ResourceTelemetry] = field(default_factory=list)
     planner_factory_calls: int = 0
+    admitted_per_send_input_tokens: int | None = None
+    admitted_per_send_output_tokens: int | None = None
+    observation_descriptor: object | None = None
     _events: list[object] = field(default_factory=list)
     _lock: threading.Lock = field(default_factory=threading.Lock)
     _invalid: bool = False
@@ -154,6 +157,28 @@ class StudyResourceObserver:
 
     def note_planner_factory_call(self) -> None:
         self.planner_factory_calls += 1
+
+    def attach_observation_descriptor(self, descriptor: object) -> None:
+        """Retain client observation identity for ledger gates."""
+        self.observation_descriptor = descriptor
+        blockers = tuple(getattr(descriptor, "blockers", ()) or ())
+        supported = bool(getattr(descriptor, "profile_supported", False))
+        origin = getattr(descriptor, "origin", None)
+        if origin == "unsupported" or (
+            not supported and origin != "mock_native"
+        ):
+            self._invalid = True
+            reason = "unsupported_observation_descriptor"
+            if reason not in self._invalid_reasons:
+                self._invalid_reasons.append(reason)
+            for blocker in blockers:
+                text = str(blocker)
+                if text not in self._invalid_reasons:
+                    self._invalid_reasons.append(text)
+        elif bool(getattr(descriptor, "fixture_only", True)):
+            marker = "fixture_only_observation_descriptor"
+            if marker not in self._invalid_reasons:
+                self._invalid_reasons.append(marker)
 
     def make_binding(self) -> TelemetryBinding:
         def sink(event: TelemetryEvent) -> None:
@@ -216,6 +241,15 @@ class StudyResourceObserver:
         if binding is not None and getattr(binding, "invalid", False):
             invalid = True
             reasons.extend(getattr(binding, "invalid_reasons", []))
+        descriptor = getattr(binding, "observation_descriptor", None) if binding else None
+        if descriptor is not None:
+            self.observation_descriptor = descriptor
+            if getattr(descriptor, "origin", None) == "unsupported":
+                invalid = True
+                reasons.append("unsupported_observation_descriptor")
+            elif bool(getattr(descriptor, "fixture_only", False)):
+                reasons.append("fixture_only_observation_descriptor")
+            reasons.extend(str(item) for item in getattr(descriptor, "blockers", ()) or ())
 
         # Lifecycle endpoints: pair/dedupe by event kind + correlation + phase.
         # Usage and repair are independent observation records (not lifecycle ends).
@@ -322,8 +356,9 @@ class StudyResourceObserver:
         http_ends = [
             e for e in events if isinstance(e, HttpSendEvent) and e.phase == "end"
         ]
-        # Redirect hops are admitted zero-use (no completion body). Every other
-        # dispatched send needs complete usage or remains unknown for exact totals.
+        # Non-redirect dispatched sends need complete usage for exact reported
+        # totals. Redirect hops are not approved zero-use proofs; they reserve
+        # potential_token_exposure when ceilings are admitted.
         send_coverage_complete = True
         for send in http_ends:
             if send.outcome == "redirect":
@@ -340,6 +375,32 @@ class StudyResourceObserver:
             send_coverage_complete = False
             if "missing_usage_observations" not in reasons:
                 reasons.append("logical_call_without_send_or_usage_proof")
+        if logical_count > 0 and http_count == 0 and usage_events:
+            # Usage without HTTP observation (mounted/proxy miss) is invalid.
+            invalid = True
+            send_coverage_complete = False
+            reasons.append("usage_without_http_dispatch_observation")
+
+        # Potential token exposure: reserve for sends lacking complete usage
+        # when per-send ceilings were provided on the binding/assessment.
+        potential_token_exposure: int | None = None
+        admitted_input = getattr(self, "admitted_per_send_input_tokens", None)
+        admitted_output = getattr(self, "admitted_per_send_output_tokens", None)
+        if isinstance(admitted_input, int) or isinstance(admitted_output, int):
+            exposure = 0
+            any_reserved = False
+            for send in http_ends:
+                link = send.send_id or send.correlation_id
+                matched = usage_by_send.get(link) if link else None
+                if matched is not None and matched.status == "complete":
+                    continue
+                # Redirect or incomplete/missing usage → reserve, never invent zero.
+                if isinstance(admitted_input, int):
+                    exposure += admitted_input
+                if isinstance(admitted_output, int):
+                    exposure += admitted_output
+                any_reserved = True
+            potential_token_exposure = exposure if any_reserved else 0
 
         subtotal = sum_reported_usage(usages)
         exact_total = (
@@ -414,7 +475,7 @@ class StudyResourceObserver:
             http_send_attempt_count=http_count,
             reported_usage_subtotal=subtotal,
             exact_total_tokens=exact_total,
-            potential_token_exposure=None,
+            potential_token_exposure=potential_token_exposure,
             pending_event_ids=tuple(pending),
             worker_drained=worker_drained,
             telemetry_invalid=invalid,
@@ -853,6 +914,7 @@ class FixedArmSession:
                 timing=_placeholder_timing(tuple(markers)),
             )
             if self._observer is not None:
+                self._observer.associate_run_id(failed_terminal.run_id)
                 self._observer.observe_terminal(failed_terminal)
             return failed_terminal
 
@@ -874,6 +936,7 @@ class FixedArmSession:
                 timing=_placeholder_timing(tuple(markers)),
             )
             if self._observer is not None:
+                self._observer.associate_run_id(missing_terminal.run_id)
                 self._observer.observe_terminal(missing_terminal)
             return missing_terminal
 
@@ -900,6 +963,7 @@ class FixedArmSession:
             timing=_placeholder_timing(tuple(markers)),
         )
         if self._observer is not None:
+            self._observer.associate_run_id(terminal.run_id)
             self._observer.observe_terminal(terminal)
         return terminal
 
@@ -912,27 +976,35 @@ class FixedArmSession:
             SlotResourceLedger,
         )
 
-        # Fixed arm has no provider path; audited zero-use when drained.
-        return SlotResourceLedger(
-            slot_key_digest="fixed",
-            run_id=None,
-            events=(),
-            planner_turn_count=0,
-            repair_attempt_count=0,
-            logical_call_count=0,
-            sdk_attempt_count=0,
-            http_send_attempt_count=0,
-            reported_usage_subtotal=ReportedUsage(
-                prompt_tokens=0, completion_tokens=0, total_tokens=0
-            ),
-            exact_total_tokens=0,
-            potential_token_exposure=0,
-            pending_event_ids=(),
-            worker_drained=worker_drained,
-            telemetry_invalid=False,
-            incomplete=not worker_drained,
-            blockers=() if worker_drained else ("worker_not_drained",),
-            closed=worker_drained,
+        if self._observer is not None:
+            # Prefer observer digest/run association so fixed slots never collide.
+            snapshot = self._observer.resource_snapshot(worker_drained=worker_drained)
+            # Observer may have no provider events; force audited zero-use fields.
+            return SlotResourceLedger(
+                slot_key_digest=self._observer.slot_id,
+                run_id=getattr(snapshot, "run_id", None),
+                events=getattr(snapshot, "events", ()),
+                planner_turn_count=0,
+                repair_attempt_count=0,
+                logical_call_count=0,
+                sdk_attempt_count=0,
+                http_send_attempt_count=0,
+                reported_usage_subtotal=ReportedUsage(
+                    prompt_tokens=0, completion_tokens=0, total_tokens=0
+                ),
+                exact_total_tokens=0,
+                potential_token_exposure=0,
+                pending_event_ids=getattr(snapshot, "pending_event_ids", ()),
+                worker_drained=worker_drained,
+                telemetry_invalid=bool(getattr(snapshot, "telemetry_invalid", False)),
+                incomplete=not worker_drained,
+                blockers=() if worker_drained else ("worker_not_drained",),
+                closed=worker_drained and bool(getattr(snapshot, "run_id", None)),
+            )
+
+        raise AttributeError(
+            "fixed arm resource_snapshot requires a StudyResourceObserver "
+            "bound to the schedule slot digest"
         )
 
 

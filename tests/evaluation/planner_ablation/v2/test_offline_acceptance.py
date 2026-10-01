@@ -470,3 +470,103 @@ async def test_offline_acceptance_review_status_stays_pending(
     assert review.approved is False
     assert any("independent_offline_review" in note for note in review.review_provenance)
     assert provider_spy.calls == 0
+
+
+@pytest.mark.asyncio
+async def test_full_schedule_resource_path_is_harness_only(
+    tmp_path: Path,
+    provider_spy: FailOnCallProvider,
+) -> None:
+    """114-slot resource-policy path: real service + observers; remain harness-only.
+
+    Uses ScriptedFinishPlanner under the product service (canonical RealLLM remains
+    the public builder) with resource ledgers. Does not claim SDK capability or
+    clear honest resource blockers. Zero real provider calls.
+    """
+    from dataclasses import replace
+
+    from signal_diag.app.planner_ablation_v2_adapter import StudyResourceObserver
+    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+        ResourceAssessment,
+    )
+    from signal_diag.evaluation.recording import RecordingPlanner
+
+    protocol = StudyProtocolV2()
+    scenarios = load_proposed_scenarios(REPO_ROOT)
+    schedule = build_schedule(scenarios, protocol, repository_root=REPO_ROOT)
+    assert len(schedule.slots) == SLOT_COUNT_V2
+    clock = ControlledClock(start=10.0)
+    service = _scripted_service(provider_spy)
+    deps = service._dependencies
+    inner_factory = deps.planner_factory
+
+    def recording_factory():
+        return RecordingPlanner(inner_factory())
+
+    service._dependencies = replace(deps, planner_factory=recording_factory)
+    assessment = ResourceAssessment(
+        planner_turn_ceiling=28,
+        sdk_attempt_factor=3,
+        sdk_attempt_ceiling_per_slot=84,
+        sdk_attempt_ceiling=57 * 84,
+        blockers=(
+            "unaccepted_provider_model_mapping",
+            "unproved_http_send_bound",
+            "unknown_input_token_bound",
+            "unknown_output_token_bound",
+        ),
+        execution_blocked=True,
+        seal_ready=False,
+        fixture_only=True,
+    )
+    digests: set[str] = set()
+
+    async def factory(slot: SlotKey):
+        digest = f"{slot.request_key}:{slot.arm}:{slot.round_index}"
+        observer = StudyResourceObserver(slot_id=digest)
+        if slot.arm == "product_agent":
+            session = build_product_arm_session(
+                service,
+                clock=clock,
+                phase_advances=dict(_PHASE_ADVANCES),
+                offline_session=True,
+                observer=observer,
+            )
+        else:
+            session = build_fixed_arm_session(
+                profile_loader=_profile_loader(),
+                clock=clock,
+                phase_advances=dict(_PHASE_ADVANCES),
+                offline_session=True,
+                observer=observer,
+            )
+        digests.add(digest)
+        return session
+
+    record = await run_schedule(
+        schedule,
+        protocol,
+        factory,
+        execution_mode="offline",
+        clock=clock,
+        output_dir=tmp_path / "resource_harness_out",
+        wall_timeout=False,
+        resource_policy="planner_ablation_resource_v1",
+        resource_assessment=assessment,
+    )
+    await service.aclose()
+    assert provider_spy.calls == 0
+    assert record.planned_slot_count == SLOT_COUNT_V2
+    # Honest assessment blockers stop the resource path; no silent green.
+    assert record.status == "resource_stopped"
+    assert record.accepted_conclusion_available is False
+    assert len(digests) >= 1
+    attempted = [r for r in record.slot_records if r.attempt_count == 1]
+    assert attempted
+    seen = {
+        (r.resource_ledger or {}).get("slot_key_digest")
+        for r in attempted
+        if r.resource_ledger is not None
+    }
+    assert None not in seen
+    assert len(seen) == len(attempted)

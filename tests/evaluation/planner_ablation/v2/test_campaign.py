@@ -481,3 +481,150 @@ def test_limits_and_telemetry_block_unknowns() -> None:
     assert telemetry.credentials_redacted is True
     assert telemetry.raw_waveform_persisted is False
     assert telemetry.raw_fft_persisted is False
+
+
+def _resource_assessment(*, blocked: bool = True):
+    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+        ResourceAssessment,
+    )
+
+    return ResourceAssessment(
+        planner_turn_ceiling=28,
+        sdk_attempt_factor=3,
+        logical_call_ceiling=57 * 28,
+        sdk_attempt_ceiling=57 * 28 * 3,
+        sdk_attempt_ceiling_per_slot=84,
+        blockers=("fixture_assessment",) if blocked else (),
+        execution_blocked=blocked,
+        seal_ready=False,
+        fixture_only=True,
+    )
+
+
+class _ResourceSession(_ScriptedSession):
+    def __init__(self, *args, ledger, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._ledger = ledger
+
+    def resource_snapshot(self, *, worker_drained: bool):
+        from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+            SlotResourceLedger,
+        )
+
+        payload = dict(self._ledger)
+        payload["worker_drained"] = worker_drained
+        payload["incomplete"] = not worker_drained or bool(payload.get("incomplete"))
+        if worker_drained and payload.get("run_id") and not payload.get("incomplete"):
+            payload["closed"] = True
+        else:
+            payload["closed"] = False
+        return SlotResourceLedger.model_validate(payload)
+
+
+@pytest.mark.asyncio
+async def test_last_slot_resource_failure_blocks_conclusion() -> None:
+
+    slots = (
+        SlotKey(request_key=_KEY_A, arm="product_agent", round_index=0),
+        SlotKey(request_key=_KEY_B, arm="fixed_pipeline", round_index=0),
+    )
+    schedule = _mini_schedule(slots=slots)
+    protocol = StudyProtocolV2(deadline_s=30.0)
+    assessment = _resource_assessment(blocked=False)
+
+    async def factory(slot: SlotKey) -> _ResourceSession:
+        bad = slot.request_key == _KEY_B
+        ledger = {
+            "slot_key_digest": f"digest_{slot.request_key}_{slot.arm}",
+            "run_id": f"run_{slot.request_key}",
+            "events": (),
+            "planner_turn_count": 0,
+            "repair_attempt_count": 0,
+            "logical_call_count": 0,
+            "sdk_attempt_count": 0,
+            "http_send_attempt_count": 0,
+            "exact_total_tokens": 0,
+            "potential_token_exposure": 0,
+            "pending_event_ids": ("late",) if bad else (),
+            "worker_drained": True,
+            "telemetry_invalid": False,
+            "incomplete": bool(bad),
+            "blockers": ("pending_events",) if bad else (),
+            "closed": not bad,
+        }
+
+        def build(request: ByteRequest) -> StudyTerminal:
+            del request
+            terminal = _completed(slot)
+            return terminal.model_copy(update={"run_id": f"run_{slot.request_key}"})
+
+        return _ResourceSession(build, ledger=ledger)
+
+    record = await run_schedule(
+        schedule,
+        protocol,
+        factory,
+        execution_mode="offline",
+        wall_timeout=False,
+        resource_policy="planner_ablation_resource_v1",
+        resource_assessment=assessment,
+    )
+    assert record.status == "resource_stopped"
+    assert record.slot_records[0].status == "completed"
+    assert record.slot_records[1].status == "completed"
+    assert record.unstarted_slot_count == 0
+    assert record.accepted_conclusion_available is False
+    assert record.slot_records[-1].resource_stop_reason is not None
+
+
+@pytest.mark.asyncio
+async def test_late_callback_prevents_next_slot() -> None:
+    slots = (
+        SlotKey(request_key=_KEY_A, arm="product_agent", round_index=0),
+        SlotKey(request_key=_KEY_B, arm="product_agent", round_index=0),
+    )
+    schedule = _mini_schedule(slots=slots)
+    protocol = StudyProtocolV2(deadline_s=30.0)
+    assessment = _resource_assessment(blocked=False)
+    started: list[str] = []
+
+    async def factory(slot: SlotKey) -> _ResourceSession:
+        started.append(slot.request_key)
+        ledger = {
+            "slot_key_digest": f"digest_{slot.request_key}",
+            "run_id": f"run_{slot.request_key}",
+            "events": (),
+            "planner_turn_count": 0,
+            "repair_attempt_count": 0,
+            "logical_call_count": 0,
+            "sdk_attempt_count": 0,
+            "http_send_attempt_count": 0,
+            "exact_total_tokens": 0,
+            "pending_event_ids": ("late_callback",),
+            "worker_drained": False,
+            "telemetry_invalid": False,
+            "incomplete": True,
+            "blockers": ("pending_events", "worker_not_drained"),
+            "closed": False,
+        }
+
+        def build(request: ByteRequest) -> StudyTerminal:
+            del request
+            return _completed(slot).model_copy(
+                update={"run_id": f"run_{slot.request_key}"}
+            )
+
+        return _ResourceSession(build, ledger=ledger)
+
+    record = await run_schedule(
+        schedule,
+        protocol,
+        factory,
+        execution_mode="offline",
+        wall_timeout=False,
+        resource_policy="planner_ablation_resource_v1",
+        resource_assessment=assessment,
+    )
+    assert started == [_KEY_A]
+    assert record.status == "resource_stopped"
+    assert record.slot_records[1].status == "unstarted"

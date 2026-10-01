@@ -997,14 +997,21 @@ def evaluate_prerequisites(
                         break
                     seen_digests.add(digest)
                     slot_terminal = slot_record.terminal
-                    if (
-                        slot_terminal is not None
-                        and ledger.run_id is not None
-                        and slot_terminal.run_id
-                        and ledger.run_id != slot_terminal.run_id
-                    ):
+                    if slot_terminal is None:
+                        ok = False
+                        reasons.append("resource_terminal_missing")
+                        break
+                    if not ledger.run_id:
+                        ok = False
+                        reasons.append("resource_run_id_missing")
+                        break
+                    if ledger.run_id != slot_terminal.run_id:
                         ok = False
                         reasons.append("resource_run_id_mismatch")
+                        break
+                    if not slot_terminal.run_id:
+                        ok = False
+                        reasons.append("resource_terminal_run_id_missing")
                         break
                     ledger_observation = aggregate_resource_ledger(
                         ledger, assessment=assessment

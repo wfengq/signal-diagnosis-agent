@@ -196,11 +196,14 @@ def _profile_hook_identity_ok(profile: SdkObservationProfile) -> tuple[bool, tup
 
 def _profile_matches_installed(
     profile: SdkObservationProfile,
+    *,
+    allow_fixture_offline_boundary: bool = False,
 ) -> tuple[bool, tuple[str, ...], bool]:
     """Return (ok_to_attach, blockers, audited_supported).
 
-    Audited support requires reviewed identity. Fixture-only attach is allowed
-    when hooks match the installed distribution without claiming support.
+    Audited support requires reviewed identity. Fixture-only attach requires an
+    explicit verified offline boundary and never claims unsupported profiles as
+    supported.
     """
     installed = build_audited_sdk_observation_profile()
     blockers: list[str] = []
@@ -221,20 +224,28 @@ def _profile_matches_installed(
     if profile.supported and not audited_supported and installed.supported:
         blockers.append("profile_claims_support_without_reviewed_match")
 
-    # Fixture observation may attach when hooks + installed identity match,
-    # even if reviewed capability is unsupported in this environment.
+    # Canonical unsupported profiles must not attach.
+    if not profile.supported and not allow_fixture_offline_boundary:
+        blockers.append("unsupported_sdk_profile_requires_offline_boundary")
+        return False, tuple(dict.fromkeys(blockers + list(profile.blockers))), False
+
     fixture_attach_ok = (
-        not blockers
+        allow_fixture_offline_boundary
         and hook_ok
         and profile.openai_version == installed.openai_version
         and profile.openai_source_digest == installed.openai_source_digest
+        and not any(
+            reason.startswith("dependency_identity_drift")
+            or reason == "openai_source_digest_drift"
+            or reason.endswith("hook_mismatch")
+            for reason in blockers
+        )
     )
     if profile.supported and not audited_supported:
         return False, tuple(dict.fromkeys(blockers)), False
     if audited_supported:
         return True, (), True
     if fixture_attach_ok:
-        # Clear identity-match blockers that only matter for audited support.
         return True, tuple(dict.fromkeys(profile.blockers)), False
     return False, tuple(dict.fromkeys(blockers or profile.blockers)), False
 
@@ -244,14 +255,18 @@ def attach_sdk_observation(
     *,
     binding: TelemetryBinding,
     profile: SdkObservationProfile,
+    allow_fixture_offline_boundary: bool = False,
 ) -> ClientObservationDescriptor:
     """Attach per-instance observation to an already-constructed AsyncOpenAI client."""
-    ok, blockers, audited = _profile_matches_installed(profile)
+    ok, blockers, audited = _profile_matches_installed(
+        profile,
+        allow_fixture_offline_boundary=allow_fixture_offline_boundary,
+    )
     if not ok:
         binding.mark_invalid("unsupported_sdk_profile")
         for reason in blockers:
             binding.mark_invalid(reason)
-        return ClientObservationDescriptor(
+        descriptor = ClientObservationDescriptor(
             origin="unsupported",
             openai_version=profile.openai_version,
             native_http_family=profile.native_http_family,
@@ -259,6 +274,8 @@ def attach_sdk_observation(
             blockers=blockers,
             fixture_only=True,
         )
+        binding.attach_descriptor(descriptor)
+        return descriptor
 
     # Instance-local wrappers; never patch the class globally.
     prepare = getattr(client, "_prepare_options", None)
@@ -267,7 +284,7 @@ def attach_sdk_observation(
     if prepare is None or send_request is None or http_client is None:
         blockers = ("unavailable_retry_telemetry:missing_hook_points",)
         binding.mark_invalid(blockers[0])
-        return ClientObservationDescriptor(
+        descriptor = ClientObservationDescriptor(
             origin="unsupported",
             openai_version=profile.openai_version,
             native_http_family=profile.native_http_family,
@@ -275,6 +292,8 @@ def attach_sdk_observation(
             blockers=blockers,
             fixture_only=True,
         )
+        binding.attach_descriptor(descriptor)
+        return descriptor
 
     state: dict[str, Any] = {
         "attempt_index": 0,
@@ -366,11 +385,9 @@ def attach_sdk_observation(
             )
             state["current_attempt_id"] = None
 
-    # Prefer transport-level observation so redirect hops are visible even when
-    # httpx follows redirects inside a single AsyncClient.send call.
-    transport = getattr(http_client, "_transport", None)
-    original_transport_request = None
-    if transport is not None and hasattr(transport, "handle_async_request"):
+    def _wrap_transport(transport: Any) -> bool:
+        if transport is None or not hasattr(transport, "handle_async_request"):
+            return False
         original_transport_request = transport.handle_async_request
 
         async def observed_transport_request(request: Any) -> Any:
@@ -435,7 +452,28 @@ def attach_sdk_observation(
                 state["current_send_id"] = None
 
         object.__setattr__(transport, "handle_async_request", observed_transport_request)
-    else:
+        return True
+
+    # Observe the actual dispatch path: default transport, mounts, and proxy
+    # transports. Wrapping only ``_transport`` misses mounted/proxy routes.
+    wrapped_any = False
+    wrapped_any = _wrap_transport(getattr(http_client, "_transport", None)) or wrapped_any
+    mounts = getattr(http_client, "_mounts", None)
+    if isinstance(mounts, dict):
+        for mounted in mounts.values():
+            wrapped_any = _wrap_transport(mounted) or wrapped_any
+    # Some httpx proxy configurations expose an additional pool transport.
+    for attr in ("_proxy_transport", "_proxies"):
+        extra = getattr(http_client, attr, None)
+        if extra is None:
+            continue
+        if isinstance(extra, dict):
+            for mounted in extra.values():
+                wrapped_any = _wrap_transport(mounted) or wrapped_any
+        else:
+            wrapped_any = _wrap_transport(extra) or wrapped_any
+
+    if not wrapped_any:
 
         async def observed_http_send(request: Any, *args: Any, **kwargs: Any) -> Any:
             attempt_id = state.get("current_attempt_id") or ""
@@ -504,7 +542,7 @@ def attach_sdk_observation(
     object.__setattr__(client, "_send_request", observed_send_request)
     object.__setattr__(client, "_signal_diag_observation_attached", True)
     object.__setattr__(client, "_signal_diag_observation_state", state)
-    return ClientObservationDescriptor(
+    descriptor = ClientObservationDescriptor(
         origin="canonical_sdk" if audited else "mock_native",
         openai_version=profile.openai_version,
         native_http_family=profile.native_http_family,
@@ -512,6 +550,9 @@ def attach_sdk_observation(
         blockers=() if audited else blockers,
         fixture_only=not audited,
     )
+    object.__setattr__(client, "_signal_diag_observation_descriptor", descriptor)
+    binding.attach_descriptor(descriptor)
+    return descriptor
 
 
 def _optional_int(value: object) -> int | None:

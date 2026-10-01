@@ -616,7 +616,15 @@ def _create_async_openai_client(
     if binding is not None and profile is not None:
         from .provider_telemetry import attach_sdk_observation
 
-        attach_sdk_observation(client, binding=binding, profile=profile)
+        descriptor = attach_sdk_observation(
+            client,
+            binding=binding,
+            profile=profile,
+            allow_fixture_offline_boundary=bool(
+                getattr(binding, "allow_fixture_offline_boundary", False)
+            ),
+        )
+        binding.attach_descriptor(descriptor)
     elif binding is not None and profile is None:
         # Binding without an audited profile is allowed for turn/call events only.
         pass

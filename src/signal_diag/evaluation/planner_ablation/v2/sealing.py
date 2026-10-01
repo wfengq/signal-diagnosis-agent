@@ -561,8 +561,10 @@ def build_candidate_manifest(
         candidate_digest=candidate_digest,
     )
     if resource_extension is not None:
-        # Wire validation into construction; readiness remains fail-closed.
-        validate_resource_candidate(candidate, repository_root=repo)
+        # Enforce the full validation result; never ignore readiness.
+        validation = validate_resource_candidate(candidate, repository_root=repo)
+        if not validation.ready:
+            candidate = candidate.model_copy(update={"seal_ready": False})
     return candidate
 
 
@@ -591,8 +593,14 @@ def generate_seal(
     destination: Path,
     *,
     repository_root: Path | None = None,
+    legacy_fixture_seal: bool = False,
 ) -> Path:
-    """Write a new seal directory exclusively. Never deletes or replaces."""
+    """Write a new seal directory exclusively. Never deletes or replaces.
+
+    Production seals require a fully validated resource_extension. The legacy
+    fixture path (no resource_extension) is available only when
+    ``legacy_fixture_seal=True`` for temporary pytest reproduction.
+    """
     _refuse_dev1_destination(destination)
     _require_seal_grant_for_real_evidence(destination)
     if candidate.study_id != STUDY_ID_V2:
@@ -607,7 +615,13 @@ def generate_seal(
         raise ValueError(
             "candidate is not seal-ready; complete effective limits and clear blockers"
         )
-    if candidate.resource_extension is not None:
+    if candidate.resource_extension is None:
+        if not legacy_fixture_seal:
+            raise ValueError(
+                "production generate_seal requires validated resource_extension; "
+                "pass legacy_fixture_seal=True only for isolated fixture reproduction"
+            )
+    else:
         if repository_root is None:
             raise ValueError(
                 "repository_root required when candidate includes resource_extension"
@@ -906,10 +920,20 @@ def verify_manifest(
         validation = validate_resource_candidate(
             candidate, repository_root=repository_root.resolve()
         )
-        # Readonly verify always revalidates; fixture/blocked extensions stay attached
-        # but never silently elevate readiness.
-        if "invalid_resource_extension" in validation.reasons:
-            raise ValueError("resource_extension failed structural validation")
+        if any(
+            reason.startswith("invalid_resource_extension")
+            or reason == "missing_resource_extension"
+            for reason in validation.reasons
+        ):
+            raise ValueError(
+                "resource_extension failed structural validation: "
+                + ",".join(validation.reasons)
+            )
+        if not validation.ready:
+            raise ValueError(
+                "resource_extension not production-ready under verify_manifest: "
+                + ",".join(validation.reasons)
+            )
         resource_extension = candidate.resource_extension
         if isinstance(resource_extension, dict) and resource_extension.get(
             "resource_policy"
@@ -1057,6 +1081,79 @@ def validate_resource_candidate(
         reasons.append("capability_proof_sdk_identity_mismatch")
     elif not extension.capability.sdk_profile.supported:
         reasons.append("unsupported_capability_sdk_profile")
+
+    # Authenticate full installed SDK/native identity against declared proofs.
+    try:
+        from signal_diag.agent.provider_telemetry import (
+            build_audited_sdk_observation_profile,
+            installed_openai_source_digests,
+        )
+
+        installed_profile = build_audited_sdk_observation_profile()
+        installed_digests = installed_openai_source_digests()
+    except Exception:  # noqa: BLE001
+        reasons.append("installed_sdk_identity_unavailable")
+        installed_profile = None
+        installed_digests = {}
+    if installed_profile is not None and extension.proofs.sdk_profile is not None:
+        proof_sdk = extension.proofs.sdk_profile
+        if proof_sdk.openai_version != installed_profile.openai_version:
+            reasons.append("installed_openai_version_mismatch")
+        if proof_sdk.openai_source_digest != installed_profile.openai_source_digest:
+            reasons.append("installed_openai_source_digest_mismatch")
+        if proof_sdk.native_http_family != installed_profile.native_http_family:
+            reasons.append("installed_native_http_family_mismatch")
+        if proof_sdk.native_http_version != installed_profile.native_http_version:
+            reasons.append("installed_native_http_version_mismatch")
+        if proof_sdk.httpcore_version != installed_profile.httpcore_version:
+            reasons.append("installed_httpcore_version_mismatch")
+        for relative, digest in proof_sdk.source_file_digests.items():
+            live = installed_digests.get(relative)
+            if live is None:
+                reasons.append(f"missing_installed_sdk_source:{relative}")
+            elif live != digest:
+                reasons.append(f"sdk_source_content_mismatch:{relative}")
+        if not installed_profile.supported:
+            reasons.append("installed_sdk_profile_unsupported")
+
+    # Authenticate referenced proof/acceptance content and applicability scope.
+    for fact_name in (
+        "planner_turn_ceiling",
+        "sdk_attempt_factor",
+        "http_send_factor",
+        "input_token_ceiling",
+        "output_token_ceiling",
+        "all_outcome_token_ceiling",
+        "request_timeout",
+    ):
+        fact = getattr(extension.proofs, fact_name, None)
+        if fact is None:
+            continue
+        if fact.scope in {"unsupported", "fixture_only"}:
+            reasons.append(f"inapplicable_bound_scope:{fact_name}:{fact.scope}")
+        reference = fact.acceptance_reference
+        if reference in {"", "fixture", "fixture_only", "fixture_only_reviewed_fact"}:
+            reasons.append(f"unauthenticated_proof_acceptance:{fact_name}")
+            continue
+        # Path-like references must resolve under the repository and match digest.
+        if "/" in reference or reference.endswith(".md"):
+            try:
+                evidence_path = resolve_under_root(
+                    repository_root.resolve(), reference, label="proof"
+                )
+            except ValueError:
+                reasons.append(f"proof_acceptance_path_escape:{fact_name}")
+                continue
+            if not evidence_path.is_file():
+                reasons.append(f"missing_proof_acceptance_file:{fact_name}")
+                continue
+            actual = _sha256_file(evidence_path)
+            if actual != fact.proof_digest:
+                reasons.append(f"proof_acceptance_content_mismatch:{fact_name}")
+
+    # Nested fixture-only packages cannot authenticate production capability.
+    if extension.proofs.fixture_only or extension.capability.fixture_only:
+        reasons.append("nested_fixture_provenance_rejected")
 
     recomputed_digest = _digest_payload(
         {

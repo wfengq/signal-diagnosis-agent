@@ -381,3 +381,82 @@ def test_unobserved_factory_path_unchanged() -> None:
     )
     assert getattr(planner._client, "_signal_diag_observation_attached", False) is False
     assert get_planner_telemetry_binding(planner) is None
+
+
+@pytest.mark.asyncio
+async def test_mounted_transport_path_is_observed() -> None:
+    bodies: list[bytes] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        bodies.append(request.content)
+        return httpx.Response(200, json=_chat_completion_body(content=_valid_decision_json()))
+
+    binding, events = _binding()
+    profile = build_audited_sdk_observation_profile()
+    mount_transport = httpx.MockTransport(handler)
+    # Default transport would miss; mount is the actual dispatch path.
+    http_client = httpx.AsyncClient(
+        transport=httpx.MockTransport(
+            lambda r: httpx.Response(500, json={"error": "unused_default"})
+        ),
+        mounts={"https://": mount_transport},
+        follow_redirects=True,
+    )
+    client = _async_openai(
+        api_key="k",
+        base_url="https://example.test/v1",
+        http_client=http_client,
+    )
+    desc = attach_sdk_observation(client, binding=binding, profile=profile)
+    assert desc.origin in {"canonical_sdk", "mock_native"}
+    planner = RealLLMPlanner(
+        provider="deepseek",
+        api_key="k",
+        base_url="https://example.test/v1",
+        client=client,  # type: ignore[arg-type]
+    )
+    bind_planner_telemetry(planner, binding=binding)
+    await planner.decide(_context())
+    http_starts = [
+        e for e in events if isinstance(e, HttpSendEvent) and e.phase == "start"
+    ]
+    assert len(bodies) == 1
+    assert len(http_starts) >= 1
+
+
+def test_unsupported_canonical_profile_does_not_attach_hooks() -> None:
+    binding, _events = _binding()
+    installed = build_audited_sdk_observation_profile()
+    # Matching hooks/identity but supported=False without offline boundary.
+    unsupported = SdkObservationProfile(
+        openai_version=installed.openai_version,
+        openai_source_digest=installed.openai_source_digest,
+        native_http_family=installed.native_http_family,
+        native_http_version=installed.native_http_version,
+        httpcore_version=installed.httpcore_version,
+        source_file_digests=installed.source_file_digests,
+        max_retries_default=installed.max_retries_default,
+        sdk_attempts_per_call=installed.sdk_attempts_per_call,
+        prepare_options_hook=installed.prepare_options_hook,
+        send_request_hook=installed.send_request_hook,
+        native_dispatch_hook=installed.native_dispatch_hook,
+        supported=False,
+        blockers=("canonical_unsupported",),
+    )
+    client = _async_openai(api_key="k", base_url="https://example.test/v1")
+    desc = attach_sdk_observation(client, binding=binding, profile=unsupported)
+    assert desc.origin == "unsupported"
+    assert binding.invalid is True
+    assert getattr(client, "_signal_diag_observation_attached", False) is False
+    # Explicit offline boundary may attach fixture observation without claiming support.
+    binding2, _ = _binding()
+    binding2.allow_fixture_offline_boundary = True
+    desc2 = attach_sdk_observation(
+        client,
+        binding=binding2,
+        profile=unsupported,
+        allow_fixture_offline_boundary=True,
+    )
+    assert desc2.profile_supported is False
+    assert desc2.origin == "mock_native"
+    assert binding2.observation_descriptor is not None

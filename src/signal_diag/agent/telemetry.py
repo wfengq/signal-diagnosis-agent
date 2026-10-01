@@ -203,6 +203,8 @@ class TelemetryBinding:
     current_call_id: str | None = None
     current_attempt_id: str | None = None
     last_turn_id: str | None = None
+    observation_descriptor: ClientObservationDescriptor | None = None
+    allow_fixture_offline_boundary: bool = False
 
     def new_id(self, prefix: str) -> str:
         return f"{prefix}_{uuid.uuid4().hex}"
@@ -211,6 +213,15 @@ class TelemetryBinding:
         self.invalid = True
         if reason not in self.invalid_reasons:
             self.invalid_reasons.append(reason)
+
+    def attach_descriptor(self, descriptor: ClientObservationDescriptor) -> None:
+        self.observation_descriptor = descriptor
+        if descriptor.origin == "unsupported" or (
+            not descriptor.profile_supported and descriptor.origin != "mock_native"
+        ):
+            self.mark_invalid("unsupported_observation_descriptor")
+            for reason in descriptor.blockers:
+                self.mark_invalid(reason)
 
 
 def emit_safely(binding: TelemetryBinding, event: TelemetryEvent) -> None:

@@ -927,3 +927,27 @@ async def test_product_budget_exhaustion_continues_campaign(
     assert record.slot_records[0].terminal.failure_cause.kind == "behavioral"
     assert record.slot_records[1].status in {"completed", "failed"}
     assert record.slot_records[1].status != "unstarted"
+
+
+def test_fixed_arm_slot_digests_are_unique_per_schedule_slot() -> None:
+    from signal_diag.app.planner_ablation_v2_adapter import (
+        StudyResourceObserver,
+        build_fixed_arm_session,
+    )
+
+    digests: list[str] = []
+    run_ids: list[str] = []
+    for idx in range(2):
+        observer = StudyResourceObserver(slot_id=f"fixed_slot_{idx}_{'a'*60}")
+        session = build_fixed_arm_session(
+            profile_loader=_profile_loader(),
+            observer=observer,
+            offline_session=True,
+        )
+        observer.associate_run_id(f"run_fixed_{idx}")
+        ledger = session.resource_snapshot(worker_drained=True)
+        digests.append(ledger.slot_key_digest)
+        run_ids.append(ledger.run_id or "")
+    assert digests[0] != digests[1]
+    assert "fixed" not in digests
+    assert run_ids[0] != run_ids[1]

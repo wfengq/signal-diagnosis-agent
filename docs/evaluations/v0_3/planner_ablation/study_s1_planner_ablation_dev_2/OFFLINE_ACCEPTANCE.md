@@ -178,11 +178,15 @@ Task 7 offline implementation merged via PR #18. Post-merge label review + budge
 
 ## Token/transport telemetry offline implementation (Tasks 2–7)
 
-**Status:** `offline_implementation_pending_revision` — Codex P1/P2 revise applied
-against tip `ff3c059` (baseline `605150c`); gates held in this environment under
-the checks below. **Not** claiming `offline_implementation_accepted` until
-operator re-ack. Not `resource_bounds_complete`, not `candidate_verified`, not
-seal, not RealLLM.
+**Status:** `offline_implementation_pending_revision` — Codex tip `218c2fa` P1/P2
+recheck fixes applied in this revision (candidate validation enforcement, event-graph
+recompute, fixed-arm digests, mount/proxy transport observation, unsupported profile
+blocking, proof provenance authentication, token exposure). **Not** claiming
+`offline_implementation_accepted` until independent recheck. Not
+`resource_bounds_complete`, not `candidate_verified`, not seal, not RealLLM.
+
+Honest external blockers remain open: HTTP/token bound admission, unaccepted provider
+model mapping, lockfile↔install drift. Gates must not be loosened to clear them.
 
 Observation defaults **off**. Public `RealLLMPlanner` constructors/payloads unchanged.
 No commit/push/seal/RealLLM under this grant.

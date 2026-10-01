@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from signal_diag.app.planner_ablation_v2_adapter import _resolve_product_provenance
 from signal_diag.evaluation.planner_ablation.v2.models import CandidateManifestV2
 from signal_diag.evaluation.planner_ablation.v2.sealing import (
@@ -68,3 +70,55 @@ def test_no_real_seal_under_dev2_evidence_root_resource_doc() -> None:
         "BUDGET_BOUNDS.md",
         "RESOURCE_BOUNDS.md",
     }
+
+
+def test_build_candidate_enforces_validation_result_not_ignored() -> None:
+    from signal_diag.evaluation.planner_ablation.v2.sealing import (
+        validate_resource_candidate,
+    )
+
+    # Construction must apply validation readiness: forged extensions stay not-ready.
+    candidate = CandidateManifestV2.model_construct(
+        resource_extension={
+            "resource_policy": "planner_ablation_resource_v1",
+            "telemetry_schema": "planner_ablation_telemetry_v1",
+            "fixture_only": False,
+        },
+        seal_ready=True,
+        label_review=None,
+    )
+    result = validate_resource_candidate(candidate, repository_root=PROJECT_ROOT)
+    assert result.ready is False
+    assert any(r.startswith("invalid_resource_extension") for r in result.reasons)
+    # Production build path copies this into seal_ready=False (see sealing.py).
+    assert not (result.ready and candidate.seal_ready)
+
+
+def test_generate_seal_omitting_extension_requires_legacy_fixture_flag(
+    tmp_path: Path,
+) -> None:
+    from signal_diag.evaluation.planner_ablation.v2.models import CandidateManifestV2
+    from signal_diag.evaluation.planner_ablation.v2.sealing import generate_seal
+
+    candidate = CandidateManifestV2.model_construct(
+        seal_ready=True,
+        resource_extension=None,
+        study_id="study_s1_planner_ablation_dev_2",
+        scoring_identity="signal_diag.planner_ablation_scoring",
+        scoring_version="2.0.0-dev.1",
+        slots=(),
+    )
+    with pytest.raises(ValueError, match="legacy_fixture_seal|resource_extension"):
+        generate_seal(candidate, tmp_path / "prod_seal")
+
+
+def test_invalid_resource_extension_prefix_is_rejected_by_startswith() -> None:
+    result = validate_resource_candidate(
+        CandidateManifestV2.model_construct(
+            resource_extension={"resource_policy": "planner_ablation_resource_v1"}
+        ),
+        repository_root=PROJECT_ROOT,
+    )
+    assert result.ready is False
+    assert any(r.startswith("invalid_resource_extension") for r in result.reasons)
+    assert "invalid_resource_extension" not in result.reasons
