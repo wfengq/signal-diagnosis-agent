@@ -68,6 +68,13 @@ _DEFAULT_ASSESSMENT = TaskAssessment(
 _DRAIN_GRACE_S = 5.0
 
 
+def _session_background_worker_alive(session: ArmSession) -> bool:
+    alive = getattr(session, "background_worker_alive", False)
+    if callable(alive):
+        return bool(alive())
+    return bool(alive)
+
+
 class CampaignPreflightError(RuntimeError):
     """Online/offline campaign refused before slot dispatch."""
 
@@ -493,6 +500,8 @@ async def _dispatch_slot(
                 request_start=request_start,
                 terminal_ready=terminal_ready,
             )
+            if _session_background_worker_alive(session):
+                drain_failed = True
             return terminal, teardown_duration, teardown_error, True, True
         terminal = _deadline_terminal(
             slot=slot,
@@ -501,7 +510,9 @@ async def _dispatch_slot(
             terminal_ready=terminal_ready,
             detail="async_deadline_exceeded",
         )
-        return terminal, teardown_duration, teardown_error, False, True
+        if _session_background_worker_alive(session):
+            drain_failed = True
+        return terminal, teardown_duration, teardown_error, drain_failed, True
 
     if raised is not None and raw_terminal is None:
         drained = True
@@ -510,6 +521,8 @@ async def _dispatch_slot(
         teardown_duration, teardown_error = await _teardown_session(session, clock=clock)
         detail = f"{type(raised).__name__}: {raised}"
         kind: Literal["infrastructure", "unknown"] = "unknown"
+        if isinstance(raised, (OSError, TimeoutError, ConnectionError)):
+            kind = "infrastructure"
         lowered = detail.lower()
         if any(
             token in lowered
@@ -531,7 +544,9 @@ async def _dispatch_slot(
             request_start=request_start,
             terminal_ready=terminal_ready,
         )
-        return terminal, teardown_duration, teardown_error, not drained, True
+        if _session_background_worker_alive(session):
+            drain_failed = True
+        return terminal, teardown_duration, teardown_error, not drained or drain_failed, True
 
     assert raw_terminal is not None
     terminal = _attach_outer_timing(
@@ -553,7 +568,9 @@ async def _dispatch_slot(
             detail=detail,
             provenance=terminal.provenance,
         )
-        return terminal, teardown_duration, teardown_error, False, True
+        if _session_background_worker_alive(session):
+            drain_failed = True
+        return terminal, teardown_duration, teardown_error, drain_failed, True
 
     try:
         if terminal.timing is not None and terminal.timing.phase_markers:
@@ -569,13 +586,17 @@ async def _dispatch_slot(
             terminal_ready=terminal_ready,
             provenance=terminal.provenance,
         )
-        return terminal, teardown_duration, teardown_error, False, True
+        if _session_background_worker_alive(session):
+            drain_failed = True
+        return terminal, teardown_duration, teardown_error, drain_failed, True
 
     classified = classify_failure_cause(terminal)
     if terminal.status == "failed":
         terminal = terminal.model_copy(update={"failure_cause": classified})
 
     teardown_duration, teardown_error = await _teardown_session(session, clock=clock)
+    if _session_background_worker_alive(session):
+        drain_failed = True
     stop = _is_infrastructure_stop(classified)
     return terminal, teardown_duration, teardown_error, drain_failed, stop
 

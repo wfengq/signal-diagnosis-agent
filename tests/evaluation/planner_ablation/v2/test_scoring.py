@@ -669,6 +669,33 @@ def test_duplicate_missing_cross_round_and_zero_claims() -> None:
     assert decision.review_status == "pending"
 
 
+def test_harness_only_full_schedule_prerequisites_fail_closed() -> None:
+    scenarios = load_proposed_scenarios(REPO_ROOT)
+    protocol = StudyProtocolV2()
+    schedule = build_schedule(scenarios, protocol, repository_root=REPO_ROOT)
+    study = build_synthetic_verified_study_v2_for_tests(
+        protocol=protocol,
+        schedule=schedule,
+        scenarios=scenarios,
+    )
+    records = []
+    for slot in schedule.slots:
+        mode = next(
+            r.mode for r in schedule.canonical_requests if r.request_key == slot.request_key
+        )
+        records.append(_terminal(slot=slot, mode=mode))
+    prereq = evaluate_prerequisites(study, records)
+    assert prereq.campaign_complete is True
+    assert prereq.all_passed is False
+    assert "label_review_not_approved" in prereq.reason_codes
+    assert "unverified_construction_path" in prereq.reason_codes
+    assert "provenance_rejected" in prereq.reason_codes
+    metrics = calculate_metrics(study, records)
+    result = decide(protocol, metrics, prereq)
+    assert result.eligible_conclusion == "insufficient_evidence"
+    assert result.machine_candidate == "insufficient_evidence"
+
+
 def test_full_schedule_denominators_nine_ten_never_114() -> None:
     scenarios = load_proposed_scenarios(REPO_ROOT)
     protocol = StudyProtocolV2()

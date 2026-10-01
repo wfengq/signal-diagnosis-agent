@@ -42,6 +42,11 @@ from signal_diag.evaluation.planner_ablation.v2.models import (
     VerifiedStudyV2,
 )
 from signal_diag.evaluation.planner_ablation.v2.population import canonical_json
+from signal_diag.evaluation.planner_ablation.v2.provenance import (
+    ProvenanceRejection,
+    terminal_to_scored_record,
+    validate_scored_product_ingestion,
+)
 from signal_diag.evaluation.planner_ablation.v2.timing import (
     TimingValidationError,
     validate_request_timing,
@@ -798,6 +803,14 @@ def evaluate_prerequisites(
     if not identity_ok:
         reasons.append("identity_mismatch")
 
+    label_review_ok = study.label_review.approved
+    if not label_review_ok:
+        reasons.append("label_review_not_approved")
+
+    construction_path_ok = study.construction_path == "verify_manifest"
+    if not construction_path_ok:
+        reasons.append("unverified_construction_path")
+
     oracle_ok = not study.label_review.errors
     if not oracle_ok:
         reasons.append("oracle_label_errors")
@@ -890,6 +903,19 @@ def evaluate_prerequisites(
     if not positive_claims_evaluable:
         reasons.append("positive_claims_not_evaluable")
 
+    provenance_ok = True
+    if campaign_complete:
+        for terminal in indexed.values():
+            if terminal.arm != "product_agent":
+                continue
+            scored_record = terminal_to_scored_record(terminal)
+            try:
+                validate_scored_product_ingestion(scored_record)
+            except ProvenanceRejection:
+                provenance_ok = False
+                reasons.append("provenance_rejected")
+                break
+
     # Deduplicate reason codes while preserving order.
     seen: set[str] = set()
     unique_reasons: list[str] = []
@@ -900,6 +926,9 @@ def evaluate_prerequisites(
 
     all_passed = (
         identity_ok
+        and label_review_ok
+        and construction_path_ok
+        and provenance_ok
         and timing_ok
         and oracle_ok
         and report_parity_ok

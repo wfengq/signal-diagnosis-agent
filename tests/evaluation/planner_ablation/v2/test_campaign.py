@@ -344,6 +344,88 @@ async def test_unknown_failure_blocks_campaign() -> None:
     assert record.slot_records[1].status == "unstarted"
 
 
+class _LeakyBackgroundWorkerSession:
+    """Reports a live background worker after teardown (drain honesty)."""
+
+    def __init__(self, factory: Callable[[ByteRequest], StudyTerminal]) -> None:
+        self._factory = factory
+        self._worker_alive = True
+
+    @property
+    def background_worker_alive(self) -> bool:
+        return self._worker_alive
+
+    async def execute(self, request: ByteRequest) -> StudyTerminal:
+        return self._factory(request)
+
+    async def aclose(self) -> None:
+        return None
+
+
+@pytest.mark.asyncio
+async def test_background_worker_alive_after_teardown_marks_drain_failed() -> None:
+    slots = (
+        SlotKey(request_key=_KEY_A, arm="product_agent", round_index=0),
+        SlotKey(request_key=_KEY_B, arm="fixed_pipeline", round_index=0),
+    )
+    schedule = _mini_schedule(slots=slots)
+    protocol = StudyProtocolV2(deadline_s=30.0)
+
+    async def factory(slot: SlotKey) -> _LeakyBackgroundWorkerSession:
+        def build(request: ByteRequest) -> StudyTerminal:
+            del request
+            return _completed(slot)
+
+        return _LeakyBackgroundWorkerSession(build)
+
+    record = await run_schedule(
+        schedule,
+        protocol,
+        factory,
+        execution_mode="offline",
+        wall_timeout=False,
+    )
+    assert record.slot_records[0].drain_failed is True
+    assert record.status == "infrastructure_stopped"
+    assert record.accepted_conclusion_available is False
+    assert record.slot_records[1].status == "unstarted"
+
+
+@pytest.mark.asyncio
+async def test_oserror_from_session_stops_campaign() -> None:
+    slots = (
+        SlotKey(request_key=_KEY_A, arm="product_agent", round_index=0),
+        SlotKey(request_key=_KEY_B, arm="fixed_pipeline", round_index=0),
+    )
+    schedule = _mini_schedule(slots=slots)
+    protocol = StudyProtocolV2(deadline_s=30.0)
+
+    class _OSErrorSession:
+        async def execute(self, request: ByteRequest) -> StudyTerminal:
+            del request
+            raise OSError("disk read failed")
+
+        async def aclose(self) -> None:
+            return None
+
+    async def factory(slot: SlotKey) -> _OSErrorSession:
+        del slot
+        return _OSErrorSession()
+
+    record = await run_schedule(
+        schedule,
+        protocol,
+        factory,
+        execution_mode="offline",
+        wall_timeout=False,
+    )
+    assert record.status == "infrastructure_stopped"
+    assert record.slot_records[0].terminal is not None
+    assert record.slot_records[0].terminal.failure_cause is not None
+    assert record.slot_records[0].terminal.failure_cause.kind == "infrastructure"
+    assert record.slot_records[1].status == "unstarted"
+
+
 def test_limits_and_telemetry_block_unknowns() -> None:
     # Merge-audited AgentLimits defaults are visible but do not prove request/token bounds.
     config = snapshot_effective_configuration(limits=AgentLimits())

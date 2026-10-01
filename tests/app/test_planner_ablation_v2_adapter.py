@@ -23,6 +23,7 @@ from signal_diag.agent.planner import PROMPT_VERSION, RealLLMPlanner
 from signal_diag.app.models import PlannerIdentity
 from signal_diag.app.pcm_wav import encode_pcm32_wav
 from signal_diag.app.planner_ablation_v2_adapter import (
+    _failure_kind_for_execute_error,
     build_fixed_arm_session,
     build_product_arm_session,
 )
@@ -572,6 +573,47 @@ async def test_t_cx293_guidance_and_reference_parity_deterministic() -> None:
     await timed_product.aclose()
     await product_svc.aclose()
     await timed_svc.aclose()
+
+
+def test_execute_error_classification_oserror_is_infrastructure() -> None:
+    assert _failure_kind_for_execute_error(OSError("disk")) == "infrastructure"
+    assert _failure_kind_for_execute_error(TimeoutError()) == "infrastructure"
+    assert _failure_kind_for_execute_error(ConnectionError()) == "infrastructure"
+    assert (
+        _failure_kind_for_execute_error(RuntimeError("max_planner_retries"))
+        == "behavioral"
+    )
+    assert _failure_kind_for_execute_error(RuntimeError("weird")) == "unknown"
+
+
+@pytest.mark.asyncio
+async def test_product_session_oserror_returns_infrastructure_terminal(
+    product_service: _RecordingContextualService,
+) -> None:
+    harmonic = generate_harmonic_sine(
+        fundamental_hz=440.0,
+        harmonic_ratios={2: 0.12},
+        sample_rate_hz=8_000,
+        duration_s=0.2,
+        fundamental_amplitude=0.5,
+    )
+    request = ByteRequest(
+        mode="single_signal",
+        test_wav_bytes=_wav_from_case(harmonic),
+        question=DEFAULT_STUDY_QUESTION,
+    )
+
+    async def boom(*args: object, **kwargs: object) -> object:
+        del args, kwargs
+        raise OSError("simulated transport disk failure")
+
+    product_service.submit_contextual_wav = boom  # type: ignore[method-assign]
+    session = build_product_arm_session(product_service, offline_session=True)
+    terminal = await session.execute(request)
+    assert terminal.status == "failed"
+    assert terminal.failure_cause is not None
+    assert terminal.failure_cause.kind == "infrastructure"
+    await session.aclose()
 
 
 @pytest.mark.asyncio

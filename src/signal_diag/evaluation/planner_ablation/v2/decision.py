@@ -199,13 +199,8 @@ def _planner_advantage(
                 mode=mode,
                 round_index=round_index,
             )
-            extra = len(product.quality_correct_keys - fixed.quality_correct_keys)
-            # Also allow pure count superiority when keys differ only by count.
             count_extra = product.quality.numerator - fixed.quality.numerator
-            if extra < 1 and count_extra < 1:
-                ok_all_rounds = False
-                break
-            if count_extra < 1 and extra < 1:
+            if count_extra < 1:
                 ok_all_rounds = False
                 break
         if ok_all_rounds:
@@ -229,10 +224,15 @@ def _planner_advantage(
                 mode=mode,
                 round_index=round_index,
             )
-            if mode not in qualifying_modes and not _rate_non_inferior(
+            if not _rate_non_inferior(
                 product.quality.value, fixed.quality.value, tolerance=tol
             ):
-                reasons.append(f"quality_regression_other_mode:{mode}:r{round_index}")
+                suffix = (
+                    "other_mode"
+                    if mode not in qualifying_modes
+                    else "qualifying_mode"
+                )
+                reasons.append(f"quality_regression_{suffix}:{mode}:r{round_index}")
             if not _rate_non_inferior(
                 product.usefulness.value, fixed.usefulness.value, tolerance=tol
             ):

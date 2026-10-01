@@ -506,3 +506,113 @@ def test_three_exact_conclusions_independently() -> None:
         _prereq(),
     )
     assert insufficient.eligible_conclusion == "insufficient_evidence"
+
+
+def test_planner_advantage_rejects_key_set_diff_without_count_gain() -> None:
+    """Unique correct keys with lower numerator must not qualify."""
+
+    def mutate(round_index, mode, product, fixed):
+        if mode != "single_signal":
+            product = product.model_copy(
+                update={"latency": _latency(mean=1.0), "mean_tool_actions": 3.0}
+            )
+            fixed = fixed.model_copy(
+                update={"latency": _latency(mean=1.0), "mean_tool_actions": 3.0}
+            )
+            return product, fixed
+        product = product.model_copy(
+            update={
+                "quality": _rate(7, 9),
+                "usefulness": _rate(7, 9),
+                "quality_correct_keys": frozenset({f"uniq_p{i}" for i in range(7)}),
+                "latency": _latency(mean=1.0),
+                "mean_tool_actions": 3.0,
+            }
+        )
+        fixed = fixed.model_copy(
+            update={
+                "quality": _rate(8, 9),
+                "usefulness": _rate(8, 9),
+                "quality_correct_keys": frozenset({f"uniq_f{i}" for i in range(8)}),
+                "latency": _latency(mean=1.0),
+                "mean_tool_actions": 3.0,
+            }
+        )
+        return product, fixed
+
+    result = decide(_protocol(), _equal_tables(mutate_cell=mutate), _prereq())
+    assert result.eligible_conclusion == "insufficient_evidence"
+    assert result.machine_candidate != "planner_advantage"
+
+
+def test_planner_advantage_rejects_swapped_keys_equal_counts() -> None:
+    """Equal numerators with disjoint key sets must not qualify."""
+
+    def mutate(round_index, mode, product, fixed):
+        if mode != "single_signal":
+            product = product.model_copy(
+                update={"latency": _latency(mean=1.0), "mean_tool_actions": 3.0}
+            )
+            fixed = fixed.model_copy(
+                update={"latency": _latency(mean=1.0), "mean_tool_actions": 3.0}
+            )
+            return product, fixed
+        product = product.model_copy(
+            update={
+                "quality": _rate(8, 9),
+                "usefulness": _rate(8, 9),
+                "quality_correct_keys": frozenset({f"swap_p{i}" for i in range(8)}),
+                "latency": _latency(mean=1.0),
+                "mean_tool_actions": 3.0,
+            }
+        )
+        fixed = fixed.model_copy(
+            update={
+                "quality": _rate(8, 9),
+                "usefulness": _rate(8, 9),
+                "quality_correct_keys": frozenset({f"swap_f{i}" for i in range(8)}),
+                "latency": _latency(mean=1.0),
+                "mean_tool_actions": 3.0,
+            }
+        )
+        return product, fixed
+
+    result = decide(_protocol(), _equal_tables(mutate_cell=mutate), _prereq())
+    assert result.eligible_conclusion == "insufficient_evidence"
+    assert result.machine_candidate != "planner_advantage"
+
+
+def test_planner_advantage_still_requires_count_gain_all_rounds() -> None:
+    """9/9 vs 8/9 in single_signal every round remains planner advantage."""
+
+    def mutate(round_index, mode, product, fixed):
+        if mode == "single_signal":
+            product = product.model_copy(
+                update={
+                    "quality": _rate(9, 9),
+                    "usefulness": _rate(9, 9),
+                    "quality_correct_keys": frozenset({f"ps{i}" for i in range(9)}),
+                    "latency": _latency(mean=1.0),
+                    "mean_tool_actions": 3.0,
+                }
+            )
+            fixed = fixed.model_copy(
+                update={
+                    "quality": _rate(8, 9),
+                    "usefulness": _rate(8, 9),
+                    "quality_correct_keys": frozenset({f"ps{i}" for i in range(8)}),
+                    "latency": _latency(mean=1.0),
+                    "mean_tool_actions": 3.0,
+                }
+            )
+        else:
+            product = product.model_copy(
+                update={"latency": _latency(mean=1.0), "mean_tool_actions": 3.0}
+            )
+            fixed = fixed.model_copy(
+                update={"latency": _latency(mean=1.0), "mean_tool_actions": 3.0}
+            )
+        return product, fixed
+
+    result = decide(_protocol(), _equal_tables(mutate_cell=mutate), _prereq())
+    assert result.eligible_conclusion == "planner_advantage"

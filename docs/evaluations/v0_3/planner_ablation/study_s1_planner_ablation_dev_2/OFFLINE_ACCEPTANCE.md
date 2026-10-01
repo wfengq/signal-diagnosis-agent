@@ -1,7 +1,7 @@
 # Offline acceptance: `study_s1_planner_ablation_dev_2`
 
-**Status:** study-only offline acceptance complete for Task 7.  
-**Not a protocol seal.** No `protocol_seal/` directory exists under this study root.  
+**Status:** study-only offline harness acceptance recorded for Task 7 (gates/refusal tests; not seal or live-run readiness).
+**Not a protocol seal.** No `protocol_seal/` directory exists under this study root.
 **Not live-run readiness.** Green refusal / harness tests prove offline gates only.
 
 Baseline commit (PR #17 merge / Task 7 starting point):

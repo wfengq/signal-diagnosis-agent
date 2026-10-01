@@ -29,6 +29,7 @@ from signal_diag.evaluation.planner_ablation.report_fields import (
     derive_context_guidance_from_baseline,
 )
 from signal_diag.evaluation.planner_ablation.v2.campaign import (
+    _BEHAVIORAL_TERMINATION_MARKERS,
     collect_resource_telemetry,
 )
 from signal_diag.evaluation.planner_ablation.v2.models import (
@@ -68,6 +69,16 @@ _DEFAULT_ASSESSMENT = TaskAssessment(
     objective="determine why the signal sounds distorted",
     hypotheses=("clipping", "harmonic_distortion"),
 )
+_ExecuteFailureKind = Literal["infrastructure", "behavioral", "unknown"]
+
+
+def _failure_kind_for_execute_error(error: BaseException) -> _ExecuteFailureKind:
+    if isinstance(error, (OSError, TimeoutError, ConnectionError)):
+        return "infrastructure"
+    detail = str(error).lower()
+    if any(marker in detail for marker in _BEHAVIORAL_TERMINATION_MARKERS):
+        return "behavioral"
+    return "unknown"
 
 
 @dataclass
@@ -167,6 +178,7 @@ class ProductArmSession:
         clock: Callable[[], float],
         phase_advances: dict[str, float] | None = None,
         offline_session: bool = True,
+        owns_service_lifecycle: bool = False,
         arm: ScoredArm = "product_agent",
         observer: StudyResourceObserver | None = None,
     ) -> None:
@@ -174,6 +186,7 @@ class ProductArmSession:
         self._clock = clock
         self._phase_advances = phase_advances
         self._offline_session = offline_session
+        self._owns_service_lifecycle = owns_service_lifecycle
         self._arm = arm
         self._observer = observer
         # Fresh empty repository prepared outside the request timer.
@@ -199,6 +212,18 @@ class ProductArmSession:
             provider_client_bound=self._construction_client_bound,
             offline_session=self._offline_session,
         )
+
+    @property
+    def background_worker_alive(self) -> bool:
+        store = self._service._contextual_store
+        if any(
+            snapshot.status in ("queued", "running")
+            for snapshot in store._snapshots.values()
+        ):
+            return True
+        executor = self._service._contextual_executor
+        worker = executor._worker
+        return worker is not None and not worker.done() and not executor._queue.empty()
 
     async def execute(self, request: ByteRequest) -> StudyTerminal:
         if not isinstance(request, ByteRequest):
@@ -287,7 +312,10 @@ class ProductArmSession:
                 arm=self._arm,
                 mode=request.mode,
                 status="failed",
-                failure_cause=FailureCause(kind="behavioral", detail=str(error)),
+                failure_cause=FailureCause(
+                    kind=_failure_kind_for_execute_error(error),
+                    detail=str(error),
+                ),
                 task_assessment=_DEFAULT_ASSESSMENT,
                 provenance=provenance,
                 timing=_placeholder_timing(
@@ -351,8 +379,8 @@ class ProductArmSession:
         return terminal
 
     async def aclose(self) -> None:
-        # Service lifecycle is owned by the caller / session factory.
-        return None
+        if self._owns_service_lifecycle:
+            await self._service.aclose()
 
 
 def _task_assessment_from_diagnosis(
@@ -491,7 +519,10 @@ class FixedArmSession:
                 arm=self._arm,
                 mode=request.mode if isinstance(request, ByteRequest) else "single_signal",
                 status="failed",
-                failure_cause=FailureCause(kind="behavioral", detail=str(error)),
+                failure_cause=FailureCause(
+                    kind=_failure_kind_for_execute_error(error),
+                    detail=str(error),
+                ),
                 task_assessment=_DEFAULT_ASSESSMENT,
                 provenance=provenance,
                 timing=_placeholder_timing(tuple(markers)),
