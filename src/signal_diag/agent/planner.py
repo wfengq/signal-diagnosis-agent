@@ -538,7 +538,13 @@ class RealLLMPlanner:
             if binding is not None:
                 from .provider_telemetry import emit_usage_from_response
 
-                emit_usage_from_response(binding, response)
+                send_id = None
+                state = getattr(client, "_signal_diag_observation_state", None)
+                if isinstance(state, dict):
+                    last = state.get("last_send_id")
+                    if isinstance(last, str) and last:
+                        send_id = last
+                emit_usage_from_response(binding, response, send_id=send_id)
             message = response.choices[0].message
             raw_content = message.content
             if not raw_content:

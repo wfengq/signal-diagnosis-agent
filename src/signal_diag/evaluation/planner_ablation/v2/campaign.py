@@ -655,6 +655,11 @@ async def run_schedule(
             authorization_reference=authorization_reference,
             budget=budget_assessment,
         )
+        if resource_policy == "planner_ablation_resource_v1" and resource_assessment is None:
+            raise CampaignPreflightError(
+                "online mode refused before network client construction: "
+                "missing_resource_assessment_preflight"
+            )
 
     if output_dir is not None and output_dir.exists() and any(output_dir.iterdir()):
         raise CampaignPreflightError(

@@ -92,6 +92,27 @@ def _assessment() -> ResourceAssessment:
 def test_usage_totals_and_subdivisions_are_strict() -> None:
     usage = ReportedUsage(prompt_tokens=16, completion_tokens=10, total_tokens=26)
     assert usage.total_tokens == 26
+    with_sub = ReportedUsage(
+        prompt_tokens=16,
+        completion_tokens=10,
+        total_tokens=26,
+        cache_hit_tokens=4,
+        cache_miss_tokens=12,
+        reasoning_tokens=3,
+    )
+    assert with_sub.cache_hit_tokens == 4
+    try:
+        ReportedUsage(
+            prompt_tokens=16,
+            completion_tokens=10,
+            total_tokens=26,
+            cache_hit_tokens=4,
+            cache_miss_tokens=11,
+        )
+        raised = False
+    except Exception:  # noqa: BLE001
+        raised = True
+    assert raised
 
 
 def test_partial_usage_is_not_exact_campaign_total() -> None:
@@ -120,8 +141,36 @@ def test_partial_usage_is_not_exact_campaign_total() -> None:
     assert partial.acceptance_blocked is True
 
 
+def test_per_slot_ceiling_not_campaign_ceiling() -> None:
+    assessment = _assessment()
+    # Campaign SDK ceiling is 57*28*3; a single slot with 85 attempts exceeds
+    # per-slot 28*3=84 even though it is far below the campaign total.
+    ledger = SlotResourceLedger(
+        slot_key_digest="slot",
+        events=(),
+        planner_turn_count=28,
+        repair_attempt_count=0,
+        logical_call_count=28,
+        sdk_attempt_count=85,
+        http_send_attempt_count=85,
+        worker_drained=True,
+        telemetry_invalid=False,
+        incomplete=False,
+        closed=True,
+        exact_total_tokens=0,
+    )
+    obs = aggregate_resource_ledger(ledger, assessment=assessment)
+    assert "sdk_attempt_ceiling_exceeded" in obs.blockers
+    assert assessment.sdk_attempt_ceiling == 57 * 28 * 3
+    assert assessment.sdk_attempt_ceiling_per_slot == 28 * 3
+
+
 def test_slot_ledger_rejects_orphan_duplicate_and_missing_end() -> None:
-    from signal_diag.agent.telemetry import PlannerTurnEvent
+    from signal_diag.agent.telemetry import (
+        LogicalCallEvent,
+        PlannerTurnEvent,
+        UsageObservation,
+    )
     from signal_diag.app.planner_ablation_v2_adapter import StudyResourceObserver
 
     observer = StudyResourceObserver(slot_id="slot_x")
@@ -139,3 +188,99 @@ def test_slot_ledger_rejects_orphan_duplicate_and_missing_end() -> None:
     ledger = observer.resource_snapshot(worker_drained=True)
     assert ledger.incomplete or ledger.telemetry_invalid or ledger.pending_event_ids
     assert ledger.closed is False
+
+    # Usage end + logical-call end sharing a parent call id must not false-duplicate.
+    observer2 = StudyResourceObserver(slot_id="slot_y")
+    binding2 = observer2.make_binding()
+    call_id = "call_shared"
+    for phase in ("start", "end"):
+        binding2.sink(  # type: ignore[operator]
+            LogicalCallEvent(
+                sequence_id=f"lc_{phase}",
+                correlation_id=call_id,
+                phase=phase,  # type: ignore[arg-type]
+                turn_id="t1",
+                call_id=call_id,
+                monotonic_s=0.0,
+            )
+        )
+    binding2.sink(  # type: ignore[operator]
+        UsageObservation(
+            sequence_id="u1",
+            correlation_id="usage_independent",
+            phase="end",
+            call_id=call_id,
+            send_id="http_1",
+            status="complete",
+            prompt_tokens=1,
+            completion_tokens=1,
+            total_tokens=2,
+            monotonic_s=0.1,
+        )
+    )
+    ledger2 = observer2.resource_snapshot(worker_drained=True)
+    assert not any(
+        isinstance(r, str) and r.startswith("duplicate_phase") for r in ledger2.blockers
+    )
+
+
+def test_forged_closed_flag_is_rejected_by_strict_ledger() -> None:
+    try:
+        SlotResourceLedger(
+            slot_key_digest="forged",
+            closed=True,
+            incomplete=True,
+            worker_drained=False,
+        )
+        raised = False
+    except Exception:  # noqa: BLE001
+        raised = True
+    assert raised
+
+
+def test_incomplete_send_coverage_keeps_exact_total_unknown() -> None:
+    from signal_diag.agent.telemetry import HttpSendEvent, UsageObservation
+    from signal_diag.app.planner_ablation_v2_adapter import StudyResourceObserver
+
+    observer = StudyResourceObserver(slot_id="slot_cov")
+    binding = observer.make_binding()
+    # Two HTTP sends; usage only for the final one (500 then 200 pattern).
+    for idx, outcome in enumerate(("http_error", "success")):
+        send_id = f"http_{idx}"
+        binding.sink(  # type: ignore[operator]
+            HttpSendEvent(
+                sequence_id=f"hs_{idx}",
+                correlation_id=send_id,
+                phase="start",
+                send_id=send_id,
+                monotonic_s=float(idx),
+            )
+        )
+        binding.sink(  # type: ignore[operator]
+            HttpSendEvent(
+                sequence_id=f"he_{idx}",
+                correlation_id=send_id,
+                phase="end",
+                send_id=send_id,
+                outcome=outcome,  # type: ignore[arg-type]
+                status_code=500 if outcome == "http_error" else 200,
+                monotonic_s=float(idx) + 0.1,
+            )
+        )
+    binding.sink(  # type: ignore[operator]
+        UsageObservation(
+            sequence_id="u_final",
+            correlation_id="usage_final",
+            send_id="http_1",
+            status="complete",
+            prompt_tokens=16,
+            completion_tokens=10,
+            total_tokens=26,
+            monotonic_s=1.2,
+        )
+    )
+    ledger = observer.resource_snapshot(worker_drained=True)
+    assert ledger.reported_usage_subtotal is not None
+    assert ledger.reported_usage_subtotal.total_tokens == 26
+    assert ledger.exact_total_tokens is None
+    assert any("incomplete_send_usage_coverage" in b for b in ledger.blockers)

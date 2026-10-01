@@ -5,8 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from signal_diag.app.planner_ablation_v2_adapter import _resolve_product_provenance
-from signal_diag.evaluation.planner_ablation.v2.resource_models import (
-    ResourceCandidateValidation,
+from signal_diag.evaluation.planner_ablation.v2.models import CandidateManifestV2
+from signal_diag.evaluation.planner_ablation.v2.sealing import (
+    validate_resource_candidate,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
@@ -17,14 +18,24 @@ DEV2_ROOT = (
 
 
 def test_fixture_budget_cannot_make_production_candidate_ready() -> None:
-    # Fixture-only complete budgets / extensions never authorize production readiness.
-    result = ResourceCandidateValidation(
-        ready=False,
-        reasons=("fixture_only_resource_extension", "resource_assessment_blocked"),
-        fixture_only=True,
-    )
+    # Validator must be invoked; missing extension never authorizes readiness.
+    candidate = CandidateManifestV2.model_construct(resource_extension=None)
+    result = validate_resource_candidate(candidate, repository_root=PROJECT_ROOT)
     assert result.ready is False
-    assert "fixture_only_resource_extension" in result.reasons
+    assert "missing_resource_extension" in result.reasons
+
+
+def test_forged_resource_extension_dict_is_rejected() -> None:
+    candidate = CandidateManifestV2.model_construct(
+        resource_extension={
+            "resource_policy": "planner_ablation_resource_v1",
+            "telemetry_schema": "planner_ablation_telemetry_v1",
+            "fixture_only": False,
+        }
+    )
+    result = validate_resource_candidate(candidate, repository_root=PROJECT_ROOT)
+    assert result.ready is False
+    assert any(r.startswith("invalid_resource_extension") for r in result.reasons)
 
 
 def test_class_name_and_booleans_do_not_authenticate_path() -> None:

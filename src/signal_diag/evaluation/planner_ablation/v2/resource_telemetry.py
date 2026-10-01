@@ -10,6 +10,44 @@ from signal_diag.evaluation.planner_ablation.v2.resource_models import (
 )
 
 
+def _per_slot_sdk_ceiling(assessment: ResourceAssessment) -> int | None:
+    if assessment.sdk_attempt_ceiling_per_slot is not None:
+        return assessment.sdk_attempt_ceiling_per_slot
+    if (
+        assessment.planner_turn_ceiling is not None
+        and assessment.sdk_attempt_factor is not None
+    ):
+        return assessment.planner_turn_ceiling * assessment.sdk_attempt_factor
+    return None
+
+
+def _per_slot_http_ceiling(assessment: ResourceAssessment) -> int | None:
+    if assessment.http_send_ceiling_per_slot is not None:
+        return assessment.http_send_ceiling_per_slot
+    per_sdk = _per_slot_sdk_ceiling(assessment)
+    if per_sdk is not None and assessment.http_send_factor is not None:
+        return per_sdk * assessment.http_send_factor
+    return None
+
+
+def _validate_response_models(
+    ledger: SlotResourceLedger,
+    assessment: ResourceAssessment,
+    blockers: list[str],
+) -> None:
+    allowed = assessment.allowed_response_models
+    if not allowed:
+        return
+    for event in ledger.events:
+        if event.get("kind") != "usage":
+            continue
+        model = event.get("response_model")
+        if model is None:
+            continue
+        if not isinstance(model, str) or model not in allowed:
+            blockers.append(f"response_model_outside_policy:{model}")
+
+
 def aggregate_resource_ledger(
     ledger: SlotResourceLedger,
     *,
@@ -28,30 +66,46 @@ def aggregate_resource_ledger(
     if not ledger.closed:
         blockers.append("ledger_not_closed")
 
+    # Per-slot ceilings (never compare a single slot to campaign-wide totals).
     if (
         assessment.planner_turn_ceiling is not None
         and ledger.planner_turn_count is not None
         and ledger.planner_turn_count > assessment.planner_turn_ceiling
     ):
         blockers.append("planner_turn_ceiling_exceeded")
+    per_slot_sdk = _per_slot_sdk_ceiling(assessment)
     if (
-        assessment.sdk_attempt_ceiling is not None
+        per_slot_sdk is not None
         and ledger.sdk_attempt_count is not None
-        and ledger.sdk_attempt_count > assessment.sdk_attempt_ceiling
+        and ledger.sdk_attempt_count > per_slot_sdk
     ):
         blockers.append("sdk_attempt_ceiling_exceeded")
+    per_slot_http = _per_slot_http_ceiling(assessment)
     if (
-        assessment.http_send_ceiling is not None
+        per_slot_http is not None
         and ledger.http_send_attempt_count is not None
-        and ledger.http_send_attempt_count > assessment.http_send_ceiling
+        and ledger.http_send_attempt_count > per_slot_http
     ):
         blockers.append("http_send_ceiling_exceeded")
+
+    # Campaign-layer awareness: keep campaign ceilings on the assessment for
+    # later campaign totals; a single slot must not be judged against them.
+    if (
+        assessment.sdk_attempt_ceiling is not None
+        and per_slot_sdk is not None
+        and assessment.sdk_attempt_ceiling < per_slot_sdk
+    ):
+        blockers.append("campaign_sdk_ceiling_inconsistent")
+
+    _validate_response_models(ledger, assessment, blockers)
 
     exact_total = ledger.exact_total_tokens
     subtotal = ledger.reported_usage_subtotal
     # Partial known usage never becomes an exact campaign/slot total.
     if exact_total is None and subtotal is not None:
         blockers.append("partial_usage_not_exact_total")
+    if exact_total is not None and subtotal is not None and exact_total != subtotal.total_tokens:
+        blockers.append("exact_total_subtotal_mismatch")
 
     unique = tuple(dict.fromkeys(blockers))
     acceptance_blocked = bool(unique) or ledger.incomplete or ledger.telemetry_invalid
@@ -140,3 +194,31 @@ def sum_reported_usage(usages: list[ReportedUsage]) -> ReportedUsage | None:
         completion_tokens=completion,
         total_tokens=prompt + completion,
     )
+
+
+def validate_campaign_resource_totals(
+    observations: list[ResourceObservation],
+    *,
+    assessment: ResourceAssessment,
+) -> tuple[str, ...]:
+    """Validate summed campaign totals against campaign-wide ceilings."""
+    blockers: list[str] = []
+    sdk_total = sum(o.sdk_attempt_count or 0 for o in observations)
+    http_total = sum(o.http_send_attempt_count or 0 for o in observations)
+    turn_total = sum(o.planner_turn_count or 0 for o in observations)
+    if (
+        assessment.logical_call_ceiling is not None
+        and turn_total > assessment.logical_call_ceiling
+    ):
+        blockers.append("campaign_planner_turn_ceiling_exceeded")
+    if (
+        assessment.sdk_attempt_ceiling is not None
+        and sdk_total > assessment.sdk_attempt_ceiling
+    ):
+        blockers.append("campaign_sdk_attempt_ceiling_exceeded")
+    if (
+        assessment.http_send_ceiling is not None
+        and http_total > assessment.http_send_ceiling
+    ):
+        blockers.append("campaign_http_send_ceiling_exceeded")
+    return tuple(dict.fromkeys(blockers))

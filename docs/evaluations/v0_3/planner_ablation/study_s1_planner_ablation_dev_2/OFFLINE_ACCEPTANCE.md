@@ -178,12 +178,47 @@ Task 7 offline implementation merged via PR #18. Post-merge label review + budge
 
 ## Token/transport telemetry offline implementation (Tasks 2–7)
 
-**Status:** `offline_implementation_accepted` for observation/validation under the
-audited OpenAI Python **3.20.0** / httpx profile — **not** `resource_bounds_complete`,
-**not** `candidate_verified`, **not** seal, **not** RealLLM.
+**Status:** `offline_implementation_pending_revision` — Codex P1/P2 revise applied
+against tip `ff3c059` (baseline `605150c`); gates held in this environment under
+the checks below. **Not** claiming `offline_implementation_accepted` until
+operator re-ack. Not `resource_bounds_complete`, not `candidate_verified`, not
+seal, not RealLLM.
 
 Observation defaults **off**. Public `RealLLMPlanner` constructors/payloads unchanged.
 No commit/push/seal/RealLLM under this grant.
+
+### Revision verification (this environment)
+
+```text
+$ export PATH="/home/ubuntu/.local/bin:$PATH"
+$ pytest tests/agent/test_provider_telemetry.py tests/agent/test_telemetry.py \
+    tests/agent/test_runtime_telemetry.py \
+    tests/evaluation/planner_ablation/v2/test_resource_telemetry.py \
+    tests/evaluation/planner_ablation/v2/test_resource_budget.py \
+    tests/evaluation/planner_ablation/v2/test_resource_candidate.py \
+    tests/evaluation/planner_ablation/v2/test_offline_acceptance.py \
+    tests/app/test_planner_ablation_v2_adapter.py -q
+52 passed
+
+$ pytest tests/evaluation/planner_ablation tests/agent/test_real_llm_planner.py \
+    tests/evaluation/test_recording.py tests/test_architecture_boundaries.py -q
+(+ focused overlap) 326 passed total across required sets
+
+$ ruff check --no-cache src tests scripts
+All checks passed!
+
+$ mypy --no-incremental src
+Success: no issues found in 132 source files
+
+$ git diff --check
+(exit 0)
+```
+
+Installed observation profile here: `openai==3.20.0` matches reviewed
+`RESOURCE_BOUNDS.md` digests (`ad8a3f77…`). CI may install a different
+`openai>=1.0` resolution; audited support then latches unsupported, while
+offline MockTransport fixture attach may still observe hooks without claiming
+reviewed capability.
 
 ### Remaining seal / budget blockers (honest)
 

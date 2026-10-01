@@ -339,6 +339,7 @@ def _candidate_digest_payload(
     effective_configuration: EffectiveConfiguration | None,
     budget: BudgetAssessment | None,
     question: str,
+    resource_extension: dict[str, object] | None = None,
 ) -> dict[str, object]:
     return {
         "budget_assessment": None if budget is None else budget.model_dump(mode="json"),
@@ -356,6 +357,7 @@ def _candidate_digest_payload(
         "operator_authorization_references": list(operator_authorization_references),
         "protocol": protocol.model_dump(mode="json"),
         "question": question,
+        "resource_extension": resource_extension,
         "scenario_aliases": dict(sorted(scenario_aliases.items())),
         "scenarios": [s.model_dump(mode="json") for s in scenarios],
         "schedule_digest": schedule_digest,
@@ -478,6 +480,7 @@ def build_candidate_manifest(
     operator_authorization_references: tuple[str, ...] = (),
     environment_notes: tuple[str, ...] = (),
     code_bindings: CodeBindingsV2 | None = None,
+    resource_extension: dict[str, object] | None = None,
 ) -> CandidateManifestV2:
     """Assemble a candidate from verified inputs under the declared roots."""
     repo = repository_root.resolve()
@@ -534,9 +537,10 @@ def build_candidate_manifest(
             effective_configuration=effective_configuration,
             budget=budget,
             question=normalized_question,
+            resource_extension=resource_extension,
         )
     )
-    return CandidateManifestV2(
+    candidate = CandidateManifestV2(
         protocol=protocol,
         scenarios=scenarios,
         schedule_digest=schedule.schedule_digest,
@@ -551,10 +555,15 @@ def build_candidate_manifest(
         operator_authorization_references=operator_authorization_references,
         effective_configuration=effective_configuration,
         budget_assessment=budget,
+        resource_extension=resource_extension,
         question=normalized_question,
         seal_ready=seal_ready,
         candidate_digest=candidate_digest,
     )
+    if resource_extension is not None:
+        # Wire validation into construction; readiness remains fail-closed.
+        validate_resource_candidate(candidate, repository_root=repo)
+    return candidate
 
 
 def _refuse_dev1_destination(destination: Path) -> None:
@@ -577,7 +586,12 @@ def _require_seal_grant_for_real_evidence(destination: Path) -> None:
         )
 
 
-def generate_seal(candidate: CandidateManifestV2, destination: Path) -> Path:
+def generate_seal(
+    candidate: CandidateManifestV2,
+    destination: Path,
+    *,
+    repository_root: Path | None = None,
+) -> Path:
     """Write a new seal directory exclusively. Never deletes or replaces."""
     _refuse_dev1_destination(destination)
     _require_seal_grant_for_real_evidence(destination)
@@ -593,6 +607,28 @@ def generate_seal(candidate: CandidateManifestV2, destination: Path) -> Path:
         raise ValueError(
             "candidate is not seal-ready; complete effective limits and clear blockers"
         )
+    if candidate.resource_extension is not None:
+        if repository_root is None:
+            raise ValueError(
+                "repository_root required when candidate includes resource_extension"
+            )
+        validation = validate_resource_candidate(
+            candidate, repository_root=repository_root.resolve()
+        )
+        if any(
+            reason.startswith("invalid_resource_extension")
+            or reason == "missing_resource_extension"
+            for reason in validation.reasons
+        ):
+            raise ValueError(
+                "resource_extension invalid for generate_seal: "
+                + ",".join(validation.reasons)
+            )
+        if not validation.ready:
+            raise ValueError(
+                "resource candidate not ready for generate_seal: "
+                + ",".join(validation.reasons)
+            )
     if len(candidate.slots) != SLOT_COUNT_V2:
         raise ValueError("candidate slot count drift")
     if destination.exists():
@@ -847,6 +883,7 @@ def verify_manifest(
             effective_configuration=candidate.effective_configuration,
             budget=candidate.budget_assessment,
             question=candidate.question,
+            resource_extension=candidate.resource_extension,
         )
     )
     if recomputed != candidate.candidate_digest:
@@ -862,6 +899,22 @@ def verify_manifest(
     if candidate.code_identity != candidate.code_bindings.aggregate_code_identity:
         raise ValueError("code_identity field mismatch")
     schedule = _verify_inputs_and_schedule(candidate, input_root=input_root)
+
+    resource_policy = None
+    resource_extension: dict[str, object] | None = None
+    if candidate.resource_extension is not None:
+        validation = validate_resource_candidate(
+            candidate, repository_root=repository_root.resolve()
+        )
+        # Readonly verify always revalidates; fixture/blocked extensions stay attached
+        # but never silently elevate readiness.
+        if "invalid_resource_extension" in validation.reasons:
+            raise ValueError("resource_extension failed structural validation")
+        resource_extension = candidate.resource_extension
+        if isinstance(resource_extension, dict) and resource_extension.get(
+            "resource_policy"
+        ):
+            resource_policy = str(resource_extension.get("resource_policy"))
 
     verified_identity = _digest_payload(
         {
@@ -883,13 +936,8 @@ def verify_manifest(
         code_identity=candidate.code_identity,
         construction_path="verify_manifest",
         pinned_causal_policy="v9_11_mode_aware_no_fault_recovery",
-        resource_policy=(
-            str(candidate.resource_extension.get("resource_policy"))
-            if isinstance(candidate.resource_extension, dict)
-            and candidate.resource_extension.get("resource_policy")
-            else None
-        ),
-        resource_extension=candidate.resource_extension,
+        resource_policy=resource_policy,
+        resource_extension=resource_extension,
     )
 
 
@@ -934,12 +982,36 @@ def validate_resource_candidate(
     if extension.fixture_only:
         reasons.append("fixture_only_resource_extension")
 
+    # Nested fixture markers are independent of the outer boolean.
+    if extension.proofs.fixture_only:
+        reasons.append("fixture_only_resource_proofs")
+    if extension.capability.fixture_only:
+        reasons.append("fixture_only_observation_capability")
+    if extension.proofs.sdk_profile is not None and extension.proofs.sdk_profile.fixture_only:
+        reasons.append("fixture_only_sdk_profile")
+    if (
+        extension.proofs.provider_limits is not None
+        and extension.proofs.provider_limits.fixture_only
+    ):
+        reasons.append("fixture_only_provider_limits")
+    if extension.assessment.fixture_only:
+        reasons.append("fixture_only_resource_assessment")
+
     # Label review must bind approved population; caller booleans are insufficient.
     if not candidate.label_review.approved:
         reasons.append("label_review_not_approved")
     label_digest = _digest_payload(candidate.label_review.model_dump(mode="json"))
     if label_digest != extension.label_review_digest:
         reasons.append("label_review_digest_mismatch")
+    population_digest = _digest_payload(
+        {
+            "conditional_population": list(candidate.label_review.conditional_population),
+            "guidance_population": list(candidate.label_review.guidance_population),
+            "upgrade_population": list(candidate.label_review.upgrade_population),
+        }
+    )
+    if population_digest != extension.label_population_digest:
+        reasons.append("label_population_digest_mismatch")
 
     bindings = collect_code_bindings(repository_root.resolve())
     if bindings.aggregate_code_identity != extension.code_identity:
@@ -952,6 +1024,7 @@ def validate_resource_candidate(
     }:
         reasons.append("provider_dependency_identity_mismatch")
 
+    # Proof origins / scopes recomputed via assess_resource_budget.
     config = candidate.effective_configuration or EffectiveConfiguration()
     assessment = assess_resource_budget(
         config,
@@ -963,6 +1036,27 @@ def validate_resource_candidate(
         reasons.append("resource_assessment_blocked")
     if assessment.model_dump(mode="json") != extension.assessment.model_dump(mode="json"):
         reasons.append("assessment_recompute_mismatch")
+
+    # Capability must observe all required units and match proof SDK identity.
+    if not (
+        extension.capability.observes_planner_turns
+        and extension.capability.observes_repairs
+        and extension.capability.observes_sdk_attempts
+        and extension.capability.observes_http_sends
+        and extension.capability.observes_usage
+    ):
+        reasons.append("incomplete_observation_capability")
+    if extension.proofs.sdk_profile is None:
+        reasons.append("missing_sdk_profile_in_proofs")
+    elif (
+        extension.proofs.sdk_profile.openai_version
+        != extension.capability.sdk_profile.openai_version
+        or extension.proofs.sdk_profile.openai_source_digest
+        != extension.capability.sdk_profile.openai_source_digest
+    ):
+        reasons.append("capability_proof_sdk_identity_mismatch")
+    elif not extension.capability.sdk_profile.supported:
+        reasons.append("unsupported_capability_sdk_profile")
 
     recomputed_digest = _digest_payload(
         {
@@ -986,9 +1080,7 @@ def validate_resource_candidate(
         and candidate.budget_assessment.seal_ready
         and candidate.budget_assessment.blockers == ()
     ):
-        # Still require resource assessment independently; fixture completeness
-        # alone never authorizes production readiness.
-        pass
+        reasons.append("synthetic_budget_assessment_not_production_proof")
 
     unique = tuple(dict.fromkeys(reasons))
     ready = len(unique) == 0 and not assessment.execution_blocked

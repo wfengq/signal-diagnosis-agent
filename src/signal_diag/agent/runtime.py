@@ -373,7 +373,8 @@ class DistortionDiagnosisRuntime:
             binding,
             RepairEvent(
                 sequence_id=binding.new_id("seq"),
-                correlation_id=turn_id or binding.new_id("repair"),
+                # Observation record: unique correlation; parent links the turn.
+                correlation_id=binding.new_id("repair"),
                 phase="end",
                 turn_id=turn_id,
                 reason="parse_error" if reason == "parse_error" else "reject_decision",

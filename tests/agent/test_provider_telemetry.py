@@ -349,7 +349,24 @@ def test_unsupported_sdk_profile_latches_blocker() -> None:
     desc = attach_sdk_observation(client, binding=binding, profile=bad)
     assert desc.profile_supported is False
     assert binding.invalid is True
-    assert any("unsupported" in r or "drift" in r for r in binding.invalid_reasons)
+    assert any("unsupported" in r or "drift" in r or "mismatch" in r for r in binding.invalid_reasons)
+
+
+def test_audited_profile_compares_reviewed_identity_not_self_hash() -> None:
+    from signal_diag.agent.provider_telemetry import (
+        reviewed_openai_capability_identity,
+    )
+
+    profile = build_audited_sdk_observation_profile()
+    reviewed = reviewed_openai_capability_identity()
+    if profile.supported:
+        assert profile.openai_version == reviewed["openai_version"]
+        assert profile.openai_source_digest == reviewed["openai_source_digest"]
+    else:
+        assert profile.blockers
+        assert any(
+            "unsupported" in b or "drift" in b for b in profile.blockers
+        )
 
 
 def test_unobserved_factory_path_unchanged() -> None:

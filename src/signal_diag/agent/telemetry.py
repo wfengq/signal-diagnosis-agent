@@ -132,6 +132,9 @@ class UsageObservation:
     prompt_tokens: int | None = None
     completion_tokens: int | None = None
     total_tokens: int | None = None
+    cache_hit_tokens: int | None = None
+    cache_miss_tokens: int | None = None
+    reasoning_tokens: int | None = None
     response_model: str | None = None
     fingerprint: str | None = None
     monotonic_s: float = 0.0

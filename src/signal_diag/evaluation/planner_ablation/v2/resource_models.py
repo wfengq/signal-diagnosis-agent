@@ -175,11 +175,16 @@ class ResourceAssessment(BaseModel):
     logical_call_ceiling: int | None = None
     sdk_attempt_ceiling: int | None = None
     http_send_ceiling: int | None = None
+    # Per-slot ceilings (campaign ceilings remain the products above).
+    sdk_attempt_ceiling_per_slot: int | None = None
+    http_send_ceiling_per_slot: int | None = None
     input_token_ceiling: int | None = None
     output_token_ceiling: int | None = None
     request_timeout_s: float | None = None
     request_timeout_explicit: bool = False
     transport_retry_override_explicit: bool = False
+    allowed_response_models: tuple[str, ...] = ()
+    model_mapping_accepted: bool = False
     blockers: tuple[str, ...] = ()
     execution_blocked: bool = True
     seal_ready: bool = False
@@ -252,6 +257,14 @@ class SlotResourceLedger(BaseModel):
     incomplete: bool = True
     blockers: tuple[str, ...] = ()
     closed: bool = False
+
+    @model_validator(mode="after")
+    def _closure_consistency(self) -> SlotResourceLedger:
+        if self.closed and (
+            self.incomplete or self.telemetry_invalid or not self.worker_drained
+        ):
+            raise ValueError("closed ledger cannot be incomplete, invalid, or undrained")
+        return self
 
 
 class ResourceObservation(BaseModel):

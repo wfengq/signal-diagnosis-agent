@@ -129,7 +129,9 @@ def generate_new_seal(
         budget_assessment=budget,
         operator_authorization_references=("offline_harness_temporary_fixture",),
     )
-    destination = generate_seal(candidate, seal_dir)
+    destination = generate_seal(
+        candidate, seal_dir, repository_root=repository_root
+    )
     verified = verify_existing_seal(
         seal_dir=destination,
         repository_root=repository_root,

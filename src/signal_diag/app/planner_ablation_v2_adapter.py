@@ -217,37 +217,50 @@ class StudyResourceObserver:
             invalid = True
             reasons.extend(getattr(binding, "invalid_reasons", []))
 
+        # Lifecycle endpoints: pair/dedupe by event kind + correlation + phase.
+        # Usage and repair are independent observation records (not lifecycle ends).
+        lifecycle_kinds = frozenset(
+            {"planner_turn", "logical_call", "sdk_attempt", "http_send"}
+        )
         pending: list[str] = []
-        starts: dict[str, str] = {}
-        ends: set[str] = set()
+        starts: dict[tuple[str, str], str] = {}
+        ends: set[tuple[str, str]] = set()
         for event in events:
-            kind = getattr(event, "kind", None)
+            kind = str(getattr(event, "kind", None) or "")
             phase = getattr(event, "phase", None)
-            seq = getattr(event, "sequence_id", "")
+            corr = str(
+                getattr(event, "correlation_id", None)
+                or getattr(event, "sequence_id", "")
+                or ""
+            )
+            if kind not in lifecycle_kinds or not phase:
+                continue
+            key = (kind, corr)
             if phase == "start":
-                corr = getattr(event, "correlation_id", seq)
-                starts[corr] = kind or ""
+                starts[key] = kind
             elif phase == "end":
-                corr = getattr(event, "correlation_id", seq)
-                ends.add(corr)
+                ends.add(key)
 
-        for corr, kind in starts.items():
-            if corr not in ends:
-                pending.append(corr)
+        for key, kind in starts.items():
+            if key not in ends:
+                pending.append(f"{key[0]}:{key[1]}")
                 invalid = True
-                reasons.append(f"missing_end:{kind}:{corr}")
+                reasons.append(f"missing_end:{kind}:{key[1]}")
 
-        # Detect duplicate phase for same correlation.
-        seen_phase: set[tuple[str, str]] = set()
+        seen_phase: set[tuple[str, str, str]] = set()
         for event in events:
+            kind = str(getattr(event, "kind", None) or "")
             phase = getattr(event, "phase", None)
-            corr = getattr(event, "correlation_id", None)
-            if phase and corr:
-                key = (corr, phase)
-                if key in seen_phase:
-                    invalid = True
-                    reasons.append(f"duplicate_phase:{corr}:{phase}")
-                seen_phase.add(key)
+            corr_raw = getattr(event, "correlation_id", None)
+            if not phase or not corr_raw:
+                continue
+            corr = str(corr_raw)
+            # Observation records may share a parent ID with lifecycle ends; key by kind.
+            phase_key = (kind, corr, str(phase))
+            if phase_key in seen_phase:
+                invalid = True
+                reasons.append(f"duplicate_phase:{kind}:{corr}:{phase}")
+            seen_phase.add(phase_key)
 
         turn_count = sum(
             1 for e in events if isinstance(e, PlannerTurnEvent) and e.phase == "start"
@@ -263,15 +276,17 @@ class StudyResourceObserver:
             1 for e in events if isinstance(e, HttpSendEvent) and e.phase == "start"
         )
 
+        # Map complete usage to send_id (or call_id fallback) for coverage checks.
         usages: list[ReportedUsage] = []
-        usage_complete = True
+        usage_complete_objects = True
+        usage_by_send: dict[str, UsageObservation] = {}
         usage_events = [e for e in events if isinstance(e, UsageObservation)]
         if not usage_events and logical_count > 0:
-            usage_complete = False
+            usage_complete_objects = False
             reasons.append("missing_usage_observations")
         for usage in usage_events:
             if usage.status != "complete":
-                usage_complete = False
+                usage_complete_objects = False
                 reasons.append(f"usage_{usage.status}")
                 continue
             if (
@@ -279,40 +294,91 @@ class StudyResourceObserver:
                 or usage.completion_tokens is None
                 or usage.total_tokens is None
             ):
-                usage_complete = False
+                usage_complete_objects = False
                 reasons.append("usage_incomplete_fields")
                 continue
             try:
-                usages.append(
-                    ReportedUsage(
-                        prompt_tokens=usage.prompt_tokens,
-                        completion_tokens=usage.completion_tokens,
-                        total_tokens=usage.total_tokens,
-                    )
+                reported = ReportedUsage(
+                    prompt_tokens=usage.prompt_tokens,
+                    completion_tokens=usage.completion_tokens,
+                    total_tokens=usage.total_tokens,
+                    cache_hit_tokens=usage.cache_hit_tokens,
+                    cache_miss_tokens=usage.cache_miss_tokens,
+                    reasoning_tokens=usage.reasoning_tokens,
                 )
+                usages.append(reported)
             except Exception:  # noqa: BLE001
                 invalid = True
-                usage_complete = False
+                usage_complete_objects = False
                 reasons.append("usage_validation_failed")
+                continue
+            link = usage.send_id or usage.call_id
+            if link:
+                if link in usage_by_send:
+                    invalid = True
+                    reasons.append(f"duplicate_usage_for_send:{link}")
+                usage_by_send[link] = usage
+
+        http_ends = [
+            e for e in events if isinstance(e, HttpSendEvent) and e.phase == "end"
+        ]
+        # Redirect hops are admitted zero-use (no completion body). Every other
+        # dispatched send needs complete usage or remains unknown for exact totals.
+        send_coverage_complete = True
+        for send in http_ends:
+            if send.outcome == "redirect":
+                continue
+            link = send.send_id or send.correlation_id
+            matched = usage_by_send.get(link)
+            if matched is None or matched.status != "complete":
+                send_coverage_complete = False
+                reasons.append(f"incomplete_send_usage_coverage:{link}")
+
+        # Logical calls without any HTTP (pre-dispatch failure) need explicit
+        # zero-use proof; absence keeps exact total unknown.
+        if logical_count > 0 and http_count == 0 and not usage_events:
+            send_coverage_complete = False
+            if "missing_usage_observations" not in reasons:
+                reasons.append("logical_call_without_send_or_usage_proof")
 
         subtotal = sum_reported_usage(usages)
         exact_total = (
             subtotal.total_tokens
-            if usage_complete and subtotal is not None and not pending and worker_drained
+            if (
+                usage_complete_objects
+                and send_coverage_complete
+                and subtotal is not None
+                and not pending
+                and worker_drained
+                and not invalid
+            )
             else None
         )
         if (
             logical_count == 0
-            and turn_count >= 0
+            and http_count == 0
+            and turn_count == 0
             and worker_drained
             and not pending
             and not usage_events
+            and not invalid
         ):
             # Fixed / no-provider path may have zero usage with complete ledger.
-            exact_total = 0 if turn_count == 0 else exact_total
+            exact_total = 0
 
-        incomplete = (not worker_drained) or bool(pending) or (not usage_complete and logical_count > 0)
-        closed = worker_drained and not pending and not incomplete and not invalid
+        incomplete = (
+            (not worker_drained)
+            or bool(pending)
+            or (not usage_complete_objects and logical_count > 0)
+            or (not send_coverage_complete and http_count > 0)
+        )
+        closed = (
+            worker_drained
+            and not pending
+            and not incomplete
+            and not invalid
+            and (exact_total is not None or (logical_count == 0 and http_count == 0))
+        )
         unique_reasons = tuple(dict.fromkeys(reasons))
         serialized_events = tuple(
             {
@@ -320,6 +386,20 @@ class StudyResourceObserver:
                 "phase": getattr(e, "phase", None),
                 "sequence_id": getattr(e, "sequence_id", None),
                 "correlation_id": getattr(e, "correlation_id", None),
+                "turn_id": getattr(e, "turn_id", None),
+                "call_id": getattr(e, "call_id", None),
+                "attempt_id": getattr(e, "attempt_id", None),
+                "send_id": getattr(e, "send_id", None),
+                "status": getattr(e, "status", None),
+                "outcome": getattr(e, "outcome", None),
+                "prompt_tokens": getattr(e, "prompt_tokens", None),
+                "completion_tokens": getattr(e, "completion_tokens", None),
+                "total_tokens": getattr(e, "total_tokens", None),
+                "cache_hit_tokens": getattr(e, "cache_hit_tokens", None),
+                "cache_miss_tokens": getattr(e, "cache_miss_tokens", None),
+                "reasoning_tokens": getattr(e, "reasoning_tokens", None),
+                "response_model": getattr(e, "response_model", None),
+                "fingerprint": getattr(e, "fingerprint", None),
             }
             for e in events
         )

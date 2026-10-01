@@ -131,9 +131,13 @@ def assess_resource_budget(
         )
 
     provider = proofs.provider_limits
+    allowed_models: tuple[str, ...] = ()
+    model_mapping_accepted = False
     if provider is None:
         blockers.append("missing_provider_limits_binding")
     else:
+        allowed_models = provider.allowed_response_models
+        model_mapping_accepted = provider.model_mapping_accepted
         if not provider.model_mapping_accepted:
             blockers.append("unaccepted_provider_model_mapping")
 
@@ -163,11 +167,15 @@ def assess_resource_budget(
     logical_ceiling: int | None = None
     sdk_ceiling: int | None = None
     http_ceiling: int | None = None
+    sdk_ceiling_per_slot: int | None = None
+    http_ceiling_per_slot: int | None = None
     if planner is not None:
         logical_ceiling = PRODUCT_SLOT_COUNT_V2 * planner
     if planner is not None and sdk_factor is not None:
-        sdk_ceiling = PRODUCT_SLOT_COUNT_V2 * planner * sdk_factor
-    if sdk_ceiling is not None and http_factor is not None:
+        sdk_ceiling_per_slot = planner * sdk_factor
+        sdk_ceiling = PRODUCT_SLOT_COUNT_V2 * sdk_ceiling_per_slot
+    if sdk_ceiling is not None and http_factor is not None and sdk_ceiling_per_slot is not None:
+        http_ceiling_per_slot = sdk_ceiling_per_slot * http_factor
         http_ceiling = sdk_ceiling * http_factor
 
     input_ceiling: int | None = None
@@ -252,11 +260,15 @@ def assess_resource_budget(
         logical_call_ceiling=logical_ceiling,
         sdk_attempt_ceiling=sdk_ceiling,
         http_send_ceiling=http_ceiling,
+        sdk_attempt_ceiling_per_slot=sdk_ceiling_per_slot,
+        http_send_ceiling_per_slot=http_ceiling_per_slot,
         input_token_ceiling=input_ceiling,
         output_token_ceiling=output_ceiling,
         request_timeout_s=timeout_s,
         request_timeout_explicit=request_timeout_explicit,
         transport_retry_override_explicit=transport_retry_override_explicit,
+        allowed_response_models=allowed_models,
+        model_mapping_accepted=model_mapping_accepted,
         blockers=unique,
         execution_blocked=execution_blocked,
         seal_ready=False,

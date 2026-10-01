@@ -927,41 +927,115 @@ def evaluate_prerequisites(
 
     resource_observation_ok: bool | None = None
     if study.resource_policy == "planner_ablation_resource_v1":
+        from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+            ResourceAssessment,
+            ResourceCandidateExtension,
+            ResourceObservation,
+            SlotResourceLedger,
+        )
+        from signal_diag.evaluation.planner_ablation.v2.resource_telemetry import (
+            aggregate_resource_ledger,
+            validate_campaign_resource_totals,
+        )
+
         resource_observation_ok = False
         if campaign is None:
             reasons.append("resource_campaign_missing")
         elif campaign.resource_policy != "planner_ablation_resource_v1":
             reasons.append("resource_policy_mismatch")
+        elif campaign.schedule_digest != study.schedule.schedule_digest:
+            reasons.append("resource_schedule_digest_mismatch")
         elif len(campaign.slot_records) != len(study.schedule.slots):
             reasons.append("resource_slot_coverage_mismatch")
         else:
-            ok = True
-            for slot_record in campaign.slot_records:
-                if slot_record.status == "unstarted":
-                    # Resource stop may leave trailing unstarted slots; still fail.
-                    ok = False
-                    reasons.append("resource_unstarted_slots")
-                    break
-                obs = slot_record.resource_observation
-                ledger = slot_record.resource_ledger
-                if obs is None or ledger is None:
-                    ok = False
-                    reasons.append("resource_ledger_missing")
-                    break
-                if obs.get("acceptance_blocked") or ledger.get("incomplete") or ledger.get(
-                    "telemetry_invalid"
-                ):
-                    ok = False
-                    reasons.append("resource_observation_blocked")
-                    break
-                if not ledger.get("closed"):
-                    ok = False
-                    reasons.append("resource_ledger_not_closed")
-                    break
-            if campaign.status == "resource_stopped":
+            assessment: ResourceAssessment | None = None
+            if study.resource_extension is not None:
+                try:
+                    extension = ResourceCandidateExtension.model_validate(
+                        study.resource_extension
+                    )
+                    assessment = extension.assessment
+                except Exception:  # noqa: BLE001
+                    reasons.append("resource_extension_invalid")
+            if assessment is None:
                 ok = False
-                reasons.append("resource_stopped")
-            resource_observation_ok = ok
+                reasons.append("resource_assessment_missing")
+            else:
+                ok = True
+                seen_digests: set[str] = set()
+                recomputed_obs: list[ResourceObservation] = []
+                for schedule_slot, slot_record in zip(
+                    study.schedule.slots, campaign.slot_records, strict=True
+                ):
+                    if slot_record.slot_key != schedule_slot:
+                        ok = False
+                        reasons.append("resource_slot_key_mismatch")
+                        break
+                    if slot_record.status == "unstarted":
+                        ok = False
+                        reasons.append("resource_unstarted_slots")
+                        break
+                    if slot_record.resource_observation is None or slot_record.resource_ledger is None:
+                        ok = False
+                        reasons.append("resource_ledger_missing")
+                        break
+                    try:
+                        ledger = SlotResourceLedger.model_validate(
+                            slot_record.resource_ledger
+                        )
+                        claimed = ResourceObservation.model_validate(
+                            slot_record.resource_observation
+                        )
+                    except Exception:  # noqa: BLE001
+                        ok = False
+                        reasons.append("resource_ledger_model_invalid")
+                        break
+                    digest = ledger.slot_key_digest
+                    if digest in seen_digests:
+                        ok = False
+                        reasons.append("resource_slot_digest_duplicate")
+                        break
+                    seen_digests.add(digest)
+                    slot_terminal = slot_record.terminal
+                    if (
+                        slot_terminal is not None
+                        and ledger.run_id is not None
+                        and slot_terminal.run_id
+                        and ledger.run_id != slot_terminal.run_id
+                    ):
+                        ok = False
+                        reasons.append("resource_run_id_mismatch")
+                        break
+                    ledger_observation = aggregate_resource_ledger(
+                        ledger, assessment=assessment
+                    )
+                    recomputed_obs.append(ledger_observation)
+                    if ledger_observation.model_dump(mode="json") != claimed.model_dump(
+                        mode="json"
+                    ):
+                        ok = False
+                        reasons.append("resource_observation_recompute_mismatch")
+                        break
+                    if (
+                        ledger_observation.acceptance_blocked
+                        or ledger.incomplete
+                        or ledger.telemetry_invalid
+                        or not ledger.closed
+                    ):
+                        ok = False
+                        reasons.append("resource_observation_blocked")
+                        break
+                if ok:
+                    campaign_blockers = validate_campaign_resource_totals(
+                        recomputed_obs, assessment=assessment
+                    )
+                    if campaign_blockers:
+                        ok = False
+                        reasons.extend(campaign_blockers)
+                if campaign.status == "resource_stopped":
+                    ok = False
+                    reasons.append("resource_stopped")
+                resource_observation_ok = ok
         if resource_observation_ok is False and "resource_observation_failed" not in reasons:
             reasons.append("resource_observation_failed")
 
