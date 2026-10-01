@@ -15,7 +15,7 @@ import subprocess
 from hashlib import sha256
 from importlib import metadata
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from signal_diag.evaluation.planner_ablation.v2.campaign import inspect_limits
 from signal_diag.evaluation.planner_ablation.v2.labels import validate_labels
@@ -44,11 +44,25 @@ from signal_diag.evaluation.planner_ablation.v2.population import (
     normalize_question,
 )
 from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+    InstalledSdkIdentity,
     ResourceCandidateValidation,
 )
 
 _CHECKSUM_LINE = "{digest}  {name}\n"
 _DEV1_STUDY_ID = "study_s1_planner_ablation_dev_1"
+_STUDY_EVIDENCE_DIR = (
+    "docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_2/"
+)
+_STUDY_EVIDENCE_FILES = frozenset(
+    {
+        "RESOURCE_BOUNDS.md",
+        "BUDGET_BOUNDS.md",
+        "LABEL_REVIEW.md",
+        "OFFLINE_ACCEPTANCE.md",
+        "design_inputs.md",
+    }
+)
+_LABEL_REVIEW_REL = _STUDY_EVIDENCE_DIR + "LABEL_REVIEW.md"
 _PACKAGE_REL = Path("src/signal_diag")
 _PRODUCT_PACKAGE_DIRS = (
     "signal",
@@ -580,10 +594,11 @@ def build_candidate_manifest(
         candidate_digest=candidate_digest,
     )
     if resource_extension is not None:
-        # Enforce the full validation result; never ignore readiness.
+        # Resource readiness does not consult the legacy explicit-flag gate.
         validation = validate_resource_candidate(candidate, repository_root=repo)
-        if not validation.ready:
-            candidate = candidate.model_copy(update={"seal_ready": False})
+        candidate = candidate.model_copy(
+            update={"seal_ready": bool(validation.ready and not validation.fixture_only)}
+        )
     return candidate
 
 
@@ -683,6 +698,7 @@ def generate_seal(
         "code_identity": candidate.code_identity,
         "implementation_commit": candidate.code_bindings.implementation_commit,
         "slot_count": len(candidate.slots),
+        "legacy_fixture_seal": bool(legacy_fixture_seal),
     }
     (destination / "manifest.json").write_text(
         json.dumps(manifest_payload, sort_keys=True, indent=2, allow_nan=False) + "\n",
@@ -959,11 +975,16 @@ def verify_manifest(
         ):
             resource_policy = str(resource_extension.get("resource_policy"))
 
+    construction_path: Literal["legacy_fixture_seal", "verify_manifest"]
+    if meta.get("legacy_fixture_seal") is True:
+        construction_path = "legacy_fixture_seal"
+    else:
+        construction_path = "verify_manifest"
     verified_identity = _digest_payload(
         {
             "candidate_digest": candidate.candidate_digest,
             "code_identity": candidate.code_identity,
-            "construction_path": "verify_manifest",
+            "construction_path": construction_path,
             "input_identity": candidate.input_identity,
             "schedule_digest": schedule.schedule_digest,
             "study_id": STUDY_ID_V2,
@@ -977,17 +998,26 @@ def verify_manifest(
         verified_identity=verified_identity,
         input_identity=candidate.input_identity,
         code_identity=candidate.code_identity,
-        construction_path="verify_manifest",
+        construction_path=construction_path,
         pinned_causal_policy="v9_11_mode_aware_no_fault_recovery",
         resource_policy=resource_policy,
         resource_extension=resource_extension,
     )
 
 
+def _bound_fact_file_applicable(reference: str) -> bool:
+    normalized = reference.replace("\\", "/").lstrip("./")
+    if not normalized.startswith(_STUDY_EVIDENCE_DIR):
+        return False
+    name = normalized[len(_STUDY_EVIDENCE_DIR) :]
+    return name in _STUDY_EVIDENCE_FILES
+
+
 def validate_resource_candidate(
     candidate: CandidateManifestV2,
     *,
     repository_root: Path,
+    installed_sdk_identity: InstalledSdkIdentity | None = None,
 ) -> ResourceCandidateValidation:
     """Recompute resource proofs/readiness without SDK client construction or seal writes."""
     from signal_diag.evaluation.planner_ablation.v2.resource_budget import (
@@ -1055,6 +1085,25 @@ def validate_resource_candidate(
     )
     if population_digest != extension.label_population_digest:
         reasons.append("label_population_digest_mismatch")
+    if not extension.fixture_only:
+        if extension.label_review_source_path != _LABEL_REVIEW_REL:
+            reasons.append("label_review_disk_path_mismatch")
+        else:
+            try:
+                label_path = resolve_under_root(
+                    repository_root.resolve(),
+                    extension.label_review_source_path,
+                    label="label_review",
+                )
+            except ValueError:
+                reasons.append("label_review_disk_path_mismatch")
+            else:
+                digest_ok = (
+                    label_path.is_file()
+                    and _sha256_file(label_path) == extension.label_review_source_digest
+                )
+                if not digest_ok:
+                    reasons.append("label_review_disk_digest_mismatch")
 
     bindings = collect_code_bindings(repository_root.resolve())
     if bindings.aggregate_code_identity != extension.code_identity:
@@ -1101,39 +1150,30 @@ def validate_resource_candidate(
     elif not extension.capability.sdk_profile.supported:
         reasons.append("unsupported_capability_sdk_profile")
 
-    # Authenticate full installed SDK/native identity against declared proofs.
-    try:
-        from signal_diag.agent.provider_telemetry import (
-            build_audited_sdk_observation_profile,
-            installed_openai_source_digests,
-        )
-
-        installed_profile = build_audited_sdk_observation_profile()
-        installed_digests = installed_openai_source_digests()
-    except Exception:  # noqa: BLE001
+    # Caller supplies installed identity. This module does not import the SDK.
+    if installed_sdk_identity is None:
         reasons.append("installed_sdk_identity_unavailable")
-        installed_profile = None
-        installed_digests = {}
-    if installed_profile is not None and extension.proofs.sdk_profile is not None:
+    elif extension.proofs.sdk_profile is not None:
         proof_sdk = extension.proofs.sdk_profile
-        if proof_sdk.openai_version != installed_profile.openai_version:
+        if proof_sdk.openai_version != installed_sdk_identity.openai_version:
             reasons.append("installed_openai_version_mismatch")
-        if proof_sdk.openai_source_digest != installed_profile.openai_source_digest:
+        if proof_sdk.openai_source_digest != installed_sdk_identity.openai_source_digest:
             reasons.append("installed_openai_source_digest_mismatch")
-        if proof_sdk.native_http_family != installed_profile.native_http_family:
+        if proof_sdk.native_http_family != installed_sdk_identity.native_http_family:
             reasons.append("installed_native_http_family_mismatch")
-        if proof_sdk.native_http_version != installed_profile.native_http_version:
+        if proof_sdk.native_http_version != installed_sdk_identity.native_http_version:
             reasons.append("installed_native_http_version_mismatch")
-        if proof_sdk.httpcore_version != installed_profile.httpcore_version:
+        if proof_sdk.httpcore_version != installed_sdk_identity.httpcore_version:
             reasons.append("installed_httpcore_version_mismatch")
         for relative, digest in proof_sdk.source_file_digests.items():
-            live = installed_digests.get(relative)
+            live = installed_sdk_identity.source_file_digests.get(relative)
             if live is None:
                 reasons.append(f"missing_installed_sdk_source:{relative}")
             elif live != digest:
                 reasons.append(f"sdk_source_content_mismatch:{relative}")
-        if not installed_profile.supported:
+        if not installed_sdk_identity.supported:
             reasons.append("installed_sdk_profile_unsupported")
+            reasons.extend(installed_sdk_identity.blockers)
 
     # Authenticate referenced proof/acceptance content and applicability scope.
     for fact_name in (
@@ -1166,6 +1206,9 @@ def validate_resource_candidate(
             continue
         if not evidence_path.is_file():
             reasons.append(f"missing_proof_acceptance_file:{fact_name}")
+            continue
+        if not _bound_fact_file_applicable(reference):
+            reasons.append(f"proof_acceptance_inapplicable_file:{fact_name}")
             continue
         actual = _sha256_file(evidence_path)
         if actual != fact.proof_digest:
@@ -1203,6 +1246,8 @@ def validate_resource_candidate(
             "provider_dependency_identity": extension.provider_dependency_identity,
             "label_review_digest": extension.label_review_digest,
             "label_population_digest": extension.label_population_digest,
+            "label_review_source_path": extension.label_review_source_path,
+            "label_review_source_digest": extension.label_review_source_digest,
             "code_identity": extension.code_identity,
         }
     )

@@ -38,6 +38,57 @@ def _event_phase(event: dict[str, object]) -> str:
     return str(event.get("phase") or "")
 
 
+_LIFECYCLE_KINDS = frozenset(
+    {"planner_turn", "logical_call", "sdk_attempt", "http_send"}
+)
+
+
+def _lifecycle_graph(
+    events: tuple[dict[str, object], ...],
+) -> tuple[tuple[str, ...], list[str]]:
+    """Pair lifecycle starts with ends. Orphans are pending blockers."""
+    starts: dict[tuple[str, str], int] = {}
+    ends: dict[tuple[str, str], int] = {}
+    blockers: list[str] = []
+    for event in events:
+        kind = _event_kind(event)
+        if kind not in _LIFECYCLE_KINDS:
+            continue
+        phase = _event_phase(event)
+        correlation = str(event.get("correlation_id") or event.get("sequence_id") or "")
+        key = (kind, correlation)
+        if phase == "start":
+            starts[key] = starts.get(key, 0) + 1
+        elif phase == "end":
+            ends[key] = ends.get(key, 0) + 1
+        else:
+            blockers.append(f"unpaired_phase:{kind}:{correlation}")
+    pending: list[str] = []
+    for key, count in starts.items():
+        end_count = ends.get(key, 0)
+        if end_count == count:
+            continue
+        pending.append(f"{key[0]}:{key[1]}")
+        if end_count < count:
+            blockers.append(f"unpaired_start:{key[0]}:{key[1]}")
+        else:
+            blockers.append(f"unpaired_end:{key[0]}:{key[1]}")
+    for key in ends:
+        if key not in starts:
+            pending.append(f"{key[0]}:{key[1]}")
+            blockers.append(f"orphan_end:{key[0]}:{key[1]}")
+    return tuple(dict.fromkeys(pending)), blockers
+
+
+def _zero_usage(usage: ReportedUsage | None) -> bool:
+    return (
+        usage is not None
+        and usage.prompt_tokens == 0
+        and usage.completion_tokens == 0
+        and usage.total_tokens == 0
+    )
+
+
 def derive_counts_from_events(
     events: tuple[dict[str, object], ...],
 ) -> dict[str, int]:
@@ -247,6 +298,7 @@ def aggregate_resource_ledger(
     ledger: SlotResourceLedger,
     *,
     assessment: ResourceAssessment,
+    fixed_zero_use: bool = False,
 ) -> ResourceObservation:
     """Validate counts/usage closure from the event graph; never invent zeros."""
     blockers = list(ledger.blockers)
@@ -278,14 +330,27 @@ def aggregate_resource_ledger(
     usage_subtotal, usage_complete, usage_by_send = _derive_usage_from_events(
         ledger.events
     )
-    if (
+    fixed_zero_usage = (
+        fixed_zero_use
+        and not ledger.events
+        and usage_subtotal is None
+        and (
+            ledger.reported_usage_subtotal is None
+            or _zero_usage(ledger.reported_usage_subtotal)
+        )
+    )
+    if not fixed_zero_usage and (
         ledger.reported_usage_subtotal is not None
         and usage_subtotal is not None
         and ledger.reported_usage_subtotal.model_dump(mode="json")
         != usage_subtotal.model_dump(mode="json")
     ):
         blockers.append("usage_subtotal_recompute_mismatch")
-    if ledger.reported_usage_subtotal is not None and usage_subtotal is None:
+    if (
+        not fixed_zero_usage
+        and ledger.reported_usage_subtotal is not None
+        and usage_subtotal is None
+    ):
         blockers.append("usage_subtotal_recompute_mismatch")
 
     http_ends = _http_end_events(ledger.events)
@@ -297,6 +362,11 @@ def aggregate_resource_ledger(
         # not an approved zero-use proof. They reserve exposure separately and
         # do not satisfy per-send usage coverage for exact totals.
         if outcome == "redirect":
+            proof = send.get("zero_use_proof")
+            if not (isinstance(proof, str) and proof.startswith("reviewed:")):
+                send_coverage_complete = False
+                link_text = link if isinstance(link, str) and link else "missing"
+                blockers.append(f"redirect_without_zero_use_proof:{link_text}")
             continue
         if not isinstance(link, str) or not link:
             send_coverage_complete = False
@@ -365,6 +435,37 @@ def aggregate_resource_ledger(
     ):
         blockers.append("exact_token_total_exceeds_campaign_ceiling")
 
+    graph_pending, pairing_blockers = _lifecycle_graph(ledger.events)
+    blockers.extend(pairing_blockers)
+    if tuple(ledger.pending_event_ids) != graph_pending:
+        blockers.append("pending_event_recompute_mismatch")
+
+    coverage_incomplete = (not send_coverage_complete and http_count > 0) or (
+        logical > 0 and not usage_complete
+    )
+    empty_graph = not ledger.events and all(value == 0 for value in derived.values())
+    empty_unproved = empty_graph and not fixed_zero_use
+    if empty_unproved and exact_total == 0:
+        blockers.append("product_empty_exact_not_fixed_zero")
+    graph_incomplete = (
+        (not ledger.worker_drained)
+        or bool(graph_pending)
+        or bool(pairing_blockers)
+        or coverage_incomplete
+        or empty_unproved
+    )
+    if ledger.incomplete != graph_incomplete:
+        blockers.append("incomplete_recompute_mismatch")
+    graph_closed = (
+        ledger.worker_drained
+        and not ledger.telemetry_invalid
+        and not graph_incomplete
+        and not graph_pending
+        and bool(ledger.run_id)
+    )
+    if ledger.closed != graph_closed:
+        blockers.append("closed_recompute_mismatch")
+
     # Exact totals require complete per-send usage coverage derived from events.
     if exact_total is not None:
         if not (
@@ -372,22 +473,18 @@ def aggregate_resource_ledger(
             and send_coverage_complete
             and usage_subtotal is not None
             and exact_total == usage_subtotal.total_tokens
-            and not ledger.pending_event_ids
+            and not graph_pending
             and ledger.worker_drained
             and not ledger.telemetry_invalid
         ):
-            # Fixed zero-use: empty event graph with proven zeros may keep exact 0.
             fixed_zero = (
-                exact_total == 0
-                and not ledger.events
-                and all(value == 0 for value in derived.values())
+                fixed_zero_use
+                and exact_total == 0
+                and empty_graph
                 and ledger.worker_drained
-                and not ledger.pending_event_ids
+                and not graph_pending
                 and not ledger.telemetry_invalid
-                and all(
-                    getattr(ledger, field) == 0
-                    for field in derived
-                )
+                and all(getattr(ledger, field) == 0 for field in derived)
             )
             if not fixed_zero:
                 blockers.append("exact_total_not_event_justified")
@@ -417,7 +514,7 @@ def aggregate_resource_ledger(
     _validate_response_models(ledger.events, assessment, blockers)
 
     unique = tuple(dict.fromkeys(blockers))
-    acceptance_blocked = bool(unique) or ledger.incomplete or ledger.telemetry_invalid
+    acceptance_blocked = bool(unique) or graph_incomplete or ledger.telemetry_invalid
     return ResourceObservation(
         planner_turn_count=derived["planner_turn_count"],
         repair_attempt_count=derived["repair_attempt_count"],
@@ -430,7 +527,7 @@ def aggregate_resource_ledger(
         acceptance_blocked=acceptance_blocked,
         blockers=unique,
         telemetry_invalid=ledger.telemetry_invalid,
-        incomplete=ledger.incomplete or not ledger.closed,
+        incomplete=graph_incomplete or not graph_closed,
     )
 
 

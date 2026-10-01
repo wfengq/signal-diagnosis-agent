@@ -39,6 +39,10 @@ from signal_diag.evaluation.planner_ablation.v2.models import (
     StudyProtocolV2,
     StudyTerminal,
 )
+from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+    ResourceAssessment,
+    VerifiedResourceAdmission,
+)
 from signal_diag.evaluation.planner_ablation.v2.timing import (
     ArmSession,
     TimingValidationError,
@@ -287,16 +291,27 @@ def reject_online_preflight(
     verified_seal_digest: str | None,
     authorization_reference: str | None,
     budget: BudgetAssessment | None,
+    verified_resource_admission: VerifiedResourceAdmission | None = None,
 ) -> None:
     """Fail closed before any network client construction.
 
     ``authorization_reference`` is an audit link, not self-issued permission.
+    A complete synthetic budget and nonempty seal/grant strings are not admission.
     """
     missing: list[str] = []
     if not verified_seal_digest:
         missing.append("missing_verified_seal")
     if not authorization_reference:
         missing.append("missing_authorization_reference")
+    if verified_resource_admission is None:
+        missing.append("missing_verified_resource_admission")
+    elif (
+        not verified_resource_admission.ready
+        or verified_resource_admission.fixture_only
+        or verified_resource_admission.execution_blocked
+        or verified_resource_admission.resource_policy != "planner_ablation_resource_v1"
+    ):
+        missing.append("unverified_resource_admission")
     if budget is None:
         missing.append("missing_budget_preflight")
     elif budget.execution_blocked or budget.worst_case_requests is None:
@@ -662,6 +677,7 @@ async def run_schedule(
     wall_timeout: bool = True,
     resource_policy: str | None = None,
     resource_assessment: object | None = None,
+    verified_resource_admission: VerifiedResourceAdmission | None = None,
 ) -> CampaignRecord:
     """Execute the frozen schedule sequentially with typed failure accounting.
 
@@ -672,17 +688,28 @@ async def run_schedule(
     tick = clock if clock is not None else time.perf_counter
     request_map = dict(requests_by_key or {})
 
+    if execution_mode == "online" and resource_policy != "planner_ablation_resource_v1":
+        raise CampaignPreflightError(
+            "online mode refused before network client construction: "
+            "missing_resource_policy"
+        )
+    resource_path = resource_policy == "planner_ablation_resource_v1"
+    if execution_mode == "online" or resource_path:
+        assessment_blocked = not isinstance(resource_assessment, ResourceAssessment) or (
+            resource_assessment.execution_blocked
+        )
+        if resource_assessment is None or assessment_blocked:
+            raise CampaignPreflightError(
+                "resource preflight refused before session construction: "
+                "resource_assessment_missing_or_blocked"
+            )
     if execution_mode == "online":
         reject_online_preflight(
             verified_seal_digest=verified_seal_digest,
             authorization_reference=authorization_reference,
             budget=budget_assessment,
+            verified_resource_admission=verified_resource_admission,
         )
-        if resource_policy == "planner_ablation_resource_v1" and resource_assessment is None:
-            raise CampaignPreflightError(
-                "online mode refused before network client construction: "
-                "missing_resource_assessment_preflight"
-            )
 
     if output_dir is not None and output_dir.exists() and any(output_dir.iterdir()):
         raise CampaignPreflightError(
@@ -693,8 +720,6 @@ async def run_schedule(
     status: CampaignStatus = "completed"
     stopped_after: SlotKey | None = None
     limitations: list[str] = []
-    resource_path = resource_policy == "planner_ablation_resource_v1"
-
     for index, slot in enumerate(schedule.slots):
         if stopped_after is not None:
             records.append(
@@ -742,15 +767,20 @@ async def run_schedule(
             else:
                 _admit_observer_token_ceilings(session, resource_assessment)
                 ledger = snapshot_fn(worker_drained=not drain_failed and not _session_background_worker_alive(session))
-                digest = f"{slot.request_key}:{slot.arm}:{slot.round_index}"
-                ledger = ledger.model_copy(update={"slot_key_digest": digest})
+                expected_digest = f"{slot.request_key}:{slot.arm}:{slot.round_index}"
                 resource_ledger = ledger.model_dump(mode="json")
-                if resource_assessment is None:
+                if ledger.slot_key_digest != expected_digest:
+                    resource_stop = True
+                    resource_stop_reason = "slot_digest_mismatch"
+                    limitations.append("slot_digest_mismatch")
+                elif resource_assessment is None:
                     resource_stop = True
                     resource_stop_reason = "missing_resource_assessment"
                 else:
                     observation = aggregate_resource_ledger(
-                        ledger, assessment=resource_assessment  # type: ignore[arg-type]
+                        ledger,
+                        assessment=resource_assessment,  # type: ignore[arg-type]
+                        fixed_zero_use=slot.arm == "fixed_pipeline",
                     )
                     resource_observation = observation.model_dump(mode="json")
                     if observation.acceptance_blocked or not ledger.closed:

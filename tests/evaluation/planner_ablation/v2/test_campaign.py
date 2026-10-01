@@ -534,16 +534,48 @@ async def test_last_slot_resource_failure_blocks_conclusion() -> None:
 
     async def factory(slot: SlotKey) -> _ResourceSession:
         bad = slot.request_key == _KEY_B
+        usage_events = (
+            {
+                "kind": "http_send",
+                "phase": "start",
+                "correlation_id": "h1",
+                "send_id": "h1",
+            },
+            {
+                "kind": "http_send",
+                "phase": "end",
+                "correlation_id": "h1",
+                "send_id": "h1",
+                "outcome": "success",
+            },
+            {
+                "kind": "usage",
+                "status": "complete",
+                "send_id": "h1",
+                "prompt_tokens": 1,
+                "completion_tokens": 1,
+                "total_tokens": 2,
+            },
+        )
         ledger = {
-            "slot_key_digest": f"digest_{slot.request_key}_{slot.arm}",
+            "slot_key_digest": (
+                f"{slot.request_key}:{slot.arm}:{slot.round_index}"
+            ),
             "run_id": f"run_{slot.request_key}",
-            "events": (),
+            "events": () if bad else usage_events,
             "planner_turn_count": 0,
             "repair_attempt_count": 0,
             "logical_call_count": 0,
             "sdk_attempt_count": 0,
-            "http_send_attempt_count": 0,
-            "exact_total_tokens": 0,
+            "http_send_attempt_count": 0 if bad else 1,
+            "reported_usage_subtotal": None
+            if bad
+            else {
+                "prompt_tokens": 1,
+                "completion_tokens": 1,
+                "total_tokens": 2,
+            },
+            "exact_total_tokens": 0 if bad else 2,
             "potential_token_exposure": 0,
             "pending_event_ids": ("late",) if bad else (),
             "worker_drained": True,
@@ -691,8 +723,9 @@ async def test_default_fixed_observers_do_not_share_slot_digest() -> None:
     )
 
     async def factory(slot: SlotKey) -> _DefaultObserverFixedSession:
-        observer = StudyResourceObserver()
-        assert observer.slot_id == "slot"
+        observer = StudyResourceObserver(
+            slot_id=f"{slot.request_key}:{slot.arm}:{slot.round_index}"
+        )
 
         def build(request: ByteRequest) -> StudyTerminal:
             del request
@@ -745,7 +778,9 @@ async def test_run_schedule_admits_per_send_token_ceilings_before_snapshot() -> 
 
     slots = (SlotKey(request_key=_KEY_A, arm="product_agent", round_index=0),)
     schedule = _mini_schedule(slots=slots)
-    observer = StudyResourceObserver()
+    observer = StudyResourceObserver(
+        slot_id=f"{_KEY_A}:product_agent:0",
+    )
     assert observer.admitted_per_send_input_tokens is None
     assert observer.admitted_per_send_output_tokens is None
     binding = observer.make_binding()

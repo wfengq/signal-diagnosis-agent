@@ -258,25 +258,25 @@ def test_free_form_proof_reference_is_not_authenticated() -> None:
 
 
 def test_repo_proof_reference_must_match_file_bytes() -> None:
+    label_review = (
+        "docs/evaluations/v0_3/planner_ablation/"
+        "study_s1_planner_ablation_dev_2/LABEL_REVIEW.md"
+    )
     wrong = validate_resource_candidate(
-        _candidate_with_proof_reference("docs/README.md", "a" * 64),
+        _candidate_with_proof_reference(label_review, "a" * 64),
         repository_root=PROJECT_ROOT,
     )
     assert wrong.ready is False
     assert "proof_acceptance_content_mismatch:planner_turn_ceiling" in wrong.reasons
 
     matched = validate_resource_candidate(
-        _candidate_with_proof_reference(
-            "docs/README.md",
-            _file_sha256("docs/README.md"),
-        ),
+        _candidate_with_proof_reference(label_review, _file_sha256(label_review)),
         repository_root=PROJECT_ROOT,
     )
     assert matched.ready is False
     assert "proof_acceptance_content_mismatch:planner_turn_ceiling" not in matched.reasons
     assert (
-        "proof_acceptance_reference_not_repo_path:planner_turn_ceiling"
-        not in matched.reasons
+        "proof_acceptance_inapplicable_file:planner_turn_ceiling" not in matched.reasons
     )
     assert "missing_proof_acceptance_file:planner_turn_ceiling" not in matched.reasons
 

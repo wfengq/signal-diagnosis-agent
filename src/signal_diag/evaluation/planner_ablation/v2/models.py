@@ -294,7 +294,11 @@ MachineConclusion = Literal[
     "fixed_pipeline_dominance",
     "insufficient_evidence",
 ]
-VerifiedConstructionPath = Literal["synthetic_test_stub", "verify_manifest"]
+VerifiedConstructionPath = Literal[
+    "synthetic_test_stub",
+    "verify_manifest",
+    "legacy_fixture_seal",
+]
 
 
 class OptionalRate(BaseModel):

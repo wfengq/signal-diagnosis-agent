@@ -201,9 +201,9 @@ class ReportedUsage(BaseModel):
     prompt_tokens: int = Field(ge=0)
     completion_tokens: int = Field(ge=0)
     total_tokens: int = Field(ge=0)
-    cache_hit_tokens: int | None = None
-    cache_miss_tokens: int | None = None
-    reasoning_tokens: int | None = None
+    cache_hit_tokens: int | None = Field(default=None, ge=0)
+    cache_miss_tokens: int | None = Field(default=None, ge=0)
+    reasoning_tokens: int | None = Field(default=None, ge=0)
 
     @field_validator(
         "prompt_tokens",
@@ -212,11 +212,16 @@ class ReportedUsage(BaseModel):
         "cache_hit_tokens",
         "cache_miss_tokens",
         "reasoning_tokens",
+        mode="before",
     )
     @classmethod
-    def _no_bool(cls, value: int | None) -> int | None:
-        if isinstance(value, bool):
-            raise TypeError("boolean is not a token count")
+    def _token_count(cls, value: object) -> object:
+        if value is None:
+            return None
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError("boolean is not a token count")  # noqa: TRY004
+        if value < 0:
+            raise ValueError("token counts must be non-negative")
         return value
 
     @model_validator(mode="after")
@@ -301,6 +306,8 @@ class ResourceCandidateExtension(BaseModel):
     provider_dependency_identity: str = Field(min_length=1)
     label_review_digest: str = Field(min_length=64, max_length=64)
     label_population_digest: str = Field(min_length=64, max_length=64)
+    label_review_source_path: str = ""
+    label_review_source_digest: str = ""
     code_identity: str = Field(min_length=64, max_length=64)
     extension_digest: str = Field(min_length=64, max_length=64)
     fixture_only: bool = True
@@ -317,3 +324,29 @@ class ResourceCandidateValidation(BaseModel):
     assessment: ResourceAssessment | None = None
     recomputed_extension_digest: str | None = None
     fixture_only: bool = True
+
+
+class InstalledSdkIdentity(BaseModel):
+    """Caller-supplied SDK identity. Evaluation does not import the SDK to fill this."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    openai_version: str = Field(min_length=1)
+    openai_source_digest: str = Field(min_length=64, max_length=64)
+    native_http_family: str = Field(min_length=1)
+    native_http_version: str = Field(min_length=1)
+    httpcore_version: str = Field(min_length=1)
+    source_file_digests: dict[str, str]
+    supported: bool
+    blockers: tuple[str, ...] = ()
+
+
+class VerifiedResourceAdmission(BaseModel):
+    """Admission produced only after resource validation is ready and non-fixture."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    ready: Literal[True]
+    fixture_only: Literal[False]
+    execution_blocked: Literal[False]
+    resource_policy: ResourcePolicyId

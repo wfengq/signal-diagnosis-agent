@@ -252,6 +252,7 @@ def assess_resource_budget(
 
     unique = tuple(dict.fromkeys(blockers))
     execution_blocked = len(unique) > 0 or sdk_ceiling is None
+    fixture_only = proofs.fixture_only or (capability.fixture_only if capability else True)
     return ResourceAssessment(
         product_slot_count=PRODUCT_SLOT_COUNT_V2,
         planner_turn_ceiling=planner,
@@ -271,6 +272,6 @@ def assess_resource_budget(
         model_mapping_accepted=model_mapping_accepted,
         blockers=unique,
         execution_blocked=execution_blocked,
-        seal_ready=False,
-        fixture_only=proofs.fixture_only or (capability.fixture_only if capability else True),
+        seal_ready=(not execution_blocked) and not fixture_only,
+        fixture_only=fixture_only,
     )

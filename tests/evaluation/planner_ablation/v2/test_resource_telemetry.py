@@ -336,7 +336,9 @@ def test_redirect_reserves_exposure_not_zero_use_proof() -> None:
         )
     )
     ledger = observer.resource_snapshot(worker_drained=True)
-    assert ledger.exact_total_tokens == 26
+    assert ledger.exact_total_tokens is None
+    assert ledger.reported_usage_subtotal is not None
+    assert ledger.reported_usage_subtotal.total_tokens == 26
     assert ledger.potential_token_exposure == 2 * (100 + 50)
     obs = aggregate_resource_ledger(ledger, assessment=_assessment())
     # Assessment lacks admitted per-send ceilings → exposure stays unknown at

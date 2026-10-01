@@ -991,6 +991,14 @@ def evaluate_prerequisites(
                         reasons.append("resource_ledger_model_invalid")
                         break
                     digest = ledger.slot_key_digest
+                    expected_digest = (
+                        f"{schedule_slot.request_key}:{schedule_slot.arm}:"
+                        f"{schedule_slot.round_index}"
+                    )
+                    if digest != expected_digest:
+                        ok = False
+                        reasons.append("resource_slot_digest_mismatch")
+                        break
                     if digest in seen_digests:
                         ok = False
                         reasons.append("resource_slot_digest_duplicate")
@@ -1014,7 +1022,9 @@ def evaluate_prerequisites(
                         reasons.append("resource_terminal_run_id_missing")
                         break
                     ledger_observation = aggregate_resource_ledger(
-                        ledger, assessment=assessment
+                        ledger,
+                        assessment=assessment,
+                        fixed_zero_use=schedule_slot.arm == "fixed_pipeline",
                     )
                     recomputed_obs.append(ledger_observation)
                     if ledger_observation.model_dump(mode="json") != claimed.model_dump(

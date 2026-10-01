@@ -385,9 +385,18 @@ def attach_sdk_observation(
             )
             state["current_attempt_id"] = None
 
+    seen_transport_ids: set[int] = set()
+
+    def _transport_is_mock(transport: Any) -> bool:
+        return transport is not None and type(transport).__name__ == "MockTransport"
+
     def _wrap_transport(transport: Any) -> bool:
         if transport is None or not hasattr(transport, "handle_async_request"):
             return False
+        identity = id(transport)
+        if identity in seen_transport_ids:
+            return True
+        seen_transport_ids.add(identity)
         original_transport_request = transport.handle_async_request
 
         async def observed_transport_request(request: Any) -> Any:
@@ -542,13 +551,19 @@ def attach_sdk_observation(
     object.__setattr__(client, "_send_request", observed_send_request)
     object.__setattr__(client, "_signal_diag_observation_attached", True)
     object.__setattr__(client, "_signal_diag_observation_state", state)
+    mock_transport = _transport_is_mock(getattr(http_client, "_transport", None))
+    if not mock_transport:
+        mounts = getattr(http_client, "_mounts", None)
+        if isinstance(mounts, dict):
+            mock_transport = any(_transport_is_mock(item) for item in mounts.values())
+    canonical = audited and not mock_transport and not allow_fixture_offline_boundary
     descriptor = ClientObservationDescriptor(
-        origin="canonical_sdk" if audited else "mock_native",
+        origin="canonical_sdk" if canonical else "mock_native",
         openai_version=profile.openai_version,
         native_http_family=profile.native_http_family,
-        profile_supported=audited,
-        blockers=() if audited else blockers,
-        fixture_only=not audited,
+        profile_supported=canonical,
+        blockers=() if canonical else blockers,
+        fixture_only=not canonical,
     )
     object.__setattr__(client, "_signal_diag_observation_descriptor", descriptor)
     binding.attach_descriptor(descriptor)

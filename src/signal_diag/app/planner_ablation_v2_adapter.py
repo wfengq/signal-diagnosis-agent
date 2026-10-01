@@ -142,6 +142,7 @@ class StudyResourceObserver:
     """Per-slot collector. Factory diagnostics stay separate from turn/call counts."""
 
     slot_id: str = "slot"
+    allow_fixture_offline_boundary: bool = False
     max_events: int = 10_000
     records: list[ResourceTelemetry] = field(default_factory=list)
     planner_factory_calls: int = 0
@@ -175,7 +176,7 @@ class StudyResourceObserver:
                 text = str(blocker)
                 if text not in self._invalid_reasons:
                     self._invalid_reasons.append(text)
-        elif bool(getattr(descriptor, "fixture_only", True)):
+        elif bool(getattr(descriptor, "fixture_only", True)) and origin != "mock_native":
             marker = "fixture_only_observation_descriptor"
             if marker not in self._invalid_reasons:
                 self._invalid_reasons.append(marker)
@@ -195,6 +196,7 @@ class StudyResourceObserver:
             sink=sink,
             max_events=self.max_events,
         )
+        binding.allow_fixture_offline_boundary = self.allow_fixture_offline_boundary
         self._binding = binding
         return binding
 
@@ -247,9 +249,11 @@ class StudyResourceObserver:
             if getattr(descriptor, "origin", None) == "unsupported":
                 invalid = True
                 reasons.append("unsupported_observation_descriptor")
-            elif bool(getattr(descriptor, "fixture_only", False)):
-                reasons.append("fixture_only_observation_descriptor")
-            reasons.extend(str(item) for item in getattr(descriptor, "blockers", ()) or ())
+            for item in getattr(descriptor, "blockers", ()) or ():
+                text = str(item)
+                if text.startswith("fixture_only"):
+                    continue
+                reasons.append(text)
 
         # Lifecycle endpoints: pair/dedupe by event kind + correlation + phase.
         # Usage and repair are independent observation records (not lifecycle ends).
@@ -362,6 +366,12 @@ class StudyResourceObserver:
         send_coverage_complete = True
         for send in http_ends:
             if send.outcome == "redirect":
+                proof = getattr(send, "zero_use_proof", None)
+                if not (isinstance(proof, str) and proof.startswith("reviewed:")):
+                    send_coverage_complete = False
+                    reasons.append(
+                        f"redirect_without_zero_use_proof:{send.send_id or send.correlation_id}"
+                    )
                 continue
             link = send.send_id or send.correlation_id
             matched = usage_by_send.get(link)
@@ -636,10 +646,29 @@ class ProductArmSession:
                 inner = getattr(planner, "_planner", None)
                 if type(inner) is RealLLMPlanner:
                     target = inner
+                    executed_planner_class = "RealLLMPlanner"
                 if type(target) is RealLLMPlanner and getattr(
                     target, "_planner_telemetry_binding", None
                 ) is None:
-                    bind_planner_telemetry(target, binding=self._observer.make_binding())
+                    binding = self._observer.make_binding()
+                    bind_planner_telemetry(target, binding=binding)
+                    if binding.allow_fixture_offline_boundary:
+                        client = getattr(target, "_client", None)
+                        if client is not None and not getattr(
+                            client, "_signal_diag_observation_attached", False
+                        ):
+                            from signal_diag.agent.provider_telemetry import (
+                                attach_sdk_observation,
+                                build_fixture_sdk_observation_profile,
+                            )
+
+                            descriptor = attach_sdk_observation(
+                                client,
+                                binding=binding,
+                                profile=build_fixture_sdk_observation_profile(),
+                                allow_fixture_offline_boundary=True,
+                            )
+                            self._observer.attach_observation_descriptor(descriptor)
             return planner
 
         self._service._dependencies = replace(

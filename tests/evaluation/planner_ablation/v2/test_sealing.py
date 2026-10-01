@@ -193,7 +193,7 @@ def test_t_cx300_round_trip_verify_preserves_114_slots(
     before_seal = tree_file_digests(seal_dir)
     before_inputs = tree_file_digests(inputs)
     study = verify_manifest(seal_dir, repository_root=repo, input_root=inputs)
-    assert study.construction_path == "verify_manifest"
+    assert study.construction_path == "legacy_fixture_seal"
     assert study.protocol.study_id == STUDY_ID_V2
     assert len(study.schedule.slots) == SLOT_COUNT_V2
     assert tree_file_digests(seal_dir) == before_seal
