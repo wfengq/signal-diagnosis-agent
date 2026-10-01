@@ -131,6 +131,62 @@ def _http_end_events(
     ]
 
 
+def admitted_per_send_token_ceilings(
+    assessment: ResourceAssessment,
+) -> tuple[int | None, int | None]:
+    """Campaign ceilings divided into per-send reservations when the split is exact."""
+    input_ceiling = assessment.input_token_ceiling
+    output_ceiling = assessment.output_token_ceiling
+    http_ceiling = assessment.http_send_ceiling
+    per_send_input: int | None = None
+    per_send_output: int | None = None
+    if (
+        isinstance(input_ceiling, int)
+        and not isinstance(input_ceiling, bool)
+        and isinstance(http_ceiling, int)
+        and not isinstance(http_ceiling, bool)
+        and http_ceiling > 0
+        and input_ceiling % http_ceiling == 0
+    ):
+        per_send_input = input_ceiling // http_ceiling
+    if (
+        isinstance(output_ceiling, int)
+        and not isinstance(output_ceiling, bool)
+        and isinstance(http_ceiling, int)
+        and not isinstance(http_ceiling, bool)
+        and http_ceiling > 0
+        and output_ceiling % http_ceiling == 0
+    ):
+        per_send_output = output_ceiling // http_ceiling
+    return per_send_input, per_send_output
+
+
+def _campaign_token_budget(assessment: ResourceAssessment) -> int | None:
+    parts: list[int] = []
+    if isinstance(assessment.input_token_ceiling, int) and not isinstance(
+        assessment.input_token_ceiling, bool
+    ):
+        parts.append(assessment.input_token_ceiling)
+    if isinstance(assessment.output_token_ceiling, int) and not isinstance(
+        assessment.output_token_ceiling, bool
+    ):
+        parts.append(assessment.output_token_ceiling)
+    if not parts:
+        return None
+    return sum(parts)
+
+
+def _http_end_lacks_complete_usage(
+    send: dict[str, object],
+    usage_by_send: dict[str, dict[str, object]],
+) -> bool:
+    link = send.get("send_id") or send.get("correlation_id")
+    if not isinstance(link, str) or not link:
+        return True
+    matched = usage_by_send.get(link)
+    return matched is None or matched.get("status") != "complete"
+
+
 def _compute_potential_token_exposure(
     *,
     http_ends: list[dict[str, object]],
@@ -138,28 +194,7 @@ def _compute_potential_token_exposure(
     assessment: ResourceAssessment,
 ) -> int | None:
     """Reserve admitted per-send ceilings for sends without complete usage."""
-    input_ceiling = assessment.input_token_ceiling
-    output_ceiling = assessment.output_token_ceiling
-    # Assessment stores campaign-wide token ceilings; per-send reservation uses
-    # the underlying BoundFact-derived per-send values when factors exist.
-    # When only campaign totals exist, exposure remains unknown.
-    per_send_input: int | None = None
-    per_send_output: int | None = None
-    http_ceiling = assessment.http_send_ceiling
-    if (
-        input_ceiling is not None
-        and http_ceiling is not None
-        and http_ceiling > 0
-        and input_ceiling % http_ceiling == 0
-    ):
-        per_send_input = input_ceiling // http_ceiling
-    if (
-        output_ceiling is not None
-        and http_ceiling is not None
-        and http_ceiling > 0
-        and output_ceiling % http_ceiling == 0
-    ):
-        per_send_output = output_ceiling // http_ceiling
+    per_send_input, per_send_output = admitted_per_send_token_ceilings(assessment)
     if per_send_input is None and per_send_output is None:
         return None
 
@@ -295,8 +330,41 @@ def aggregate_resource_ledger(
         and ledger.potential_token_exposure != exposure
     ):
         blockers.append("potential_token_exposure_mismatch")
-
+    incomplete_sends = [
+        send
+        for send in http_ends
+        if _http_end_lacks_complete_usage(send, usage_by_send)
+    ]
+    if incomplete_sends and exposure is None:
+        blockers.append("unknown_token_exposure_for_incomplete_send")
+    token_budget = _campaign_token_budget(assessment)
+    if (
+        exposure is not None
+        and token_budget is not None
+        and exposure > token_budget
+    ):
+        blockers.append("potential_token_exposure_exceeds_campaign_ceiling")
+    if usage_subtotal is not None:
+        if (
+            isinstance(assessment.input_token_ceiling, int)
+            and not isinstance(assessment.input_token_ceiling, bool)
+            and usage_subtotal.prompt_tokens > assessment.input_token_ceiling
+        ):
+            blockers.append("input_token_ceiling_exceeded")
+        if (
+            isinstance(assessment.output_token_ceiling, int)
+            and not isinstance(assessment.output_token_ceiling, bool)
+            and usage_subtotal.completion_tokens > assessment.output_token_ceiling
+        ):
+            blockers.append("output_token_ceiling_exceeded")
     exact_total = ledger.exact_total_tokens
+    if (
+        exact_total is not None
+        and token_budget is not None
+        and exact_total > token_budget
+    ):
+        blockers.append("exact_token_total_exceeds_campaign_ceiling")
+
     # Exact totals require complete per-send usage coverage derived from events.
     if exact_total is not None:
         if not (
@@ -458,8 +526,9 @@ def validate_campaign_resource_totals(
             blockers.append("campaign_unknown_planner_turn_count")
         else:
             turn_values.append(observation.planner_turn_count)
+    token_blockers = _campaign_reported_token_blockers(observations, assessment)
     if blockers:
-        return tuple(dict.fromkeys(blockers))
+        return tuple(dict.fromkeys([*blockers, *token_blockers]))
     sdk_total = sum(sdk_values)
     http_total = sum(http_values)
     turn_total = sum(turn_values)
@@ -478,4 +547,47 @@ def validate_campaign_resource_totals(
         and http_total > assessment.http_send_ceiling
     ):
         blockers.append("campaign_http_send_ceiling_exceeded")
+    blockers.extend(token_blockers)
     return tuple(dict.fromkeys(blockers))
+
+
+def _campaign_reported_token_blockers(
+    observations: list[ResourceObservation],
+    assessment: ResourceAssessment,
+) -> list[str]:
+    """Sum reported prompt/completion and exact totals against campaign ceilings."""
+    blockers: list[str] = []
+    prompt = 0
+    completion = 0
+    exact = 0
+    saw_reported = False
+    saw_exact = False
+    for observation in observations:
+        usage = observation.reported_usage_subtotal
+        if usage is not None:
+            saw_reported = True
+            prompt += usage.prompt_tokens
+            completion += usage.completion_tokens
+        if observation.exact_total_tokens is not None:
+            saw_exact = True
+            exact += observation.exact_total_tokens
+    input_ceiling = assessment.input_token_ceiling
+    output_ceiling = assessment.output_token_ceiling
+    if (
+        isinstance(input_ceiling, int)
+        and not isinstance(input_ceiling, bool)
+        and saw_reported
+        and prompt > input_ceiling
+    ):
+        blockers.append("campaign_input_token_ceiling_exceeded")
+    if (
+        isinstance(output_ceiling, int)
+        and not isinstance(output_ceiling, bool)
+        and saw_reported
+        and completion > output_ceiling
+    ):
+        blockers.append("campaign_output_token_ceiling_exceeded")
+    budget = _campaign_token_budget(assessment)
+    if saw_exact and budget is not None and exact > budget:
+        blockers.append("campaign_exact_token_ceiling_exceeded")
+    return blockers

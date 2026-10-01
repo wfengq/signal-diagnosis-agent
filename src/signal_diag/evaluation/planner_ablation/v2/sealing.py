@@ -106,6 +106,25 @@ def _digest_payload(payload: object) -> str:
     return _sha256_bytes(_canonical_payload(payload))
 
 
+def _repo_file_matches_digest(
+    repository_root: Path,
+    reference: str | None,
+    expected_digest: str,
+) -> bool:
+    """True when ``reference`` is a file under the repository with ``expected_digest``."""
+    if not reference:
+        return False
+    try:
+        evidence_path = resolve_under_root(
+            repository_root.resolve(), reference, label="evidence"
+        )
+    except ValueError:
+        return False
+    if not evidence_path.is_file():
+        return False
+    return _sha256_file(evidence_path) == expected_digest
+
+
 def resolve_under_root(root: Path, relative: str, *, label: str) -> Path:
     """Resolve ``relative`` under ``root``; reject traversal and symlink escape."""
     if not relative or relative.startswith(("/", "\\")):
@@ -1135,21 +1154,40 @@ def validate_resource_candidate(
         if reference in {"", "fixture", "fixture_only", "fixture_only_reviewed_fact"}:
             reasons.append(f"unauthenticated_proof_acceptance:{fact_name}")
             continue
-        # Path-like references must resolve under the repository and match digest.
-        if "/" in reference or reference.endswith(".md"):
-            try:
-                evidence_path = resolve_under_root(
-                    repository_root.resolve(), reference, label="proof"
-                )
-            except ValueError:
-                reasons.append(f"proof_acceptance_path_escape:{fact_name}")
-                continue
-            if not evidence_path.is_file():
-                reasons.append(f"missing_proof_acceptance_file:{fact_name}")
-                continue
-            actual = _sha256_file(evidence_path)
-            if actual != fact.proof_digest:
-                reasons.append(f"proof_acceptance_content_mismatch:{fact_name}")
+        if "/" not in reference and not reference.endswith(".md"):
+            reasons.append(f"proof_acceptance_reference_not_repo_path:{fact_name}")
+            continue
+        try:
+            evidence_path = resolve_under_root(
+                repository_root.resolve(), reference, label="proof"
+            )
+        except ValueError:
+            reasons.append(f"proof_acceptance_path_escape:{fact_name}")
+            continue
+        if not evidence_path.is_file():
+            reasons.append(f"missing_proof_acceptance_file:{fact_name}")
+            continue
+        actual = _sha256_file(evidence_path)
+        if actual != fact.proof_digest:
+            reasons.append(f"proof_acceptance_content_mismatch:{fact_name}")
+
+    if not extension.capability.fixture_only and not _repo_file_matches_digest(
+        repository_root,
+        extension.capability.offline_evidence_reference,
+        extension.capability.offline_evidence_digest,
+    ):
+        reasons.append("unauthenticated_offline_evidence")
+    provider_limits = extension.proofs.provider_limits
+    if (
+        provider_limits is not None
+        and not provider_limits.fixture_only
+        and not _repo_file_matches_digest(
+            repository_root,
+            provider_limits.source_reference,
+            provider_limits.source_digest,
+        )
+    ):
+        reasons.append("unauthenticated_provider_limits_source")
 
     # Nested fixture-only packages cannot authenticate production capability.
     if extension.proofs.fixture_only or extension.capability.fixture_only:

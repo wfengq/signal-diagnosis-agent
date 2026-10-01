@@ -624,6 +624,29 @@ def _write_campaign_artifacts(output_dir: Path, record: CampaignRecord) -> None:
     )
 
 
+def _admit_observer_token_ceilings(session: object, assessment: object | None) -> None:
+    """Copy derivable campaign token ceilings onto the slot observer before snapshot."""
+    if assessment is None:
+        return
+    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+        ResourceAssessment,
+    )
+    from signal_diag.evaluation.planner_ablation.v2.resource_telemetry import (
+        admitted_per_send_token_ceilings,
+    )
+
+    if not isinstance(assessment, ResourceAssessment):
+        return
+    observer = getattr(session, "_observer", None)
+    if observer is None:
+        return
+    per_input, per_output = admitted_per_send_token_ceilings(assessment)
+    if per_input is not None and getattr(observer, "admitted_per_send_input_tokens", None) is None:
+        observer.admitted_per_send_input_tokens = per_input
+    if per_output is not None and getattr(observer, "admitted_per_send_output_tokens", None) is None:
+        observer.admitted_per_send_output_tokens = per_output
+
+
 async def run_schedule(
     schedule: Schedule,
     protocol: StudyProtocolV2,
@@ -717,7 +740,10 @@ async def run_schedule(
                 resource_stop_reason = "missing_resource_snapshot_capability"
                 limitations.append(resource_stop_reason)
             else:
+                _admit_observer_token_ceilings(session, resource_assessment)
                 ledger = snapshot_fn(worker_drained=not drain_failed and not _session_background_worker_alive(session))
+                digest = f"{slot.request_key}:{slot.arm}:{slot.round_index}"
+                ledger = ledger.model_copy(update={"slot_key_digest": digest})
                 resource_ledger = ledger.model_dump(mode="json")
                 if resource_assessment is None:
                     resource_stop = True

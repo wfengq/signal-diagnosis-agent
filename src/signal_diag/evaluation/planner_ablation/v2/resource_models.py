@@ -121,6 +121,7 @@ class ProviderLimitsBinding(BaseModel):
     allowed_response_models: tuple[str, ...] = ()
     source_date: str = Field(min_length=1)
     source_digest: str = Field(min_length=64, max_length=64)
+    source_reference: str | None = None
     token_limit_scope: str = Field(min_length=1)
     authentication_mode: str = Field(min_length=1)
     model_mapping_accepted: bool = False
@@ -141,6 +142,7 @@ class ObservationCapability(BaseModel):
     observes_http_sends: bool
     observes_usage: bool
     offline_evidence_digest: str = Field(min_length=64, max_length=64)
+    offline_evidence_reference: str | None = None
     fixture_only: bool = True
     blockers: tuple[str, ...] = ()
 

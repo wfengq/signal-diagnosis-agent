@@ -181,7 +181,11 @@ Task 7 offline implementation merged via PR #18. Post-merge label review + budge
 **Status:** `offline_implementation_pending_revision` — Codex tip `218c2fa` P1/P2
 recheck fixes remain under independent recheck. Follow-up closes CI openai
 install drift for MockTransport observation (fixture profile + explicit offline
-boundary; audited unsupported without boundary still refuses). **Not** claiming
+boundary; audited unsupported without boundary still refuses). P1C/P1E/P2
+follow-up on this branch rebinds default slot digests in `run_schedule`,
+requires repository files for proof references and for non-fixture offline
+evidence and provider-limit digests, and blocks unknown or over-ceiling token
+exposure. Still pending Codex recheck. **Not** claiming
 `offline_implementation_accepted`. Not `resource_bounds_complete`, not
 `candidate_verified`, not seal, not RealLLM.
 
