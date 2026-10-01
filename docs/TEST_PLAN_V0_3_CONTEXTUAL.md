@@ -30,6 +30,7 @@
 | T-CX197..207 | truth-free deterministic contextual fixed pipeline and reseal |
 | T-CX231..240 | v9.10 contextual clipping recovery |
 | T-CX276..288 | D038 planner-ablation utility study (definitions; harness gated) |
+| T-CX289..302 | D038 protocol revision / study_s1_planner_ablation_dev_2 (definitions; seal/RealLLM gated) |
 
 ## Registered identities (Task 1)
 
@@ -216,6 +217,20 @@
 | T-CX286 | Parameterized decision function: dominance allowed under equal 100% completion only when all other required conditions hold; negative cases forbid dominance/advantage. |
 | T-CX287 | Full matching-matrix tests for both frozen modes (clipping, harmonic, no-fault, valid inconclusive) on study baseline vs product gates. |
 | T-CX288 | Scored-input validator rejects Scripted/harness-only artifacts even if arm label is rewritten to `product_agent`. |
+| T-CX289 | Request identity from mode/test-byte/reference-byte/nominal/channel-segment/normalized question; equal-input oracle consistency; explicit single-mode aliases without double-counting scored units. |
+| T-CX290 | Unique schedule (9 single + 10 paired keys), source/master relations, three rounds, and deterministic paired order with repetition outermost; 114 slots including 57 product slots. |
+| T-CX291 | Fixed U/C/G populations and exact upgrade targets registered before execution; truth-free `ByteRequest` boundary excludes oracle/U/C/G/scenario truth from arm inputs. |
+| T-CX292 | Shared timer `encoded_bytes_to_terminal_v1` includes decode/execute/guidance on both arms and excludes persistence/serialization after terminal readiness; wrong markers/version fail matching. |
+| T-CX293 | Complete D037 service entry (`submit_contextual_wav` / `wait_for_contextual_terminal`) and two-arm report/gate matching including v9.11 and §16 Option C; no legacy submit/wait. |
+| T-CX294 | Actual execution provenance from session construction/execution; relabeled Scripted/fake-client/offline artifacts rejected for scored product ingestion. |
+| T-CX295 | Scheduled quality (exact outcome-plus-causal-set primary; outcome-only secondary), usefulness, and completion populations over unique requests; failed/no-diagnosis slots remain in required denominators. |
+| T-CX296 | Same-run semantic claim/rule support; zero-claim and zero-eligibility states block positive conclusions or return not-evaluable — never fabricated 100% success. |
+| T-CX297 | Parameterized zero-loss decision with all mode/round gates; dominance needs exact (0.20, 0.100 s) savings bands and no p95/action regression; planner advantage requires same-mode quality gain in every round; negative cases yield `insufficient_evidence`. |
+| T-CX298 | Typed infrastructure stop vs behavioral continuation; outer deadline/teardown accounting; truncated campaign preserves full schedule and blocks accepted conclusion. |
+| T-CX299 | Effective limits, bounded worst-case request/token budget, and actual resource telemetry; unknown limits or unavailable retry telemetry block execution. |
+| T-CX300 | Full input/code/seal binding; readonly verify; generation refuses existing populated and empty destinations; foreign identity and mutated bindings fail. |
+| T-CX301 | Dev_1 reproducer and preserved assets unchanged; `evaluation` must not import app composition; public product builder/default and historical contextual baseline unchanged. |
+| T-CX302 | Full offline schedule acceptance with fail-on-call provider spy (zero calls); review_status remains pending; no formal seal or RealLLM during offline acceptance. |
 
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
@@ -267,3 +282,12 @@ implement or pass the behaviors. Harness code, Scripted dry-run execution,
 protocol seal, and RealLLM campaign require later explicit grants. They must
 not alter frozen V0.2 §§1–64, sealed v9.11 identities, DSP thresholds, or the
 product planner default.
+T-CX289–T-CX302 are additive definitions for the D038 protocol revision
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §20; study `study_s1_planner_ablation_dev_2`).
+Registering these IDs does not implement or pass the behaviors and does not
+seal approved design values. Study-only offline harness code and temporary
+fixtures require an implementation grant already covering Tasks 2–7; formal
+protocol seal, RealLLM campaign, product changes, and commit/push/merge remain
+separately gated. They must not alter §19 / `dev_1` meanings, frozen V0.2
+§§1–64, sealed v9.11 identities, DSP thresholds, or the product planner
+default.
