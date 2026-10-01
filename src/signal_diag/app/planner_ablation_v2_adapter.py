@@ -12,8 +12,8 @@ from signal_diag.agent.models import (
     StructuredDiagnosis,
     TaskAssessment,
 )
-from signal_diag.app.contextual_models import ContextualAppRunSnapshot
 from signal_diag.agent.planner import PlannerModel
+from signal_diag.app.contextual_models import ContextualAppRunSnapshot
 from signal_diag.app.service import (
     ApplicationDependencies,
     DiagnosisApplicationService,

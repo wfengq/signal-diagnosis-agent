@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import pytest
 
@@ -20,12 +20,20 @@ from signal_diag.agent.models import (
     TaskAssessment,
 )
 from signal_diag.agent.planner import PROMPT_VERSION, RealLLMPlanner
+from signal_diag.app.contextual_models import ContextualAppRunSnapshot
 from signal_diag.app.models import (
     AppErrorDetail,
     PlannerIdentity,
     SourceSummary,
     WaveformPoint,
     WaveformPreview,
+)
+from signal_diag.app.pcm_wav import encode_pcm32_wav
+from signal_diag.app.planner_ablation_v2_adapter import (
+    _failure_cause_from_product_snapshot,
+    _failure_kind_for_execute_error,
+    build_fixed_arm_session,
+    build_product_arm_session,
 )
 from signal_diag.agent.models import AgentRunResult
 from signal_diag.agent.policies import AgentLimits
@@ -739,8 +747,9 @@ def _minimal_contextual_snapshot(
         test_signal_id="sig_test",
         assertion_source="user_supplied",
     )
+    run_id = "run_" + "a" * 32
     common = dict(
-        run_id="run_ctx_test",
+        run_id=run_id,
         created_at=NOW,
         started_at=NOW,
         finished_at=NOW,

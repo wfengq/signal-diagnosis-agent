@@ -80,6 +80,7 @@ Notes:
 - Historical contextual baseline module bytes unchanged.
 - `study_s1_planner_ablation_dev_1` seal files unchanged; no rewrite/migration.
 - Additive append-only row `d038_planner_ablation_protocol_revision_dev_2` records the product-tree digest after adding `app/planner_ablation_v2_adapter.py` (`18221d0936e667e44c38275bdb0e36e54bf74e4b6c58d6dfc82b607299925de6`). Wave 2 `d038_planner_ablation_wave2_harness` row is preserved unchanged.
+- Append-only row `d038_planner_ablation_dev_2_snapshot_failure_classification` records the live product-tree digest after P1 snapshot failure classification on `planner_ablation_v2_adapter.py` (`97bbc1d334f8eb6e13ded577f61eeea33e3067f5eaf6ecf8d7083f6bfeb49ed9`); historical `d038_planner_ablation_protocol_revision_dev_2` row remains at `18221d…`.
 
 ## T-CX289–T-CX302 → tests mapping
 
