@@ -163,11 +163,19 @@ advantage endpoint is quality.
 
 ## Seal verification
 
-Regenerate or verify with:
+Read-only verify of the committed seal (does not write):
+
+```bash
+PYTHONPATH=src python3 scripts/seal_planner_ablation_protocol.py --verify-only
+PYTHONPATH=src python3 -m pytest tests/evaluation/planner_ablation/test_protocol_seal_bundle.py tests/evaluation/planner_ablation/test_seal_script_safety.py -q
+```
+
+Generate is separate and **refuses** when `protocol_seal/` already exists
+(no overwrite / no `rmtree`). Only use generate under an empty destination
+and a later explicit seal-regeneration grant:
 
 ```bash
 PYTHONPATH=src python3 scripts/seal_planner_ablation_protocol.py
-PYTHONPATH=src python3 -m pytest tests/evaluation/planner_ablation/test_protocol_seal_bundle.py -q
 ```
 
 Formal scoring entry for this study must use:

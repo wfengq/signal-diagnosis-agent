@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""Build the Wave 3 additive protocol seal for study_s1_planner_ablation_dev_1.
+"""Planner-ablation protocol seal generate / verify CLI.
 
-Uses already-reviewed Wave 2 sealing helpers. Does not call RealLLM.
+Generate refuses an existing destination (no overwrite). Verify is read-only.
+Does not call RealLLM.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
-import shutil
 from hashlib import sha256
 from pathlib import Path
+from typing import Any
 
 from signal_diag.evaluation.contextual.calibration import product_package_sha256
 from signal_diag.evaluation.planner_ablation.decision import StudyDecisionProtocol
@@ -246,38 +248,87 @@ def build_manifest() -> dict[str, object]:
     }
 
 
-def main() -> None:
-    STUDY_ROOT.mkdir(parents=True, exist_ok=True)
-    if SEAL_DEST.exists():
-        shutil.rmtree(SEAL_DEST)
+def verify_existing_seal(*, seal_dir: Path = SEAL_DEST) -> dict[str, Any]:
+    """Read-only verification of an existing seal directory."""
+    if not seal_dir.is_dir():
+        raise FileNotFoundError(f"seal directory missing: {seal_dir}")
+    verify_planner_ablation_bundle(seal_dir)
+    loaded = json.loads((seal_dir / "manifest.json").read_text(encoding="utf-8"))
+    study = study_input_from_verified_manifest(loaded)
+    return {
+        "status": "verify_ok",
+        "seal": str(seal_dir),
+        "schedule_keys": len(study.schedule),
+        "oracle_rows": len(study.oracle),
+        "non_inferiority_max_gap": study.protocol.non_inferiority_max_gap,
+        "population_identity": study.population_identity,
+        "oracle_identity": study.oracle_identity,
+        "input_identity": study.input_identity,
+        "code_identity": study.code_identity,
+    }
+
+
+def generate_seal(*, seal_dir: Path = SEAL_DEST) -> dict[str, Any]:
+    """Create a new seal only when the destination path is absent.
+
+    Any existing path is refused, including an empty directory. Only a
+    non-existent destination path may be created.
+    """
+    if seal_dir.exists():
+        raise FileExistsError(
+            f"seal destination already exists: {seal_dir}; "
+            "refuse overwrite even for an empty directory "
+            "(use --verify-only for read-only checks)"
+        )
+    seal_dir.parent.mkdir(parents=True, exist_ok=True)
     manifest = build_manifest()
     seal_planner_ablation_bundle(
-        destination=SEAL_DEST,
+        destination=seal_dir,
         study_id=PLANNER_ABLATION_STUDY_ID,
         scoring_identity=PLANNER_ABLATION_SCORING_IDENTITY,
         denominator_derivation="completion_slots",
         manifest=manifest,
     )
-    verify_planner_ablation_bundle(SEAL_DEST)
-    loaded = json.loads((SEAL_DEST / "manifest.json").read_text(encoding="utf-8"))
-    study = study_input_from_verified_manifest(loaded)
-    print(
-        json.dumps(
-            {
-                "seal": str(SEAL_DEST.relative_to(PROJECT_ROOT)),
-                "schedule_keys": len(study.schedule),
-                "oracle_rows": len(study.oracle),
-                "non_inferiority_max_gap": study.protocol.non_inferiority_max_gap,
-                "population_identity": study.population_identity,
-                "oracle_identity": study.oracle_identity,
-                "input_identity": study.input_identity,
-                "code_identity": study.code_identity,
-            },
-            indent=2,
-            sort_keys=True,
-        )
+    verified = verify_existing_seal(seal_dir=seal_dir)
+    return {
+        "status": "generated",
+        **{key: value for key, value in verified.items() if key != "status"},
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--verify-only",
+        action="store_true",
+        help="read-only verify of the committed seal; never writes",
     )
+    parser.add_argument(
+        "--seal-dir",
+        type=Path,
+        default=SEAL_DEST,
+        help="seal directory (default: study protocol_seal)",
+    )
+    args = parser.parse_args(argv)
+    seal_dir = args.seal_dir.resolve()
+    try:
+        if args.verify_only:
+            payload = verify_existing_seal(seal_dir=seal_dir)
+        else:
+            payload = generate_seal(seal_dir=seal_dir)
+    except FileExistsError as exc:
+        print(json.dumps({"status": "refused", "error": str(exc)}, indent=2))
+        return 2
+    except FileNotFoundError as exc:
+        print(json.dumps({"status": "missing", "error": str(exc)}, indent=2))
+        return 1
+    try:
+        payload["seal"] = str(Path(payload["seal"]).relative_to(PROJECT_ROOT))
+    except ValueError:
+        pass
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
