@@ -178,8 +178,8 @@ Task 7 offline implementation merged via PR #18. Post-merge label review + budge
 
 ## Token/transport telemetry offline implementation (Tasks 2–7)
 
-**Status:** `offline_implementation_pending_revision` — code revise `32d2419`
-(failing repros `756e8f8`) on `cursor/s1-dev2-telemetry-impl-0d26`. Independent
+**Status:** `offline_implementation_pending_revision` — code revise `481668c`
+(failing repros `1967260`) on `cursor/s1-dev2-telemetry-impl-0d26`. Independent
 recheck is still required. **Not** claiming `offline_implementation_accepted`.
 Not `resource_bounds_complete`, not `candidate_verified`, not seal, not RealLLM.
 
@@ -336,3 +336,17 @@ Conditional SDK ceiling `57×28×3=4788` remains documentation/admission arithme
    is not an audited production profile and is not a scored conclusion.
 
 No `protocol_seal/` under `study_s1_planner_ablation_dev_2`. Evidence docs: existing names plus `RESOURCE_BOUNDS.md` only.
+
+## Codex revise round 2 (still pending)
+
+**Status:** `offline_implementation_pending_revision`. No seal. No RealLLM. No live provider call.
+
+This round keeps online execution refused. `reject_online_preflight` always raises `online_path_not_authorized_in_offline_scope`. A constructed `VerifiedResourceAdmission`, a synthetic budget, and strings such as `not-a-verified-seal` do not open `run_schedule(execution_mode="online")`. `make_verified_resource_admission` is the only producer and does not return an admission under this grant.
+
+Event graphs now require a unique `sequence_id`, a start before its end, an `http_send.attempt_id` that matches an `sdk_attempt`, an `sdk_attempt.call_id` that matches a `logical_call`, and usage that cites an `http_send`. A `zero_use_proof` string, including a `reviewed:` prefix, does not make a redirect exact. Reviewed zero-use proof is not a product path yet.
+
+Numeric bound facts, capability `offline_evidence_reference`, and provider `source_reference` may cite only `RESOURCE_BOUNDS.md` or `BUDGET_BOUNDS.md`. `LABEL_REVIEW.md` is the label-review binding. Non-fixture label review also requires the on-disk file to contain `approved=true`. Caller `approved=True` does not replace that marker.
+
+`build_candidate_manifest`, `generate_seal`, and `verify_manifest` take optional `installed_sdk_identity`. `read_installed_sdk_identity()` in `app/sdk_identity.py` collects it. Evaluation still does not import the SDK. Profile attach compares `native_http_family`, `native_http_version`, `httpcore_version`, `source_file_digests`, `max_retries_default`, and `sdk_attempts_per_call`. Campaign totals compare summed `logical_call_count` with `logical_call_ceiling`.
+
+The 114-slot harness stays on the fixture offline boundary because its transport is `MockTransport`. When the installed profile is the reviewed one, a non-mock client can attach as `canonical_sdk` without that boundary.
