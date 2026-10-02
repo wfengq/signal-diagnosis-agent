@@ -537,8 +537,6 @@ def test_unsupported_canonical_profile_does_not_attach_hooks() -> None:
 
 def test_supported_audited_profile_attaches_canonical_without_fixture_boundary() -> None:
     profile = build_audited_sdk_observation_profile()
-    if not profile.supported:
-        pytest.skip("installed SDK is not the reviewed profile; fixture path stays")
     binding, _events = _binding()
     http_client = httpx.AsyncClient()
     client = _async_openai(
@@ -552,9 +550,17 @@ def test_supported_audited_profile_attaches_canonical_without_fixture_boundary()
         profile=profile,
         allow_fixture_offline_boundary=False,
     )
-    assert desc.origin == "canonical_sdk"
-    assert desc.profile_supported is True
-    assert getattr(client, "_signal_diag_observation_attached", False) is True
+    if profile.supported:
+        assert desc.origin == "canonical_sdk"
+        assert desc.profile_supported is True
+        assert getattr(client, "_signal_diag_observation_attached", False) is True
+    else:
+        # CI may resolve openai outside the reviewed tuple; refuse without skip.
+        assert desc.origin == "unsupported"
+        assert desc.profile_supported is False
+        assert binding.invalid is True
+        assert getattr(client, "_signal_diag_observation_attached", False) is False
+        assert profile.blockers
 
 
 def test_mock_transport_is_never_canonical_sdk() -> None:
