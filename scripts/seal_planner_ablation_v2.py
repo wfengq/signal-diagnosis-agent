@@ -15,6 +15,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from signal_diag.app.sdk_identity import read_installed_sdk_identity
 from signal_diag.evaluation.planner_ablation.v2.models import (
     EffectiveConfiguration,
     StudyProtocolV2,
@@ -58,6 +59,7 @@ def verify_existing_seal(
         seal_dir,
         repository_root=repository_root,
         input_root=inputs,
+        installed_sdk_identity=read_installed_sdk_identity(),
     )
     after = tree_file_digests(seal_dir)
     after_inputs = tree_file_digests(inputs)
@@ -121,6 +123,7 @@ def generate_new_seal(
             input_token_bound_per_call=8000,
             output_token_bound_per_call=2000,
         )
+    installed_sdk_identity = read_installed_sdk_identity()
     candidate = build_candidate_manifest(
         repository_root=repository_root,
         input_root=inputs,
@@ -128,9 +131,13 @@ def generate_new_seal(
         effective_configuration=config,
         budget_assessment=budget,
         operator_authorization_references=("offline_harness_temporary_fixture",),
+        installed_sdk_identity=installed_sdk_identity,
     )
     destination = generate_seal(
-        candidate, seal_dir, repository_root=repository_root
+        candidate,
+        seal_dir,
+        repository_root=repository_root,
+        installed_sdk_identity=installed_sdk_identity,
     )
     verified = verify_existing_seal(
         seal_dir=destination,

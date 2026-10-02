@@ -275,9 +275,7 @@ def test_repo_proof_reference_must_match_file_bytes() -> None:
     )
     assert matched.ready is False
     assert "proof_acceptance_content_mismatch:planner_turn_ceiling" not in matched.reasons
-    assert (
-        "proof_acceptance_inapplicable_file:planner_turn_ceiling" not in matched.reasons
-    )
+    assert "proof_acceptance_inapplicable_file:planner_turn_ceiling" in matched.reasons
     assert "missing_proof_acceptance_file:planner_turn_ceiling" not in matched.reasons
 
 
@@ -314,6 +312,7 @@ def test_non_fixture_offline_evidence_requires_repo_file() -> None:
         repository_root=PROJECT_ROOT,
     )
     assert matched.ready is False
+    assert "offline_evidence_inapplicable_file" in matched.reasons
     assert "unauthenticated_offline_evidence" not in matched.reasons
 
 
@@ -350,4 +349,5 @@ def test_non_fixture_provider_limits_source_requires_repo_file() -> None:
         repository_root=PROJECT_ROOT,
     )
     assert matched.ready is False
+    assert "provider_limits_source_inapplicable_file" in matched.reasons
     assert "unauthenticated_provider_limits_source" not in matched.reasons

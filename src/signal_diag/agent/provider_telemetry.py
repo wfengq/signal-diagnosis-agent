@@ -194,6 +194,29 @@ def _profile_hook_identity_ok(profile: SdkObservationProfile) -> tuple[bool, tup
     return (len(blockers) == 0), tuple(blockers)
 
 
+def _profile_identity_blockers(
+    profile: SdkObservationProfile,
+    installed: SdkObservationProfile,
+) -> list[str]:
+    """Compare transport identity fields the version check does not cover."""
+    blockers: list[str] = []
+    if profile.native_http_family != installed.native_http_family:
+        blockers.append("native_http_family_mismatch")
+    if profile.native_http_version != installed.native_http_version:
+        blockers.append("native_http_version_mismatch")
+    if profile.httpcore_version != installed.httpcore_version:
+        blockers.append("httpcore_version_mismatch")
+    if tuple(sorted(profile.source_file_digests)) != tuple(
+        sorted(installed.source_file_digests)
+    ):
+        blockers.append("source_file_digests_mismatch")
+    if profile.max_retries_default != installed.max_retries_default:
+        blockers.append("max_retries_default_mismatch")
+    if profile.sdk_attempts_per_call != installed.sdk_attempts_per_call:
+        blockers.append("sdk_attempts_per_call_mismatch")
+    return blockers
+
+
 def _profile_matches_installed(
     profile: SdkObservationProfile,
     *,
@@ -209,6 +232,8 @@ def _profile_matches_installed(
     blockers: list[str] = []
     hook_ok, hook_blockers = _profile_hook_identity_ok(profile)
     blockers.extend(hook_blockers)
+    identity_blockers = _profile_identity_blockers(profile, installed)
+    blockers.extend(identity_blockers)
 
     if profile.openai_version != installed.openai_version:
         blockers.append(
@@ -232,6 +257,7 @@ def _profile_matches_installed(
     fixture_attach_ok = (
         allow_fixture_offline_boundary
         and hook_ok
+        and not identity_blockers
         and profile.openai_version == installed.openai_version
         and profile.openai_source_digest == installed.openai_source_digest
         and not any(

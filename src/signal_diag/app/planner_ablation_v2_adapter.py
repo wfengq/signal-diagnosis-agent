@@ -366,12 +366,12 @@ class StudyResourceObserver:
         send_coverage_complete = True
         for send in http_ends:
             if send.outcome == "redirect":
-                proof = getattr(send, "zero_use_proof", None)
-                if not (isinstance(proof, str) and proof.startswith("reviewed:")):
-                    send_coverage_complete = False
-                    reasons.append(
-                        f"redirect_without_zero_use_proof:{send.send_id or send.correlation_id}"
-                    )
+                # Reviewed zero-use proof is not implemented. A string prefix cannot
+                # make a redirect an exact-zero send.
+                send_coverage_complete = False
+                reasons.append(
+                    f"redirect_without_zero_use_proof:{send.send_id or send.correlation_id}"
+                )
                 continue
             link = send.send_id or send.correlation_id
             matched = usage_by_send.get(link)

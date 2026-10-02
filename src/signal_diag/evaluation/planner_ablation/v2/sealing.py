@@ -46,6 +46,7 @@ from signal_diag.evaluation.planner_ablation.v2.population import (
 from signal_diag.evaluation.planner_ablation.v2.resource_models import (
     InstalledSdkIdentity,
     ResourceCandidateValidation,
+    VerifiedResourceAdmission,
 )
 
 _CHECKSUM_LINE = "{digest}  {name}\n"
@@ -514,6 +515,7 @@ def build_candidate_manifest(
     environment_notes: tuple[str, ...] = (),
     code_bindings: CodeBindingsV2 | None = None,
     resource_extension: dict[str, object] | None = None,
+    installed_sdk_identity: InstalledSdkIdentity | None = None,
 ) -> CandidateManifestV2:
     """Assemble a candidate from verified inputs under the declared roots."""
     repo = repository_root.resolve()
@@ -595,7 +597,11 @@ def build_candidate_manifest(
     )
     if resource_extension is not None:
         # Resource readiness does not consult the legacy explicit-flag gate.
-        validation = validate_resource_candidate(candidate, repository_root=repo)
+        validation = validate_resource_candidate(
+            candidate,
+            repository_root=repo,
+            installed_sdk_identity=installed_sdk_identity,
+        )
         candidate = candidate.model_copy(
             update={"seal_ready": bool(validation.ready and not validation.fixture_only)}
         )
@@ -628,6 +634,7 @@ def generate_seal(
     *,
     repository_root: Path | None = None,
     legacy_fixture_seal: bool = False,
+    installed_sdk_identity: InstalledSdkIdentity | None = None,
 ) -> Path:
     """Write a new seal directory exclusively. Never deletes or replaces.
 
@@ -661,7 +668,9 @@ def generate_seal(
                 "repository_root required when candidate includes resource_extension"
             )
         validation = validate_resource_candidate(
-            candidate, repository_root=repository_root.resolve()
+            candidate,
+            repository_root=repository_root.resolve(),
+            installed_sdk_identity=installed_sdk_identity,
         )
         if any(
             reason.startswith("invalid_resource_extension")
@@ -894,6 +903,7 @@ def verify_manifest(
     *,
     repository_root: Path,
     input_root: Path,
+    installed_sdk_identity: InstalledSdkIdentity | None = None,
 ) -> VerifiedStudyV2:
     """Production constructor for Task 4 verified input. Read-only."""
     seal_dir = path.resolve()
@@ -953,7 +963,9 @@ def verify_manifest(
     resource_extension: dict[str, object] | None = None
     if candidate.resource_extension is not None:
         validation = validate_resource_candidate(
-            candidate, repository_root=repository_root.resolve()
+            candidate,
+            repository_root=repository_root.resolve(),
+            installed_sdk_identity=installed_sdk_identity,
         )
         if any(
             reason.startswith("invalid_resource_extension")
@@ -1005,12 +1017,76 @@ def verify_manifest(
     )
 
 
-def _bound_fact_file_applicable(reference: str) -> bool:
+_NUMERIC_BOUND_FILES = frozenset({"RESOURCE_BOUNDS.md", "BUDGET_BOUNDS.md"})
+_LABEL_APPROVAL_MARKER = b"approved=true"
+
+
+def _study_evidence_name(reference: str) -> str | None:
     normalized = reference.replace("\\", "/").lstrip("./")
     if not normalized.startswith(_STUDY_EVIDENCE_DIR):
-        return False
+        return None
     name = normalized[len(_STUDY_EVIDENCE_DIR) :]
-    return name in _STUDY_EVIDENCE_FILES
+    if not name or "/" in name:
+        return None
+    return name
+
+
+def _bound_fact_file_applicable(reference: str) -> bool:
+    """Numeric bound facts cite RESOURCE_BOUNDS.md or BUDGET_BOUNDS.md only."""
+    return _study_evidence_name(reference) in _NUMERIC_BOUND_FILES
+
+
+def _evidence_reference_reasons(
+    repository_root: Path,
+    reference: str | None,
+    digest: str,
+    *,
+    allowed: frozenset[str],
+    inapplicable: str,
+    unauthenticated: str,
+) -> tuple[str, ...]:
+    name = _study_evidence_name(reference or "")
+    if name not in allowed:
+        return (inapplicable,)
+    if not _repo_file_matches_digest(repository_root, reference, digest):
+        return (unauthenticated,)
+    return ()
+
+
+def _is_sha256_hex(value: str | None) -> bool:
+    return (
+        isinstance(value, str)
+        and len(value) == 64
+        and all(ch in "0123456789abcdef" for ch in value)
+    )
+
+
+def _placeholder_seal_digest(value: str | None) -> bool:
+    if not _is_sha256_hex(value):
+        return True
+    assert value is not None
+    return len(set(value)) == 1
+
+
+def _placeholder_authorization(value: str | None) -> bool:
+    if value is None or not value.strip():
+        return True
+    lowered = value.strip().lower()
+    return lowered.startswith("not-") or "placeholder" in lowered
+
+
+def _online_seal_authorized(
+    repository_root: Path,
+    seal_digest: str,
+    candidate_digest: str,
+) -> bool:
+    """Tasks 1–7 do not authorize an online provider path.
+
+    A matching seal file would still be refused. The arguments are part of the
+    later grant's check and are unused while this revision stays offline.
+    """
+    _ = (repository_root, seal_digest, candidate_digest)
+    return False
 
 
 def validate_resource_candidate(
@@ -1098,12 +1174,14 @@ def validate_resource_candidate(
             except ValueError:
                 reasons.append("label_review_disk_path_mismatch")
             else:
-                digest_ok = (
-                    label_path.is_file()
-                    and _sha256_file(label_path) == extension.label_review_source_digest
-                )
-                if not digest_ok:
+                payload = label_path.read_bytes() if label_path.is_file() else None
+                if (
+                    payload is None
+                    or _sha256_bytes(payload) != extension.label_review_source_digest
+                ):
                     reasons.append("label_review_disk_digest_mismatch")
+                elif _LABEL_APPROVAL_MARKER not in payload:
+                    reasons.append("label_review_disk_not_approved")
 
     bindings = collect_code_bindings(repository_root.resolve())
     if bindings.aggregate_code_identity != extension.code_identity:
@@ -1214,23 +1292,29 @@ def validate_resource_candidate(
         if actual != fact.proof_digest:
             reasons.append(f"proof_acceptance_content_mismatch:{fact_name}")
 
-    if not extension.capability.fixture_only and not _repo_file_matches_digest(
-        repository_root,
-        extension.capability.offline_evidence_reference,
-        extension.capability.offline_evidence_digest,
-    ):
-        reasons.append("unauthenticated_offline_evidence")
-    provider_limits = extension.proofs.provider_limits
-    if (
-        provider_limits is not None
-        and not provider_limits.fixture_only
-        and not _repo_file_matches_digest(
-            repository_root,
-            provider_limits.source_reference,
-            provider_limits.source_digest,
+    if not extension.capability.fixture_only:
+        reasons.extend(
+            _evidence_reference_reasons(
+                repository_root,
+                extension.capability.offline_evidence_reference,
+                extension.capability.offline_evidence_digest,
+                allowed=_NUMERIC_BOUND_FILES,
+                inapplicable="offline_evidence_inapplicable_file",
+                unauthenticated="unauthenticated_offline_evidence",
+            )
         )
-    ):
-        reasons.append("unauthenticated_provider_limits_source")
+    provider_limits = extension.proofs.provider_limits
+    if provider_limits is not None and not provider_limits.fixture_only:
+        reasons.extend(
+            _evidence_reference_reasons(
+                repository_root,
+                provider_limits.source_reference,
+                provider_limits.source_digest,
+                allowed=_NUMERIC_BOUND_FILES,
+                inapplicable="provider_limits_source_inapplicable_file",
+                unauthenticated="unauthenticated_provider_limits_source",
+            )
+        )
 
     # Nested fixture-only packages cannot authenticate production capability.
     if extension.proofs.fixture_only or extension.capability.fixture_only:
@@ -1270,6 +1354,61 @@ def validate_resource_candidate(
         assessment=assessment,
         recomputed_extension_digest=recomputed_digest,
         fixture_only=extension.fixture_only,
+    )
+
+
+def make_verified_resource_admission(
+    candidate: CandidateManifestV2,
+    validation: ResourceCandidateValidation,
+    *,
+    seal_digest: str,
+    authorization_reference: str,
+    repository_root: Path,
+) -> VerifiedResourceAdmission:
+    """Bind admission digests to a ready validation. This grant never returns one.
+
+    Online execution stays refused until a later grant flips
+    ``_online_seal_authorized``. A constructed ``VerifiedResourceAdmission`` is
+    not an input to this function.
+    """
+    problems: list[str] = []
+    assessment = validation.assessment
+    if not validation.ready or validation.fixture_only:
+        problems.append("resource_validation_not_ready")
+    if assessment is None or assessment.execution_blocked:
+        problems.append("resource_assessment_execution_blocked")
+    extension_digest = validation.recomputed_extension_digest or ""
+    candidate_digest = candidate.candidate_digest
+    if not _is_sha256_hex(extension_digest):
+        problems.append("missing_extension_digest")
+    if not _is_sha256_hex(candidate_digest):
+        problems.append("missing_candidate_digest")
+    if _placeholder_seal_digest(seal_digest):
+        problems.append("placeholder_seal_digest")
+    if _placeholder_authorization(authorization_reference):
+        problems.append("placeholder_authorization_reference")
+    if not _online_seal_authorized(repository_root, seal_digest, candidate_digest):
+        problems.append("online_path_not_authorized_in_offline_scope")
+    if problems or assessment is None:
+        raise ValueError(",".join(dict.fromkeys(problems)) or "resource_validation_not_ready")
+    assessment_digest = _digest_payload(assessment.model_dump(mode="json"))
+    authorization_binding_digest = _digest_payload(
+        {
+            "authorization_reference": authorization_reference,
+            "extension_digest": extension_digest,
+            "seal_digest": seal_digest,
+        }
+    )
+    return VerifiedResourceAdmission(
+        ready=True,
+        fixture_only=False,
+        execution_blocked=False,
+        resource_policy=validation.resource_policy,
+        candidate_digest=candidate_digest,
+        extension_digest=extension_digest,
+        assessment_digest=assessment_digest,
+        authorization_binding_digest=authorization_binding_digest,
+        seal_digest=seal_digest,
     )
 
 

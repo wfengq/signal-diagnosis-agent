@@ -43,24 +43,51 @@ _LIFECYCLE_KINDS = frozenset(
 )
 
 
+def _nonempty_text(value: object) -> str | None:
+    if isinstance(value, str) and value:
+        return value
+    return None
+
+
+def _correlation_key(event: dict[str, object]) -> str:
+    return str(event.get("correlation_id") or event.get("sequence_id") or "")
+
+
 def _lifecycle_graph(
     events: tuple[dict[str, object], ...],
 ) -> tuple[tuple[str, ...], list[str]]:
-    """Pair lifecycle starts with ends. Orphans are pending blockers."""
+    """Pair lifecycle starts with ends and reject broken parent links.
+
+    Reviewed zero-use strings are not consulted here. Redirect coverage is a
+    separate gate that stays blocked until a bound proof exists.
+    """
     starts: dict[tuple[str, str], int] = {}
     ends: dict[tuple[str, str], int] = {}
     blockers: list[str] = []
-    for event in events:
+    seen_sequence: set[str] = set()
+    open_starts: dict[tuple[str, str], list[int]] = {}
+    for index, event in enumerate(events):
+        sequence_id = _nonempty_text(event.get("sequence_id"))
+        if sequence_id is not None:
+            if sequence_id in seen_sequence:
+                blockers.append(f"duplicate_sequence_id:{sequence_id}")
+            seen_sequence.add(sequence_id)
         kind = _event_kind(event)
         if kind not in _LIFECYCLE_KINDS:
             continue
         phase = _event_phase(event)
-        correlation = str(event.get("correlation_id") or event.get("sequence_id") or "")
+        correlation = _correlation_key(event)
         key = (kind, correlation)
         if phase == "start":
             starts[key] = starts.get(key, 0) + 1
+            open_starts.setdefault(key, []).append(index)
         elif phase == "end":
             ends[key] = ends.get(key, 0) + 1
+            stack = open_starts.get(key)
+            if not stack:
+                blockers.append(f"lifecycle_end_before_start:{kind}:{correlation}")
+            else:
+                stack.pop()
         else:
             blockers.append(f"unpaired_phase:{kind}:{correlation}")
     pending: list[str] = []
@@ -77,7 +104,50 @@ def _lifecycle_graph(
         if key not in starts:
             pending.append(f"{key[0]}:{key[1]}")
             blockers.append(f"orphan_end:{key[0]}:{key[1]}")
+    blockers.extend(_parent_link_blockers(events))
     return tuple(dict.fromkeys(pending)), blockers
+
+
+def _parent_link_blockers(events: tuple[dict[str, object], ...]) -> list[str]:
+    """Require http sends and usage to cite events that actually exist."""
+    sdk_ids: set[str] = set()
+    logical_ids: set[str] = set()
+    http_ids: set[str] = set()
+    for event in events:
+        kind = _event_kind(event)
+        if kind == "sdk_attempt":
+            for field in ("attempt_id", "correlation_id"):
+                value = _nonempty_text(event.get(field))
+                if value is not None:
+                    sdk_ids.add(value)
+        elif kind == "logical_call":
+            for field in ("call_id", "correlation_id"):
+                value = _nonempty_text(event.get(field))
+                if value is not None:
+                    logical_ids.add(value)
+        elif kind == "http_send":
+            for field in ("send_id", "correlation_id", "call_id"):
+                value = _nonempty_text(event.get(field))
+                if value is not None:
+                    http_ids.add(value)
+    blockers: list[str] = []
+    for event in events:
+        kind = _event_kind(event)
+        if kind == "http_send":
+            attempt_id = _nonempty_text(event.get("attempt_id"))
+            if attempt_id is not None and attempt_id not in sdk_ids:
+                blockers.append(f"http_send_parent_missing:{attempt_id}")
+        elif kind == "sdk_attempt":
+            call_id = _nonempty_text(event.get("call_id"))
+            if call_id is not None and call_id not in logical_ids:
+                blockers.append(f"sdk_attempt_parent_missing:{call_id}")
+        elif kind == "usage":
+            send_id = _nonempty_text(event.get("send_id"))
+            call_id = _nonempty_text(event.get("call_id"))
+            link = send_id or call_id
+            if link is None or link not in http_ids:
+                blockers.append(f"usage_without_send:{link or 'missing'}")
+    return blockers
 
 
 def _zero_usage(usage: ReportedUsage | None) -> bool:
@@ -362,11 +432,10 @@ def aggregate_resource_ledger(
         # not an approved zero-use proof. They reserve exposure separately and
         # do not satisfy per-send usage coverage for exact totals.
         if outcome == "redirect":
-            proof = send.get("zero_use_proof")
-            if not (isinstance(proof, str) and proof.startswith("reviewed:")):
-                send_coverage_complete = False
-                link_text = link if isinstance(link, str) and link else "missing"
-                blockers.append(f"redirect_without_zero_use_proof:{link_text}")
+            # A caller-supplied zero_use_proof string is not a bound proof.
+            send_coverage_complete = False
+            link_text = link if isinstance(link, str) and link else "missing"
+            blockers.append(f"redirect_without_zero_use_proof:{link_text}")
             continue
         if not isinstance(link, str) or not link:
             send_coverage_complete = False
@@ -609,7 +678,7 @@ def validate_campaign_resource_totals(
     blockers: list[str] = []
     sdk_values: list[int] = []
     http_values: list[int] = []
-    turn_values: list[int] = []
+    logical_values: list[int] = []
     for observation in observations:
         if observation.sdk_attempt_count is None:
             blockers.append("campaign_unknown_sdk_attempt_count")
@@ -621,19 +690,21 @@ def validate_campaign_resource_totals(
             http_values.append(observation.http_send_attempt_count)
         if observation.planner_turn_count is None:
             blockers.append("campaign_unknown_planner_turn_count")
+        if observation.logical_call_count is None:
+            blockers.append("campaign_unknown_logical_call_count")
         else:
-            turn_values.append(observation.planner_turn_count)
+            logical_values.append(observation.logical_call_count)
     token_blockers = _campaign_reported_token_blockers(observations, assessment)
     if blockers:
         return tuple(dict.fromkeys([*blockers, *token_blockers]))
     sdk_total = sum(sdk_values)
     http_total = sum(http_values)
-    turn_total = sum(turn_values)
+    logical_total = sum(logical_values)
     if (
         assessment.logical_call_ceiling is not None
-        and turn_total > assessment.logical_call_ceiling
+        and logical_total > assessment.logical_call_ceiling
     ):
-        blockers.append("campaign_planner_turn_ceiling_exceeded")
+        blockers.append("campaign_logical_call_ceiling_exceeded")
     if (
         assessment.sdk_attempt_ceiling is not None
         and sdk_total > assessment.sdk_attempt_ceiling

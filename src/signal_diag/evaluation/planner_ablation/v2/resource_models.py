@@ -342,7 +342,11 @@ class InstalledSdkIdentity(BaseModel):
 
 
 class VerifiedResourceAdmission(BaseModel):
-    """Admission produced only after resource validation is ready and non-fixture."""
+    """Digest-bound admission. Callers cannot mint this by setting green flags.
+
+    ``make_verified_resource_admission`` is the producer. ``reject_online_preflight``
+    recomputes the same digests and refuses this offline grant even when they match.
+    """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -350,3 +354,21 @@ class VerifiedResourceAdmission(BaseModel):
     fixture_only: Literal[False]
     execution_blocked: Literal[False]
     resource_policy: ResourcePolicyId
+    candidate_digest: str = Field(min_length=64, max_length=64)
+    extension_digest: str = Field(min_length=64, max_length=64)
+    assessment_digest: str = Field(min_length=64, max_length=64)
+    authorization_binding_digest: str = Field(min_length=64, max_length=64)
+    seal_digest: str = Field(min_length=64, max_length=64)
+
+    @field_validator(
+        "candidate_digest",
+        "extension_digest",
+        "assessment_digest",
+        "authorization_binding_digest",
+        "seal_digest",
+    )
+    @classmethod
+    def _hex_digest(cls, value: str) -> str:
+        if len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+            raise ValueError("admission digest must be lowercase sha256 hex")
+        return value

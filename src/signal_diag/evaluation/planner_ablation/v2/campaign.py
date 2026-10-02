@@ -26,6 +26,7 @@ from signal_diag.evaluation.planner_ablation.v2.models import (
     ByteRequest,
     CampaignRecord,
     CampaignStatus,
+    CandidateManifestV2,
     EffectiveConfiguration,
     ExecutionMode,
     ExecutionProvenance,
@@ -41,6 +42,7 @@ from signal_diag.evaluation.planner_ablation.v2.models import (
 )
 from signal_diag.evaluation.planner_ablation.v2.resource_models import (
     ResourceAssessment,
+    ResourceCandidateValidation,
     VerifiedResourceAdmission,
 )
 from signal_diag.evaluation.planner_ablation.v2.timing import (
@@ -292,37 +294,64 @@ def reject_online_preflight(
     authorization_reference: str | None,
     budget: BudgetAssessment | None,
     verified_resource_admission: VerifiedResourceAdmission | None = None,
+    candidate: object | None = None,
+    validation: ResourceCandidateValidation | None = None,
+    repository_root: Path | None = None,
 ) -> None:
     """Fail closed before any network client construction.
 
-    ``authorization_reference`` is an audit link, not self-issued permission.
-    A complete synthetic budget and nonempty seal/grant strings are not admission.
+    Tasks 1–7 do not authorize online execution. A prebuilt
+    ``VerifiedResourceAdmission`` is never permission. When a candidate and
+    validation are supplied, digests are recomputed and still refused.
     """
-    missing: list[str] = []
+    missing: list[str] = ["online_path_not_authorized_in_offline_scope"]
     if not verified_seal_digest:
         missing.append("missing_verified_seal")
     if not authorization_reference:
         missing.append("missing_authorization_reference")
     if verified_resource_admission is None:
         missing.append("missing_verified_resource_admission")
-    elif (
-        not verified_resource_admission.ready
-        or verified_resource_admission.fixture_only
-        or verified_resource_admission.execution_blocked
-        or verified_resource_admission.resource_policy != "planner_ablation_resource_v1"
-    ):
-        missing.append("unverified_resource_admission")
+    else:
+        missing.append("prebuilt_resource_admission_not_accepted")
+    if candidate is not None and validation is not None and repository_root is not None:
+        from signal_diag.evaluation.planner_ablation.v2.sealing import (
+            make_verified_resource_admission,
+        )
+
+        if not isinstance(candidate, CandidateManifestV2):
+            missing.append("admission_candidate_untyped")
+        else:
+            try:
+                produced = make_verified_resource_admission(
+                    candidate,
+                    validation,
+                    seal_digest=verified_seal_digest or "",
+                    authorization_reference=authorization_reference or "",
+                    repository_root=repository_root,
+                )
+            except ValueError as error:
+                missing.append(str(error))
+            else:
+                if (
+                    verified_resource_admission is None
+                    or produced.candidate_digest != verified_resource_admission.candidate_digest
+                    or produced.extension_digest != verified_resource_admission.extension_digest
+                    or produced.assessment_digest != verified_resource_admission.assessment_digest
+                    or produced.authorization_binding_digest
+                    != verified_resource_admission.authorization_binding_digest
+                    or produced.seal_digest != verified_resource_admission.seal_digest
+                ):
+                    missing.append("admission_digest_mismatch")
     if budget is None:
         missing.append("missing_budget_preflight")
     elif budget.execution_blocked or budget.worst_case_requests is None:
         missing.append("incomplete_budget_preflight")
         if budget.worst_case_requests is None:
             missing.append("unbounded_worst_case_requests")
-    if missing:
-        raise CampaignPreflightError(
-            "online mode refused before network client construction: "
-            + ",".join(dict.fromkeys(missing))
-        )
+    raise CampaignPreflightError(
+        "online mode refused before network client construction: "
+        + ",".join(dict.fromkeys(missing))
+    )
 
 
 def _placeholder_timing(request_start: float, terminal_ready: float) -> RequestTiming:

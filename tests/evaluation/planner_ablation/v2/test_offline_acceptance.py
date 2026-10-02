@@ -480,7 +480,9 @@ async def test_full_schedule_resource_path_is_harness_only(
     """114-slot offline native path: exact RealLLMPlanner, real service, mock transport.
 
     Fixture observation is harness_only. It does not claim a production SDK profile,
-    a seal, or a scored conclusion.
+    a seal, or a scored conclusion. When the installed profile is the reviewed one,
+    a non-mock client can attach as canonical_sdk. This schedule stays on the
+    fixture boundary because the transport is MockTransport.
     """
     import json
     from dataclasses import replace
