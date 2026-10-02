@@ -6,7 +6,6 @@ import hashlib
 from pathlib import Path
 
 import pytest
-from pydantic import ValidationError
 
 from signal_diag.evaluation.planner_ablation.v2.models import LabelReviewResult
 from signal_diag.evaluation.planner_ablation.v2.resource_models import (
@@ -16,7 +15,9 @@ from signal_diag.evaluation.planner_ablation.v2.resource_models import (
 from signal_diag.evaluation.planner_ablation.v2.resource_telemetry import (
     aggregate_resource_ledger,
 )
-from signal_diag.evaluation.planner_ablation.v2.sealing import validate_resource_candidate
+from signal_diag.evaluation.planner_ablation.v2.sealing import (
+    validate_resource_candidate,
+)
 from tests.evaluation.planner_ablation.v2.test_codex_revise_round2 import (
     _LABEL_REVIEW,
     _RESOURCE_BOUNDS,
@@ -290,7 +291,7 @@ def test_malformed_cache_hit_tokens_blocks_exact() -> None:
 
 
 def test_bound_fact_rejects_bool_before_coerce() -> None:
-    with pytest.raises(ValidationError):
+    with pytest.raises(TypeError, match="boolean is not a numeric bound"):
         BoundFact(
             name="x",
             value=True,
@@ -305,9 +306,6 @@ def test_bound_fact_rejects_bool_before_coerce() -> None:
 
 
 def test_fake_input_token_ceiling_blocks_despite_matching_bounds_sha() -> None:
-    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
-        ResourceProofBundle,
-    )
 
     bounds = _RESOURCE_BOUNDS
     digest = _file_sha256(bounds)

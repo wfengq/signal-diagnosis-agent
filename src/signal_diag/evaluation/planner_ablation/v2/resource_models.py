@@ -54,7 +54,7 @@ class BoundFact(BaseModel):
     @classmethod
     def _reject_bool(cls, value: object) -> object:
         if isinstance(value, bool):
-            raise ValueError("boolean is not a numeric bound")
+            raise TypeError("boolean is not a numeric bound")
         return value
 
     @field_validator("value")
