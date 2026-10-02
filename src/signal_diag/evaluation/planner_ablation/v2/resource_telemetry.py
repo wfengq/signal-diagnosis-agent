@@ -376,17 +376,18 @@ def _derive_usage_from_events(
         ):
             complete_objects = False
             continue
-        cache_hit_raw = event.get("cache_hit_tokens")
-        cache_miss_raw = event.get("cache_miss_tokens")
-        reasoning_raw = event.get("reasoning_tokens")
         try:
-            reported = ReportedUsage(
-                prompt_tokens=prompt,
-                completion_tokens=completion,
-                total_tokens=total,
-                cache_hit_tokens=cache_hit_raw,
-                cache_miss_tokens=cache_miss_raw,
-                reasoning_tokens=reasoning_raw,
+            # Pass raw optional subdivisions through model_validate so illegal
+            # present values remain malformed instead of being type-narrowed away.
+            reported = ReportedUsage.model_validate(
+                {
+                    "prompt_tokens": prompt,
+                    "completion_tokens": completion,
+                    "total_tokens": total,
+                    "cache_hit_tokens": event.get("cache_hit_tokens"),
+                    "cache_miss_tokens": event.get("cache_miss_tokens"),
+                    "reasoning_tokens": event.get("reasoning_tokens"),
+                }
             )
         except Exception:  # noqa: BLE001
             complete_objects = False
