@@ -539,12 +539,21 @@ class RealLLMPlanner:
                 from .provider_telemetry import emit_usage_from_response
 
                 send_id = None
+                attempt_id = None
                 state = getattr(client, "_signal_diag_observation_state", None)
                 if isinstance(state, dict):
                     last = state.get("last_send_id")
                     if isinstance(last, str) and last:
                         send_id = last
-                emit_usage_from_response(binding, response, send_id=send_id)
+                    last_attempt = state.get("last_attempt_id")
+                    if isinstance(last_attempt, str) and last_attempt:
+                        attempt_id = last_attempt
+                emit_usage_from_response(
+                    binding,
+                    response,
+                    send_id=send_id,
+                    attempt_id=attempt_id,
+                )
             message = response.choices[0].message
             raw_content = message.content
             if not raw_content:

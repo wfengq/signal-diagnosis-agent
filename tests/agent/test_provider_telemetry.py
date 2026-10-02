@@ -600,3 +600,39 @@ async def test_same_transport_object_is_observed_once() -> None:
     bind_planner_telemetry(planner, binding=binding)
     await planner.decide(_context())
     assert _counts(events)["http_send_attempt_count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_usage_retains_attempt_id_after_sdk_attempt_ends() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json=_chat_completion_body(
+                content=_valid_decision_json(),
+                include_usage=True,
+            ),
+        )
+
+    binding, events = _binding()
+    client = _mock_client(handler)
+    _attach_offline_observation(client, binding)
+    planner = RealLLMPlanner(
+        provider="deepseek",
+        api_key="k",
+        base_url="https://example.test/v1",
+        client=client,  # type: ignore[arg-type]
+    )
+    bind_planner_telemetry(planner, binding=binding)
+    await planner.decide(_context())
+    sdk_starts = [
+        event
+        for event in events
+        if isinstance(event, SdkAttemptEvent) and event.phase == "start"
+    ]
+    usages = [event for event in events if isinstance(event, UsageObservation)]
+    assert len(sdk_starts) == 1
+    assert len(usages) == 1
+    assert usages[0].attempt_id == sdk_starts[0].attempt_id
+    assert usages[0].attempt_id
+    assert usages[0].call_id
+    assert usages[0].send_id

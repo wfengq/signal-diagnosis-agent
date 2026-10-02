@@ -324,6 +324,7 @@ def attach_sdk_observation(
     state: dict[str, Any] = {
         "attempt_index": 0,
         "current_attempt_id": None,
+        "last_attempt_id": None,
         "current_send_id": None,
         "last_send_id": None,
         "send_index": 0,
@@ -371,6 +372,7 @@ def attach_sdk_observation(
                     parent_id=binding.current_call_id,
                 ),
             )
+            state["last_attempt_id"] = attempt_id
             state["current_attempt_id"] = None
             raise
 
@@ -409,6 +411,9 @@ def attach_sdk_observation(
                     parent_id=binding.current_call_id,
                 ),
             )
+            # Keep last_attempt_id for post-return usage emission; send_request
+            # ends before planner reads the response and emits UsageObservation.
+            state["last_attempt_id"] = attempt_id
             state["current_attempt_id"] = None
 
     seen_transport_ids: set[int] = set()
@@ -637,12 +642,13 @@ def emit_usage_from_response(
     response: object,
     *,
     send_id: str | None = None,
+    attempt_id: str | None = None,
 ) -> None:
     """Extract allowlisted usage/model metadata before planner JSON validation."""
     usage = getattr(response, "usage", None)
     model = getattr(response, "model", None)
     fingerprint = getattr(response, "system_fingerprint", None)
-    attempt_id = binding.current_attempt_id or ""
+    resolved_attempt = attempt_id or binding.current_attempt_id or ""
     call_id = binding.current_call_id or ""
     turn_id = binding.current_turn_id or ""
     resolved_send = send_id or ""
@@ -655,7 +661,7 @@ def emit_usage_from_response(
                 correlation_id=usage_corr,
                 turn_id=turn_id,
                 call_id=call_id,
-                attempt_id=attempt_id,
+                attempt_id=resolved_attempt,
                 send_id=resolved_send,
                 status="missing",
                 response_model=model if isinstance(model, str) else None,
@@ -698,7 +704,7 @@ def emit_usage_from_response(
                 correlation_id=usage_corr,
                 turn_id=turn_id,
                 call_id=call_id,
-                attempt_id=attempt_id,
+                attempt_id=resolved_attempt,
                 send_id=resolved_send,
                 status="malformed",
                 monotonic_s=binding.clock(),
@@ -713,7 +719,7 @@ def emit_usage_from_response(
             correlation_id=usage_corr,
             turn_id=turn_id,
             call_id=call_id,
-            attempt_id=attempt_id,
+            attempt_id=resolved_attempt,
             send_id=resolved_send,
             status=status,
             prompt_tokens=prompt,
