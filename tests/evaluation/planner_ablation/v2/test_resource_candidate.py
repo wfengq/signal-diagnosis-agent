@@ -262,20 +262,30 @@ def test_repo_proof_reference_must_match_file_bytes() -> None:
         "docs/evaluations/v0_3/planner_ablation/"
         "study_s1_planner_ablation_dev_2/LABEL_REVIEW.md"
     )
+    bounds = (
+        "docs/evaluations/v0_3/planner_ablation/"
+        "study_s1_planner_ablation_dev_2/RESOURCE_BOUNDS.md"
+    )
+    label = validate_resource_candidate(
+        _candidate_with_proof_reference(label_review, _file_sha256(label_review)),
+        repository_root=PROJECT_ROOT,
+    )
+    assert "proof_acceptance_inapplicable_file:planner_turn_ceiling" in label.reasons
+
     wrong = validate_resource_candidate(
-        _candidate_with_proof_reference(label_review, "a" * 64),
+        _candidate_with_proof_reference(bounds, "a" * 64),
         repository_root=PROJECT_ROOT,
     )
     assert wrong.ready is False
     assert "proof_acceptance_content_mismatch:planner_turn_ceiling" in wrong.reasons
 
     matched = validate_resource_candidate(
-        _candidate_with_proof_reference(label_review, _file_sha256(label_review)),
+        _candidate_with_proof_reference(bounds, _file_sha256(bounds)),
         repository_root=PROJECT_ROOT,
     )
     assert matched.ready is False
     assert "proof_acceptance_content_mismatch:planner_turn_ceiling" not in matched.reasons
-    assert "proof_acceptance_inapplicable_file:planner_turn_ceiling" in matched.reasons
+    assert "proof_acceptance_inapplicable_file:planner_turn_ceiling" not in matched.reasons
     assert "missing_proof_acceptance_file:planner_turn_ceiling" not in matched.reasons
 
 
@@ -293,7 +303,7 @@ def test_non_fixture_offline_evidence_requires_repo_file() -> None:
         repository_root=PROJECT_ROOT,
     )
     assert forged.ready is False
-    assert "unauthenticated_offline_evidence" in forged.reasons
+    assert "offline_evidence_inapplicable_file" in forged.reasons
     assert not any(
         reason.startswith("invalid_resource_extension") for reason in forged.reasons
     )
@@ -315,6 +325,25 @@ def test_non_fixture_offline_evidence_requires_repo_file() -> None:
     assert "offline_evidence_inapplicable_file" in matched.reasons
     assert "unauthenticated_offline_evidence" not in matched.reasons
 
+    bounds = (
+        "docs/evaluations/v0_3/planner_ablation/"
+        "study_s1_planner_ablation_dev_2/RESOURCE_BOUNDS.md"
+    )
+    stale = validate_resource_candidate(
+        _candidate_with_proof_reference(
+            bounds,
+            _file_sha256(bounds),
+            capability_updates={
+                "fixture_only": False,
+                "offline_evidence_reference": bounds,
+                "offline_evidence_digest": "1" * 64,
+            },
+        ),
+        repository_root=PROJECT_ROOT,
+    )
+    assert "unauthenticated_offline_evidence" in stale.reasons
+    assert "offline_evidence_inapplicable_file" not in stale.reasons
+
 
 def test_non_fixture_provider_limits_source_requires_repo_file() -> None:
     forged = validate_resource_candidate(
@@ -330,7 +359,7 @@ def test_non_fixture_provider_limits_source_requires_repo_file() -> None:
         repository_root=PROJECT_ROOT,
     )
     assert forged.ready is False
-    assert "unauthenticated_provider_limits_source" in forged.reasons
+    assert "provider_limits_source_inapplicable_file" in forged.reasons
     assert not any(
         reason.startswith("invalid_resource_extension") for reason in forged.reasons
     )
