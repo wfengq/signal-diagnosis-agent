@@ -123,3 +123,57 @@ Task 2 adds pure study models and `assess_resource_budget`. It does **not**
 change product constructors, request payloads, or explicit-flag semantics.
 
 **No formal seal. No RealLLM. No commit/push authorized by this document.**
+
+## Structured bound-fact records (machine-readable)
+
+```json
+{
+  "schema": "planner_ablation_bound_facts_v1",
+  "facts": [
+    {
+      "name": "planner_turn_ceiling",
+      "status": "approved",
+      "value": 28,
+      "unit": "planner_turns_per_slot",
+      "origin": "control_flow_proof",
+      "scope": "admitted",
+      "applicable_path": "runtime",
+      "code_identity": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "dependency_identity": "openai==3.20.0",
+      "model_identity": null
+    },
+    {
+      "name": "sdk_attempt_factor",
+      "status": "approved",
+      "value": 3,
+      "unit": "sdk_attempts_per_logical_call",
+      "origin": "sdk_default_audit",
+      "scope": "admitted",
+      "applicable_path": "product_deepseek_chat",
+      "code_identity": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "dependency_identity": "openai==3.20.0",
+      "model_identity": "deepseek-v4-flash"
+    },
+    {
+      "name": "http_send_factor",
+      "status": "unknown"
+    },
+    {
+      "name": "input_token_ceiling",
+      "status": "unknown"
+    },
+    {
+      "name": "output_token_ceiling",
+      "status": "unknown"
+    },
+    {
+      "name": "all_outcome_token_ceiling",
+      "status": "unknown"
+    },
+    {
+      "name": "request_timeout",
+      "status": "unknown"
+    }
+  ]
+}
+```

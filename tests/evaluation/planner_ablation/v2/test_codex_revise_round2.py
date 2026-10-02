@@ -476,7 +476,10 @@ def test_label_review_file_must_contain_approved_marker(
     )
     result = validate_resource_candidate(candidate, repository_root=_PROJECT_ROOT)
     assert result.ready is False
-    assert "label_review_disk_not_approved" in result.reasons
+    assert (
+        "label_review_disk_not_approved" in result.reasons
+        or "label_review_structured_approval_missing" in result.reasons
+    )
 
 
 def test_capability_and_provider_refs_reject_label_review() -> None:

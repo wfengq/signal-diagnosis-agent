@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import os
 import platform
+import re
 import subprocess
 from hashlib import sha256
 from importlib import metadata
@@ -44,6 +45,7 @@ from signal_diag.evaluation.planner_ablation.v2.population import (
     normalize_question,
 )
 from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+    BoundFact,
     InstalledSdkIdentity,
     ResourceCandidateValidation,
     VerifiedResourceAdmission,
@@ -1018,7 +1020,107 @@ def verify_manifest(
 
 
 _NUMERIC_BOUND_FILES = frozenset({"RESOURCE_BOUNDS.md", "BUDGET_BOUNDS.md"})
-_LABEL_APPROVAL_MARKER = b"approved=true"
+_BOUND_FACTS_SCHEMA = "planner_ablation_bound_facts_v1"
+_LABEL_APPROVAL_SCHEMA = "planner_ablation_label_approval_v1"
+_JSON_FENCE = re.compile(r"```json\s*(\{.*?\})\s*```", re.DOTALL)
+
+
+def _parse_structured_fence(text: str, schema: str) -> dict[str, object] | None:
+    for match in _JSON_FENCE.finditer(text):
+        try:
+            payload = json.loads(match.group(1))
+        except json.JSONDecodeError:
+            continue
+        if isinstance(payload, dict) and payload.get("schema") == schema:
+            return payload
+    return None
+
+
+def _bound_facts_index(path: Path) -> dict[str, dict[str, object]] | None:
+    payload = _parse_structured_fence(path.read_text(encoding="utf-8"), _BOUND_FACTS_SCHEMA)
+    if payload is None:
+        return None
+    facts = payload.get("facts")
+    if not isinstance(facts, list):
+        return None
+    index: dict[str, dict[str, object]] = {}
+    for item in facts:
+        if isinstance(item, dict) and isinstance(item.get("name"), str):
+            index[str(item["name"])] = item
+    return index
+
+
+def _bound_fact_binding_reasons(
+    fact: BoundFact,
+    fact_name: str,
+    index: dict[str, dict[str, object]] | None,
+) -> tuple[str, ...]:
+    if index is None:
+        return (f"proof_structured_bounds_missing:{fact_name}",)
+    record = index.get(fact_name)
+    if record is None:
+        return (f"proof_fact_unapproved:{fact_name}",)
+    status = str(record.get("status", "unknown"))
+    if status == "unknown":
+        return (f"proof_fact_unknown:{fact_name}",)
+    if status != "approved":
+        return (f"proof_fact_unapproved:{fact_name}",)
+    for field in (
+        "value",
+        "unit",
+        "scope",
+        "origin",
+        "applicable_path",
+        "code_identity",
+        "dependency_identity",
+        "model_identity",
+    ):
+        if field not in record:
+            continue
+        expected = record[field]
+        declared = getattr(fact, field)
+        if declared != expected:
+            return (f"proof_fact_field_mismatch:{fact_name}:{field}",)
+    return ()
+
+
+def _normalized_label_approval(payload: dict[str, object]) -> dict[str, object]:
+    def _sorted_list(key: str) -> list[str]:
+        values = payload.get(key, [])
+        if not isinstance(values, list):
+            return []
+        return sorted(str(item) for item in values)
+
+    provenance = payload.get("review_provenance", [])
+    if not isinstance(provenance, list):
+        provenance = []
+    return {
+        "reviewer": payload.get("reviewer"),
+        "study_id": payload.get("study_id"),
+        "approved": bool(payload.get("approved")),
+        "review_status": payload.get("review_status"),
+        "review_provenance": sorted(str(item) for item in provenance),
+        "upgrade_population": _sorted_list("upgrade_population"),
+        "conditional_population": _sorted_list("conditional_population"),
+        "guidance_population": _sorted_list("guidance_population"),
+    }
+
+
+def _candidate_label_approval(review: LabelReviewResult) -> dict[str, object]:
+    provenance = sorted(str(item) for item in review.review_provenance)
+    reviewer = provenance[0] if provenance else None
+    return {
+        "reviewer": reviewer,
+        "study_id": STUDY_ID_V2,
+        "approved": review.approved,
+        "review_status": review.review_status,
+        "review_provenance": provenance,
+        "upgrade_population": sorted(str(item) for item in review.upgrade_population),
+        "conditional_population": sorted(
+            str(item) for item in review.conditional_population
+        ),
+        "guidance_population": sorted(str(item) for item in review.guidance_population),
+    }
 
 
 def _study_evidence_name(reference: str) -> str | None:
@@ -1180,8 +1282,20 @@ def validate_resource_candidate(
                     or _sha256_bytes(payload) != extension.label_review_source_digest
                 ):
                     reasons.append("label_review_disk_digest_mismatch")
-                elif _LABEL_APPROVAL_MARKER not in payload:
-                    reasons.append("label_review_disk_not_approved")
+                else:
+                    structured = _parse_structured_fence(
+                        payload.decode("utf-8"), _LABEL_APPROVAL_SCHEMA
+                    )
+                    if structured is None:
+                        reasons.append("label_review_structured_approval_missing")
+                    else:
+                        disk_approval = _normalized_label_approval(structured)
+                        if not disk_approval.get("approved"):
+                            reasons.append("label_review_disk_not_approved")
+                        elif disk_approval != _candidate_label_approval(
+                            candidate.label_review
+                        ):
+                            reasons.append("label_review_content_mismatch")
 
     bindings = collect_code_bindings(repository_root.resolve())
     if bindings.aggregate_code_identity != extension.code_identity:
@@ -1291,6 +1405,9 @@ def validate_resource_candidate(
         actual = _sha256_file(evidence_path)
         if actual != fact.proof_digest:
             reasons.append(f"proof_acceptance_content_mismatch:{fact_name}")
+            continue
+        bound_index = _bound_facts_index(evidence_path)
+        reasons.extend(_bound_fact_binding_reasons(fact, fact_name, bound_index))
 
     if not extension.capability.fixture_only:
         reasons.extend(

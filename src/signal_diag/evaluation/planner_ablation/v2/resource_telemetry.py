@@ -80,9 +80,13 @@ def _lifecycle_graph(
         key = (kind, correlation)
         if phase == "start":
             starts[key] = starts.get(key, 0) + 1
+            if starts[key] > 1:
+                blockers.append(f"duplicate_lifecycle_phase:{kind}:{correlation}:start")
             open_starts.setdefault(key, []).append(index)
         elif phase == "end":
             ends[key] = ends.get(key, 0) + 1
+            if ends[key] > 1:
+                blockers.append(f"duplicate_lifecycle_phase:{kind}:{correlation}:end")
             stack = open_starts.get(key)
             if not stack:
                 blockers.append(f"lifecycle_end_before_start:{kind}:{correlation}")
@@ -108,45 +112,199 @@ def _lifecycle_graph(
     return tuple(dict.fromkeys(pending)), blockers
 
 
+def _resolved_turn_id(event: dict[str, object]) -> str | None:
+    return _nonempty_text(event.get("turn_id")) or _nonempty_text(
+        event.get("correlation_id")
+        if _event_kind(event) == "planner_turn"
+        else None
+    )
+
+
+def _resolved_call_id(event: dict[str, object]) -> str | None:
+    return _nonempty_text(event.get("call_id")) or (
+        _nonempty_text(event.get("correlation_id"))
+        if _event_kind(event) == "logical_call"
+        else None
+    )
+
+
+def _resolved_attempt_id(event: dict[str, object]) -> str | None:
+    return _nonempty_text(event.get("attempt_id")) or (
+        _nonempty_text(event.get("correlation_id"))
+        if _event_kind(event) == "sdk_attempt"
+        else None
+    )
+
+
+def _resolved_send_id(event: dict[str, object]) -> str | None:
+    return _nonempty_text(event.get("send_id")) or (
+        _nonempty_text(event.get("correlation_id"))
+        if _event_kind(event) == "http_send"
+        else None
+    )
+
+
+def _monotonic(event: dict[str, object]) -> float | None:
+    value = event.get("monotonic_s")
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return float(value)
+    return None
+
+
+def _graph_required(events: tuple[dict[str, object], ...]) -> bool:
+    for event in events:
+        kind = _event_kind(event)
+        if kind in _LIFECYCLE_KINDS or kind == "usage":
+            return True
+    return False
+
+
 def _parent_link_blockers(events: tuple[dict[str, object], ...]) -> list[str]:
-    """Require http sends and usage to cite events that actually exist."""
-    sdk_ids: set[str] = set()
-    logical_ids: set[str] = set()
-    http_ids: set[str] = set()
-    for event in events:
-        kind = _event_kind(event)
-        if kind == "sdk_attempt":
-            for field in ("attempt_id", "correlation_id"):
-                value = _nonempty_text(event.get(field))
-                if value is not None:
-                    sdk_ids.add(value)
-        elif kind == "logical_call":
-            for field in ("call_id", "correlation_id"):
-                value = _nonempty_text(event.get(field))
-                if value is not None:
-                    logical_ids.add(value)
-        elif kind == "http_send":
-            for field in ("send_id", "correlation_id", "call_id"):
-                value = _nonempty_text(event.get(field))
-                if value is not None:
-                    http_ids.add(value)
+    """Require full parent IDs and links when lifecycle or usage events exist."""
+    if not _graph_required(events):
+        return []
+
     blockers: list[str] = []
+    turn_ids: set[str] = set()
+    call_ids: set[str] = set()
+    attempt_ids: set[str] = set()
+    send_ids: set[str] = set()
+    turn_meta: dict[str, dict[str, float | None]] = {}
+    call_meta: dict[str, dict[str, float | None]] = {}
+    attempt_meta: dict[str, dict[str, float | None]] = {}
+    send_meta: dict[str, dict[str, float | None]] = {}
+
     for event in events:
         kind = _event_kind(event)
-        if kind == "http_send":
-            attempt_id = _nonempty_text(event.get("attempt_id"))
-            if attempt_id is not None and attempt_id not in sdk_ids:
-                blockers.append(f"http_send_parent_missing:{attempt_id}")
+        phase = _event_phase(event)
+        if kind not in _LIFECYCLE_KINDS:
+            continue
+        if kind == "planner_turn":
+            turn_id = _resolved_turn_id(event)
+            if turn_id is None:
+                blockers.append("missing_required_id:planner_turn:turn_id")
+                continue
+            if phase == "start":
+                turn_ids.add(turn_id)
+                turn_meta.setdefault(turn_id, {})["start"] = _monotonic(event)
+            elif phase == "end":
+                turn_meta.setdefault(turn_id, {})["end"] = _monotonic(event)
+        elif kind == "logical_call":
+            turn_id = _nonempty_text(event.get("turn_id"))
+            call_id = _resolved_call_id(event)
+            if turn_id is None:
+                blockers.append("missing_required_id:logical_call:turn_id")
+            if call_id is None:
+                blockers.append("missing_required_id:logical_call:call_id")
+                continue
+            if turn_id is not None and turn_id not in turn_ids:
+                blockers.append(f"logical_call_parent_missing:{turn_id}")
+            if phase == "start":
+                call_ids.add(call_id)
+                call_meta.setdefault(call_id, {})["start"] = _monotonic(event)
+            elif phase == "end":
+                call_meta.setdefault(call_id, {})["end"] = _monotonic(event)
         elif kind == "sdk_attempt":
+            turn_id = _nonempty_text(event.get("turn_id"))
             call_id = _nonempty_text(event.get("call_id"))
-            if call_id is not None and call_id not in logical_ids:
+            attempt_id = _resolved_attempt_id(event)
+            if turn_id is None:
+                blockers.append("missing_required_id:sdk_attempt:turn_id")
+            if call_id is None:
+                blockers.append("missing_required_id:sdk_attempt:call_id")
+            if attempt_id is None:
+                blockers.append("missing_required_id:sdk_attempt:attempt_id")
+                continue
+            if call_id is not None and call_id not in call_ids:
                 blockers.append(f"sdk_attempt_parent_missing:{call_id}")
-        elif kind == "usage":
-            send_id = _nonempty_text(event.get("send_id"))
+            if phase == "start":
+                attempt_ids.add(attempt_id)
+                attempt_meta.setdefault(attempt_id, {})["start"] = _monotonic(event)
+            elif phase == "end":
+                attempt_meta.setdefault(attempt_id, {})["end"] = _monotonic(event)
+        elif kind == "http_send":
+            turn_id = _nonempty_text(event.get("turn_id"))
             call_id = _nonempty_text(event.get("call_id"))
-            link = send_id or call_id
-            if link is None or link not in http_ids:
-                blockers.append(f"usage_without_send:{link or 'missing'}")
+            attempt_id = _nonempty_text(event.get("attempt_id"))
+            send_id = _resolved_send_id(event)
+            if turn_id is None:
+                blockers.append("missing_required_id:http_send:turn_id")
+            if call_id is None:
+                blockers.append("missing_required_id:http_send:call_id")
+            if attempt_id is None:
+                blockers.append("missing_required_id:http_send:attempt_id")
+            if send_id is None:
+                blockers.append("missing_required_id:http_send:send_id")
+                continue
+            if attempt_id is not None and attempt_id not in attempt_ids:
+                blockers.append(f"http_send_parent_missing:{attempt_id}")
+            if phase == "start":
+                send_ids.add(send_id)
+                send_meta.setdefault(send_id, {})["start"] = _monotonic(event)
+            elif phase == "end":
+                send_meta.setdefault(send_id, {})["end"] = _monotonic(event)
+
+    for event in events:
+        if _event_kind(event) != "usage":
+            continue
+        send_id = _nonempty_text(event.get("send_id"))
+        call_id = _nonempty_text(event.get("call_id"))
+        attempt_id = _nonempty_text(event.get("attempt_id"))
+        turn_id = _nonempty_text(event.get("turn_id"))
+        if send_id is None:
+            blockers.append("missing_required_id:usage:send_id")
+            continue
+        if call_id is None:
+            blockers.append("missing_required_id:usage:call_id")
+        if attempt_id is None:
+            blockers.append("missing_required_id:usage:attempt_id")
+        if turn_id is None:
+            blockers.append("missing_required_id:usage:turn_id")
+        if send_id not in send_ids:
+            blockers.append(f"usage_without_send:{send_id}")
+        if call_id is not None and call_id not in call_ids:
+            blockers.append(f"usage_parent_missing_call:{call_id}")
+        if attempt_id is not None and attempt_id not in attempt_ids:
+            blockers.append(f"usage_parent_missing_attempt:{attempt_id}")
+        if turn_id is not None and turn_id not in turn_ids:
+            blockers.append(f"usage_parent_missing_turn:{turn_id}")
+
+    def _order_blocker(parent: str, child: str, reason: str) -> None:
+        blockers.append(f"event_graph_temporal:{parent}:{child}:{reason}")
+
+    for event in events:
+        kind = _event_kind(event)
+        phase = _event_phase(event)
+        mono = _monotonic(event)
+        if kind == "logical_call" and phase == "start" and mono is not None:
+            turn_id = _nonempty_text(event.get("turn_id"))
+            if turn_id is not None:
+                t_start = turn_meta.get(turn_id, {}).get("start")
+                if t_start is not None and mono < t_start:
+                    _order_blocker("planner_turn", _resolved_call_id(event) or "call", "child_before_parent_start")
+        if kind == "sdk_attempt" and phase == "start" and mono is not None:
+            call_id = _nonempty_text(event.get("call_id"))
+            if call_id is not None:
+                c_start = call_meta.get(call_id, {}).get("start")
+                if c_start is not None and mono < c_start:
+                    _order_blocker("logical_call", _resolved_attempt_id(event) or "attempt", "child_before_parent_start")
+        if kind == "http_send" and mono is not None:
+            attempt_id = _nonempty_text(event.get("attempt_id"))
+            send_id = _resolved_send_id(event) or "send"
+            if attempt_id is not None:
+                a_meta = attempt_meta.get(attempt_id, {})
+                if phase == "start":
+                    a_start = a_meta.get("start")
+                    if a_start is not None and mono < a_start:
+                        _order_blocker("sdk_attempt", send_id, "child_before_parent_start")
+                if phase == "end":
+                    a_end = a_meta.get("end")
+                    s_start = send_meta.get(send_id, {}).get("start")
+                    if s_start is not None and mono < s_start:
+                        _order_blocker("http_send", send_id, "end_before_start")
+                    if a_end is not None and mono > a_end:
+                        _order_blocker("sdk_attempt", send_id, "child_after_parent_end")
+
     return blockers
 
 
@@ -192,11 +350,12 @@ def derive_counts_from_events(
 
 def _derive_usage_from_events(
     events: tuple[dict[str, object], ...],
-) -> tuple[ReportedUsage | None, bool, dict[str, dict[str, object]]]:
-    """Return (subtotal, all_complete_objects, usage_by_send_link)."""
+) -> tuple[ReportedUsage | None, bool, dict[str, dict[str, object]], tuple[str, ...]]:
+    """Return (subtotal, all_complete_objects, usage_by_send_link, usage_blockers)."""
     usages: list[ReportedUsage] = []
     usage_by_send: dict[str, dict[str, object]] = {}
     complete_objects = True
+    usage_blockers: list[str] = []
     for event in events:
         if _event_kind(event) != "usage":
             continue
@@ -220,26 +379,30 @@ def _derive_usage_from_events(
         cache_hit_raw = event.get("cache_hit_tokens")
         cache_miss_raw = event.get("cache_miss_tokens")
         reasoning_raw = event.get("reasoning_tokens")
-        cache_hit = cache_hit_raw if isinstance(cache_hit_raw, int) else None
-        cache_miss = cache_miss_raw if isinstance(cache_miss_raw, int) else None
-        reasoning = reasoning_raw if isinstance(reasoning_raw, int) else None
         try:
             reported = ReportedUsage(
                 prompt_tokens=prompt,
                 completion_tokens=completion,
                 total_tokens=total,
-                cache_hit_tokens=cache_hit,
-                cache_miss_tokens=cache_miss,
-                reasoning_tokens=reasoning,
+                cache_hit_tokens=cache_hit_raw,
+                cache_miss_tokens=cache_miss_raw,
+                reasoning_tokens=reasoning_raw,
             )
         except Exception:  # noqa: BLE001
             complete_objects = False
+            if "malformed_usage_fields" not in usage_blockers:
+                usage_blockers.append("malformed_usage_fields")
             continue
         usages.append(reported)
         link = event.get("send_id") or event.get("call_id")
         if isinstance(link, str) and link:
             usage_by_send[link] = event
-    return sum_reported_usage(usages), complete_objects, usage_by_send
+    return (
+        sum_reported_usage(usages),
+        complete_objects,
+        usage_by_send,
+        tuple(usage_blockers),
+    )
 
 
 def _http_end_events(
@@ -397,9 +560,10 @@ def aggregate_resource_ledger(
         elif claimed != derived_count:
             blockers.append(f"count_summary_mismatch:{field}")
 
-    usage_subtotal, usage_complete, usage_by_send = _derive_usage_from_events(
-        ledger.events
+    usage_subtotal, usage_complete, usage_by_send, usage_blockers = (
+        _derive_usage_from_events(ledger.events)
     )
+    blockers.extend(usage_blockers)
     fixed_zero_usage = (
         fixed_zero_use
         and not ledger.events
@@ -543,6 +707,7 @@ def aggregate_resource_ledger(
             and usage_subtotal is not None
             and exact_total == usage_subtotal.total_tokens
             and not graph_pending
+            and not pairing_blockers
             and ledger.worker_drained
             and not ledger.telemetry_invalid
         ):

@@ -50,6 +50,13 @@ class BoundFact(BaseModel):
     acceptance_reference: str = Field(min_length=1)
     scope: BoundScope = "admitted"
 
+    @field_validator("value", mode="before")
+    @classmethod
+    def _reject_bool(cls, value: object) -> object:
+        if isinstance(value, bool):
+            raise ValueError("boolean is not a numeric bound")
+        return value
+
     @field_validator("value")
     @classmethod
     def _finite(cls, value: float) -> float | int:
@@ -102,11 +109,16 @@ class SdkProfileAudit(BaseModel):
                 raise ValueError("source digest must be lowercase sha256 hex")
         return value
 
-    @field_validator("max_retries_default", "sdk_attempts_per_call")
+    @field_validator("max_retries_default", "sdk_attempts_per_call", mode="before")
     @classmethod
-    def _no_bool(cls, value: int) -> int:
+    def _no_bool(cls, value: object) -> object:
         if isinstance(value, bool):
             raise TypeError("boolean is not an integer count")
+        return value
+
+    @field_validator("max_retries_default", "sdk_attempts_per_call")
+    @classmethod
+    def _int_counts(cls, value: int) -> int:
         return value
 
 
