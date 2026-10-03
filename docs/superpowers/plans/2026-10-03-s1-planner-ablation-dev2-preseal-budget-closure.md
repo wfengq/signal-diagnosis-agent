@@ -130,7 +130,7 @@ Steps:
 Steps:
 
 - [x] Hash the installed openai / `httpx` / `httpcore` identity that study observation can attach to.
-- [x] Confirm the installed tuple yields a **supported** SDK profile under the same checks used by `assess_resource_budget` (supported flag, policy/schema match, hook coverage for planner turns / repairs / SDK attempts / HTTP sends / usage, and capability vs proof openai_version agreement).
+- [x] 已检查 SDK profile，结果 `supported=false`；记录身份不匹配及残余 blocker，未清除准入门禁（same checks as `assess_resource_budget`: supported flag, policy/schema match, hook coverage, capability vs proof `openai_version` agreement）。
 - [x] Recording digests alone does **not** clear SDK gates; unsupported profile or incomplete hooks remain blockers.
 - [x] Recompute whether admitted SDK default timeout/retry facts still match; keep non-override flags honest.
 - [x] Leave `unproved_http_send_bound` and failed-attempt token exposure residual unless new independent proofs exist.
