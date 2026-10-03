@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import inspect
 
-from signal_diag.agent.provider_telemetry import build_audited_sdk_observation_profile
+from signal_diag.agent.provider_telemetry import reviewed_openai_capability_identity
+from signal_diag.agent.telemetry import SdkObservationProfile
 from signal_diag.evaluation.planner_ablation.v2.campaign import (
     inspect_limits,
     snapshot_effective_configuration,
@@ -258,10 +259,35 @@ def test_incomplete_observation_capability_blocks_budget() -> None:
     assert "incomplete_observation_capability" in assessment.blockers
 
 
+def _reviewed_supported_observation_profile() -> SdkObservationProfile:
+    """Fixture profile matching reviewed RESOURCE_BOUNDS identity (not live install)."""
+    reviewed = reviewed_openai_capability_identity()
+    digests = {
+        key.removeprefix("source:"): digest
+        for key, digest in reviewed.items()
+        if key.startswith("source:")
+    }
+    return SdkObservationProfile(
+        openai_version=reviewed["openai_version"],
+        openai_source_digest=reviewed["openai_source_digest"],
+        native_http_family=reviewed["native_http_family"],
+        native_http_version=reviewed["native_http_version"],
+        httpcore_version=reviewed["httpcore_version"],
+        source_file_digests=tuple(sorted(digests.items())),
+        max_retries_default=2,
+        sdk_attempts_per_call=3,
+        prepare_options_hook=reviewed["prepare_options_hook"],
+        send_request_hook=reviewed["send_request_hook"],
+        native_dispatch_hook=reviewed["native_dispatch_hook"],
+        supported=True,
+        blockers=(),
+    )
+
+
 def test_bound_capability_clears_completeness_not_worst_case_blockers() -> None:
     """Completeness bind ≠ HTTP/token ceilings or operator route acceptance."""
     config = snapshot_effective_configuration()
-    agent_profile = build_audited_sdk_observation_profile()
+    agent_profile = _reviewed_supported_observation_profile()
     capability = bind_observation_capability(
         agent_profile,
         offline_evidence_digest="f" * 64,
@@ -285,7 +311,7 @@ def test_t_cx324_closed_ledger_does_not_admit_worst_case_ceilings() -> None:
     config = snapshot_effective_configuration()
     proofs = _proofs_with_planner_and_sdk()
     capability = bind_observation_capability(
-        build_audited_sdk_observation_profile(),
+        _reviewed_supported_observation_profile(),
         offline_evidence_digest="e" * 64,
     )
     closed_low_usage = SlotResourceLedger(

@@ -19,7 +19,7 @@ app = [
   "python-multipart>=0.0.9,<1",
 ]
 llm = [
-  "openai>=1.0",
+  "openai==3.6.0",
 ]
 dev = [
   "build>=1.2",
