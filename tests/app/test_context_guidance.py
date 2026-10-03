@@ -440,3 +440,46 @@ def test_report_rejects_observed_facts_inconsistent_with_evidence(
     payload["context_guidance"]["observed_facts"] = [fact_payload]
     with pytest.raises(ValidationError):
         ContextualDiagnosisReport.model_validate(payload)
+
+
+@pytest.mark.parametrize("tamper_value", [True, 1])
+def test_report_rejects_observed_fact_value_type_mismatch(
+    tamper_value: bool | int,
+) -> None:
+    tr = TimeRange(start_s=0.0, end_s=1.0)
+    ev = _evidence(
+        metric="thd_percent",
+        value=1.0,
+        evidence_id="ev_rt_001",
+        time_range=tr,
+    )
+    result = _result(outcome="inconclusive", evidence=(ev,))
+    guidance = build_context_guidance(mode="single_signal", result=result)
+    assert guidance is not None
+    assert len(guidance.observed_facts) == 1
+    assert type(guidance.observed_facts[0].value) is float
+    assert guidance.observed_facts[0].value == 1.0
+
+    good_snapshot = _single_signal_snapshot(result=result, context_guidance=guidance)
+    good_report = build_contextual_diagnosis_report(
+        good_snapshot, generated_at=GENERATED
+    )
+    assert good_report.context_guidance is not None
+    assert type(good_report.context_guidance.observed_facts[0].value) is float
+    assert good_report.context_guidance.observed_facts[0].value == 1.0
+
+    tampered = guidance.observed_facts[0].model_copy(update={"value": tamper_value})
+    broken = guidance.model_copy(update={"observed_facts": (tampered,)})
+    with pytest.raises(TraceIntegrityError):
+        build_contextual_diagnosis_report(
+            _single_signal_snapshot(result=result, context_guidance=broken),
+            generated_at=GENERATED,
+        )
+
+    payload = good_report.model_dump(mode="json")
+    assert payload["context_guidance"] is not None
+    fact_payload = dict(payload["context_guidance"]["observed_facts"][0])
+    fact_payload["value"] = tamper_value
+    payload["context_guidance"]["observed_facts"] = [fact_payload]
+    with pytest.raises(ValidationError):
+        ContextualDiagnosisReport.model_validate(payload)
