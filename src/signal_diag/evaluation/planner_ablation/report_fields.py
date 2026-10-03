@@ -2,9 +2,15 @@
 
 from __future__ import annotations
 
+import math
+
 from signal_diag.agent.models import AgentRunResult, StructuredDiagnosis
 from signal_diag.evaluation.models import BaselineRunResult
-from signal_diag.evaluation.planner_ablation.models import StudyContextGuidanceView
+from signal_diag.evaluation.planner_ablation.models import (
+    StudyContextGuidanceView,
+    StudyObservedFactView,
+)
+from signal_diag.tools.evidence import Evidence
 
 _HARMONIC_METRICS = frozenset(
     {
@@ -32,6 +38,69 @@ _SUMMARY_TEMPLATES = {
         "(declared single-tone fundamental)."
     ),
 }
+
+_FACTS_SUMMARY_SUFFIX = (
+    " Listed observed_facts are same-run measurements and are not a "
+    "fault attribution."
+)
+
+_DISPLAY_WHITELIST: tuple[tuple[str, str, str | None], ...] = (
+    ("thd_percent", "analyze_harmonic_distortion", "%"),
+)
+
+
+def _is_finite_float(value: object) -> bool:
+    return isinstance(value, float) and math.isfinite(value)
+
+
+def _row_matches_whitelist(item: Evidence) -> bool:
+    for metric, tool, unit in _DISPLAY_WHITELIST:
+        if item.metric != metric or item.source_tool != tool:
+            continue
+        if item.validity != "valid" or item.unit != unit:
+            continue
+        if not _is_finite_float(item.value):
+            continue
+        return True
+    return False
+
+
+def _select_observed_facts(
+    result: AgentRunResult,
+    reason_codes: tuple[str, ...],
+) -> tuple[StudyObservedFactView, ...]:
+    if "harmonic_attribution_requires_context" not in reason_codes:
+        return ()
+    candidates = [item for item in result.evidence if _row_matches_whitelist(item)]
+    best: dict[tuple[str, str, str | None], Evidence] = {}
+    for item in candidates:
+        key = (
+            item.metric,
+            item.channel,
+            None if item.time_range is None else item.time_range.model_dump_json(),
+        )
+        prev = best.get(key)
+        if prev is None or item.evidence_id < prev.evidence_id:
+            best[key] = item
+    ordered_metrics = [m for m, _, _ in _DISPLAY_WHITELIST]
+    selected = sorted(
+        best.values(),
+        key=lambda e: (ordered_metrics.index(e.metric), e.evidence_id),
+    )
+    return tuple(
+        StudyObservedFactView(
+            evidence_id=e.evidence_id,
+            source_tool=e.source_tool,
+            call_id=e.call_id,
+            metric=e.metric,
+            value=e.value,
+            unit=e.unit,
+            validity="valid",
+            time_range=e.time_range,
+            channel=e.channel,
+        )
+        for e in selected
+    )
 
 
 def _has_harmonic_measurement_evidence(result: AgentRunResult) -> bool:
@@ -61,9 +130,13 @@ def derive_context_guidance_from_agent_result(
     else:
         reasons.append("insufficient_evidence_for_supported_fault")
 
+    reason_tuple = tuple(reasons)
     summary = " ".join(_SUMMARY_TEMPLATES[code] for code in reasons)
+    facts = _select_observed_facts(result, reason_tuple)
+    if facts:
+        summary = summary + _FACTS_SUMMARY_SUFFIX
     return StudyContextGuidanceView(
-        reason_codes=tuple(reasons),
+        reason_codes=reason_tuple,
         unlockable_modes=("paired_reference", "nominal_single_tone"),
         required_inputs={
             "paired_reference": ("reference_wav",),
@@ -73,6 +146,7 @@ def derive_context_guidance_from_agent_result(
             ),
         },
         summary=summary,
+        observed_facts=facts,
     )
 
 

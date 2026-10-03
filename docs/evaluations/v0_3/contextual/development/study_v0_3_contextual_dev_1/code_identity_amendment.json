@@ -261,5 +261,22 @@
     "calibration_recompute_unchanged": true,
     "selected_threshold_percent_unchanged": 5.0,
     "model_calls": 0
+  },
+  {
+    "amendment_id": "d039_single_file_observed_facts",
+    "amendment_kind": "append_only_code_identity",
+    "created_at_utc": "2026-10-03T06:04:00+00:00",
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "product_tree_sha256": "4b7a5916e45c7eb72505be0a8c8d4aa7f95216fe8a6c87c22e7bd2253318429c",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "scope": "D039 single-file observed_facts on context_guidance: additive ObservedFact fields, HTML render, and study-arm guidance parity via shared builder projection; PR #23 revise rejects non-finite floats at ObservedFact/StudyObservedFactView and checks observed_facts against same-run Evidence at report build/rehydrate, including value type identity; no prompt, causal finish gate, DSP, rule threshold, seal, RealLLM, or planner-ablation budget mutation",
+    "qualification_recompute_unchanged": true,
+    "calibration_recompute_unchanged": true,
+    "selected_threshold_percent_unchanged": 5.0,
+    "model_calls": 0
   }
 ]

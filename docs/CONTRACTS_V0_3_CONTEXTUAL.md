@@ -27,7 +27,7 @@ product changes remain separately gated.
 Observation defaults off; formal seal, RealLLM, concrete numeric budgets, and
 provider-binding acceptance remain separately gated.
 
-**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX318)
+**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX323)
 
 **Live product identity (HEAD):** prompt `v0.3-s1-planner-9.11` with causal
 policy `v9_11_mode_aware_no_fault_recovery` (§15). Historical identities
@@ -622,6 +622,33 @@ Reason selection:
   even_harmonic_growth, odd_harmonic_growth, test_thd_percent}` →
   `harmonic_attribution_requires_context`;
 - else → `insufficient_evidence_for_supported_fault`.
+
+Observed facts (D039; additive on `ContextGuidance`; reason selection above
+unchanged):
+
+```text
+ObservedFact =
+  evidence_id, source_tool, call_id, metric, value, unit, validity,
+  time_range, channel
+  # validity must be "valid"; value/unit/metric/scope match same-run Evidence
+
+ContextGuidance.observed_facts: tuple[ObservedFact, ...]  # may be ()
+
+Display whitelist (first phase; independent of reason metric set):
+  metric=thd_percent
+  source_tool=analyze_harmonic_distortion
+  type=strict finite float  # reject int/bool/str; no float() coercion
+  unit=%
+
+Selection: filter whitelist; dedupe by (metric, channel, time_range) keeping
+lexicographically smallest evidence_id; order whitelist then evidence_id.
+Empty tuple allowed. Reason selection unchanged when facts empty.
+
+Compatibility:
+  missing observed_facts on decode → ()
+  extra="forbid" consumers must be updated in-repo; out-of-repo old binaries
+  not guaranteed
+```
 
 `submit_contextual_wav` / `POST /api/v1/contextual-runs/wav` /
 `signal-diag diagnose contextual --mode single_signal` accept

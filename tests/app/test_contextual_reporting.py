@@ -11,6 +11,7 @@ from signal_diag.agent.models import (
     DiagnosisClaim,
     StructuredDiagnosis,
 )
+from signal_diag.app.context_guidance import build_context_guidance
 from signal_diag.app.contextual_models import (
     ContextualAppRunSnapshot,
     ContextualDiagnosisReport,
@@ -29,6 +30,7 @@ from signal_diag.app.models import (
     WaveformPreview,
 )
 from signal_diag.signal.context import EffectiveCapabilities, StimulusContext
+from signal_diag.signal.models import TimeRange
 from signal_diag.tools.evidence import Evidence
 
 NOW = datetime(2026, 9, 4, 12, 0, tzinfo=UTC)
@@ -191,3 +193,124 @@ def test_t_cx105_report_discloses_context_and_same_run_refs() -> None:
     broken = broken.model_copy(update={"result": result})
     with pytest.raises(TraceIntegrityError):
         build_contextual_diagnosis_report(broken, generated_at=GENERATED)
+
+
+def _thd_evidence(
+    *,
+    evidence_id: str,
+    value: float,
+    time_range: TimeRange,
+) -> Evidence:
+    return Evidence(
+        evidence_id=evidence_id,
+        source_tool="analyze_harmonic_distortion",
+        call_id="call_analyze_harmonic_distortion_000000",
+        metric="thd_percent",
+        value=value,
+        unit="%",
+        channel="mixdown",
+        validity="valid",
+        time_range=time_range,
+    )
+
+
+def _single_signal_result(
+    evidence: tuple[Evidence, ...],
+) -> AgentRunResult:
+    evidence_ids = tuple(item.evidence_id for item in evidence)
+    claim = DiagnosisClaim(
+        claim_id="claim_obs_facts_html",
+        fault_type="inconclusive",
+        statement="fixture",
+        evidence_refs=evidence_ids,
+        rule_refs=(),
+        knowledge_refs=(),
+    )
+    diagnosis = StructuredDiagnosis(
+        run_id="run_obs_facts",
+        task_type="distortion_analysis",
+        outcome="inconclusive",
+        claims=(claim,),
+        confidence_label="low",
+        limitations=(),
+        termination_reason="planner_finished",
+        tool_call_count=1,
+    )
+    return AgentRunResult(
+        run_id="run_obs_facts",
+        status="inconclusive",
+        diagnosis=diagnosis,
+        observations=(),
+        evidence=evidence,
+        tool_history=(),
+        termination_reason="planner_finished",
+    )
+
+
+def _single_signal_completed(
+    *,
+    result: AgentRunResult,
+    context_guidance: object,
+) -> ContextualAppRunSnapshot:
+    return ContextualAppRunSnapshot.model_validate(
+        {
+            "run_id": RUN_ID,
+            "status": "completed",
+            "created_at": NOW,
+            "started_at": STARTED,
+            "finished_at": FINISHED,
+            "user_request": "Why does this signal sound distorted?",
+            "analyzed_channel": "mixdown",
+            "test_source": _source("alone.wav"),
+            "reference_source": None,
+            "stimulus_context": StimulusContext(
+                mode="single_signal",
+                test_signal_id="sig_test",
+                assertion_source="user_supplied",
+            ),
+            "effective_capabilities": EffectiveCapabilities(
+                clipping=True,
+                absolute_harmonic_description=True,
+                nominal_harmonic_attribution=False,
+                paired_harmonic_attribution=False,
+            ),
+            "test_preview": _preview(),
+            "planner_identity": _planner(),
+            "result": result,
+            "context_guidance": context_guidance,
+        }
+    )
+
+
+def test_t_cx323_html_lists_observed_facts_inside_guidance() -> None:
+    tr = TimeRange(start_s=0.0, end_s=1.0)
+    ev_lo = _thd_evidence(
+        evidence_id="ev_a_lo",
+        value=12.65,
+        time_range=tr,
+    )
+    ev_hi = _thd_evidence(
+        evidence_id="ev_z_hi",
+        value=99.0,
+        time_range=tr,
+    )
+    result = _single_signal_result(evidence=(ev_hi, ev_lo))
+    guidance = build_context_guidance(mode="single_signal", result=result)
+    assert guidance is not None
+    assert len(guidance.observed_facts) == 1
+    assert guidance.observed_facts[0].value == 12.65
+
+    snapshot = _single_signal_completed(result=result, context_guidance=guidance)
+    report = build_contextual_diagnosis_report(snapshot, generated_at=GENERATED)
+    html = render_contextual_report_html(report)
+
+    start = html.index('id="context-guidance"')
+    end = html.index('id="measured-evidence"')
+    guidance_html = html[start:end]
+    measured_html = html[end:]
+    facts_start = guidance_html.index('id="observed-facts"')
+    facts_html = guidance_html[facts_start:]
+    assert "12.65" in facts_html
+    assert "99.0" not in facts_html
+    assert "12.65" in measured_html
+    assert "99.0" in measured_html

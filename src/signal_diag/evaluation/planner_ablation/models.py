@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import math
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from signal_diag.agent.models import AgentRunResult
 from signal_diag.evaluation.models import BaselineRunResult
 from signal_diag.signal.context import StimulusContext
+from signal_diag.signal.models import ChannelMode, TimeRange
+from signal_diag.tools.contracts import ToolName
 
 StudyMode = Literal["single_signal", "paired_reference"]
 ScoredArm = Literal["product_agent", "fixed_pipeline"]
@@ -31,11 +34,37 @@ class ProductSlotRequest(BaseModel):
     @model_validator(mode="after")
     def _mode_shape(self) -> ProductSlotRequest:
         if self.mode == "single_signal":
-            if self.reference_wav_bytes is not None or self.reference_filename is not None:
+            if (
+                self.reference_wav_bytes is not None
+                or self.reference_filename is not None
+            ):
                 raise ValueError("single_signal rejects reference WAV fields")
         elif self.reference_wav_bytes is None:
             raise ValueError("paired_reference requires reference WAV bytes")
         return self
+
+
+class StudyObservedFactView(BaseModel):
+    """Parity-facing observed_fact row (same-run measurements; not fault attribution)."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    evidence_id: str
+    source_tool: ToolName
+    call_id: str
+    metric: str = Field(min_length=1)
+    value: bool | int | float | str
+    unit: str | None = None
+    validity: Literal["valid"] = "valid"
+    time_range: TimeRange | None = None
+    channel: ChannelMode
+
+    @field_validator("value")
+    @classmethod
+    def _reject_non_finite_float(cls, value: bool | float | str) -> bool | float | str:
+        if isinstance(value, float) and not math.isfinite(value):
+            raise ValueError("observed fact float values must be finite")
+        return value
 
 
 class StudyContextGuidanceView(BaseModel):
@@ -47,6 +76,7 @@ class StudyContextGuidanceView(BaseModel):
     unlockable_modes: tuple[str, ...]
     required_inputs: dict[str, tuple[str, ...]]
     summary: str = Field(min_length=1)
+    observed_facts: tuple[StudyObservedFactView, ...] = ()
 
 
 class ProductSlotOutcome(BaseModel):
@@ -79,7 +109,9 @@ class PlannerAblationBaselineRequest(BaseModel):
             raise ValueError("signal_id must match stimulus_context.test_signal_id")
         mode = self.stimulus_context.mode
         if mode not in ("single_signal", "paired_reference"):
-            raise ValueError("planner-ablation study supports single_signal and paired_reference only")
+            raise ValueError(
+                "planner-ablation study supports single_signal and paired_reference only"
+            )
         return self
 
 

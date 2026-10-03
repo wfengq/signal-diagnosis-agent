@@ -19,6 +19,7 @@ from signal_diag.agent.planner import (
     bind_planner_telemetry,
 )
 from signal_diag.agent.telemetry import TelemetryBinding, TelemetryEvent
+from signal_diag.app.context_guidance import ContextGuidance, build_context_guidance
 from signal_diag.app.contextual_models import ContextualAppRunSnapshot
 from signal_diag.app.service import (
     ApplicationDependencies,
@@ -31,10 +32,7 @@ from signal_diag.evaluation.planner_ablation.baseline import (
 from signal_diag.evaluation.planner_ablation.models import (
     PlannerAblationBaselineRequest,
     StudyContextGuidanceView,
-)
-from signal_diag.evaluation.planner_ablation.report_fields import (
-    derive_context_guidance_from_agent_result,
-    derive_context_guidance_from_baseline,
+    StudyObservedFactView,
 )
 from signal_diag.evaluation.planner_ablation.v2.campaign import (
     _BEHAVIORAL_TERMINATION_MARKERS,
@@ -495,11 +493,78 @@ class StudyResourceObserver:
             closed=closed,
         )
 
+def _study_guidance_from_context_guidance(
+    guidance: ContextGuidance,
+) -> StudyContextGuidanceView:
+    return StudyContextGuidanceView(
+        reason_codes=guidance.reason_codes,
+        unlockable_modes=guidance.unlockable_modes,
+        required_inputs={
+            key: tuple(value) for key, value in guidance.required_inputs.items()
+        },
+        summary=guidance.summary,
+        observed_facts=tuple(
+            StudyObservedFactView(
+                evidence_id=f.evidence_id,
+                source_tool=f.source_tool,
+                call_id=f.call_id,
+                metric=f.metric,
+                value=f.value,
+                unit=f.unit,
+                validity=f.validity,
+                time_range=f.time_range,
+                channel=f.channel,
+            )
+            for f in guidance.observed_facts
+        ),
+    )
+
+
+def _baseline_to_agent_result(baseline: BaselineRunResult) -> AgentRunResult:
+    if baseline.diagnosis is None:
+        raise ValueError("baseline diagnosis required for guidance derivation")
+    return AgentRunResult(
+        run_id=baseline.run_id,
+        status=baseline.status,
+        diagnosis=StructuredDiagnosis(
+            run_id=baseline.diagnosis.run_id,
+            task_type="distortion_analysis",
+            outcome=baseline.diagnosis.outcome,
+            claims=baseline.diagnosis.claims,
+            confidence_label=baseline.diagnosis.confidence_label,
+            limitations=baseline.diagnosis.limitations,
+            termination_reason="planner_finished",
+            tool_call_count=baseline.diagnosis.tool_call_count,
+            rule_evaluation_batches=baseline.diagnosis.rule_evaluation_batches,
+        ),
+        observations=baseline.observations,
+        evidence=baseline.evidence,
+        tool_history=baseline.tool_history,
+        termination_reason="planner_finished",
+        warnings=baseline.warnings,
+        errors=baseline.errors,
+        rule_evaluation_batches=baseline.rule_evaluation_batches,
+    )
+
+
+def _study_guidance_from_agent_result(
+    *,
+    mode: str,
+    result: AgentRunResult | None,
+) -> StudyContextGuidanceView | None:
+    built = build_context_guidance(mode=mode, result=result)  # type: ignore[arg-type]
+    if built is None:
+        return None
+    return _study_guidance_from_context_guidance(built)
+
+
 def _map_guidance(guidance: object | None) -> StudyContextGuidanceView | None:
     if guidance is None:
         return None
     if isinstance(guidance, StudyContextGuidanceView):
         return guidance
+    if isinstance(guidance, ContextGuidance):
+        return _study_guidance_from_context_guidance(guidance)
     return StudyContextGuidanceView(
         reason_codes=tuple(guidance.reason_codes),  # type: ignore[attr-defined]
         unlockable_modes=tuple(guidance.unlockable_modes),  # type: ignore[attr-defined]
@@ -508,6 +573,20 @@ def _map_guidance(guidance: object | None) -> StudyContextGuidanceView | None:
             for key, value in guidance.required_inputs.items()  # type: ignore[attr-defined]
         },
         summary=guidance.summary,  # type: ignore[attr-defined]
+        observed_facts=tuple(
+            StudyObservedFactView(
+                evidence_id=f.evidence_id,  # type: ignore[attr-defined]
+                source_tool=f.source_tool,  # type: ignore[attr-defined]
+                call_id=f.call_id,  # type: ignore[attr-defined]
+                metric=f.metric,  # type: ignore[attr-defined]
+                value=f.value,  # type: ignore[attr-defined]
+                unit=f.unit,  # type: ignore[attr-defined]
+                validity=f.validity,  # type: ignore[attr-defined]
+                time_range=f.time_range,  # type: ignore[attr-defined]
+                channel=f.channel,  # type: ignore[attr-defined]
+            )
+            for f in guidance.observed_facts  # type: ignore[attr-defined]
+        ),
     )
 
 
@@ -713,7 +792,7 @@ class ProductArmSession:
             result = snapshot.result
             guidance = _map_guidance(snapshot.context_guidance)
             if guidance is None and result is not None:
-                guidance = derive_context_guidance_from_agent_result(
+                guidance = _study_guidance_from_agent_result(
                     mode=request.mode,
                     result=result,
                 )
@@ -916,8 +995,9 @@ class FixedArmSession:
             )
 
             markers.append(_phase_marker(self._clock, "guidance", self._phase_advances))
-            guidance = derive_context_guidance_from_baseline(
-                mode=request.mode, baseline=baseline
+            guidance = _study_guidance_from_agent_result(
+                mode=request.mode,
+                result=_baseline_to_agent_result(baseline),
             )
             markers[-1] = PhaseMarker(
                 phase="guidance",

@@ -8,7 +8,10 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from signal_diag.agent.models import AgentRunResult
-from signal_diag.app.context_guidance import ContextGuidance
+from signal_diag.app.context_guidance import (
+    ContextGuidance,
+    validate_observed_facts_against_evidence,
+)
 from signal_diag.app.models import (
     AppErrorDetail,
     AppRunStatus,
@@ -131,3 +134,12 @@ class ContextualDiagnosisReport(BaseModel):
     def validate_generated_at(cls, value: datetime) -> datetime:
         _require_utc(value, "generated_at")
         return value
+
+    @model_validator(mode="after")
+    def validate_observed_facts(self) -> ContextualDiagnosisReport:
+        if self.context_guidance is not None:
+            validate_observed_facts_against_evidence(
+                evidence=self.result.evidence,
+                observed_facts=self.context_guidance.observed_facts,
+            )
+        return self
