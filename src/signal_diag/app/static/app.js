@@ -234,6 +234,20 @@ function renderGuidance(panel, snapshot) {
     const inputs = required[modeName] || [];
     appendText(panel, "p", `${modeName}: ${inputs.join(", ")}`);
   }
+  const facts = guidance.observed_facts || [];
+  if (facts.length) {
+    appendText(panel, "p", "observed_facts:");
+    const list = document.createElement("ul");
+    list.id = "observed-facts";
+    panel.appendChild(list);
+    for (const fact of facts) {
+      const unit = fact.unit;
+      const unitSuffix =
+        unit === null || unit === undefined || unit === "" ? "" : ` ${unit}`;
+      const line = `${fact.evidence_id} ${fact.metric}=${fact.value}${unitSuffix}`;
+      appendText(list, "li", line);
+    }
+  }
   appendText(
     panel,
     "p",

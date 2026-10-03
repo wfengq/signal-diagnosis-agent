@@ -452,6 +452,16 @@ def test_t_cx119_contextual_ui_sections_and_no_client_dsp() -> None:
         assert sink not in script
 
 
+def test_t_cx326_ui_lists_observed_facts_inside_guidance() -> None:
+    script = _static_text("app.js")
+    html = _static_text("index.html")
+    assert "renderGuidance" in script
+    assert "guidance-panel" in html
+    assert "observed_facts" in script
+    assert "observed-facts" in script
+    assert "thd_percent" not in script
+
+
 def test_t_cx268_ui_unknown_wav_uses_contextual_single_signal() -> None:
     html = _static_text("index.html")
     script = _static_text("app.js")
