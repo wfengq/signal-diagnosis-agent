@@ -253,6 +253,35 @@ function renderQualification(panel, evidence) {
   }
 }
 
+const DIAGNOSTIC_MODE_LABELS = {
+  single_signal: "Unknown one-WAV signal",
+  nominal_single_tone: "Declared single tone",
+  paired_reference: "Compare with clean reference",
+};
+
+function diagnosticModeLabel(modeName) {
+  return DIAGNOSTIC_MODE_LABELS[modeName] || modeName;
+}
+
+function humanizeRequiredInputToken(token) {
+  if (token === "reference_wav") {
+    return "reference WAV";
+  }
+  if (token === "nominal_fundamental_hz") {
+    return "nominal fundamental (Hz)";
+  }
+  const eq = token.indexOf("=");
+  if (eq >= 0) {
+    const key = token.slice(0, eq);
+    const value = token.slice(eq + 1);
+    if (key === "stimulus_kind" && value === "single_tone") {
+      return "stimulus kind single tone";
+    }
+    return `${key.replace(/_/g, " ")} ${value.replace(/_/g, " ")}`;
+  }
+  return token.replace(/_/g, " ");
+}
+
 function renderGuidance(panel, snapshot) {
   const guidance = snapshot.context_guidance;
   const controls = document.getElementById("upgrade-controls");
@@ -263,20 +292,21 @@ function renderGuidance(panel, snapshot) {
     return;
   }
   appendText(panel, "p", guidance.summary);
-  appendText(
-    panel,
-    "p",
-    `reason_codes: ${(guidance.reason_codes || []).join(", ")}`,
-  );
-  appendText(
-    panel,
-    "p",
-    `unlockable_modes: ${(guidance.unlockable_modes || []).join(", ")}`,
-  );
+  const unlockable = (guidance.unlockable_modes || [])
+    .map(diagnosticModeLabel)
+    .join(", ");
+  if (unlockable) {
+    appendText(panel, "p", `Optional upgrades: ${unlockable}`);
+  }
   const required = guidance.required_inputs || {};
   for (const modeName of Object.keys(required)) {
     const inputs = required[modeName] || [];
-    appendText(panel, "p", `${modeName}: ${inputs.join(", ")}`);
+    const humanInputs = inputs.map(humanizeRequiredInputToken).join(", ");
+    appendText(
+      panel,
+      "p",
+      `${diagnosticModeLabel(modeName)}: ${humanInputs}`,
+    );
   }
   const facts = guidance.observed_facts || [];
   if (facts.length) {

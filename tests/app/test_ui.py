@@ -478,6 +478,24 @@ def test_t_cx326_ui_lists_observed_facts_inside_guidance() -> None:
     assert "thd_percent" not in script
 
 
+def test_t_cx328_ui_humanizes_context_guidance_labels() -> None:
+    script = _static_text("app.js")
+    html = _static_text("index.html")
+    guidance = _function_body(script, "renderGuidance")
+    assert "Unknown one-WAV signal" in script
+    assert "Declared single tone" in script
+    assert "Compare with clean reference" in script
+    assert "Unknown one-WAV signal" in html
+    assert "Optional upgrades:" in guidance
+    assert "unlockable_modes:" not in guidance
+    assert "reason_codes:" not in guidance
+    assert "reference WAV" in script
+    assert "nominal fundamental (Hz)" in script
+    assert "stimulus kind single tone" in script
+    assert "observed_facts" in guidance
+    assert "thd_percent" not in script
+
+
 def test_t_cx268_ui_unknown_wav_uses_contextual_single_signal() -> None:
     html = _static_text("index.html")
     script = _static_text("app.js")
