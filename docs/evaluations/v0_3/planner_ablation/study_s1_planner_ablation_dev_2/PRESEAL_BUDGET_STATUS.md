@@ -18,7 +18,7 @@ Companion docs: `RESOURCE_BOUNDS.md` §7 (current reviewed identity),
 |------|-------|
 | Writing branch | `cursor/oq019-dev2-sdk-rebind-8b52` |
 | Trunk tip referenced | `944b957` |
-| `contextual_product_tree_sha256()` | `4b7a5916e45c7eb72505be0a8c8d4aa7f95216fe8a6c87c22e7bd2253318429c` |
+| `contextual_product_tree_sha256()` | `8d35581d9a5217e66ce9734687a533ef72df9a0e597f340ffd4bd57cce8058d0` (post D040 rebind) |
 | Installed `openai` | `3.6.0` (`importlib.metadata` via `uv run`) |
 | `uv.lock` `openai` | `3.6.0` (matches installed) |
 | Reviewed capability identity | `openai==3.6.0` (`provider_telemetry` / `RESOURCE_BOUNDS.md` §7) |

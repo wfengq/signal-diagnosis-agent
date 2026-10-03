@@ -18,7 +18,7 @@ Audit environment (writing workspace, post-rebind):
 | Fact | Value |
 |------|-------|
 | Branch | `cursor/oq019-dev2-sdk-rebind-8b52` |
-| Trunk tip referenced | `944b957` |
+| Trunk tip referenced | `944b957` (pre-rebind); product tree tip per D040 after rebind |
 | Installed `openai` | `3.6.0` (`importlib.metadata`) |
 | `uv.lock` `openai` | `3.6.0` (**matches installed**) |
 | `httpx` | `0.28.1` |
@@ -139,7 +139,7 @@ grant (2026-10-03). Companion status board: `PRESEAL_BUDGET_STATUS.md`.
 | Fact | Value |
 |------|-------|
 | Writing branch | `cursor/oq019-dev2-sdk-rebind-8b52` |
-| Trunk tip referenced | `944b957` |
+| Trunk tip referenced | `944b957` (pre-rebind); product tree tip per D040 after rebind |
 | Installed `openai` | `3.6.0` |
 | `uv.lock` `openai` | `3.6.0` (**matches installed**) |
 | `httpx` | `0.28.1` |
