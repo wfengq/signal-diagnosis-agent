@@ -692,13 +692,18 @@ changing product model strings, prompts, causal policy, or request payloads.
    `model_mapping_accepted=true` when bound to that identity. No `/models`
    probe and no product composition change.
 
-2. **HTTP send factor admission:** Admit `H=21` (`http_sends_per_sdk_attempt`)
-   from audited defaults on the reviewed lock-aligned install: OpenAI Async
-   client enables redirect following; httpx `DEFAULT_MAX_REDIRECTS=20` →
-   worst-case sends per SDK attempt `1+20`. Origin `sdk_default_audit`, scope
-   `admitted`, `dependency_identity` `openai==3.6.0;httpx==0.28.1`. Updates
-   `RESOURCE_BOUNDS.md` arithmetic and bound-fact JSON; closes
-   `unproved_http_send_bound` on the source-aware board when proofs bind `H`.
+2. **HTTP send factor admission (redirect chain only):** Admit `H=21`
+   (`http_sends_per_sdk_attempt`) from audited defaults on the reviewed
+   lock-aligned install: OpenAI Async client enables redirect following; httpx
+   `DEFAULT_MAX_REDIRECTS=20` (`httpx==0.28.1` in applicable_path / §3 prose)
+   → worst-case sends per SDK attempt `1+20` for **redirect replay**.
+   Origin `sdk_default_audit`, scope `admitted`, `dependency_identity`
+   `openai==3.6.0`. Updates `RESOURCE_BOUNDS.md` arithmetic and bound-fact JSON.
+   Proofs bind to `RESOURCE_BOUNDS.md` bytes (not `docs/DECISIONS.md`).
+   `assess_resource_budget` may use admitted `H` for arithmetic; honest boards
+   keep total HTTP factor applicability **partial** until auth / lower-transport
+   coverage is written (CONTRACTS §21.3) — do not claim
+   `unproved_http_send_bound` fully cleared for seal.
 
 **Still blocked (explicit):** all-outcome and per-send input/output token
 ceilings; failed-attempt token exposure; formal `seal_ready=true` without token

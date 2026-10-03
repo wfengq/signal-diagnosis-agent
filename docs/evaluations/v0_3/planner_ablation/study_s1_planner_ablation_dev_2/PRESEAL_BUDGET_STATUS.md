@@ -5,8 +5,10 @@ gates). Not a protocol seal.
 **Readiness authority:** source-aware `assess_resource_budget` +
 `validate_resource_candidate`. Legacy `inspect_limits` is diagnostics only.
 **Honest completion:** Token ceilings and failed-attempt exposure remain
-`blocked`. HTTP send factor `H` and operator route acceptance are **closed**
-(D041). This board does **not** force candidate `seal_ready=true`.
+`blocked`. Operator route acceptance is **closed** (D041). HTTP send factor
+`H` redirect admission is **partial** — arithmetic may use admitted `H=21`;
+auth / lower-transport applicability is incomplete (§21.3). This board does
+**not** force candidate `seal_ready=true`.
 **Not authorized here:** `protocol_seal/`, RealLLM campaign, product
 diagnosis-gate changes, legacy `inspect_limits` retargeting.
 
@@ -71,7 +73,7 @@ explicit-flag gate). Candidate readiness is
 |--------------------|-------|--------|----------|---------------|
 | Reviewed SDK profile on lock-aligned `3.6.0` (digests/hooks identity) | `environment_rebind` | **closed** (partial wave) | `RESOURCE_BOUNDS.md` §7; `build_audited_sdk_observation_profile().supported is True` when install matches; `pyproject` llm extra pins `openai==3.6.0` | Foreign installs / digest drift still latch unsupported |
 | Missing / incomplete production observation capability (turns, repairs, SDK attempts, HTTP sends, usage) | `bind_study_observation` | **partial** | `resource_capability.bind_observation_capability` (Tasks 4–6); offline harness T-CX306–315; production non-fixture bind still required | Helper maps installed/agent profile; offline green ≠ production capability bind |
-| `unproved_http_send_bound` (factor `H`) | `admitted_independent_proof` | **closed** (D041) | `RESOURCE_BOUNDS.md` §3; admitted `H=21` (`sdk_default_audit`, scope `admitted`, `openai==3.6.0;httpx==0.28.1`) | Auth replay / lower-transport paths beyond redirect chain still unbounded |
+| `unproved_http_send_bound` (factor `H`) | `admitted_independent_proof` | **partial** (D041) | `RESOURCE_BOUNDS.md` §3; admitted redirect `H=21` (`sdk_default_audit`, scope `admitted`, `openai==3.6.0`; httpx `0.28.1` in applicable_path prose) | Auth replay / lower-transport paths beyond redirect chain still unbounded; not seal-cleared |
 | `unknown_input_token_bound` / `unknown_output_token_bound` / failed-attempt token exposure | `admitted_independent_proof` or `requires_product_cap_design` | **blocked** | `RESOURCE_BOUNDS.md` §4–5 | Context-window capacity ≠ failed-attempt exposure; no all-outcome proof |
 | `request_timeout` unknown as admitted product-bound fact | `admitted_independent_proof` | **blocked** | SDK default timeout audited; must not flip `request_timeout_explicit` | Legacy path still unknown; source-aware needs admitted applicable proof |
 | Planner-turn ceiling `P=28` / SDK attempt factor `A=3` (conditional arithmetic) | `admitted_independent_proof` | **partial** | Control-flow / SDK-default audits in `RESOURCE_BOUNDS.md` | Conditional; invalidated by uncovered continue paths |
@@ -135,11 +137,14 @@ Closed in SDK rebind wave: reviewed capability identity rebound to lock-aligned
 `openai==3.6.0`; `build_audited_sdk_observation_profile().supported=true` on
 matching installs; lockfile↔install drift cleared for `openai` here.
 
-Closed in D041 residual gates wave: admitted HTTP send factor `H=21` clears
-`unproved_http_send_bound` when study proofs bind the fact; operator route
-acceptance clears `unaccepted_provider_model_mapping` on study
-`ProviderLimitsBinding`. Conditional `http_send_ceiling=100548` is derivable
-from `RESOURCE_BOUNDS.md` §3 when proofs are complete.
+D041 residual gates wave: redirect-chain `H=21` is **admitted** for conditional
+arithmetic when study proofs bind the fact (`assess_resource_budget`); total
+HTTP factor applicability stays **partial** on this board until auth /
+lower-transport write-up is complete — do not claim `unproved_http_send_bound`
+fully cleared for seal. Operator route acceptance clears
+`unaccepted_provider_model_mapping` on study `ProviderLimitsBinding`.
+Conditional `http_send_ceiling=100548` is derivable from `RESOURCE_BOUNDS.md`
+§3 when redirect proofs bind; seal still blocked on tokens and partial `H`.
 
 Still blocked for formal candidate `seal_ready`: input/output token ceilings,
 failed-attempt token exposure, production non-fixture observation bind, and

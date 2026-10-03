@@ -97,9 +97,20 @@ install (`openai==3.6.0`, native dispatch `httpx.AsyncClient.send`), the OpenAI
 Async client enables redirect following. httpx `DEFAULT_MAX_REDIRECTS` is `20`
 (`httpx==0.28.1`). Worst-case HTTP dispatches per SDK attempt is therefore
 `1 + 20 = 21` (`http_sends_per_sdk_attempt`). Origin `sdk_default_audit`,
-scope `admitted`, `dependency_identity` `openai==3.6.0;httpx==0.28.1`. This
-admits redirect-chain replay only; auth resend and lower-transport replay remain
-outside the proof.
+scope `admitted`, `dependency_identity` `openai==3.6.0` (extension binding;
+`httpx==0.28.1` redirect default verified in applicable_path / §7 prose only).
+This admits redirect-chain replay for assessment arithmetic only; auth resend
+and lower-transport replay remain **outside** the proof (§21.3 residual).
+
+**Offline redirect ceiling check (no network):** httpx `DEFAULT_MAX_REDIRECTS=20`
+on the lock-aligned install; a `httpx.MockTransport` chain that returns `302`
+until the 21st dispatch should raise `httpx.TooManyRedirects` when the async
+client follows redirects (reproduce locally; not a CI gate).
+
+**Product path (no custom transport):** `RealLLMPlanner` builds
+`AsyncOpenAI(api_key=..., base_url=...)` only — no custom `http_client`, no
+auth adapter, and no transport-level retry layer beyond the OpenAI SDK attempt
+loop (`src/signal_diag/agent/planner.py` `_create_async_openai_client`).
 
 `4788` is a **conditional SDK-attempt ceiling**. `100548` is a **conditional
 HTTP-send ceiling** when `H` is bound; it is not an accepted live campaign
@@ -121,7 +132,7 @@ budget without token proofs and non-fixture capability.
 
 | Blocker | Status |
 |---------|--------|
-| `unproved_http_send_bound` | **cleared** when proofs bind admitted `H=21` (D041) |
+| `unproved_http_send_bound` | **partial** — redirect factor `H=21` admitted for arithmetic; auth / lower-transport applicability incomplete (§21.3) |
 | `unproven_failed_attempt_token_bound` | remains — context capacity ≠ failed-attempt exposure |
 | `unknown_input_token_bound` / `unknown_output_token_bound` | remains without all-outcome or admitted per-send proofs |
 | `unaccepted_provider_model_mapping` | **cleared** on study binding after D041 operator acceptance |
@@ -183,9 +194,12 @@ What rebind does **not** clear (D040 alone):
 - Input/output token ceilings or failed-attempt token exposure (still
   **unknown** / unproved).
 
-Closed in **D041** residual gates (study proofs; product unchanged):
+Partial in **D041** residual gates (study proofs; product unchanged):
 
-- HTTP send factor `H=21` (`unproved_http_send_bound` when bound).
+- Redirect-chain HTTP send factor `H=21` admitted for conditional arithmetic;
+  total HTTP factor applicability remains **partial** until auth / lower-transport
+  write-up is complete — do **not** treat `unproved_http_send_bound` as fully
+  cleared for seal.
 - Operator route acceptance (`model_mapping_accepted=true` on study binding).
 
 Still not cleared by D040/D041:
@@ -197,6 +211,11 @@ Still not cleared by D040/D041:
 **No formal seal. No RealLLM authorized by this section.**
 
 ## Structured bound-fact records (machine-readable)
+
+`code_identity` on admitted facts must match the seal candidate extension
+`code_identity` from `collect_code_bindings` (not a placeholder). Fixture tests
+may pin a single digest on both the bound fact and extension; production bind
+uses the live aggregate.
 
 ```json
 {
@@ -235,9 +254,9 @@ Still not cleared by D040/D041:
       "scope": "admitted",
       "applicable_path": "openai_async_follow_redirects_plus_httpx_default_max_redirects_20",
       "code_identity": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "dependency_identity": "openai==3.6.0;httpx==0.28.1",
+      "dependency_identity": "openai==3.6.0",
       "model_identity": "deepseek-v4-flash",
-      "acceptance_reference": "docs/DECISIONS.md#d041--oq-019dev_2-residual-preseal-route-acceptance-and-http-send-factor-h"
+      "acceptance_reference": "docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_2/RESOURCE_BOUNDS.md"
     },
     {
       "name": "input_token_ceiling",
