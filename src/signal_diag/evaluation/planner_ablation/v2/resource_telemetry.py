@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 from signal_diag.evaluation.planner_ablation.v2.resource_models import (
     ReportedUsage,
     ResourceAssessment,
@@ -108,6 +110,7 @@ def _lifecycle_graph(
         if key not in starts:
             pending.append(f"{key[0]}:{key[1]}")
             blockers.append(f"orphan_end:{key[0]}:{key[1]}")
+    blockers.extend(_entity_lifecycle_blockers(events))
     blockers.extend(_parent_link_blockers(events))
     return tuple(dict.fromkeys(pending)), blockers
 
@@ -146,9 +149,57 @@ def _resolved_send_id(event: dict[str, object]) -> str | None:
 
 def _monotonic(event: dict[str, object]) -> float | None:
     value = event.get("monotonic_s")
-    if isinstance(value, (int, float)) and not isinstance(value, bool):
+    if (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and math.isfinite(value)
+    ):
         return float(value)
     return None
+
+
+def _lifecycle_entity_id(event: dict[str, object]) -> str | None:
+    kind = _event_kind(event)
+    if kind == "planner_turn":
+        return _resolved_turn_id(event)
+    if kind == "logical_call":
+        return _resolved_call_id(event)
+    if kind == "sdk_attempt":
+        return _resolved_attempt_id(event)
+    if kind == "http_send":
+        return _resolved_send_id(event)
+    return None
+
+
+def _entity_lifecycle_blockers(events: tuple[dict[str, object], ...]) -> list[str]:
+    """Reject duplicate lifecycle phases and correlation drift for one entity id."""
+    blockers: list[str] = []
+    entity_correlation: dict[tuple[str, str], str] = {}
+    entity_phase_counts: dict[tuple[str, str, str], int] = {}
+    for event in events:
+        kind = _event_kind(event)
+        if kind not in _LIFECYCLE_KINDS:
+            continue
+        phase = _event_phase(event)
+        if phase not in {"start", "end"}:
+            continue
+        entity_id = _lifecycle_entity_id(event)
+        if entity_id is None:
+            continue
+        correlation = _correlation_key(event)
+        entity_key = (kind, entity_id)
+        seen_correlation = entity_correlation.get(entity_key)
+        if seen_correlation is not None and seen_correlation != correlation:
+            blockers.append(f"lifecycle_correlation_mismatch:{kind}:{entity_id}")
+        else:
+            entity_correlation.setdefault(entity_key, correlation)
+        phase_key = (kind, entity_id, phase)
+        entity_phase_counts[phase_key] = entity_phase_counts.get(phase_key, 0) + 1
+        if entity_phase_counts[phase_key] > 1:
+            blockers.append(
+                f"duplicate_lifecycle_entity_phase:{kind}:{entity_id}:{phase}"
+            )
+    return blockers
 
 
 def _graph_required(events: tuple[dict[str, object], ...]) -> bool:
@@ -232,6 +283,10 @@ def _parent_link_blockers(events: tuple[dict[str, object], ...]) -> list[str]:
                 call_meta.setdefault(call_id, {})["start"] = _monotonic(event)
             elif phase == "end":
                 call_meta.setdefault(call_id, {})["end"] = _monotonic(event)
+                if turn_id is not None:
+                    expected_turn = call_turn.get(call_id)
+                    if expected_turn is not None and expected_turn != turn_id:
+                        blockers.append(f"logical_call_ancestry_mismatch:{call_id}")
         elif kind == "sdk_attempt":
             turn_id = _nonempty_text(event.get("turn_id"))
             call_id = _nonempty_text(event.get("call_id"))
@@ -245,6 +300,13 @@ def _parent_link_blockers(events: tuple[dict[str, object], ...]) -> list[str]:
                 continue
             if call_id is not None and call_id not in call_ids:
                 blockers.append(f"sdk_attempt_parent_missing:{call_id}")
+            if (
+                call_id is not None
+                and turn_id is not None
+                and call_id in call_turn
+                and turn_id != call_turn[call_id]
+            ):
+                blockers.append(f"sdk_attempt_ancestry_mismatch:{attempt_id}")
             if phase == "start":
                 attempt_ids.add(attempt_id)
                 if turn_id is not None and call_id is not None:
@@ -252,6 +314,11 @@ def _parent_link_blockers(events: tuple[dict[str, object], ...]) -> list[str]:
                 attempt_meta.setdefault(attempt_id, {})["start"] = _monotonic(event)
             elif phase == "end":
                 attempt_meta.setdefault(attempt_id, {})["end"] = _monotonic(event)
+                expected = attempt_chain.get(attempt_id)
+                if expected is not None and (
+                    turn_id != expected[0] or call_id != expected[1]
+                ):
+                    blockers.append(f"sdk_attempt_ancestry_mismatch:{attempt_id}")
         elif kind == "http_send":
             turn_id = _nonempty_text(event.get("turn_id"))
             call_id = _nonempty_text(event.get("call_id"))
@@ -285,6 +352,13 @@ def _parent_link_blockers(events: tuple[dict[str, object], ...]) -> list[str]:
                 send_meta.setdefault(send_id, {})["start"] = _monotonic(event)
             elif phase == "end":
                 send_meta.setdefault(send_id, {})["end"] = _monotonic(event)
+                expected_send = send_chain.get(send_id)
+                if expected_send is not None and (
+                    turn_id != expected_send[0]
+                    or call_id != expected_send[1]
+                    or attempt_id != expected_send[2]
+                ):
+                    blockers.append(f"http_send_ancestry_mismatch:{send_id}")
 
     for event in events:
         if _event_kind(event) != "usage":
@@ -306,6 +380,10 @@ def _parent_link_blockers(events: tuple[dict[str, object], ...]) -> list[str]:
             blockers.append(f"usage_without_send:{send_id}")
         if call_id is not None and call_id not in call_ids:
             blockers.append(f"usage_parent_missing_call:{call_id}")
+        elif call_id is not None and turn_id is not None:
+            expected_turn = call_turn.get(call_id)
+            if expected_turn is not None and expected_turn != turn_id:
+                blockers.append(f"usage_ancestry_mismatch:{send_id}")
         if attempt_id is not None and attempt_id not in attempt_ids:
             blockers.append(f"usage_parent_missing_attempt:{attempt_id}")
         if turn_id is not None and turn_id not in turn_ids:
@@ -354,9 +432,21 @@ def _parent_link_blockers(events: tuple[dict[str, object], ...]) -> list[str]:
             if c_start is not None and mono < c_start:
                 _order_blocker("logical_call", call_id or "call", "end_before_start")
             if turn_id is not None:
-                t_start = turn_meta.get(turn_id, {}).get("start")
+                t_bounds = turn_meta.get(turn_id, {})
+                t_start = t_bounds.get("start")
                 if t_start is not None and mono < t_start:
-                    _order_blocker("planner_turn", call_id or "call", "child_before_parent_start")
+                    _order_blocker(
+                        "planner_turn",
+                        call_id or "call",
+                        "child_before_parent_start",
+                    )
+                t_end = t_bounds.get("end")
+                if t_end is not None and mono > t_end:
+                    _order_blocker(
+                        "planner_turn",
+                        call_id or "call",
+                        "child_after_parent_end",
+                    )
         if kind == "sdk_attempt" and phase == "start":
             call_id = _nonempty_text(event.get("call_id"))
             attempt_id = _resolved_attempt_id(event)
@@ -371,13 +461,27 @@ def _parent_link_blockers(events: tuple[dict[str, object], ...]) -> list[str]:
         if kind == "sdk_attempt" and phase == "end":
             attempt_id = _resolved_attempt_id(event)
             call_id = _nonempty_text(event.get("call_id"))
+            turn_id = _nonempty_text(event.get("turn_id"))
             a_start = attempt_meta.get(attempt_id or "", {}).get("start")
             if a_start is not None and mono < a_start:
                 _order_blocker("sdk_attempt", attempt_id or "attempt", "end_before_start")
             if call_id is not None:
-                c_end = call_meta.get(call_id, {}).get("end")
+                c_bounds = call_meta.get(call_id, {})
+                c_end = c_bounds.get("end")
                 if c_end is not None and mono > c_end:
-                    _order_blocker("logical_call", attempt_id or "attempt", "child_after_parent_end")
+                    _order_blocker(
+                        "logical_call",
+                        attempt_id or "attempt",
+                        "child_after_parent_end",
+                    )
+            if turn_id is not None:
+                t_end = turn_meta.get(turn_id, {}).get("end")
+                if t_end is not None and mono > t_end:
+                    _order_blocker(
+                        "planner_turn",
+                        attempt_id or "attempt",
+                        "child_after_parent_end",
+                    )
         if kind == "http_send":
             attempt_id = _nonempty_text(event.get("attempt_id"))
             send_id = _resolved_send_id(event) or "send"
