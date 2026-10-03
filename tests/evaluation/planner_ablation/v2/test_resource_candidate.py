@@ -381,3 +381,146 @@ def test_non_fixture_provider_limits_source_requires_repo_file() -> None:
     assert matched.ready is False
     assert "provider_limits_source_inapplicable_file" in matched.reasons
     assert "unauthenticated_provider_limits_source" not in matched.reasons
+
+
+def test_d041_helpers_authenticate_resource_bounds_http_send_and_provider(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """D041 proof helpers must bind RESOURCE_BOUNDS for validate_resource_candidate."""
+    from signal_diag.evaluation.planner_ablation.v2 import sealing
+    from signal_diag.evaluation.planner_ablation.v2.campaign import (
+        snapshot_effective_configuration,
+    )
+    from signal_diag.evaluation.planner_ablation.v2.models import LabelReviewResult
+    from signal_diag.evaluation.planner_ablation.v2.resource_budget import (
+        assess_resource_budget,
+    )
+    from signal_diag.evaluation.planner_ablation.v2.resource_capability import (
+        admitted_http_send_factor_bound_fact,
+        dev2_resource_bounds_reference,
+        operator_accepted_provider_limits_binding,
+    )
+    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+        ObservationCapability,
+        ResourceCandidateExtension,
+        ResourceProofBundle,
+        SdkProfileAudit,
+    )
+
+    code_identity = "b" * 64
+
+    def _stub_bindings(repository_root: Path):
+        return sealing.CodeBindingsV2(
+            implementation_commit="0" * 40,
+            aggregate_code_identity=code_identity,
+            bound_file_digests={},
+            entry_script_digests={},
+            prompt_module_digest=code_identity,
+            prompt_version="v0.3-s1-planner-9.11",
+            profile_digests={},
+            corpus_digests={},
+            dependency_versions={"openai": "3.6.0"},
+            python_version="3.12.0",
+        )
+
+    monkeypatch.setattr(sealing, "collect_code_bindings", _stub_bindings)
+
+    bounds = dev2_resource_bounds_reference()
+    bounds_digest = _file_sha256(bounds)
+    http_send = admitted_http_send_factor_bound_fact(repository_root=PROJECT_ROOT)
+    provider = operator_accepted_provider_limits_binding(
+        repository_root=PROJECT_ROOT,
+        fixture_only=False,
+    )
+    sdk = SdkProfileAudit(
+        openai_version="3.6.0",
+        openai_source_digest="c" * 64,
+        native_http_family="httpx",
+        native_http_version="0.28.1",
+        httpcore_version="1.0.9",
+        source_file_digests={"openai/_base_client.py": "d" * 64},
+        max_retries_default=2,
+        sdk_attempts_per_call=3,
+        prepare_options_hook="AsyncAPIClient._prepare_options",
+        send_request_hook="AsyncAPIClient._send_request",
+        native_dispatch_hook="httpx.AsyncClient.send",
+        supported=True,
+        fixture_only=True,
+    )
+    proofs = ResourceProofBundle(
+        http_send_factor=http_send,
+        sdk_profile=sdk,
+        provider_limits=provider,
+        fixture_only=True,
+    )
+    capability = ObservationCapability(
+        telemetry_schema="planner_ablation_telemetry_v1",
+        resource_policy="planner_ablation_resource_v1",
+        sdk_profile=sdk,
+        observes_planner_turns=True,
+        observes_repairs=True,
+        observes_sdk_attempts=True,
+        observes_http_sends=True,
+        observes_usage=True,
+        offline_evidence_digest=bounds_digest,
+        offline_evidence_reference=bounds,
+        fixture_only=True,
+    )
+    assessment = assess_resource_budget(
+        snapshot_effective_configuration(),
+        proofs,
+        capability,
+    )
+    extension = ResourceCandidateExtension(
+        resource_policy="planner_ablation_resource_v1",
+        telemetry_schema="planner_ablation_telemetry_v1",
+        proofs=proofs,
+        capability=capability,
+        assessment=assessment,
+        provider_dependency_identity="openai==3.6.0",
+        label_review_digest="e" * 64,
+        label_population_digest="f" * 64,
+        code_identity=code_identity,
+        extension_digest="9" * 64,
+        fixture_only=True,
+    )
+    from signal_diag.evaluation.planner_ablation.v2.sealing import _digest_payload
+
+    extension_digest = _digest_payload(
+        {
+            "resource_policy": extension.resource_policy,
+            "telemetry_schema": extension.telemetry_schema,
+            "proofs": extension.proofs.model_dump(mode="json"),
+            "capability": extension.capability.model_dump(mode="json"),
+            "assessment": assessment.model_dump(mode="json"),
+            "provider_dependency_identity": extension.provider_dependency_identity,
+            "label_review_digest": extension.label_review_digest,
+            "label_population_digest": extension.label_population_digest,
+            "label_review_source_path": extension.label_review_source_path,
+            "label_review_source_digest": extension.label_review_source_digest,
+            "code_identity": extension.code_identity,
+        }
+    )
+    extension = extension.model_copy(update={"extension_digest": extension_digest})
+    candidate = CandidateManifestV2.model_construct(
+        resource_extension=extension.model_dump(mode="json"),
+        label_review=LabelReviewResult(approved=False),
+        effective_configuration=snapshot_effective_configuration(),
+    )
+    result = validate_resource_candidate(
+        candidate,
+        repository_root=PROJECT_ROOT,
+        installed_sdk_identity=None,
+    )
+    assert "missing_proof_acceptance_file:http_send_factor" not in result.reasons
+    assert "provider_limits_source_inapplicable_file" not in result.reasons
+    assert "proof_acceptance_content_mismatch:http_send_factor" not in result.reasons
+    assert "proof_fact_field_mismatch:http_send_factor" not in result.reasons
+    assert result.ready is False
+    assert "resource_assessment_blocked" in result.reasons
+    assert "unknown_input_token_bound" in result.reasons
+    assert "unknown_output_token_bound" in result.reasons
+    assert http_send.acceptance_reference == bounds
+    assert http_send.proof_digest == bounds_digest
+    assert provider.source_reference == bounds
+    assert provider.source_digest == bounds_digest

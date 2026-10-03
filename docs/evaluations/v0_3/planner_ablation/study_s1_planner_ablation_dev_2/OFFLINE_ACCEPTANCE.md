@@ -145,7 +145,7 @@ above remains the harness record.
 | Legacy `inspect_limits` | diagnostics only; still `execution_blocked=true` / `seal_ready=false` |
 | Installed `openai` vs lock | `3.6.0` / `3.6.0` (match) |
 | Reviewed capability identity | `openai==3.6.0` (§7); audited profile **supported** on lock-aligned install |
-| Admitted `H` / operator route | **closed** on study proofs (D041); tokens still **blocked** |
+| Admitted `H` / operator route | redirect `H=21` **partial**; route **closed** (D041); tokens **blocked** |
 | Formal candidate `seal_ready` | **false** (honest partial closure) |
 | `protocol_seal/` | **absent** |
 | RealLLM / product gates | **not** authorized by preseal docs waves |
