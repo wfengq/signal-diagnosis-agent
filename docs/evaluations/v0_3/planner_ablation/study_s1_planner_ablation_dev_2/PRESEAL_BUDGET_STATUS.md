@@ -65,7 +65,7 @@ explicit-flag gate). Candidate readiness is
 
 | Blocker / residual | Class | Status | Evidence | Residual risk |
 |--------------------|-------|--------|----------|---------------|
-| Reviewed SDK profile on lock-aligned `3.6.0` (digests/hooks identity) | `environment_rebind` | **closed** (partial wave) | `RESOURCE_BOUNDS.md` §7; `build_audited_sdk_observation_profile().supported is True` | Other environments must re-match §7 tuple; CI resolving outside `3.6.0` still latches unsupported |
+| Reviewed SDK profile on lock-aligned `3.6.0` (digests/hooks identity) | `environment_rebind` | **closed** (partial wave) | `RESOURCE_BOUNDS.md` §7; `build_audited_sdk_observation_profile().supported is True` when install matches; `pyproject` llm extra pins `openai==3.6.0` | Foreign installs / digest drift still latch unsupported |
 | Missing / incomplete production observation capability (turns, repairs, SDK attempts, HTTP sends, usage) | `bind_study_observation` | **partial** | `resource_capability.bind_observation_capability` (Tasks 4–6); offline harness T-CX306–315; production non-fixture bind still required | Helper maps installed/agent profile; offline green ≠ production capability bind |
 | `unproved_http_send_bound` (factor `H`) | `admitted_independent_proof` | **blocked** | `RESOURCE_BOUNDS.md` §3–5 | Redirects/auth/lower-transport unbound |
 | `unknown_input_token_bound` / `unknown_output_token_bound` / failed-attempt token exposure | `admitted_independent_proof` or `requires_product_cap_design` | **blocked** | `RESOURCE_BOUNDS.md` §4–5 | Context-window capacity ≠ failed-attempt exposure; no all-outcome proof |
