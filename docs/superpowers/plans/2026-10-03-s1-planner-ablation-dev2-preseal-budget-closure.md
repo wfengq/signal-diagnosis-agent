@@ -208,11 +208,11 @@ Steps:
 Before claiming the offline impl wave complete:
 
 - [x] Focused planner_ablation v2 resource/budget/sealing tests pass.
-- [ ] Full pytest with zero required skip/xfail.
-- [ ] Ruff clean.
-- [ ] `mypy src` clean.
-- [ ] Architecture tests pass.
-- [ ] `git diff --check` against the applicable baseline.
+- [x] Full pytest with zero required skip/xfail.
+- [x] Ruff clean.
+- [x] `mypy src` clean.
+- [x] Architecture tests pass.
+- [x] `git diff --check` against the applicable baseline.
 
 ---
 
