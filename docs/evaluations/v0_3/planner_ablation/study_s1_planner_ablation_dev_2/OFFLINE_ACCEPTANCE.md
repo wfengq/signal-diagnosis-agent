@@ -361,3 +361,35 @@ Numeric bound facts, capability `offline_evidence_reference`, and provider `sour
 `build_candidate_manifest`, `generate_seal`, and `verify_manifest` take optional `installed_sdk_identity`. `read_installed_sdk_identity()` in `app/sdk_identity.py` collects it. Evaluation still does not import the SDK. Profile attach compares `native_http_family`, `native_http_version`, `httpcore_version`, `source_file_digests`, `max_retries_default`, and `sdk_attempts_per_call`. Campaign totals compare summed `logical_call_count` with `logical_call_ceiling`.
 
 The 114-slot harness stays on the fixture offline boundary because its transport is `MockTransport`. When the installed profile is the reviewed one, a non-mock client can attach as `canonical_sdk` without that boundary.
+
+## Codex accept of offline Tasks 1–7 (tip)
+
+| Field | Value |
+|-------|-------|
+| Status | `offline_implementation_accepted` |
+| Tip | `d152489abd649cc29ae0cf386ad46f56bc8f5276` |
+| Branch | `cursor/s1-dev2-telemetry-impl-0d26` |
+| PR | #21 |
+| Accept scope | Offline Tasks 1–7 gates only (event graph, proof/label, usage, BoundFact) |
+| `resource_bounds_complete` | false |
+| `candidate_verified` | false |
+| `protocol_seal/` under this study | absent |
+| RealLLM / network campaign | not authorized |
+
+Remaining seal and RealLLM blockers (unchanged by this accept):
+
+- `unknown_max_tokens_bound`
+- `unknown_input_token_bound` / `unknown_output_token_bound`
+- `unknown_provider_request_timeout`
+- `unknown_transport_attempts_per_call_bound`
+- `unavailable_retry_telemetry`
+- `unknown_planner_calls_per_slot_bound`
+- `agent_limits_do_not_prove_planner_call_bound:tool_count_is_not_planner_calls`
+- `unknown_provider_sdk_identity`
+- `worst_case_requests_uncomputable`
+- `unaccepted_provider_model_mapping`
+- lockfile↔install SDK drift (re-bind at seal time)
+
+Observation remains default-off. Public `RealLLMPlanner` constructors and
+`build_product_service` stay the product path. This accept is not a seal grant
+and not a RealLLM grant.
