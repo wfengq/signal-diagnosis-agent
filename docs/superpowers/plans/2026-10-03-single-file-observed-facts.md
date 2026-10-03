@@ -2,10 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Status:** plan revised after Codex/operator revise on tip `a680e2d`
-(2026-10-03). Spec still approved. Execution requires a separate operator
-grant (`授权实现`). Design-only PR #22 must not be treated as implementation
-authorization.
+**Status:** plan approved (`plan ok` 2026-10-03, tip `9427978`). Spec still
+approved. Execution requires a separate operator grant (`授权实现`).
+Design-only PR #22 must not be treated as implementation authorization.
 
 **Authorship of commits under `授权实现`:** Implementation authorization covers
 Tasks 1–5 file edits and offline verification only. It does **not**
