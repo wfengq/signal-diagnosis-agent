@@ -131,7 +131,6 @@ def validate_observed_facts_against_evidence(
     evidence: tuple[Evidence, ...] | list[Evidence],
     observed_facts: tuple[ObservedFact, ...],
 ) -> None:
-    """Reject facts that are not display-eligible field-faithful same-run copies."""
     by_id = {item.evidence_id: item for item in evidence}
     for fact in observed_facts:
         source = by_id.get(fact.evidence_id)
