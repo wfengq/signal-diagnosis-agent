@@ -9,10 +9,7 @@ from pathlib import Path
 import pytest
 
 from signal_diag.evaluation.planner_ablation.v2.models import LabelReviewResult
-from signal_diag.evaluation.planner_ablation.v2.resource_models import (
-    BoundFact,
-    ReportedUsage,
-)
+from signal_diag.evaluation.planner_ablation.v2.resource_models import ReportedUsage
 from signal_diag.evaluation.planner_ablation.v2.resource_telemetry import (
     aggregate_resource_ledger,
 )
@@ -221,32 +218,43 @@ def test_duplicate_usage_for_same_send_blocks_exact() -> None:
     assert observation.exact_total_tokens is None
 
 
-def test_sparse_approved_proof_record_fails_binding() -> None:
+def test_sparse_approved_proof_record_fails_binding(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     bounds = _PROJECT_ROOT / _RESOURCE_BOUNDS
     text = bounds.read_text(encoding="utf-8")
     sparse_name = "planner_turn_ceiling"
-    payload = json.loads(
-        text.split("```json")[1].split("```")[0].strip()
-    )
+    payload = json.loads(text.split("```json")[1].split("```")[0].strip())
     for fact in payload["facts"]:
         if fact.get("name") == sparse_name:
             fact.clear()
             fact.update({"name": sparse_name, "status": "approved"})
-    patched = text.split("```json")[0] + "```json\n" + json.dumps(payload, indent=2) + "\n```\n"
+    patched = (
+        text.split("```json")[0]
+        + "```json\n"
+        + json.dumps(payload, indent=2)
+        + "\n```\n"
+    )
     digest = hashlib.sha256(patched.encode("utf-8")).hexdigest()
+    from signal_diag.evaluation.planner_ablation.v2 import sealing
 
-    def read_bytes(self: Path) -> bytes:
-        if self.name == "RESOURCE_BOUNDS.md":
-            return patched.encode("utf-8")
-        return Path.read_bytes(self)
+    bounds_path = bounds
 
-    import signal_diag.evaluation.planner_ablation.v2.sealing as sealing_mod
+    def read_text(self: Path, *args: object, **kwargs: object) -> str:
+        if self == bounds_path:
+            return patched
+        return Path.read_text(self, *args, **kwargs)  # type: ignore[arg-type]
 
-    monkeypatch = pytest.MonkeyPatch()
-    monkeypatch.setattr(Path, "read_bytes", read_bytes)
+    monkeypatch.setattr(Path, "read_text", read_text)
+
+    def patched_sha256(path: Path) -> str:
+        if path == bounds_path:
+            return digest
+        return sealing._sha256_file(path)
+
+    monkeypatch.setattr(sealing, "_sha256_file", patched_sha256)
     candidate = _candidate_with_proof_reference(_RESOURCE_BOUNDS, digest)
     result = validate_resource_candidate(candidate, repository_root=_PROJECT_ROOT)
-    monkeypatch.undo()
     assert f"proof_fact_incomplete_record:{sparse_name}" in result.reasons
 
 
@@ -270,7 +278,6 @@ def test_label_review_approved_not_bool_blocks(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     real_read = Path.read_bytes
-    body = (real_read(_PROJECT_ROOT / _RESOURCE_BOUNDS)).decode("utf-8")
     label_path = (
         _PROJECT_ROOT
         / "docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_2/LABEL_REVIEW.md"

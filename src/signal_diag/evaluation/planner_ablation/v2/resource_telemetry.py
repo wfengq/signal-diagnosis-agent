@@ -396,14 +396,17 @@ def _parent_link_blockers(events: tuple[dict[str, object], ...]) -> list[str]:
                         _order_blocker("sdk_attempt", send_id, "child_after_parent_end")
         if kind == "usage":
             send_id = _nonempty_text(event.get("send_id"))
+            attempt_id = _nonempty_text(event.get("attempt_id"))
             if send_id is not None:
-                s_meta = send_meta.get(send_id, {})
-                s_start = s_meta.get("start")
-                s_end = s_meta.get("end")
+                s_start = send_meta.get(send_id, {}).get("start")
                 if s_start is not None and mono < s_start:
                     blockers.append(f"usage_temporal_outside_send:{send_id}")
-                if s_end is not None and mono > s_end:
-                    blockers.append(f"usage_temporal_outside_send:{send_id}")
+            if attempt_id is not None:
+                a_start = attempt_meta.get(attempt_id, {}).get("start")
+                if a_start is not None and mono < a_start:
+                    blockers.append(
+                        f"usage_temporal_outside_attempt:{send_id or attempt_id}"
+                    )
 
     return blockers
 

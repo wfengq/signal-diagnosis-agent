@@ -1066,9 +1066,7 @@ def _dependency_identity_compatible(fact_dep: str, extension_dep: str) -> bool:
         return True
     if extension_dep.startswith("openai==") and fact_dep == extension_dep.split("==", 1)[1]:
         return True
-    if fact_dep.startswith("openai==") and fact_dep.split("==", 1)[1] == extension_dep:
-        return True
-    return False
+    return fact_dep.startswith("openai==") and fact_dep.split("==", 1)[1] == extension_dep
 
 
 def _bound_fact_binding_reasons(
@@ -1341,9 +1339,7 @@ def validate_resource_candidate(
                         disk_approval = _normalized_label_approval(structured)
                         if not disk_approval.get("approved"):
                             reasons.append("label_review_disk_not_approved")
-                        elif candidate.label_review.errors:
-                            reasons.append("label_review_content_mismatch")
-                        elif disk_approval != _candidate_label_approval(
+                        elif candidate.label_review.errors or disk_approval != _candidate_label_approval(
                             candidate.label_review
                         ):
                             reasons.append("label_review_content_mismatch")
