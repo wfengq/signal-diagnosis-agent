@@ -1217,14 +1217,18 @@ remain fixture-only.
 
 ### 21.8 Evidence scope and staged authority
 
-Within this definitions scope, the only new permitted unsealed evidence
-document name under
-`docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_2/` is
-`RESOURCE_BOUNDS.md`. Existing permitted unsealed names remain. The
-`protocol_seal/` prohibition for `study_s1_planner_ablation_dev_2` is retained.
-Historical digests, `dev_1` seal/reproducer assets, and accepted evaluation
-bundles remain immutable. Actual architecture allowlist edits occur only under
-a later offline implementation grant.
+Within this definitions scope, the permitted **new** unsealed evidence document
+names under
+`docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_2/` are
+`RESOURCE_BOUNDS.md` and `PRESEAL_BUDGET_STATUS.md`. Existing permitted
+unsealed names remain. `PRESEAL_BUDGET_STATUS.md` is a status board only: it
+must not be cited as a numeric bound-fact, capability, or provider
+`source_reference` proof file. Numeric bound facts continue to cite only
+`RESOURCE_BOUNDS.md` or `BUDGET_BOUNDS.md`. The `protocol_seal/` prohibition for
+`study_s1_planner_ablation_dev_2` is retained. Historical digests, `dev_1`
+seal/reproducer assets, and accepted evaluation bundles remain immutable.
+Actual architecture allowlist edits for proof-citation code occur only under a
+later offline implementation grant when required.
 
 Staged authority remains separate from these definitions:
 
@@ -1245,3 +1249,32 @@ bounds, `unavailable_retry_telemetry`, `unbound_label_review`, or
 preserve approved product request semantics, execution stays blocked; do not
 silently introduce product caps to make gates green. Offline acceptance must
 neither fabricate bound closure nor call a provider to test connectivity.
+
+### 21.9 Observation evidence versus worst-case bound proofs
+
+Additive clarification for `study_s1_planner_ablation_dev_2` preseal readiness.
+It does **not** change product request semantics, §19 / §20 / §21.1–21.8 event
+units, frozen V0.2 §§1–64, DSP thresholds, or the product planner default. It
+does **not** authorize formal seal, RealLLM campaign, provider connectivity
+probe, product request caps, commit, push, or merge.
+
+Formal resource-candidate readiness follows source-aware
+`assess_resource_budget` and `validate_resource_candidate`. Legacy
+`inspect_limits` remains a diagnostics record and may hard-code
+`seal_ready=false`; candidate validation must not retarget that path or invent
+product explicit-flag overrides to appease it.
+
+Offline observation tests prove observation **capability** and event-graph
+integrity only. A closed per-run ledger, fixture harness totals, or green
+offline schedule does **not** admit production worst-case planner-turn,
+SDK-attempt, HTTP-send, or token ceilings. Those ceilings each require an
+independent, applicable, authenticated proof under §21.3 / §21.7. Preseal work
+must **not** require executing a formal RealLLM study campaign to obtain a
+ledger before seal.
+
+Honest partial closure is permitted: some source-aware blockers may remain
+`blocked` while others close. Definitions and status boards must not force
+candidate `seal_ready=true` to finish a documentation wave. Recording an
+installed SDK digest clears nothing until the installed tuple yields a
+supported profile, required hook coverage, and capability/proof identity
+agreement under the same checks used by `assess_resource_budget`.

@@ -129,6 +129,28 @@ $ git diff --check
 
 Required skip/xfail: **none**. Live-model gate: **not invoked**. Wheel smoke: **not required** (no packaging change).
 
+## Preseal budget status (Tasks 1–3 docs / definitions)
+
+Additive pointer only. Historical Task 7 / telemetry offline-acceptance text
+above remains the harness record.
+
+| Field | Value |
+|-------|-------|
+| Status board | `PRESEAL_BUDGET_STATUS.md` |
+| SDK re-audit | `RESOURCE_BOUNDS.md` §7 (2026-10-03) |
+| Contract | `CONTRACTS_V0_3_CONTEXTUAL.md` §21.9 |
+| Test IDs | T-CX324–T-CX325 (new); T-CX299 / T-CX303–318 mapped for existing telemetry obligations |
+| Readiness authority | source-aware `assess_resource_budget` / `validate_resource_candidate` |
+| Legacy `inspect_limits` | diagnostics only; still `execution_blocked=true` / `seal_ready=false` |
+| Installed `openai` vs lock | `3.6.0` / `3.6.0` (match) |
+| Reviewed capability identity | still `openai==3.20.0` → audited profile **unsupported** on this install |
+| Formal candidate `seal_ready` | **false** (honest partial closure) |
+| `protocol_seal/` | **absent** |
+| RealLLM / product gates | **not** authorized by Tasks 1–3 |
+
+Green offline harness and a closed ledger do **not** admit worst-case ceilings
+and do **not** require a campaign before seal (§21.9).
+
 ## Honest readiness statement
 
 Green offline acceptance and green provenance **refusal** tests demonstrate that:

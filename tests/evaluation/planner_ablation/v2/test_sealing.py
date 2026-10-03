@@ -527,4 +527,5 @@ def test_no_real_seal_under_dev2_evidence_root() -> None:
         "LABEL_REVIEW.md",
         "BUDGET_BOUNDS.md",
         "RESOURCE_BOUNDS.md",
+        "PRESEAL_BUDGET_STATUS.md",
     }

@@ -76,8 +76,10 @@ This writing-plans document authorizes **plan text only**. It does not authorize
 ## Current grant for this document
 
 ```text
-授权 OQ-019 / study_s1_planner_ablation_dev_2 预封预算闭合 writing-plans revise only。
-修正计划文本；不执行 Tasks 1–6；不 seal；不 RealLLM campaign；不改产品诊断门。
+授权 OQ-019/dev_2 预封预算闭合：按修订后计划 Tasks 1–3 文档与定义；
+新增 observable 写入 additive CONTRACTS/TEST_PLAN；已有义务仅映射。
+不改 legacy inspect_limits；不 seal；不 RealLLM；不改产品诊断门。
+commit/push 另授。
 ```
 
 ---
@@ -112,14 +114,14 @@ Clearance classes (use exactly these labels):
 
 Steps:
 
-- [ ] Create `PRESEAL_BUDGET_STATUS.md` with two tables:
+- [x] Create `PRESEAL_BUDGET_STATUS.md` with two tables:
   - **Legacy diagnostics** (`inspect_limits` blockers). Column “affects formal candidate seal_ready?” is **no** for all rows unless a later design explicitly changes that policy.
   - **Source-aware candidate blockers** from `assess_resource_budget` / `validate_resource_candidate` (capability, proofs, HTTP factor, token ceilings, route acceptance, dependency identity).
-- [ ] For each source-aware blocker: class, evidence pointer, residual risk, closed/partial/blocked.
-- [ ] Record HEAD commit, `contextual_product_tree_sha256`, openai install vs `uv.lock`, and that D039 is on HEAD (not a budget mutation).
-- [ ] State honest completion: partial closure is allowed; never force candidate `seal_ready=true` to finish the plan.
-- [ ] Explicitly forbid treating green offline harness tests or a campaign ledger as worst-case budget proof.
-- [ ] Do not commit/push unless a separate docs commit grant is issued for Tasks 1–3.
+- [x] For each source-aware blocker: class, evidence pointer, residual risk, closed/partial/blocked.
+- [x] Record HEAD commit, `contextual_product_tree_sha256`, openai install vs `uv.lock`, and that D039 is on HEAD (not a budget mutation).
+- [x] State honest completion: partial closure is allowed; never force candidate `seal_ready=true` to finish the plan.
+- [x] Explicitly forbid treating green offline harness tests or a campaign ledger as worst-case budget proof.
+- [x] Commit/push under separate docs commit grant for Tasks 1–3.
 
 ## Task 2: Re-audit installed SDK / transport tuple (docs)
 
@@ -127,13 +129,13 @@ Steps:
 
 Steps:
 
-- [ ] Hash the installed openai / `httpx` / `httpcore` identity that study observation can attach to.
-- [ ] Confirm the installed tuple yields a **supported** SDK profile under the same checks used by `assess_resource_budget` (supported flag, policy/schema match, hook coverage for planner turns / repairs / SDK attempts / HTTP sends / usage, and capability vs proof openai_version agreement).
-- [ ] Recording digests alone does **not** clear SDK gates; unsupported profile or incomplete hooks remain blockers.
-- [ ] Recompute whether admitted SDK default timeout/retry facts still match; keep non-override flags honest.
-- [ ] Leave `unproved_http_send_bound` and failed-attempt token exposure residual unless new independent proofs exist.
-- [ ] Do not call provider APIs.
-- [ ] Do not commit/push unless a separate docs commit grant is issued.
+- [x] Hash the installed openai / `httpx` / `httpcore` identity that study observation can attach to.
+- [x] Confirm the installed tuple yields a **supported** SDK profile under the same checks used by `assess_resource_budget` (supported flag, policy/schema match, hook coverage for planner turns / repairs / SDK attempts / HTTP sends / usage, and capability vs proof openai_version agreement).
+- [x] Recording digests alone does **not** clear SDK gates; unsupported profile or incomplete hooks remain blockers.
+- [x] Recompute whether admitted SDK default timeout/retry facts still match; keep non-override flags honest.
+- [x] Leave `unproved_http_send_bound` and failed-attempt token exposure residual unless new independent proofs exist.
+- [x] Do not call provider APIs.
+- [x] Commit/push under separate docs commit grant.
 
 ## Task 3: Define observation vs bound-proof contracts (definitions)
 
@@ -141,13 +143,13 @@ Steps:
 
 Steps:
 
-- [ ] Specify that default product requests remain observation-off.
-- [ ] Specify that offline observation tests prove capability and event-graph integrity only.
-- [ ] Specify that planner-call, SDK-attempt, HTTP-send, and token worst-case ceilings each require independent admitted proofs; a closed per-run ledger does not prove future worst case.
-- [ ] Specify that preseal does **not** require executing a formal RealLLM campaign to obtain a ledger before seal.
-- [ ] Forbid mock SDK totals and approval booleans as substitutes for proofs/capability.
-- [ ] Draft additive contract/test IDs when new observables are introduced; stop for operator acceptance of those definitions before Tasks 4–6.
-- [ ] Do not commit/push unless a separate docs commit grant is issued.
+- [x] Specify that default product requests remain observation-off.
+- [x] Specify that offline observation tests prove capability and event-graph integrity only.
+- [x] Specify that planner-call, SDK-attempt, HTTP-send, and token worst-case ceilings each require independent admitted proofs; a closed per-run ledger does not prove future worst case.
+- [x] Specify that preseal does **not** require executing a formal RealLLM campaign to obtain a ledger before seal.
+- [x] Forbid mock SDK totals and approval booleans as substitutes for proofs/capability.
+- [x] Draft additive contract/test IDs when new observables are introduced; stop for operator acceptance of those definitions before Tasks 4–6.
+- [x] Commit/push under separate docs commit grant.
 
 ## Task 4: Offline implementation — observation capability binding
 
