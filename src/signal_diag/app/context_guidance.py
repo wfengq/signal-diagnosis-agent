@@ -106,6 +106,7 @@ def _fact_matches_source(fact: ObservedFact, source: Evidence) -> bool:
         and fact.source_tool == source.source_tool
         and fact.call_id == source.call_id
         and fact.metric == source.metric
+        and type(fact.value) is type(source.value)
         and fact.value == source.value
         and fact.unit == source.unit
         and fact.validity == source.validity
