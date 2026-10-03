@@ -6,6 +6,9 @@ function appendText(parent, tagName, value, className = "") {
   return element;
 }
 
+/** When false, submit-run stays disabled (planner health gate). */
+let plannerHealthAllowsSubmit = false;
+
 /** Client-held test WAV for D037 upgrade resubmits (cleared on reload). */
 const heldTestSignal = {
   blob: null,
@@ -87,6 +90,47 @@ async function apiJson(path) {
     throw error;
   }
   return payload;
+}
+
+function setSubmitRunEnabled() {
+  const submit = document.getElementById("submit-run");
+  if (submit) submit.disabled = !plannerHealthAllowsSubmit;
+}
+
+function renderPlannerReadiness(health) {
+  const panel = document.getElementById("lifecycle-panel");
+  panel.replaceChildren();
+  appendText(panel, "h2", "Lifecycle");
+  const identity = health && health.planner_identity ? health.planner_identity : {};
+  if (health && health.planner_configured) {
+    appendText(
+      panel,
+      "p",
+      `Planner ready (${identity.provider} / ${identity.model} / ${identity.prompt_version}).`,
+      "planner-readiness",
+    );
+  } else {
+    appendText(
+      panel,
+      "p",
+      `Diagnosis requires RealLLMPlanner configured (set ${"DEEPSEEK_" + "API" + "_KEY"}). The application does not fall back to ScriptedPlanner.`,
+      "planner-readiness",
+    );
+  }
+  appendText(panel, "p", "No run yet.", "muted");
+}
+
+function renderPlannerHealthFailure() {
+  const panel = document.getElementById("lifecycle-panel");
+  panel.replaceChildren();
+  appendText(panel, "h2", "Lifecycle");
+  appendText(
+    panel,
+    "p",
+    "Could not load planner readiness from /api/v1/health.",
+    "planner-readiness",
+  );
+  appendText(panel, "p", "No run yet.", "muted");
 }
 
 function renderLifecycle(status) {
@@ -507,6 +551,18 @@ async function loadEvaluation() {
   renderEvaluation(summary);
 }
 
+async function loadPlannerHealth() {
+  try {
+    const health = await apiJson("/api/v1/health");
+    plannerHealthAllowsSubmit = Boolean(health.planner_configured);
+    renderPlannerReadiness(health);
+  } catch (_error) {
+    plannerHealthAllowsSubmit = false;
+    renderPlannerHealthFailure();
+  }
+  setSubmitRunEnabled();
+}
+
 async function loadPresets() {
   const presets = await apiJson("/api/v1/presets");
   const select = document.getElementById("preset-id");
@@ -638,7 +694,7 @@ async function submitDiagnose(event) {
   } catch (error) {
     showError(error instanceof Error ? error.message : String(error));
   } finally {
-    submit.disabled = false;
+    setSubmitRunEnabled();
   }
 }
 
@@ -682,6 +738,7 @@ async function submitUpgradeNominal() {
 }
 
 function bindUi() {
+  setSubmitRunEnabled();
   document.getElementById("diagnose-form").addEventListener("submit", submitDiagnose);
   document
     .getElementById("diagnostic-mode")
@@ -707,6 +764,11 @@ function bindUi() {
   }
   setUpgradeControlsVisible(false);
   updateContextualFields();
+  loadPlannerHealth().catch(() => {
+    plannerHealthAllowsSubmit = false;
+    renderPlannerHealthFailure();
+    setSubmitRunEnabled();
+  });
   loadPresets().catch((error) => {
     showError(error instanceof Error ? error.message : String(error));
   });

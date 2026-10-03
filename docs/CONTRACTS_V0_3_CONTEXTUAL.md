@@ -665,6 +665,10 @@ endpoint as `mode=single_signal`. Legacy `POST /api/v1/runs/wav` remains for
 compatibility and does not gain `context_guidance`. Nominal Hz must never be
 auto-filled from measured F0.
 
+On load the Web UI may call `GET /api/v1/health` to surface
+`planner_configured` readiness (non-secret `planner_identity` fields only; never
+API keys or base URLs) and disable submit when the planner is not configured.
+
 ## 18. Demo preset WAV materialization and held-bytes upgrade (D037 UI)
 
 Additive read-only route (no planner credentials):
