@@ -19,24 +19,24 @@ from signal_diag.agent.telemetry import (
     emit_safely,
 )
 
-# Reviewed capability identity from RESOURCE_BOUNDS.md (openai==3.20.0 audit).
-_AUDITED_OPENAI_VERSION = "3.20.0"
+# Reviewed capability identity from RESOURCE_BOUNDS.md §7 (lock-aligned openai==3.6.0).
+_AUDITED_OPENAI_VERSION = "3.6.0"
 _AUDITED_OPENAI_SOURCE_DIGESTS: dict[str, str] = {
     "openai/__init__.py": (
-        "df04adb6b7a4481956342b4dbadeb9b8555e789e2efd1f8469fa6ddb4d22f7a8"
+        "2c6e2a8d358b4bd705fa019a0d5b10d5b457591cf699e53b8aff36d9ba30fb1d"
     ),
     "openai/_base_client.py": (
-        "7a0a173edf3fadb6b310895d5db6fa0b14264bdaa25b33dd4eb29d860a82639b"
+        "53dc8c82344056600a08f51df158956827bdcc1a15cd4d3e1ce905a22663bd4c"
     ),
     "openai/_client.py": (
-        "0e2ab3a8fd22a55c9312cd712c9b38948566121a6384a0b29ed55b7f3390de26"
+        "e2421659ea3ebd4ede9c940ae449e3cea65c096f21d97a1ece44f194aeda85ae"
     ),
     "openai/_constants.py": (
         "eeccbc82822f0e4372f42f666afd1d1e1fe80cb2ef71357018a0170ac6b9ce32"
     ),
 }
 _AUDITED_OPENAI_AGGREGATE_DIGEST = (
-    "ad8a3f7783180a170f5fd054998e0add17351411ca9705b4fcde767ee02f0765"
+    "a4a2193775e68b1497d61c84ad851e785597db0f0a2a443856d3b890fa412e47"
 )
 _AUDITED_HTTPX_VERSION = "0.28.1"
 _AUDITED_HTTPCORE_VERSION = "1.0.9"

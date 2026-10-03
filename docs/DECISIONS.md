@@ -657,3 +657,23 @@ seal, RealLLM campaign, HEAD quality claims, planner-ablation budget or
 ledger changes, or merge of an implementation PR.
 
 Related: OQ-013 hygiene remains D032/D034/D035; product-behavior → D039.
+
+## D040 — OQ-019/dev_2 reviewed SDK capability rebind to lock `openai==3.6.0`
+
+**Decision (operator authorize-execute 2026-10-03):** Rebind the reviewed
+observation capability identity in `provider_telemetry` from the prior
+`openai==3.20.0` audit tuple to the lock-aligned installed
+`openai==3.6.0` digests recorded in `RESOURCE_BOUNDS.md` §7, so
+`build_audited_sdk_observation_profile().supported` is true when install
+matches `uv.lock`.
+
+Append-only product-tree bridge:
+`d040_preseal_sdk_capability_rebind` in
+`study_v0_3_contextual_dev_1/code_identity_amendment.json`. Prompt, causal
+policy, DSP thresholds, and product diagnosis gates are unchanged.
+
+**Not authorized by this decision:** inventing HTTP send factor `H` or token
+ceilings; setting `model_mapping_accepted=true`; creating `protocol_seal/`;
+RealLLM campaign; retargeting legacy `inspect_limits`.
+
+Related: OQ-019 / D038 preseal residual `environment_rebind`.

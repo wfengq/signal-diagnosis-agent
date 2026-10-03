@@ -33,7 +33,7 @@ def _assessment() -> ResourceAssessment:
             applicable_path="runtime",
             proof_digest="a" * 64,
             code_identity="b" * 64,
-            dependency_identity="openai==3.20.0",
+            dependency_identity="openai==3.6.0",
             acceptance_reference="fixture",
         ),
         sdk_attempt_factor=BoundFact(
@@ -44,11 +44,11 @@ def _assessment() -> ResourceAssessment:
             applicable_path="retry",
             proof_digest="a" * 64,
             code_identity="b" * 64,
-            dependency_identity="openai==3.20.0",
+            dependency_identity="openai==3.6.0",
             acceptance_reference="fixture",
         ),
         sdk_profile=SdkProfileAudit(
-            openai_version="3.20.0",
+            openai_version="3.6.0",
             openai_source_digest="c" * 64,
             native_http_family="httpx",
             native_http_version="0.28.1",
