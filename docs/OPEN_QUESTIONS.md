@@ -251,6 +251,13 @@ Minimal proposed change: Keep frozen §§1–64 byte-stable. Document in AGENTS.
 Compatibility impact: Documentation and additive V0.3 contract header hygiene only until a separate design decides whether single_signal must regain v8.1 semantics.
 Test impact: None for sealed T001–T285 identities. Focused tests already lock PROMPT_VERSION == v0.3-s1-planner-9.11 and phase4_certified_default is False.
 User decision: hygiene path approved 2026-09-29; product-behavior resolution remains deferred pending a separate design
+Follow-up (2026-10-03): product-behavior path C approved as D039 —
+keep v9.11 gates; add deterministic single-file `observed_facts` on
+`context_guidance` per
+docs/superpowers/specs/2026-10-03-single-file-observed-facts-design.md.
+Does not restore v8.1 harmonic supported_fault. Implementation requires a
+separate grant (contracts §17, T-CX319+, app code, code-identity row).
+Hygiene disposition (D032/D034/D035) unchanged.
 ```
 
 ---

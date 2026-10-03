@@ -627,3 +627,33 @@ Not authorized by this decision:
   plan and preregistration.
 
 Related: OQ-019 resolved as study-shape approved 2026-09-30.
+
+## D039 — OQ-013 product-behavior path C (single-file observed facts)
+
+**Decision (operator 2026-10-03):** Resolve the deferred OQ-013
+**product-behavior** fork as path C. Do not restore v8.1 harmonic
+`supported_fault` on `single_signal`. Keep prompt
+`v0.3-s1-planner-9.11` and causal policy
+`v9_11_mode_aware_no_fault_recovery`.
+
+Approve the design in
+`docs/superpowers/specs/2026-10-03-single-file-observed-facts-design.md`:
+
+1. Extend contextual `context_guidance` with deterministic
+   `observed_facts` copied from same-run valid Evidence.
+2. Use a display whitelist independent of the §17 reason-selection metric
+   set. First phase: `thd_percent` from `analyze_harmonic_distortion` only.
+3. Empty `observed_facts` is valid. No zero-fill, no derived metrics, no
+   soft diagnosis copy.
+4. Frozen V0.2 DTOs and `diagnose wav` stay unchanged.
+5. Implementation (later grant) must amend CONTRACTS_V0_3 §17, register
+   tests from T-CX319 if still free, and append a new code-identity row
+   when the live product-tree digest changes. Preserve prior identity rows
+   (including D038 / PR #21). Digest change is not prompt/policy identity
+   change and not quality certification.
+
+**Not authorized by this decision:** product or contract implementation,
+seal, RealLLM campaign, HEAD quality claims, planner-ablation budget or
+ledger changes, or merge of an implementation PR.
+
+Related: OQ-013 hygiene remains D032/D034/D035; product-behavior → D039.
