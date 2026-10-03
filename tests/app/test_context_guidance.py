@@ -4,23 +4,32 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+from pydantic import ValidationError
+
 from signal_diag.agent.models import (
     AgentRunResult,
     DiagnosisClaim,
     StructuredDiagnosis,
 )
-from signal_diag.app.context_guidance import ContextGuidance, build_context_guidance
+from signal_diag.app.context_guidance import (
+    ContextGuidance,
+    ObservedFact,
+    build_context_guidance,
+)
 from signal_diag.app.contextual_models import (
     ContextualAppRunSnapshot,
     ContextualDiagnosisReport,
 )
 from signal_diag.app.contextual_reporting import build_contextual_diagnosis_report
+from signal_diag.app.errors import TraceIntegrityError
 from signal_diag.app.models import (
     PlannerIdentity,
     SourceSummary,
     WaveformPoint,
     WaveformPreview,
 )
+from signal_diag.evaluation.planner_ablation.models import StudyObservedFactView
 from signal_diag.signal.context import EffectiveCapabilities, StimulusContext
 from signal_diag.signal.models import TimeRange
 from signal_diag.tools.evidence import Evidence
@@ -359,3 +368,78 @@ def test_observed_facts_dedupe_keeps_smaller_evidence_id() -> None:
     assert len(guidance.observed_facts) == 1
     assert guidance.observed_facts[0].evidence_id == "ev_a_lo"
     assert guidance.observed_facts[0].value == 12.65
+
+
+def _qualifying_fact(**overrides: object) -> ObservedFact:
+    payload: dict[str, object] = {
+        "evidence_id": "ev_rt_001",
+        "source_tool": "analyze_harmonic_distortion",
+        "call_id": "call_analyze_harmonic_distortion_000000",
+        "metric": "thd_percent",
+        "value": 12.65,
+        "unit": "%",
+        "validity": "valid",
+        "time_range": TimeRange(start_s=0.0, end_s=1.0),
+        "channel": "mixdown",
+    }
+    payload.update(overrides)
+    return ObservedFact.model_validate(payload)
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), float("-inf")])
+def test_observed_fact_model_rejects_non_finite_float(bad: float) -> None:
+    with pytest.raises(ValidationError):
+        _qualifying_fact(value=bad)
+    with pytest.raises(ValidationError):
+        StudyObservedFactView.model_validate(
+            {
+                "evidence_id": "ev_rt_001",
+                "source_tool": "analyze_harmonic_distortion",
+                "call_id": "call_analyze_harmonic_distortion_000000",
+                "metric": "thd_percent",
+                "value": bad,
+                "unit": "%",
+                "channel": "mixdown",
+            }
+        )
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    [
+        {"evidence_id": "ev_missing_999"},
+        {"value": 99.0},
+        {"channel": "left"},
+    ],
+)
+def test_report_rejects_observed_facts_inconsistent_with_evidence(
+    tamper: dict[str, object],
+) -> None:
+    tr = TimeRange(start_s=0.0, end_s=1.0)
+    ev = _evidence(
+        metric="thd_percent",
+        value=12.65,
+        evidence_id="ev_rt_001",
+        time_range=tr,
+    )
+    result = _result(outcome="inconclusive", evidence=(ev,))
+    guidance = build_context_guidance(mode="single_signal", result=result)
+    assert guidance is not None
+    assert len(guidance.observed_facts) == 1
+    tampered = guidance.observed_facts[0].model_copy(update=tamper)
+    broken_guidance = guidance.model_copy(update={"observed_facts": (tampered,)})
+    snapshot = _single_signal_snapshot(result=result, context_guidance=broken_guidance)
+    with pytest.raises(TraceIntegrityError):
+        build_contextual_diagnosis_report(snapshot, generated_at=GENERATED)
+
+    good_report = build_contextual_diagnosis_report(
+        _single_signal_snapshot(result=result, context_guidance=guidance),
+        generated_at=GENERATED,
+    )
+    payload = good_report.model_dump(mode="json")
+    assert payload["context_guidance"] is not None
+    fact_payload = dict(payload["context_guidance"]["observed_facts"][0])
+    fact_payload.update(tamper)
+    payload["context_guidance"]["observed_facts"] = [fact_payload]
+    with pytest.raises(ValidationError):
+        ContextualDiagnosisReport.model_validate(payload)
