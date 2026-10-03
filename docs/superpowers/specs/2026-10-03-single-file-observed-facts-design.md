@@ -1,10 +1,12 @@
 # Single-file observed facts on context guidance (OQ-013 path C)
 
-**Status:** design approved for documentation (operator 2026-10-03).
-Implementation, contract mutation, test registration, product code, and merge
-of an implementation PR are **not** authorized by this document alone.
+**Status:** design approved (operator `spec ok` 2026-10-03). Implementation
+plan written; contract mutation, test registration, product code, and merge of
+an implementation PR still require a separate `授权实现` grant.
 
 **Date:** 2026-10-03
+
+**Plan:** `docs/superpowers/plans/2026-10-03-single-file-observed-facts.md`
 
 **Product decisions:** D037 (single-file default); this design → **D039**
 (OQ-013 product-behavior path C)
