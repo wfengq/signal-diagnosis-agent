@@ -11,11 +11,12 @@ from __future__ import annotations
 import json
 import os
 import platform
+import re
 import subprocess
 from hashlib import sha256
 from importlib import metadata
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from signal_diag.evaluation.planner_ablation.v2.campaign import inspect_limits
 from signal_diag.evaluation.planner_ablation.v2.labels import validate_labels
@@ -43,9 +44,29 @@ from signal_diag.evaluation.planner_ablation.v2.population import (
     load_proposed_scenarios,
     normalize_question,
 )
+from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+    BoundFact,
+    InstalledSdkIdentity,
+    ResourceCandidateExtension,
+    ResourceCandidateValidation,
+    VerifiedResourceAdmission,
+)
 
 _CHECKSUM_LINE = "{digest}  {name}\n"
 _DEV1_STUDY_ID = "study_s1_planner_ablation_dev_1"
+_STUDY_EVIDENCE_DIR = (
+    "docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_2/"
+)
+_STUDY_EVIDENCE_FILES = frozenset(
+    {
+        "RESOURCE_BOUNDS.md",
+        "BUDGET_BOUNDS.md",
+        "LABEL_REVIEW.md",
+        "OFFLINE_ACCEPTANCE.md",
+        "design_inputs.md",
+    }
+)
+_LABEL_REVIEW_REL = _STUDY_EVIDENCE_DIR + "LABEL_REVIEW.md"
 _PACKAGE_REL = Path("src/signal_diag")
 _PRODUCT_PACKAGE_DIRS = (
     "signal",
@@ -77,6 +98,7 @@ _DEPENDENCY_NAMES = (
     "PyYAML",
     "fastapi",
     "httpx",
+    "openai",
 )
 _EXCLUDED_SUFFIXES = frozenset({".pyc", ".pyo"})
 _EXCLUDED_NAME_PARTS = ("__pycache__", ".git")
@@ -100,6 +122,25 @@ def _canonical_payload(payload: object) -> bytes:
 
 def _digest_payload(payload: object) -> str:
     return _sha256_bytes(_canonical_payload(payload))
+
+
+def _repo_file_matches_digest(
+    repository_root: Path,
+    reference: str | None,
+    expected_digest: str,
+) -> bool:
+    """True when ``reference`` is a file under the repository with ``expected_digest``."""
+    if not reference:
+        return False
+    try:
+        evidence_path = resolve_under_root(
+            repository_root.resolve(), reference, label="evidence"
+        )
+    except ValueError:
+        return False
+    if not evidence_path.is_file():
+        return False
+    return _sha256_file(evidence_path) == expected_digest
 
 
 def resolve_under_root(root: Path, relative: str, *, label: str) -> Path:
@@ -335,6 +376,7 @@ def _candidate_digest_payload(
     effective_configuration: EffectiveConfiguration | None,
     budget: BudgetAssessment | None,
     question: str,
+    resource_extension: dict[str, object] | None = None,
 ) -> dict[str, object]:
     return {
         "budget_assessment": None if budget is None else budget.model_dump(mode="json"),
@@ -352,6 +394,7 @@ def _candidate_digest_payload(
         "operator_authorization_references": list(operator_authorization_references),
         "protocol": protocol.model_dump(mode="json"),
         "question": question,
+        "resource_extension": resource_extension,
         "scenario_aliases": dict(sorted(scenario_aliases.items())),
         "scenarios": [s.model_dump(mode="json") for s in scenarios],
         "schedule_digest": schedule_digest,
@@ -474,6 +517,8 @@ def build_candidate_manifest(
     operator_authorization_references: tuple[str, ...] = (),
     environment_notes: tuple[str, ...] = (),
     code_bindings: CodeBindingsV2 | None = None,
+    resource_extension: dict[str, object] | None = None,
+    installed_sdk_identity: InstalledSdkIdentity | None = None,
 ) -> CandidateManifestV2:
     """Assemble a candidate from verified inputs under the declared roots."""
     repo = repository_root.resolve()
@@ -530,9 +575,10 @@ def build_candidate_manifest(
             effective_configuration=effective_configuration,
             budget=budget,
             question=normalized_question,
+            resource_extension=resource_extension,
         )
     )
-    return CandidateManifestV2(
+    candidate = CandidateManifestV2(
         protocol=protocol,
         scenarios=scenarios,
         schedule_digest=schedule.schedule_digest,
@@ -547,10 +593,22 @@ def build_candidate_manifest(
         operator_authorization_references=operator_authorization_references,
         effective_configuration=effective_configuration,
         budget_assessment=budget,
+        resource_extension=resource_extension,
         question=normalized_question,
         seal_ready=seal_ready,
         candidate_digest=candidate_digest,
     )
+    if resource_extension is not None:
+        # Resource readiness does not consult the legacy explicit-flag gate.
+        validation = validate_resource_candidate(
+            candidate,
+            repository_root=repo,
+            installed_sdk_identity=installed_sdk_identity,
+        )
+        candidate = candidate.model_copy(
+            update={"seal_ready": bool(validation.ready and not validation.fixture_only)}
+        )
+    return candidate
 
 
 def _refuse_dev1_destination(destination: Path) -> None:
@@ -573,8 +631,20 @@ def _require_seal_grant_for_real_evidence(destination: Path) -> None:
         )
 
 
-def generate_seal(candidate: CandidateManifestV2, destination: Path) -> Path:
-    """Write a new seal directory exclusively. Never deletes or replaces."""
+def generate_seal(
+    candidate: CandidateManifestV2,
+    destination: Path,
+    *,
+    repository_root: Path | None = None,
+    legacy_fixture_seal: bool = False,
+    installed_sdk_identity: InstalledSdkIdentity | None = None,
+) -> Path:
+    """Write a new seal directory exclusively. Never deletes or replaces.
+
+    Production seals require a fully validated resource_extension. The legacy
+    fixture path (no resource_extension) is available only when
+    ``legacy_fixture_seal=True`` for temporary pytest reproduction.
+    """
     _refuse_dev1_destination(destination)
     _require_seal_grant_for_real_evidence(destination)
     if candidate.study_id != STUDY_ID_V2:
@@ -589,6 +659,36 @@ def generate_seal(candidate: CandidateManifestV2, destination: Path) -> Path:
         raise ValueError(
             "candidate is not seal-ready; complete effective limits and clear blockers"
         )
+    if candidate.resource_extension is None:
+        if not legacy_fixture_seal:
+            raise ValueError(
+                "production generate_seal requires validated resource_extension; "
+                "pass legacy_fixture_seal=True only for isolated fixture reproduction"
+            )
+    else:
+        if repository_root is None:
+            raise ValueError(
+                "repository_root required when candidate includes resource_extension"
+            )
+        validation = validate_resource_candidate(
+            candidate,
+            repository_root=repository_root.resolve(),
+            installed_sdk_identity=installed_sdk_identity,
+        )
+        if any(
+            reason.startswith("invalid_resource_extension")
+            or reason == "missing_resource_extension"
+            for reason in validation.reasons
+        ):
+            raise ValueError(
+                "resource_extension invalid for generate_seal: "
+                + ",".join(validation.reasons)
+            )
+        if not validation.ready:
+            raise ValueError(
+                "resource candidate not ready for generate_seal: "
+                + ",".join(validation.reasons)
+            )
     if len(candidate.slots) != SLOT_COUNT_V2:
         raise ValueError("candidate slot count drift")
     if destination.exists():
@@ -610,6 +710,7 @@ def generate_seal(candidate: CandidateManifestV2, destination: Path) -> Path:
         "code_identity": candidate.code_identity,
         "implementation_commit": candidate.code_bindings.implementation_commit,
         "slot_count": len(candidate.slots),
+        "legacy_fixture_seal": bool(legacy_fixture_seal),
     }
     (destination / "manifest.json").write_text(
         json.dumps(manifest_payload, sort_keys=True, indent=2, allow_nan=False) + "\n",
@@ -805,6 +906,7 @@ def verify_manifest(
     *,
     repository_root: Path,
     input_root: Path,
+    installed_sdk_identity: InstalledSdkIdentity | None = None,
 ) -> VerifiedStudyV2:
     """Production constructor for Task 4 verified input. Read-only."""
     seal_dir = path.resolve()
@@ -843,6 +945,7 @@ def verify_manifest(
             effective_configuration=candidate.effective_configuration,
             budget=candidate.budget_assessment,
             question=candidate.question,
+            resource_extension=candidate.resource_extension,
         )
     )
     if recomputed != candidate.candidate_digest:
@@ -859,11 +962,44 @@ def verify_manifest(
         raise ValueError("code_identity field mismatch")
     schedule = _verify_inputs_and_schedule(candidate, input_root=input_root)
 
+    resource_policy = None
+    resource_extension: dict[str, object] | None = None
+    if candidate.resource_extension is not None:
+        validation = validate_resource_candidate(
+            candidate,
+            repository_root=repository_root.resolve(),
+            installed_sdk_identity=installed_sdk_identity,
+        )
+        if any(
+            reason.startswith("invalid_resource_extension")
+            or reason == "missing_resource_extension"
+            for reason in validation.reasons
+        ):
+            raise ValueError(
+                "resource_extension failed structural validation: "
+                + ",".join(validation.reasons)
+            )
+        if not validation.ready:
+            raise ValueError(
+                "resource_extension not production-ready under verify_manifest: "
+                + ",".join(validation.reasons)
+            )
+        resource_extension = candidate.resource_extension
+        if isinstance(resource_extension, dict) and resource_extension.get(
+            "resource_policy"
+        ):
+            resource_policy = str(resource_extension.get("resource_policy"))
+
+    construction_path: Literal["legacy_fixture_seal", "verify_manifest"]
+    if meta.get("legacy_fixture_seal") is True:
+        construction_path = "legacy_fixture_seal"
+    else:
+        construction_path = "verify_manifest"
     verified_identity = _digest_payload(
         {
             "candidate_digest": candidate.candidate_digest,
             "code_identity": candidate.code_identity,
-            "construction_path": "verify_manifest",
+            "construction_path": construction_path,
             "input_identity": candidate.input_identity,
             "schedule_digest": schedule.schedule_digest,
             "study_id": STUDY_ID_V2,
@@ -877,8 +1013,570 @@ def verify_manifest(
         verified_identity=verified_identity,
         input_identity=candidate.input_identity,
         code_identity=candidate.code_identity,
-        construction_path="verify_manifest",
+        construction_path=construction_path,
         pinned_causal_policy="v9_11_mode_aware_no_fault_recovery",
+        resource_policy=resource_policy,
+        resource_extension=resource_extension,
+    )
+
+
+_NUMERIC_BOUND_FILES = frozenset({"RESOURCE_BOUNDS.md", "BUDGET_BOUNDS.md"})
+_BOUND_FACTS_SCHEMA = "planner_ablation_bound_facts_v1"
+_LABEL_APPROVAL_SCHEMA = "planner_ablation_label_approval_v1"
+_JSON_FENCE = re.compile(r"```json\s*(\{.*?\})\s*```", re.DOTALL)
+
+
+def _parse_structured_fence(text: str, schema: str) -> dict[str, object] | None:
+    for match in _JSON_FENCE.finditer(text):
+        try:
+            payload = json.loads(match.group(1))
+        except json.JSONDecodeError:
+            continue
+        if isinstance(payload, dict) and payload.get("schema") == schema:
+            return payload
+    return None
+
+
+def _bound_facts_index(
+    path: Path,
+) -> tuple[dict[str, dict[str, object]] | None, tuple[str, ...]]:
+    payload = _parse_structured_fence(path.read_text(encoding="utf-8"), _BOUND_FACTS_SCHEMA)
+    if payload is None:
+        return None, ()
+    facts = payload.get("facts")
+    if not isinstance(facts, list):
+        return None, ()
+    index: dict[str, dict[str, object]] = {}
+    structural: list[str] = []
+    for item in facts:
+        if not isinstance(item, dict) or not isinstance(item.get("name"), str):
+            continue
+        name = str(item["name"])
+        if name in index:
+            structural.append(f"proof_structured_bounds_duplicate_fact:{name}")
+            continue
+        index[name] = item
+    if structural:
+        return None, tuple(dict.fromkeys(structural))
+    return index, ()
+
+
+def _dependency_identity_compatible(fact_dep: str, extension_dep: str) -> bool:
+    if fact_dep == extension_dep:
+        return True
+    if extension_dep.startswith("openai==") and fact_dep == extension_dep.split("==", 1)[1]:
+        return True
+    return fact_dep.startswith("openai==") and fact_dep.split("==", 1)[1] == extension_dep
+
+
+def _bound_fact_binding_reasons(
+    fact: BoundFact,
+    fact_name: str,
+    index: dict[str, dict[str, object]] | None,
+    structural_errors: tuple[str, ...],
+    extension: ResourceCandidateExtension,
+) -> tuple[str, ...]:
+    if structural_errors:
+        return structural_errors
+    if index is None:
+        return (f"proof_structured_bounds_missing:{fact_name}",)
+    record = index.get(fact_name)
+    if record is None:
+        return (f"proof_fact_unapproved:{fact_name}",)
+    status = str(record.get("status", "unknown"))
+    if status == "unknown":
+        return (f"proof_fact_unknown:{fact_name}",)
+    if status != "approved":
+        return (f"proof_fact_unapproved:{fact_name}",)
+    for field in (
+        "value",
+        "unit",
+        "scope",
+        "origin",
+        "applicable_path",
+        "code_identity",
+        "dependency_identity",
+    ):
+        if field not in record:
+            return (f"proof_fact_incomplete_record:{fact_name}",)
+    for field in (
+        "value",
+        "unit",
+        "scope",
+        "origin",
+        "applicable_path",
+        "code_identity",
+        "dependency_identity",
+        "model_identity",
+    ):
+        if field not in record:
+            continue
+        expected = record[field]
+        declared = getattr(fact, field)
+        if declared != expected:
+            return (f"proof_fact_field_mismatch:{fact_name}:{field}",)
+    if fact.code_identity != extension.code_identity:
+        return (f"proof_fact_code_identity_not_applicable:{fact_name}",)
+    if not _dependency_identity_compatible(
+        fact.dependency_identity, extension.provider_dependency_identity
+    ):
+        return (f"proof_fact_dependency_identity_not_applicable:{fact_name}",)
+    return ()
+
+
+def _normalized_label_approval(payload: dict[str, object]) -> dict[str, object]:
+    def _sorted_list(key: str) -> list[str]:
+        values = payload.get(key, [])
+        if not isinstance(values, list):
+            return []
+        return sorted(str(item) for item in values)
+
+    provenance = payload.get("review_provenance", [])
+    if not isinstance(provenance, list):
+        provenance = []
+    approved_raw = payload.get("approved")
+    approved = approved_raw if isinstance(approved_raw, bool) else False
+    return {
+        "reviewer": payload.get("reviewer"),
+        "study_id": payload.get("study_id"),
+        "approved": approved,
+        "review_status": payload.get("review_status"),
+        "review_provenance": sorted(str(item) for item in provenance),
+        "upgrade_population": _sorted_list("upgrade_population"),
+        "conditional_population": _sorted_list("conditional_population"),
+        "guidance_population": _sorted_list("guidance_population"),
+    }
+
+
+def _candidate_label_approval(review: LabelReviewResult) -> dict[str, object]:
+    provenance = sorted(str(item) for item in review.review_provenance)
+    reviewer = provenance[0] if provenance else None
+    return {
+        "reviewer": reviewer,
+        "study_id": STUDY_ID_V2,
+        "approved": review.approved,
+        "review_status": review.review_status,
+        "review_provenance": provenance,
+        "upgrade_population": sorted(str(item) for item in review.upgrade_population),
+        "conditional_population": sorted(
+            str(item) for item in review.conditional_population
+        ),
+        "guidance_population": sorted(str(item) for item in review.guidance_population),
+    }
+
+
+def _study_evidence_name(reference: str) -> str | None:
+    normalized = reference.replace("\\", "/").lstrip("./")
+    if not normalized.startswith(_STUDY_EVIDENCE_DIR):
+        return None
+    name = normalized[len(_STUDY_EVIDENCE_DIR) :]
+    if not name or "/" in name:
+        return None
+    return name
+
+
+def _bound_fact_file_applicable(reference: str) -> bool:
+    """Numeric bound facts cite RESOURCE_BOUNDS.md or BUDGET_BOUNDS.md only."""
+    return _study_evidence_name(reference) in _NUMERIC_BOUND_FILES
+
+
+def _evidence_reference_reasons(
+    repository_root: Path,
+    reference: str | None,
+    digest: str,
+    *,
+    allowed: frozenset[str],
+    inapplicable: str,
+    unauthenticated: str,
+) -> tuple[str, ...]:
+    name = _study_evidence_name(reference or "")
+    if name not in allowed:
+        return (inapplicable,)
+    if not _repo_file_matches_digest(repository_root, reference, digest):
+        return (unauthenticated,)
+    return ()
+
+
+def _is_sha256_hex(value: str | None) -> bool:
+    return (
+        isinstance(value, str)
+        and len(value) == 64
+        and all(ch in "0123456789abcdef" for ch in value)
+    )
+
+
+def _placeholder_seal_digest(value: str | None) -> bool:
+    if not _is_sha256_hex(value):
+        return True
+    assert value is not None
+    return len(set(value)) == 1
+
+
+def _placeholder_authorization(value: str | None) -> bool:
+    if value is None or not value.strip():
+        return True
+    lowered = value.strip().lower()
+    return lowered.startswith("not-") or "placeholder" in lowered
+
+
+def _online_seal_authorized(
+    repository_root: Path,
+    seal_digest: str,
+    candidate_digest: str,
+) -> bool:
+    """Tasks 1–7 do not authorize an online provider path.
+
+    A matching seal file would still be refused. The arguments are part of the
+    later grant's check and are unused while this revision stays offline.
+    """
+    _ = (repository_root, seal_digest, candidate_digest)
+    return False
+
+
+def validate_resource_candidate(
+    candidate: CandidateManifestV2,
+    *,
+    repository_root: Path,
+    installed_sdk_identity: InstalledSdkIdentity | None = None,
+) -> ResourceCandidateValidation:
+    """Recompute resource proofs/readiness without SDK client construction or seal writes."""
+    from signal_diag.evaluation.planner_ablation.v2.resource_budget import (
+        assess_resource_budget,
+    )
+    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+        ResourceCandidateExtension,
+    )
+
+    reasons: list[str] = []
+    extension_raw = candidate.resource_extension
+    if extension_raw is None:
+        return ResourceCandidateValidation(
+            ready=False,
+            reasons=("missing_resource_extension",),
+            assessment=None,
+            recomputed_extension_digest=None,
+            fixture_only=True,
+        )
+    try:
+        extension = ResourceCandidateExtension.model_validate(extension_raw)
+    except Exception as error:  # noqa: BLE001
+        return ResourceCandidateValidation(
+            ready=False,
+            reasons=(f"invalid_resource_extension:{type(error).__name__}",),
+            assessment=None,
+            recomputed_extension_digest=None,
+            fixture_only=True,
+        )
+
+    if extension.resource_policy != "planner_ablation_resource_v1":
+        reasons.append("resource_policy_mismatch")
+    if extension.telemetry_schema != "planner_ablation_telemetry_v1":
+        reasons.append("telemetry_schema_mismatch")
+    if extension.fixture_only:
+        reasons.append("fixture_only_resource_extension")
+
+    # Nested fixture markers are independent of the outer boolean.
+    if extension.proofs.fixture_only:
+        reasons.append("fixture_only_resource_proofs")
+    if extension.capability.fixture_only:
+        reasons.append("fixture_only_observation_capability")
+    if extension.proofs.sdk_profile is not None and extension.proofs.sdk_profile.fixture_only:
+        reasons.append("fixture_only_sdk_profile")
+    if (
+        extension.proofs.provider_limits is not None
+        and extension.proofs.provider_limits.fixture_only
+    ):
+        reasons.append("fixture_only_provider_limits")
+    if extension.assessment.fixture_only:
+        reasons.append("fixture_only_resource_assessment")
+
+    # Label review must bind approved population; caller booleans are insufficient.
+    if not candidate.label_review.approved:
+        reasons.append("label_review_not_approved")
+    label_digest = _digest_payload(candidate.label_review.model_dump(mode="json"))
+    if label_digest != extension.label_review_digest:
+        reasons.append("label_review_digest_mismatch")
+    population_digest = _digest_payload(
+        {
+            "conditional_population": list(candidate.label_review.conditional_population),
+            "guidance_population": list(candidate.label_review.guidance_population),
+            "upgrade_population": list(candidate.label_review.upgrade_population),
+        }
+    )
+    if population_digest != extension.label_population_digest:
+        reasons.append("label_population_digest_mismatch")
+    if not extension.fixture_only:
+        if extension.label_review_source_path != _LABEL_REVIEW_REL:
+            reasons.append("label_review_disk_path_mismatch")
+        else:
+            try:
+                label_path = resolve_under_root(
+                    repository_root.resolve(),
+                    extension.label_review_source_path,
+                    label="label_review",
+                )
+            except ValueError:
+                reasons.append("label_review_disk_path_mismatch")
+            else:
+                payload = label_path.read_bytes() if label_path.is_file() else None
+                if (
+                    payload is None
+                    or _sha256_bytes(payload) != extension.label_review_source_digest
+                ):
+                    reasons.append("label_review_disk_digest_mismatch")
+                else:
+                    structured = _parse_structured_fence(
+                        payload.decode("utf-8"), _LABEL_APPROVAL_SCHEMA
+                    )
+                    if structured is None:
+                        reasons.append("label_review_structured_approval_missing")
+                    else:
+                        approved_raw = structured.get("approved")
+                        if approved_raw is not None and not isinstance(
+                            approved_raw, bool
+                        ):
+                            reasons.append("label_review_approved_not_bool")
+                        disk_approval = _normalized_label_approval(structured)
+                        if not disk_approval.get("approved"):
+                            reasons.append("label_review_disk_not_approved")
+                        elif candidate.label_review.errors or disk_approval != _candidate_label_approval(
+                            candidate.label_review
+                        ):
+                            reasons.append("label_review_content_mismatch")
+
+    bindings = collect_code_bindings(repository_root.resolve())
+    if bindings.aggregate_code_identity != extension.code_identity:
+        reasons.append("code_identity_mismatch")
+    if "openai" not in bindings.dependency_versions:
+        reasons.append("missing_openai_dependency_binding")
+    elif extension.provider_dependency_identity not in {
+        f"openai=={bindings.dependency_versions['openai']}",
+        bindings.dependency_versions["openai"],
+    }:
+        reasons.append("provider_dependency_identity_mismatch")
+
+    # Proof origins / scopes recomputed via assess_resource_budget.
+    config = candidate.effective_configuration or EffectiveConfiguration()
+    assessment = assess_resource_budget(
+        config,
+        extension.proofs,
+        extension.capability,
+    )
+    if assessment.execution_blocked:
+        reasons.extend(assessment.blockers)
+        reasons.append("resource_assessment_blocked")
+    if assessment.model_dump(mode="json") != extension.assessment.model_dump(mode="json"):
+        reasons.append("assessment_recompute_mismatch")
+
+    # Capability must observe all required units and match proof SDK identity.
+    if not (
+        extension.capability.observes_planner_turns
+        and extension.capability.observes_repairs
+        and extension.capability.observes_sdk_attempts
+        and extension.capability.observes_http_sends
+        and extension.capability.observes_usage
+    ):
+        reasons.append("incomplete_observation_capability")
+    if extension.proofs.sdk_profile is None:
+        reasons.append("missing_sdk_profile_in_proofs")
+    elif (
+        extension.proofs.sdk_profile.openai_version
+        != extension.capability.sdk_profile.openai_version
+        or extension.proofs.sdk_profile.openai_source_digest
+        != extension.capability.sdk_profile.openai_source_digest
+    ):
+        reasons.append("capability_proof_sdk_identity_mismatch")
+    elif not extension.capability.sdk_profile.supported:
+        reasons.append("unsupported_capability_sdk_profile")
+
+    # Caller supplies installed identity. This module does not import the SDK.
+    if installed_sdk_identity is None:
+        reasons.append("installed_sdk_identity_unavailable")
+    elif extension.proofs.sdk_profile is not None:
+        proof_sdk = extension.proofs.sdk_profile
+        if proof_sdk.openai_version != installed_sdk_identity.openai_version:
+            reasons.append("installed_openai_version_mismatch")
+        if proof_sdk.openai_source_digest != installed_sdk_identity.openai_source_digest:
+            reasons.append("installed_openai_source_digest_mismatch")
+        if proof_sdk.native_http_family != installed_sdk_identity.native_http_family:
+            reasons.append("installed_native_http_family_mismatch")
+        if proof_sdk.native_http_version != installed_sdk_identity.native_http_version:
+            reasons.append("installed_native_http_version_mismatch")
+        if proof_sdk.httpcore_version != installed_sdk_identity.httpcore_version:
+            reasons.append("installed_httpcore_version_mismatch")
+        for relative, digest in proof_sdk.source_file_digests.items():
+            live = installed_sdk_identity.source_file_digests.get(relative)
+            if live is None:
+                reasons.append(f"missing_installed_sdk_source:{relative}")
+            elif live != digest:
+                reasons.append(f"sdk_source_content_mismatch:{relative}")
+        if not installed_sdk_identity.supported:
+            reasons.append("installed_sdk_profile_unsupported")
+            reasons.extend(installed_sdk_identity.blockers)
+
+    # Authenticate referenced proof/acceptance content and applicability scope.
+    for fact_name in (
+        "planner_turn_ceiling",
+        "sdk_attempt_factor",
+        "http_send_factor",
+        "input_token_ceiling",
+        "output_token_ceiling",
+        "all_outcome_token_ceiling",
+        "request_timeout",
+    ):
+        fact = getattr(extension.proofs, fact_name, None)
+        if fact is None:
+            continue
+        if fact.scope in {"unsupported", "fixture_only"}:
+            reasons.append(f"inapplicable_bound_scope:{fact_name}:{fact.scope}")
+        reference = fact.acceptance_reference
+        if reference in {"", "fixture", "fixture_only", "fixture_only_reviewed_fact"}:
+            reasons.append(f"unauthenticated_proof_acceptance:{fact_name}")
+            continue
+        if "/" not in reference and not reference.endswith(".md"):
+            reasons.append(f"proof_acceptance_reference_not_repo_path:{fact_name}")
+            continue
+        try:
+            evidence_path = resolve_under_root(
+                repository_root.resolve(), reference, label="proof"
+            )
+        except ValueError:
+            reasons.append(f"proof_acceptance_path_escape:{fact_name}")
+            continue
+        if not evidence_path.is_file():
+            reasons.append(f"missing_proof_acceptance_file:{fact_name}")
+            continue
+        if not _bound_fact_file_applicable(reference):
+            reasons.append(f"proof_acceptance_inapplicable_file:{fact_name}")
+            continue
+        actual = _sha256_file(evidence_path)
+        if actual != fact.proof_digest:
+            reasons.append(f"proof_acceptance_content_mismatch:{fact_name}")
+            continue
+        bound_index, structural_errors = _bound_facts_index(evidence_path)
+        reasons.extend(
+            _bound_fact_binding_reasons(
+                fact, fact_name, bound_index, structural_errors, extension
+            )
+        )
+
+    if not extension.capability.fixture_only:
+        reasons.extend(
+            _evidence_reference_reasons(
+                repository_root,
+                extension.capability.offline_evidence_reference,
+                extension.capability.offline_evidence_digest,
+                allowed=_NUMERIC_BOUND_FILES,
+                inapplicable="offline_evidence_inapplicable_file",
+                unauthenticated="unauthenticated_offline_evidence",
+            )
+        )
+    provider_limits = extension.proofs.provider_limits
+    if provider_limits is not None and not provider_limits.fixture_only:
+        reasons.extend(
+            _evidence_reference_reasons(
+                repository_root,
+                provider_limits.source_reference,
+                provider_limits.source_digest,
+                allowed=_NUMERIC_BOUND_FILES,
+                inapplicable="provider_limits_source_inapplicable_file",
+                unauthenticated="unauthenticated_provider_limits_source",
+            )
+        )
+
+    # Nested fixture-only packages cannot authenticate production capability.
+    if extension.proofs.fixture_only or extension.capability.fixture_only:
+        reasons.append("nested_fixture_provenance_rejected")
+
+    recomputed_digest = _digest_payload(
+        {
+            "resource_policy": extension.resource_policy,
+            "telemetry_schema": extension.telemetry_schema,
+            "proofs": extension.proofs.model_dump(mode="json"),
+            "capability": extension.capability.model_dump(mode="json"),
+            "assessment": assessment.model_dump(mode="json"),
+            "provider_dependency_identity": extension.provider_dependency_identity,
+            "label_review_digest": extension.label_review_digest,
+            "label_population_digest": extension.label_population_digest,
+            "label_review_source_path": extension.label_review_source_path,
+            "label_review_source_digest": extension.label_review_source_digest,
+            "code_identity": extension.code_identity,
+        }
+    )
+    if recomputed_digest != extension.extension_digest:
+        reasons.append("extension_digest_mismatch")
+
+    # Production readiness never trusts make_complete_budget_assessment fixtures.
+    if (
+        candidate.budget_assessment is not None
+        and candidate.budget_assessment.seal_ready
+        and candidate.budget_assessment.blockers == ()
+    ):
+        reasons.append("synthetic_budget_assessment_not_production_proof")
+
+    unique = tuple(dict.fromkeys(reasons))
+    ready = len(unique) == 0 and not assessment.execution_blocked
+    return ResourceCandidateValidation(
+        ready=ready,
+        reasons=unique,
+        assessment=assessment,
+        recomputed_extension_digest=recomputed_digest,
+        fixture_only=extension.fixture_only,
+    )
+
+
+def make_verified_resource_admission(
+    candidate: CandidateManifestV2,
+    validation: ResourceCandidateValidation,
+    *,
+    seal_digest: str,
+    authorization_reference: str,
+    repository_root: Path,
+) -> VerifiedResourceAdmission:
+    """Bind admission digests to a ready validation. This grant never returns one.
+
+    Online execution stays refused until a later grant flips
+    ``_online_seal_authorized``. A constructed ``VerifiedResourceAdmission`` is
+    not an input to this function.
+    """
+    problems: list[str] = []
+    assessment = validation.assessment
+    if not validation.ready or validation.fixture_only:
+        problems.append("resource_validation_not_ready")
+    if assessment is None or assessment.execution_blocked:
+        problems.append("resource_assessment_execution_blocked")
+    extension_digest = validation.recomputed_extension_digest or ""
+    candidate_digest = candidate.candidate_digest
+    if not _is_sha256_hex(extension_digest):
+        problems.append("missing_extension_digest")
+    if not _is_sha256_hex(candidate_digest):
+        problems.append("missing_candidate_digest")
+    if _placeholder_seal_digest(seal_digest):
+        problems.append("placeholder_seal_digest")
+    if _placeholder_authorization(authorization_reference):
+        problems.append("placeholder_authorization_reference")
+    if not _online_seal_authorized(repository_root, seal_digest, candidate_digest):
+        problems.append("online_path_not_authorized_in_offline_scope")
+    if problems or assessment is None:
+        raise ValueError(",".join(dict.fromkeys(problems)) or "resource_validation_not_ready")
+    assessment_digest = _digest_payload(assessment.model_dump(mode="json"))
+    authorization_binding_digest = _digest_payload(
+        {
+            "authorization_reference": authorization_reference,
+            "extension_digest": extension_digest,
+            "seal_digest": seal_digest,
+        }
+    )
+    return VerifiedResourceAdmission(
+        ready=True,
+        fixture_only=False,
+        execution_blocked=False,
+        resource_policy=validation.resource_policy,
+        candidate_digest=candidate_digest,
+        extension_digest=extension_digest,
+        assessment_digest=assessment_digest,
+        authorization_binding_digest=authorization_binding_digest,
+        seal_digest=seal_digest,
     )
 
 

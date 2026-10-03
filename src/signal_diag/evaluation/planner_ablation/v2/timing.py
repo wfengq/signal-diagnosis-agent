@@ -45,6 +45,14 @@ class ArmSession(Protocol):
         ...
 
 
+@runtime_checkable
+class ResourceObservedSession(ArmSession, Protocol):
+    """Additive session capability for resource-policy campaigns."""
+
+    def resource_snapshot(self, *, worker_drained: bool) -> object:
+        ...
+
+
 def validate_request_timing(timing: RequestTiming) -> None:
     """Fail closed when markers/version/durations cannot support comparison."""
     if timing.timing_contract != TIMING_CONTRACT_V1:

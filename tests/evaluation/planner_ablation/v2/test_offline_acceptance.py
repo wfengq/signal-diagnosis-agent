@@ -470,3 +470,176 @@ async def test_offline_acceptance_review_status_stays_pending(
     assert review.approved is False
     assert any("independent_offline_review" in note for note in review.review_provenance)
     assert provider_spy.calls == 0
+
+
+@pytest.mark.asyncio
+async def test_full_schedule_resource_path_is_harness_only(
+    tmp_path: Path,
+    provider_spy: FailOnCallProvider,
+) -> None:
+    """114-slot offline native path: exact RealLLMPlanner, real service, mock transport.
+
+    Fixture observation is harness_only. It does not claim a production SDK profile,
+    a seal, or a scored conclusion. When the installed profile is the reviewed one,
+    a non-mock client can attach as canonical_sdk. This schedule stays on the
+    fixture boundary because the transport is MockTransport.
+    """
+    import json
+    from dataclasses import replace
+
+    import httpx
+
+    from signal_diag.app.planner_ablation_v2_adapter import StudyResourceObserver
+    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+        ResourceAssessment,
+    )
+    from signal_diag.evaluation.recording import RecordingPlanner
+
+    hosts: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        hosts.append(request.url.host)
+        if request.url.host != "example.test":
+            raise AssertionError(f"unexpected host {request.url.host}")
+        body = {
+            "id": "chatcmpl_harness",
+            "object": "chat.completion",
+            "model": "deepseek-v4-flash",
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": json.dumps(
+                            {
+                                "decision_type": "finish",
+                                "outcome": "inconclusive",
+                                "claims": [],
+                                "confidence_label": "low",
+                                "summary": "offline mock",
+                                "limitations": ["harness_only"],
+                                "task_assessment": {
+                                    "task_type": "distortion_analysis",
+                                    "objective": "offline",
+                                },
+                            }
+                        ),
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
+            "usage": {
+                "prompt_tokens": 16,
+                "completion_tokens": 10,
+                "total_tokens": 26,
+            },
+        }
+        return httpx.Response(200, json=body)
+
+    def recording_factory() -> RecordingPlanner:
+        openai = __import__("openai")
+        transport = httpx.MockTransport(handler)
+        http_client = httpx.AsyncClient(transport=transport, follow_redirects=True)
+        client = openai.AsyncOpenAI(
+            api_key="test-key",
+            base_url="https://example.test/v1",
+            http_client=http_client,
+            max_retries=0,
+        )
+        planner = RealLLMPlanner(
+            provider="deepseek",
+            api_key="test-key",
+            base_url="https://example.test/v1",
+            model="deepseek-v4-flash",
+            client=client,
+        )
+        return RecordingPlanner(planner)
+
+    protocol = StudyProtocolV2()
+    scenarios = load_proposed_scenarios(REPO_ROOT)
+    schedule = build_schedule(scenarios, protocol, repository_root=REPO_ROOT)
+    assert len(schedule.slots) == SLOT_COUNT_V2
+    clock = ControlledClock(start=10.0)
+    service = _scripted_service(provider_spy)
+    service._dependencies = replace(
+        service._dependencies,
+        planner_factory=recording_factory,
+    )
+    assessment = ResourceAssessment(
+        planner_turn_ceiling=28,
+        sdk_attempt_factor=3,
+        http_send_factor=1,
+        sdk_attempt_ceiling_per_slot=84,
+        http_send_ceiling_per_slot=84,
+        sdk_attempt_ceiling=57 * 84,
+        http_send_ceiling=57 * 84,
+        logical_call_ceiling=57 * 28,
+        input_token_ceiling=10_000_000,
+        output_token_ceiling=10_000_000,
+        execution_blocked=False,
+        blockers=(),
+        seal_ready=False,
+        fixture_only=True,
+    )
+
+    async def factory(slot: SlotKey):
+        digest = f"{slot.request_key}:{slot.arm}:{slot.round_index}"
+        observer = StudyResourceObserver(
+            slot_id=digest,
+            allow_fixture_offline_boundary=slot.arm == "product_agent",
+        )
+        if slot.arm == "product_agent":
+            return build_product_arm_session(
+                service,
+                clock=clock,
+                phase_advances=dict(_PHASE_ADVANCES),
+                offline_session=True,
+                observer=observer,
+            )
+        return build_fixed_arm_session(
+            profile_loader=_profile_loader(),
+            clock=clock,
+            phase_advances=dict(_PHASE_ADVANCES),
+            offline_session=True,
+            observer=observer,
+        )
+
+    record = await run_schedule(
+        schedule,
+        protocol,
+        factory,
+        execution_mode="offline",
+        clock=clock,
+        output_dir=tmp_path / "resource_harness_out",
+        wall_timeout=False,
+        resource_policy="planner_ablation_resource_v1",
+        resource_assessment=assessment,
+    )
+    await service.aclose()
+    assert provider_spy.calls == 0
+    assert hosts
+    assert set(hosts) == {"example.test"}
+    assert record.planned_slot_count == SLOT_COUNT_V2
+    assert record.attempted_slot_count == SLOT_COUNT_V2
+    assert record.unstarted_slot_count == 0
+    assert record.status == "completed"
+    assert record.accepted_conclusion_available is True
+    product = [item for item in record.slot_records if item.slot_key.arm == "product_agent"]
+    fixed = [item for item in record.slot_records if item.slot_key.arm == "fixed_pipeline"]
+    assert len(product) == 57
+    assert len(fixed) == 57
+    for item in record.slot_records:
+        assert item.terminal is not None
+        assert_harness_only_provenance(item.terminal.provenance)
+        assert item.terminal.provenance.execution_identity == "harness_only"
+        expected = (
+            f"{item.slot_key.request_key}:{item.slot_key.arm}:{item.slot_key.round_index}"
+        )
+        assert item.resource_ledger is not None
+        assert item.resource_ledger["slot_key_digest"] == expected
+        assert item.resource_stop_reason is None
+        if item.slot_key.arm == "product_agent":
+            assert item.terminal.provenance.planner_class == "RealLLMPlanner"
+            assert item.resource_ledger["exact_total_tokens"] == 26
+        else:
+            assert item.resource_ledger["exact_total_tokens"] == 0

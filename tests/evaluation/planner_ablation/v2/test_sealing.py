@@ -182,7 +182,7 @@ def sealed_bundle(fixture_roots: tuple[Path, Path], tmp_path: Path) -> tuple[Pat
     destination = tmp_path / "protocol_seal"
     candidate = _build_ready_candidate(repo, inputs)
     assert candidate.seal_ready is True
-    generate_seal(candidate, destination)
+    generate_seal(candidate, destination, legacy_fixture_seal=True)
     return destination, repo, inputs
 
 
@@ -193,7 +193,7 @@ def test_t_cx300_round_trip_verify_preserves_114_slots(
     before_seal = tree_file_digests(seal_dir)
     before_inputs = tree_file_digests(inputs)
     study = verify_manifest(seal_dir, repository_root=repo, input_root=inputs)
-    assert study.construction_path == "verify_manifest"
+    assert study.construction_path == "legacy_fixture_seal"
     assert study.protocol.study_id == STUDY_ID_V2
     assert len(study.schedule.slots) == SLOT_COUNT_V2
     assert tree_file_digests(seal_dir) == before_seal
@@ -204,14 +204,14 @@ def test_generate_refuses_existing_populated_and_empty(tmp_path: Path, fixture_r
     repo, inputs = fixture_roots
     candidate = _build_ready_candidate(repo, inputs)
     populated = tmp_path / "populated"
-    generate_seal(candidate, populated)
+    generate_seal(candidate, populated, legacy_fixture_seal=True)
     with pytest.raises(FileExistsError, match="already exists"):
-        generate_seal(candidate, populated)
+        generate_seal(candidate, populated, legacy_fixture_seal=True)
 
     empty = tmp_path / "empty_present"
     empty.mkdir()
     with pytest.raises(FileExistsError, match="already exists"):
-        generate_seal(candidate, empty)
+        generate_seal(candidate, empty, legacy_fixture_seal=True)
     assert empty.is_dir()
     assert not any(empty.iterdir())
 
@@ -293,7 +293,7 @@ def test_alias_oracle_ucg_mutations_fail(sealed_bundle: tuple[Path, Path, Path])
 
     # Restore a fresh seal for oracle mutation.
     shutil.rmtree(seal_dir)
-    generate_seal(_build_ready_candidate(repo, inputs), seal_dir)
+    generate_seal(_build_ready_candidate(repo, inputs), seal_dir, legacy_fixture_seal=True)
 
     def mutate_oracle(payload: dict) -> None:
         for scenario in payload["scenarios"]:
@@ -308,7 +308,7 @@ def test_alias_oracle_ucg_mutations_fail(sealed_bundle: tuple[Path, Path, Path])
         verify_manifest(seal_dir, repository_root=repo, input_root=inputs)
 
     shutil.rmtree(seal_dir)
-    generate_seal(_build_ready_candidate(repo, inputs), seal_dir)
+    generate_seal(_build_ready_candidate(repo, inputs), seal_dir, legacy_fixture_seal=True)
 
     def mutate_ucg(payload: dict) -> None:
         for scenario in payload["scenarios"]:
@@ -394,7 +394,7 @@ def test_foreign_identity_and_malformed_schema_rejected(
         verify_manifest(seal_dir, repository_root=repo, input_root=inputs)
 
     shutil.rmtree(seal_dir)
-    generate_seal(_build_ready_candidate(repo, inputs), seal_dir)
+    generate_seal(_build_ready_candidate(repo, inputs), seal_dir, legacy_fixture_seal=True)
 
     def malformed(payload: dict) -> None:
         payload["unexpected_full_schema_field"] = {"nested": True}
@@ -447,7 +447,7 @@ def test_race_creating_destination_does_not_overwrite(
 
     def worker() -> None:
         try:
-            generate_seal(candidate, destination)
+            generate_seal(candidate, destination, legacy_fixture_seal=True)
         except BaseException as exc:  # noqa: BLE001 - collect race outcomes
             errors.append(exc)
 
@@ -474,14 +474,14 @@ def test_incomplete_limits_block_seal_ready(fixture_roots: tuple[Path, Path]) ->
     )
     assert candidate.seal_ready is False
     with pytest.raises(ValueError, match="seal-ready"):
-        generate_seal(candidate, repo / "blocked_seal")
+        generate_seal(candidate, repo / "blocked_seal", legacy_fixture_seal=True)
 
 
 def test_refuse_generate_against_dev1(fixture_roots: tuple[Path, Path]) -> None:
     repo, inputs = fixture_roots
     candidate = _build_ready_candidate(repo, inputs)
     with pytest.raises(ValueError, match="dev_1"):
-        generate_seal(candidate, DEV1_SEAL)
+        generate_seal(candidate, DEV1_SEAL, legacy_fixture_seal=True)
 
 
 def test_real_evidence_root_requires_grant(
@@ -498,7 +498,7 @@ def test_real_evidence_root_requires_grant(
     env_before = os.environ.pop("PLANNER_ABLATION_V2_SEAL_GRANT", None)
     try:
         with pytest.raises(PermissionError, match="seal grant"):
-            generate_seal(candidate, fake)
+            generate_seal(candidate, fake, legacy_fixture_seal=True)
     finally:
         if env_before is not None:
             os.environ["PLANNER_ABLATION_V2_SEAL_GRANT"] = env_before
@@ -526,4 +526,5 @@ def test_no_real_seal_under_dev2_evidence_root() -> None:
         "OFFLINE_ACCEPTANCE.md",
         "LABEL_REVIEW.md",
         "BUDGET_BOUNDS.md",
+        "RESOURCE_BOUNDS.md",
     }

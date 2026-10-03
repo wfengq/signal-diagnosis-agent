@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import threading
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
@@ -12,7 +13,12 @@ from signal_diag.agent.models import (
     StructuredDiagnosis,
     TaskAssessment,
 )
-from signal_diag.agent.planner import PlannerModel
+from signal_diag.agent.planner import (
+    PlannerModel,
+    RealLLMPlanner,
+    bind_planner_telemetry,
+)
+from signal_diag.agent.telemetry import TelemetryBinding, TelemetryEvent
 from signal_diag.app.contextual_models import ContextualAppRunSnapshot
 from signal_diag.app.service import (
     ApplicationDependencies,
@@ -133,23 +139,361 @@ def _failure_kind_for_execute_error(error: BaseException) -> _ExecuteFailureKind
 
 @dataclass
 class StudyResourceObserver:
-    """Study-owned observer. Does not alter product return data, retries, or payloads."""
+    """Per-slot collector. Factory diagnostics stay separate from turn/call counts."""
 
+    slot_id: str = "slot"
+    allow_fixture_offline_boundary: bool = False
+    max_events: int = 10_000
     records: list[ResourceTelemetry] = field(default_factory=list)
     planner_factory_calls: int = 0
+    admitted_per_send_input_tokens: int | None = None
+    admitted_per_send_output_tokens: int | None = None
+    observation_descriptor: object | None = None
+    _events: list[object] = field(default_factory=list)
+    _lock: threading.Lock = field(default_factory=threading.Lock)
+    _invalid: bool = False
+    _invalid_reasons: list[str] = field(default_factory=list)
+    _run_id: str | None = None
+    _binding: TelemetryBinding | None = None
 
     def note_planner_factory_call(self) -> None:
         self.planner_factory_calls += 1
 
+    def attach_observation_descriptor(self, descriptor: object) -> None:
+        """Retain client observation identity for ledger gates."""
+        self.observation_descriptor = descriptor
+        blockers = tuple(getattr(descriptor, "blockers", ()) or ())
+        supported = bool(getattr(descriptor, "profile_supported", False))
+        origin = getattr(descriptor, "origin", None)
+        if origin == "unsupported" or (
+            not supported and origin != "mock_native"
+        ):
+            self._invalid = True
+            reason = "unsupported_observation_descriptor"
+            if reason not in self._invalid_reasons:
+                self._invalid_reasons.append(reason)
+            for blocker in blockers:
+                text = str(blocker)
+                if text not in self._invalid_reasons:
+                    self._invalid_reasons.append(text)
+        elif bool(getattr(descriptor, "fixture_only", True)) and origin != "mock_native":
+            marker = "fixture_only_observation_descriptor"
+            if marker not in self._invalid_reasons:
+                self._invalid_reasons.append(marker)
+
+    def make_binding(self) -> TelemetryBinding:
+        def sink(event: TelemetryEvent) -> None:
+            with self._lock:
+                if len(self._events) >= self.max_events:
+                    self._invalid = True
+                    if "telemetry_buffer_overflow" not in self._invalid_reasons:
+                        self._invalid_reasons.append("telemetry_buffer_overflow")
+                    return
+                self._events.append(event)
+
+        binding = TelemetryBinding(
+            slot_id=self.slot_id,
+            sink=sink,
+            max_events=self.max_events,
+        )
+        binding.allow_fixture_offline_boundary = self.allow_fixture_offline_boundary
+        self._binding = binding
+        return binding
+
+    def associate_run_id(self, run_id: str | None) -> None:
+        if run_id is None:
+            return
+        if self._run_id is not None and self._run_id != run_id:
+            self._invalid = True
+            self._invalid_reasons.append("conflicting_run_id")
+            return
+        self._run_id = run_id
+
     def observe_terminal(self, terminal: StudyTerminal) -> ResourceTelemetry:
         telemetry = collect_resource_telemetry(terminal)
-        # Factory invocations are study-side construction counts, not provider calls.
         if self.planner_factory_calls and telemetry.planner_call_count is None:
-            # Still leave planner_call_count unknown: factory ≠ runtime planner turns.
             pass
         self.records.append(telemetry)
         return telemetry
 
+    def resource_snapshot(self, *, worker_drained: bool) -> object:
+        from signal_diag.agent.telemetry import (
+            HttpSendEvent,
+            LogicalCallEvent,
+            PlannerTurnEvent,
+            RepairEvent,
+            SdkAttemptEvent,
+            UsageObservation,
+        )
+        from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+            ReportedUsage,
+            SlotResourceLedger,
+        )
+        from signal_diag.evaluation.planner_ablation.v2.resource_telemetry import (
+            sum_reported_usage,
+        )
+
+        with self._lock:
+            events = list(self._events)
+            invalid = self._invalid
+            reasons = list(self._invalid_reasons)
+            run_id = self._run_id
+            binding = self._binding
+
+        if binding is not None and getattr(binding, "invalid", False):
+            invalid = True
+            reasons.extend(getattr(binding, "invalid_reasons", []))
+        descriptor = getattr(binding, "observation_descriptor", None) if binding else None
+        if descriptor is not None:
+            self.observation_descriptor = descriptor
+            if getattr(descriptor, "origin", None) == "unsupported":
+                invalid = True
+                reasons.append("unsupported_observation_descriptor")
+            for item in getattr(descriptor, "blockers", ()) or ():
+                text = str(item)
+                if text.startswith("fixture_only"):
+                    continue
+                reasons.append(text)
+
+        # Lifecycle endpoints: pair/dedupe by event kind + correlation + phase.
+        # Usage and repair are independent observation records (not lifecycle ends).
+        lifecycle_kinds = frozenset(
+            {"planner_turn", "logical_call", "sdk_attempt", "http_send"}
+        )
+        pending: list[str] = []
+        starts: dict[tuple[str, str], str] = {}
+        ends: set[tuple[str, str]] = set()
+        for event in events:
+            kind = str(getattr(event, "kind", None) or "")
+            phase = getattr(event, "phase", None)
+            corr = str(
+                getattr(event, "correlation_id", None)
+                or getattr(event, "sequence_id", "")
+                or ""
+            )
+            if kind not in lifecycle_kinds or not phase:
+                continue
+            key = (kind, corr)
+            if phase == "start":
+                starts[key] = kind
+            elif phase == "end":
+                ends.add(key)
+
+        for key, kind in starts.items():
+            if key not in ends:
+                pending.append(f"{key[0]}:{key[1]}")
+                invalid = True
+                reasons.append(f"missing_end:{kind}:{key[1]}")
+
+        seen_phase: set[tuple[str, str, str]] = set()
+        for event in events:
+            kind = str(getattr(event, "kind", None) or "")
+            phase = getattr(event, "phase", None)
+            corr_raw = getattr(event, "correlation_id", None)
+            if not phase or not corr_raw:
+                continue
+            corr = str(corr_raw)
+            # Observation records may share a parent ID with lifecycle ends; key by kind.
+            phase_key = (kind, corr, str(phase))
+            if phase_key in seen_phase:
+                invalid = True
+                reasons.append(f"duplicate_phase:{kind}:{corr}:{phase}")
+            seen_phase.add(phase_key)
+
+        turn_count = sum(
+            1 for e in events if isinstance(e, PlannerTurnEvent) and e.phase == "start"
+        )
+        repair_count = sum(1 for e in events if isinstance(e, RepairEvent))
+        logical_count = sum(
+            1 for e in events if isinstance(e, LogicalCallEvent) and e.phase == "start"
+        )
+        sdk_count = sum(
+            1 for e in events if isinstance(e, SdkAttemptEvent) and e.phase == "start"
+        )
+        http_count = sum(
+            1 for e in events if isinstance(e, HttpSendEvent) and e.phase == "start"
+        )
+
+        # Map complete usage to send_id (or call_id fallback) for coverage checks.
+        usages: list[ReportedUsage] = []
+        usage_complete_objects = True
+        usage_by_send: dict[str, UsageObservation] = {}
+        usage_events = [e for e in events if isinstance(e, UsageObservation)]
+        if not usage_events and logical_count > 0:
+            usage_complete_objects = False
+            reasons.append("missing_usage_observations")
+        for usage in usage_events:
+            if usage.status != "complete":
+                usage_complete_objects = False
+                reasons.append(f"usage_{usage.status}")
+                continue
+            if (
+                usage.prompt_tokens is None
+                or usage.completion_tokens is None
+                or usage.total_tokens is None
+            ):
+                usage_complete_objects = False
+                reasons.append("usage_incomplete_fields")
+                continue
+            try:
+                reported = ReportedUsage(
+                    prompt_tokens=usage.prompt_tokens,
+                    completion_tokens=usage.completion_tokens,
+                    total_tokens=usage.total_tokens,
+                    cache_hit_tokens=usage.cache_hit_tokens,
+                    cache_miss_tokens=usage.cache_miss_tokens,
+                    reasoning_tokens=usage.reasoning_tokens,
+                )
+                usages.append(reported)
+            except Exception:  # noqa: BLE001
+                invalid = True
+                usage_complete_objects = False
+                reasons.append("usage_validation_failed")
+                continue
+            link = usage.send_id or usage.call_id
+            if link:
+                if link in usage_by_send:
+                    invalid = True
+                    reasons.append(f"duplicate_usage_for_send:{link}")
+                usage_by_send[link] = usage
+
+        http_ends = [
+            e for e in events if isinstance(e, HttpSendEvent) and e.phase == "end"
+        ]
+        # Non-redirect dispatched sends need complete usage for exact reported
+        # totals. Redirect hops are not approved zero-use proofs; they reserve
+        # potential_token_exposure when ceilings are admitted.
+        send_coverage_complete = True
+        for send in http_ends:
+            if send.outcome == "redirect":
+                # Reviewed zero-use proof is not implemented. A string prefix cannot
+                # make a redirect an exact-zero send.
+                send_coverage_complete = False
+                reasons.append(
+                    f"redirect_without_zero_use_proof:{send.send_id or send.correlation_id}"
+                )
+                continue
+            link = send.send_id or send.correlation_id
+            matched = usage_by_send.get(link)
+            if matched is None or matched.status != "complete":
+                send_coverage_complete = False
+                reasons.append(f"incomplete_send_usage_coverage:{link}")
+
+        # Logical calls without any HTTP (pre-dispatch failure) need explicit
+        # zero-use proof; absence keeps exact total unknown.
+        if logical_count > 0 and http_count == 0 and not usage_events:
+            send_coverage_complete = False
+            if "missing_usage_observations" not in reasons:
+                reasons.append("logical_call_without_send_or_usage_proof")
+        if logical_count > 0 and http_count == 0 and usage_events:
+            # Usage without HTTP observation (mounted/proxy miss) is invalid.
+            invalid = True
+            send_coverage_complete = False
+            reasons.append("usage_without_http_dispatch_observation")
+
+        # Potential token exposure: reserve for sends lacking complete usage
+        # when per-send ceilings were provided on the binding/assessment.
+        potential_token_exposure: int | None = None
+        admitted_input = getattr(self, "admitted_per_send_input_tokens", None)
+        admitted_output = getattr(self, "admitted_per_send_output_tokens", None)
+        if isinstance(admitted_input, int) or isinstance(admitted_output, int):
+            exposure = 0
+            any_reserved = False
+            for send in http_ends:
+                link = send.send_id or send.correlation_id
+                matched = usage_by_send.get(link) if link else None
+                if matched is not None and matched.status == "complete":
+                    continue
+                # Redirect or incomplete/missing usage → reserve, never invent zero.
+                if isinstance(admitted_input, int):
+                    exposure += admitted_input
+                if isinstance(admitted_output, int):
+                    exposure += admitted_output
+                any_reserved = True
+            potential_token_exposure = exposure if any_reserved else 0
+
+        subtotal = sum_reported_usage(usages)
+        exact_total = (
+            subtotal.total_tokens
+            if (
+                usage_complete_objects
+                and send_coverage_complete
+                and subtotal is not None
+                and not pending
+                and worker_drained
+                and not invalid
+            )
+            else None
+        )
+        if (
+            logical_count == 0
+            and http_count == 0
+            and turn_count == 0
+            and worker_drained
+            and not pending
+            and not usage_events
+            and not invalid
+        ):
+            # Fixed / no-provider path may have zero usage with complete ledger.
+            exact_total = 0
+
+        incomplete = (
+            (not worker_drained)
+            or bool(pending)
+            or (not usage_complete_objects and logical_count > 0)
+            or (not send_coverage_complete and http_count > 0)
+        )
+        closed = (
+            worker_drained
+            and not pending
+            and not incomplete
+            and not invalid
+            and (exact_total is not None or (logical_count == 0 and http_count == 0))
+        )
+        unique_reasons = tuple(dict.fromkeys(reasons))
+        serialized_events = tuple(
+            {
+                "kind": getattr(e, "kind", None),
+                "phase": getattr(e, "phase", None),
+                "sequence_id": getattr(e, "sequence_id", None),
+                "monotonic_s": getattr(e, "monotonic_s", None),
+                "correlation_id": getattr(e, "correlation_id", None),
+                "turn_id": getattr(e, "turn_id", None),
+                "call_id": getattr(e, "call_id", None),
+                "attempt_id": getattr(e, "attempt_id", None),
+                "send_id": getattr(e, "send_id", None),
+                "status": getattr(e, "status", None),
+                "outcome": getattr(e, "outcome", None),
+                "prompt_tokens": getattr(e, "prompt_tokens", None),
+                "completion_tokens": getattr(e, "completion_tokens", None),
+                "total_tokens": getattr(e, "total_tokens", None),
+                "cache_hit_tokens": getattr(e, "cache_hit_tokens", None),
+                "cache_miss_tokens": getattr(e, "cache_miss_tokens", None),
+                "reasoning_tokens": getattr(e, "reasoning_tokens", None),
+                "response_model": getattr(e, "response_model", None),
+                "fingerprint": getattr(e, "fingerprint", None),
+            }
+            for e in events
+        )
+        return SlotResourceLedger(
+            slot_key_digest=self.slot_id,
+            run_id=run_id,
+            events=serialized_events,
+            planner_turn_count=turn_count,
+            repair_attempt_count=repair_count,
+            logical_call_count=logical_count,
+            sdk_attempt_count=sdk_count,
+            http_send_attempt_count=http_count,
+            reported_usage_subtotal=subtotal,
+            exact_total_tokens=exact_total,
+            potential_token_exposure=potential_token_exposure,
+            pending_event_ids=tuple(pending),
+            worker_drained=worker_drained,
+            telemetry_invalid=invalid,
+            incomplete=incomplete,
+            blockers=unique_reasons,
+            closed=closed,
+        )
 
 def _map_guidance(guidance: object | None) -> StudyContextGuidanceView | None:
     if guidance is None:
@@ -297,6 +641,35 @@ class ProductArmSession:
                 executed_planner_class == _APPROVED_PRODUCT_PLANNER_CLASS
                 and getattr(planner, "_client", None) is not None
             )
+            if self._observer is not None:
+                target: object = planner
+                # RecordingPlanner forwards via property; bind the inner exact planner.
+                inner = getattr(planner, "_planner", None)
+                if type(inner) is RealLLMPlanner:
+                    target = inner
+                    executed_planner_class = "RealLLMPlanner"
+                if type(target) is RealLLMPlanner and getattr(
+                    target, "_planner_telemetry_binding", None
+                ) is None:
+                    binding = self._observer.make_binding()
+                    bind_planner_telemetry(target, binding=binding)
+                    if binding.allow_fixture_offline_boundary:
+                        client = getattr(target, "_client", None)
+                        if client is not None and not getattr(
+                            client, "_signal_diag_observation_attached", False
+                        ):
+                            from signal_diag.agent.provider_telemetry import (
+                                attach_sdk_observation,
+                                build_fixture_sdk_observation_profile,
+                            )
+
+                            descriptor = attach_sdk_observation(
+                                client,
+                                binding=binding,
+                                profile=build_fixture_sdk_observation_profile(),
+                                allow_fixture_offline_boundary=True,
+                            )
+                            self._observer.attach_observation_descriptor(descriptor)
             return planner
 
         self._service._dependencies = replace(
@@ -328,6 +701,8 @@ class ProductArmSession:
             )
             markers.append(_phase_marker(self._clock, "execution", self._phase_advances))
             snapshot = await self._service.wait_for_contextual_terminal(submission.run_id)
+            if self._observer is not None:
+                self._observer.associate_run_id(submission.run_id)
             markers[-1] = PhaseMarker(
                 phase="execution",
                 started_at=markers[-1].started_at,
@@ -417,6 +792,11 @@ class ProductArmSession:
     async def aclose(self) -> None:
         if self._owns_service_lifecycle:
             await self._service.aclose()
+
+    def resource_snapshot(self, *, worker_drained: bool) -> object:
+        if self._observer is None:
+            raise AttributeError("resource_snapshot unavailable without observer")
+        return self._observer.resource_snapshot(worker_drained=worker_drained)
 
 
 def _task_assessment_from_diagnosis(
@@ -564,6 +944,7 @@ class FixedArmSession:
                 timing=_placeholder_timing(tuple(markers)),
             )
             if self._observer is not None:
+                self._observer.associate_run_id(failed_terminal.run_id)
                 self._observer.observe_terminal(failed_terminal)
             return failed_terminal
 
@@ -585,6 +966,7 @@ class FixedArmSession:
                 timing=_placeholder_timing(tuple(markers)),
             )
             if self._observer is not None:
+                self._observer.associate_run_id(missing_terminal.run_id)
                 self._observer.observe_terminal(missing_terminal)
             return missing_terminal
 
@@ -611,11 +993,49 @@ class FixedArmSession:
             timing=_placeholder_timing(tuple(markers)),
         )
         if self._observer is not None:
+            self._observer.associate_run_id(terminal.run_id)
             self._observer.observe_terminal(terminal)
         return terminal
 
     async def aclose(self) -> None:
         return None
+
+    def resource_snapshot(self, *, worker_drained: bool) -> object:
+        from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+            ReportedUsage,
+            SlotResourceLedger,
+        )
+
+        if self._observer is not None:
+            # Prefer observer digest/run association so fixed slots never collide.
+            snapshot = self._observer.resource_snapshot(worker_drained=worker_drained)
+            # Observer may have no provider events; force audited zero-use fields.
+            return SlotResourceLedger(
+                slot_key_digest=self._observer.slot_id,
+                run_id=getattr(snapshot, "run_id", None),
+                events=getattr(snapshot, "events", ()),
+                planner_turn_count=0,
+                repair_attempt_count=0,
+                logical_call_count=0,
+                sdk_attempt_count=0,
+                http_send_attempt_count=0,
+                reported_usage_subtotal=ReportedUsage(
+                    prompt_tokens=0, completion_tokens=0, total_tokens=0
+                ),
+                exact_total_tokens=0,
+                potential_token_exposure=0,
+                pending_event_ids=getattr(snapshot, "pending_event_ids", ()),
+                worker_drained=worker_drained,
+                telemetry_invalid=bool(getattr(snapshot, "telemetry_invalid", False)),
+                incomplete=not worker_drained,
+                blockers=() if worker_drained else ("worker_not_drained",),
+                closed=worker_drained and bool(getattr(snapshot, "run_id", None)),
+            )
+
+        raise AttributeError(
+            "fixed arm resource_snapshot requires a StudyResourceObserver "
+            "bound to the schedule slot digest"
+        )
 
 
 def build_product_arm_session(

@@ -21,7 +21,13 @@ Harness, Scripted dry-run, protocol seal, and RealLLM remain separately gated.
 Approved design values await a concrete seal; formal seal, RealLLM, and
 product changes remain separately gated.
 
-**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX302)
+**D038 token/transport telemetry (definitions):** §21;
+`docs/superpowers/specs/2026-10-01-s1-planner-ablation-token-transport-telemetry-design.md`;
+`docs/superpowers/plans/2026-10-01-s1-planner-ablation-token-transport-telemetry.md`.
+Observation defaults off; formal seal, RealLLM, concrete numeric budgets, and
+provider-binding acceptance remain separately gated.
+
+**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX318)
 
 **Live product identity (HEAD):** prompt `v0.3-s1-planner-9.11` with causal
 policy `v9_11_mode_aware_no_fault_recovery` (§15). Historical identities
@@ -985,3 +991,230 @@ Staged authority remains:
 
 Offline acceptance must neither score historical RealLLM outputs under the
 revised oracle as new study evidence nor call a provider to test connectivity.
+
+## 21. Planner-ablation token and transport telemetry
+
+Additive study contract for `study_s1_planner_ablation_dev_2` resource
+observation and source-aware bound admission. This section closes the §20.6 /
+T-CX299 gap that conditional ceilings alone cannot prove actual calls, retries,
+or tokens. It does **not** change product request semantics, §19 / §20 meanings,
+frozen V0.2 §§1–64, DSP thresholds, or the product planner default. It does
+**not** authorize a formal protocol seal, RealLLM campaign, provider
+connectivity probe, explicit product request caps, concrete numeric budget
+acceptance, provider-model mapping acceptance, commit, push, or merge.
+
+```text
+study_id: study_s1_planner_ablation_dev_2
+resource_policy: planner_ablation_resource_v1
+telemetry_schema: planner_ablation_telemetry_v1
+timing_contract: encoded_bytes_to_terminal_v1
+```
+
+Numerical ceilings remain unaccepted until a later bound proof and operator
+decision. Knowing a ceiling does not prove observation. Ceiling-only estimates
+do not satisfy T-CX299's requirement for **actual** resource telemetry. A
+successful mock run does not prove live model identity or authorize a campaign.
+
+### 21.1 Event units
+
+Observation counts these units separately and never equates them:
+
+```text
+study slot
+  planner turn: one entry to RealLLMPlanner.decide
+    logical completion call: one SDK chat.completions.create invocation
+      SDK attempt: one iteration of the SDK request/retry loop
+        HTTP send attempt: one underlying HTTP request dispatch
+```
+
+A turn may fail before a logical completion call. SDK retries do not create new
+planner turns. Runtime repair consumes the runtime parse/reject budget and
+creates a subsequent turn; it is counted separately from SDK retries. Redirects
+and audited authentication/lower-transport resends may create extra HTTP send
+attempts without another SDK attempt. Connection-establishment events that do
+not replay an HTTP request must not be labeled as additional completions.
+Factory construction probes and wrapper/factory bookkeeping are not planner
+turns.
+
+Two token quantities remain distinct:
+
+1. `reported_usage` — sum of valid provider-reported usage on received
+   completion responses, including responses whose content later fails planner
+   parsing;
+2. `potential_token_exposure` — conservative per-send ceiling reservation for
+   attempts whose usage is unavailable; not an observed token count or invoice.
+
+An HTTP send attempt proves local dispatch only, not provider receipt,
+execution, or billing.
+
+### 21.2 Unknown and partial usage
+
+Missing usage is unknown, never fabricated zero. No response means usage is
+unknown unless a validated trace proves the call was never dispatched. A
+missing usage object on a completion is unknown. HTTP error responses without
+usage do not automatically prove zero token use.
+
+A complete usage object requires nonnegative integer prompt, completion, and
+total tokens with total equal to prompt plus completion. Reject booleans,
+malformed fields, and inconsistent totals. Cache-hit/cache-miss and reasoning
+details are subdivisions; do not add them again to totals. When subdivisions
+are present, validate their arithmetic; contradictory details invalidate the
+observation instead of discarding them to preserve a passing total.
+
+`input_tokens`, `output_tokens`, and `total_tokens` are exact campaign sums only
+when every potentially token-consuming attempt has complete usage or a reviewed
+zero-use proof. Otherwise keep the aggregate unknown and report the known
+subtotal and unobserved exposure bound separately. Known usage must never be
+reported as the entire campaign's actual usage while another attempt remains
+unknown.
+
+### 21.3 Source-aware default admission
+
+Add resource policy `planner_ablation_resource_v1` to the unsealed dev_2
+candidate. Bound facts carry an origin among `request_override`,
+`sdk_default_audit`, `provider_spec`, `control_flow_proof`, and `unknown`. Each
+accepted fact binds the code/path and environment that make it true. A number
+without that proof is unknown for admission.
+
+Audited SDK or provider defaults may supply effective bounds under this policy
+after review. They must **never** set existing product flags
+`max_tokens_explicit`, `request_timeout_explicit`, or
+`transport_retry_override_explicit` to true, and must not auto-clear legacy
+explicit-flag gates. Legacy configs that still require those explicit flags
+retain their fail-closed semantics on the old `inspect_limits` path. Unknown,
+unproved, unsupported-scope, or legacy facts remain blocked.
+
+Independent factors may be multiplied into campaign ceilings only when nesting
+and units are proved. Planner-turn, SDK-attempt, HTTP-send, and token ceilings
+remain named units. An HTTP-send ceiling additionally requires an admitted
+send/redirect/auth/lower-transport factor. Token ceilings require admitted
+per-send input/output or all-outcome bounds. Unknown factors fail closed.
+Finiteness alone is not operator acceptance of exposure.
+
+### 21.4 Default-off agent and wrapper observation
+
+Observation is private, opt-in, and disabled by default on the canonical
+`RealLLMPlanner`. Public constructors, builders, decision types, run-result
+fields, report JSON, prompt/settings, runtime budgets, fresh-client
+construction, and native timeout/retry/redirect/authentication/proxy/TLS/
+lifetime behavior remain unchanged when observation is off.
+
+The agent owns stdlib-only observation protocols and immutable events. They
+must not import the study, `evaluation`, or `app`. SDK-dependent observation
+stays at the existing agent provider boundary. Evaluation consumes serialized
+facts; it must not construct a service, import app composition, or call the
+SDK for this feature. App owns per-slot collection and checked conversion to
+study-owned ledgers.
+
+Later implementation under a separate grant may add only these exact T285
+additive paths for this feature:
+
+```text
+src/signal_diag/agent/telemetry.py
+src/signal_diag/agent/provider_telemetry.py
+src/signal_diag/evaluation/recording.py
+```
+
+Existing planner/runtime paths remain additive-authorized but still require
+this feature's implementation grant. Whole `agent/` or `evaluation/` directory
+authorization is forbidden. `RecordingPlanner` must forward the private
+observer binding to the inner planner without importing evaluation into agent,
+without counting wrapper or factory probes as planner turns, and without
+runtime inspecting the wrapper by class name.
+
+Callback errors and full buffers latch observation invalidity and must not
+alter planner/runtime control flow, diagnosis results, guidance, or exception
+behavior. No subclass, alternate planner, injected fake completion client,
+global patch, new request header, retry wrapper, or prompt rewrite is admitted
+as scored product observation. Construction probes produce no planner-turn or
+provider-call events.
+
+### 21.5 Resource failures versus behavioral and infrastructure failures
+
+A typed resource failure — telemetry invalidity, usage absence without a
+zero-use proof, undrained late callbacks, model metadata outside the accepted
+policy, or a bound violation — preserves the product terminal outcome and stops
+before starting another slot. It blocks an accepted positive study conclusion,
+including when the failure is on the last slot. It is **not** automatically a
+planner behavioral failure and must not remove a slot from the frozen
+denominators.
+
+Product behavioral failures already represented by the runtime, including
+exhausted diagnosis/repair budgets, continue under §20.6 rules and remain in
+their denominators. Infrastructure failures — including provider authentication/
+transport exhaustion, persistence failure, or deadline expiry without a valid
+terminal result — keep their existing stop classification.
+
+Cancellation of the waiter alone is not worker completion. Record late events
+until actual drain; if drain fails, retain pending/unknown exposure, stop, and
+do not retry or overlap slots. Observation must not introduce new product
+retries or alter diagnosis to repair study bookkeeping. Observation overhead on
+the product arm remains inside `encoded_bytes_to_terminal_v1`; it is not
+subtracted away. Terminal readiness remains the authoritative shared timer;
+observation drain is accounted separately and must not fake a closed ledger.
+
+### 21.6 Provider identity and model mapping
+
+Record requested model name and provider-declared served route separately.
+Returned model/fingerprint metadata, when available, is checked against the
+accepted policy. Accepting that live identity, including stated fingerprint or
+alias-echo limitations, is an explicit operator decision and a seal blocker
+when unaccepted (`unaccepted_provider_model_mapping`). Detectable response
+drift outside the accepted policy stops execution; it does not regenerate a
+seal or change the product model string under this section.
+
+Exact installed SDK and native transport dependency/source identity must bind
+actual observation behavior. Lockfile-only labels, cross-environment
+substitutions, and changed-dependency identities fail. Offline
+`MockTransport`, injected `_client` fakes, Scripted planners, and synthetic
+fixtures remain `harness_only` even when class-name strings look correct.
+Caller booleans cannot elevate them.
+
+### 21.7 Proof, capability, and candidate validation
+
+Before seal, offline capability evidence must demonstrate that the selected
+observation profile can capture turns, repairs, SDK attempts, HTTP sends, and
+usage under controlled success/failure cases, bound to exact code/dependency
+hashes. A caller cannot assert retry telemetry availability without that
+binding. No live calibration request is authorized by this section.
+
+Production candidate validation recomputes resource bindings from admitted
+facts and rejects inconsistent values, missing proof, environment drift,
+fixture-only complete-budget helpers, and label-review mismatch. The resource
+extension binds resource-policy and telemetry-schema versions, observation
+profile and capability evidence, exact implementation/dependency identities,
+endpoint/authentication mode with credentials removed, requested and declared
+model identities, finite named ceilings with units, timeout/drain policy, and
+the accepted independent label-review record. Synthetic complete budget objects
+remain fixture-only.
+
+### 21.8 Evidence scope and staged authority
+
+Within this definitions scope, the only new permitted unsealed evidence
+document name under
+`docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_2/` is
+`RESOURCE_BOUNDS.md`. Existing permitted unsealed names remain. The
+`protocol_seal/` prohibition for `study_s1_planner_ablation_dev_2` is retained.
+Historical digests, `dev_1` seal/reproducer assets, and accepted evaluation
+bundles remain immutable. Actual architecture allowlist edits occur only under
+a later offline implementation grant.
+
+Staged authority remains separate from these definitions:
+
+1. definitions registration in this section and T-CX303–318;
+2. offline observation and source-aware validation under an explicit
+   implementation grant that names private agent observation and
+   `RecordingPlanner` forwarding;
+3. independent review of implementation evidence and remaining blockers;
+4. separate grants for commit/push, concrete candidate acceptance, formal
+   seal, and RealLLM.
+
+Any product request-cap or planner change requires a separate product design,
+contracts, tests, and operator authorization. Registering these definitions
+does not clear `unaccepted_provider_model_mapping`,
+`unbound_sdk_transport_identity`, `unproved_http_send_bound`, unknown token
+bounds, `unavailable_retry_telemetry`, `unbound_label_review`, or
+`unverified_resource_candidate`. If finite token/transport proof cannot
+preserve approved product request semantics, execution stays blocked; do not
+silently introduce product caps to make gates green. Offline acceptance must
+neither fabricate bound closure nor call a provider to test connectivity.

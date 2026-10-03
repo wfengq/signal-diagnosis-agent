@@ -55,3 +55,39 @@ Empty fault sets accompany `no_supported_fault` and `inconclusive`. Positive set
 **Approve all ten proposed oracle rows**, alias scheme, source/master mapping, U/C/G membership (7/6/4), and upgrade targets. **approved=true; blockers=none.**
 
 Corrections relative to sealed `dev_1` singles for natural controls and the invalid/clean collision are **required by construction and gates**, not by arm score chasing. Do not relax thresholds. Do not seal from this file alone.
+
+## Structured label approval (machine-readable)
+
+```json
+{
+  "schema": "planner_ablation_label_approval_v1",
+  "reviewer": "independent_offline_reviewer",
+  "study_id": "study_s1_planner_ablation_dev_2",
+  "approved": true,
+  "review_status": "approved",
+  "review_provenance": ["independent_offline_reviewer"],
+  "upgrade_population": [
+    "a4a0853be9983f8c",
+    "2be730b9113701de",
+    "6fb80bbda391c26c",
+    "aa9b4a91b0253c33",
+    "393940e92c58cf0b",
+    "04f4068ec91d2621",
+    "163185980dc8f7a4"
+  ],
+  "conditional_population": [
+    "a4a0853be9983f8c",
+    "2be730b9113701de",
+    "6fb80bbda391c26c",
+    "aa9b4a91b0253c33",
+    "393940e92c58cf0b",
+    "04f4068ec91d2621"
+  ],
+  "guidance_population": [
+    "a4a0853be9983f8c",
+    "2be730b9113701de",
+    "393940e92c58cf0b",
+    "04f4068ec91d2621"
+  ]
+}
+```

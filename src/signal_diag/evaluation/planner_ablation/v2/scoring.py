@@ -23,6 +23,7 @@ from signal_diag.evaluation.planner_ablation.v2.models import (
     PINNED_CAUSAL_POLICY_V2,
     ArmModeRoundCell,
     ArmModeTotals,
+    CampaignRecord,
     DescriptiveAcrossRoundSummary,
     GuidanceCell,
     LabelReviewResult,
@@ -790,6 +791,8 @@ def calculate_metrics(
 def evaluate_prerequisites(
     study: VerifiedStudyV2,
     records: Sequence[StudyTerminal],
+    *,
+    campaign: CampaignRecord | None = None,
 ) -> PrerequisiteReport:
     """Derive matching/safety/completeness; fail closed with reason codes."""
     reasons: list[str] = []
@@ -922,6 +925,137 @@ def evaluate_prerequisites(
                 reasons.append("provenance_rejected")
                 break
 
+    resource_observation_ok: bool | None = None
+    if study.resource_policy == "planner_ablation_resource_v1":
+        from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+            ResourceAssessment,
+            ResourceCandidateExtension,
+            ResourceObservation,
+            SlotResourceLedger,
+        )
+        from signal_diag.evaluation.planner_ablation.v2.resource_telemetry import (
+            aggregate_resource_ledger,
+            validate_campaign_resource_totals,
+        )
+
+        resource_observation_ok = False
+        if campaign is None:
+            reasons.append("resource_campaign_missing")
+        elif campaign.resource_policy != "planner_ablation_resource_v1":
+            reasons.append("resource_policy_mismatch")
+        elif campaign.schedule_digest != study.schedule.schedule_digest:
+            reasons.append("resource_schedule_digest_mismatch")
+        elif len(campaign.slot_records) != len(study.schedule.slots):
+            reasons.append("resource_slot_coverage_mismatch")
+        else:
+            assessment: ResourceAssessment | None = None
+            if study.resource_extension is not None:
+                try:
+                    extension = ResourceCandidateExtension.model_validate(
+                        study.resource_extension
+                    )
+                    assessment = extension.assessment
+                except Exception:  # noqa: BLE001
+                    reasons.append("resource_extension_invalid")
+            if assessment is None:
+                ok = False
+                reasons.append("resource_assessment_missing")
+            else:
+                ok = True
+                seen_digests: set[str] = set()
+                recomputed_obs: list[ResourceObservation] = []
+                for schedule_slot, slot_record in zip(
+                    study.schedule.slots, campaign.slot_records, strict=True
+                ):
+                    if slot_record.slot_key != schedule_slot:
+                        ok = False
+                        reasons.append("resource_slot_key_mismatch")
+                        break
+                    if slot_record.status == "unstarted":
+                        ok = False
+                        reasons.append("resource_unstarted_slots")
+                        break
+                    if slot_record.resource_observation is None or slot_record.resource_ledger is None:
+                        ok = False
+                        reasons.append("resource_ledger_missing")
+                        break
+                    try:
+                        ledger = SlotResourceLedger.model_validate(
+                            slot_record.resource_ledger
+                        )
+                        claimed = ResourceObservation.model_validate(
+                            slot_record.resource_observation
+                        )
+                    except Exception:  # noqa: BLE001
+                        ok = False
+                        reasons.append("resource_ledger_model_invalid")
+                        break
+                    digest = ledger.slot_key_digest
+                    expected_digest = (
+                        f"{schedule_slot.request_key}:{schedule_slot.arm}:"
+                        f"{schedule_slot.round_index}"
+                    )
+                    if digest != expected_digest:
+                        ok = False
+                        reasons.append("resource_slot_digest_mismatch")
+                        break
+                    if digest in seen_digests:
+                        ok = False
+                        reasons.append("resource_slot_digest_duplicate")
+                        break
+                    seen_digests.add(digest)
+                    slot_terminal = slot_record.terminal
+                    if slot_terminal is None:
+                        ok = False
+                        reasons.append("resource_terminal_missing")
+                        break
+                    if not ledger.run_id:
+                        ok = False
+                        reasons.append("resource_run_id_missing")
+                        break
+                    if ledger.run_id != slot_terminal.run_id:
+                        ok = False
+                        reasons.append("resource_run_id_mismatch")
+                        break
+                    if not slot_terminal.run_id:
+                        ok = False
+                        reasons.append("resource_terminal_run_id_missing")
+                        break
+                    ledger_observation = aggregate_resource_ledger(
+                        ledger,
+                        assessment=assessment,
+                        fixed_zero_use=schedule_slot.arm == "fixed_pipeline",
+                    )
+                    recomputed_obs.append(ledger_observation)
+                    if ledger_observation.model_dump(mode="json") != claimed.model_dump(
+                        mode="json"
+                    ):
+                        ok = False
+                        reasons.append("resource_observation_recompute_mismatch")
+                        break
+                    if (
+                        ledger_observation.acceptance_blocked
+                        or ledger.incomplete
+                        or ledger.telemetry_invalid
+                        or not ledger.closed
+                    ):
+                        ok = False
+                        reasons.append("resource_observation_blocked")
+                        break
+                if ok:
+                    campaign_blockers = validate_campaign_resource_totals(
+                        recomputed_obs, assessment=assessment
+                    )
+                    if campaign_blockers:
+                        ok = False
+                        reasons.extend(campaign_blockers)
+                if campaign.status == "resource_stopped":
+                    ok = False
+                    reasons.append("resource_stopped")
+                resource_observation_ok = ok
+        if resource_observation_ok is False and "resource_observation_failed" not in reasons:
+            reasons.append("resource_observation_failed")
+
     # Deduplicate reason codes while preserving order.
     seen: set[str] = set()
     unique_reasons: list[str] = []
@@ -944,6 +1078,7 @@ def evaluate_prerequisites(
         and fixed_safety_ok
         and positive_claims_evaluable
         and pinned_gate_identity_ok
+        and (resource_observation_ok is not False)
     )
     return PrerequisiteReport(
         identity_ok=identity_ok,
@@ -956,6 +1091,7 @@ def evaluate_prerequisites(
         fixed_safety_ok=fixed_safety_ok,
         positive_claims_evaluable=positive_claims_evaluable,
         pinned_gate_identity_ok=pinned_gate_identity_ok,
+        resource_observation_ok=resource_observation_ok,
         reason_codes=tuple(unique_reasons),
         all_passed=all_passed,
     )

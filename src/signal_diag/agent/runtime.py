@@ -53,6 +53,7 @@ from .rule_closure import (
     required_rule_profile,
 )
 from .state import DiagnosisState
+from .telemetry import RepairEvent, emit_safely, get_planner_telemetry_binding
 
 _DEFAULT_LIMITS = AgentLimits()
 
@@ -187,6 +188,7 @@ class DistortionDiagnosisRuntime:
                         recoverable_errors=recoverable_errors,
                     )
                 planner_retries_remaining -= 1
+                self._emit_repair_event(reason="parse_error")
                 continue
             except PlannerError as error:
                 state["errors"].append(str(error))
@@ -362,6 +364,26 @@ class DistortionDiagnosisRuntime:
         if assessment is not None:
             state["task_assessment"] = assessment
 
+    def _emit_repair_event(self, *, reason: str) -> None:
+        binding = get_planner_telemetry_binding(self._planner)
+        if binding is None:
+            return
+        turn_id = binding.current_turn_id or binding.last_turn_id or ""
+        emit_safely(
+            binding,
+            RepairEvent(
+                sequence_id=binding.new_id("seq"),
+                # Observation record: unique correlation; parent links the turn.
+                correlation_id=binding.new_id("repair"),
+                phase="end",
+                turn_id=turn_id,
+                reason="parse_error" if reason == "parse_error" else "reject_decision",
+                retries_consumed=1,
+                monotonic_s=binding.clock(),
+                parent_id=turn_id or None,
+            ),
+        )
+
     def _reject_decision(
         self,
         state: DiagnosisState,
@@ -374,6 +396,7 @@ class DistortionDiagnosisRuntime:
         if planner_retries_remaining <= 0:
             state["termination_reason"] = "max_planner_retries"
             return "terminated", planner_retries_remaining, recoverable_errors
+        self._emit_repair_event(reason="reject_decision")
         return "continue", planner_retries_remaining - 1, recoverable_errors
 
     def _handle_call_tool_decision(

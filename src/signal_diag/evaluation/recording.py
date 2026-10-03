@@ -116,6 +116,13 @@ class RecordingPlanner:
         self._clock = time.perf_counter if _clock is None else _clock
         self._records: list[PlannerDecisionRecord] = []
 
+    @property
+    def _planner_telemetry_binding(self) -> object | None:
+        """Forward the inner planner's private opt-in binding (read-only)."""
+        from signal_diag.agent.telemetry import get_planner_telemetry_binding
+
+        return get_planner_telemetry_binding(self._planner)
+
     async def decide(self, context: PlannerContext) -> AgentDecision:
         index = len(self._records)
         started = self._clock()

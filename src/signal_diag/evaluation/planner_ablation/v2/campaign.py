@@ -26,6 +26,7 @@ from signal_diag.evaluation.planner_ablation.v2.models import (
     ByteRequest,
     CampaignRecord,
     CampaignStatus,
+    CandidateManifestV2,
     EffectiveConfiguration,
     ExecutionMode,
     ExecutionProvenance,
@@ -38,6 +39,11 @@ from signal_diag.evaluation.planner_ablation.v2.models import (
     SlotKey,
     StudyProtocolV2,
     StudyTerminal,
+)
+from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+    ResourceAssessment,
+    ResourceCandidateValidation,
+    VerifiedResourceAdmission,
 )
 from signal_diag.evaluation.planner_ablation.v2.timing import (
     ArmSession,
@@ -287,27 +293,65 @@ def reject_online_preflight(
     verified_seal_digest: str | None,
     authorization_reference: str | None,
     budget: BudgetAssessment | None,
+    verified_resource_admission: VerifiedResourceAdmission | None = None,
+    candidate: object | None = None,
+    validation: ResourceCandidateValidation | None = None,
+    repository_root: Path | None = None,
 ) -> None:
     """Fail closed before any network client construction.
 
-    ``authorization_reference`` is an audit link, not self-issued permission.
+    Tasks 1–7 do not authorize online execution. A prebuilt
+    ``VerifiedResourceAdmission`` is never permission. When a candidate and
+    validation are supplied, digests are recomputed and still refused.
     """
-    missing: list[str] = []
+    missing: list[str] = ["online_path_not_authorized_in_offline_scope"]
     if not verified_seal_digest:
         missing.append("missing_verified_seal")
     if not authorization_reference:
         missing.append("missing_authorization_reference")
+    if verified_resource_admission is None:
+        missing.append("missing_verified_resource_admission")
+    else:
+        missing.append("prebuilt_resource_admission_not_accepted")
+    if candidate is not None and validation is not None and repository_root is not None:
+        from signal_diag.evaluation.planner_ablation.v2.sealing import (
+            make_verified_resource_admission,
+        )
+
+        if not isinstance(candidate, CandidateManifestV2):
+            missing.append("admission_candidate_untyped")
+        else:
+            try:
+                produced = make_verified_resource_admission(
+                    candidate,
+                    validation,
+                    seal_digest=verified_seal_digest or "",
+                    authorization_reference=authorization_reference or "",
+                    repository_root=repository_root,
+                )
+            except ValueError as error:
+                missing.append(str(error))
+            else:
+                if (
+                    verified_resource_admission is None
+                    or produced.candidate_digest != verified_resource_admission.candidate_digest
+                    or produced.extension_digest != verified_resource_admission.extension_digest
+                    or produced.assessment_digest != verified_resource_admission.assessment_digest
+                    or produced.authorization_binding_digest
+                    != verified_resource_admission.authorization_binding_digest
+                    or produced.seal_digest != verified_resource_admission.seal_digest
+                ):
+                    missing.append("admission_digest_mismatch")
     if budget is None:
         missing.append("missing_budget_preflight")
     elif budget.execution_blocked or budget.worst_case_requests is None:
         missing.append("incomplete_budget_preflight")
         if budget.worst_case_requests is None:
             missing.append("unbounded_worst_case_requests")
-    if missing:
-        raise CampaignPreflightError(
-            "online mode refused before network client construction: "
-            + ",".join(dict.fromkeys(missing))
-        )
+    raise CampaignPreflightError(
+        "online mode refused before network client construction: "
+        + ",".join(dict.fromkeys(missing))
+    )
 
 
 def _placeholder_timing(request_start: float, terminal_ready: float) -> RequestTiming:
@@ -624,6 +668,29 @@ def _write_campaign_artifacts(output_dir: Path, record: CampaignRecord) -> None:
     )
 
 
+def _admit_observer_token_ceilings(session: object, assessment: object | None) -> None:
+    """Copy derivable campaign token ceilings onto the slot observer before snapshot."""
+    if assessment is None:
+        return
+    from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+        ResourceAssessment,
+    )
+    from signal_diag.evaluation.planner_ablation.v2.resource_telemetry import (
+        admitted_per_send_token_ceilings,
+    )
+
+    if not isinstance(assessment, ResourceAssessment):
+        return
+    observer = getattr(session, "_observer", None)
+    if observer is None:
+        return
+    per_input, per_output = admitted_per_send_token_ceilings(assessment)
+    if per_input is not None and getattr(observer, "admitted_per_send_input_tokens", None) is None:
+        observer.admitted_per_send_input_tokens = per_input
+    if per_output is not None and getattr(observer, "admitted_per_send_output_tokens", None) is None:
+        observer.admitted_per_send_output_tokens = per_output
+
+
 async def run_schedule(
     schedule: Schedule,
     protocol: StudyProtocolV2,
@@ -637,6 +704,9 @@ async def run_schedule(
     verified_seal_digest: str | None = None,
     authorization_reference: str | None = None,
     wall_timeout: bool = True,
+    resource_policy: str | None = None,
+    resource_assessment: object | None = None,
+    verified_resource_admission: VerifiedResourceAdmission | None = None,
 ) -> CampaignRecord:
     """Execute the frozen schedule sequentially with typed failure accounting.
 
@@ -647,11 +717,27 @@ async def run_schedule(
     tick = clock if clock is not None else time.perf_counter
     request_map = dict(requests_by_key or {})
 
+    if execution_mode == "online" and resource_policy != "planner_ablation_resource_v1":
+        raise CampaignPreflightError(
+            "online mode refused before network client construction: "
+            "missing_resource_policy"
+        )
+    resource_path = resource_policy == "planner_ablation_resource_v1"
+    if execution_mode == "online" or resource_path:
+        assessment_blocked = not isinstance(resource_assessment, ResourceAssessment) or (
+            resource_assessment.execution_blocked
+        )
+        if resource_assessment is None or assessment_blocked:
+            raise CampaignPreflightError(
+                "resource preflight refused before session construction: "
+                "resource_assessment_missing_or_blocked"
+            )
     if execution_mode == "online":
         reject_online_preflight(
             verified_seal_digest=verified_seal_digest,
             authorization_reference=authorization_reference,
             budget=budget_assessment,
+            verified_resource_admission=verified_resource_admission,
         )
 
     if output_dir is not None and output_dir.exists() and any(output_dir.iterdir()):
@@ -663,7 +749,6 @@ async def run_schedule(
     status: CampaignStatus = "completed"
     stopped_after: SlotKey | None = None
     limitations: list[str] = []
-
     for index, slot in enumerate(schedule.slots):
         if stopped_after is not None:
             records.append(
@@ -692,7 +777,66 @@ async def run_schedule(
             clock=tick,
             wall_timeout_s=wall_timeout_s,
         )
+        resource_ledger = None
+        resource_observation = None
+        resource_stop_reason = None
+        resource_stop = False
         telemetry = collect_resource_telemetry(terminal)
+        if resource_path:
+            from signal_diag.evaluation.planner_ablation.v2.resource_telemetry import (
+                aggregate_resource_ledger,
+                project_legacy_resource_telemetry,
+            )
+
+            snapshot_fn = getattr(session, "resource_snapshot", None)
+            if snapshot_fn is None:
+                resource_stop = True
+                resource_stop_reason = "missing_resource_snapshot_capability"
+                limitations.append(resource_stop_reason)
+            else:
+                _admit_observer_token_ceilings(session, resource_assessment)
+                ledger = snapshot_fn(worker_drained=not drain_failed and not _session_background_worker_alive(session))
+                expected_digest = f"{slot.request_key}:{slot.arm}:{slot.round_index}"
+                resource_ledger = ledger.model_dump(mode="json")
+                if ledger.slot_key_digest != expected_digest:
+                    resource_stop = True
+                    resource_stop_reason = "slot_digest_mismatch"
+                    limitations.append("slot_digest_mismatch")
+                elif resource_assessment is None:
+                    resource_stop = True
+                    resource_stop_reason = "missing_resource_assessment"
+                else:
+                    observation = aggregate_resource_ledger(
+                        ledger,
+                        assessment=resource_assessment,  # type: ignore[arg-type]
+                        fixed_zero_use=slot.arm == "fixed_pipeline",
+                    )
+                    resource_observation = observation.model_dump(mode="json")
+                    if observation.acceptance_blocked or not ledger.closed:
+                        resource_stop = True
+                        resource_stop_reason = (
+                            observation.blockers[0]
+                            if observation.blockers
+                            else "resource_ledger_incomplete"
+                        )
+                    projected = project_legacy_resource_telemetry(
+                        observation,
+                        tool_call_count=len(terminal.tool_history),
+                        rule_evaluation_count=sum(
+                            len(batch.evaluations)
+                            for batch in terminal.rule_evaluation_batches
+                        ),
+                        fixed_zero_use=(
+                            slot.arm == "fixed_pipeline"
+                            and observation.exact_total_tokens == 0
+                        ),
+                    )
+                    telemetry = ResourceTelemetry(
+                        **projected,  # type: ignore[arg-type]
+                        credentials_redacted=True,
+                        raw_waveform_persisted=False,
+                        raw_fft_persisted=False,
+                    )
         slot_status: Literal["completed", "failed"]
         if terminal.status == "completed":
             slot_status = "completed"
@@ -704,12 +848,33 @@ async def run_schedule(
             attempt_count=1,
             terminal=terminal,
             resource_telemetry=telemetry,
+            resource_ledger=resource_ledger,
+            resource_observation=resource_observation,
+            resource_stop_reason=resource_stop_reason,
             teardown_duration_s=teardown_duration,
             teardown_error=teardown_error,
             drain_failed=drain_failed,
-            stop_campaign=stop_campaign,
+            stop_campaign=stop_campaign or resource_stop,
         )
         records.append(attempt)
+
+        if resource_stop:
+            status = "resource_stopped"
+            stopped_after = slot
+            limitations.append(
+                f"resource_stopped_after_slot_index={index}:{slot.arm}:{slot.round_index}"
+            )
+            if resource_stop_reason:
+                limitations.append(resource_stop_reason)
+            for remaining in schedule.slots[index + 1 :]:
+                records.append(
+                    SlotAttemptRecord(
+                        slot_key=remaining,
+                        status="unstarted",
+                        attempt_count=0,
+                    )
+                )
+            break
 
         if stop_campaign or drain_failed:
             status = "infrastructure_stopped"
@@ -734,7 +899,7 @@ async def run_schedule(
         raise RuntimeError("campaign failed to cover full schedule")
 
     attempted = sum(1 for item in records if item.attempt_count == 1)
-    completed = sum(1 for item in records if item.status == "completed")
+    completed = sum(1 for item in records if item.attempt_count == 1 and item.status == "completed")
     failed = sum(1 for item in records if item.status == "failed")
     unstarted = sum(1 for item in records if item.status == "unstarted")
     accepted = status == "completed" and unstarted == 0
@@ -752,6 +917,7 @@ async def run_schedule(
         stopped_after=stopped_after,
         accepted_conclusion_available=accepted,
         budget_assessment=budget_assessment,
+        resource_policy=resource_policy,
         schedule_order_preserved=True,
         campaign_retry_policy="forbidden",
         limitations=tuple(limitations),
