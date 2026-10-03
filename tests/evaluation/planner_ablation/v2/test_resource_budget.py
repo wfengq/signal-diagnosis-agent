@@ -1,7 +1,10 @@
-"""T-CX303/304/305/316: source-aware resource budget admission (offline)."""
+"""T-CX303/304/305/316/324: source-aware resource budget admission (offline)."""
 
 from __future__ import annotations
 
+import inspect
+
+from signal_diag.agent.provider_telemetry import build_audited_sdk_observation_profile
 from signal_diag.evaluation.planner_ablation.v2.campaign import (
     inspect_limits,
     snapshot_effective_configuration,
@@ -9,12 +12,18 @@ from signal_diag.evaluation.planner_ablation.v2.campaign import (
 from signal_diag.evaluation.planner_ablation.v2.resource_budget import (
     assess_resource_budget,
 )
+from signal_diag.evaluation.planner_ablation.v2.resource_capability import (
+    bind_observation_capability,
+    sdk_profile_audit_from_profile,
+)
 from signal_diag.evaluation.planner_ablation.v2.resource_models import (
     BoundFact,
     ObservationCapability,
     ProviderLimitsBinding,
+    ReportedUsage,
     ResourceProofBundle,
     SdkProfileAudit,
+    SlotResourceLedger,
 )
 
 
@@ -230,6 +239,84 @@ def test_context_capacity_does_not_prove_failed_attempt_exposure() -> None:
     assert "unproven_failed_attempt_token_bound" in assessment.blockers
     # Context capacity may compute a success-path reserve but not clear exposure.
     assert assessment.input_token_ceiling is None or assessment.execution_blocked
+
+
+def test_missing_observation_capability_blocks_budget() -> None:
+    config = snapshot_effective_configuration()
+    proofs = _proofs_with_planner_and_sdk()
+    assessment = assess_resource_budget(config, proofs, None)
+    assert assessment.execution_blocked is True
+    assert "missing_observation_capability" in assessment.blockers
+
+
+def test_incomplete_observation_capability_blocks_budget() -> None:
+    config = snapshot_effective_configuration()
+    proofs = _proofs_with_planner_and_sdk()
+    partial = _capability(observes_http_sends=False)
+    assessment = assess_resource_budget(config, proofs, partial)
+    assert assessment.execution_blocked is True
+    assert "incomplete_observation_capability" in assessment.blockers
+
+
+def test_bound_capability_clears_completeness_not_worst_case_blockers() -> None:
+    """Completeness bind ≠ HTTP/token ceilings or operator route acceptance."""
+    config = snapshot_effective_configuration()
+    agent_profile = build_audited_sdk_observation_profile()
+    capability = bind_observation_capability(
+        agent_profile,
+        offline_evidence_digest="f" * 64,
+        offline_evidence_reference="tests/evaluation/planner_ablation/v2/test_resource_budget.py",
+    )
+    sdk_audit = sdk_profile_audit_from_profile(agent_profile)
+    proofs = _proofs_with_planner_and_sdk(sdk_audit=sdk_audit)
+    assessment = assess_resource_budget(config, proofs, capability)
+    assert "missing_observation_capability" not in assessment.blockers
+    assert "incomplete_observation_capability" not in assessment.blockers
+    assert assessment.execution_blocked is True
+    assert "unproved_http_send_bound" in assessment.blockers
+    assert "unknown_input_token_bound" in assessment.blockers
+    assert "unknown_output_token_bound" in assessment.blockers
+    assert "unaccepted_provider_model_mapping" in assessment.blockers
+    assert agent_profile.supported is False
+
+
+def test_t_cx324_closed_ledger_does_not_admit_worst_case_ceilings() -> None:
+    """T-CX324: per-run ledger integrity does not substitute for bound proofs."""
+    config = snapshot_effective_configuration()
+    proofs = _proofs_with_planner_and_sdk()
+    capability = bind_observation_capability(
+        build_audited_sdk_observation_profile(),
+        offline_evidence_digest="e" * 64,
+    )
+    closed_low_usage = SlotResourceLedger(
+        slot_key_digest="slot_digest",
+        run_id="run_1",
+        events=(),
+        planner_turn_count=1,
+        repair_attempt_count=0,
+        logical_call_count=1,
+        sdk_attempt_count=1,
+        http_send_attempt_count=1,
+        reported_usage_subtotal=ReportedUsage(
+            prompt_tokens=10,
+            completion_tokens=5,
+            total_tokens=15,
+        ),
+        exact_total_tokens=15,
+        potential_token_exposure=15,
+        worker_drained=True,
+        telemetry_invalid=False,
+        incomplete=False,
+        closed=True,
+    )
+    assert closed_low_usage.closed is True
+    assert "ledger" not in inspect.signature(assess_resource_budget).parameters
+    assessment = assess_resource_budget(config, proofs, capability)
+    assert assessment.execution_blocked is True
+    assert assessment.http_send_ceiling is None
+    assert assessment.input_token_ceiling is None
+    assert assessment.output_token_ceiling is None
+    assert "unproved_http_send_bound" in assessment.blockers
 
 
 def test_dependency_or_model_binding_drift_blocks_admission() -> None:

@@ -1,6 +1,6 @@
 # Preseal budget status: `study_s1_planner_ablation_dev_2`
 
-**Status:** partial preseal documentation (Tasks 1–3). Not a protocol seal.
+**Status:** partial preseal (Tasks 1–6 offline impl). Not a protocol seal.
 **Readiness authority:** source-aware `assess_resource_budget` +
 `validate_resource_candidate`. Legacy `inspect_limits` is diagnostics only.
 **Honest completion:** some source-aware blockers remain `blocked`. This board
@@ -17,9 +17,9 @@ Companion docs: `RESOURCE_BOUNDS.md` (2026-10-03 re-audit appendix),
 
 | Fact | Value |
 |------|-------|
-| Writing branch | `cursor/oq019-dev2-preseal-plan-8b52` |
-| Writing tip | `6180eab701fc098f267f9e7cae56d381777e3441` |
-| Trunk product tip referenced | `11d7dbe` (D039 observed_facts) |
+| Writing branch | `cursor/oq019-dev2-preseal-impl-8b52` |
+| Writing tip | `da7b3b9` (post PR #24 Tasks 1–3 merge) |
+| Trunk product tip referenced | `da7b3b9` (D039 observed_facts on lineage) |
 | `contextual_product_tree_sha256()` | `4b7a5916e45c7eb72505be0a8c8d4aa7f95216fe8a6c87c22e7bd2253318429c` |
 | Installed `openai` | `3.6.0` (`importlib.metadata` via `uv run`) |
 | `uv.lock` `openai` | `3.6.0` (matches installed) |
@@ -68,12 +68,12 @@ explicit-flag gate). Candidate readiness is
 | Blocker / residual | Class | Status | Evidence | Residual risk |
 |--------------------|-------|--------|----------|---------------|
 | Reviewed SDK profile unsupported on installed `3.6.0` (drift vs audited `3.20.0` digests/hooks identity) | `environment_rebind` | **blocked** | `RESOURCE_BOUNDS.md` §2026-10-03; `build_audited_sdk_observation_profile().supported is False` | Digests alone do not clear; need supported profile + hook coverage + capability/proof `openai_version` agreement |
-| Missing / incomplete production observation capability (turns, repairs, SDK attempts, HTTP sends, usage) | `bind_study_observation` | **partial** | Offline harness proves fixture observation under T-CX306–315; production bind still required for non-fixture candidate | Offline green ≠ production capability bind |
+| Missing / incomplete production observation capability (turns, repairs, SDK attempts, HTTP sends, usage) | `bind_study_observation` | **partial** | `resource_capability.bind_observation_capability` (Tasks 4–6); offline harness T-CX306–315; production non-fixture bind still required | Helper maps installed/agent profile without upgrading unsupported SDK; offline green ≠ production capability bind |
 | `unproved_http_send_bound` (factor `H`) | `admitted_independent_proof` | **blocked** | `RESOURCE_BOUNDS.md` §3–5 | Redirects/auth/lower-transport unbound |
 | `unknown_input_token_bound` / `unknown_output_token_bound` / failed-attempt token exposure | `admitted_independent_proof` or `requires_product_cap_design` | **blocked** | `RESOURCE_BOUNDS.md` §4–5 | Context-window capacity ≠ failed-attempt exposure; no all-outcome proof |
 | `request_timeout` unknown as admitted product-bound fact | `admitted_independent_proof` | **blocked** | SDK default timeout audited; must not flip `request_timeout_explicit` | Legacy path still unknown; source-aware needs admitted applicable proof |
 | Planner-turn ceiling `P=28` / SDK attempt factor `A=3` (conditional arithmetic) | `admitted_independent_proof` | **partial** | Prior control-flow / SDK-default audits in `RESOURCE_BOUNDS.md` | Conditional; invalidated by uncovered continue paths or unsupported SDK identity |
-| `unaccepted_provider_model_mapping` (`deepseek-v4-flash` live route) | `operator_accept_route` | **blocked** | `RESOURCE_BOUNDS.md` §4; Task 6 package later | Operator written acceptance still required |
+| `unaccepted_provider_model_mapping` (`deepseek-v4-flash` live route) | `operator_accept_route` | **blocked** | `RESOURCE_BOUNDS.md` §4; **Operator route package** below | Operator written acceptance still required |
 | Closed per-run ledger / offline schedule totals as worst-case ceiling | *(forbidden substitute)* | **blocked** (must not clear) | §21.9 / T-CX324 | Observation integrity ≠ future worst-case requests/tokens |
 
 ## Evidence separation (normative pointer)
@@ -86,6 +86,18 @@ formal RealLLM campaign to obtain a ledger before seal (§21.9 / T-CX324–325).
 
 Green offline harness tests and a closed campaign ledger are **forbidden** as
 sole worst-case budget proof.
+
+## Operator route acceptance package (Task 6)
+
+Pending operator written acceptance. No `/models` probe in this wave.
+
+| Binding | Value | Accepted |
+|---------|-------|----------|
+| Requested / product model string | `deepseek-v4-flash` | n/a (product unchanged) |
+| Planner prompt identity | `v0.3-s1-planner-9.11` | study pin matches HEAD wiring |
+| Causal policy | `v9_11_mode_aware_no_fault_recovery` | study pin matches HEAD wiring |
+| Declared provider route vs requested name | V4.1-Flash legacy mapping per `RESOURCE_BOUNDS.md` §4 | **no** (`model_mapping_accepted=false`) |
+| Provider/model mapping for seal | — | **unaccepted** until operator signs live route binding |
 
 ## Mapping to existing T-CX obligations
 
@@ -115,10 +127,15 @@ RealLLM campaign requires a further grant after seal verify.
 
 ## Honest readiness statement
 
-Closed in this wave: documentation of two readiness tracks; installed tuple
+Closed in Tasks 1–3 wave: documentation of two readiness tracks; installed tuple
 re-audit; additive §21.9 / T-CX324–325; status board itself.
 
+Closed in Tasks 4–6 offline impl wave: study `resource_capability` bind helpers;
+T-CX324 ledger≠ceiling tests; operator route package recorded (mapping still
+**unaccepted**).
+
 Still blocked for formal candidate `seal_ready`: unsupported reviewed SDK
-profile on lock-aligned `3.6.0`, HTTP/token ceilings, operator route
-acceptance, and production observation capability bind. Partial closure is the
-intended honest outcome. Do not force `seal_ready=true` to finish the plan.
+profile on installed tuple (lock-aligned `3.6.0` vs audited `3.20.0` identity),
+HTTP/token ceilings, operator route acceptance, and production non-fixture
+observation bind. Partial closure is the intended honest outcome. Do not force
+`seal_ready=true` to finish the plan.

@@ -96,6 +96,7 @@ not an accepted live budget.
 |------|--------|
 | Requested model | `deepseek-v4-flash` (product string unchanged) |
 | Declared route (docs 2026-10-01) | V4.1-Flash for legacy flash name — **unaccepted** for seal |
+| Operator route package (Task 6) | `PRESEAL_BUDGET_STATUS.md` — `deepseek-v4-flash` + `v0.3-s1-planner-9.11` + `v9_11_mode_aware_no_fault_recovery`; mapping **unaccepted** |
 | `max_tokens` / `max_completion_tokens` on product create | **omitted** |
 | Provider context-window capacity | does **not** prove failed-attempt token exposure |
 | Serializer / tokenizer / framing / reachable-context proof | **absent** |
