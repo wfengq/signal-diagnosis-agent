@@ -677,3 +677,35 @@ ceilings; setting `model_mapping_accepted=true`; creating `protocol_seal/`;
 RealLLM campaign; retargeting legacy `inspect_limits`.
 
 Related: OQ-019 / D038 preseal residual `environment_rebind`.
+
+## D041 — OQ-019/dev_2 residual preseal route acceptance and HTTP send factor `H`
+
+**Decision (operator authorize-execute 2026-10-03, post-D040):** Close two
+source-aware preseal blockers for `study_s1_planner_ablation_dev_2` without
+changing product model strings, prompts, causal policy, or request payloads.
+
+1. **Operator route acceptance (Task 6):** Written acceptance of the live route
+   package already recorded in `PRESEAL_BUDGET_STATUS.md`: requested model
+   `deepseek-v4-flash`, planner prompt `v0.3-s1-planner-9.11`, causal policy
+   `v9_11_mode_aware_no_fault_recovery`, declared V4.1-Flash legacy mapping
+   (`deepseek-v4.1-flash`). Study `ProviderLimitsBinding` may set
+   `model_mapping_accepted=true` when bound to that identity. No `/models`
+   probe and no product composition change.
+
+2. **HTTP send factor admission:** Admit `H=21` (`http_sends_per_sdk_attempt`)
+   from audited defaults on the reviewed lock-aligned install: OpenAI Async
+   client enables redirect following; httpx `DEFAULT_MAX_REDIRECTS=20` →
+   worst-case sends per SDK attempt `1+20`. Origin `sdk_default_audit`, scope
+   `admitted`, `dependency_identity` `openai==3.6.0;httpx==0.28.1`. Updates
+   `RESOURCE_BOUNDS.md` arithmetic and bound-fact JSON; closes
+   `unproved_http_send_bound` on the source-aware board when proofs bind `H`.
+
+**Still blocked (explicit):** all-outcome and per-send input/output token
+ceilings; failed-attempt token exposure; formal `seal_ready=true` without token
+proofs. Legacy `inspect_limits` unchanged.
+
+**Not authorized by this decision:** creating `protocol_seal/`; RealLLM
+campaign; retargeting legacy `inspect_limits`; inventing `max_tokens` or
+product caps.
+
+Related: D040 SDK rebind; OQ-019 preseal residual gates.

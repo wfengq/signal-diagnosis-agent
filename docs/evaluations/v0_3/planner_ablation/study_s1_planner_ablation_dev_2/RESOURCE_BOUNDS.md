@@ -17,8 +17,8 @@ Audit environment (writing workspace, post-rebind):
 
 | Fact | Value |
 |------|-------|
-| Branch | `cursor/oq019-dev2-sdk-rebind-8b52` |
-| Trunk tip referenced | `944b957` (pre-rebind); product tree tip per D040 after rebind |
+| Branch | `cursor/oq019-dev2-residual-gates-8b52` |
+| Trunk tip referenced | `0b2cc5d` (post D040 rebind; D041 residual gates) |
 | Installed `openai` | `3.6.0` (`importlib.metadata`) |
 | `uv.lock` `openai` | `3.6.0` (**matches installed**) |
 | `httpx` | `0.28.1` |
@@ -42,7 +42,7 @@ Audited defaults (not product overrides):
 |---------|-------|--------|
 | `DEFAULT_MAX_RETRIES` | `2` → **3** SDK attempts/call | `sdk_default_audit` |
 | `DEFAULT_TIMEOUT` | connect=5s, read/write/pool=600s | `sdk_default_audit` |
-| Redirects | enabled by default on native httpx client | **unproved** HTTP send factor `H` |
+| Redirects | Async client follows redirects; httpx `DEFAULT_MAX_REDIRECTS=20` | **admitted** `H=21` (D041; §3) |
 | Auth | bearer API key; product does not pass custom http client | `bearer_api_key` |
 
 Candidate observation hooks (3.20.0 source audit; support gated by Task 4 offline tests):
@@ -82,25 +82,36 @@ path invalidates `P`; do not repair by adding a product runtime cap.
 S = 57 product slots
 P = 28 (control_flow_proof, conditional)
 A = 3  (sdk_default_audit retry loop)
-H = UNKNOWN (redirects / auth resend / lower-transport replay unbound)
+H = 21 (sdk_default_audit, admitted D041)
 
 logical_call_ceiling = S * P           = 1596
 sdk_attempt_ceiling  = S * P * A       = 4788
-http_send_ceiling    = S * P * A * H   = UNKNOWN
-input_token_ceiling  = http_send_ceiling * I = UNKNOWN
-output_token_ceiling = http_send_ceiling * O = UNKNOWN
+http_send_ceiling    = S * P * A * H   = 100548
+http_send_per_slot   = P * A * H       = 1764
+input_token_ceiling  = http_send_ceiling * I = UNKNOWN (no admitted I)
+output_token_ceiling = http_send_ceiling * O = UNKNOWN (no admitted O)
 ```
 
-`4788` is a **conditional SDK-attempt ceiling**, not an HTTP-send ceiling and
-not an accepted live budget.
+**HTTP send factor audit (D041, no network):** On the reviewed lock-aligned
+install (`openai==3.6.0`, native dispatch `httpx.AsyncClient.send`), the OpenAI
+Async client enables redirect following. httpx `DEFAULT_MAX_REDIRECTS` is `20`
+(`httpx==0.28.1`). Worst-case HTTP dispatches per SDK attempt is therefore
+`1 + 20 = 21` (`http_sends_per_sdk_attempt`). Origin `sdk_default_audit`,
+scope `admitted`, `dependency_identity` `openai==3.6.0;httpx==0.28.1`. This
+admits redirect-chain replay only; auth resend and lower-transport replay remain
+outside the proof.
+
+`4788` is a **conditional SDK-attempt ceiling**. `100548` is a **conditional
+HTTP-send ceiling** when `H` is bound; it is not an accepted live campaign
+budget without token proofs and non-fixture capability.
 
 ## 4. Provider model / token evidence
 
 | Fact | Status |
 |------|--------|
 | Requested model | `deepseek-v4-flash` (product string unchanged) |
-| Declared route (docs 2026-10-01) | V4.1-Flash for legacy flash name — **unaccepted** for seal |
-| Operator route package (Task 6) | `PRESEAL_BUDGET_STATUS.md` — `deepseek-v4-flash` + `v0.3-s1-planner-9.11` + `v9_11_mode_aware_no_fault_recovery`; mapping **unaccepted** |
+| Declared route (docs 2026-10-01) | V4.1-Flash legacy name → `deepseek-v4.1-flash` — **accepted** on study binding (D041) |
+| Operator route package (Task 6) | `PRESEAL_BUDGET_STATUS.md` — `deepseek-v4-flash` + `v0.3-s1-planner-9.11` + `v9_11_mode_aware_no_fault_recovery`; mapping **accepted** (`model_mapping_accepted=true`) |
 | `max_tokens` / `max_completion_tokens` on product create | **omitted** |
 | Provider context-window capacity | does **not** prove failed-attempt token exposure |
 | Serializer / tokenizer / framing / reachable-context proof | **absent** |
@@ -110,10 +121,10 @@ not an accepted live budget.
 
 | Blocker | Status |
 |---------|--------|
-| `unproved_http_send_bound` | remains — no admitted `H` |
+| `unproved_http_send_bound` | **cleared** when proofs bind admitted `H=21` (D041) |
 | `unproven_failed_attempt_token_bound` | remains — context capacity ≠ failed-attempt exposure |
 | `unknown_input_token_bound` / `unknown_output_token_bound` | remains without all-outcome or admitted per-send proofs |
-| `unaccepted_provider_model_mapping` | remains until operator accepts live route binding |
+| `unaccepted_provider_model_mapping` | **cleared** on study binding after D041 operator acceptance |
 | `unavailable_retry_telemetry` (legacy `inspect_limits`) | remains until Task 3–5 observation is bound |
 | Lockfile vs installed SDK drift | **cleared** on lock-aligned `3.6.0` (§7); superseded §1 drift retained for history |
 
@@ -138,8 +149,8 @@ grant (2026-10-03). Companion status board: `PRESEAL_BUDGET_STATUS.md`.
 
 | Fact | Value |
 |------|-------|
-| Writing branch | `cursor/oq019-dev2-sdk-rebind-8b52` |
-| Trunk tip referenced | `944b957` (pre-rebind); product tree tip per D040 after rebind |
+| Writing branch | `cursor/oq019-dev2-residual-gates-8b52` |
+| Trunk tip referenced | `0b2cc5d` (post D040; D041 residual gates) |
 | Installed `openai` | `3.6.0` |
 | `uv.lock` `openai` | `3.6.0` (**matches installed**) |
 | `httpx` | `0.28.1` |
@@ -167,13 +178,21 @@ What offline rebind **clears** (this grant only):
   installed tuple matches this table.
 - Lockfile↔install drift for `openai` on this environment.
 
-What rebind does **not** clear:
+What rebind does **not** clear (D040 alone):
 
-- HTTP send factor `H`, input/output token ceilings, or failed-attempt token
-  exposure (still **unknown** / unproved).
-- Operator route acceptance (`model_mapping_accepted` stays **false**).
+- Input/output token ceilings or failed-attempt token exposure (still
+  **unknown** / unproved).
+
+Closed in **D041** residual gates (study proofs; product unchanged):
+
+- HTTP send factor `H=21` (`unproved_http_send_bound` when bound).
+- Operator route acceptance (`model_mapping_accepted=true` on study binding).
+
+Still not cleared by D040/D041:
+
 - Legacy `inspect_limits` explicit-flag blockers.
 - Formal `protocol_seal/` or RealLLM campaign readiness.
+- Formal candidate `seal_ready=true` without token proofs and non-fixture bind.
 
 **No formal seal. No RealLLM authorized by this section.**
 
@@ -209,7 +228,16 @@ What rebind does **not** clear:
     },
     {
       "name": "http_send_factor",
-      "status": "unknown"
+      "status": "approved",
+      "value": 21,
+      "unit": "http_sends_per_sdk_attempt",
+      "origin": "sdk_default_audit",
+      "scope": "admitted",
+      "applicable_path": "openai_async_follow_redirects_plus_httpx_default_max_redirects_20",
+      "code_identity": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "dependency_identity": "openai==3.6.0;httpx==0.28.1",
+      "model_identity": "deepseek-v4-flash",
+      "acceptance_reference": "docs/DECISIONS.md#d041--oq-019dev_2-residual-preseal-route-acceptance-and-http-send-factor-h"
     },
     {
       "name": "input_token_ceiling",

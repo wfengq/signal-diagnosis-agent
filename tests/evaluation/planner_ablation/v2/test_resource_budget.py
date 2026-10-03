@@ -14,7 +14,9 @@ from signal_diag.evaluation.planner_ablation.v2.resource_budget import (
     assess_resource_budget,
 )
 from signal_diag.evaluation.planner_ablation.v2.resource_capability import (
+    admitted_http_send_factor_bound_fact,
     bind_observation_capability,
+    operator_accepted_provider_limits_binding,
     sdk_profile_audit_from_profile,
 )
 from signal_diag.evaluation.planner_ablation.v2.resource_models import (
@@ -342,6 +344,37 @@ def test_t_cx324_closed_ledger_does_not_admit_worst_case_ceilings() -> None:
     assert assessment.http_send_ceiling is None
     assert assessment.input_token_ceiling is None
     assert assessment.output_token_ceiling is None
+    assert "unproved_http_send_bound" in assessment.blockers
+
+
+def test_admitted_http_send_clears_unproved_bound_tokens_still_block() -> None:
+    """D041: admitted H clears unproved_http_send_bound; token ceilings stay gated."""
+    config = snapshot_effective_configuration()
+    http_send = admitted_http_send_factor_bound_fact(
+        proof_digest="a" * 64,
+        code_identity="b" * 64,
+    )
+    provider = operator_accepted_provider_limits_binding(source_digest="2" * 64)
+    proofs = _proofs_with_planner_and_sdk(http_send=http_send, provider=provider)
+    assessment = assess_resource_budget(config, proofs, _capability())
+    assert assessment.http_send_factor == 21
+    assert assessment.http_send_ceiling == 57 * 28 * 3 * 21
+    assert "unproved_http_send_bound" not in assessment.blockers
+    assert "unaccepted_provider_model_mapping" not in assessment.blockers
+    assert assessment.model_mapping_accepted is True
+    assert assessment.execution_blocked is True
+    assert assessment.seal_ready is False
+    assert "unknown_input_token_bound" in assessment.blockers
+    assert "unknown_output_token_bound" in assessment.blockers
+
+
+def test_operator_accepted_route_clears_mapping_blocker_independently() -> None:
+    config = snapshot_effective_configuration()
+    provider = operator_accepted_provider_limits_binding(source_digest="2" * 64)
+    proofs = _proofs_with_planner_and_sdk(provider=provider)
+    assessment = assess_resource_budget(config, proofs, _capability())
+    assert "unaccepted_provider_model_mapping" not in assessment.blockers
+    assert assessment.model_mapping_accepted is True
     assert "unproved_http_send_bound" in assessment.blockers
 
 

@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from signal_diag.agent.telemetry import SdkObservationProfile
 from signal_diag.evaluation.planner_ablation.v2.resource_models import (
+    BoundFact,
     InstalledSdkIdentity,
     ObservationCapability,
+    ProviderLimitsBinding,
     SdkProfileAudit,
 )
 
@@ -15,6 +17,19 @@ _SEND_REQUEST_HOOK = "AsyncAPIClient._send_request"
 _NATIVE_DISPATCH_HOOK = "httpx.AsyncClient.send"
 _AUDITED_MAX_RETRIES_DEFAULT = 2
 _AUDITED_SDK_ATTEMPTS_PER_CALL = 3
+_ADMITTED_HTTP_SEND_FACTOR = 21
+_HTTP_SEND_UNIT = "http_sends_per_sdk_attempt"
+_HTTP_SEND_DEPENDENCY_IDENTITY = "openai==3.6.0;httpx==0.28.1"
+_HTTP_SEND_APPLICABLE_PATH = (
+    "openai_async_follow_redirects_plus_httpx_default_max_redirects_20"
+)
+_D041_ACCEPTANCE_REFERENCE = (
+    "docs/DECISIONS.md#d041--oq-019dev_2-residual-preseal-route-acceptance-and-http-send-factor-h"
+)
+_OPERATOR_ROUTE_DECLARED = "deepseek-v4.1-flash"
+_OPERATOR_ROUTE_REQUESTED = "deepseek-v4-flash"
+_OPERATOR_ROUTE_ENDPOINT = "https://api.deepseek.com"
+_OPERATOR_ROUTE_SOURCE_DATE = "2026-10-01"
 
 
 def installed_sdk_identity_from_profile(profile: SdkObservationProfile) -> InstalledSdkIdentity:
@@ -112,4 +127,52 @@ def bind_observation_capability(
         offline_evidence_reference=offline_evidence_reference,
         fixture_only=fixture_only,
         blockers=capability_blockers,
+    )
+
+
+def operator_accepted_provider_limits_binding(
+    *,
+    source_digest: str,
+    fixture_only: bool = True,
+    source_reference: str = _D041_ACCEPTANCE_REFERENCE,
+) -> ProviderLimitsBinding:
+    """Study-only Task 6 route package after operator acceptance (D041).
+
+    Does not change product model strings or live provider wiring.
+    """
+    return ProviderLimitsBinding(
+        endpoint_origin=_OPERATOR_ROUTE_ENDPOINT,
+        requested_model=_OPERATOR_ROUTE_REQUESTED,
+        declared_route=_OPERATOR_ROUTE_DECLARED,
+        allowed_response_models=(_OPERATOR_ROUTE_REQUESTED, "deepseek-chat"),
+        source_date=_OPERATOR_ROUTE_SOURCE_DATE,
+        source_digest=source_digest,
+        source_reference=source_reference,
+        token_limit_scope="success_path_only",
+        authentication_mode="bearer_api_key",
+        model_mapping_accepted=True,
+        fixture_only=fixture_only,
+    )
+
+
+def admitted_http_send_factor_bound_fact(
+    *,
+    proof_digest: str,
+    code_identity: str,
+    acceptance_reference: str = _D041_ACCEPTANCE_REFERENCE,
+    applicable_path: str = _HTTP_SEND_APPLICABLE_PATH,
+) -> BoundFact:
+    """Admitted redirect-chain HTTP send factor ``H`` for reviewed ``openai==3.6.0`` install."""
+    return BoundFact(
+        name="http_send_factor",
+        value=_ADMITTED_HTTP_SEND_FACTOR,
+        unit=_HTTP_SEND_UNIT,
+        origin="sdk_default_audit",
+        applicable_path=applicable_path,
+        proof_digest=proof_digest,
+        code_identity=code_identity,
+        dependency_identity=_HTTP_SEND_DEPENDENCY_IDENTITY,
+        model_identity=_OPERATOR_ROUTE_REQUESTED,
+        acceptance_reference=acceptance_reference,
+        scope="admitted",
     )
