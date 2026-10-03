@@ -248,6 +248,14 @@ def _print_contextual_text_report(report: ContextualDiagnosisReport) -> None:
         print(f"context_guidance: {guidance.summary}")
         print(f"  reason_codes: {', '.join(guidance.reason_codes)}")
         print(f"  unlockable_modes: {', '.join(guidance.unlockable_modes)}")
+        for fact in guidance.observed_facts:
+            unit_suffix = ""
+            if fact.unit not in (None, ""):
+                unit_suffix = f" {fact.unit}"
+            print(
+                f"  observed_fact: {fact.evidence_id} {fact.metric}="
+                f"{fact.value}{unit_suffix}"
+            )
 
 
 def _emit_outputs(args: argparse.Namespace, report: DiagnosisReport) -> None:

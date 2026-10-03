@@ -11,6 +11,7 @@ from signal_diag.agent.models import (
     DiagnosisClaim,
     StructuredDiagnosis,
 )
+from signal_diag.app.cli import _print_contextual_text_report
 from signal_diag.app.context_guidance import build_context_guidance
 from signal_diag.app.contextual_models import (
     ContextualAppRunSnapshot,
@@ -314,3 +315,49 @@ def test_t_cx323_html_lists_observed_facts_inside_guidance() -> None:
     assert "99.0" not in facts_html
     assert "12.65" in measured_html
     assert "99.0" in measured_html
+
+
+def test_t_cx326_cli_lists_observed_facts_inside_guidance(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    tr = TimeRange(start_s=0.0, end_s=1.0)
+    ev_lo = _thd_evidence(
+        evidence_id="ev_a_lo",
+        value=12.65,
+        time_range=tr,
+    )
+    ev_hi = _thd_evidence(
+        evidence_id="ev_z_hi",
+        value=99.0,
+        time_range=tr,
+    )
+    result = _single_signal_result(evidence=(ev_hi, ev_lo))
+    guidance = build_context_guidance(mode="single_signal", result=result)
+    assert guidance is not None
+    assert len(guidance.observed_facts) == 1
+
+    snapshot = _single_signal_completed(result=result, context_guidance=guidance)
+    report = build_contextual_diagnosis_report(snapshot, generated_at=GENERATED)
+    _print_contextual_text_report(report)
+    out = capsys.readouterr().out
+    unlock_idx = out.index("unlockable_modes:")
+    fact_idx = out.index("observed_fact: ev_a_lo")
+    assert fact_idx > unlock_idx
+    assert "12.65" in out
+    assert "99.0" not in out.split("observed_fact:")[1].split("\n")[0]
+    assert "observed_fact:" not in out.split("observed_fact:", 1)[0]
+
+
+def test_t_cx326_cli_omits_observed_fact_lines_when_empty(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    result = _single_signal_result(evidence=())
+    guidance = build_context_guidance(mode="single_signal", result=result)
+    assert guidance is not None
+    assert guidance.observed_facts == ()
+
+    snapshot = _single_signal_completed(result=result, context_guidance=guidance)
+    report = build_contextual_diagnosis_report(snapshot, generated_at=GENERATED)
+    _print_contextual_text_report(report)
+    out = capsys.readouterr().out
+    assert "observed_fact:" not in out

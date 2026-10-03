@@ -27,7 +27,7 @@ product changes remain separately gated.
 Observation defaults off; formal seal, RealLLM, concrete numeric budgets, and
 provider-binding acceptance remain separately gated.
 
-**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX323)
+**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX326)
 
 **Live product identity (HEAD):** prompt `v0.3-s1-planner-9.11` with causal
 policy `v9_11_mode_aware_no_fault_recovery` (§15). Historical identities
@@ -649,6 +649,10 @@ Compatibility:
   extra="forbid" consumers must be updated in-repo; out-of-repo old binaries
   not guaranteed
 ```
+
+Product text surfaces (contextual HTML, Web UI guidance panel, CLI text report)
+list `observed_facts` only inside context-guidance; they never appear as Measured
+Evidence or soft diagnosis.
 
 `submit_contextual_wav` / `POST /api/v1/contextual-runs/wav` /
 `signal-diag diagnose contextual --mode single_signal` accept
