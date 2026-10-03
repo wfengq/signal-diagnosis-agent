@@ -32,6 +32,7 @@
 | T-CX276..288 | D038 planner-ablation utility study (definitions; harness gated) |
 | T-CX289..302 | D038 protocol revision / study_s1_planner_ablation_dev_2 (definitions; seal/RealLLM gated) |
 | T-CX303..318 | D038 token/transport telemetry / study_s1_planner_ablation_dev_2 (definitions; seal/RealLLM gated) |
+| T-CX324..325 | OQ-019/dev_2 preseal evidence separation + PRESEAL status board (definitions; seal/RealLLM gated) |
 | T-CX319..323 | D039 single-file observed facts on context_guidance (definitions; implementation gated) |
 
 ## Registered identities (Task 1)
@@ -254,6 +255,8 @@
 | T-CX321 | insufficient_evidence path yields `observed_facts=()`; int/bool/str/NaN/Inf/wrong-tool/N/A excluded from display without coercion. |
 | T-CX322 | old payload without `observed_facts` → `()`; new guidance round-trips through snapshot/report JSON with scope fields intact; soft-diagnosis banned. |
 | T-CX323 | HTML lists facts only inside the context-guidance section (not Measured Evidence); product_tree identity append-only row binds digest change. |
+| T-CX324 | Offline observation capability/event-graph tests and per-run ledgers do not admit production worst-case planner/SDK/HTTP/token ceilings; each ceiling needs an independent applicable authenticated proof; preseal must not require a formal RealLLM campaign ledger before seal. |
+| T-CX325 | `PRESEAL_BUDGET_STATUS.md` is a permitted unsealed status board under `study_s1_planner_ablation_dev_2`; it is not a numeric bound-fact citation; formal candidate readiness follows source-aware validation, not legacy `inspect_limits`. |
 
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
@@ -321,7 +324,7 @@ T-CX299's requirement for actual resource telemetry; ceiling-only estimates
 are not a substitute. Later T285 additive paths for this feature are exactly
 `src/signal_diag/agent/telemetry.py`,
 `src/signal_diag/agent/provider_telemetry.py`, and
-`src/signal_diag/evaluation/recording.py`. Unsealed evidence may add only
+`src/signal_diag/evaluation/recording.py`. Unsealed evidence may add
 `RESOURCE_BOUNDS.md` under the `dev_2` study root; `protocol_seal/` remains
 forbidden. Offline observation, source-aware admission, architecture allowlist
 edits, formal seal, RealLLM, concrete numeric budget acceptance,
@@ -337,3 +340,14 @@ HTML render, tests, and the append-only code-identity row require a separate
 implementation grant. They must not alter reason-code selection, DSP, rule
 thresholds, planner prompt, causal finish gates, frozen V0.2 §§1–64, sealed
 v9.11 identities, planner-ablation budgets, or T-CX001–T-CX318 meanings.
+T-CX324–T-CX325 are additive definitions for OQ-019/dev_2 preseal evidence
+separation (`CONTRACTS_V0_3_CONTEXTUAL.md` §21.9). They clarify that offline
+observation/ledgers do not admit worst-case ceilings, that preseal does not
+require a RealLLM campaign ledger before seal, and that
+`PRESEAL_BUDGET_STATUS.md` is a permitted status board (not a numeric
+bound-fact citation) while formal readiness stays on source-aware validation.
+Registering these IDs does not clear residual blockers, authorize seal or
+RealLLM, retarget legacy `inspect_limits`, or change product diagnosis gates.
+They must not alter §19 / §20 / §21.1–21.8 / `dev_1` meanings,
+T-CX001–T-CX323 definitions, frozen V0.2 §§1–64, sealed v9.11 identities, DSP
+thresholds, or the product planner default.

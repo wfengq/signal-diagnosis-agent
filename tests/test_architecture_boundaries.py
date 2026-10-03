@@ -1705,4 +1705,5 @@ def test_t_cx301_dev1_reproducer_and_evidence_root_untouched() -> None:
         "LABEL_REVIEW.md",
         "BUDGET_BOUNDS.md",
         "RESOURCE_BOUNDS.md",
+        "PRESEAL_BUDGET_STATUS.md",
     }

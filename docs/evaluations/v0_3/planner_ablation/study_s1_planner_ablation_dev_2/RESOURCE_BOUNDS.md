@@ -124,6 +124,62 @@ change product constructors, request payloads, or explicit-flag semantics.
 
 **No formal seal. No RealLLM. No commit/push authorized by this document.**
 
+## 7. Re-audit appendix (2026-10-03, Tasks 1–3 docs grant)
+
+**Scope:** refresh installed SDK / transport identity for the writing
+environment used by OQ-019/dev_2 preseal Tasks 1–3. Companion status board:
+`PRESEAL_BUDGET_STATUS.md`. Does **not** clear source-aware blockers by
+recording digests alone. Does **not** change reviewed capability constants in
+`provider_telemetry.py` (that remains a later offline-impl / rebind grant).
+
+| Fact | Value |
+|------|-------|
+| Writing tip | `6180eab701fc098f267f9e7cae56d381777e3441` |
+| `contextual_product_tree_sha256()` | `4b7a5916e45c7eb72505be0a8c8d4aa7f95216fe8a6c87c22e7bd2253318429c` |
+| Installed `openai` | `3.6.0` |
+| `uv.lock` `openai` | `3.6.0` (**matches installed**) |
+| `httpx` | `0.28.1` |
+| `httpcore` | `1.0.9` |
+| Native HTTP family | `httpx` |
+| `DEFAULT_MAX_RETRIES` | `2` → **3** SDK attempts/call |
+| `DEFAULT_TIMEOUT` | connect=5s, read/write/pool=600s |
+| Candidate hooks (names unchanged) | `AsyncAPIClient._prepare_options`, `AsyncAPIClient._send_request`, `httpx.AsyncClient.send` |
+| `build_audited_sdk_observation_profile().supported` | **false** |
+
+Installed source digests (`sha256` of file bytes):
+
+| Path | SHA-256 |
+|------|---------|
+| `openai/__init__.py` | `2c6e2a8d358b4bd705fa019a0d5b10d5b457591cf699e53b8aff36d9ba30fb1d` |
+| `openai/_base_client.py` | `53dc8c82344056600a08f51df158956827bdcc1a15cd4d3e1ce905a22663bd4c` |
+| `openai/_client.py` | `e2421659ea3ebd4ede9c940ae449e3cea65c096f21d97a1ece44f194aeda85ae` |
+| `openai/_constants.py` | `eeccbc82822f0e4372f42f666afd1d1e1fe80cb2ef71357018a0170ac6b9ce32` |
+| Aggregate (`aggregate_openai_source_digest`) | `a4a2193775e68b1497d61c84ad851e785597db0f0a2a443856d3b890fa412e47` |
+
+Profile blockers observed (exact):
+
+```text
+unsupported_openai_version:installed_3.6.0_audited_3.20.0
+openai_source_digest_drift_vs_reviewed
+openai_source_file_digest_drift:openai/__init__.py
+openai_source_file_digest_drift:openai/_base_client.py
+openai_source_file_digest_drift:openai/_client.py
+```
+
+Interpretation:
+
+1. Prior §1 audit recorded installed `3.20.0` vs lock `3.6.0`. This environment
+   is the opposite drift direction: lock-aligned `3.6.0`, but **not** the
+   reviewed capability identity (`3.20.0` digests baked into
+   `provider_telemetry`).
+2. Recording the installed tuple clears neither `unsupported_sdk_profile` nor
+   capability/proof `openai_version` disagreement. Hook *names* match the
+   reviewed profile; support still fails identity match.
+3. Residual source-aware blockers from §5 remain open. See
+   `PRESEAL_BUDGET_STATUS.md` Table B.
+
+**No formal seal. No RealLLM. No commit/push authorized by this appendix.**
+
 ## Structured bound-fact records (machine-readable)
 
 ```json
