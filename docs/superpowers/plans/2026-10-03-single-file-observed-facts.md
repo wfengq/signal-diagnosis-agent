@@ -2,9 +2,16 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Status:** plan written (2026-10-03). Execution requires a separate operator
+**Status:** plan revised after Codex/operator revise on tip `a680e2d`
+(2026-10-03). Spec still approved. Execution requires a separate operator
 grant (`授权实现`). Design-only PR #22 must not be treated as implementation
 authorization.
+
+**Authorship of commits under `授权实现`:** Implementation authorization covers
+Tasks 1–5 file edits and offline verification only. It does **not**
+automatically include `git commit`, `git push`, opening an implementation PR,
+or merge. Without a separate commit/push/PR grant, leave an uncommitted diff
+for independent recheck.
 
 **Goal:** On eligible single-file `context_guidance`, attach deterministic
 `observed_facts` copied from same-run valid Evidence that pass an independent
@@ -31,7 +38,8 @@ reporting.
   `v9_11_mode_aware_no_fault_recovery`.
 - Display whitelist is independent of the §17 reason-selection metric set.
 - First phase whitelist is only `thd_percent` /
-  `analyze_harmonic_distortion` / finite float / unit `%`.
+  `analyze_harmonic_distortion` / **strict finite `float`** (not `int`, not
+  `bool`, not `str`) / unit `%`. Do not coerce other types via `float(...)`.
 - Empty `observed_facts` is valid. No zero-fill. No derived metrics.
 - Summary must not soft-diagnose (`可能是`, `likely`, harmonic fault as
   attribution).
@@ -93,7 +101,7 @@ ContextGuidance.observed_facts: tuple[ObservedFact, ...]  # may be ()
 Display whitelist (first phase; independent of reason metric set):
   metric=thd_percent
   source_tool=analyze_harmonic_distortion
-  type=finite float
+  type=strict finite float  # reject int/bool/str; no float() coercion
   unit=%
 
 Selection: filter whitelist; dedupe by (metric, channel, time_range) keeping
@@ -112,19 +120,14 @@ Update the document header Test IDs line to include the new T-CX range.
 
 | ID | Obligation |
 |----|------------|
-| T-CX319 | harmonic_attribution guidance with qualifying `thd_percent` Evidence yields non-empty field-faithful `observed_facts` |
-| T-CX320 | harmonic reason with no qualifying display Evidence yields `observed_facts=()` without changing reason |
-| T-CX321 | insufficient_evidence reason yields `observed_facts=()`; N/A / wrong tool / non-finite excluded |
-| T-CX322 | old payload without `observed_facts` decodes to `()`; summary forbids soft diagnosis |
-| T-CX323 | contextual HTML renders observed_facts when present; product_tree identity append-only row binds digest change |
+| T-CX319 | harmonic_attribution guidance with qualifying finite-float `thd_percent` Evidence yields non-empty field-faithful `observed_facts` |
+| T-CX320 | harmonic reason with no qualifying display Evidence yields `observed_facts=()` with reason codes exactly unchanged |
+| T-CX321 | insufficient_evidence path yields `observed_facts=()`; int/bool/str/NaN/Inf/wrong-tool/N/A excluded from display without coercion |
+| T-CX322 | old payload without `observed_facts` → `()`; new guidance round-trips through snapshot/report JSON with scope fields intact; soft-diagnosis banned |
+| T-CX323 | HTML lists facts only inside the context-guidance section (not Measured Evidence); product_tree identity append-only row binds digest change |
 
-- [ ] **Step 4: Commit**
-
-```bash
-git add docs/CONTRACTS_V0_3_CONTEXTUAL.md docs/TEST_PLAN_V0_3_CONTEXTUAL.md \
-  docs/superpowers/specs/2026-10-03-single-file-observed-facts-design.md
-git commit -m "docs: register observed_facts contracts and T-CX319–323"
-```
+- [ ] **Step 4: Stop for recheck** — leave the contract/test-plan edits in the
+  working tree. Do not commit unless a separate commit grant exists.
 
 ---
 
@@ -182,7 +185,7 @@ def test_t_cx319_qualifying_thd_emits_field_faithful_facts() -> None:
     tr = TimeRange(start_s=0.0, end_s=1.0)
     ev = _evidence(
         metric="thd_percent",
-        value=12.65,
+        value=12.65,  # must be float, not int 12
         evidence_id="ev_analyze_harmonic_distortion_x_002",
         unit="%",
         time_range=tr,
@@ -222,12 +225,25 @@ def test_t_cx320_harmonic_reason_with_empty_display_facts() -> None:
     assert guidance.observed_facts == ()
 
 
-def test_t_cx321_insufficient_and_non_qualifying_rows() -> None:
-    nan_ev = _evidence(metric="thd_percent", value=float("nan"), evidence_id="ev_nan")
+def test_t_cx321_display_exclusions_keep_harmonic_reason() -> None:
+    # Valid thd_percent name keeps reason harmonic; none qualify for display.
+    nan_ev = _evidence(
+        metric="thd_percent", value=float("nan"), evidence_id="ev_nan"
+    )
+    inf_ev = _evidence(
+        metric="thd_percent", value=float("inf"), evidence_id="ev_inf"
+    )
+    int_ev = _evidence(metric="thd_percent", value=12, evidence_id="ev_int")
+    bool_ev = _evidence(
+        metric="thd_percent", value=True, unit="%", evidence_id="ev_bool"
+    )
+    str_ev = _evidence(
+        metric="thd_percent", value="12.65", unit="%", evidence_id="ev_str"
+    )
     wrong_tool = _evidence(
         metric="thd_percent",
         value=9.0,
-        tool="analyze_clipping",
+        tool="detect_clipping",
         evidence_id="ev_wrong_tool",
     )
     na = _evidence(
@@ -236,35 +252,26 @@ def test_t_cx321_insufficient_and_non_qualifying_rows() -> None:
         validity="not_applicable",
         evidence_id="ev_na",
     )
-    # No reason-set harmonic metrics → insufficient_evidence path
     result = _result(
         outcome="inconclusive",
-        evidence=(nan_ev, wrong_tool, na),
+        evidence=(nan_ev, inf_ev, int_ev, bool_ev, str_ev, wrong_tool, na),
     )
-    # If reason becomes harmonic because thd_percent is in reason set even when
-    # invalid, assert facts still empty. Prefer constructing a result with no
-    # reason-set metrics so reason is insufficient_evidence:
-    clean = _result(outcome="inconclusive", evidence=())
-    guidance = build_context_guidance(mode="single_signal", result=clean)
+    guidance = build_context_guidance(mode="single_signal", result=result)
     assert guidance is not None
-    assert guidance.reason_codes == ("insufficient_evidence_for_supported_fault",)
+    assert guidance.reason_codes == ("harmonic_attribution_requires_context",)
     assert guidance.observed_facts == ()
 
-    harmonicish = _result(
-        outcome="inconclusive",
-        evidence=(nan_ev, wrong_tool, na),
+    clean = _result(outcome="inconclusive", evidence=())
+    g_insufficient = build_context_guidance(mode="single_signal", result=clean)
+    assert g_insufficient is not None
+    assert g_insufficient.reason_codes == (
+        "insufficient_evidence_for_supported_fault",
     )
-    g2 = build_context_guidance(mode="single_signal", result=harmonicish)
-    assert g2 is not None
-    # thd_percent name is in reason set even if rows fail display filters
-    assert "harmonic_attribution_requires_context" in g2.reason_codes or (
-        g2.reason_codes == ("insufficient_evidence_for_supported_fault",)
-    )
-    assert g2.observed_facts == ()
+    assert g_insufficient.observed_facts == ()
 
 
-def test_t_cx322_old_payload_defaults_empty_facts() -> None:
-    guidance = ContextGuidance.model_validate(
+def test_t_cx322_compat_old_payload_and_report_round_trip() -> None:
+    old = ContextGuidance.model_validate(
         {
             "reason_codes": ("insufficient_evidence_for_supported_fault",),
             "unlockable_modes": ("paired_reference", "nominal_single_tone"),
@@ -278,11 +285,41 @@ def test_t_cx322_old_payload_defaults_empty_facts() -> None:
             "summary": "fixture summary without observed_facts key",
         }
     )
-    assert guidance.observed_facts == ()
+    assert old.observed_facts == ()
+
+    tr = TimeRange(start_s=0.0, end_s=1.0)
+    ev = _evidence(
+        metric="thd_percent",
+        value=12.65,
+        evidence_id="ev_rt_001",
+        time_range=tr,
+    )
+    guidance = build_context_guidance(
+        mode="single_signal",
+        result=_result(outcome="inconclusive", evidence=(ev,)),
+    )
+    assert guidance is not None
+    # Round-trip through real snapshot/report models (not bare ContextGuidance).
+    # Reuse completed-snapshot builders from tests/app/test_contextual_models.py
+    # (StimulusContext mode=single_signal, attach context_guidance=guidance),
+    # then:
+    #   payload = snapshot.model_dump(mode="json")
+    #   restored = ContextualAppRunSnapshot.model_validate(payload)
+    #   fact = restored.context_guidance.observed_facts[0]
+    #   assert fact.metric == "thd_percent"
+    #   assert isinstance(fact.value, float) and fact.value == 12.65
+    #   assert fact.unit == "%"
+    #   assert fact.time_range == tr
+    #   assert fact.channel == "mixdown"
+    #   report = build_contextual_diagnosis_report(restored, generated_at=...)
+    #   report2 = ContextualDiagnosisReport.model_validate(
+    #       report.model_dump(mode="json")
+    #   )
+    #   assert report2.context_guidance.observed_facts[0].evidence_id == "ev_rt_001"
 ```
 
-Also add a dedupe test in the same file: two valid `thd_percent` rows with
-the same channel/time_range keep the smaller `evidence_id`.
+Also add a dedupe test: two valid finite-float `thd_percent` rows with the
+same channel/time_range keep the smaller `evidence_id`.
 
 - [ ] **Step 2: Run to verify fail**
 
@@ -326,8 +363,9 @@ _FACTS_SUMMARY_SUFFIX = (
     "fault attribution."
 )
 
-def _is_finite_number(value: object) -> bool:
-    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(float(value))
+def _is_finite_float(value: object) -> bool:
+    # Strict: reject bool/int/str; do not coerce via float(value).
+    return isinstance(value, float) and math.isfinite(value)
 
 def _row_matches_whitelist(item: Evidence) -> bool:
     for metric, tool, unit in _DISPLAY_WHITELIST:
@@ -335,7 +373,7 @@ def _row_matches_whitelist(item: Evidence) -> bool:
             continue
         if item.validity != "valid" or item.unit != unit:
             continue
-        if not _is_finite_number(item.value):
+        if not _is_finite_float(item.value):
             continue
         return True
     return False
@@ -347,7 +385,7 @@ def _select_observed_facts(
     if "harmonic_attribution_requires_context" not in reason_codes:
         return ()
     candidates = [item for item in result.evidence if _row_matches_whitelist(item)]
-    best: dict[tuple[str, str, str | None, float | None], Evidence] = {}
+    best: dict[tuple[str, str, str | None], Evidence] = {}
     for item in candidates:
         key = (
             item.metric,
@@ -387,7 +425,8 @@ if facts:
 return ContextGuidance(..., summary=summary, observed_facts=facts)
 ```
 
-Keep `_HARMONIC_METRICS` reason detection unchanged.
+Keep `_HARMONIC_METRICS` reason detection unchanged. Display filtering must
+not call `float(value)` on non-floats.
 
 - [ ] **Step 4: pytest green**
 
@@ -397,12 +436,8 @@ pytest tests/app/test_context_guidance.py -q
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
-
-```bash
-git add src/signal_diag/app/context_guidance.py tests/app/test_context_guidance.py
-git commit -m "feat(app): add observed_facts to context_guidance (T-CX319–322)"
-```
+- [ ] **Step 5: Stop for recheck** — leave builder/test edits uncommitted unless
+  a separate commit grant exists.
 
 ---
 
@@ -418,29 +453,39 @@ git commit -m "feat(app): add observed_facts to context_guidance (T-CX319–322)
 
 - [ ] **Step 1: Failing render test**
 
+Scope assertions to the guidance section so Measured Evidence cannot
+false-green the check. Use a marker id on the facts list.
+
 ```python
-def test_t_cx323_html_lists_observed_facts() -> None:
-    # Build a minimal ContextualDiagnosisReport-like dict or call
-    # render_contextual_report_html with a fixture snapshot that includes
-    # context_guidance.observed_facts with one thd_percent row.
+def test_t_cx323_html_lists_observed_facts_inside_guidance() -> None:
+    # Build ContextualDiagnosisReport with:
+    # - context_guidance.observed_facts = one thd_percent=12.65 row
+    # - result.evidence also containing thd_percent=99.0 (Measured Evidence)
+    #   so a naive "12.65"/"thd_percent" search is not enough if facts missing.
     html = render_contextual_report_html(report)
-    assert "observed_facts" in html or "Observed facts" in html
-    assert "thd_percent" in html
-    assert "12.65" in html
+    start = html.index('id="context-guidance"')
+    end = html.index('id="measured-evidence"')
+    guidance_html = html[start:end]
+    measured_html = html[end:]
+    assert 'id="observed-facts"' in guidance_html
+    assert "thd_percent" in guidance_html
+    assert "12.65" in guidance_html
+    assert "12.65" not in measured_html  # decoy value only in guidance facts
+    assert "99.0" in measured_html
 ```
 
-Use the repo’s existing contextual report test helpers if present; otherwise
-construct `ContextualDiagnosisReport` the same way
-`tests/app/test_contextual_*.py` already does.
+Construct the report via helpers in `tests/app/test_contextual_models.py`
+/ reporting tests; keep decoy Evidence value distinct from the fact value.
 
 - [ ] **Step 2: pytest fail**
 
-- [ ] **Step 3: Implement** inside the existing `context-guidance` HTML block:
+- [ ] **Step 3: Implement** inside the existing `context-guidance` HTML block,
+  **before** that section closes and before `measured-evidence`:
 
 ```python
 facts = guidance.get("observed_facts") or ()
 if facts:
-    parts.append("<h3>Observed facts</h3><ul>")
+    parts.append('<ul id="observed-facts">')
     for fact in facts:
         parts.append(
             "<li>"
@@ -453,11 +498,8 @@ if facts:
     parts.append("</ul>")
 ```
 
-- [ ] **Step 4: green + commit**
-
-```bash
-git commit -m "feat(app): render context_guidance observed_facts in HTML"
-```
+- [ ] **Step 4: green; stop for recheck** — leave HTML/test edits uncommitted
+  unless a separate commit grant exists.
 
 ---
 
@@ -535,12 +577,14 @@ row exists.
 Do not rewrite prior rows’ digests except the test’s expectation that the
 telemetry tip is no longer the live equality anchor.
 
-- [ ] **Step 4: green + commit**
+- [ ] **Step 4: focused green; stop for recheck**
 
 ```bash
 pytest tests/agent/test_v03_prompt_v9_11.py tests/app/test_context_guidance.py -q
-git commit -m "docs: append D039 observed_facts code identity row"
 ```
+
+Expected: PASS. Leave identity JSON/test edits uncommitted unless a separate
+commit grant exists.
 
 ---
 
@@ -548,39 +592,52 @@ git commit -m "docs: append D039 observed_facts code identity row"
 
 **Files:** none required beyond fixes from failures
 
-- [ ] **Step 1: Focused suite**
+Do not mark this plan complete until every Step below is green. Focused
+suites alone are insufficient.
+
+- [ ] **Step 1: Focused suite (smoke)**
 
 ```bash
 pytest tests/app/test_context_guidance.py tests/app/test_contextual_reporting.py \
   tests/app/test_contextual_service.py tests/agent/test_v03_prompt_v9_11.py -q
 ```
 
-Expected: PASS (create reporting test file only if Task 3 added it).
+Expected: PASS (omit reporting path if that file was not created and the
+HTML test lives elsewhere; still run whatever file owns T-CX323 HTML).
 
-- [ ] **Step 2: Lint / types on touched packages**
+- [ ] **Step 2: Full pytest**
 
 ```bash
-ruff check src/signal_diag/app tests/app tests/agent/test_v03_prompt_v9_11.py
-mypy src/signal_diag/app
+pytest -q
+```
+
+Expected: all required tests PASS; zero required skip/xfail.
+
+- [ ] **Step 3: Full-repo Ruff and mypy**
+
+```bash
+ruff check .
+mypy src
 ```
 
 Expected: clean.
 
-- [ ] **Step 3: Architecture / freeze sanity**
+- [ ] **Step 4: Architecture and whitespace against the implementation baseline**
 
 ```bash
 pytest tests/test_architecture_boundaries.py -q
 git diff --check
 ```
 
-- [ ] **Step 4: Mark plan status complete in this file header; commit**
-
-```bash
-git commit -m "docs: mark observed_facts implementation plan tasks complete"
-```
+`git diff --check` is against the uncommitted implementation working tree
+(or the authorized commit range if a commit grant was given). Expected:
+architecture PASS; no whitespace errors.
 
 - [ ] **Step 5: Stop** — do not seal, do not RealLLM, do not cite HEAD quality
-  numbers. Open/update the implementation PR only under `授权实现`.
+  numbers. Do not `git commit`, `git push`, open an implementation PR, or
+  merge unless a separate grant names those actions. Prefer leaving the
+  verified uncommitted diff for independent recheck. Optionally update this
+  plan header Status to note verification results without claiming merge.
 
 ---
 
@@ -602,10 +659,15 @@ git commit -m "docs: mark observed_facts implementation plan tasks complete"
 
 ## Handoff
 
-Execution of Tasks 1–5 requires operator text such as:
+After this revise lands on PR #22 and the operator replies `plan ok`,
+execution of Tasks 1–5 still requires a separate grant. Suggested text:
 
 ```text
 授权实现：按 docs/superpowers/plans/2026-10-03-single-file-observed-facts.md
-执行 D039 observed_facts；additive V0.3 only；不 seal；不 RealLLM campaign；
-不碰 planner-ablation 预算。
+执行 D039 observed_facts Tasks 1–5 文件修改与离线验证；additive V0.3 only；
+不 seal；不 RealLLM campaign；不碰 planner-ablation 预算；
+不自动 commit/push/开实施 PR/merge（另授）。
 ```
+
+Commit/push/implementation-PR/merge each need their own named authorization
+beyond `授权实现` as written above.
