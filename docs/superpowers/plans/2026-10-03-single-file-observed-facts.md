@@ -458,24 +458,28 @@ false-green the check. Use a marker id on the facts list.
 
 ```python
 def test_t_cx323_html_lists_observed_facts_inside_guidance() -> None:
-    # Build ContextualDiagnosisReport with:
-    # - context_guidance.observed_facts = one thd_percent=12.65 row
-    # - result.evidence also containing thd_percent=99.0 (Measured Evidence)
-    #   so a naive "12.65"/"thd_percent" search is not enough if facts missing.
+    # Fixture (same channel/time_range; both are qualifying THD floats):
+    # - ev_lo: evidence_id smaller, value=12.65  → selected by dedupe
+    # - ev_hi: evidence_id larger, value=99.0    → not selected, still in
+    #   result.evidence / Measured Evidence
+    # Build guidance via real build_context_guidance(...), not hand-built facts.
+    # Report must keep the full Measured Evidence list (spec).
     html = render_contextual_report_html(report)
     start = html.index('id="context-guidance"')
     end = html.index('id="measured-evidence"')
     guidance_html = html[start:end]
     measured_html = html[end:]
-    assert 'id="observed-facts"' in guidance_html
-    assert "thd_percent" in guidance_html
-    assert "12.65" in guidance_html
-    assert "12.65" not in measured_html  # decoy value only in guidance facts
+    facts_start = guidance_html.index('id="observed-facts"')
+    facts_html = guidance_html[facts_start:]
+    assert "12.65" in facts_html
+    assert "99.0" not in facts_html
+    assert "12.65" in measured_html  # source Evidence retained
     assert "99.0" in measured_html
 ```
 
 Construct the report via helpers in `tests/app/test_contextual_models.py`
-/ reporting tests; keep decoy Evidence value distinct from the fact value.
+/ reporting tests. Guidance facts must come from the real builder over the
+same-run Evidence list; do not invent a fact with no source Evidence row.
 
 - [ ] **Step 2: pytest fail**
 
