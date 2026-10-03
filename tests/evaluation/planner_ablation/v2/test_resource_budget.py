@@ -36,7 +36,7 @@ def _fact(
     applicable_path: str = "product_deepseek_chat",
     proof_digest: str = "a" * 64,
     code_identity: str = "b" * 64,
-    dependency_identity: str = "openai==3.20.0",
+    dependency_identity: str = "openai==3.6.0",
     model_identity: str | None = "deepseek-v4-flash",
     is_explicit_override: bool = False,
     acceptance_reference: str = "fixture_only_reviewed_fact",
@@ -60,7 +60,7 @@ def _fact(
 
 def _sdk_audit(**overrides: object) -> SdkProfileAudit:
     base = {
-        "openai_version": "3.20.0",
+        "openai_version": "3.6.0",
         "openai_source_digest": "c" * 64,
         "native_http_family": "httpx",
         "native_http_version": "0.28.1",
@@ -277,7 +277,7 @@ def test_bound_capability_clears_completeness_not_worst_case_blockers() -> None:
     assert "unknown_input_token_bound" in assessment.blockers
     assert "unknown_output_token_bound" in assessment.blockers
     assert "unaccepted_provider_model_mapping" in assessment.blockers
-    assert agent_profile.supported is False
+    assert agent_profile.supported is True
 
 
 def test_t_cx324_closed_ledger_does_not_admit_worst_case_ceilings() -> None:
@@ -322,9 +322,9 @@ def test_t_cx324_closed_ledger_does_not_admit_worst_case_ceilings() -> None:
 def test_dependency_or_model_binding_drift_blocks_admission() -> None:
     config = snapshot_effective_configuration()
     drifted = _sdk_audit(
-        openai_version="3.6.0",
+        openai_version="3.20.0",
         supported=False,
-        blockers=("dependency_identity_drift:installed_3.20.0_vs_audit_3.6.0",),
+        blockers=("dependency_identity_drift:installed_3.6.0_vs_audit_3.20.0",),
     )
     proofs = _proofs_with_planner_and_sdk(sdk_audit=drifted)
     assessment = assess_resource_budget(config, proofs, _capability(sdk_profile=drifted))

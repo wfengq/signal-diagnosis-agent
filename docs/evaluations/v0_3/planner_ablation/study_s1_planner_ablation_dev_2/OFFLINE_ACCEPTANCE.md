@@ -143,7 +143,7 @@ above remains the harness record.
 | Readiness authority | source-aware `assess_resource_budget` / `validate_resource_candidate` |
 | Legacy `inspect_limits` | diagnostics only; still `execution_blocked=true` / `seal_ready=false` |
 | Installed `openai` vs lock | `3.6.0` / `3.6.0` (match) |
-| Reviewed capability identity | still `openai==3.20.0` → audited profile **unsupported** on this install |
+| Reviewed capability identity | `openai==3.6.0` (§7); audited profile **supported** on lock-aligned install |
 | Formal candidate `seal_ready` | **false** (honest partial closure) |
 | `protocol_seal/` | **absent** |
 | RealLLM / product gates | **not** authorized by Tasks 1–3 |
@@ -318,11 +318,12 @@ $ git diff --check
 (exit 0)
 ```
 
-Installed observation profile here: `openai==3.20.0` matches reviewed
-`RESOURCE_BOUNDS.md` digests. CI may resolve `openai>=1.0` to `3.22.1`; audited
-support then latches unsupported. Offline MockTransport tests attach only via
-`build_fixture_sdk_observation_profile()` plus
-`allow_fixture_offline_boundary=True`, and never claim reviewed capability.
+Installed observation profile here: lock-aligned `openai==3.6.0` matches reviewed
+`RESOURCE_BOUNDS.md` §7 digests (`build_audited_sdk_observation_profile().supported`
+is **true** on this tuple). CI may resolve `openai>=1.0` outside `3.6.0`; audited
+support then latches unsupported. Offline MockTransport tests attach via
+`build_fixture_sdk_observation_profile()` plus `allow_fixture_offline_boundary=True`
+and never claim canonical SDK on mock transports.
 
 ### Remaining seal / budget blockers (honest)
 
@@ -332,7 +333,7 @@ support then latches unsupported. Offline MockTransport tests attach only via
 | `unproven_failed_attempt_token_bound` | open — context capacity ≠ failed-attempt exposure |
 | `unknown_input_token_bound` / `unknown_output_token_bound` | open |
 | `unaccepted_provider_model_mapping` | open — legacy `deepseek-v4-flash` route unaccepted |
-| Lockfile `openai==3.6.0` vs installed `3.20.0` | recorded drift; re-bind at seal time |
+| Lockfile `openai==3.6.0` vs installed | **cleared** on lock-aligned `3.6.0` (SDK rebind grant) |
 | Legacy `inspect_limits` explicit-flag path | still `execution_blocked=True` |
 
 Conditional SDK ceiling `57×28×3=4788` remains documentation/admission arithmetic only.

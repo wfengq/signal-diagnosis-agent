@@ -10,19 +10,23 @@ Companion to `BUDGET_BOUNDS.md` (legacy `inspect_limits` explicit-flag path).
 Audited SDK defaults **must not** flip `request_timeout_explicit`,
 `transport_retry_override_explicit`, or `max_tokens_explicit`.
 
-Audit environment (this workspace, 2026-10-01):
+**Authoritative reviewed capability identity:** §7 below (lock-aligned `openai==3.6.0`,
+rebound 2026-10-03 SDK environment grant). §1 is a superseded 2026-10-01 audit only.
+
+Audit environment (writing workspace, post-rebind):
 
 | Fact | Value |
 |------|-------|
-| Branch | `cursor/s1-dev2-telemetry-impl-0d26` |
-| Baseline merge | `fb3a71b400bccd8891f89006e3b72f847b83d17d` |
-| Installed `openai` | `3.20.0` (`importlib.metadata`) |
-| `uv.lock` `openai` | `3.6.0` (**not interchangeable** with installed) |
+| Branch | `cursor/oq019-dev2-sdk-rebind-8b52` |
+| Trunk tip referenced | `944b957` |
+| Installed `openai` | `3.6.0` (`importlib.metadata`) |
+| `uv.lock` `openai` | `3.6.0` (**matches installed**) |
 | `httpx` | `0.28.1` |
 | `httpcore` | `1.0.9` |
 | Native HTTP family | `httpx` (OpenAI Python AsyncOpenAI default) |
+| `build_audited_sdk_observation_profile().supported` | **true** (matches §7 digests) |
 
-## 1. Installed SDK / source identity
+## 1. Installed SDK / source identity (superseded historical audit, 2026-10-01)
 
 | Path | SHA-256 |
 |------|---------|
@@ -111,7 +115,7 @@ not an accepted live budget.
 | `unknown_input_token_bound` / `unknown_output_token_bound` | remains without all-outcome or admitted per-send proofs |
 | `unaccepted_provider_model_mapping` | remains until operator accepts live route binding |
 | `unavailable_retry_telemetry` (legacy `inspect_limits`) | remains until Task 3–5 observation is bound |
-| Lockfile vs installed SDK drift | recorded; seal must re-bind installed tuple |
+| Lockfile vs installed SDK drift | **cleared** on lock-aligned `3.6.0` (§7); superseded §1 drift retained for history |
 
 Legacy `inspect_limits(snapshot_effective_configuration())` stays
 `execution_blocked=True`. Source-aware `assess_resource_budget` can compute
@@ -125,18 +129,17 @@ change product constructors, request payloads, or explicit-flag semantics.
 
 **No formal seal. No RealLLM. No commit/push authorized by this document.**
 
-## 7. Re-audit appendix (2026-10-03, Tasks 1–3 docs grant)
+## 7. Current reviewed capability identity (lock-aligned `openai==3.6.0`)
 
-**Scope:** refresh installed SDK / transport identity for the writing
-environment used by OQ-019/dev_2 preseal Tasks 1–3. Companion status board:
-`PRESEAL_BUDGET_STATUS.md`. Does **not** clear source-aware blockers by
-recording digests alone. Does **not** change reviewed capability constants in
-`provider_telemetry.py` (that remains a later offline-impl / rebind grant).
+**Scope:** authoritative SDK / transport identity for `provider_telemetry` and
+admitted bound-fact `dependency_identity` on this study path. Rebound from
+superseded §1 (`3.20.0` Cloud audit) under OQ-019/dev_2 offline SDK rebind
+grant (2026-10-03). Companion status board: `PRESEAL_BUDGET_STATUS.md`.
 
 | Fact | Value |
 |------|-------|
-| Writing tip | `6180eab701fc098f267f9e7cae56d381777e3441` |
-| `contextual_product_tree_sha256()` | `4b7a5916e45c7eb72505be0a8c8d4aa7f95216fe8a6c87c22e7bd2253318429c` |
+| Writing branch | `cursor/oq019-dev2-sdk-rebind-8b52` |
+| Trunk tip referenced | `944b957` |
 | Installed `openai` | `3.6.0` |
 | `uv.lock` `openai` | `3.6.0` (**matches installed**) |
 | `httpx` | `0.28.1` |
@@ -144,10 +147,10 @@ recording digests alone. Does **not** change reviewed capability constants in
 | Native HTTP family | `httpx` |
 | `DEFAULT_MAX_RETRIES` | `2` → **3** SDK attempts/call |
 | `DEFAULT_TIMEOUT` | connect=5s, read/write/pool=600s |
-| Candidate hooks (names unchanged) | `AsyncAPIClient._prepare_options`, `AsyncAPIClient._send_request`, `httpx.AsyncClient.send` |
-| `build_audited_sdk_observation_profile().supported` | **false** |
+| Candidate hooks | `AsyncAPIClient._prepare_options`, `AsyncAPIClient._send_request`, `httpx.AsyncClient.send` |
+| `build_audited_sdk_observation_profile().supported` | **true** |
 
-Installed source digests (`sha256` of file bytes):
+Reviewed source digests (`sha256` of file bytes; baked into `provider_telemetry`):
 
 | Path | SHA-256 |
 |------|---------|
@@ -157,29 +160,22 @@ Installed source digests (`sha256` of file bytes):
 | `openai/_constants.py` | `eeccbc82822f0e4372f42f666afd1d1e1fe80cb2ef71357018a0170ac6b9ce32` |
 | Aggregate (`aggregate_openai_source_digest`) | `a4a2193775e68b1497d61c84ad851e785597db0f0a2a443856d3b890fa412e47` |
 
-Profile blockers observed (exact):
+What offline rebind **clears** (this grant only):
 
-```text
-unsupported_openai_version:installed_3.6.0_audited_3.20.0
-openai_source_digest_drift_vs_reviewed
-openai_source_file_digest_drift:openai/__init__.py
-openai_source_file_digest_drift:openai/_base_client.py
-openai_source_file_digest_drift:openai/_client.py
-```
+- `environment_rebind` reviewed SDK identity / digest agreement on lock-aligned
+  `3.6.0`; `build_audited_sdk_observation_profile().supported=true` when the
+  installed tuple matches this table.
+- Lockfile↔install drift for `openai` on this environment.
 
-Interpretation:
+What rebind does **not** clear:
 
-1. Prior §1 audit recorded installed `3.20.0` vs lock `3.6.0`. This environment
-   is the opposite drift direction: lock-aligned `3.6.0`, but **not** the
-   reviewed capability identity (`3.20.0` digests baked into
-   `provider_telemetry`).
-2. Recording the installed tuple clears neither `unsupported_sdk_profile` nor
-   capability/proof `openai_version` disagreement. Hook *names* match the
-   reviewed profile; support still fails identity match.
-3. Residual source-aware blockers from §5 remain open. See
-   `PRESEAL_BUDGET_STATUS.md` Table B.
+- HTTP send factor `H`, input/output token ceilings, or failed-attempt token
+  exposure (still **unknown** / unproved).
+- Operator route acceptance (`model_mapping_accepted` stays **false**).
+- Legacy `inspect_limits` explicit-flag blockers.
+- Formal `protocol_seal/` or RealLLM campaign readiness.
 
-**No formal seal. No RealLLM. No commit/push authorized by this appendix.**
+**No formal seal. No RealLLM authorized by this section.**
 
 ## Structured bound-fact records (machine-readable)
 
@@ -196,7 +192,7 @@ Interpretation:
       "scope": "admitted",
       "applicable_path": "runtime",
       "code_identity": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "dependency_identity": "openai==3.20.0",
+      "dependency_identity": "openai==3.6.0",
       "model_identity": null
     },
     {
@@ -208,7 +204,7 @@ Interpretation:
       "scope": "admitted",
       "applicable_path": "product_deepseek_chat",
       "code_identity": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "dependency_identity": "openai==3.20.0",
+      "dependency_identity": "openai==3.6.0",
       "model_identity": "deepseek-v4-flash"
     },
     {

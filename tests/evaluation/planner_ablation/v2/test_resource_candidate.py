@@ -162,12 +162,12 @@ def _candidate_with_proof_reference(
         applicable_path="runtime",
         proof_digest=digest,
         code_identity="b" * 64,
-        dependency_identity="openai==3.20.0",
+        dependency_identity="openai==3.6.0",
         acceptance_reference=reference,
         scope="admitted",
     )
     sdk = SdkProfileAudit(
-        openai_version="3.20.0",
+        openai_version="3.6.0",
         openai_source_digest="c" * 64,
         native_http_family="httpx",
         native_http_version="0.28.1",
@@ -221,7 +221,7 @@ def _candidate_with_proof_reference(
         proofs=proofs,
         capability=capability,
         assessment=assessment,
-        provider_dependency_identity="openai==3.20.0",
+        provider_dependency_identity="openai==3.6.0",
         label_review_digest="e" * 64,
         label_population_digest="f" * 64,
         code_identity="b" * 64,
