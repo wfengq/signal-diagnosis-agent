@@ -156,3 +156,69 @@ def test_valid_full_chain_with_times_still_accepts_exact() -> None:
     )
     assert observation.acceptance_blocked is False
     assert observation.exact_total_tokens == 2
+
+
+def _end_entity_retarget(
+    kind: str,
+    field: str,
+    bad_id: str,
+) -> object:
+    events = [dict(event) for event in _valid_chain_events()]
+    end = next(
+        event
+        for event in events
+        if event["kind"] == kind and event.get("phase") == "end"
+    )
+    end[field] = bad_id
+    return aggregate_resource_ledger(
+        _exact_ledger(tuple(events)),
+        assessment=_open_assessment(),
+    )
+
+
+def test_sdk_end_entity_mismatch_same_correlation_blocked() -> None:
+    observation = _end_entity_retarget("sdk_attempt", "attempt_id", "a2")
+    assert observation.acceptance_blocked is True
+    assert observation.exact_total_tokens is None
+    assert any(
+        b == "lifecycle_entity_mismatch:sdk_attempt:a1"
+        or b == "unpaired_entity_start:sdk_attempt:a1"
+        or b == "unpaired_entity_end:sdk_attempt:a2"
+        for b in observation.blockers
+    )
+
+
+def test_logical_call_end_entity_mismatch_same_correlation_blocked() -> None:
+    observation = _end_entity_retarget("logical_call", "call_id", "c2")
+    assert observation.acceptance_blocked is True
+    assert observation.exact_total_tokens is None
+    assert any(
+        b == "lifecycle_entity_mismatch:logical_call:c1"
+        or b == "unpaired_entity_start:logical_call:c1"
+        or b == "unpaired_entity_end:logical_call:c2"
+        for b in observation.blockers
+    )
+
+
+def test_planner_turn_end_entity_mismatch_same_correlation_blocked() -> None:
+    observation = _end_entity_retarget("planner_turn", "turn_id", "t2")
+    assert observation.acceptance_blocked is True
+    assert observation.exact_total_tokens is None
+    assert any(
+        b == "lifecycle_entity_mismatch:planner_turn:t1"
+        or b == "unpaired_entity_start:planner_turn:t1"
+        or b == "unpaired_entity_end:planner_turn:t2"
+        for b in observation.blockers
+    )
+
+
+def test_http_send_end_entity_mismatch_same_correlation_blocked() -> None:
+    observation = _end_entity_retarget("http_send", "send_id", "h2")
+    assert observation.acceptance_blocked is True
+    assert observation.exact_total_tokens is None
+    assert any(
+        b == "lifecycle_entity_mismatch:http_send:h1"
+        or b == "unpaired_entity_start:http_send:h1"
+        or b == "unpaired_entity_end:http_send:h2"
+        for b in observation.blockers
+    )

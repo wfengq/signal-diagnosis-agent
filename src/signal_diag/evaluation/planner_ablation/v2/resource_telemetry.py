@@ -172,9 +172,11 @@ def _lifecycle_entity_id(event: dict[str, object]) -> str | None:
 
 
 def _entity_lifecycle_blockers(events: tuple[dict[str, object], ...]) -> list[str]:
-    """Reject duplicate lifecycle phases and correlation drift for one entity id."""
+    """Require one start/end pair per entity and stable correlation↔entity binding."""
     blockers: list[str] = []
     entity_correlation: dict[tuple[str, str], str] = {}
+    correlation_entity: dict[tuple[str, str], str] = {}
+    entity_phases: dict[tuple[str, str], set[str]] = {}
     entity_phase_counts: dict[tuple[str, str, str], int] = {}
     for event in events:
         kind = _event_kind(event)
@@ -188,6 +190,12 @@ def _entity_lifecycle_blockers(events: tuple[dict[str, object], ...]) -> list[st
             continue
         correlation = _correlation_key(event)
         entity_key = (kind, entity_id)
+        corr_key = (kind, correlation)
+        seen_entity = correlation_entity.get(corr_key)
+        if seen_entity is not None and seen_entity != entity_id:
+            blockers.append(f"lifecycle_entity_mismatch:{kind}:{correlation}")
+        else:
+            correlation_entity.setdefault(corr_key, entity_id)
         seen_correlation = entity_correlation.get(entity_key)
         if seen_correlation is not None and seen_correlation != correlation:
             blockers.append(f"lifecycle_correlation_mismatch:{kind}:{entity_id}")
@@ -199,6 +207,12 @@ def _entity_lifecycle_blockers(events: tuple[dict[str, object], ...]) -> list[st
             blockers.append(
                 f"duplicate_lifecycle_entity_phase:{kind}:{entity_id}:{phase}"
             )
+        entity_phases.setdefault(entity_key, set()).add(phase)
+    for (kind, entity_id), phases in entity_phases.items():
+        if "start" not in phases:
+            blockers.append(f"unpaired_entity_end:{kind}:{entity_id}")
+        if "end" not in phases:
+            blockers.append(f"unpaired_entity_start:{kind}:{entity_id}")
     return blockers
 
 
