@@ -47,6 +47,7 @@ from signal_diag.evaluation.planner_ablation.v2.population import (
 from signal_diag.evaluation.planner_ablation.v2.resource_models import (
     BoundFact,
     InstalledSdkIdentity,
+    ResourceCandidateExtension,
     ResourceCandidateValidation,
     VerifiedResourceAdmission,
 )
@@ -1036,25 +1037,49 @@ def _parse_structured_fence(text: str, schema: str) -> dict[str, object] | None:
     return None
 
 
-def _bound_facts_index(path: Path) -> dict[str, dict[str, object]] | None:
+def _bound_facts_index(
+    path: Path,
+) -> tuple[dict[str, dict[str, object]] | None, tuple[str, ...]]:
     payload = _parse_structured_fence(path.read_text(encoding="utf-8"), _BOUND_FACTS_SCHEMA)
     if payload is None:
-        return None
+        return None, ()
     facts = payload.get("facts")
     if not isinstance(facts, list):
-        return None
+        return None, ()
     index: dict[str, dict[str, object]] = {}
+    structural: list[str] = []
     for item in facts:
-        if isinstance(item, dict) and isinstance(item.get("name"), str):
-            index[str(item["name"])] = item
-    return index
+        if not isinstance(item, dict) or not isinstance(item.get("name"), str):
+            continue
+        name = str(item["name"])
+        if name in index:
+            structural.append(f"proof_structured_bounds_duplicate_fact:{name}")
+            continue
+        index[name] = item
+    if structural:
+        return None, tuple(dict.fromkeys(structural))
+    return index, ()
+
+
+def _dependency_identity_compatible(fact_dep: str, extension_dep: str) -> bool:
+    if fact_dep == extension_dep:
+        return True
+    if extension_dep.startswith("openai==") and fact_dep == extension_dep.split("==", 1)[1]:
+        return True
+    if fact_dep.startswith("openai==") and fact_dep.split("==", 1)[1] == extension_dep:
+        return True
+    return False
 
 
 def _bound_fact_binding_reasons(
     fact: BoundFact,
     fact_name: str,
     index: dict[str, dict[str, object]] | None,
+    structural_errors: tuple[str, ...],
+    extension: ResourceCandidateExtension,
 ) -> tuple[str, ...]:
+    if structural_errors:
+        return structural_errors
     if index is None:
         return (f"proof_structured_bounds_missing:{fact_name}",)
     record = index.get(fact_name)
@@ -1073,6 +1098,17 @@ def _bound_fact_binding_reasons(
         "applicable_path",
         "code_identity",
         "dependency_identity",
+    ):
+        if field not in record:
+            return (f"proof_fact_incomplete_record:{fact_name}",)
+    for field in (
+        "value",
+        "unit",
+        "scope",
+        "origin",
+        "applicable_path",
+        "code_identity",
+        "dependency_identity",
         "model_identity",
     ):
         if field not in record:
@@ -1081,6 +1117,12 @@ def _bound_fact_binding_reasons(
         declared = getattr(fact, field)
         if declared != expected:
             return (f"proof_fact_field_mismatch:{fact_name}:{field}",)
+    if fact.code_identity != extension.code_identity:
+        return (f"proof_fact_code_identity_not_applicable:{fact_name}",)
+    if not _dependency_identity_compatible(
+        fact.dependency_identity, extension.provider_dependency_identity
+    ):
+        return (f"proof_fact_dependency_identity_not_applicable:{fact_name}",)
     return ()
 
 
@@ -1094,10 +1136,12 @@ def _normalized_label_approval(payload: dict[str, object]) -> dict[str, object]:
     provenance = payload.get("review_provenance", [])
     if not isinstance(provenance, list):
         provenance = []
+    approved_raw = payload.get("approved")
+    approved = approved_raw if isinstance(approved_raw, bool) else False
     return {
         "reviewer": payload.get("reviewer"),
         "study_id": payload.get("study_id"),
-        "approved": bool(payload.get("approved")),
+        "approved": approved,
         "review_status": payload.get("review_status"),
         "review_provenance": sorted(str(item) for item in provenance),
         "upgrade_population": _sorted_list("upgrade_population"),
@@ -1289,9 +1333,16 @@ def validate_resource_candidate(
                     if structured is None:
                         reasons.append("label_review_structured_approval_missing")
                     else:
+                        approved_raw = structured.get("approved")
+                        if approved_raw is not None and not isinstance(
+                            approved_raw, bool
+                        ):
+                            reasons.append("label_review_approved_not_bool")
                         disk_approval = _normalized_label_approval(structured)
                         if not disk_approval.get("approved"):
                             reasons.append("label_review_disk_not_approved")
+                        elif candidate.label_review.errors:
+                            reasons.append("label_review_content_mismatch")
                         elif disk_approval != _candidate_label_approval(
                             candidate.label_review
                         ):
@@ -1406,8 +1457,12 @@ def validate_resource_candidate(
         if actual != fact.proof_digest:
             reasons.append(f"proof_acceptance_content_mismatch:{fact_name}")
             continue
-        bound_index = _bound_facts_index(evidence_path)
-        reasons.extend(_bound_fact_binding_reasons(fact, fact_name, bound_index))
+        bound_index, structural_errors = _bound_facts_index(evidence_path)
+        reasons.extend(
+            _bound_fact_binding_reasons(
+                fact, fact_name, bound_index, structural_errors, extension
+            )
+        )
 
     if not extension.capability.fixture_only:
         reasons.extend(

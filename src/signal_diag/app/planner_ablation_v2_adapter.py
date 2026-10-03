@@ -456,6 +456,7 @@ class StudyResourceObserver:
                 "kind": getattr(e, "kind", None),
                 "phase": getattr(e, "phase", None),
                 "sequence_id": getattr(e, "sequence_id", None),
+                "monotonic_s": getattr(e, "monotonic_s", None),
                 "correlation_id": getattr(e, "correlation_id", None),
                 "turn_id": getattr(e, "turn_id", None),
                 "call_id": getattr(e, "call_id", None),

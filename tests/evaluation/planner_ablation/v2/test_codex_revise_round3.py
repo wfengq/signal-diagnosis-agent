@@ -64,6 +64,7 @@ def _usage_event(**overrides: object) -> dict[str, object]:
         "attempt_id": "a1",
         "turn_id": "t1",
         "sequence_id": "u1",
+        "monotonic_s": 1.8,
         "prompt_tokens": 1,
         "completion_tokens": 1,
         "total_tokens": 2,

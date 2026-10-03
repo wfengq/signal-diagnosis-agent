@@ -223,7 +223,7 @@ def _candidate_with_proof_reference(
         provider_dependency_identity="openai==3.20.0",
         label_review_digest="e" * 64,
         label_population_digest="f" * 64,
-        code_identity="a" * 64,
+        code_identity="b" * 64,
         extension_digest="9" * 64,
         fixture_only=True,
     )
