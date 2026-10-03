@@ -6,6 +6,7 @@ from dataclasses import replace
 from typing import cast
 
 from signal_diag.agent.planner import PlannerModel
+from signal_diag.app.context_guidance import ContextGuidance
 from signal_diag.app.service import (
     ApplicationDependencies,
     DiagnosisApplicationService,
@@ -16,6 +17,7 @@ from signal_diag.evaluation.planner_ablation.models import (
     ProductSlotOutcome,
     ProductSlotRequest,
     StudyContextGuidanceView,
+    StudyObservedFactView,
 )
 
 _APPROVED_PRODUCT_PLANNER_CLASS = "RealLLMPlanner"
@@ -32,6 +34,29 @@ def _map_guidance(
 ) -> StudyContextGuidanceView | None:
     if guidance is None:
         return None
+    if isinstance(guidance, ContextGuidance):
+        return StudyContextGuidanceView(
+            reason_codes=guidance.reason_codes,
+            unlockable_modes=guidance.unlockable_modes,
+            required_inputs={
+                key: tuple(value) for key, value in guidance.required_inputs.items()
+            },
+            summary=guidance.summary,
+            observed_facts=tuple(
+                StudyObservedFactView(
+                    evidence_id=f.evidence_id,
+                    source_tool=f.source_tool,
+                    call_id=f.call_id,
+                    metric=f.metric,
+                    value=f.value,
+                    unit=f.unit,
+                    validity=f.validity,
+                    time_range=f.time_range,
+                    channel=f.channel,
+                )
+                for f in guidance.observed_facts
+            ),
+        )
     return StudyContextGuidanceView(
         reason_codes=tuple(guidance.reason_codes),  # type: ignore[attr-defined]
         unlockable_modes=tuple(guidance.unlockable_modes),  # type: ignore[attr-defined]
@@ -40,6 +65,20 @@ def _map_guidance(
             for key, value in guidance.required_inputs.items()  # type: ignore[attr-defined]
         },
         summary=guidance.summary,  # type: ignore[attr-defined]
+        observed_facts=tuple(
+            StudyObservedFactView(
+                evidence_id=f.evidence_id,  # type: ignore[attr-defined]
+                source_tool=f.source_tool,  # type: ignore[attr-defined]
+                call_id=f.call_id,  # type: ignore[attr-defined]
+                metric=f.metric,  # type: ignore[attr-defined]
+                value=f.value,  # type: ignore[attr-defined]
+                unit=f.unit,  # type: ignore[attr-defined]
+                validity=f.validity,  # type: ignore[attr-defined]
+                time_range=f.time_range,  # type: ignore[attr-defined]
+                channel=f.channel,  # type: ignore[attr-defined]
+            )
+            for f in guidance.observed_facts  # type: ignore[attr-defined]
+        ),
     )
 
 

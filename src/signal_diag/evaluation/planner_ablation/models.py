@@ -9,6 +9,8 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from signal_diag.agent.models import AgentRunResult
 from signal_diag.evaluation.models import BaselineRunResult
 from signal_diag.signal.context import StimulusContext
+from signal_diag.signal.models import ChannelMode, TimeRange
+from signal_diag.tools.contracts import ToolName
 
 StudyMode = Literal["single_signal", "paired_reference"]
 ScoredArm = Literal["product_agent", "fixed_pipeline"]
@@ -38,6 +40,22 @@ class ProductSlotRequest(BaseModel):
         return self
 
 
+class StudyObservedFactView(BaseModel):
+    """Parity-facing observed_fact row (same-run measurements; not fault attribution)."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    evidence_id: str
+    source_tool: ToolName
+    call_id: str
+    metric: str = Field(min_length=1)
+    value: bool | int | float | str
+    unit: str | None = None
+    validity: Literal["valid"] = "valid"
+    time_range: TimeRange | None = None
+    channel: ChannelMode
+
+
 class StudyContextGuidanceView(BaseModel):
     """Parity-facing guidance fields (not planner skill)."""
 
@@ -47,6 +65,7 @@ class StudyContextGuidanceView(BaseModel):
     unlockable_modes: tuple[str, ...]
     required_inputs: dict[str, tuple[str, ...]]
     summary: str = Field(min_length=1)
+    observed_facts: tuple[StudyObservedFactView, ...] = ()
 
 
 class ProductSlotOutcome(BaseModel):

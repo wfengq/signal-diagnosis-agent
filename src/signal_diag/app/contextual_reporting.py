@@ -302,6 +302,21 @@ def render_contextual_report_html(report: ContextualDiagnosisReport) -> str:
             parts.append(
                 f"<p>{_esc(mode_name)}: {_esc(', '.join(inputs or ()))}</p>"
             )
+        facts = guidance.get("observed_facts") or ()
+        if facts:
+            parts.append('<ul id="observed-facts">')
+            for fact in facts:
+                unit = fact.get("unit")
+                unit_suffix = "" if unit is None else f" {_esc(unit)}"
+                parts.append(
+                    "<li>"
+                    f"{_esc(fact.get('evidence_id'))} "
+                    f"{_esc(fact.get('metric'))}="
+                    f"{_esc(fact.get('value'))}"
+                    f"{unit_suffix}"
+                    "</li>"
+                )
+            parts.append("</ul>")
         parts.append("</section>")
     parts.extend(
         [

@@ -182,10 +182,11 @@ Frozen `CONTRACTS_V0_2.md` §§1–64 stay byte-stable.
 
 | ID | Intent | Status at design writing |
 |----|--------|---------------------------|
-| D039 | This product-behavior decision | Unused in `DECISIONS.md` on base `ecadfef` |
-| T-CX319… | Implementation tests for observed facts | T-CX318 is last registered additive ID on base `ecadfef` |
+| D039 | This product-behavior decision | Recorded in `DECISIONS.md`; OQ-013 path C |
+| T-CX319…T-CX323 | Implementation tests for observed facts | Registered in `TEST_PLAN_V0_3_CONTEXTUAL.md`; §17 amended in `CONTRACTS_V0_3_CONTEXTUAL.md` (Task 1); product code not yet implemented |
 
-Re-verify both numbers at the implementation tip before registration.
+Re-verify ID freeness at each implementation tip before first registration; after
+Task 1 contract registration, implementers bind to T-CX319–T-CX323 as registered.
 
 ## 6. Authorization boundary
 

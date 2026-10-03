@@ -32,6 +32,7 @@
 | T-CX276..288 | D038 planner-ablation utility study (definitions; harness gated) |
 | T-CX289..302 | D038 protocol revision / study_s1_planner_ablation_dev_2 (definitions; seal/RealLLM gated) |
 | T-CX303..318 | D038 token/transport telemetry / study_s1_planner_ablation_dev_2 (definitions; seal/RealLLM gated) |
+| T-CX319..323 | D039 single-file observed facts on context_guidance (definitions; implementation gated) |
 
 ## Registered identities (Task 1)
 
@@ -248,6 +249,11 @@
 | T-CX316 | Derived SDK/HTTP/token budgets and fail-closed unknown factors. |
 | T-CX317 | Full candidate/review/proof/code/dependency binding; no synthetic shortcuts. |
 | T-CX318 | Offline schedule, zero live calls, historical/package preservation. |
+| T-CX319 | harmonic_attribution guidance with qualifying finite-float `thd_percent` Evidence yields non-empty field-faithful `observed_facts`. |
+| T-CX320 | harmonic reason with no qualifying display Evidence yields `observed_facts=()` with reason codes exactly unchanged. |
+| T-CX321 | insufficient_evidence path yields `observed_facts=()`; int/bool/str/NaN/Inf/wrong-tool/N/A excluded from display without coercion. |
+| T-CX322 | old payload without `observed_facts` → `()`; new guidance round-trips through snapshot/report JSON with scope fields intact; soft-diagnosis banned. |
+| T-CX323 | HTML lists facts only inside the context-guidance section (not Measured Evidence); product_tree identity append-only row binds digest change. |
 
 T-CX004–T-CX145 are allocated to later tasks per the implementation plan and must
 not collide with V0.2 T001–T285 numbering. T-CX146–T-CX165 are additive for the
@@ -323,3 +329,11 @@ provider-model mapping acceptance, product request caps, and commit/push/merge
 remain separately gated. They must not alter §19 / §20 / `dev_1` meanings,
 T-CX001–T-CX302 definitions, frozen V0.2 §§1–64, sealed v9.11 identities, DSP
 thresholds, or the product planner default.
+T-CX319–T-CX323 are additive definitions for D039 single-file observed facts
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §17; design
+`docs/superpowers/specs/2026-10-03-single-file-observed-facts-design.md`).
+Registering these IDs does not implement or pass the behaviors. Product code,
+HTML render, tests, and the append-only code-identity row require a separate
+implementation grant. They must not alter reason-code selection, DSP, rule
+thresholds, planner prompt, causal finish gates, frozen V0.2 §§1–64, sealed
+v9.11 identities, planner-ablation budgets, or T-CX001–T-CX318 meanings.
