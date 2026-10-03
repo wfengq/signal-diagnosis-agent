@@ -178,10 +178,19 @@ Task 7 offline implementation merged via PR #18. Post-merge label review + budge
 
 ## Token/transport telemetry offline implementation (Tasks 2–7)
 
-**Status:** `offline_implementation_pending_revision` — code revise `481668c`
-(failing repros `1967260`) on `cursor/s1-dev2-telemetry-impl-0d26`. Independent
-recheck is still required. **Not** claiming `offline_implementation_accepted`.
-Not `resource_bounds_complete`, not `candidate_verified`, not seal, not RealLLM.
+**Status:** `offline_implementation_accepted` at tip
+`d152489abd649cc29ae0cf386ad46f56bc8f5276` on
+`cursor/s1-dev2-telemetry-impl-0d26` (PR #21). Codex re-review accepted the
+offline Tasks 1–7 gate scope (event graph, proof/label binding, usage, BoundFact).
+CI green on that tip (Python 3.11/3.12).
+
+**Not** `resource_bounds_complete`. **Not** `candidate_verified`. **Not** a
+protocol seal. **Not** RealLLM / online execution readiness. Honest external
+blockers below remain open.
+
+Historical revise notes under this heading keep the pending-revision trail that
+led to the tip accept. The current status is this paragraph, not the older
+`offline_implementation_pending_revision` lines.
 
 This revise closes the confirmed P1 gaps without clearing external blockers:
 
@@ -337,9 +346,11 @@ Conditional SDK ceiling `57×28×3=4788` remains documentation/admission arithme
 
 No `protocol_seal/` under `study_s1_planner_ablation_dev_2`. Evidence docs: existing names plus `RESOURCE_BOUNDS.md` only.
 
-## Codex revise round 2 (still pending)
+## Codex revise round 2 (superseded by tip accept)
 
-**Status:** `offline_implementation_pending_revision`. No seal. No RealLLM. No live provider call.
+**Historical status at this revise:** `offline_implementation_pending_revision`.
+Superseded by `offline_implementation_accepted` at tip `d152489` (see status
+under Tasks 2–7). Still no seal. Still no RealLLM. Still no live provider call.
 
 This round keeps online execution refused. `reject_online_preflight` always raises `online_path_not_authorized_in_offline_scope`. A constructed `VerifiedResourceAdmission`, a synthetic budget, and strings such as `not-a-verified-seal` do not open `run_schedule(execution_mode="online")`. `make_verified_resource_admission` is the only producer and does not return an admission under this grant.
 
