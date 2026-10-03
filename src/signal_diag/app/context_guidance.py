@@ -46,8 +46,7 @@ _SUMMARY_TEMPLATES: dict[ContextGuidanceReasonCode, str] = {
 }
 
 _FACTS_SUMMARY_SUFFIX = (
-    " Listed observed_facts are same-run measurements and are not a "
-    "fault attribution."
+    " Listed observed_facts are same-run measurements and are not a fault attribution."
 )
 
 _DISPLAY_WHITELIST: tuple[tuple[str, ToolName, str | None], ...] = (
@@ -56,7 +55,7 @@ _DISPLAY_WHITELIST: tuple[tuple[str, ToolName, str | None], ...] = (
 
 
 class ObservedFact(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
 
     evidence_id: str
     source_tool: ToolName
@@ -67,6 +66,13 @@ class ObservedFact(BaseModel):
     validity: Literal["valid"] = "valid"
     time_range: TimeRange | None = None
     channel: ChannelMode
+
+    @field_validator("value")
+    @classmethod
+    def _reject_non_finite_float(cls, value: bool | float | str) -> bool | float | str:
+        if isinstance(value, float) and not math.isfinite(value):
+            raise ValueError("observed fact float values must be finite")
+        return value
 
 
 class ContextGuidance(BaseModel):
@@ -82,9 +88,9 @@ class ContextGuidance(BaseModel):
 
     @field_validator("reason_codes")
     @classmethod
-    def _unique_ordered(cls, value: tuple[ContextGuidanceReasonCode, ...]) -> tuple[
-        ContextGuidanceReasonCode, ...
-    ]:
+    def _unique_ordered(
+        cls, value: tuple[ContextGuidanceReasonCode, ...]
+    ) -> tuple[ContextGuidanceReasonCode, ...]:
         if len(set(value)) != len(value):
             raise ValueError("reason_codes must be unique")
         return value
@@ -92,6 +98,20 @@ class ContextGuidance(BaseModel):
 
 def _is_finite_float(value: object) -> bool:
     return isinstance(value, float) and math.isfinite(value)
+
+
+def _fact_matches_source(fact: ObservedFact, source: Evidence) -> bool:
+    return (
+        fact.evidence_id == source.evidence_id
+        and fact.source_tool == source.source_tool
+        and fact.call_id == source.call_id
+        and fact.metric == source.metric
+        and fact.value == source.value
+        and fact.unit == source.unit
+        and fact.validity == source.validity
+        and fact.time_range == source.time_range
+        and fact.channel == source.channel
+    )
 
 
 def _row_matches_whitelist(item: Evidence) -> bool:
@@ -104,6 +124,23 @@ def _row_matches_whitelist(item: Evidence) -> bool:
             continue
         return True
     return False
+
+
+def validate_observed_facts_against_evidence(
+    *,
+    evidence: tuple[Evidence, ...] | list[Evidence],
+    observed_facts: tuple[ObservedFact, ...],
+) -> None:
+    """Reject facts that are not display-eligible field-faithful same-run copies."""
+    by_id = {item.evidence_id: item for item in evidence}
+    for fact in observed_facts:
+        source = by_id.get(fact.evidence_id)
+        if source is None:
+            raise ValueError("observed_facts reference unknown Evidence")
+        if not _fact_matches_source(fact, source):
+            raise ValueError("observed_facts do not match same-run Evidence")
+        if not _row_matches_whitelist(source):
+            raise ValueError("observed_facts fail display whitelist")
 
 
 def _select_observed_facts(

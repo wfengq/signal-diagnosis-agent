@@ -259,12 +259,8 @@ def test_t_cx320_harmonic_reason_with_empty_display_facts() -> None:
 
 
 def test_t_cx321_display_exclusions_keep_harmonic_reason() -> None:
-    nan_ev = _evidence(
-        metric="thd_percent", value=float("nan"), evidence_id="ev_nan"
-    )
-    inf_ev = _evidence(
-        metric="thd_percent", value=float("inf"), evidence_id="ev_inf"
-    )
+    nan_ev = _evidence(metric="thd_percent", value=float("nan"), evidence_id="ev_nan")
+    inf_ev = _evidence(metric="thd_percent", value=float("inf"), evidence_id="ev_inf")
     int_ev = _evidence(metric="thd_percent", value=12, evidence_id="ev_int")
     bool_ev = _evidence(
         metric="thd_percent", value=True, unit="%", evidence_id="ev_bool"
@@ -296,9 +292,7 @@ def test_t_cx321_display_exclusions_keep_harmonic_reason() -> None:
     clean = _result(outcome="inconclusive", evidence=())
     g_insufficient = build_context_guidance(mode="single_signal", result=clean)
     assert g_insufficient is not None
-    assert g_insufficient.reason_codes == (
-        "insufficient_evidence_for_supported_fault",
-    )
+    assert g_insufficient.reason_codes == ("insufficient_evidence_for_supported_fault",)
     assert g_insufficient.observed_facts == ()
 
 
@@ -331,7 +325,10 @@ def test_t_cx322_compat_old_payload_and_report_round_trip() -> None:
         result=_result(outcome="inconclusive", evidence=(ev,)),
     )
     assert guidance is not None
-    snapshot = _single_signal_snapshot(result=_result(outcome="inconclusive", evidence=(ev,)), context_guidance=guidance)
+    snapshot = _single_signal_snapshot(
+        result=_result(outcome="inconclusive", evidence=(ev,)),
+        context_guidance=guidance,
+    )
     payload = snapshot.model_dump(mode="json")
     restored = ContextualAppRunSnapshot.model_validate(payload)
     assert restored.context_guidance is not None

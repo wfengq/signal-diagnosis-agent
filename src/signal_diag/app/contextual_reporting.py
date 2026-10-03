@@ -6,6 +6,7 @@ import html
 import json
 from datetime import datetime
 
+from signal_diag.app.context_guidance import validate_observed_facts_against_evidence
 from signal_diag.app.contextual_models import (
     ContextualAppRunSnapshot,
     ContextualDiagnosisReport,
@@ -46,6 +47,14 @@ def build_contextual_diagnosis_report(
             raise TraceIntegrityError(_trace_error("unknown Rule reference"))
         if not set(claim.knowledge_refs) <= knowledge_ids:
             raise TraceIntegrityError(_trace_error("unknown Knowledge reference"))
+    if snapshot.context_guidance is not None:
+        try:
+            validate_observed_facts_against_evidence(
+                evidence=result.evidence,
+                observed_facts=snapshot.context_guidance.observed_facts,
+            )
+        except ValueError as exc:
+            raise TraceIntegrityError(_trace_error(str(exc))) from exc
     return ContextualDiagnosisReport(
         generated_at=generated_at,
         run_id=snapshot.run_id,
@@ -242,7 +251,12 @@ def render_contextual_report_html(report: ContextualDiagnosisReport) -> str:
             f"<td>{linked}</td></tr>"
         )
     parts.extend(
-        ["</tbody></table>", "</section>", '<section id="diagnosis">', "<h2>Diagnosis</h2>"]
+        [
+            "</tbody></table>",
+            "</section>",
+            '<section id="diagnosis">',
+            "<h2>Diagnosis</h2>",
+        ]
     )
     if diagnosis:
         parts.append("<dl>")
@@ -299,9 +313,7 @@ def render_contextual_report_html(report: ContextualDiagnosisReport) -> str:
         )
         required = guidance.get("required_inputs") or {}
         for mode_name, inputs in required.items():
-            parts.append(
-                f"<p>{_esc(mode_name)}: {_esc(', '.join(inputs or ()))}</p>"
-            )
+            parts.append(f"<p>{_esc(mode_name)}: {_esc(', '.join(inputs or ()))}</p>")
         facts = guidance.get("observed_facts") or ()
         if facts:
             parts.append('<ul id="observed-facts">')
