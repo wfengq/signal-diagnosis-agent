@@ -452,6 +452,22 @@ def test_t_cx119_contextual_ui_sections_and_no_client_dsp() -> None:
         assert sink not in script
 
 
+def test_t_cx327_ui_surfaces_planner_health_readiness() -> None:
+    script = _static_text("app.js")
+    assert "/api/v1/health" in script
+    assert "planner_configured" in script
+    assert "loadPlannerHealth" in script
+    assert "submit-run" in script
+    assert "setSubmitRunEnabled" in script
+    assert "plannerHealthAllowsSubmit" in script
+    assert "DEEPSEEK_" in script and "API" in script and "_KEY" in script
+    assert "ScriptedPlanner" in script
+    assert "planner_identity" in script
+    assert "bindUi" in script
+    assert "loadPresets" in script
+    assert "thd_percent" not in script
+
+
 def test_t_cx326_ui_lists_observed_facts_inside_guidance() -> None:
     script = _static_text("app.js")
     html = _static_text("index.html")

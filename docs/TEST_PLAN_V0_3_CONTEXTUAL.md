@@ -256,6 +256,7 @@
 | T-CX322 | old payload without `observed_facts` → `()`; new guidance round-trips through snapshot/report JSON with scope fields intact; soft-diagnosis banned. |
 | T-CX323 | HTML lists facts only inside the context-guidance section (not Measured Evidence); product_tree identity append-only row binds digest change. |
 | T-CX326 | Web UI guidance panel and CLI text list `observed_facts` inside context-guidance only (parity with T-CX323 HTML); empty tuple omits the list; no metric whitelist literals in static JS. |
+| T-CX327 | Web UI loads `/api/v1/health` on bind; surfaces `planner_configured` readiness in the lifecycle panel; disables `submit-run` when unconfigured or health fetch fails; shows non-secret `planner_identity` when ready; no API keys, base URLs, or metric whitelist literals in static JS. |
 | T-CX324 | Offline observation capability/event-graph tests and per-run ledgers do not admit production worst-case planner/SDK/HTTP/token ceilings; each ceiling needs an independent applicable authenticated proof; preseal must not require a formal RealLLM campaign ledger before seal. |
 | T-CX325 | `PRESEAL_BUDGET_STATUS.md` is a permitted unsealed status board under `study_s1_planner_ablation_dev_2`; it is not a numeric bound-fact citation; formal candidate readiness follows source-aware validation, not legacy `inspect_limits`. |
 
