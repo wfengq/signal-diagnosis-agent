@@ -157,11 +157,11 @@ Steps:
 
 Steps:
 
-- [ ] Add failing tests: unbound / incomplete observation capability keeps source-aware blockers; bound capability clears only completeness-class blockers it truly proves.
-- [ ] Implement the smallest study binding helpers needed for candidate validation.
-- [ ] Keep public `build_product_service` unchanged.
-- [ ] Do **not** modify legacy `inspect_limits` to return `seal_ready=True`.
-- [ ] Run focused planner_ablation v2 resource/campaign/sealing tests.
+- [x] Add failing tests: unbound / incomplete observation capability keeps source-aware blockers; bound capability clears only completeness-class blockers it truly proves.
+- [x] Implement the smallest study binding helpers needed for candidate validation.
+- [x] Keep public `build_product_service` unchanged.
+- [x] Do **not** modify legacy `inspect_limits` to return `seal_ready=True`.
+- [x] Run focused planner_ablation v2 resource/campaign/sealing tests.
 
 ## Task 5: Independent worst-case proofs (offline)
 
@@ -169,10 +169,10 @@ Steps:
 
 Steps:
 
-- [ ] Wire or document independent proofs for planner-turn ceiling, SDK attempt factor, HTTP send factor, and timeout only when admissible evidence exists.
-- [ ] Keep token input/output ceilings blocked unless an admitted all-outcome or per-send proof exists; otherwise classify as residual or `requires_product_cap_design`.
-- [ ] Add tests that reject using a closed run ledger as a worst-case request/token ceiling.
-- [ ] Do not invent product `max_tokens` / timeout overrides.
+- [x] Wire or document independent proofs for planner-turn ceiling, SDK attempt factor, HTTP send factor, and timeout only when admissible evidence exists.
+- [x] Keep token input/output ceilings blocked unless an admitted all-outcome or per-send proof exists; otherwise classify as residual or `requires_product_cap_design`.
+- [x] Add tests that reject using a closed run ledger as a worst-case request/token ceiling.
+- [x] Do not invent product `max_tokens` / timeout overrides.
 
 ## Task 6: Operator route acceptance package (docs)
 
@@ -180,9 +180,9 @@ Steps:
 
 Steps:
 
-- [ ] Record `deepseek-v4-flash` + prompt `v0.3-s1-planner-9.11` + policy `v9_11_mode_aware_no_fault_recovery`.
-- [ ] Mark provider/model mapping unaccepted until the operator accepts the live route binding in writing.
-- [ ] Do not call `/models` unless a later grant allows a connectivity probe.
+- [x] Record `deepseek-v4-flash` + prompt `v0.3-s1-planner-9.11` + policy `v9_11_mode_aware_no_fault_recovery`.
+- [x] Mark provider/model mapping unaccepted until the operator accepts the live route binding in writing.
+- [x] Do not call `/models` unless a later grant allows a connectivity probe.
 
 ## Task 7: Closeout checklist for the *next* seal grant (no seal)
 
@@ -207,7 +207,7 @@ Steps:
 
 Before claiming the offline impl wave complete:
 
-- [ ] Focused planner_ablation v2 resource/budget/sealing tests pass.
+- [x] Focused planner_ablation v2 resource/budget/sealing tests pass.
 - [ ] Full pytest with zero required skip/xfail.
 - [ ] Ruff clean.
 - [ ] `mypy src` clean.

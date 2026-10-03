@@ -356,7 +356,7 @@ Conditional SDK ceiling `57×28×3=4788` remains documentation/admission arithme
 | T-CX315 | sealing/offline acceptance resource negative cases |
 | T-CX316 | `test_resource_budget.py` |
 | T-CX317 | `validate_resource_candidate` / sealing tests |
-| T-CX318 | offline schedule paths; architecture whitelist includes `RESOURCE_BOUNDS.md` only |
+| T-CX318 | offline schedule paths; architecture whitelist includes `RESOURCE_BOUNDS.md`, `PRESEAL_BUDGET_STATUS.md` |
 
 ### Full offline schedule paths
 
@@ -366,7 +366,8 @@ Conditional SDK ceiling `57×28×3=4788` remains documentation/admission arithme
    slots attempted. Provenance stays `harness_only`. The fixture offline boundary
    is not an audited production profile and is not a scored conclusion.
 
-No `protocol_seal/` under `study_s1_planner_ablation_dev_2`. Evidence docs: existing names plus `RESOURCE_BOUNDS.md` only.
+No `protocol_seal/` under `study_s1_planner_ablation_dev_2`. Evidence docs: existing
+whitelist names plus `RESOURCE_BOUNDS.md` and `PRESEAL_BUDGET_STATUS.md` (status board).
 
 ## Codex revise round 2 (superseded by tip accept)
 
