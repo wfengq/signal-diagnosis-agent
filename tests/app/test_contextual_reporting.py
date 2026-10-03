@@ -11,12 +11,12 @@ from signal_diag.agent.models import (
     DiagnosisClaim,
     StructuredDiagnosis,
 )
+from signal_diag.app.cli import _print_contextual_text_report
 from signal_diag.app.context_guidance import build_context_guidance
 from signal_diag.app.contextual_models import (
     ContextualAppRunSnapshot,
     ContextualDiagnosisReport,
 )
-from signal_diag.app.cli import _print_contextual_text_report
 from signal_diag.app.contextual_reporting import (
     build_contextual_diagnosis_report,
     render_contextual_report_html,
