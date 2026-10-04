@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Regression troubleshooting workbench</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header>
+    <p><a href="/">Back to diagnosis</a></p>
+    <p class="banner">
+      Warning: local single-user/no-auth service. Do not expose this server
+      to an untrusted network.
+    </p>
+  </header>
+  <main>
+    <section id="goal-panel" aria-labelledby="goal-heading">
+      <h1 id="goal-heading">Regression case</h1>
+      <p id="measurement-notice" class="muted">
+        Reporting measurement changes only; no approved comparison tolerances yet
+      </p>
+      <p>
+        <label for="case-goal">Goal</label>
+        <textarea id="case-goal" rows="3" placeholder="What are you comparing?"></textarea>
+      </p>
+      <fieldset>
+        <legend>Declared conditions</legend>
+        <p>
+          <label for="baseline-version">Baseline version</label>
+          <input id="baseline-version" type="text" value="v1" autocomplete="off">
+        </p>
+        <p>
+          <label for="candidate-version">Candidate version</label>
+          <input id="candidate-version" type="text" value="v2" autocomplete="off">
+        </p>
+        <p>
+          <label for="stimulus-key">Stimulus key</label>
+          <input id="stimulus-key" type="text" value="sine-200" autocomplete="off">
+        </p>
+        <p>
+          <label for="parameters-key">Parameters key</label>
+          <input id="parameters-key" type="text" value="default" autocomplete="off">
+        </p>
+        <p>
+          <label for="same-input">Same input</label>
+          <select id="same-input">
+            <option value="yes" selected>yes</option>
+            <option value="no">no</option>
+            <option value="unknown">unknown</option>
+          </select>
+        </p>
+        <p>
+          <label for="parameters-unchanged">Parameters unchanged</label>
+          <select id="parameters-unchanged">
+            <option value="yes" selected>yes</option>
+            <option value="no">no</option>
+            <option value="unknown">unknown</option>
+          </select>
+        </p>
+        <p>
+          <label for="aligned-ranges">Aligned ranges</label>
+          <select id="aligned-ranges">
+            <option value="yes" selected>yes</option>
+            <option value="no">no</option>
+            <option value="unknown">unknown</option>
+          </select>
+        </p>
+        <p>
+          <label for="repeatability">Repeatability</label>
+          <select id="repeatability">
+            <option value="declared_deterministic" selected>declared_deterministic</option>
+            <option value="unknown">unknown</option>
+            <option value="observed_variable">observed_variable</option>
+          </select>
+        </p>
+      </fieldset>
+      <p>
+        <button type="button" id="create-case">Start case</button>
+      </p>
+      <p id="case-status" class="muted" aria-live="polite">No active case.</p>
+    </section>
+    <section id="files-panel" aria-labelledby="files-heading">
+      <h2 id="files-heading">Baseline and candidate WAV</h2>
+      <p>
+        <label for="baseline-file">Baseline WAV</label>
+        <input id="baseline-file" type="file" accept=".wav,audio/wav">
+      </p>
+      <p>
+        <label for="candidate-file">Candidate WAV</label>
+        <input id="candidate-file" type="file" accept=".wav,audio/wav">
+      </p>
+      <p>
+        <label for="original-file">Optional original stimulus WAV</label>
+        <input id="original-file" type="file" accept=".wav,audio/wav">
+      </p>
+      <p>
+        <label for="analysis-channel">Analysis channel</label>
+        <select id="analysis-channel">
+          <option value="left" selected>left</option>
+          <option value="right">right</option>
+        </select>
+      </p>
+      <p>
+        <button type="button" id="submit-comparison" disabled>Compare measurements</button>
+      </p>
+    </section>
+    <section id="results-panel" aria-labelledby="results-heading">
+      <h2 id="results-heading">Metric results and coverage</h2>
+      <div id="results-root"></div>
+    </section>
+    <section id="retest-panel" aria-labelledby="retest-heading">
+      <h2 id="retest-heading">Repeat or repair retest</h2>
+      <p class="muted">Append a new comparison linked to the latest completed record.</p>
+      <p>
+        <button type="button" id="repeat-retest" disabled>Repeat conditions</button>
+        <button type="button" id="repair-retest" disabled>Repair retest</button>
+      </p>
+    </section>
+    <section id="export-panel" aria-labelledby="export-heading">
+      <h2 id="export-heading">Export</h2>
+      <p>
+        <a id="export-json" hidden>Download JSON report</a>
+        <a id="export-html" hidden>Download HTML report</a>
+      </p>
+    </section>
+  </main>
+  <script src="/static/regression.js" defer></script>
+</body>
+</html>

@@ -441,3 +441,198 @@ async def parse_contextual_wav_upload(
         user_request=user_request,
         channel=channel_text,  # type: ignore[arg-type]
     )
+
+
+_REGRESSION_ALLOWED_FIELDS = frozenset({"baseline", "candidate", "original", "metadata"})
+_REGRESSION_REQUIRED_FIELDS = frozenset({"baseline", "candidate", "metadata"})
+_REGRESSION_FILE_FIELDS = frozenset({"baseline", "candidate", "original"})
+_REGRESSION_METADATA_MAX_BYTES = 64 * 1024
+
+
+@dataclass
+class _RegressionParseState:
+    is_file: bool = False
+    current_file_field: str | None = None
+    baseline_bytes: bytearray = field(default_factory=bytearray)
+    candidate_bytes: bytearray = field(default_factory=bytearray)
+    original_bytes: bytearray = field(default_factory=bytearray)
+    field_bytes: bytearray = field(default_factory=bytearray)
+    baseline_filename: str | None = None
+    candidate_filename: str | None = None
+    original_filename: str | None = None
+    metadata: bytes | None = None
+    seen: set[str] = field(default_factory=set)
+    current_name: str | None = None
+    header_field: bytearray = field(default_factory=bytearray)
+    header_value: bytearray = field(default_factory=bytearray)
+    headers: dict[bytes, bytes] = field(default_factory=dict)
+    ended: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class ParsedRegressionComparisonUpload:
+    baseline_data: bytes
+    candidate_data: bytes
+    baseline_filename: str | None
+    candidate_filename: str | None
+    original_data: bytes | None
+    original_filename: str | None
+    metadata_json: bytes
+
+
+async def parse_regression_comparison_upload(
+    request: Request,
+    *,
+    max_file_bytes: int,
+) -> ParsedRegressionComparisonUpload:
+    content_type = request.headers.get("content-type")
+    if not content_type:
+        raise _invalid("multipart Content-Type is required")
+    content_type_value, options = parse_options_header(content_type)
+    if content_type_value != b"multipart/form-data":
+        raise _invalid("regression upload requires multipart/form-data")
+    boundary = options.get(b"boundary")
+    if not boundary:
+        raise _invalid("multipart boundary is required")
+
+    max_total = (3 * max_file_bytes) + _REGRESSION_METADATA_MAX_BYTES
+    state = _RegressionParseState()
+
+    def _file_target() -> bytearray:
+        if state.current_file_field == "candidate":
+            return state.candidate_bytes
+        if state.current_file_field == "original":
+            return state.original_bytes
+        return state.baseline_bytes
+
+    def on_part_begin() -> None:
+        state.is_file = False
+        state.current_file_field = None
+        state.current_name = None
+        state.field_bytes = bytearray()
+        state.header_field = bytearray()
+        state.header_value = bytearray()
+        state.headers = {}
+
+    def on_header_field(data: bytes, start: int, end: int) -> None:
+        state.header_field.extend(data[start:end])
+
+    def on_header_value(data: bytes, start: int, end: int) -> None:
+        state.header_value.extend(data[start:end])
+
+    def on_header_end() -> None:
+        name = bytes(state.header_field).strip().lower()
+        value = bytes(state.header_value).strip()
+        if name:
+            state.headers[name] = value
+        state.header_field = bytearray()
+        state.header_value = bytearray()
+
+    def on_headers_finished() -> None:
+        disposition = state.headers.get(b"content-disposition")
+        if not disposition:
+            raise _invalid("multipart part is missing Content-Disposition")
+        _disposition_type, params = parse_options_header(disposition)
+        raw_name = params.get(b"name")
+        if raw_name is None:
+            raise _invalid("multipart part is missing Content-Disposition name")
+        name = _decode_utf8(raw_name, what="multipart field name")
+        if name not in _REGRESSION_ALLOWED_FIELDS:
+            raise _invalid(f"unknown multipart field: {name}")
+        if name in state.seen:
+            raise _invalid(f"duplicate multipart field: {name}")
+        state.seen.add(name)
+        state.current_name = name
+        state.is_file = name in _REGRESSION_FILE_FIELDS
+        state.current_file_field = name if state.is_file else None
+        if state.is_file:
+            raw_filename = params.get(b"filename")
+            if raw_filename is not None:
+                decoded = raw_filename.decode("latin-1")
+                if name == "candidate":
+                    state.candidate_filename = decoded
+                elif name == "original":
+                    state.original_filename = decoded
+                else:
+                    state.baseline_filename = decoded
+
+    def on_part_data(data: bytes, start: int, end: int) -> None:
+        piece = data[start:end]
+        if state.is_file:
+            target = _file_target()
+            if len(target) + len(piece) > max_file_bytes:
+                raise PayloadTooLargeError(_payload_too_large_detail())
+            target.extend(piece)
+            return
+        if len(state.field_bytes) + len(piece) > _REGRESSION_METADATA_MAX_BYTES:
+            raise _invalid("metadata field exceeds 64 KiB")
+        state.field_bytes.extend(piece)
+
+    def on_part_end() -> None:
+        name = state.current_name
+        if name is None:
+            raise _invalid("multipart part is missing Content-Disposition")
+        if name in _REGRESSION_FILE_FIELDS:
+            return
+        if name == "metadata":
+            state.metadata = bytes(state.field_bytes)
+
+    def on_end() -> None:
+        state.ended = True
+
+    parser = multipart.MultipartParser(
+        boundary,
+        {
+            "on_part_begin": on_part_begin,
+            "on_header_field": on_header_field,
+            "on_header_value": on_header_value,
+            "on_header_end": on_header_end,
+            "on_headers_finished": on_headers_finished,
+            "on_part_data": on_part_data,
+            "on_part_end": on_part_end,
+            "on_end": on_end,
+        },
+    )
+    total = 0
+    try:
+        async for chunk in request.stream():
+            if not chunk:
+                continue
+            total += len(chunk)
+            if total > max_total:
+                raise PayloadTooLargeError(_payload_too_large_detail())
+            parser.write(chunk)
+        parser.finalize()
+    except ApplicationError:
+        state.baseline_bytes.clear()
+        state.candidate_bytes.clear()
+        state.original_bytes.clear()
+        raise
+    except (MultipartParseError, FormParserError) as error:
+        state.baseline_bytes.clear()
+        state.candidate_bytes.clear()
+        state.original_bytes.clear()
+        raise _invalid("malformed multipart body") from error
+
+    if not state.ended:
+        raise _invalid("malformed multipart termination")
+    if not _REGRESSION_REQUIRED_FIELDS <= state.seen:
+        raise _invalid("regression upload requires baseline, candidate, and metadata")
+    if state.metadata is None:
+        raise _invalid("regression upload requires baseline, candidate, and metadata")
+    if not state.baseline_bytes or not state.candidate_bytes:
+        raise _invalid("baseline and candidate WAV parts are required")
+
+    original_data: bytes | None = None
+    if "original" in state.seen:
+        original_data = bytes(state.original_bytes)
+
+    return ParsedRegressionComparisonUpload(
+        baseline_data=bytes(state.baseline_bytes),
+        candidate_data=bytes(state.candidate_bytes),
+        baseline_filename=state.baseline_filename,
+        candidate_filename=state.candidate_filename,
+        original_data=original_data,
+        original_filename=state.original_filename,
+        metadata_json=state.metadata,
+    )
