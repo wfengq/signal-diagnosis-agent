@@ -11,6 +11,7 @@ const state = {
   revision: null,
   latestComparisonId: null,
   pendingRequestIds: new Set(),
+  recommendationAvailable: false,
 };
 
 function newRequestId() {
@@ -31,11 +32,20 @@ function setSubmitEnabled() {
   const submit = document.getElementById("submit-comparison");
   const repeat = document.getElementById("repeat-retest");
   const repair = document.getElementById("repair-retest");
+  const recommend = document.getElementById("request-recommendation");
   const hasCase = Boolean(state.caseId);
   const busy = state.pendingRequestIds.size > 0;
   if (submit) submit.disabled = !hasCase || busy;
   if (repeat) repeat.disabled = !hasCase || !state.latestComparisonId || busy;
   if (repair) repair.disabled = !hasCase || !state.latestComparisonId || busy;
+  if (recommend) {
+    recommend.hidden = !state.recommendationAvailable;
+    recommend.disabled =
+      !state.recommendationAvailable ||
+      !hasCase ||
+      !state.latestComparisonId ||
+      busy;
+  }
 }
 
 function updateExportLinks() {
@@ -260,6 +270,23 @@ function renderResults(snapshot) {
     });
     root.appendChild(list);
   }
+  if (snapshot.recommendations && snapshot.recommendations.length) {
+    appendText(root, "h3", "Retest recommendations");
+    const list = document.createElement("ul");
+    snapshot.recommendations.forEach((rec) => {
+      const text = rec.detail
+        ? `${rec.comparison_id}: ${rec.status} — ${rec.detail}`
+        : `${rec.comparison_id}: ${rec.status}`;
+      appendText(list, "li", text);
+    });
+    root.appendChild(list);
+    const latest = snapshot.recommendations[snapshot.recommendations.length - 1];
+    const statusNode = document.getElementById("recommendation-status");
+    if (statusNode && latest) {
+      statusNode.hidden = false;
+      statusNode.textContent = `${latest.status}: ${latest.detail || ""}`.trim();
+    }
+  }
 }
 
 function applySnapshot(snapshot) {
@@ -273,8 +300,50 @@ function applySnapshot(snapshot) {
     `Case ${snapshot.case_id} (revision ${snapshot.revision}); latest submit ${snapshot.latest_submit_status}.`,
   );
   renderResults(snapshot);
+  const recDetail = document.getElementById("recommendation-detail");
+  if (recDetail) {
+    const recommendations = snapshot.recommendations || [];
+    const latest = recommendations.length
+      ? recommendations[recommendations.length - 1]
+      : null;
+    recDetail.textContent = latest
+      ? `${latest.status}: ${latest.detail || ""}`
+      : "";
+  }
   updateExportLinks();
   setSubmitEnabled();
+}
+
+async function requestRecommendation() {
+  if (!state.caseId || !state.latestComparisonId || !state.recommendationAvailable) {
+    return;
+  }
+  const requestId = newRequestId();
+  if (state.pendingRequestIds.has(requestId)) {
+    return;
+  }
+  state.pendingRequestIds.add(requestId);
+  setSubmitEnabled();
+  const targetCaseId = state.caseId;
+  try {
+    const snapshot = await apiJson(
+      `/api/v1/regression/cases/${state.caseId}/comparisons/${state.latestComparisonId}/recommendations`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ request_id: requestId }),
+      },
+    );
+    if (state.caseId !== targetCaseId) {
+      return;
+    }
+    applySnapshot(snapshot);
+  } catch (error) {
+    setCaseStatus(error.message || "Recommendation request failed.", "warn");
+  } finally {
+    state.pendingRequestIds.delete(requestId);
+    setSubmitEnabled();
+  }
 }
 
 async function createCase() {
@@ -307,10 +376,12 @@ async function createCase() {
 async function loadCapabilities() {
   try {
     const caps = await apiJson("/api/v1/regression/capabilities");
+    state.recommendationAvailable = Boolean(caps && caps.recommendation_available);
     const notice = document.getElementById("measurement-notice");
     if (notice && caps && caps.enabled_profile_ids && caps.enabled_profile_ids.length) {
       notice.textContent = `Enabled comparison profiles: ${caps.enabled_profile_ids.join(", ")}`;
     }
+    setSubmitEnabled();
   } catch (_error) {
     setCaseStatus("Regression API unavailable.", "warn");
   }
@@ -321,8 +392,12 @@ function bindUi() {
   const submit = document.getElementById("submit-comparison");
   const repeat = document.getElementById("repeat-retest");
   const repair = document.getElementById("repair-retest");
+  const recommend = document.getElementById("request-recommendation");
   if (create) create.addEventListener("click", () => createCase());
   if (submit) submit.addEventListener("click", () => submitComparison(null));
+  if (recommend) {
+    recommend.addEventListener("click", () => requestRecommendation());
+  }
   if (repeat) {
     repeat.addEventListener("click", () =>
       submitComparison({

@@ -46,6 +46,12 @@ class _CreateCaseBody(BaseModel):
     request_id: str | None = Field(default=None, max_length=64)
 
 
+class _RecommendationBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    request_id: str = Field(min_length=1, max_length=64)
+
+
 class RegressionComparisonMetadata(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -189,7 +195,7 @@ def build_regression_router(service: RegressionWorkbenchService) -> APIRouter:
         return JSONResponse(
             content={
                 "measurement_available": True,
-                "recommendation_available": False,
+                "recommendation_available": service.recommendation_available,
                 "enabled_profile_ids": [],
             }
         )
@@ -233,6 +239,23 @@ def build_regression_router(service: RegressionWorkbenchService) -> APIRouter:
                 upload,
                 request_id=metadata.request_id,
                 link=metadata.link,
+                reuse_operation_slot=True,
+            )
+        return JSONResponse(content=snapshot.model_dump(mode="json"))
+
+    @router.post(
+        "/api/v1/regression/cases/{case_id}/comparisons/{comparison_id}/recommendations"
+    )
+    async def request_recommendation(
+        case_id: str,
+        comparison_id: str,
+        body: _RecommendationBody,
+    ) -> JSONResponse:
+        async with service.hold_operation_slot():
+            snapshot = await service.request_recommendation(
+                case_id,
+                comparison_id,
+                request_id=body.request_id,
                 reuse_operation_slot=True,
             )
         return JSONResponse(content=snapshot.model_dump(mode="json"))
