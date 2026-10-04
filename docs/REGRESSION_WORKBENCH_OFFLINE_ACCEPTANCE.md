@@ -9,7 +9,7 @@ Commit/push/draft PR authorized for Codex review. Merge/seal/RealLLM remain gate
 
 - Plan read-only baseline: `4b45f73997a3da89b19eb00846231c6bc84a7709`
 - Branch tip at handoff import: `1f42677` (docs-only)
-- Phase A tip after Codex revise (overall-pass fix): branch `cursor/s1-regression-workbench-impl-8b52` (PR #33 tip)
+- Phase A tip after Codex revise (overall-pass fix): `2885d4b` on `cursor/s1-regression-workbench-impl-8b52`
 - Authority: `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §22, D042, design/plan documents
 - Spec SHA256: `536b71ddb6e5f3b3369fa49a1aa4e7ad5471497d88b89977822600fa9a990fe4`
 - Plan SHA256: `225e0ddfbd49281a1dd210726985db773b1e503b5133de90cb9ec8128bbd1b84`
