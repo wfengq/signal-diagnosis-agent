@@ -380,5 +380,22 @@
     "calibration_recompute_unchanged": true,
     "selected_threshold_percent_unchanged": 5.0,
     "model_calls": 0
+  },
+  {
+    "amendment_id": "d042_regression_workbench_phase_b_revise3",
+    "amendment_kind": "append_only_code_identity",
+    "created_at_utc": "2026-10-04T12:30:00+00:00",
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "product_tree_sha256": "572f039d7e962d9906e03a95eb92a4fba64f135cdc490af2acce71f7c6875735",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "scope": "D042 Phase B revise3: shared case-report integrity on build and model_validate (id/parent/recommendation refs + validate_comparison_record); hold_operation_slot before multipart body read; Web omits hardcoded fundamental_hz for tool auto-estimate; AC14 browser GUI remains pending; no Task 7\u20138, seal, RealLLM, or product tolerances; model_calls=0",
+    "qualification_recompute_unchanged": true,
+    "calibration_recompute_unchanged": true,
+    "selected_threshold_percent_unchanged": 5.0,
+    "model_calls": 0
   }
 ]

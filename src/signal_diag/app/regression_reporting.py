@@ -6,7 +6,7 @@ import html
 import json
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from signal_diag.app.regression import (
     CaseComparisonItem,
@@ -19,6 +19,43 @@ from signal_diag.rules.regression import ComparisonRecord, validate_comparison_r
 _MEASUREMENT_ONLY_NOTICE = (
     "Reporting measurement changes only; no approved comparison tolerances yet"
 )
+
+
+def validate_regression_case_report_integrity(
+    *,
+    comparisons: tuple[CaseComparisonItem, ...],
+    failures: tuple[CaseFailureRecord, ...],
+    recommendations: tuple[CaseRecommendationRecord, ...],
+) -> None:
+    """Reject tampered or inconsistent case report payloads."""
+    seen_ids: set[str] = set()
+    for item in comparisons:
+        if item.comparison_id != item.record.comparison_id:
+            raise ValueError(
+                "comparison item comparison_id must match record.comparison_id"
+            )
+        if item.comparison_id in seen_ids:
+            raise ValueError("duplicate comparison_id in report")
+        if (
+            item.parent_comparison_id is not None
+            and item.parent_comparison_id not in seen_ids
+        ):
+            raise ValueError("parent comparison_id is missing or out of order")
+        validate_comparison_record(item.record)
+        seen_ids.add(item.comparison_id)
+
+    for failure in failures:
+        if (
+            failure.parent_comparison_id is not None
+            and failure.parent_comparison_id not in seen_ids
+        ):
+            raise ValueError("failure parent_comparison_id is not in this report")
+
+    for recommendation in recommendations:
+        if recommendation.comparison_id not in seen_ids:
+            raise ValueError(
+                "recommendation comparison_id is not present in this report"
+            )
 
 
 class RegressionCaseReport(BaseModel):
@@ -35,33 +72,14 @@ class RegressionCaseReport(BaseModel):
     latest_submit_status: str
     measurement_only_notice: str = Field(default=_MEASUREMENT_ONLY_NOTICE)
 
-
-def _collect_case_source_ids(snapshot: RegressionCaseSnapshot) -> tuple[set[str], set[str]]:
-    run_ids: set[str] = set()
-    bundle_digests: set[str] = set()
-    for item in snapshot.comparisons:
-        record = item.record
-        run_ids.add(record.baseline_bundle.identity.run_id)
-        run_ids.add(record.candidate_bundle.identity.run_id)
-        bundle_digests.add(record.baseline_bundle.digest)
-        bundle_digests.add(record.candidate_bundle.digest)
-    return run_ids, bundle_digests
-
-
-def _assert_in_case_sources(
-    record: ComparisonRecord,
-    *,
-    allowed_run_ids: set[str],
-    allowed_bundle_digests: set[str],
-) -> None:
-    for row in record.metric_comparisons:
-        for ref in (row.baseline_ref, row.candidate_ref):
-            if ref is None:
-                continue
-            if ref.run_id not in allowed_run_ids:
-                raise ValueError("metric source references run outside this case")
-            if ref.bundle_digest not in allowed_bundle_digests:
-                raise ValueError("metric source references bundle outside this case")
+    @model_validator(mode="after")
+    def validate_integrity(self) -> RegressionCaseReport:
+        validate_regression_case_report_integrity(
+            comparisons=self.comparisons,
+            failures=self.failures,
+            recommendations=self.recommendations,
+        )
+        return self
 
 
 def build_case_report(
@@ -69,14 +87,11 @@ def build_case_report(
     *,
     generated_at: datetime,
 ) -> RegressionCaseReport:
-    allowed_run_ids, allowed_bundle_digests = _collect_case_source_ids(snapshot)
-    for item in snapshot.comparisons:
-        _assert_in_case_sources(
-            item.record,
-            allowed_run_ids=allowed_run_ids,
-            allowed_bundle_digests=allowed_bundle_digests,
-        )
-        validate_comparison_record(item.record)
+    validate_regression_case_report_integrity(
+        comparisons=snapshot.comparisons,
+        failures=snapshot.failures,
+        recommendations=snapshot.recommendations,
+    )
     return RegressionCaseReport(
         generated_at=generated_at,
         case_id=snapshot.case_id,

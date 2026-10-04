@@ -276,6 +276,49 @@ async def test_regression_works_without_planner_key() -> None:
 
 
 @pytest.mark.asyncio
+async def test_busy_comparison_post_returns_409_without_parsing_body(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from signal_diag.app import regression_api as regression_api_mod
+
+    parse_calls = 0
+    original_parse = regression_api_mod.parse_regression_comparison_upload
+
+    async def counting_parse(*args: Any, **kwargs: Any) -> Any:
+        nonlocal parse_calls
+        parse_calls += 1
+        return await original_parse(*args, **kwargs)
+
+    monkeypatch.setattr(
+        regression_api_mod,
+        "parse_regression_comparison_upload",
+        counting_parse,
+    )
+
+    wav = _mono_wav_bytes()
+    held_service = RegressionWorkbenchService(clock=lambda: NOW)
+    held_service._busy = True
+    try:
+        app = FastAPI()
+        app.include_router(build_regression_router(held_service))
+        app.add_exception_handler(ApplicationError, regression_application_error_handler)
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as busy_client:
+            case = held_service.create_case("busy")
+            body, content_type = _comparison_form(wav, wav)
+            response = await busy_client.post(
+                f"/api/v1/regression/cases/{case.case_id}/comparisons",
+                content=body,
+                headers={"Content-Type": content_type},
+            )
+    finally:
+        held_service._busy = False
+    await held_service.aclose()
+    assert response.status_code == 409
+    assert parse_calls == 0
+
+
+@pytest.mark.asyncio
 async def test_regression_page_and_js_packaged() -> None:
     service = build_regression_service()
     app = FastAPI()

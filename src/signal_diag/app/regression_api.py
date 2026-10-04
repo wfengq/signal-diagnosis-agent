@@ -212,27 +212,29 @@ def build_regression_router(service: RegressionWorkbenchService) -> APIRouter:
 
     @router.post("/api/v1/regression/cases/{case_id}/comparisons")
     async def submit_comparison(case_id: str, request: Request) -> JSONResponse:
-        parsed = await parse_regression_comparison_upload(
-            request,
-            max_file_bytes=_MAX_FILE_BYTES,
-        )
-        try:
-            metadata = RegressionComparisonMetadata.model_validate_json(
-                parsed.metadata_json
+        async with service.hold_operation_slot():
+            parsed = await parse_regression_comparison_upload(
+                request,
+                max_file_bytes=_MAX_FILE_BYTES,
             )
-        except (ValidationError, ValueError) as error:
-            raise InvalidRequestError(
-                AppErrorDetail(
-                    code="invalid_request", message="malformed comparison metadata"
+            try:
+                metadata = RegressionComparisonMetadata.model_validate_json(
+                    parsed.metadata_json
                 )
-            ) from error
-        upload = _upload_from_parsed(parsed)
-        snapshot = await service.submit_comparison(
-            case_id,
-            upload,
-            request_id=metadata.request_id,
-            link=metadata.link,
-        )
+            except (ValidationError, ValueError) as error:
+                raise InvalidRequestError(
+                    AppErrorDetail(
+                        code="invalid_request", message="malformed comparison metadata"
+                    )
+                ) from error
+            upload = _upload_from_parsed(parsed)
+            snapshot = await service.submit_comparison(
+                case_id,
+                upload,
+                request_id=metadata.request_id,
+                link=metadata.link,
+                reuse_operation_slot=True,
+            )
         return JSONResponse(content=snapshot.model_dump(mode="json"))
 
     @router.get("/api/v1/regression/cases/{case_id}/report.json")

@@ -10,6 +10,7 @@ import pytest
 from signal_diag.app.pcm_wav import encode_pcm32_wav
 from signal_diag.app.regression import RegressionWorkbenchService
 from signal_diag.app.regression_reporting import (
+    RegressionCaseReport,
     build_case_report,
     render_case_html,
     render_case_json,
@@ -157,7 +158,88 @@ async def test_cross_case_run_reference_rejected(
             )
         }
     )
-    with pytest.raises(ValueError, match="outside this case"):
+    with pytest.raises(ValueError, match="digest mismatch|run_id mismatch"):
+        build_case_report(broken, generated_at=NOW)
+
+
+@pytest.mark.asyncio
+async def test_model_validate_rejects_tampered_difference_via_report(
+    service: RegressionWorkbenchService,
+) -> None:
+    wav = _mono_wav_bytes()
+    case = service.create_case("goal")
+    snapshot = await service.submit_comparison(
+        case.case_id,
+        _upload(wav, wav),
+        request_id="req-1",
+    )
+    report = build_case_report(snapshot, generated_at=NOW)
+    payload = json.loads(report.model_dump_json())
+    payload["comparisons"][0]["record"]["metric_comparisons"][0]["difference"] = 999.0
+    with pytest.raises(ValueError, match="mismatch"):
+        RegressionCaseReport.model_validate(payload)
+
+
+@pytest.mark.asyncio
+async def test_model_validate_rejects_outer_comparison_id_mismatch(
+    service: RegressionWorkbenchService,
+) -> None:
+    wav = _mono_wav_bytes()
+    case = service.create_case("goal")
+    snapshot = await service.submit_comparison(
+        case.case_id,
+        _upload(wav, wav),
+        request_id="req-1",
+    )
+    report = build_case_report(snapshot, generated_at=NOW)
+    payload = json.loads(report.model_dump_json())
+    payload["comparisons"][0]["comparison_id"] = "cmp_forged_outer"
+    with pytest.raises(ValueError, match="comparison_id"):
+        RegressionCaseReport.model_validate(payload)
+
+
+@pytest.mark.asyncio
+async def test_model_validate_rejects_forged_parent_comparison_id(
+    service: RegressionWorkbenchService,
+) -> None:
+    wav = _mono_wav_bytes()
+    case = service.create_case("goal")
+    snapshot = await service.submit_comparison(
+        case.case_id,
+        _upload(wav, wav),
+        request_id="req-1",
+    )
+    report = build_case_report(snapshot, generated_at=NOW)
+    payload = json.loads(report.model_dump_json())
+    payload["comparisons"][0]["parent_comparison_id"] = "cmp_missing_parent"
+    with pytest.raises(ValueError, match="parent"):
+        RegressionCaseReport.model_validate(payload)
+
+
+@pytest.mark.asyncio
+async def test_transplant_foreign_comparison_with_stale_recommendations_rejected(
+    service: RegressionWorkbenchService,
+) -> None:
+    wav = _mono_wav_bytes()
+    case_a = service.create_case("a")
+    case_b = service.create_case("b")
+    snap_a = await service.submit_comparison(
+        case_a.case_id,
+        _upload(wav, wav),
+        request_id="req-a",
+    )
+    snap_b = await service.submit_comparison(
+        case_b.case_id,
+        _upload(wav, wav),
+        request_id="req-b",
+    )
+    foreign_item = snap_b.comparisons[0]
+    broken = snap_a.model_copy(
+        update={
+            "comparisons": (foreign_item,),
+        }
+    )
+    with pytest.raises(ValueError, match="comparison_id"):
         build_case_report(broken, generated_at=NOW)
 
 
@@ -174,11 +256,8 @@ def test_model_validate_rejects_forged_comparison_record() -> None:
             request_id="req-1",
         )
     )
-    record = snapshot.comparisons[0].record
-    payload = json.loads(record.model_dump_json())
-    payload["metric_comparisons"][0]["difference"] = 999.0
-    from signal_diag.rules.regression import ComparisonRecord
-
-    tampered = ComparisonRecord.model_validate(payload)
+    report = build_case_report(snapshot, generated_at=NOW)
+    payload = json.loads(report.model_dump_json())
+    payload["comparisons"][0]["record"]["metric_comparisons"][0]["difference"] = 999.0
     with pytest.raises(ValueError, match="mismatch"):
-        validate_comparison_record(tampered)
+        RegressionCaseReport.model_validate(payload)

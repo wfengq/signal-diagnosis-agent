@@ -53,6 +53,10 @@ def test_regression_js_api_bindings_and_safety() -> None:
     assert "service restarted" in script.casefold() or "no longer available" in script.casefold()
     assert "pass-badge" not in script
     assert "overall pass" not in script.casefold()
+    assert re.search(
+        r"fundamental_hz:\s*200\.0",
+        script,
+    ) is None
 
 
 def test_index_links_to_regression_workbench() -> None:

@@ -94,7 +94,7 @@ function readSelection() {
   const channel = document.getElementById("analysis-channel").value;
   return {
     clipping: { channel, full_scale_threshold: 0.99 },
-    harmonic: { channel, fundamental_hz: 200.0 },
+    harmonic: { channel },
   };
 }
 

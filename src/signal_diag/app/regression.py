@@ -7,7 +7,8 @@ import concurrent.futures
 import hashlib
 import inspect
 import uuid
-from collections.abc import Callable
+from collections.abc import AsyncIterator, Callable
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Literal
@@ -388,6 +389,20 @@ class RegressionWorkbenchService:
             raise _invalid("case has a running comparison")
         del self._cases[case_id]
 
+    @asynccontextmanager
+    async def hold_operation_slot(self) -> AsyncIterator[None]:
+        async with self._lock:
+            if self._closed:
+                raise _invalid("regression service is closed")
+            if self._busy:
+                raise _invalid("regression service is busy")
+            self._busy = True
+        try:
+            yield
+        finally:
+            async with self._lock:
+                self._busy = False
+
     async def submit_comparison(
         self,
         case_id: str,
@@ -395,6 +410,7 @@ class RegressionWorkbenchService:
         *,
         request_id: str,
         link: RetestLink | None = None,
+        reuse_operation_slot: bool = False,
     ) -> RegressionCaseSnapshot:
         if self._closed:
             raise _invalid("regression service is closed")
@@ -402,6 +418,7 @@ class RegressionWorkbenchService:
         fingerprint = _upload_fingerprint(upload, link)
 
         slot_held = False
+        comparison_running = False
         async with self._lock:
             case = self._require_case(case_id)
             prior = case.request_outcomes.get(request_id)
@@ -417,15 +434,22 @@ class RegressionWorkbenchService:
             if link is not None:
                 self._validate_link(case, link)
 
-            if self._busy or case.running:
+            if case.running:
+                raise _invalid("regression service is busy")
+            if reuse_operation_slot:
+                if not self._busy:
+                    raise _invalid("regression operation slot is not held")
+            elif self._busy:
                 raise _invalid("regression service is busy")
 
             _check_file_sizes(upload, max_file_bytes=self._wav_limits.max_upload_bytes)
 
             case.running = True
+            comparison_running = True
             case.accepted_submit_count += 1
-            self._busy = True
-            slot_held = True
+            if not reuse_operation_slot:
+                self._busy = True
+            slot_held = not reuse_operation_slot
 
         try:
             cf_future = self._executor.submit(
@@ -525,12 +549,14 @@ class RegressionWorkbenchService:
                 case.updated_at = self._clock()
                 return self._snapshot(case)
         finally:
-            if slot_held:
+            if comparison_running or slot_held:
                 async with self._lock:
-                    held = self._cases.get(case_id)
-                    if held is not None:
-                        held.running = False
-                    self._busy = False
+                    if comparison_running:
+                        held = self._cases.get(case_id)
+                        if held is not None:
+                            held.running = False
+                    if slot_held:
+                        self._busy = False
 
     async def aclose(self) -> None:
         self._closed = True
