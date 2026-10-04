@@ -1,10 +1,10 @@
 # Regression workbench offline acceptance (Phase A + Phase B + Phase C Task 7)
 
-Status: Phase A Tasks 1–4 + Phase B Tasks 5–6 + Task 9 closeout + revise4 **Codex accept** at tip `6997400` (code `d66f346`) + **browser T-CX339 proof** at tip `4972100` + **Phase C Task 7 offline** on branch `cursor/s1-regression-task7-offline-8b52` (baseline `41b0cba`; **commit/push authorized for Codex git fetch / independent recheck**; merge/Task 8/seal/RealLLM still gated).
+Status: Phase A Tasks 1–4 + Phase B Tasks 5–6 + Task 9 closeout + revise4 **Codex accept** at tip `6997400` (code `d66f346`) + **browser T-CX339 proof** at tip `4972100` + **Phase C Task 7 offline** tip `aced981` on branch `cursor/s1-regression-task7-offline-8b52` (baseline `41b0cba`; **commit/push for Codex git fetch / independent recheck**; merge/Task 8/seal/RealLLM still gated).
 Product comparison profiles enabled in production: **0**.
 User-benefit and RealLLM retest claims: **unverified**.
 Independent Codex offline accept recorded for tip `6997400`. Merge/seal/RealLLM remain gated.
-Phase C Task 7 (offline retest planner adapter + recommendation API): **committed for Codex recheck**; Task 9 Phase C Task 7 closeout checks below.
+Phase C Task 7 (offline retest planner adapter + recommendation API): tip `aced981` awaiting Codex recheck; Task 9 Phase C Task 7 closeout checks below.
 Task 8 (offline contrast evaluation chain) **not authorized**.
 Browser dual-file / retest / export path: **executed** (T-CX339). Design AC14 is scheme admission (Task 7 catalog/parse), not the browser path.
 
@@ -80,8 +80,8 @@ Single `ThreadPoolExecutor(max_workers=1)`. HTTP comparison and recommendation r
 | `mypy` on `retest_planner.py` / `regression.py` / `regression_api.py` | pass |
 | `git diff --check 41b0cba` | clean |
 | RealLLM network / product tolerances | **not verified** |
-| Full `pytest -q` | re-measured after commit/push (see tip note below); pre-commit dirty tree was 1902/12 due to untracked `retest_planner.py` |
-| Commit / push for Codex fetch | **authorized** (this tip); merge / Task 8 / seal / RealLLM still blocked |
+| Full `pytest -q` at tip `aced981` | **1914 passed**, 1 warning |
+| Commit / push for Codex fetch | tip `aced981` on `cursor/s1-regression-task7-offline-8b52`; merge / Task 8 / seal / RealLLM still blocked |
 
 New modules (unqualified; not Phase 4.3.1 certified):
 
@@ -98,7 +98,7 @@ Commands (measured on Task 7 working tree):
 | `python -m ruff check` (touched paths) | pass |
 | `python -m mypy` (touched src modules) | pass |
 | `git diff --check 41b0cba` | clean |
-| Full `pytest -q` | re-run after commit; record tip result in follow-up note if needed |
+| Full `pytest -q` (tip `aced981`) | **1914 passed**, 1 warning |
 | Wheel / CPython 3.11/3.12 matrix | **not executed** (not a release gate) |
 
 Correction: earlier drafts wrongly mapped interactive browser GUI to design AC14. Spec AC14 is scheme admission (“不适用方案或未批准参数不能由模型输出绕过”). Task 6 Web dual-file/manual retest is **T-CX339**.
