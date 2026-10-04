@@ -261,6 +261,59 @@ async def test_cancelled_submit_releases_busy_slot(
 
 
 @pytest.mark.asyncio
+async def test_double_cancel_keeps_busy_until_worker_finishes(
+    service: RegressionWorkbenchService,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import threading
+
+    import signal_diag.app.regression as regression_mod
+
+    original_run = regression_mod._execute_comparison_group
+    entered = threading.Event()
+    release = threading.Event()
+    loop = asyncio.get_running_loop()
+    entered_async = asyncio.Event()
+
+    def slow_run(*args: Any, **kwargs: Any):
+        entered.set()
+        loop.call_soon_threadsafe(entered_async.set)
+        if not release.wait(timeout=2.0):
+            raise TimeoutError("test release signal was not set")
+        return original_run(*args, **kwargs)
+
+    monkeypatch.setattr(regression_mod, "_execute_comparison_group", slow_run)
+    wav = _mono_wav_bytes()
+    case = service.create_case("goal")
+    task = asyncio.create_task(
+        service.submit_comparison(case.case_id, _upload(wav, wav), request_id="dbl-cancel")
+    )
+    await entered_async.wait()
+    task.cancel()
+    task.cancel()
+    await asyncio.sleep(0.02)
+    assert service._busy is True
+    with pytest.raises(InvalidRequestError, match="busy"):
+        await service.submit_comparison(
+            case.case_id,
+            _upload(wav, wav),
+            request_id="overlap-dbl-cancel",
+        )
+    release.set()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    assert service._busy is False
+    assert service._cases[case.case_id].running is False
+    retry = await service.submit_comparison(
+        case.case_id,
+        _upload(wav, wav),
+        request_id="dbl-cancel",
+    )
+    assert retry.latest_submit_status == "completed"
+    await service.aclose()
+
+
+@pytest.mark.asyncio
 async def test_original_input_sha256_mismatch_rejected(
     service: RegressionWorkbenchService,
 ) -> None:

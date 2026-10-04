@@ -1,6 +1,6 @@
 # Regression workbench offline acceptance (Phase A + Phase B)
 
-Status: Phase A Tasks 1–4 + Phase B Tasks 5–6 + Task 9 closeout + revise/revise2/revise3.
+Status: Phase A Tasks 1–4 + Phase B Tasks 5–6 + Task 9 closeout + revise/revise2/revise3/revise4.
 Product comparison profiles enabled in production: **0**.
 User-benefit and RealLLM retest claims: **unverified**.
 Commit/push/draft PR authorized for Codex review. Merge/seal/RealLLM remain gated.
@@ -14,6 +14,7 @@ Tasks 7–8 (retest planner / offline contrast) **not authorized**.
 - Phase B revise (cancel/fingerprint/hash): `f86f1ac`
 - Phase B revise2 tip: `0e22c3d`
 - Phase B revise3 tip: `74ae50a` / identity `d042_regression_workbench_phase_b_revise3` / product tree `572f039d7e962d9906e03a95eb92a4fba64f135cdc490af2acce71f7c6875735`
+- Phase B revise4 tip: identity `d042_regression_workbench_phase_b_revise4` / product tree `5f73c757dee9771d6499cd2413ff5751679250e332ffb31332eaca5c43a7208d`
 - Authority: `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §22, D042, design/plan documents
 
 ## Scope covered
@@ -26,6 +27,7 @@ Tasks 7–8 (retest planner / offline contrast) **not authorized**.
 | Reporting / API / static UI (Task 6) | Yes | reporting/api/ui tests + HTTP proof doc |
 | Cancel/busy/link fingerprint revise | Yes | cancel waits for worker; fingerprint includes `RetestLink` |
 | Report integrity + pre-parse slot + Web F0 revise3 | Yes | shared report validate; `hold_operation_slot` before multipart read; omit hardcoded Web F0 |
+| Case ownership + double-cancel revise4 | Yes | `case_id` on case records; nested cancel wait until worker done |
 | Retest planner / offline contrast | **Not yet** | Tasks 7–8 |
 
 ## Product / UI posture
@@ -42,7 +44,7 @@ Covers: baseline/candidate/optional-original **bytes**, upload metadata JSON (ve
 
 ## Cancel / concurrency
 
-Single `ThreadPoolExecutor(max_workers=1)`. HTTP comparison routes acquire `hold_operation_slot()` before reading multipart bytes, so a busy service returns 409 without parsing the upload body. On `CancelledError`, the service waits for the worker future to finish before clearing `_busy` / `case.running`. Cancelled submits do not store a completed/failed `request_id` outcome, so the same id may retry. Overlap while the cancelled worker is still running returns busy.
+Single `ThreadPoolExecutor(max_workers=1)`. HTTP comparison routes acquire `hold_operation_slot()` before reading multipart bytes, so a busy service returns 409 without parsing the upload body. On `CancelledError`, the service waits for the worker future to finish before clearing `_busy` / `case.running`; further cancels during that wait are swallowed until the worker is done. Cancelled submits do not store a completed/failed `request_id` outcome, so the same id may retry. Overlap while the cancelled worker is still running returns busy.
 
 ## AC / T-CX mapping (Phase B)
 
@@ -53,16 +55,16 @@ Single `ThreadPoolExecutor(max_workers=1)`. HTTP comparison routes acquire `hold
 | AC14 Web dual-file / retest path | T-CX339 | **pending** interactive browser GUI; HTTP proof in `docs/REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md` does not substitute |
 | AC15 planner / benefit | T-CX340–344, T-CX348 | **Not covered** (Tasks 7–8) |
 
-## Commands and results (measured on revise3 working tree)
+## Commands and results (measured on revise4 working tree)
 
 | Command | Result |
 |---|---|
-| `pytest tests/app/test_regression_{reporting,api,service,ui}.py -q` | **45 passed** |
+| `pytest tests/app/test_regression_{reporting,api,service,ui}.py -q` | **48 passed** |
 | HTTP proof (capabilities→compare→repeat→repair→reports→static) | **PASS**; tracked in `docs/REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md` |
 | Browser/computerUse GUI recording | **Not executed** (AC14 pending) |
-| `python -m ruff check` / `python -m mypy` on touched app modules | pass (revise3) |
+| `python -m ruff check` / `python -m mypy` on touched app modules | pass (revise4) |
 | `git diff --check 4b45f73997a3da89b19eb00846231c6bc84a7709` | clean (touched paths) |
-| `python -m pytest -q` (full, tip `74ae50a`) | **1893 passed**, 1 warning |
+| `python -m pytest -q` (full) | recorded after commit |
 | Wheel ASGI smoke for `/regression` + `regression.js` | previously **PASS** at Task 6 closeout; not reclaimed as release matrix |
 | CPython 3.11/3.12 clean-environment matrix | **not executed** |
 
@@ -70,8 +72,8 @@ Single `ThreadPoolExecutor(max_workers=1)`. HTTP comparison routes acquire `hold
 
 - `code_identity_amendment.json` under the contextual development study is an **append-only identity bridge**, not a sealed Demo/official evaluation asset. Revise rows only append tip entries; prior rows retain prior digests.
 - `tests/agent/test_v03_prompt_v9_11.py` tip assertions are updated so the active tip equals `contextual_product_tree_sha256()`; older tip rows stay pinned to historical digests. Prompt/causal identity remains `v0.3-s1-planner-9.11` / `v9_11_mode_aware_no_fault_recovery`.
-- Phase B tips: `d042_regression_workbench_phase_b` → `…_revise` → `…_revise2` → `…_revise3`
-- Tip `product_tree_sha256`: `572f039d7e962d9906e03a95eb92a4fba64f135cdc490af2acce71f7c6875735`
+- Phase B tips: `d042_regression_workbench_phase_b` → `…_revise` → `…_revise2` → `…_revise3` → `…_revise4`
+- Tip `product_tree_sha256`: `5f73c757dee9771d6499cd2413ff5751679250e332ffb31332eaca5c43a7208d`
 - `current_implementation_sha256` unchanged: `9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3`
 - `model_calls`: **0**
 

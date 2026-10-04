@@ -217,6 +217,61 @@ async def test_model_validate_rejects_forged_parent_comparison_id(
 
 
 @pytest.mark.asyncio
+async def test_transplant_foreign_comparison_with_cleared_recommendations_rejected(
+    service: RegressionWorkbenchService,
+) -> None:
+    wav = _mono_wav_bytes()
+    case_a = service.create_case("a")
+    case_b = service.create_case("b")
+    snap_a = await service.submit_comparison(
+        case_a.case_id,
+        _upload(wav, wav),
+        request_id="req-a",
+    )
+    snap_b = await service.submit_comparison(
+        case_b.case_id,
+        _upload(wav, wav),
+        request_id="req-b",
+    )
+    foreign_item = snap_b.comparisons[0]
+    broken = snap_a.model_copy(
+        update={
+            "comparisons": (foreign_item,),
+            "recommendations": (),
+        }
+    )
+    with pytest.raises(ValueError, match="case_id"):
+        build_case_report(broken, generated_at=NOW)
+
+
+@pytest.mark.asyncio
+async def test_transplant_foreign_comparison_and_recommendations_rejected(
+    service: RegressionWorkbenchService,
+) -> None:
+    wav = _mono_wav_bytes()
+    case_a = service.create_case("a")
+    case_b = service.create_case("b")
+    snap_a = await service.submit_comparison(
+        case_a.case_id,
+        _upload(wav, wav),
+        request_id="req-a",
+    )
+    snap_b = await service.submit_comparison(
+        case_b.case_id,
+        _upload(wav, wav),
+        request_id="req-b",
+    )
+    broken = snap_a.model_copy(
+        update={
+            "comparisons": (snap_b.comparisons[0],),
+            "recommendations": snap_b.recommendations,
+        }
+    )
+    with pytest.raises(ValueError, match="case_id"):
+        build_case_report(broken, generated_at=NOW)
+
+
+@pytest.mark.asyncio
 async def test_transplant_foreign_comparison_with_stale_recommendations_rejected(
     service: RegressionWorkbenchService,
 ) -> None:
@@ -239,7 +294,7 @@ async def test_transplant_foreign_comparison_with_stale_recommendations_rejected
             "comparisons": (foreign_item,),
         }
     )
-    with pytest.raises(ValueError, match="comparison_id"):
+    with pytest.raises(ValueError, match="case_id|comparison_id"):
         build_case_report(broken, generated_at=NOW)
 
 

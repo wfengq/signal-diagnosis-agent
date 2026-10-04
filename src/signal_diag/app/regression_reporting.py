@@ -23,6 +23,7 @@ _MEASUREMENT_ONLY_NOTICE = (
 
 def validate_regression_case_report_integrity(
     *,
+    case_id: str,
     comparisons: tuple[CaseComparisonItem, ...],
     failures: tuple[CaseFailureRecord, ...],
     recommendations: tuple[CaseRecommendationRecord, ...],
@@ -30,6 +31,8 @@ def validate_regression_case_report_integrity(
     """Reject tampered or inconsistent case report payloads."""
     seen_ids: set[str] = set()
     for item in comparisons:
+        if item.case_id != case_id:
+            raise ValueError("comparison item case_id must match report case_id")
         if item.comparison_id != item.record.comparison_id:
             raise ValueError(
                 "comparison item comparison_id must match record.comparison_id"
@@ -45,6 +48,8 @@ def validate_regression_case_report_integrity(
         seen_ids.add(item.comparison_id)
 
     for failure in failures:
+        if failure.case_id != case_id:
+            raise ValueError("failure case_id must match report case_id")
         if (
             failure.parent_comparison_id is not None
             and failure.parent_comparison_id not in seen_ids
@@ -52,6 +57,8 @@ def validate_regression_case_report_integrity(
             raise ValueError("failure parent_comparison_id is not in this report")
 
     for recommendation in recommendations:
+        if recommendation.case_id != case_id:
+            raise ValueError("recommendation case_id must match report case_id")
         if recommendation.comparison_id not in seen_ids:
             raise ValueError(
                 "recommendation comparison_id is not present in this report"
@@ -75,6 +82,7 @@ class RegressionCaseReport(BaseModel):
     @model_validator(mode="after")
     def validate_integrity(self) -> RegressionCaseReport:
         validate_regression_case_report_integrity(
+            case_id=self.case_id,
             comparisons=self.comparisons,
             failures=self.failures,
             recommendations=self.recommendations,
@@ -88,6 +96,7 @@ def build_case_report(
     generated_at: datetime,
 ) -> RegressionCaseReport:
     validate_regression_case_report_integrity(
+        case_id=snapshot.case_id,
         comparisons=snapshot.comparisons,
         failures=snapshot.failures,
         recommendations=snapshot.recommendations,

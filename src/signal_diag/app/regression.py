@@ -119,6 +119,7 @@ class RetestLink(BaseModel):
 class CaseComparisonItem(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
+    case_id: str
     comparison_id: str
     record: ComparisonRecord
     parent_comparison_id: str | None = None
@@ -130,6 +131,7 @@ class CaseComparisonItem(BaseModel):
 class CaseFailureRecord(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
+    case_id: str
     failure_id: str
     request_id: str
     message: str
@@ -141,6 +143,7 @@ class CaseFailureRecord(BaseModel):
 class CaseRecommendationRecord(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
+    case_id: str
     recommendation_id: str
     comparison_id: str
     status: _RecommendationStatus
@@ -465,7 +468,10 @@ class RegressionWorkbenchService:
                     # wrap_future cancel does not stop a running worker; keep the
                     # slot until the thread actually finishes.
                     while not cf_future.done():
-                        await asyncio.sleep(0.01)
+                        try:
+                            await asyncio.sleep(0.01)
+                        except asyncio.CancelledError:
+                            continue
                     raise
                 if inspect.isawaitable(outcome):
                     record = await outcome
@@ -475,6 +481,7 @@ class RegressionWorkbenchService:
                 async with self._lock:
                     case = self._require_case(case_id)
                     failure = CaseFailureRecord(
+                        case_id=case_id,
                         failure_id=_new_id("fail"),
                         request_id=request_id,
                         message=error.detail.message,
@@ -498,6 +505,7 @@ class RegressionWorkbenchService:
                 async with self._lock:
                     case = self._require_case(case_id)
                     failure = CaseFailureRecord(
+                        case_id=case_id,
                         failure_id=_new_id("fail"),
                         request_id=request_id,
                         message="comparison execution failed",
@@ -521,6 +529,7 @@ class RegressionWorkbenchService:
             async with self._lock:
                 case = self._require_case(case_id)
                 item = CaseComparisonItem(
+                    case_id=case_id,
                     comparison_id=record.comparison_id,
                     record=record,
                     parent_comparison_id=link.parent_comparison_id if link else None,
@@ -530,6 +539,7 @@ class RegressionWorkbenchService:
                 )
                 case.comparisons.append(item)
                 recommendation = CaseRecommendationRecord(
+                    case_id=case_id,
                     recommendation_id=_new_id("rec"),
                     comparison_id=record.comparison_id,
                     status="unavailable",
