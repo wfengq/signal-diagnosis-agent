@@ -261,6 +261,23 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert d042["current_implementation_sha256"] == (
         contextual_implementation_sha256()
     )
-    assert d042["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert d042["product_tree_sha256"] == (
+        "d2ca91ba9971bd4424bd4b0dcdcc21682b6745badf56fcb3b8e54cc29fff816e"
+    )
     assert d042["prompt_sha256"] == oq014["prompt_sha256"]
     assert d042["model_calls"] == 0
+    d042_phase_b = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d042_regression_workbench_phase_b"
+    )
+    assert d042_phase_b["amendment_kind"] == "append_only_code_identity"
+    assert d042_phase_b["prior_bridge_current_implementation_sha256"] == (
+        d042["current_implementation_sha256"]
+    )
+    assert d042_phase_b["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d042_phase_b["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert d042_phase_b["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d042_phase_b["model_calls"] == 0

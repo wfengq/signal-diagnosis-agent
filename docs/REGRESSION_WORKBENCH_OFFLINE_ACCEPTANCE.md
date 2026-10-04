@@ -1,20 +1,22 @@
-# Regression workbench offline acceptance (Phase A)
+# Regression workbench offline acceptance (Phase A + Phase B)
 
-Status: Phase A Tasks 1–4 + Task 9 closeout evidence (measurement + compare only).
+Status: Phase A Tasks 1–4 + Phase B Tasks 5–6 + Task 9 closeout evidence.
 Product comparison profiles enabled in production: **0**.
 User-benefit and RealLLM retest claims: **unverified**.
 Commit/push/draft PR authorized for Codex review. Merge/seal/RealLLM remain gated.
+Tasks 7–8 (retest planner / offline contrast) **not authorized** in this stage.
 
 ## Baseline
 
 - Plan read-only baseline: `4b45f73997a3da89b19eb00846231c6bc84a7709`
 - Branch tip at handoff import: `1f42677` (docs-only)
 - Phase A tip after Codex revise (overall-pass fix): `2885d4b` on `cursor/s1-regression-workbench-impl-8b52`
+- Phase B Task 5: `9e3f6de`; Task 6: `1029268` (pre-closeout)
 - Authority: `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §22, D042, design/plan documents
 - Spec SHA256: `536b71ddb6e5f3b3369fa49a1aa4e7ad5471497d88b89977822600fa9a990fe4`
 - Plan SHA256: `225e0ddfbd49281a1dd210726985db773b1e503b5133de90cb9ec8128bbd1b84`
 
-## Scope covered in Phase A
+## Scope covered
 
 | Layer | Covered | Notes |
 |---|---|---|
@@ -22,69 +24,68 @@ Commit/push/draft PR authorized for Codex review. Merge/seal/RealLLM remain gate
 | Unit: `regression_measurement` | Yes | `tests/tools/test_regression_measurement.py` |
 | Unit: `rules/regression` | Yes | `tests/rules/test_regression.py` + fixtures |
 | Real-tool integration (PCM → load → measure → compare) | Yes | `tests/evaluation/test_regression_measurement_acceptance.py` |
-| Architecture allowlist / identity tip | Yes (local) | exact paths + `d042_regression_workbench_phase_a` tip |
-| App case service / Web UI / retest planner | **Not yet** | Tasks 5–8 |
+| In-session service (Task 5) | Yes | `tests/app/test_regression_service.py` |
+| Reporting / API / static UI (Task 6) | Yes | reporting/api/ui tests + HTTP proof |
+| Architecture allowlist / identity tip | Yes | app/ exempt in T285; tip `d042_regression_workbench_phase_b` |
+| Retest planner / offline contrast | **Not yet** | Tasks 7–8 |
 
 ## Product profile posture
 
 - Approved product `ComparisonProfile` count under `src/signal_diag/rules/profiles`: **0**
-- Fixture tolerances live only under `tests/rules/regression_fixtures.py` (e.g. clipping ratio ±0.001 for comparator mechanics). These are **not** product tolerances.
+- Fixture tolerances live only under `tests/rules/regression_fixtures.py`. These are **not** product tolerances.
+- Product `build_regression_service()` defaults `profile=None` (descriptive-only).
 
-## AC / T-CX mapping (Phase A)
+## AC / T-CX mapping
 
-| Design AC | T-CX (plan) | Phase A evidence |
+| Design AC | T-CX (plan) | Evidence |
 |---|---|---|
-| AC01 same output | T-CX330 / T-CX332 | Acceptance identical sine + fixture profile no regression |
-| AC02 tolerance boundary | T-CX332 | `test_fixture_profile_boundary` (fixture profile only) |
-| AC03 added clipping | T-CX330 / T-CX335 | Acceptance added clipping + fixture regression |
-| AC04 both clipped facts preserved | T-CX335 | `test_existing_fault_and_partial_coverage_are_preserved`, acceptance both clipped |
-| AC05 input mismatch | T-CX331 | Range/channel/config negative tests in Task 2–3 |
-| AC06 harmonic N/A | T-CX330 / T-CX331 | `test_invalid_harmonic_is_not_zero`, acceptance noise case |
-| AC07 no profile descriptive | T-CX333 | `test_no_profile_is_descriptive`, acceptance descriptive path |
-| AC08 instability declarations | T-CX329 | **Codex revise:** `repeatability=unknown` and `observed_variable` both block formal judgment (`test_repeatability_unknown_blocks_formal_judgment`); other declaration unknowns unchanged |
-| AC10 partial coverage | T-CX335 | **Codex revise:** required checks must all be coverage-`satisfied`, and no metric may be `regression_detected`, for overall pass; skipped/blocked/failed/missing → False; completed-but-regressed stays coverage-satisfied with overall False (`test_required_checks_block_overall_pass_when_skipped`, `test_dual_metric_overall_pass_requires_no_regression`) |
-| AC11 reference integrity | T-CX334 | **Codex revise:** presented-record digest + all derived fields; side/run admission; recomputed bundle digests; SourceRef JSON rebuild rejects bool/int/str (`test_validate_rejects_tampered_overall_and_derived_fields`, `test_bundle_side_and_run_identity_are_enforced`, `test_stale_bundle_digest_is_rejected`, `test_sourceref_json_rebuild_rejects_non_float_values`) |
-| AC12 numeric/type | T-CX331 / T-CX332 | Relative denominator; Evidence and SourceRef wire-boundary float checks |
-| AC16 frozen behavior | T-CX345 / T-CX346 | No changes to frozen V0.2 §§1–64; additive modules only |
-
-Not covered in Phase A (later tasks): AC09, AC13–AC15 (case lifecycle, Web, planner), full T-CX336–348 product surfaces.
+| AC01–AC08, AC10–AC12, AC16 | T-CX329–335, T-CX345–346 | Phase A (see prior table in git history / Phase A tip) |
+| AC09 case lifecycle / idempotency | T-CX336 / T-CX337 | `tests/app/test_regression_service.py` |
+| AC13 reporting integrity / escape | T-CX338 | `tests/app/test_regression_reporting.py` |
+| AC14 Web dual-file / retest path | T-CX339 | API/UI tests + HTTP proof note |
+| AC15 planner / benefit | T-CX340–344, T-CX348 | **Not covered** (Tasks 7–8) |
 
 ## Commands and results (measured)
 
 | Command | Result |
 |---|---|
-| `python3 -m pytest tests/evaluation/test_regression_measurement_acceptance.py tests/tools/test_regression_measurement.py tests/rules/test_regression.py -q` | **29 passed** (after overall-pass / dual-metric revise) |
-| Identity + architecture with Phase A focused suite | measured in closeout commit |
-| `python3 -m ruff check .` / `python3 -m mypy src` | pass |
+| `pytest tests/app/test_regression_service.py tests/app/test_regression_reporting.py tests/app/test_regression_api.py tests/app/test_regression_ui.py -q` | **37 passed** |
+| HTTP proof on `127.0.0.1:8765` (capabilities → case → compare → repeat → repair → report.json/html → static) | **PASS** (case `case_270fd72c28954b36af76a366ee592923`); evidence under `.cursor/skills/verify-signal-diagnosis-agent/evidence/task6-regression-ui-browser-2026-10-04.md` |
+| Browser/computerUse GUI recording | **Not executed** (computerUse model spend limit); HTTP covers the same routes the UI calls |
+| Identity + architecture focused | tip `d042_regression_workbench_phase_b`; T285 app/ exempt; T269 allowlists `regression_api.py` |
+| `python -m ruff check .` / `python -m mypy src` | pass (139 mypy files) |
 | `git diff --check 4b45f73997a3da89b19eb00846231c6bc84a7709` | clean |
-| `python3 -m pytest -q` (full, after `2885d4b`) | **1848 passed**, 1 warning |
-| Wheel / CPython matrix | **not executed** (not a release gate this round) |
+| `python -m pytest -q` (full, after T269 allowlist) | **1885 passed**, 1 warning |
+| `python -m build` + clean-venv wheel ASGI smoke for `/regression` + `regression.js` | **PASS** |
+| CPython 3.11/3.12 clean-environment matrix | **not executed** (not a release gate this round) |
 
 ## Identity (append-only)
 
-- Amendment id: `d042_regression_workbench_phase_a`
+- Phase A amendment: `d042_regression_workbench_phase_a` (`product_tree` `d2ca91ba…816e`)
+- Phase B tip amendment: `d042_regression_workbench_phase_b`
 - `current_implementation_sha256` unchanged: `9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3`
-- Tip `product_tree_sha256`: `d2ca91ba9971bd4424bd4b0dcdcc21682b6745badf56fcb3b8e54cc29fff816e`
+- Tip `product_tree_sha256`: `cda690d560fa71da49ae2021fd0e666d84f026352f050deb066b38c23ac58c64`
 - Prompt / causal policy unchanged (`v0.3-s1-planner-9.11` / `v9_11_mode_aware_no_fault_recovery`)
 - `model_calls`: **0**
-- New modules are **not** Phase 4.3.1-certified by this bridge; they are additive identity accounting only.
+- New modules are **not** Phase 4.3.1-certified; additive identity accounting only.
 
-## Allowlist (T285 exact paths added)
+## Allowlist / layering notes (T285)
 
-- `src/signal_diag/tools/regression_measurement.py`
-- `src/signal_diag/rules/regression.py`
+- Exact paths (Phase A): `tools/regression_measurement.py`, `rules/regression.py`
+- Phase B app modules live under `src/signal_diag/app/` (T285 exempts `app/`)
+- Packaged static: `regression.html`, `regression.js` via existing `static/*` package-data patterns
+- evaluation ↛ app and rules/tools ↛ agent/app remain enforced by existing architecture tests
 
-Note: T285 inspects `baseline..HEAD` committed paths. Uncommitted new files do not yet appear in that diff; allowlist is prepared for a later authorized commit.
+## Data shapes (Phase B)
 
-## Data shapes
-
-- **MeasurementBundle**: `InputIdentity` + paired `ToolResult` clipping/harmonic + `measurement_version` + canonical JSON digest (excludes digest field).
-- **ComparisonRecord**: both bundles, `ComparisonConditions`, optional `applied_profile`, per-metric `MetricComparison` rows, `coverage` / `clipping_facts`, optional `overall_regression_pass`, digest.
+- **ComparisonUpload / RetestLink / RegressionCaseSnapshot**: in-session case store; append-only comparisons; request_id idempotency
+- **RegressionCaseReport**: validated comparisons + escaped HTML / source-preserving JSON
+- Engineering limits: 20 MiB/file, 8 cases, 16 submits/case, one concurrent measurement group
 
 ## Open / not verified / blocked gates
 
 - Product tolerance calibration and approved comparison profiles
-- Retest planner (`v0.3-s1-retest-1.0`) and RealLLM runs
+- Retest planner (`v0.3-s1-retest-1.0`) and RealLLM runs (Tasks 7–8)
 - User time savings or planner benefit studies
-- Tasks 5–8 (not granted)
+- Interactive browser GUI recording this session (HTTP proof substituted)
 - Merge, seal, RealLLM, product tolerances
