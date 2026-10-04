@@ -1304,6 +1304,8 @@ _V03_ADDITIVE_EXACT_PATHS = frozenset(
         "src/signal_diag/tools/__init__.py",
         "src/signal_diag/tools/contextual.py",
         "src/signal_diag/tools/registry.py",
+        "src/signal_diag/tools/regression_measurement.py",
+        "src/signal_diag/rules/regression.py",
         "src/signal_diag/agent/diagnosis.py",
         "src/signal_diag/agent/runtime.py",
         "src/signal_diag/agent/rule_closure.py",

@@ -27,7 +27,14 @@ product changes remain separately gated.
 Observation defaults off; formal seal, RealLLM, concrete numeric budgets, and
 provider-binding acceptance remain separately gated.
 
-**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX328)
+**D042 regression troubleshooting workbench (definitions):** §22;
+`docs/superpowers/specs/2026-10-04-s1-regression-troubleshooting-workbench-design.md`;
+`docs/superpowers/plans/2026-10-04-s1-regression-troubleshooting-workbench.md`.
+Deterministic version comparison and case workflow; product comparison
+tolerances, retest level parameters, RealLLM retest planner quality, commit,
+push, merge, and seal remain separately gated.
+
+**Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX348)
 
 **Live product identity (HEAD):** prompt `v0.3-s1-planner-9.11` with causal
 policy `v9_11_mode_aware_no_fault_recovery` (§15). Historical identities
@@ -1288,3 +1295,209 @@ candidate `seal_ready=true` to finish a documentation wave. Recording an
 installed SDK digest clears nothing until the installed tuple yields a
 supported profile, required hook coverage, and capability/proof identity
 agreement under the same checks used by `assess_resource_budget`.
+
+## 22. Regression troubleshooting workbench (D042)
+
+Additive product surface for periodic-test-signal version comparison and
+in-session retest cases. Design:
+`docs/superpowers/specs/2026-10-04-s1-regression-troubleshooting-workbench-design.md`.
+This section does **not** edit frozen V0.2 §§1–64, D037/D039 diagnosis
+semantics, v9.11 planner identity, sealed evaluation/Demo assets, or
+planner-ablation study authority. It does **not** authorize product comparison
+tolerances, retest level-parameter approval, RealLLM retest quality claims,
+commit, push, merge, or seal.
+
+Cross-run comparison uses new objects. It must not rewrite same-run Evidence
+semantics, invent AgentRunResult wrappers for measurement-only paths, or treat
+baseline WAV as a clean `paired_reference`.
+
+### 22.1 Request types and declared versus observed facts
+
+```text
+ComparisonSide = "baseline" | "candidate"
+
+InputIdentity =
+  run_id: str
+  side: ComparisonSide
+  wav_sha256: str                 # hex SHA-256 of uploaded bytes (app-computed)
+  signal_id: str
+  sample_rate_hz: int
+  source_channels: int
+  total_frames: int
+  resolved_start_sample: int
+  resolved_end_sample: int        # exclusive; actual analyzed range
+  channel: ChannelMode            # first-phase compare item uses left|right only
+  tool_parameter_snapshot: immutable structured snapshot
+
+MeasurementSelection =
+  clipping: ClippingInput
+  harmonic: HarmonicDistortionInput
+  # both selections must share the same time_range and channel
+
+ComparisonConditions =
+  intent: "preserve_behavior"
+  baseline_version: str           # user-declared; ≤256 chars
+  candidate_version: str          # user-declared; ≤256 chars
+  stimulus_key: str               # user-declared; ≤256 chars
+  parameters_key: str             # user-declared; ≤256 chars
+  same_input: "yes" | "no" | "unknown"
+  parameters_unchanged: "yes" | "no" | "unknown"
+  aligned_ranges: "yes" | "no" | "unknown"
+  repeatability: "declared_deterministic" | "unknown" | "observed_variable"
+  original_input_sha256: str | None   # optional; bytes hash only
+  nominal_fundamental_hz: float | None  # explicit when required; never inferred
+```
+
+User declarations are not measurement proof. File hashes prove recorded bytes
+only. They do not prove program execution of a declared version or that two
+renders used the same stimulus. Declared `no` or relevant `unknown` blocks
+affected regression judgments. Omitting a declaration must not be treated as
+`yes`.
+
+Client requests must use strict typed models with `extra="forbid"`. Clients
+must not supply `wav_sha256`, `run_id`, comparison judgments, `profile`
+objects, `approved` flags, difference values, or recommendation numeric
+parameters.
+
+### 22.2 Real-tool measurement bundles
+
+```text
+MeasurementBundle =
+  identity: InputIdentity
+  clipping: ToolResult[ClippingOutput]
+  harmonic: ToolResult[HarmonicDistortionOutput]
+  measurement_version: str
+  digest: str   # SHA-256 of UTF-8 canonical JSON (sort_keys, compact,
+                # allow_nan=False) excluding the digest field itself
+```
+
+`measure_output(*, repository, identity, selection) -> MeasurementBundle`
+creates a fresh `SignalToolService` per side, calls real
+`detect_clipping` and `analyze_harmonic_distortion`, and retains full tool
+status/error/evidence. No preprocessing, normalization, resampling, time-stretch,
+or alignment. Identical input bytes on both sides may share `wav_sha256` while
+keeping distinct `run_id`/`side`. Tool failures and `not_applicable` outputs
+remain typed; invalid harmonic results must not become numeric zero THD.
+
+First-phase numeric compare metrics are only:
+
+```text
+detect_clipping / clipping_ratio / unit=None / float
+analyze_harmonic_distortion / thd_percent / unit=% / float
+```
+
+Other Evidence remains measurement fact and does not automatically become a
+comparison item. `clipping_ratio` is a ratio, not a percent.
+
+### 22.3 Comparison admission, rules, and descriptive default
+
+```text
+SourceRef =
+  side, run_id, wav_sha256, bundle_digest, evidence_id,
+  source_tool, call_id, metric, value, unit, validity,
+  channel, time_range
+
+ComparisonRule =
+  rule_id, metric, source_tool, unit,
+  difference: "signed_absolute" | "relative_increase",
+  allowed_min, allowed_max,
+  denominator_floor: float | None,   # required positive finite for relative
+  applicability_version: str
+
+ComparisonProfile =
+  profile_id, version, rules: tuple[ComparisonRule, ...], digest: str
+  # approved is not a client-trustable field
+
+MetricComparison.status =
+  "not_comparable" | "descriptive_only"
+  | "regression_detected" | "no_regression_detected"
+
+ComparisonRecord =
+  comparison_id,
+  baseline_bundle, candidate_bundle,
+  conditions, profile identity or None,
+  per-metric MetricComparison tuple,
+  required_checks, coverage,
+  digest
+```
+
+`compare_measurements(baseline, candidate, *, conditions, profile=None)` is
+pure. Same-named metrics compare only when method parameters, range
+correspondence, source channel, unit, and validity are compatible. Bool/int/str
+must not substitute for float; non-finite values are rejected. Relative
+increase is `(candidate-baseline)/abs(baseline)` only when
+`abs(baseline) > denominator_floor`. Boundary inclusion is
+`allowed_min <= difference <= allowed_max`. Absolute difference for
+`thd_percent` uses unit `percentage_points`; `clipping_ratio` differences stay
+in ratio units.
+
+Without an approved product profile (`profile=None` on the product path),
+valid bilateral changes are `descriptive_only` with `rule_ref=None`. Equal
+values must not pretend an acceptance rule exists. Fixture/test profiles may
+exist only under tests and must not be loaded by product builders. Calling
+code claiming approval, or uploading a profile, must not enable product
+pass/fail.
+
+Harmonic fundamental compatibility belongs to profile applicability
+configuration. Implementations must not invent frequency-delta thresholds.
+Absent a reviewed compatibility rule, retain bilateral valid values and keep
+THD difference judgment blocked.
+
+`validate_comparison_record(record)` recomputes references, differences,
+statuses, and digest at report build/parse boundaries. Tampered results raise
+`ValueError`; invalid Pydantic rebuilds raise `ValidationError`.
+
+Partial coverage, pre-existing flat-top/clipping_mechanism facts, and tool
+execution errors must remain distinguishable. Missing a required check blocks
+overall pass. Tool `error` never maps to pass.
+
+### 22.4 In-session cases, limits, and reporting (later tasks)
+
+```text
+ComparisonUpload =
+  baseline_data, candidate_data, display filenames,
+  versions, conditions, selection,
+  optional original_input_data
+  # no client hash/run_id/judgment/profile
+
+RetestLink.kind = "repeat" | "repair" | "recommendation"
+
+RegressionCaseSnapshot =
+  case_id, revision, goal,
+  immutable comparison records,
+  independent failure records,
+  recommendation records
+```
+
+Engineering limits (not scientific budgets): per-file `WavLoadLimits` 20 MiB;
+at most baseline/candidate/original three files per submit; at most 8 active
+cases; at most 16 accepted submits per case; one concurrent measurement group
+per service (others busy). String caps: goal 2000 chars; version/condition keys
+256; request_id 64. Product `build_regression_service()` defaults
+`profile=None`. Idempotent submit uses `request_id`; completed records are
+append-only and never overwritten in place.
+
+Reports distinguish raw Evidence from derived differences, escape untrusted
+text in HTML, and reject cross-case or tampered SourceRef at build/validate.
+
+### 22.5 Independent retest planner identity (later tasks; uncqualified)
+
+Proposed independent planner identity `v0.3-s1-retest-1.0` is registered here
+as **uncqualified**. It must not alter v9.11 diagnosis prompt or causal policy.
+Eligible options are deterministic; the planner chooses at most one option or
+abstains. Clients cannot inject option parameters. Missing credentials yield
+recommendation unavailable without Scripted fallback. Offline fake transport
+proves adapter wiring only and is not a product RealLLM run.
+
+### 22.6 Staged authority
+
+1. Definitions in this section and T-CX329–348.
+2. Phase A offline measurement/compare implementation under an explicit grant
+   (Tasks 1–4).
+3. Phase B case/Web surfaces under a separate grant (Tasks 5–6).
+4. Phase C offline retest planner/adapter under a separate grant (Tasks 7–8).
+5. Product tolerance calibration, level-parameter approval, RealLLM retest
+   quality, commit/push/merge/seal remain external gates.
+
+Registering these definitions does not enable product pass/fail tolerances or
+claim user-benefit acceptance.

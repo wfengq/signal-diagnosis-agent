@@ -34,6 +34,7 @@
 | T-CX303..318 | D038 token/transport telemetry / study_s1_planner_ablation_dev_2 (definitions; seal/RealLLM gated) |
 | T-CX324..325 | OQ-019/dev_2 preseal evidence separation + PRESEAL status board (definitions; seal/RealLLM gated) |
 | T-CX319..323 | D039 single-file observed facts on context_guidance (definitions; implementation gated) |
+| T-CX329..348 | D042 regression troubleshooting workbench (definitions; Phase A–C implementation gated) |
 
 ## Registered identities (Task 1)
 
@@ -258,6 +259,26 @@
 | T-CX326 | Web UI guidance panel and CLI text list `observed_facts` inside context-guidance only (parity with T-CX323 HTML); empty tuple omits the list; no metric whitelist literals in static JS. |
 | T-CX327 | Web UI loads `/api/v1/health` on bind; surfaces `planner_configured` readiness in the lifecycle panel; disables `submit-run` when unconfigured or health fetch fails; shows non-secret `planner_identity` when ready; no API keys, base URLs, or metric whitelist literals in static JS. |
 | T-CX328 | Web UI `renderGuidance` humanizes `unlockable_modes` and `required_inputs` with mode-selector labels and readable input names; omits raw `reason_codes` line; `observed_facts` list unchanged; no metric whitelist literals in static JS. |
+| T-CX329 | Regression request models are strict-typed with `extra="forbid"`; resolved analysis ranges are recorded; user declarations and observed byte/decode facts remain separated (definition; Tasks 2/5). |
+| T-CX330 | Real-tool measurement produces independent bilateral identities for identical WAV bytes; no preprocessing; full tool status retained (definition; Task 2). |
+| T-CX331 | Per-metric admission rejects incompatible units, tools, configs, ranges, or validity (definition; Task 3). |
+| T-CX332 | Comparison rules honor difference direction, inclusive boundaries, and relative-difference denominator floors (definition; Task 3). |
+| T-CX333 | Product path with `profile=None` is descriptive-only; fixture profiles must not publicly enable pass/fail (definition; Tasks 3/5). |
+| T-CX334 | Cross-run SourceRef binding requires content/type consistency; rebuild validation rejects tampering (definition; Tasks 3/6). |
+| T-CX335 | Partial coverage, pre-existing fault facts, and tool execution errors remain distinguishable; no overall pass when required checks are blocked (definition; Tasks 3/4). |
+| T-CX336 | Same-session append, explicit parent links, and idempotent `request_id` submit semantics (definition; Task 5). |
+| T-CX337 | File/session caps, busy concurrency, and cleanup release real workers (definition; Tasks 5/6). |
+| T-CX338 | Case JSON/HTML preserve sources, escape untrusted text, and distinguish raw Evidence from derived differences (definition; Task 6). |
+| T-CX339 | Web dual-file path supports manual retest; late responses and missing keys do not forge success (definition; Task 6). |
+| T-CX340 | Retest catalog eligibility, no-eligible abstain, and forbidden overreach parameters (definition; Task 7). |
+| T-CX341 | Independent retest planner identity, compact inputs, strict outputs (definition; Task 7). |
+| T-CX342 | Retest budget/cancel/failure with no silent Scripted fallback (definition; Task 7). |
+| T-CX343 | Fixed-strategy vs model-adapter offline contrast isolates truth labels and failure denominators (definition; Task 8). |
+| T-CX344 | Real adapter + fake transport offline wiring with zero network calls (definition; Task 8). |
+| T-CX345 | Legacy diagnosis entry points, D037/D039, and sealed assets remain preserved (definition; Tasks 4/9). |
+| T-CX346 | Layering, frozen allowlists, and append-only identity bridges for new modules (definition; Tasks 4/9). |
+| T-CX347 | Repair retest outcomes distinguish disappeared, persistent, not-applicable, and failed runs (definition; Tasks 5/6). |
+| T-CX348 | Without approved rules/benefit evidence, do not claim product or planner acceptance complete (definition; Tasks 8/9). |
 | T-CX324 | Offline observation capability/event-graph tests and per-run ledgers do not admit production worst-case planner/SDK/HTTP/token ceilings; each ceiling needs an independent applicable authenticated proof; preseal must not require a formal RealLLM campaign ledger before seal. |
 | T-CX325 | `PRESEAL_BUDGET_STATUS.md` is a permitted unsealed status board under `study_s1_planner_ablation_dev_2`; it is not a numeric bound-fact citation; formal candidate readiness follows source-aware validation, not legacy `inspect_limits`. |
 
@@ -354,3 +375,12 @@ RealLLM, retarget legacy `inspect_limits`, or change product diagnosis gates.
 They must not alter §19 / §20 / §21.1–21.8 / `dev_1` meanings,
 T-CX001–T-CX323 definitions, frozen V0.2 §§1–64, sealed v9.11 identities, DSP
 thresholds, or the product planner default.
+T-CX329–T-CX348 are additive definitions for D042 regression troubleshooting
+workbench (`CONTRACTS_V0_3_CONTEXTUAL.md` §22; design
+`docs/superpowers/specs/2026-10-04-s1-regression-troubleshooting-workbench-design.md`).
+Registering these IDs does not implement or pass the behaviors. Phase A
+measurement/compare code, Phase B case/Web surfaces, Phase C retest planner,
+product tolerances, RealLLM, commit/push/merge, and seal remain separately
+gated. They must not alter frozen V0.2 §§1–64, D037/D039 diagnosis semantics,
+v9.11 planner identity, sealed evaluation/Demo assets, planner-ablation study
+authority, or T-CX001–T-CX328 meanings.

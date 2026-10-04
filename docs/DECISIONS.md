@@ -709,3 +709,27 @@ campaign; retargeting legacy `inspect_limits`; inventing `max_tokens` or
 product caps.
 
 Related: D040 SDK rebind; OQ-019 preseal residual gates.
+
+## D042 — S1 regression troubleshooting workbench (additive definitions)
+
+**Decision (operator authorize-execute 2026-10-04, Phase A grant):** Register
+additive V0.3 §22 and T-CX329–348 for a periodic-test-signal regression
+troubleshooting workbench: independent bilateral measurement bundles, pure
+comparison rules with descriptive-only product default, in-session cases, and
+an independent uncqualified retest planner identity. Implementation proceeds
+only under staged grants (Phase A Tasks 1–4; later B/C separately).
+
+**Constraints preserved:** frozen V0.2 §§1–64; RealLLMPlanner product diagnosis
+path and Scripted non-fallback; D037 single-file default; D039 observed facts;
+v9.11 prompt/causal policy; demo diagnosis thresholds are not comparison
+tolerances; baseline WAV is not automatic clean `paired_reference`.
+
+**Not authorized by this decision:** product comparison tolerance enablement;
+retest level-parameter approval; RealLLM retest quality claims; Tasks 5–8
+unless separately granted; commit/push/PR/merge/seal; rewriting sealed
+evaluation or Demo assets.
+
+Related: design
+`docs/superpowers/specs/2026-10-04-s1-regression-troubleshooting-workbench-design.md`;
+plan
+`docs/superpowers/plans/2026-10-04-s1-regression-troubleshooting-workbench.md`.
