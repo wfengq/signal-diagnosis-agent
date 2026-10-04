@@ -185,11 +185,23 @@ def _assert_finite_harmonic(selection: HarmonicDistortionInput) -> None:
         raise ValueError("harmonic fundamental_hz must be finite when provided")
 
 
+def measurement_bundle_digest(bundle: MeasurementBundle) -> str:
+    """SHA-256 of canonical JSON for a bundle, excluding the digest field."""
+    payload = bundle.model_dump(mode="json")
+    payload.pop("digest", None)
+    return hashlib.sha256(_canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def verify_measurement_bundle_digest(bundle: MeasurementBundle) -> None:
+    """Reject bundles whose digest does not match their normalized content."""
+    expected = measurement_bundle_digest(bundle)
+    if expected != bundle.digest:
+        raise ValueError("measurement bundle digest mismatch")
+
+
 def _canonical_json(payload: object) -> str:
     return json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
 
 def _bundle_digest(bundle: MeasurementBundle) -> str:
-    payload = bundle.model_dump(mode="json")
-    payload.pop("digest", None)
-    return hashlib.sha256(_canonical_json(payload).encode("utf-8")).hexdigest()
+    return measurement_bundle_digest(bundle)

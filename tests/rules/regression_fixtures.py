@@ -100,3 +100,16 @@ def build_fixture_thd_profile() -> ComparisonProfile:
     )
     digest = _profile_digest(profile.model_dump(mode="json"))
     return profile.model_copy(update={"digest": digest})
+
+
+def build_fixture_both_metrics_profile() -> ComparisonProfile:
+    """Test-only profile covering clipping and THD required checks."""
+    profile = ComparisonProfile(
+        profile_id="profile_regression_fixture_both",
+        version="test-both-1",
+        rules=(CLIPPING_BOUNDARY_RULE, THD_RULE),
+        harmonic_fundamental_applicability=HARMONIC_APPLICABILITY,
+        digest="0" * 64,
+    )
+    digest = _profile_digest(profile.model_dump(mode="json"))
+    return profile.model_copy(update={"digest": digest})

@@ -8,12 +8,15 @@ import math
 import uuid
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from signal_diag.signal.models import ChannelMode, TimeRange
 from signal_diag.tools.contracts import ToolName
 from signal_diag.tools.evidence import Evidence, EvidenceValidity
-from signal_diag.tools.regression_measurement import MeasurementBundle
+from signal_diag.tools.regression_measurement import (
+    MeasurementBundle,
+    verify_measurement_bundle_digest,
+)
 from signal_diag.tools.results import ToolResult, ToolStatus
 
 ComparisonSide = Literal["baseline", "candidate"]
@@ -110,6 +113,16 @@ class SourceRef(BaseModel):
     channel: ChannelMode
     time_range: TimeRange | None = None
 
+    @field_validator("value", mode="before")
+    @classmethod
+    def reject_non_float_values(cls, value: object) -> float:
+        if isinstance(value, bool) or not isinstance(value, float):
+            # Wire/JSON rebuild must reject coerced bool/int/str as ValueError.
+            raise ValueError("SourceRef.value must be a finite float")  # noqa: TRY004
+        if not math.isfinite(value):
+            raise ValueError("SourceRef.value must be a finite float")
+        return value
+
 
 class MetricComparison(BaseModel):
     model_config = ConfigDict(frozen=True)
@@ -183,6 +196,10 @@ def compare_measurements(
                 detail=declarations_block,
             )
         )
+    else:
+        coverage.append(
+            CoverageEntry(check_id="declarations", status="satisfied")
+        )
 
     metric_rows: list[MetricComparison] = []
     for metric, source_tool, unit in COMPARE_METRICS:
@@ -200,7 +217,13 @@ def compare_measurements(
         metric_rows.append(row)
         coverage.append(_coverage_for_metric(metric, baseline, candidate, row))
 
-    overall = _overall_pass(metric_rows, clipping_facts, declarations_block, profile)
+    coverage.append(_tool_success_coverage(baseline, candidate))
+    required_checks = ("clipping_ratio", "thd_percent", "declarations", "tool_success")
+    overall = _overall_pass(
+        profile=profile,
+        required_checks=required_checks,
+        coverage=tuple(coverage),
+    )
     record_without_digest = ComparisonRecord(
         comparison_id=comparison_id or f"cmp_{uuid.uuid4().hex[:16]}",
         baseline_bundle=baseline,
@@ -210,7 +233,7 @@ def compare_measurements(
         profile_version=profile.version if profile else None,
         applied_profile=profile,
         metric_comparisons=tuple(metric_rows),
-        required_checks=("clipping_ratio", "thd_percent", "declarations", "tool_success"),
+        required_checks=required_checks,
         coverage=tuple(coverage),
         clipping_facts=clipping_facts,
         overall_regression_pass=overall,
@@ -223,6 +246,8 @@ def compare_measurements(
 
 def validate_comparison_record(record: ComparisonRecord) -> None:
     """Recompute comparisons and reject tampered records."""
+    verify_measurement_bundle_digest(record.baseline_bundle)
+    verify_measurement_bundle_digest(record.candidate_bundle)
     expected = compare_measurements(
         record.baseline_bundle,
         record.candidate_bundle,
@@ -230,11 +255,28 @@ def validate_comparison_record(record: ComparisonRecord) -> None:
         profile=record.applied_profile,
         comparison_id=record.comparison_id,
     )
-    _validate_source_refs(record)
+    presented_digest = _record_digest(record)
+    if presented_digest != record.digest:
+        raise ValueError("comparison record digest mismatch")
     if expected.digest != record.digest:
         raise ValueError("comparison record digest mismatch")
     if expected.metric_comparisons != record.metric_comparisons:
         raise ValueError("comparison record metric results mismatch")
+    if expected.overall_regression_pass != record.overall_regression_pass:
+        raise ValueError("comparison record overall_regression_pass mismatch")
+    if expected.coverage != record.coverage:
+        raise ValueError("comparison record coverage mismatch")
+    if expected.required_checks != record.required_checks:
+        raise ValueError("comparison record required_checks mismatch")
+    if expected.clipping_facts != record.clipping_facts:
+        raise ValueError("comparison record clipping_facts mismatch")
+    if expected.profile_id != record.profile_id:
+        raise ValueError("comparison record profile_id mismatch")
+    if expected.profile_version != record.profile_version:
+        raise ValueError("comparison record profile_version mismatch")
+    if expected.applied_profile != record.applied_profile:
+        raise ValueError("comparison record applied_profile mismatch")
+    _validate_source_refs(record)
 
 
 def _validate_source_refs(record: ComparisonRecord) -> None:
@@ -253,6 +295,7 @@ def _validate_source_refs(record: ComparisonRecord) -> None:
                 raise ValueError("source ref wav_sha256 mismatch")
             if ref.bundle_digest != bundle.digest:
                 raise ValueError("source ref bundle_digest mismatch")
+            verify_measurement_bundle_digest(bundle)
             tool = _tool_for_metric(bundle, ref.source_tool)
             evidence = _find_evidence(tool, ref.metric)
             if evidence is None:
@@ -270,6 +313,14 @@ def _validate_source_refs(record: ComparisonRecord) -> None:
 
 
 def _validate_bundle_pair(baseline: MeasurementBundle, candidate: MeasurementBundle) -> None:
+    verify_measurement_bundle_digest(baseline)
+    verify_measurement_bundle_digest(candidate)
+    if baseline.identity.side != "baseline":
+        raise ValueError("baseline argument identity.side must be baseline")
+    if candidate.identity.side != "candidate":
+        raise ValueError("candidate argument identity.side must be candidate")
+    if baseline.identity.run_id == candidate.identity.run_id:
+        raise ValueError("baseline and candidate run_id must differ")
     if baseline.identity.sample_rate_hz != candidate.identity.sample_rate_hz:
         raise ValueError("baseline and candidate sample_rate_hz must match")
     if baseline.identity.channel != candidate.identity.channel:
@@ -291,8 +342,8 @@ def _declarations_block_regression(conditions: ComparisonConditions) -> str | No
             return f"{field}=no"
         if value == "unknown":
             return f"{field}=unknown"
-    if conditions.repeatability == "observed_variable":
-        return "repeatability=observed_variable"
+    if conditions.repeatability in ("observed_variable", "unknown"):
+        return f"repeatability={conditions.repeatability}"
     return None
 
 
@@ -620,26 +671,34 @@ def _coverage_for_metric(
     return CoverageEntry(check_id=metric, status="satisfied")
 
 
+def _tool_success_coverage(
+    baseline: MeasurementBundle,
+    candidate: MeasurementBundle,
+) -> CoverageEntry:
+    for side_name, bundle in (("baseline", baseline), ("candidate", candidate)):
+        if bundle.clipping.status == "error" or bundle.harmonic.status == "error":
+            return CoverageEntry(
+                check_id="tool_success",
+                status="failed",
+                detail=f"{side_name}_tool_error",
+            )
+    return CoverageEntry(check_id="tool_success", status="satisfied")
+
+
 def _overall_pass(
-    metrics: list[MetricComparison],
-    clipping_facts: tuple[ClippingFactSnapshot, ...],
-    declarations_block: str | None,
+    *,
     profile: ComparisonProfile | None,
+    required_checks: tuple[str, ...],
+    coverage: tuple[CoverageEntry, ...],
 ) -> bool | None:
     if profile is None:
         return None
-    if declarations_block:
-        return False
-    if any(item.tool_status == "error" for item in clipping_facts):
-        return False
-    ruled = [item for item in metrics if item.rule_ref is not None]
-    if not ruled:
-        return False
-    if any(item.status == "regression_detected" for item in ruled):
-        return False
-    if any(item.status == "not_comparable" for item in metrics):
-        return False
-    return all(item.status == "no_regression_detected" for item in ruled)
+    by_id = {item.check_id: item for item in coverage}
+    for check_id in required_checks:
+        entry = by_id.get(check_id)
+        if entry is None or entry.status != "satisfied":
+            return False
+    return True
 
 
 def _canonical_json(payload: object) -> str:

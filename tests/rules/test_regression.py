@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import hashlib
 import math
 
@@ -27,12 +26,19 @@ from signal_diag.tools.regression_measurement import (
     MeasurementSelection,
     ToolParameterSnapshot,
     measure_output,
+    measurement_bundle_digest,
 )
+from signal_diag.tools.results import ToolResult
 from tests.rules.regression_fixtures import (
+    build_fixture_both_metrics_profile,
     build_fixture_clipping_profile,
     build_fixture_relative_profile,
     build_fixture_thd_profile,
 )
+
+
+def _rehashed(bundle):
+    return bundle.model_copy(update={"digest": measurement_bundle_digest(bundle)})
 
 
 def _conditions(**overrides: object) -> ComparisonConditions:
@@ -296,8 +302,8 @@ def test_relative_difference_rejects_small_denominator() -> None:
         ("wrong_range", "resolved"),
         ("invalid_harmonic", "harmonic"),
         ("missing_evidence", "evidence"),
-        ("swapped_side_run", "side"),
-        ("same_id_different_run", "evidence"),
+        ("swapped_side_run", "mismatch"),
+        ("same_id_different_run", "mismatch"),
         ("bool_value", "float"),
         ("tampered_difference", "mismatch"),
         ("tampered_status", "mismatch"),
@@ -356,22 +362,25 @@ def test_admission_and_integrity_rejects(mutator_name: str, expected_substring: 
     except ValueError as error:
         assert expected_substring in str(error)
     else:
-        if mutator_name == "invalid_harmonic":
-            record = compare_measurements(
-                baseline,
-                candidate.model_copy(
-                    update={
-                        "harmonic": candidate.harmonic.model_copy(
-                            update={"status": "invalid"}
-                        ),
-                    }
-                ),
-                conditions=_conditions(),
-                profile=build_fixture_thd_profile(),
-            )
-            assert "harmonic" in _metric(record, "thd_percent").reason_codes[0]
-            return
-        pytest.fail(f"expected ValueError containing {expected_substring}")
+            if mutator_name == "invalid_harmonic":
+                invalid = _rehashed(
+                    candidate.model_copy(
+                        update={
+                            "harmonic": candidate.harmonic.model_copy(
+                                update={"status": "invalid"}
+                            ),
+                        }
+                    )
+                )
+                record = compare_measurements(
+                    baseline,
+                    invalid,
+                    conditions=_conditions(),
+                    profile=build_fixture_thd_profile(),
+                )
+                assert "harmonic" in _metric(record, "thd_percent").reason_codes[0]
+                return
+            pytest.fail(f"expected ValueError containing {expected_substring}")
 
 
 def test_existing_fault_and_partial_coverage_are_preserved() -> None:
@@ -397,12 +406,13 @@ def test_existing_fault_and_partial_coverage_are_preserved() -> None:
     assert any(item.check_id == "thd_percent" for item in record.coverage)
     assert record.overall_regression_pass is not True
 
-    broken = copy.deepcopy(baseline)
-    broken = broken.model_copy(
-        update={
-            "clipping": baseline.clipping.model_copy(update={"status": "error"}),
-        }
+    error_clip = ToolResult(
+        call_id=baseline.clipping.call_id,
+        tool_name="detect_clipping",
+        status="error",
+        error_message="injected clipping tool failure",
     )
+    broken = _rehashed(baseline.model_copy(update={"clipping": error_clip}))
     record_err = compare_measurements(
         broken,
         candidate,
@@ -410,7 +420,10 @@ def test_existing_fault_and_partial_coverage_are_preserved() -> None:
         profile=profile,
     )
     assert record_err.overall_regression_pass is False
-    assert any(item.status == "failed" for item in record_err.coverage)
+    assert any(
+        item.check_id == "tool_success" and item.status == "failed"
+        for item in record_err.coverage
+    )
 
 
 def test_thd_blocked_without_applicability_and_incompatible_fundamentals() -> None:
@@ -459,65 +472,75 @@ def _metric(record: ComparisonRecord, metric: str):
 
 
 def _mutate_wrong_unit(baseline, candidate, profile):
-    cand = candidate.model_copy(
-        update={
-            "clipping": candidate.clipping.model_copy(
-                update={
-                    "evidence": tuple(
-                        item.model_copy(update={"unit": "%"})
-                        if item.metric == "clipping_ratio"
-                        else item
-                        for item in candidate.clipping.evidence
-                    )
-                }
-            )
-        }
+    cand = _rehashed(
+        candidate.model_copy(
+            update={
+                "clipping": candidate.clipping.model_copy(
+                    update={
+                        "evidence": tuple(
+                            item.model_copy(update={"unit": "%"})
+                            if item.metric == "clipping_ratio"
+                            else item
+                            for item in candidate.clipping.evidence
+                        )
+                    }
+                )
+            }
+        )
     )
     compare_measurements(baseline, cand, conditions=_conditions(), profile=profile)
 
 
 def _mutate_wrong_tool(baseline, candidate, profile):
-    cand = candidate.model_copy(
-        update={
-            "clipping": candidate.clipping.model_copy(
-                update={
-                    "evidence": tuple(
-                        item.model_copy(update={"source_tool": "analyze_spectrum"})
-                        if item.metric == "clipping_ratio"
-                        else item
-                        for item in candidate.clipping.evidence
-                    )
-                }
-            )
-        }
+    cand = _rehashed(
+        candidate.model_copy(
+            update={
+                "clipping": candidate.clipping.model_copy(
+                    update={
+                        "evidence": tuple(
+                            item.model_copy(update={"source_tool": "analyze_spectrum"})
+                            if item.metric == "clipping_ratio"
+                            else item
+                            for item in candidate.clipping.evidence
+                        )
+                    }
+                )
+            }
+        )
     )
     compare_measurements(baseline, cand, conditions=_conditions(), profile=profile)
 
 
 def _mutate_wrong_config(baseline, candidate, profile):
     other_selection = _selection(threshold=0.5)
-    cand = candidate.model_copy(
-        update={
-            "identity": candidate.identity.model_copy(
-                update={
-                    "tool_parameter_snapshot": ToolParameterSnapshot(
-                        clipping=other_selection.clipping,
-                        harmonic=other_selection.harmonic,
-                    )
-                }
-            )
-        }
+    cand = _rehashed(
+        candidate.model_copy(
+            update={
+                "identity": candidate.identity.model_copy(
+                    update={
+                        "tool_parameter_snapshot": ToolParameterSnapshot(
+                            clipping=other_selection.clipping,
+                            harmonic=other_selection.harmonic,
+                        )
+                    }
+                )
+            }
+        )
     )
     compare_measurements(baseline, cand, conditions=_conditions(), profile=profile)
 
 
 def _mutate_wrong_range(baseline, candidate, profile):
-    cand = candidate.model_copy(
-        update={
-            "identity": candidate.identity.model_copy(
-                update={"resolved_end_sample": candidate.identity.resolved_end_sample - 10}
-            )
-        }
+    cand = _rehashed(
+        candidate.model_copy(
+            update={
+                "identity": candidate.identity.model_copy(
+                    update={
+                        "resolved_end_sample": candidate.identity.resolved_end_sample - 10
+                    }
+                )
+            }
+        )
     )
     compare_measurements(baseline, cand, conditions=_conditions(), profile=profile)
 
@@ -527,10 +550,12 @@ def _mutate_invalid_harmonic(baseline, candidate, profile):
 
 
 def _mutate_missing_evidence(baseline, candidate, profile):
-    cand = candidate.model_copy(
-        update={
-            "clipping": candidate.clipping.model_copy(update={"evidence": ()}),
-        }
+    cand = _rehashed(
+        candidate.model_copy(
+            update={
+                "clipping": candidate.clipping.model_copy(update={"evidence": ()}),
+            }
+        )
     )
     compare_measurements(baseline, cand, conditions=_conditions(), profile=profile)
 
@@ -586,19 +611,21 @@ def _mutate_same_id_different_run(baseline, candidate, profile):
 
 
 def _mutate_bool_value(baseline, candidate, profile):
-    cand = candidate.model_copy(
-        update={
-            "clipping": candidate.clipping.model_copy(
-                update={
-                    "evidence": tuple(
-                        item.model_copy(update={"value": True})
-                        if item.metric == "clipping_ratio"
-                        else item
-                        for item in candidate.clipping.evidence
-                    )
-                }
-            )
-        }
+    cand = _rehashed(
+        candidate.model_copy(
+            update={
+                "clipping": candidate.clipping.model_copy(
+                    update={
+                        "evidence": tuple(
+                            item.model_copy(update={"value": True})
+                            if item.metric == "clipping_ratio"
+                            else item
+                            for item in candidate.clipping.evidence
+                        )
+                    }
+                )
+            }
+        )
     )
     compare_measurements(baseline, cand, conditions=_conditions(), profile=profile)
 
@@ -614,3 +641,191 @@ _MUTATORS = {
     "same_id_different_run": _mutate_same_id_different_run,
     "bool_value": _mutate_bool_value,
 }
+
+
+def test_validate_rejects_tampered_overall_and_derived_fields() -> None:
+    import json
+
+    clean = generate_sine(
+        frequency_hz=200.0,
+        sample_rate_hz=48_000,
+        duration_s=0.25,
+        amplitude=0.4,
+    )
+    baseline, candidate = _pair(clean, clean)
+    record = compare_measurements(
+        baseline,
+        candidate,
+        conditions=_conditions(),
+        profile=None,
+        comparison_id="cmp_integrity",
+    )
+    assert record.overall_regression_pass is None
+
+    payload = json.loads(record.model_dump_json())
+    payload["overall_regression_pass"] = True
+    tampered = ComparisonRecord.model_validate(payload)
+    with pytest.raises(ValueError, match="mismatch"):
+        validate_comparison_record(tampered)
+
+    for field, value in (
+        ("coverage", []),
+        ("required_checks", []),
+        ("clipping_facts", []),
+        ("profile_id", "forged_profile"),
+    ):
+        forged = json.loads(record.model_dump_json())
+        forged[field] = value
+        with pytest.raises(ValueError, match="mismatch"):
+            validate_comparison_record(ComparisonRecord.model_validate(forged))
+
+
+def test_bundle_side_and_run_identity_are_enforced() -> None:
+    clean = generate_sine(
+        frequency_hz=200.0,
+        sample_rate_hz=48_000,
+        duration_s=0.25,
+        amplitude=0.4,
+    )
+    baseline, candidate = _pair(clean, clean)
+    with pytest.raises(ValueError, match="identity.side"):
+        compare_measurements(candidate, baseline, conditions=_conditions(), profile=None)
+    same_run_as_candidate = _rehashed(
+        baseline.model_copy(
+            update={
+                "identity": baseline.identity.model_copy(update={"side": "candidate"})
+            }
+        )
+    )
+    with pytest.raises(ValueError, match="run_id must differ"):
+        compare_measurements(
+            baseline,
+            same_run_as_candidate,
+            conditions=_conditions(),
+            profile=None,
+        )
+
+
+def test_stale_bundle_digest_is_rejected() -> None:
+    clean = generate_sine(
+        frequency_hz=200.0,
+        sample_rate_hz=48_000,
+        duration_s=0.25,
+        amplitude=0.4,
+    )
+    clipped = generate_clipped_sine(
+        frequency_hz=200.0,
+        sample_rate_hz=48_000,
+        duration_s=0.25,
+        amplitude=0.95,
+        clip_level=0.35,
+    )
+    baseline, candidate = _pair(clean, clipped)
+    new_result = candidate.clipping.result.model_copy(update={"clipping_ratio": 0.25})
+    new_evidence = tuple(
+        item.model_copy(update={"value": 0.25})
+        if item.metric == "clipping_ratio"
+        else item
+        for item in candidate.clipping.evidence
+    )
+    stale = candidate.model_copy(
+        update={
+            "clipping": candidate.clipping.model_copy(
+                update={"result": new_result, "evidence": new_evidence}
+            )
+        }
+    )
+    assert stale.digest == candidate.digest
+    with pytest.raises(ValueError, match="bundle digest mismatch"):
+        compare_measurements(
+            baseline,
+            stale,
+            conditions=_conditions(),
+            profile=build_fixture_clipping_profile(),
+        )
+
+
+def test_required_checks_block_overall_pass_when_skipped() -> None:
+    harmonic = generate_harmonic_sine(
+        fundamental_hz=200.0,
+        sample_rate_hz=48_000,
+        duration_s=0.25,
+        harmonic_ratios={2: 0.05, 3: 0.03},
+    )
+    baseline, candidate = _pair(harmonic, harmonic)
+    record = compare_measurements(
+        baseline,
+        candidate,
+        conditions=_conditions(),
+        profile=build_fixture_thd_profile(),
+    )
+    assert _metric(record, "clipping_ratio").status == "descriptive_only"
+    assert _metric(record, "thd_percent").status == "no_regression_detected"
+    assert any(
+        item.check_id == "clipping_ratio" and item.status == "skipped"
+        for item in record.coverage
+    )
+    assert record.overall_regression_pass is False
+
+
+def test_repeatability_unknown_blocks_formal_judgment() -> None:
+    harmonic = generate_harmonic_sine(
+        fundamental_hz=200.0,
+        sample_rate_hz=48_000,
+        duration_s=0.25,
+        harmonic_ratios={2: 0.05, 3: 0.03},
+    )
+    baseline, candidate = _pair(harmonic, harmonic)
+    profile = build_fixture_both_metrics_profile()
+    ok = compare_measurements(
+        baseline,
+        candidate,
+        conditions=_conditions(repeatability="declared_deterministic"),
+        profile=profile,
+    )
+    assert ok.overall_regression_pass is True
+    unknown = compare_measurements(
+        baseline,
+        candidate,
+        conditions=_conditions(repeatability="unknown"),
+        profile=profile,
+    )
+    assert unknown.overall_regression_pass is False
+    assert any(
+        item.check_id == "declarations" and item.status == "blocked"
+        for item in unknown.coverage
+    )
+    variable = compare_measurements(
+        baseline,
+        candidate,
+        conditions=_conditions(repeatability="observed_variable"),
+        profile=profile,
+    )
+    assert variable.overall_regression_pass is False
+
+
+def test_sourceref_json_rebuild_rejects_non_float_values() -> None:
+    import json
+
+    from signal_diag.rules.regression import SourceRef
+
+    harmonic = generate_harmonic_sine(
+        fundamental_hz=200.0,
+        sample_rate_hz=48_000,
+        duration_s=0.25,
+        harmonic_ratios={2: 0.05, 3: 0.03},
+    )
+    baseline, candidate = _pair(harmonic, harmonic)
+    record = compare_measurements(
+        baseline,
+        candidate,
+        conditions=_conditions(),
+        profile=build_fixture_thd_profile(),
+    )
+    ref = _metric(record, "thd_percent").baseline_ref
+    assert ref is not None
+    for value in (False, 0, "0.0"):
+        payload = json.loads(ref.model_dump_json())
+        payload["value"] = value
+        with pytest.raises(Exception, match="finite float"):
+            SourceRef.model_validate(payload)
