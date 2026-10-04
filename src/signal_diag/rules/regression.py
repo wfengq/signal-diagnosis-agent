@@ -223,6 +223,7 @@ def compare_measurements(
         profile=profile,
         required_checks=required_checks,
         coverage=tuple(coverage),
+        metric_comparisons=tuple(metric_rows),
     )
     record_without_digest = ComparisonRecord(
         comparison_id=comparison_id or f"cmp_{uuid.uuid4().hex[:16]}",
@@ -690,6 +691,7 @@ def _overall_pass(
     profile: ComparisonProfile | None,
     required_checks: tuple[str, ...],
     coverage: tuple[CoverageEntry, ...],
+    metric_comparisons: tuple[MetricComparison, ...],
 ) -> bool | None:
     if profile is None:
         return None
@@ -698,7 +700,10 @@ def _overall_pass(
         entry = by_id.get(check_id)
         if entry is None or entry.status != "satisfied":
             return False
-    return True
+    # Coverage "satisfied" means the check completed, not that it passed.
+    return not any(
+        item.status == "regression_detected" for item in metric_comparisons
+    )
 
 
 def _canonical_json(payload: object) -> str:

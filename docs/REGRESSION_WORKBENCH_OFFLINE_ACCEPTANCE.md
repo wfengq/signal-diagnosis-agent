@@ -9,7 +9,7 @@ Commit/push/draft PR authorized for Codex review. Merge/seal/RealLLM remain gate
 
 - Plan read-only baseline: `4b45f73997a3da89b19eb00846231c6bc84a7709`
 - Branch tip at handoff import: `1f42677` (docs-only)
-- Phase A tip after Codex revise: `8105b63` on `cursor/s1-regression-workbench-impl-8b52`
+- Phase A tip after Codex revise (overall-pass fix): branch `cursor/s1-regression-workbench-impl-8b52` (PR #33 tip)
 - Authority: `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §22, D042, design/plan documents
 - Spec SHA256: `536b71ddb6e5f3b3369fa49a1aa4e7ad5471497d88b89977822600fa9a990fe4`
 - Plan SHA256: `225e0ddfbd49281a1dd210726985db773b1e503b5133de90cb9ec8128bbd1b84`
@@ -42,7 +42,7 @@ Commit/push/draft PR authorized for Codex review. Merge/seal/RealLLM remain gate
 | AC06 harmonic N/A | T-CX330 / T-CX331 | `test_invalid_harmonic_is_not_zero`, acceptance noise case |
 | AC07 no profile descriptive | T-CX333 | `test_no_profile_is_descriptive`, acceptance descriptive path |
 | AC08 instability declarations | T-CX329 | **Codex revise:** `repeatability=unknown` and `observed_variable` both block formal judgment (`test_repeatability_unknown_blocks_formal_judgment`); other declaration unknowns unchanged |
-| AC10 partial coverage | T-CX335 | **Codex revise:** required checks (`clipping_ratio`, `thd_percent`, `declarations`, `tool_success`) must all be `satisfied` for overall pass; skipped/blocked/failed/missing → False (`test_required_checks_block_overall_pass_when_skipped`) |
+| AC10 partial coverage | T-CX335 | **Codex revise:** required checks must all be coverage-`satisfied`, and no metric may be `regression_detected`, for overall pass; skipped/blocked/failed/missing → False; completed-but-regressed stays coverage-satisfied with overall False (`test_required_checks_block_overall_pass_when_skipped`, `test_dual_metric_overall_pass_requires_no_regression`) |
 | AC11 reference integrity | T-CX334 | **Codex revise:** presented-record digest + all derived fields; side/run admission; recomputed bundle digests; SourceRef JSON rebuild rejects bool/int/str (`test_validate_rejects_tampered_overall_and_derived_fields`, `test_bundle_side_and_run_identity_are_enforced`, `test_stale_bundle_digest_is_rejected`, `test_sourceref_json_rebuild_rejects_non_float_values`) |
 | AC12 numeric/type | T-CX331 / T-CX332 | Relative denominator; Evidence and SourceRef wire-boundary float checks |
 | AC16 frozen behavior | T-CX345 / T-CX346 | No changes to frozen V0.2 §§1–64; additive modules only |
@@ -53,18 +53,18 @@ Not covered in Phase A (later tasks): AC09, AC13–AC15 (case lifecycle, Web, pl
 
 | Command | Result |
 |---|---|
-| `python3 -m pytest tests/evaluation/test_regression_measurement_acceptance.py tests/tools/test_regression_measurement.py tests/rules/test_regression.py -q` | **28 passed** (after Codex revise negative tests) |
+| `python3 -m pytest tests/evaluation/test_regression_measurement_acceptance.py tests/tools/test_regression_measurement.py tests/rules/test_regression.py -q` | **29 passed** (after overall-pass / dual-metric revise) |
 | Identity + architecture with Phase A focused suite | measured in closeout commit |
 | `python3 -m ruff check .` / `python3 -m mypy src` | pass |
 | `git diff --check 4b45f73997a3da89b19eb00846231c6bc84a7709` | clean |
-| `python3 -m pytest -q` (full, after `8105b63`) | **1847 passed**, 1 warning |
+| Full suite after tip commit | re-measured on clean HEAD after push |
 | Wheel / CPython matrix | **not executed** (not a release gate this round) |
 
 ## Identity (append-only)
 
 - Amendment id: `d042_regression_workbench_phase_a`
 - `current_implementation_sha256` unchanged: `9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3`
-- Tip `product_tree_sha256`: `ff50e3bf3eb2ce59cf077a9210fc76cb8b730cccfe716b105adfcf1e5f7626cc`
+- Tip `product_tree_sha256`: `d2ca91ba9971bd4424bd4b0dcdcc21682b6745badf56fcb3b8e54cc29fff816e`
 - Prompt / causal policy unchanged (`v0.3-s1-planner-9.11` / `v9_11_mode_aware_no_fault_recovery`)
 - `model_calls`: **0**
 - New modules are **not** Phase 4.3.1-certified by this bridge; they are additive identity accounting only.

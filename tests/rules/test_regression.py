@@ -804,6 +804,82 @@ def test_repeatability_unknown_blocks_formal_judgment() -> None:
     assert variable.overall_regression_pass is False
 
 
+def test_dual_metric_overall_pass_requires_no_regression() -> None:
+    clean = generate_sine(
+        frequency_hz=200.0,
+        sample_rate_hz=48_000,
+        duration_s=0.25,
+        amplitude=0.5,
+    )
+    harmonic_match = generate_harmonic_sine(
+        fundamental_hz=200.0,
+        sample_rate_hz=48_000,
+        duration_s=0.25,
+        fundamental_amplitude=0.5,
+        harmonic_ratios={2: 0.05, 3: 0.03},
+    )
+    harmonic_regress = generate_harmonic_sine(
+        fundamental_hz=200.0,
+        sample_rate_hz=48_000,
+        duration_s=0.25,
+        fundamental_amplitude=0.5,
+        harmonic_ratios={2: 0.2, 3: 0.1},
+    )
+    clipped = generate_clipped_sine(
+        frequency_hz=200.0,
+        sample_rate_hz=48_000,
+        duration_s=0.25,
+        amplitude=0.95,
+        clip_level=0.35,
+    )
+    profile = build_fixture_both_metrics_profile()
+
+    all_ok_base, all_ok_cand = _pair(harmonic_match, harmonic_match)
+    all_ok = compare_measurements(
+        all_ok_base,
+        all_ok_cand,
+        conditions=_conditions(),
+        profile=profile,
+    )
+    assert _metric(all_ok, "clipping_ratio").status == "no_regression_detected"
+    assert _metric(all_ok, "thd_percent").status == "no_regression_detected"
+    assert all(
+        item.status == "satisfied"
+        for item in all_ok.coverage
+        if item.check_id in all_ok.required_checks
+    )
+    assert all_ok.overall_regression_pass is True
+
+    clip_base, clip_cand = _pair(clean, clipped)
+    clip_reg = compare_measurements(
+        clip_base,
+        clip_cand,
+        conditions=_conditions(),
+        profile=profile,
+    )
+    assert _metric(clip_reg, "clipping_ratio").status == "regression_detected"
+    assert any(
+        item.check_id == "clipping_ratio" and item.status == "satisfied"
+        for item in clip_reg.coverage
+    )
+    assert clip_reg.overall_regression_pass is False
+
+    thd_base, thd_cand = _pair(clean, harmonic_regress)
+    thd_reg = compare_measurements(
+        thd_base,
+        thd_cand,
+        conditions=_conditions(),
+        profile=profile,
+    )
+    assert _metric(thd_reg, "thd_percent").status == "regression_detected"
+    assert any(
+        item.check_id == "thd_percent" and item.status == "satisfied"
+        for item in thd_reg.coverage
+    )
+    assert thd_reg.overall_regression_pass is False
+    validate_comparison_record(thd_reg)
+
+
 def test_sourceref_json_rebuild_rejects_non_float_values() -> None:
     import json
 
