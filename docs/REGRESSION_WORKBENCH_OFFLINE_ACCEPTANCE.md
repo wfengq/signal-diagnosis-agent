@@ -12,7 +12,7 @@ Tasks 7–8 (retest planner / offline contrast) **not authorized**.
 - Phase A tip after Codex revise: `2885d4b`
 - Phase B Task 5: `9e3f6de`; Task 6: `1029268`; closeout: `4b11fab`
 - Phase B revise (cancel/fingerprint/hash): `f86f1ac`
-- Phase B revise2 tip: recorded after this acceptance update (see Identity)
+- Phase B revise2 tip: `0e22c3d`
 - Authority: `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §22, D042, design/plan documents
 
 ## Scope covered
@@ -60,7 +60,7 @@ Single `ThreadPoolExecutor(max_workers=1)`. On `CancelledError`, the service wai
 | Browser/computerUse GUI recording | **Not executed** |
 | `python -m ruff check .` / `python -m mypy src` | pass (after revise2) |
 | `git diff --check 4b45f73997a3da89b19eb00846231c6bc84a7709` | clean |
-| `python -m pytest -q` (full, clean tip after commit) | recorded in closeout commit message / PR |
+| `python -m pytest -q` (full, clean tip `0e22c3d`) | **1888 passed**, 1 warning |
 | Wheel ASGI smoke for `/regression` + `regression.js` | previously **PASS** at Task 6 closeout; not reclaimed as release matrix |
 | CPython 3.11/3.12 clean-environment matrix | **not executed** |
 
