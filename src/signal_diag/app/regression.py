@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import concurrent.futures
 import hashlib
 import inspect
 import uuid
@@ -351,8 +352,11 @@ class RegressionWorkbenchService:
         self._cases: dict[str, _CaseState] = {}
         self._lock = asyncio.Lock()
         self._busy = False
-        self._inflight: set[asyncio.Task[object]] = set()
         self._closed = False
+        self._executor = concurrent.futures.ThreadPoolExecutor(
+            max_workers=1,
+            thread_name_prefix="regression-measure",
+        )
 
     def create_case(self, goal: str) -> RegressionCaseSnapshot:
         if self._closed:
@@ -424,13 +428,21 @@ class RegressionWorkbenchService:
             slot_held = True
 
         try:
+            cf_future = self._executor.submit(
+                _execute_comparison_group,
+                upload,
+                profile=self._comparison_profile,
+                max_file_bytes=self._wav_limits.max_upload_bytes,
+            )
             try:
-                outcome = await asyncio.to_thread(
-                    _execute_comparison_group,
-                    upload,
-                    profile=self._comparison_profile,
-                    max_file_bytes=self._wav_limits.max_upload_bytes,
-                )
+                try:
+                    outcome = await asyncio.wrap_future(cf_future)
+                except asyncio.CancelledError:
+                    # wrap_future cancel does not stop a running worker; keep the
+                    # slot until the thread actually finishes.
+                    while not cf_future.done():
+                        await asyncio.sleep(0.01)
+                    raise
                 if inspect.isawaitable(outcome):
                     record = await outcome
                 else:
@@ -515,9 +527,9 @@ class RegressionWorkbenchService:
         finally:
             if slot_held:
                 async with self._lock:
-                    case = self._cases.get(case_id)
-                    if case is not None:
-                        case.running = False
+                    held = self._cases.get(case_id)
+                    if held is not None:
+                        held.running = False
                     self._busy = False
 
     async def aclose(self) -> None:
@@ -529,6 +541,7 @@ class RegressionWorkbenchService:
                 break
             await asyncio.sleep(0.01)
         self._cases.clear()
+        self._executor.shutdown(wait=True, cancel_futures=False)
 
     def _require_case(self, case_id: str) -> _CaseState:
         try:

@@ -54,7 +54,8 @@ Read these before changing behavior or public interfaces:
    D042 §22 (`context_guidance`, preset WAV, held-bytes upgrade, planner-ablation
    study definitions, regression workbench; do not edit frozen §§1–64).
    Phase A offline evidence:
-   [REGRESSION_WORKBENCH_OFFLINE_ACCEPTANCE.md](REGRESSION_WORKBENCH_OFFLINE_ACCEPTANCE.md).
+   [REGRESSION_WORKBENCH_OFFLINE_ACCEPTANCE.md](REGRESSION_WORKBENCH_OFFLINE_ACCEPTANCE.md),
+   [REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md](REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md).
 7. [EXTERNAL_VALIDATION_CONTRACTS_V0_2.md](EXTERNAL_VALIDATION_CONTRACTS_V0_2.md)
    and [EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md](EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md)
    — external-WAV study contracts.

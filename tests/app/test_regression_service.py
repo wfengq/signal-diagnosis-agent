@@ -209,14 +209,21 @@ async def test_cancelled_submit_releases_busy_slot(
     service: RegressionWorkbenchService,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    import threading
+
     import signal_diag.app.regression as regression_mod
 
     original_run = regression_mod._execute_comparison_group
+    entered = threading.Event()
+    release = threading.Event()
+    loop = asyncio.get_running_loop()
+    entered_async = asyncio.Event()
 
     def slow_run(*args: Any, **kwargs: Any):
-        import time
-
-        time.sleep(0.3)
+        entered.set()
+        loop.call_soon_threadsafe(entered_async.set)
+        if not release.wait(timeout=2.0):
+            raise TimeoutError("test release signal was not set")
         return original_run(*args, **kwargs)
 
     monkeypatch.setattr(regression_mod, "_execute_comparison_group", slow_run)
@@ -225,18 +232,32 @@ async def test_cancelled_submit_releases_busy_slot(
     task = asyncio.create_task(
         service.submit_comparison(case.case_id, _upload(wav, wav), request_id="cancel-me")
     )
-    await asyncio.sleep(0.05)
+    await entered_async.wait()
+    assert entered.is_set()
+    assert service._busy is True
     task.cancel()
+    # While cancelled await still waits for the worker, a second submit stays busy.
+    await asyncio.sleep(0.02)
+    assert service._busy is True
+    with pytest.raises(InvalidRequestError, match="busy"):
+        await service.submit_comparison(
+            case.case_id,
+            _upload(wav, wav),
+            request_id="overlap-while-cancel",
+        )
+    release.set()
     with pytest.raises(asyncio.CancelledError):
         await task
-    assert service._busy is False  # noqa: SLF001
+    assert service._busy is False
     assert service._cases[case.case_id].running is False
-    follow = await service.submit_comparison(
+    # Same request_id may retry after cancel (no completed/failed outcome stored).
+    retry = await service.submit_comparison(
         case.case_id,
         _upload(wav, wav),
-        request_id="after-cancel",
+        request_id="cancel-me",
     )
-    assert follow.latest_submit_status == "completed"
+    assert retry.latest_submit_status == "completed"
+    assert len(retry.comparisons) == 1
 
 
 @pytest.mark.asyncio

@@ -1475,15 +1475,21 @@ cases; at most 16 accepted submits per case; one concurrent measurement group
 per service (others busy). String caps: goal 2000 chars; version/condition keys
 256; request_id 64. Product `build_regression_service()` defaults
 `profile=None`. Idempotent submit uses `request_id`; completed records are
-append-only and never overwritten in place.
+append-only and never overwritten in place. The submit fingerprint covers
+upload bytes (baseline/candidate/optional original), upload metadata
+(versions, filenames, conditions including any declared
+`original_input_sha256`, selection), and the optional `RetestLink`. A
+cancelled in-flight submit must not release the single measurement slot until
+the worker finishes; the cancelled `request_id` may be retried because no
+completed/failed outcome was stored.
 
 Reports distinguish raw Evidence from derived differences, escape untrusted
 text in HTML, and reject cross-case or tampered SourceRef at build/validate.
 
-### 22.5 Independent retest planner identity (later tasks; uncqualified)
+### 22.5 Independent retest planner identity (later tasks; unqualified)
 
 Proposed independent planner identity `v0.3-s1-retest-1.0` is registered here
-as **uncqualified**. It must not alter v9.11 diagnosis prompt or causal policy.
+as **unqualified**. It must not alter v9.11 diagnosis prompt or causal policy.
 Eligible options are deterministic; the planner chooses at most one option or
 abstains. Clients cannot inject option parameters. Missing credentials yield
 recommendation unavailable without Scripted fallback. Offline fake transport

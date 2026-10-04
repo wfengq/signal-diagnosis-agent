@@ -363,5 +363,22 @@
     "calibration_recompute_unchanged": true,
     "selected_threshold_percent_unchanged": 5.0,
     "model_calls": 0
+  },
+  {
+    "amendment_id": "d042_regression_workbench_phase_b_revise2",
+    "amendment_kind": "append_only_code_identity",
+    "created_at_utc": "2026-10-04T08:30:00+00:00",
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "product_tree_sha256": "ae86adfbb5039b0cfbe8b7e15a2650fbc6a478be315e0e1ce52c35e74c77661e",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "scope": "D042 Phase B revise2: measurement ThreadPoolExecutor(max_workers=1); cancel waits for worker before releasing busy; same request_id retry after cancel; acceptance/HTTP proof hygiene; no Task 7\u20138, seal, RealLLM, or product tolerances; model_calls=0",
+    "qualification_recompute_unchanged": true,
+    "calibration_recompute_unchanged": true,
+    "selected_threshold_percent_unchanged": 5.0,
+    "model_calls": 0
   }
 ]

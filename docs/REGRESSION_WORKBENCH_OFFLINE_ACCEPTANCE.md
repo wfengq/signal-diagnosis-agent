@@ -1,92 +1,89 @@
 # Regression workbench offline acceptance (Phase A + Phase B)
 
-Status: Phase A Tasks 1–4 + Phase B Tasks 5–6 + Task 9 closeout evidence.
+Status: Phase A Tasks 1–4 + Phase B Tasks 5–6 + Task 9 closeout + revise/revise2.
 Product comparison profiles enabled in production: **0**.
 User-benefit and RealLLM retest claims: **unverified**.
 Commit/push/draft PR authorized for Codex review. Merge/seal/RealLLM remain gated.
-Tasks 7–8 (retest planner / offline contrast) **not authorized** in this stage.
+Tasks 7–8 (retest planner / offline contrast) **not authorized**.
 
 ## Baseline
 
 - Plan read-only baseline: `4b45f73997a3da89b19eb00846231c6bc84a7709`
-- Branch tip at handoff import: `1f42677` (docs-only)
-- Phase A tip after Codex revise (overall-pass fix): `2885d4b` on `cursor/s1-regression-workbench-impl-8b52`
-- Phase B Task 5: `9e3f6de`; Task 6: `1029268` (pre-closeout)
+- Phase A tip after Codex revise: `2885d4b`
+- Phase B Task 5: `9e3f6de`; Task 6: `1029268`; closeout: `4b11fab`
+- Phase B revise (cancel/fingerprint/hash): `f86f1ac`
+- Phase B revise2 tip: recorded after this acceptance update (see Identity)
 - Authority: `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §22, D042, design/plan documents
-- Spec SHA256: `536b71ddb6e5f3b3369fa49a1aa4e7ad5471497d88b89977822600fa9a990fe4`
-- Plan SHA256: `225e0ddfbd49281a1dd210726985db773b1e503b5133de90cb9ec8128bbd1b84`
 
 ## Scope covered
 
 | Layer | Covered | Notes |
 |---|---|---|
 | Definition (§22, T-CX329–348, D042) | Yes | Task 1 registration |
-| Unit: `regression_measurement` | Yes | `tests/tools/test_regression_measurement.py` |
-| Unit: `rules/regression` | Yes | `tests/rules/test_regression.py` + fixtures |
-| Real-tool integration (PCM → load → measure → compare) | Yes | `tests/evaluation/test_regression_measurement_acceptance.py` |
+| Measurement + compare (Tasks 2–4) | Yes | tools/rules/evaluation acceptance tests |
 | In-session service (Task 5) | Yes | `tests/app/test_regression_service.py` |
-| Reporting / API / static UI (Task 6) | Yes | reporting/api/ui tests + HTTP proof |
-| Architecture allowlist / identity tip | Yes | app/ exempt in T285; tip `d042_regression_workbench_phase_b` |
+| Reporting / API / static UI (Task 6) | Yes | reporting/api/ui tests + HTTP proof doc |
+| Cancel/busy/link fingerprint revise | Yes | cancel waits for worker; fingerprint includes `RetestLink` |
 | Retest planner / offline contrast | **Not yet** | Tasks 7–8 |
 
-## Product profile posture
+## Product / UI posture
 
 - Approved product `ComparisonProfile` count under `src/signal_diag/rules/profiles`: **0**
-- Fixture tolerances live only under `tests/rules/regression_fixtures.py`. These are **not** product tolerances.
-- Product `build_regression_service()` defaults `profile=None` (descriptive-only).
+- Product `build_regression_service()` defaults `profile=None` (descriptive-only)
+- Web UI hardcodes harmonic `fundamental_hz=200.0` (no input box). Non-200 Hz stimuli keep THD compare blocked/`not_comparable` on the Web path unless clients POST selection via API.
+- `conditions.original_input_sha256` without uploaded original bytes is a **user declaration**, not a verified hash. When original bytes are uploaded, the service requires an exact match or fills the digest itself.
+- `regression.js` uses `textContent` / `createElement` only (no `innerHTML` sinks; static check).
 
-## AC / T-CX mapping
+## Idempotency fingerprint (request_id)
 
-| Design AC | T-CX (plan) | Evidence |
+Covers: baseline/candidate/optional-original **bytes**, upload metadata JSON (versions, filenames, conditions including declared `original_input_sha256`, selection), and optional `RetestLink`. Same `request_id` with any differing fingerprint is rejected.
+
+## Cancel / concurrency
+
+Single `ThreadPoolExecutor(max_workers=1)`. On `CancelledError`, the service waits for the worker future to finish before clearing `_busy` / `case.running`. Cancelled submits do not store a completed/failed `request_id` outcome, so the same id may retry. Overlap while the cancelled worker is still running returns busy.
+
+## AC / T-CX mapping (Phase B)
+
+| Design AC | T-CX | Evidence |
 |---|---|---|
-| AC01–AC08, AC10–AC12, AC16 | T-CX329–335, T-CX345–346 | Phase A (see prior table in git history / Phase A tip) |
-| AC09 case lifecycle / idempotency | T-CX336 / T-CX337 | `tests/app/test_regression_service.py` |
+| AC09 case lifecycle / idempotency | T-CX336 / T-CX337 | service tests incl. cancel/link fingerprint |
 | AC13 reporting integrity / escape | T-CX338 | `tests/app/test_regression_reporting.py` |
-| AC14 Web dual-file / retest path | T-CX339 | API/UI tests + HTTP proof note |
+| AC14 Web dual-file / retest path | T-CX339 | API/UI tests + `docs/REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md` (HTTP, not browser GUI) |
 | AC15 planner / benefit | T-CX340–344, T-CX348 | **Not covered** (Tasks 7–8) |
 
-## Commands and results (measured)
+## Commands and results (measured on revise2 working tree)
 
 | Command | Result |
 |---|---|
-| `pytest tests/app/test_regression_service.py tests/app/test_regression_reporting.py tests/app/test_regression_api.py tests/app/test_regression_ui.py -q` | **37 passed** |
-| HTTP proof on `127.0.0.1:8765` (capabilities → case → compare → repeat → repair → report.json/html → static) | **PASS** (case `case_270fd72c28954b36af76a366ee592923`); evidence under `.cursor/skills/verify-signal-diagnosis-agent/evidence/task6-regression-ui-browser-2026-10-04.md` |
-| Browser/computerUse GUI recording | **Not executed** (computerUse model spend limit); HTTP covers the same routes the UI calls |
-| Identity + architecture focused | tip `d042_regression_workbench_phase_b`; T285 app/ exempt; T269 allowlists `regression_api.py` |
-| `python -m ruff check .` / `python -m mypy src` | pass (139 mypy files) |
+| `pytest tests/app/test_regression_service.py tests/app/test_regression_api.py -q` | **29 passed** |
+| HTTP proof (capabilities→compare→repeat→repair→reports→static) | **PASS**; tracked in `docs/REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md` |
+| Browser/computerUse GUI recording | **Not executed** |
+| `python -m ruff check .` / `python -m mypy src` | pass (after revise2) |
 | `git diff --check 4b45f73997a3da89b19eb00846231c6bc84a7709` | clean |
-| `python -m pytest -q` (full, after T269 allowlist) | **1885 passed**, 1 warning |
-| `python -m build` + clean-venv wheel ASGI smoke for `/regression` + `regression.js` | **PASS** |
-| CPython 3.11/3.12 clean-environment matrix | **not executed** (not a release gate this round) |
+| `python -m pytest -q` (full, clean tip after commit) | recorded in closeout commit message / PR |
+| Wheel ASGI smoke for `/regression` + `regression.js` | previously **PASS** at Task 6 closeout; not reclaimed as release matrix |
+| CPython 3.11/3.12 clean-environment matrix | **not executed** |
 
 ## Identity (append-only)
 
-- Phase A amendment: `d042_regression_workbench_phase_a` (`product_tree` `d2ca91ba…816e`)
-- Phase B tip amendment: `d042_regression_workbench_phase_b`
-- Phase B revise tip: `d042_regression_workbench_phase_b_revise` (CancelledError busy release, fingerprint includes RetestLink, original hash mismatch reject)
+- `code_identity_amendment.json` under the contextual development study is an **append-only identity bridge**, not a sealed Demo/official evaluation asset. Revise rows only append tip entries; prior rows retain prior digests.
+- `tests/agent/test_v03_prompt_v9_11.py` tip assertions are updated so the active tip equals `contextual_product_tree_sha256()`; older tip rows stay pinned to historical digests. Prompt/causal identity remains `v0.3-s1-planner-9.11` / `v9_11_mode_aware_no_fault_recovery`.
+- Phase B tips: `d042_regression_workbench_phase_b` → `…_revise` → `…_revise2`
+- Tip `product_tree_sha256`: `ae86adfbb5039b0cfbe8b7e15a2650fbc6a478be315e0e1ce52c35e74c77661e`
 - `current_implementation_sha256` unchanged: `9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3`
-- Tip `product_tree_sha256`: `ed11899bc5114e9b78bb85f115fabda0706ecb2a99c514a9f6ff7a836bc50703`
-- Prompt / causal policy unchanged (`v0.3-s1-planner-9.11` / `v9_11_mode_aware_no_fault_recovery`)
 - `model_calls`: **0**
-- New modules are **not** Phase 4.3.1-certified; additive identity accounting only.
 
-## Allowlist / layering notes (T285)
+## Allowlist / layering
 
-- Exact paths (Phase A): `tools/regression_measurement.py`, `rules/regression.py`
-- Phase B app modules live under `src/signal_diag/app/` (T285 exempts `app/`)
-- Packaged static: `regression.html`, `regression.js` via existing `static/*` package-data patterns
-- evaluation ↛ app and rules/tools ↛ agent/app remain enforced by existing architecture tests
-
-## Data shapes (Phase B)
-
-- **ComparisonUpload / RetestLink / RegressionCaseSnapshot**: in-session case store; append-only comparisons; request_id idempotency
-- **RegressionCaseReport**: validated comparisons + escaped HTML / source-preserving JSON
-- Engineering limits: 20 MiB/file, 8 cases, 16 submits/case, one concurrent measurement group
+- T285 exact paths (Phase A): `tools/regression_measurement.py`, `rules/regression.py`
+- Phase B app modules under `src/signal_diag/app/` (T285 exempts `app/`)
+- T269 allows FastAPI only in `api.py`, `multipart.py`, `regression_api.py`
+- HTTP status string-matching for regression `invalid_request` remains a known P2 (typed codes deferred; frozen `AppErrorCode` not expanded)
 
 ## Open / not verified / blocked gates
 
-- Product tolerance calibration and approved comparison profiles
-- Retest planner (`v0.3-s1-retest-1.0`) and RealLLM runs (Tasks 7–8)
-- User time savings or planner benefit studies
-- Interactive browser GUI recording this session (HTTP proof substituted)
+- Product tolerance calibration / approved profiles
+- Tasks 7–8 planner + RealLLM
+- Interactive browser GUI recording
+- Typed HTTP error codes (P2)
 - Merge, seal, RealLLM, product tolerances
