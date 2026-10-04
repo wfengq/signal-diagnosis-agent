@@ -14,7 +14,7 @@ Tasks 7–8 (retest planner / offline contrast) **not authorized**.
 - Phase B revise (cancel/fingerprint/hash): `f86f1ac`
 - Phase B revise2 tip: `0e22c3d`
 - Phase B revise3 tip: `74ae50a` / identity `d042_regression_workbench_phase_b_revise3` / product tree `572f039d7e962d9906e03a95eb92a4fba64f135cdc490af2acce71f7c6875735`
-- Phase B revise4 tip: identity `d042_regression_workbench_phase_b_revise4` / product tree `5f73c757dee9771d6499cd2413ff5751679250e332ffb31332eaca5c43a7208d`
+- Phase B revise4 tip: `d66f346` / identity `d042_regression_workbench_phase_b_revise4` / product tree `5f73c757dee9771d6499cd2413ff5751679250e332ffb31332eaca5c43a7208d`
 - Authority: `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §22, D042, design/plan documents
 
 ## Scope covered
@@ -64,7 +64,7 @@ Single `ThreadPoolExecutor(max_workers=1)`. HTTP comparison routes acquire `hold
 | Browser/computerUse GUI recording | **Not executed** (AC14 pending) |
 | `python -m ruff check` / `python -m mypy` on touched app modules | pass (revise4) |
 | `git diff --check 4b45f73997a3da89b19eb00846231c6bc84a7709` | clean (touched paths) |
-| `python -m pytest -q` (full) | recorded after commit |
+| `python -m pytest -q` (full, tip `d66f346`) | **1896 passed**, 1 warning |
 | Wheel ASGI smoke for `/regression` + `regression.js` | previously **PASS** at Task 6 closeout; not reclaimed as release matrix |
 | CPython 3.11/3.12 clean-environment matrix | **not executed** |
 
