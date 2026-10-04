@@ -3,13 +3,13 @@
 Status: Phase A Tasks 1–4 + Task 9 closeout evidence (measurement + compare only).
 Product comparison profiles enabled in production: **0**.
 User-benefit and RealLLM retest claims: **unverified**.
-Commit/push/PR/merge/seal/RealLLM: **not authorized** for this grant.
+Commit/push/draft PR authorized for Codex review. Merge/seal/RealLLM remain gated.
 
 ## Baseline
 
 - Plan read-only baseline: `4b45f73997a3da89b19eb00846231c6bc84a7709`
 - Branch tip at handoff import: `1f42677` (docs-only)
-- Working tree: uncommitted Phase A implementation (Codex-reviewable local diff)
+- Implementation commit: `0de53a269ff6fe0fed5f53dd90f15f4f3a22c3f3` on `cursor/s1-regression-workbench-impl-8b52`
 - Authority: `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §22, D042, design/plan documents
 - Spec SHA256: `536b71ddb6e5f3b3369fa49a1aa4e7ad5471497d88b89977822600fa9a990fe4`
 - Plan SHA256: `225e0ddfbd49281a1dd210726985db773b1e503b5133de90cb9ec8128bbd1b84`
@@ -58,7 +58,7 @@ Not covered in Phase A (later tasks): AC09, AC13–AC15 (case lifecycle, Web, pl
 | `python3 -m ruff check .` | **All checks passed** |
 | `python3 -m mypy src` | **Success** (after ToolName annotation fix) |
 | `git diff --check 4b45f73997a3da89b19eb00846231c6bc84a7709` | **clean** |
-| `python3 -m pytest -q` (full) | **blocked**: 12 failures in planner-ablation `collect_code_bindings` because new product `.py` files exist on disk but not in HEAD `1f42677` (no commit authorization). Not recorded as passed. |
+| `python3 -m pytest -q` (full, after commit `0de53a2`) | **1841 passed**, 1 warning |
 | Wheel / CPython matrix | **not executed** (not a release gate this round) |
 
 ## Identity (append-only)
@@ -87,5 +87,5 @@ Note: T285 inspects `baseline..HEAD` committed paths. Uncommitted new files do n
 - Product tolerance calibration and approved comparison profiles
 - Retest planner (`v0.3-s1-retest-1.0`) and RealLLM runs
 - User time savings or planner benefit studies
-- Full suite green under clean git (requires commit authorization)
 - Tasks 5–8 (not granted)
+- Merge, seal, RealLLM, product tolerances
