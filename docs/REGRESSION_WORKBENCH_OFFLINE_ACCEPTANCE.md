@@ -1,10 +1,11 @@
 # Regression workbench offline acceptance (Phase A + Phase B)
 
-Status: Phase A Tasks 1–4 + Phase B Tasks 5–6 + Task 9 closeout + revise/revise2/revise3/revise4.
+Status: Phase A Tasks 1–4 + Phase B Tasks 5–6 + Task 9 closeout + revise4 **Codex accept** at tip `6997400` (code `d66f346`).
 Product comparison profiles enabled in production: **0**.
 User-benefit and RealLLM retest claims: **unverified**.
-Commit/push/draft PR authorized for Codex review. Merge/seal/RealLLM remain gated.
+Independent Codex offline accept recorded for this tip. Merge/seal/RealLLM remain gated.
 Tasks 7–8 (retest planner / offline contrast) **not authorized**.
+AC14 interactive browser GUI remains **pending** (HTTP proof does not substitute).
 
 ## Baseline
 
@@ -14,7 +15,8 @@ Tasks 7–8 (retest planner / offline contrast) **not authorized**.
 - Phase B revise (cancel/fingerprint/hash): `f86f1ac`
 - Phase B revise2 tip: `0e22c3d`
 - Phase B revise3 tip: `74ae50a` / identity `d042_regression_workbench_phase_b_revise3` / product tree `572f039d7e962d9906e03a95eb92a4fba64f135cdc490af2acce71f7c6875735`
-- Phase B revise4 tip: `d66f346` / identity `d042_regression_workbench_phase_b_revise4` / product tree `5f73c757dee9771d6499cd2413ff5751679250e332ffb31332eaca5c43a7208d`
+- Phase B revise4 tip: `d66f346` / docs tip `6997400` / identity `d042_regression_workbench_phase_b_revise4` / product tree `5f73c757dee9771d6499cd2413ff5751679250e332ffb31332eaca5c43a7208d`
+- Codex independent offline accept: tip `6997400` (code `d66f346`); transplant/double-cancel/busy-HTTP/original-hash/link-fingerprint/Web-F0 spot checks closed; reviewer **114 passed** (regression app + v9.11 identity + architecture); CI 4/4 SUCCESS
 - Authority: `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §22, D042, design/plan documents
 
 ## Scope covered
@@ -88,6 +90,8 @@ Single `ThreadPoolExecutor(max_workers=1)`. HTTP comparison routes acquire `hold
 
 - Product tolerance calibration / approved profiles
 - Tasks 7–8 planner + RealLLM
-- Interactive browser GUI recording
-- Typed HTTP error codes (P2)
+- Interactive browser GUI recording (AC14 pending)
+- Typed HTTP error codes (P2; string-matching deferred)
 - Merge, seal, RealLLM, product tolerances
+
+Codex accept of this offline revise does **not** authorize those gates and does **not** claim complete UI acceptance.
