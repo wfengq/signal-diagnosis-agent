@@ -57,7 +57,7 @@ Not covered in Phase A (later tasks): AC09, AC13–AC15 (case lifecycle, Web, pl
 | Identity + architecture with Phase A focused suite | measured in closeout commit |
 | `python3 -m ruff check .` / `python3 -m mypy src` | pass |
 | `git diff --check 4b45f73997a3da89b19eb00846231c6bc84a7709` | clean |
-| Full suite after tip commit | re-measured on clean HEAD after push |
+| `python3 -m pytest -q` (full, after `2885d4b`) | **1848 passed**, 1 warning |
 | Wheel / CPython matrix | **not executed** (not a release gate this round) |
 
 ## Identity (append-only)
