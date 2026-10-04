@@ -35,6 +35,11 @@ from signal_diag.app.models import (
     DemoPresetId,
 )
 from signal_diag.app.multipart import parse_contextual_wav_upload, parse_wav_upload
+from signal_diag.app.regression import build_regression_service
+from signal_diag.app.regression_api import (
+    _http_status_for_error,
+    build_regression_router,
+)
 from signal_diag.app.reporting import (
     build_diagnosis_report,
     load_accepted_evaluation_summary,
@@ -50,6 +55,7 @@ _MAX_FILE_BYTES = WavLoadLimits().max_upload_bytes
 _STATIC_MEDIA_TYPES = {
     "styles.css": "text/css; charset=utf-8",
     "app.js": "text/javascript; charset=utf-8",
+    "regression.js": "text/javascript; charset=utf-8",
 }
 _STATUS_BY_CODE = {
     "invalid_request": 422,
@@ -168,19 +174,25 @@ def create_app(
     owned = service is None
     bound = service if service is not None else build_product_service()
 
+    regression_service = build_regression_service()
+
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         app.state.service = bound
         app.state.owns_service = owned
+        app.state.regression_service = regression_service
         try:
             yield
         finally:
             if owned:
                 await bound.aclose()
+            await regression_service.aclose()
 
     app = FastAPI(lifespan=lifespan, title="Signal Diagnosis Agent")
     app.state.service = bound
     app.state.owns_service = owned
+    app.state.regression_service = regression_service
+    app.include_router(build_regression_router(regression_service))
 
     @app.middleware("http")
     async def add_security_headers(
@@ -197,7 +209,10 @@ def create_app(
         exc: ApplicationError,
     ) -> JSONResponse:
         del request
-        status = _STATUS_BY_CODE.get(exc.detail.code, 500)
+        if exc.detail.code == "invalid_request":
+            status = _http_status_for_error(exc)
+        else:
+            status = _STATUS_BY_CODE.get(exc.detail.code, 500)
         return _json_error(exc.detail, status)
 
     @app.exception_handler(RequestValidationError)
@@ -219,7 +234,10 @@ def create_app(
         if isinstance(exc, StarletteHTTPException):
             raise exc
         if isinstance(exc, ApplicationError):
-            status = _STATUS_BY_CODE.get(exc.detail.code, 500)
+            if exc.detail.code == "invalid_request":
+                status = _http_status_for_error(exc)
+            else:
+                status = _STATUS_BY_CODE.get(exc.detail.code, 500)
             return _json_error(exc.detail, status)
         del request
         return _json_error(sanitize_application_error(exc), 500)

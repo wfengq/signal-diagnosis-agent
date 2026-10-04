@@ -244,6 +244,110 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert d039_surfaces["current_implementation_sha256"] == (
         contextual_implementation_sha256()
     )
-    assert d039_surfaces["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert d039_surfaces["product_tree_sha256"] == (
+        "2ed1ff7ff5868679ad703aa2dda66e182342e083f87ad524c263b1ba87779e00"
+    )
     assert d039_surfaces["prompt_sha256"] == oq014["prompt_sha256"]
     assert d039_surfaces["model_calls"] == 0
+    d042 = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d042_regression_workbench_phase_a"
+    )
+    assert d042["amendment_kind"] == "append_only_code_identity"
+    assert d042["prior_bridge_current_implementation_sha256"] == (
+        d039_surfaces["current_implementation_sha256"]
+    )
+    assert d042["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d042["product_tree_sha256"] == (
+        "d2ca91ba9971bd4424bd4b0dcdcc21682b6745badf56fcb3b8e54cc29fff816e"
+    )
+    assert d042["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d042["model_calls"] == 0
+    d042_phase_b = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d042_regression_workbench_phase_b"
+    )
+    assert d042_phase_b["amendment_kind"] == "append_only_code_identity"
+    assert d042_phase_b["prior_bridge_current_implementation_sha256"] == (
+        d042["current_implementation_sha256"]
+    )
+    assert d042_phase_b["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d042_phase_b["product_tree_sha256"] == (
+        "cda690d560fa71da49ae2021fd0e666d84f026352f050deb066b38c23ac58c64"
+    )
+    assert d042_phase_b["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d042_phase_b["model_calls"] == 0
+    d042_phase_b_revise = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d042_regression_workbench_phase_b_revise"
+    )
+    assert d042_phase_b_revise["amendment_kind"] == "append_only_code_identity"
+    assert d042_phase_b_revise["prior_bridge_current_implementation_sha256"] == (
+        d042_phase_b["current_implementation_sha256"]
+    )
+    assert d042_phase_b_revise["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d042_phase_b_revise["product_tree_sha256"] == (
+        "ed11899bc5114e9b78bb85f115fabda0706ecb2a99c514a9f6ff7a836bc50703"
+    )
+    assert d042_phase_b_revise["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d042_phase_b_revise["model_calls"] == 0
+    d042_phase_b_revise2 = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d042_regression_workbench_phase_b_revise2"
+    )
+    assert d042_phase_b_revise2["amendment_kind"] == "append_only_code_identity"
+    assert d042_phase_b_revise2["prior_bridge_current_implementation_sha256"] == (
+        d042_phase_b_revise["current_implementation_sha256"]
+    )
+    assert d042_phase_b_revise2["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d042_phase_b_revise2["product_tree_sha256"] == (
+        "ae86adfbb5039b0cfbe8b7e15a2650fbc6a478be315e0e1ce52c35e74c77661e"
+    )
+    assert d042_phase_b_revise2["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d042_phase_b_revise2["model_calls"] == 0
+    d042_phase_b_revise3 = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d042_regression_workbench_phase_b_revise3"
+    )
+    assert d042_phase_b_revise3["amendment_kind"] == "append_only_code_identity"
+    assert d042_phase_b_revise3["prior_bridge_current_implementation_sha256"] == (
+        d042_phase_b_revise2["current_implementation_sha256"]
+    )
+    assert d042_phase_b_revise3["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d042_phase_b_revise3["product_tree_sha256"] == (
+        "572f039d7e962d9906e03a95eb92a4fba64f135cdc490af2acce71f7c6875735"
+    )
+    assert d042_phase_b_revise3["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d042_phase_b_revise3["model_calls"] == 0
+    d042_phase_b_revise4 = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d042_regression_workbench_phase_b_revise4"
+    )
+    assert d042_phase_b_revise4["amendment_kind"] == "append_only_code_identity"
+    assert d042_phase_b_revise4["prior_bridge_current_implementation_sha256"] == (
+        d042_phase_b_revise3["current_implementation_sha256"]
+    )
+    assert d042_phase_b_revise4["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d042_phase_b_revise4["product_tree_sha256"] == (
+        contextual_product_tree_sha256()
+    )
+    assert d042_phase_b_revise4["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d042_phase_b_revise4["model_calls"] == 0

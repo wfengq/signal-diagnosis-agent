@@ -849,8 +849,11 @@ async def test_t269_http_security_defaults_and_normalized_errors(
         assert "traceback" not in bad.text.casefold()
         assert "File " not in bad.text
 
+    # D042 Phase B: regression_api.py is the authorized FastAPI router module.
+    # All other app/*.py modules remain free of FastAPI/Starlette imports.
+    _fastapi_allowed = frozenset({"api.py", "multipart.py", "regression_api.py"})
     for path in APP_DIR.glob("*.py"):
-        if path.name in {"api.py", "multipart.py"}:
+        if path.name in _fastapi_allowed:
             continue
         text = path.read_text(encoding="utf-8")
         assert "fastapi" not in text.casefold()
@@ -858,7 +861,8 @@ async def test_t269_http_security_defaults_and_normalized_errors(
         assert "import starlette" not in text
     api_source = (APP_DIR / "api.py").read_text(encoding="utf-8")
     multipart_source = (APP_DIR / "multipart.py").read_text(encoding="utf-8")
-    for source in (api_source, multipart_source):
+    regression_api_source = (APP_DIR / "regression_api.py").read_text(encoding="utf-8")
+    for source in (api_source, multipart_source, regression_api_source):
         assert "CORSMiddleware" not in source
         assert "UploadFile" not in source
         assert "request.form(" not in source
@@ -867,6 +871,8 @@ async def test_t269_http_security_defaults_and_normalized_errors(
     assert "CORSMiddleware" not in api_source
     assert "StaticFiles" not in api_source
     assert 'files("signal_diag.app.static")' in api_source
+    assert "build_regression_router" in api_source
+    assert "APIRouter" in regression_api_source
 
 
 @pytest.mark.asyncio
