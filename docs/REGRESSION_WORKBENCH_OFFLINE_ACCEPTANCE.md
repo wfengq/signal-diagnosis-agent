@@ -1,11 +1,11 @@
 # Regression workbench offline acceptance (Phase A + Phase B)
 
-Status: Phase A Tasks 1–4 + Phase B Tasks 5–6 + Task 9 closeout + revise4 **Codex accept** at tip `6997400` (code `d66f346`).
+Status: Phase A Tasks 1–4 + Phase B Tasks 5–6 + Task 9 closeout + revise4 **Codex accept** at tip `6997400` (code `d66f346`) + **browser T-CX339 proof** at tip `4972100`.
 Product comparison profiles enabled in production: **0**.
 User-benefit and RealLLM retest claims: **unverified**.
-Independent Codex offline accept recorded for this tip. Merge/seal/RealLLM remain gated.
+Independent Codex offline accept recorded for tip `6997400`. Merge/seal/RealLLM remain gated.
 Tasks 7–8 (retest planner / offline contrast) **not authorized**.
-AC14 interactive browser GUI remains **pending** (HTTP proof does not substitute).
+Browser dual-file / retest / export path: **executed** (T-CX339). Design AC14 is scheme admission, not this browser path.
 
 ## Baseline
 
@@ -26,10 +26,12 @@ AC14 interactive browser GUI remains **pending** (HTTP proof does not substitute
 | Definition (§22, T-CX329–348, D042) | Yes | Task 1 registration |
 | Measurement + compare (Tasks 2–4) | Yes | tools/rules/evaluation acceptance tests |
 | In-session service (Task 5) | Yes | `tests/app/test_regression_service.py` |
-| Reporting / API / static UI (Task 6) | Yes | reporting/api/ui tests + HTTP proof doc |
+| Reporting / API / static UI (Task 6) | Yes | reporting/api/ui tests + HTTP + browser proof |
 | Cancel/busy/link fingerprint revise | Yes | cancel waits for worker; fingerprint includes `RetestLink` |
 | Report integrity + pre-parse slot + Web F0 revise3 | Yes | shared report validate; `hold_operation_slot` before multipart read; omit hardcoded Web F0 |
 | Case ownership + double-cancel revise4 | Yes | `case_id` on case records; nested cancel wait until worker done |
+| Browser dual-file / repeat / repair / export (T-CX339) | Yes | headed Playwright + screen recording; see browser proof doc |
+| Design AC14 scheme admission | **Not yet** | Tasks 7+ / T-CX340+; previously mis-labeled as browser GUI |
 | Retest planner / offline contrast | **Not yet** | Tasks 7–8 |
 
 ## Product / UI posture
@@ -53,9 +55,12 @@ Single `ThreadPoolExecutor(max_workers=1)`. HTTP comparison routes acquire `hold
 | Design AC | T-CX | Evidence |
 |---|---|---|
 | AC09 case lifecycle / idempotency | T-CX336 / T-CX337 | service tests incl. cancel/link fingerprint |
-| AC13 reporting integrity / escape | T-CX338 | `tests/app/test_regression_reporting.py` |
-| AC14 Web dual-file / retest path | T-CX339 | **pending** interactive browser GUI; HTTP proof in `docs/REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md` does not substitute |
+| AC13 reporting integrity / escape | T-CX338 | `tests/app/test_regression_reporting.py` + exported browser reports |
+| *(no design AC number for Web path)* | **T-CX339** | Browser dual-file + manual retest + export: `docs/REGRESSION_WORKBENCH_BROWSER_PROOF_2026-10-04.md` (HTTP proof is complementary only) |
+| AC14 方案准入 | T-CX340+ | **Not covered** (Tasks 7+; model/catalog admission, not browser GUI) |
 | AC15 planner / benefit | T-CX340–344, T-CX348 | **Not covered** (Tasks 7–8) |
+
+Correction: earlier drafts wrongly mapped interactive browser GUI to design AC14. Spec AC14 is scheme admission (“不适用方案或未批准参数不能由模型输出绕过”). Task 6 Web dual-file/manual retest is **T-CX339**.
 
 ## Commands and results (measured on revise4 working tree)
 
@@ -63,7 +68,7 @@ Single `ThreadPoolExecutor(max_workers=1)`. HTTP comparison routes acquire `hold
 |---|---|
 | `pytest tests/app/test_regression_{reporting,api,service,ui}.py -q` | **48 passed** |
 | HTTP proof (capabilities→compare→repeat→repair→reports→static) | **PASS**; tracked in `docs/REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md` |
-| Browser/computerUse GUI recording | **Not executed** (AC14 pending) |
+| Browser GUI (T-CX339) dual-file / repeat / repair / export | **PASS** at tip `4972100`; evidence under `.cursor/skills/verify-signal-diagnosis-agent/evidence/regression-browser-tcx339/`; recording `/opt/cursor/artifacts/regression-browser-tcx339-task6.mp4`; see `docs/REGRESSION_WORKBENCH_BROWSER_PROOF_2026-10-04.md` |
 | `python -m ruff check` / `python -m mypy` on touched app modules | pass (revise4) |
 | `git diff --check 4b45f73997a3da89b19eb00846231c6bc84a7709` | clean (touched paths) |
 | `python -m pytest -q` (full, tip `d66f346`) | **1896 passed**, 1 warning |
@@ -90,8 +95,8 @@ Single `ThreadPoolExecutor(max_workers=1)`. HTTP comparison routes acquire `hold
 
 - Product tolerance calibration / approved profiles
 - Tasks 7–8 planner + RealLLM
-- Interactive browser GUI recording (AC14 pending)
+- Design AC14 scheme admission (T-CX340+; not the browser path)
 - Typed HTTP error codes (P2; string-matching deferred)
 - Merge, seal, RealLLM, product tolerances
 
-Codex accept of this offline revise does **not** authorize those gates and does **not** claim complete UI acceptance.
+Codex offline accept + T-CX339 browser proof do **not** authorize Tasks 7–8, merge, seal, RealLLM, or product tolerances. Browser proof used headed Playwright because `computerUse` hit a spend limit; evidence is still real Chromium UI interaction.

@@ -1,8 +1,10 @@
 # Regression workbench HTTP proof (2026-10-04)
 
 Surface: **HTTP API + packaged static** on `127.0.0.1:8765` via `create_app` lifespan.
-This is **not** a browser/DOM GUI recording. computerUse browser proof was unavailable
-(monthly spend limit). The UI calls these same routes.
+This is **not** a browser/DOM GUI recording. Browser/DOM proof for **T-CX339** is in
+`docs/REGRESSION_WORKBENCH_BROWSER_PROOF_2026-10-04.md` (headed Playwright + screen
+recording). Do not map this HTTP doc to design **AC14** (spec AC14 is scheme
+admission / Tasks 7+). The UI calls these same routes.
 
 Case ID: `case_270fd72c28954b36af76a366ee592923`
 
