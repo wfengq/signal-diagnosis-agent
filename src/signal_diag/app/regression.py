@@ -184,7 +184,10 @@ class _CaseState:
     running: bool = False
 
 
-def _upload_fingerprint(upload: ComparisonUpload) -> str:
+def _upload_fingerprint(
+    upload: ComparisonUpload,
+    link: RetestLink | None = None,
+) -> str:
     hasher = hashlib.sha256()
     hasher.update(upload.baseline_data)
     hasher.update(b"\0")
@@ -198,6 +201,11 @@ def _upload_fingerprint(upload: ComparisonUpload) -> str:
             exclude={"baseline_data", "candidate_data", "original_input_data"}
         ).encode("utf-8")
     )
+    hasher.update(b"\0")
+    if link is None:
+        hasher.update(b"link:none")
+    else:
+        hasher.update(link.model_dump_json().encode("utf-8"))
     return hasher.hexdigest()
 
 
@@ -277,14 +285,17 @@ def _execute_comparison_group(
         repository.put(candidate_loaded.record)
 
         conditions = upload.conditions
-        if upload.original_input_data is not None and conditions.original_input_sha256 is None:
-            conditions = conditions.model_copy(
-                update={
-                    "original_input_sha256": hashlib.sha256(
-                        upload.original_input_data
-                    ).hexdigest()
-                }
-            )
+        if upload.original_input_data is not None:
+            digest = hashlib.sha256(upload.original_input_data).hexdigest()
+            declared = conditions.original_input_sha256
+            if declared is None:
+                conditions = conditions.model_copy(
+                    update={"original_input_sha256": digest}
+                )
+            elif declared != digest:
+                raise _invalid(
+                    "original_input_sha256 does not match uploaded original bytes"
+                )
 
         baseline_identity = _build_identity(
             run_id=_new_id("run"),
@@ -384,8 +395,9 @@ class RegressionWorkbenchService:
         if self._closed:
             raise _invalid("regression service is closed")
         self._validate_request_id(request_id)
-        fingerprint = _upload_fingerprint(upload)
+        fingerprint = _upload_fingerprint(upload, link)
 
+        slot_held = False
         async with self._lock:
             case = self._require_case(case_id)
             prior = case.request_outcomes.get(request_id)
@@ -409,95 +421,104 @@ class RegressionWorkbenchService:
             case.running = True
             case.accepted_submit_count += 1
             self._busy = True
+            slot_held = True
 
         try:
-            outcome = await asyncio.to_thread(
-                _execute_comparison_group,
-                upload,
-                profile=self._comparison_profile,
-                max_file_bytes=self._wav_limits.max_upload_bytes,
-            )
-            if inspect.isawaitable(outcome):
-                record = await outcome
-            else:
-                record = outcome
-        except (InvalidRequestError, PayloadTooLargeError, AppCapacityError) as error:
-            async with self._lock:
-                case = self._require_case(case_id)
-                failure = CaseFailureRecord(
-                    failure_id=_new_id("fail"),
-                    request_id=request_id,
-                    message=error.detail.message,
-                    parent_comparison_id=link.parent_comparison_id if link else None,
-                    link_kind=link.kind if link else None,
-                    created_at=self._clock(),
+            try:
+                outcome = await asyncio.to_thread(
+                    _execute_comparison_group,
+                    upload,
+                    profile=self._comparison_profile,
+                    max_file_bytes=self._wav_limits.max_upload_bytes,
                 )
-                case.failures.append(failure)
-                case.request_outcomes[request_id] = _RequestOutcome(
-                    kind="failed",
-                    content_fingerprint=fingerprint,
-                    failure=failure,
-                )
-                case.latest_submit_status = "failed"
-                case.revision += 1
-                case.updated_at = self._clock()
-                case.running = False
-                self._busy = False
-            raise error.__class__(error.detail) from error
-        except Exception as error:
-            async with self._lock:
-                case = self._require_case(case_id)
-                failure = CaseFailureRecord(
-                    failure_id=_new_id("fail"),
-                    request_id=request_id,
-                    message="comparison execution failed",
-                    parent_comparison_id=link.parent_comparison_id if link else None,
-                    link_kind=link.kind if link else None,
-                    created_at=self._clock(),
-                )
-                case.failures.append(failure)
-                case.request_outcomes[request_id] = _RequestOutcome(
-                    kind="failed",
-                    content_fingerprint=fingerprint,
-                    failure=failure,
-                )
-                case.latest_submit_status = "failed"
-                case.revision += 1
-                case.updated_at = self._clock()
-                case.running = False
-                self._busy = False
-            raise _invalid("comparison execution failed") from error
+                if inspect.isawaitable(outcome):
+                    record = await outcome
+                else:
+                    record = outcome
+            except (InvalidRequestError, PayloadTooLargeError, AppCapacityError) as error:
+                async with self._lock:
+                    case = self._require_case(case_id)
+                    failure = CaseFailureRecord(
+                        failure_id=_new_id("fail"),
+                        request_id=request_id,
+                        message=error.detail.message,
+                        parent_comparison_id=(
+                            link.parent_comparison_id if link else None
+                        ),
+                        link_kind=link.kind if link else None,
+                        created_at=self._clock(),
+                    )
+                    case.failures.append(failure)
+                    case.request_outcomes[request_id] = _RequestOutcome(
+                        kind="failed",
+                        content_fingerprint=fingerprint,
+                        failure=failure,
+                    )
+                    case.latest_submit_status = "failed"
+                    case.revision += 1
+                    case.updated_at = self._clock()
+                raise error.__class__(error.detail) from error
+            except Exception as error:
+                async with self._lock:
+                    case = self._require_case(case_id)
+                    failure = CaseFailureRecord(
+                        failure_id=_new_id("fail"),
+                        request_id=request_id,
+                        message="comparison execution failed",
+                        parent_comparison_id=(
+                            link.parent_comparison_id if link else None
+                        ),
+                        link_kind=link.kind if link else None,
+                        created_at=self._clock(),
+                    )
+                    case.failures.append(failure)
+                    case.request_outcomes[request_id] = _RequestOutcome(
+                        kind="failed",
+                        content_fingerprint=fingerprint,
+                        failure=failure,
+                    )
+                    case.latest_submit_status = "failed"
+                    case.revision += 1
+                    case.updated_at = self._clock()
+                raise _invalid("comparison execution failed") from error
 
-        async with self._lock:
-            case = self._require_case(case_id)
-            item = CaseComparisonItem(
-                comparison_id=record.comparison_id,
-                record=record,
-                parent_comparison_id=link.parent_comparison_id if link else None,
-                link_kind=link.kind if link else None,
-                request_id=request_id,
-                created_at=self._clock(),
-            )
-            case.comparisons.append(item)
-            recommendation = CaseRecommendationRecord(
-                recommendation_id=_new_id("rec"),
-                comparison_id=record.comparison_id,
-                status="unavailable",
-                detail="retest recommendations are not enabled on this product path",
-                created_at=self._clock(),
-            )
-            case.recommendations.append(recommendation)
-            case.request_outcomes[request_id] = _RequestOutcome(
-                kind="completed",
-                content_fingerprint=fingerprint,
-                comparison=item,
-            )
-            case.latest_submit_status = "completed"
-            case.revision += 1
-            case.updated_at = self._clock()
-            case.running = False
-            self._busy = False
-            return self._snapshot(case)
+            async with self._lock:
+                case = self._require_case(case_id)
+                item = CaseComparisonItem(
+                    comparison_id=record.comparison_id,
+                    record=record,
+                    parent_comparison_id=link.parent_comparison_id if link else None,
+                    link_kind=link.kind if link else None,
+                    request_id=request_id,
+                    created_at=self._clock(),
+                )
+                case.comparisons.append(item)
+                recommendation = CaseRecommendationRecord(
+                    recommendation_id=_new_id("rec"),
+                    comparison_id=record.comparison_id,
+                    status="unavailable",
+                    detail=(
+                        "retest recommendations are not enabled on this product path"
+                    ),
+                    created_at=self._clock(),
+                )
+                case.recommendations.append(recommendation)
+                case.request_outcomes[request_id] = _RequestOutcome(
+                    kind="completed",
+                    content_fingerprint=fingerprint,
+                    comparison=item,
+                )
+                case.latest_submit_status = "completed"
+                case.revision += 1
+                case.updated_at = self._clock()
+                return self._snapshot(case)
+        finally:
+            if slot_held:
+                async with self._lock:
+                    case = self._cases.get(case_id)
+                    if case is not None:
+                        case.running = False
+                    self._busy = False
 
     async def aclose(self) -> None:
         self._closed = True

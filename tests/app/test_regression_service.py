@@ -184,6 +184,84 @@ async def test_idempotent_same_request_different_content_rejects(
 
 
 @pytest.mark.asyncio
+async def test_same_request_id_with_different_link_is_rejected(
+    service: RegressionWorkbenchService,
+) -> None:
+    wav = _mono_wav_bytes()
+    case = service.create_case("goal")
+    first = await service.submit_comparison(
+        case.case_id,
+        _upload(wav, wav),
+        request_id="shared-req",
+    )
+    parent_id = first.comparisons[0].comparison_id
+    with pytest.raises(InvalidRequestError, match="request_id"):
+        await service.submit_comparison(
+            case.case_id,
+            _upload(wav, wav),
+            request_id="shared-req",
+            link=RetestLink(kind="repair", parent_comparison_id=parent_id),
+        )
+
+
+@pytest.mark.asyncio
+async def test_cancelled_submit_releases_busy_slot(
+    service: RegressionWorkbenchService,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import signal_diag.app.regression as regression_mod
+
+    original_run = regression_mod._execute_comparison_group
+
+    def slow_run(*args: Any, **kwargs: Any):
+        import time
+
+        time.sleep(0.3)
+        return original_run(*args, **kwargs)
+
+    monkeypatch.setattr(regression_mod, "_execute_comparison_group", slow_run)
+    wav = _mono_wav_bytes()
+    case = service.create_case("goal")
+    task = asyncio.create_task(
+        service.submit_comparison(case.case_id, _upload(wav, wav), request_id="cancel-me")
+    )
+    await asyncio.sleep(0.05)
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    assert service._busy is False  # noqa: SLF001
+    assert service._cases[case.case_id].running is False
+    follow = await service.submit_comparison(
+        case.case_id,
+        _upload(wav, wav),
+        request_id="after-cancel",
+    )
+    assert follow.latest_submit_status == "completed"
+
+
+@pytest.mark.asyncio
+async def test_original_input_sha256_mismatch_rejected(
+    service: RegressionWorkbenchService,
+) -> None:
+    wav = _mono_wav_bytes()
+    case = service.create_case("goal")
+    upload = ComparisonUpload(
+        baseline_data=wav,
+        candidate_data=wav,
+        baseline_filename="baseline.wav",
+        candidate_filename="candidate.wav",
+        baseline_version="v1",
+        candidate_version="v2",
+        conditions=_conditions(original_input_sha256="a" * 64),
+        selection=_selection(),
+        original_input_data=wav,
+        original_input_filename="original.wav",
+    )
+    with pytest.raises(InvalidRequestError, match="original_input_sha256"):
+        await service.submit_comparison(case.case_id, upload, request_id="forge-hash")
+
+
+@pytest.mark.asyncio
 async def test_retest_parent_must_exist_and_be_completed(
     service: RegressionWorkbenchService,
 ) -> None:

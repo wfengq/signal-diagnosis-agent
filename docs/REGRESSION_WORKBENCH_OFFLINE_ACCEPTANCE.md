@@ -63,8 +63,9 @@ Tasks 7–8 (retest planner / offline contrast) **not authorized** in this stage
 
 - Phase A amendment: `d042_regression_workbench_phase_a` (`product_tree` `d2ca91ba…816e`)
 - Phase B tip amendment: `d042_regression_workbench_phase_b`
+- Phase B revise tip: `d042_regression_workbench_phase_b_revise` (CancelledError busy release, fingerprint includes RetestLink, original hash mismatch reject)
 - `current_implementation_sha256` unchanged: `9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3`
-- Tip `product_tree_sha256`: `cda690d560fa71da49ae2021fd0e666d84f026352f050deb066b38c23ac58c64`
+- Tip `product_tree_sha256`: `ed11899bc5114e9b78bb85f115fabda0706ecb2a99c514a9f6ff7a836bc50703`
 - Prompt / causal policy unchanged (`v0.3-s1-planner-9.11` / `v9_11_mode_aware_no_fault_recovery`)
 - `model_calls`: **0**
 - New modules are **not** Phase 4.3.1-certified; additive identity accounting only.
