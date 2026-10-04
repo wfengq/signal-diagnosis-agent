@@ -1,9 +1,9 @@
 # Regression workbench browser proof (Task 6 / T-CX339)
 
-Date: 2026-10-04  
-Tip driven: `4972100` (Phase B revise4 Codex-accept docs tip; code tip `d66f346`)  
-Origin: `http://127.0.0.1:8765/regression`  
-Driver: headed Playwright on `DISPLAY=:1` (`drive_regression_browser.py`).  
+Date: 2026-10-04
+Tip driven: `4972100` (Phase B revise4 Codex-accept docs tip; code tip `d66f346`)
+Origin: `http://127.0.0.1:8765/regression`
+Driver: headed Playwright on `DISPLAY=:1` (`drive_regression_browser.py`).
 `computerUse` subagent was unavailable (spend limit); Playwright drove the real Chromium UI.
 
 ## Mapping correction
@@ -20,13 +20,13 @@ HTTP proof (`docs/REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md`) remains comple
 
 Case `case_6d2fd56bed2c4d1994c09f43f0dc6817`:
 
-1. Page load with measurement-only notice; no pass badge  
-2. Create case with goal “Browser acceptance: 1kHz harmonic compare”  
-3. Dual-file compare (`baseline.wav` / `candidate.wav`) → 1 comparison; clipping `descriptive_only`; THD `not_comparable` / `harmonic_applicability_not_configured` (expected with `profile=None`)  
-4. Manual **Repeat** → 2 comparisons; second `link_kind=repeat`  
-5. Manual **Repair** with `candidate_repair.wav` → 3 comparisons; third `link_kind=repair`  
-6. Download JSON + HTML reports (sources preserved; measurement-only notice present)  
-7. Missing-file compare shows `missing file for baseline-file`; prior 3 comparisons preserved  
+1. Page load with measurement-only notice; no pass badge
+2. Create case with goal “Browser acceptance: 1kHz harmonic compare”
+3. Dual-file compare (`baseline.wav` / `candidate.wav`) → 1 comparison; clipping `descriptive_only`; THD `not_comparable` / `harmonic_applicability_not_configured` (expected with `profile=None`)
+4. Manual **Repeat** → 2 comparisons; second `link_kind=repeat`
+5. Manual **Repair** with `candidate_repair.wav` → 3 comparisons; third `link_kind=repair`
+6. Download JSON + HTML reports (sources preserved; measurement-only notice present)
+7. Missing-file compare shows `missing file for baseline-file`; prior 3 comparisons preserved
 
 `browser_drive_report.json`: **overall_pass=true** (7/7 steps).
 
