@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
-from types import SimpleNamespace
-from typing import Any
 
 import pytest
 
@@ -34,9 +32,9 @@ from signal_diag.evaluation.regression import (
 from signal_diag.signal import generate_sine
 from tests.app.test_regression_recommendations import (
     NOW,
-    _FakeSDK,
     _conditions,
     _configured_service,
+    _FakeSDK,
     _planner_with_sdk,
 )
 from tests.app.test_regression_service import _upload

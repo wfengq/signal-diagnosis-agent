@@ -8,7 +8,6 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict
 
 from signal_diag.agent.retest_planner import (
-    CompactFinding,
     RetestContext,
     RetestOption,
     RetestSelection,
