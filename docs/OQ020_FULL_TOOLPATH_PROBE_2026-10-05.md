@@ -1,11 +1,13 @@
 # OQ-020 full tool-path clipping probe (2026-10-05)
 
-**Status:** read-only reproduction probe. Not layer-1 characterization approval. No floor
+**Status:** read-only reproduction probe, extended in design review (near-threshold and
+one-step sections; sub-full-scale rows corrected). Not layer-1 characterization approval. No floor
 values. V0.3 §23 implementation remains unauthorized.
 
 **Branch context:** `cursor/oq020-full-toolpath-probe-8b52` from `e659170`.
 
 **Script:** `scripts/probe_oq020_clipping_toolpath.py`
+
 **Machine-readable summary:** `docs/OQ020_FULL_TOOLPATH_PROBE_2026-10-05.json`
 
 ## What was measured
@@ -24,8 +26,10 @@ Per cell we aggregate across phases: any `clipping_ratio > 0`, max ratio, flags,
 **full-scale sample count** on decoded mono (`|x| ≥ 0.99` in runs of length ≥ 2, same
 criterion as §23 design).
 
-Also: white noise (RMS 0.5, seed 0, hard-limited to ±1.0) and optional sub-full-scale
-`generate_clipped_sine` at clip levels 0.5 / 0.9 / 0.98 (440 Hz, amplitude 0.9, 48 kHz).
+Also: white noise (RMS 0.5, seed 0, hard-limited to ±1.0); sub-full-scale
+`generate_clipped_sine` at clip levels 0.5 / 0.9 / 0.98 (440 Hz, pre-clip amplitude 1.2,
+48 kHz); and, added in review, clean sines with peak near the threshold and a one-step
+16-bit sweep (sections below).
 
 ## Headline counts (clean sines)
 
@@ -97,17 +101,77 @@ direct DSP and for **each** tool-path bit depth (16 / 24 / 32).
 
 ## Sub-full-scale clipped sine (mechanism / full-scale flags)
 
-440 Hz, amplitude 0.9, 48 kHz, `generate_clipped_sine`:
+440 Hz, 48 kHz, `generate_clipped_sine` with pre-clip amplitude **1.2**, so every row is
+genuinely clipped. (The first version of this probe used amplitude 0.9, for which clip
+levels 0.9 and 0.98 do not clip at all; those two rows were not a test and are replaced.)
 
-| Clip level | `clipping_ratio` (direct & PCM32 tool) | `clipping_mechanism` | `full_scale_sample_count` |
-|------------|----------------------------------------|----------------------|---------------------------|
-| 0.5 | 0.625 | false | 0 |
-| 0.9 | 0.0 | false | 0 |
-| 0.98 | 0.0 | false | 0 |
+| Clip level | `clipping_ratio` (direct & PCM32 tool) | `flat_top_detected` | `clipping_mechanism` | `full_scale_sample_count` |
+|------------|----------------------------------------|---------------------|----------------------|---------------------------|
+| 0.5 | 0.725 | true | false | 0 |
+| 0.9 | 0.4617 | true | false | 0 |
+| 0.98 | 0.3917 | true | false | 0 |
 
-Clip 0.5 shows strong flat-top ratio without full-scale mechanism (same flag pattern as
-clean-sine false plateaus). Levels 0.9 / 0.98 with input amplitude 0.9 do not produce a
-reportable flat-top ratio here (peak at 0.9; no hard clipping below peak).
+Genuine clipping below the threshold has the same flag pattern as clean-sine false
+plateaus (`flat_top_detected=true`, `clipping_mechanism=false`) and a full-scale count of
+0. It is invisible to the §23 full-scale fact, as D043 records.
+
+## Clean sines with peak near the threshold (added in review)
+
+The 60-cell grid stops at amplitude 0.9, so a full-scale count of 0 there says nothing
+about §23. This section runs unclipped sines with peaks 0.985–1.0 at 48 kHz through the
+tool path at 16 / 24 / 32-bit, four start phases each. Counted = samples at or above 0.99
+in runs of at least 2; uncounted = at or above 0.99 in shorter runs.
+
+| Frequency | Peak | Counted by phase (PCM16) | Counted (PCM24 = PCM32 unless noted) | Uncounted (PCM32) |
+|-----------|------|--------------------------|--------------------------------------|-------------------|
+| 100 Hz | ≤ 0.99 | 0 | 0 | 0, except peak 0.99: 400 at phase 0 |
+| 100 Hz | 0.9905 | 2000 / 1600 / 1600 / 2000 | 2000 at all phases | 0 |
+| 100 Hz | 0.992 | 3600 / 4000 / 4000 / 4000 | same | 0 |
+| 100 Hz | 0.995 | 6000 / 6000 / 6400 / 6000 | 6000 / 6400 / 6400 / 6000 | 0 |
+| 997 Hz | 0.9905, 0.992 | 0 | 0 | about 1940 and 3884 |
+| 997 Hz | 0.9925 | 640 at all phases | 704 / 704 / 696 / 704 | about 3636 |
+| 997 Hz | 0.995 | 4240 at all phases | 4288 / 4288 / 4280 / 4288 | about 1844 |
+| 2000 Hz | 0.9905–1.0 | 0 | 0 | 0 or 8000 depending on phase |
+
+What this shows:
+
+- An unclipped sine with peak above 0.99 is counted. The fact measures level reaching the
+  threshold, not flattening.
+- The peak at which the state turns to "yes" moves with frequency: just above 0.99 at
+  100 Hz, between 0.992 and 0.9925 at 997 Hz, and never up to peak 1.0 at 2 kHz on these
+  four phases (24 samples per period; over-threshold samples are isolated).
+- The count moves with start phase alone by up to 400 samples (one sample per peak), and
+  with bit depth (997 Hz, peak 0.9925: 640 at 16-bit, about 704 at 24/32-bit).
+- 24-bit and 32-bit agree on counted samples in every row. 16-bit differs near the
+  threshold; the loader scales 16-bit codes by 1/32768.
+- On these four phases no cell changed state with phase alone. That is a property of this
+  small grid, not evidence that phase cannot flip the state.
+- In every row the tool's `full_scale_detected` equals "counted > 0".
+
+## One 16-bit step across the threshold (added in review)
+
+100 Hz, 48 kHz, start phase π/480, 2 s, 41 amplitudes from 0.98990 to 0.99030 in steps of
+0.00001, plus 0.990011. For each: the sine rounded to int16, every sample moved one code
+away from zero, and every sample moved one code toward zero; each written as 16-bit WAV
+and measured through the tool path.
+
+| Amplitude | Baseline counted / peak | One step away from zero | One step toward zero |
+|-----------|-------------------------|-------------------------|----------------------|
+| 0.990030, 0.990040, 0.990050 | 0 / 0.9899902 | **800** / 0.9900208 | 0 |
+| 0.990060, 0.990070, 0.990080 | counted (state yes) | counted | **0** |
+| 0.990011 | 0 / 0.9899597 | 0 / 0.9899902 | 0 |
+
+A difference of one quantization step, which §23.4 tolerates, moves the state across the
+boundary in both directions for baselines whose peak is within one step of the threshold.
+In the no → yes rows the baseline has peak below the threshold and no over-threshold
+sample at all, so only the §23.4 fixed minimum (`peak_abs >= threshold - step`,
+0.9899695 at 16-bit) puts it inside the critical zone. The baseline peak 0.9899902
+satisfies that minimum, so §23 as registered would not report a regression here.
+
+Correction to the design record: design §13 cites amplitude 0.990011 for this effect
+(0 → 800). Through the real tool path that amplitude does not flip; the cited figure came
+from a simulated rounding that scaled codes differently from the loader. The effect is
+real and appears at 0.990030–0.990050.
 
 ## How to re-run
 

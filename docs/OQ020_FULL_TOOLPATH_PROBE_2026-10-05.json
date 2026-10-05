@@ -2,19 +2,20 @@
   "clipped_sine_sub_full_scale": {
     "0.5": {
       "direct_dsp": {
-        "clipped_samples": 60000,
+        "clipped_samples": 69600,
         "clipping_mechanism": false,
-        "clipping_ratio": 0.625,
+        "clipping_ratio": 0.725,
         "flat_top_detected": true,
         "full_scale_detected": false,
         "full_scale_sample_count": 0,
         "peak_abs": 0.5
       },
-      "note": "tool_path via generate_sine would be clean; clipped row uses clipped waveform",
+      "input_amplitude": 1.2,
+      "note": "pre-clip amplitude exceeds every clip level, so each row is genuinely clipped",
       "tool_path_pcm32_clipped_waveform": {
-        "clipped_samples": 60000,
+        "clipped_samples": 69600,
         "clipping_mechanism": false,
-        "clipping_ratio": 0.625,
+        "clipping_ratio": 0.725,
         "flat_top_detected": true,
         "full_scale_detected": false,
         "full_scale_sample_count": 0,
@@ -23,20 +24,21 @@
     },
     "0.9": {
       "direct_dsp": {
-        "clipped_samples": 0,
+        "clipped_samples": 44320,
         "clipping_mechanism": false,
-        "clipping_ratio": 0.0,
-        "flat_top_detected": false,
+        "clipping_ratio": 0.46166666666666667,
+        "flat_top_detected": true,
         "full_scale_detected": false,
         "full_scale_sample_count": 0,
         "peak_abs": 0.8999999761581421
       },
-      "note": "tool_path via generate_sine would be clean; clipped row uses clipped waveform",
+      "input_amplitude": 1.2,
+      "note": "pre-clip amplitude exceeds every clip level, so each row is genuinely clipped",
       "tool_path_pcm32_clipped_waveform": {
-        "clipped_samples": 0,
+        "clipped_samples": 44320,
         "clipping_mechanism": false,
-        "clipping_ratio": 0.0,
-        "flat_top_detected": false,
+        "clipping_ratio": 0.46166666666666667,
+        "flat_top_detected": true,
         "full_scale_detected": false,
         "full_scale_sample_count": 0,
         "peak_abs": 0.8999999761581421
@@ -44,23 +46,24 @@
     },
     "0.98": {
       "direct_dsp": {
-        "clipped_samples": 0,
+        "clipped_samples": 37600,
         "clipping_mechanism": false,
-        "clipping_ratio": 0.0,
-        "flat_top_detected": false,
+        "clipping_ratio": 0.39166666666666666,
+        "flat_top_detected": true,
         "full_scale_detected": false,
         "full_scale_sample_count": 0,
-        "peak_abs": 0.8999999761581421
+        "peak_abs": 0.9800000190734863
       },
-      "note": "tool_path via generate_sine would be clean; clipped row uses clipped waveform",
+      "input_amplitude": 1.2,
+      "note": "pre-clip amplitude exceeds every clip level, so each row is genuinely clipped",
       "tool_path_pcm32_clipped_waveform": {
-        "clipped_samples": 0,
+        "clipped_samples": 37600,
         "clipping_mechanism": false,
-        "clipping_ratio": 0.0,
-        "flat_top_detected": false,
+        "clipping_ratio": 0.39166666666666666,
+        "flat_top_detected": true,
         "full_scale_detected": false,
         "full_scale_sample_count": 0,
-        "peak_abs": 0.8999999761581421
+        "peak_abs": 0.9800000190734863
       }
     }
   },
@@ -1049,6 +1052,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.010009765625
             },
             "0.1": {
@@ -1058,6 +1062,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.010009765625
             },
             "1.0": {
@@ -1067,6 +1072,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.010009765625
             },
             "2.0": {
@@ -1076,6 +1082,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.010009765625
             }
           }
@@ -1102,6 +1109,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999990463256836
             },
             "0.1": {
@@ -1111,6 +1119,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999990463256836
             },
             "1.0": {
@@ -1120,6 +1129,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999990463256836
             },
             "2.0": {
@@ -1129,6 +1139,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999990463256836
             }
           }
@@ -1155,6 +1166,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999936446547508
             },
             "0.1": {
@@ -1164,6 +1176,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999945759773254
             },
             "1.0": {
@@ -1173,6 +1186,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999996051192284
             },
             "2.0": {
@@ -1182,6 +1196,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999983943998814
             }
           }
@@ -1265,6 +1280,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.010009765625
             },
             "0.1": {
@@ -1274,6 +1290,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.010009765625
             },
             "1.0": {
@@ -1283,6 +1300,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.010009765625
             },
             "2.0": {
@@ -1292,6 +1310,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.010009765625
             }
           }
@@ -1318,6 +1337,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999990463256836
             },
             "0.1": {
@@ -1327,6 +1347,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999871253967285
             },
             "1.0": {
@@ -1336,6 +1357,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999871253967285
             },
             "2.0": {
@@ -1345,6 +1367,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999990463256836
             }
           }
@@ -1371,6 +1394,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999999776482582
             },
             "0.1": {
@@ -1380,6 +1404,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999888949096203
             },
             "1.0": {
@@ -1389,6 +1414,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999866597354412
             },
             "2.0": {
@@ -1398,6 +1424,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.009999961592257023
             }
           }
@@ -1481,6 +1508,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.89996337890625
             },
             "0.1": {
@@ -1490,6 +1518,7 @@
               "flat_top_detected": false,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.89996337890625
             },
             "1.0": {
@@ -1499,6 +1528,7 @@
               "flat_top_detected": false,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.89996337890625
             },
             "2.0": {
@@ -1508,6 +1538,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.89996337890625
             }
           }
@@ -1534,6 +1565,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999999761581421
             },
             "0.1": {
@@ -1543,6 +1575,7 @@
               "flat_top_detected": false,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999899625778198
             },
             "1.0": {
@@ -1552,6 +1585,7 @@
               "flat_top_detected": false,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999879360198975
             },
             "2.0": {
@@ -1561,6 +1595,7 @@
               "flat_top_detected": false,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999965190887451
             }
           }
@@ -1587,6 +1622,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999999761581421
             },
             "0.1": {
@@ -1596,6 +1632,7 @@
               "flat_top_detected": false,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999899625778198
             },
             "1.0": {
@@ -1605,6 +1642,7 @@
               "flat_top_detected": false,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999879956245422
             },
             "2.0": {
@@ -1614,6 +1652,7 @@
               "flat_top_detected": false,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999965786933899
             }
           }
@@ -1697,6 +1736,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.89996337890625
             },
             "0.1": {
@@ -1706,6 +1746,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.89996337890625
             },
             "1.0": {
@@ -1715,6 +1756,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.89996337890625
             },
             "2.0": {
@@ -1724,6 +1766,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.89996337890625
             }
           }
@@ -1750,6 +1793,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999999761581421
             },
             "0.1": {
@@ -1759,6 +1803,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999984264373779
             },
             "1.0": {
@@ -1768,6 +1813,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999991416931152
             },
             "2.0": {
@@ -1777,6 +1823,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999965190887451
             }
           }
@@ -1803,6 +1850,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999999761581421
             },
             "0.1": {
@@ -1812,6 +1860,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999984860420227
             },
             "1.0": {
@@ -1821,6 +1870,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999991416931152
             },
             "2.0": {
@@ -1830,6 +1880,7 @@
               "flat_top_detected": true,
               "full_scale_detected": false,
               "full_scale_sample_count": 0,
+              "over_threshold_uncounted": 0,
               "peak_abs": 0.8999965786933899
             }
           }
@@ -1866,6 +1917,2820 @@
       44100,
       48000
     ]
+  },
+  "near_threshold_clean_sine": {
+    "cells": {
+      "100.0_0.985": {
+        "cell": {
+          "amplitude": 0.985,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.984954833984375,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9850000143051147,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9850000143051147,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "100.0_0.9895": {
+        "cell": {
+          "amplitude": 0.9895,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.989471435546875,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9895000457763672,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9894999861717224,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "100.0_0.99": {
+        "cell": {
+          "amplitude": 0.99,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.989959716796875,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9900000095367432,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              400,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9900000095367432,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              400,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "100.0_0.9905": {
+        "cell": {
+          "amplitude": 0.9905,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 400,
+            "counted_by_phase": [
+              2000,
+              1600,
+              1600,
+              2000
+            ],
+            "max_peak_abs": 0.990478515625,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              2000,
+              2000,
+              2000,
+              2000
+            ],
+            "max_peak_abs": 0.9904999732971191,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              2000,
+              2000,
+              2000,
+              2000
+            ],
+            "max_peak_abs": 0.9904999732971191,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "100.0_0.992": {
+        "cell": {
+          "amplitude": 0.992,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 400,
+            "counted_by_phase": [
+              3600,
+              4000,
+              4000,
+              4000
+            ],
+            "max_peak_abs": 0.991973876953125,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 400,
+            "counted_by_phase": [
+              3600,
+              4000,
+              4000,
+              4000
+            ],
+            "max_peak_abs": 0.9919999837875366,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 400,
+            "counted_by_phase": [
+              3600,
+              4000,
+              4000,
+              4000
+            ],
+            "max_peak_abs": 0.9919999837875366,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "100.0_0.9925": {
+        "cell": {
+          "amplitude": 0.9925,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 400,
+            "counted_by_phase": [
+              4400,
+              4400,
+              4000,
+              4400
+            ],
+            "max_peak_abs": 0.992462158203125,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              4400,
+              4400,
+              4400,
+              4400
+            ],
+            "max_peak_abs": 0.9925000667572021,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              4400,
+              4400,
+              4400,
+              4400
+            ],
+            "max_peak_abs": 0.9925000071525574,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "100.0_0.995": {
+        "cell": {
+          "amplitude": 0.995,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 400,
+            "counted_by_phase": [
+              6000,
+              6000,
+              6400,
+              6000
+            ],
+            "max_peak_abs": 0.994964599609375,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 400,
+            "counted_by_phase": [
+              6000,
+              6400,
+              6400,
+              6000
+            ],
+            "max_peak_abs": 0.9950000047683716,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 400,
+            "counted_by_phase": [
+              6000,
+              6400,
+              6400,
+              6000
+            ],
+            "max_peak_abs": 0.9950000047683716,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "100.0_1.0": {
+        "cell": {
+          "amplitude": 1.0,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 400,
+            "counted_by_phase": [
+              8400,
+              8800,
+              8800,
+              8800
+            ],
+            "max_peak_abs": 0.999969482421875,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 400,
+            "counted_by_phase": [
+              8400,
+              8800,
+              8800,
+              8800
+            ],
+            "max_peak_abs": 1.0,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 400,
+            "counted_by_phase": [
+              8400,
+              8800,
+              8800,
+              8800
+            ],
+            "max_peak_abs": 1.0,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "2000.0_0.985": {
+        "cell": {
+          "amplitude": 0.985,
+          "frequency_hz": 2000.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.984954833984375,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9850000143051147,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9850000143051147,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "2000.0_0.9895": {
+        "cell": {
+          "amplitude": 0.9895,
+          "frequency_hz": 2000.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.989471435546875,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9895000457763672,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9894999861717224,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "2000.0_0.99": {
+        "cell": {
+          "amplitude": 0.99,
+          "frequency_hz": 2000.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.989959716796875,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9900000095367432,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9900000095367432,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "2000.0_0.9905": {
+        "cell": {
+          "amplitude": 0.9905,
+          "frequency_hz": 2000.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.990478515625,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9904999732971191,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9904999732971191,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "2000.0_0.992": {
+        "cell": {
+          "amplitude": 0.992,
+          "frequency_hz": 2000.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.991973876953125,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              0,
+              8000,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9919999837875366,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              0,
+              8000,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9919999837875366,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              0,
+              8000,
+              0
+            ]
+          }
+        }
+      },
+      "2000.0_0.9925": {
+        "cell": {
+          "amplitude": 0.9925,
+          "frequency_hz": 2000.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.992462158203125,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              0,
+              8000,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9925000667572021,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              0,
+              8000,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9925000071525574,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              0,
+              8000,
+              0
+            ]
+          }
+        }
+      },
+      "2000.0_0.995": {
+        "cell": {
+          "amplitude": 0.995,
+          "frequency_hz": 2000.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.994964599609375,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              0,
+              8000,
+              8000
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9950000047683716,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              8000,
+              8000,
+              8000
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9950000047683716,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              8000,
+              8000,
+              8000
+            ]
+          }
+        }
+      },
+      "2000.0_1.0": {
+        "cell": {
+          "amplitude": 1.0,
+          "frequency_hz": 2000.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.999969482421875,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              8000,
+              8000,
+              8000
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 1.0,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              8000,
+              8000,
+              8000
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 1.0,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              8000,
+              8000,
+              8000,
+              8000
+            ]
+          }
+        }
+      },
+      "997.0_0.985": {
+        "cell": {
+          "amplitude": 0.985,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.984954833984375,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9850000143051147,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9850000143051147,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "997.0_0.9895": {
+        "cell": {
+          "amplitude": 0.9895,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.989471435546875,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9895000457763672,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9894999861717224,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "997.0_0.99": {
+        "cell": {
+          "amplitude": 0.99,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.989959716796875,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9900000095367432,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              28,
+              28,
+              24,
+              24
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9900000095367432,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              12,
+              12,
+              12,
+              12
+            ]
+          }
+        }
+      },
+      "997.0_0.9905": {
+        "cell": {
+          "amplitude": 0.9905,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.990478515625,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              1868,
+              1868,
+              1872,
+              1872
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9904999732971191,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              1940,
+              1940,
+              1944,
+              1940
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9904999732971191,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              1940,
+              1940,
+              1944,
+              1940
+            ]
+          }
+        }
+      },
+      "997.0_0.992": {
+        "cell": {
+          "amplitude": 0.992,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.991973876953125,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              3844,
+              3844,
+              3848,
+              3844
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9919999837875366,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              3884,
+              3884,
+              3880,
+              3884
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "max_peak_abs": 0.9919999837875366,
+            "state_by_phase": [
+              false,
+              false,
+              false,
+              false
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              3884,
+              3884,
+              3880,
+              3884
+            ]
+          }
+        }
+      },
+      "997.0_0.9925": {
+        "cell": {
+          "amplitude": 0.9925,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              640,
+              640,
+              640,
+              640
+            ],
+            "max_peak_abs": 0.992462158203125,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              3668,
+              3668,
+              3668,
+              3668
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 8,
+            "counted_by_phase": [
+              704,
+              704,
+              696,
+              704
+            ],
+            "max_peak_abs": 0.9925000667572021,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              3636,
+              3636,
+              3640,
+              3636
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 8,
+            "counted_by_phase": [
+              704,
+              704,
+              696,
+              704
+            ],
+            "max_peak_abs": 0.9925000071525574,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              3636,
+              3636,
+              3640,
+              3636
+            ]
+          }
+        }
+      },
+      "997.0_0.995": {
+        "cell": {
+          "amplitude": 0.995,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 0,
+            "counted_by_phase": [
+              4240,
+              4240,
+              4240,
+              4240
+            ],
+            "max_peak_abs": 0.994964599609375,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              1868,
+              1868,
+              1868,
+              1868
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 8,
+            "counted_by_phase": [
+              4288,
+              4288,
+              4280,
+              4288
+            ],
+            "max_peak_abs": 0.9950000047683716,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              1844,
+              1844,
+              1848,
+              1844
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 8,
+            "counted_by_phase": [
+              4288,
+              4288,
+              4280,
+              4288
+            ],
+            "max_peak_abs": 0.9950000047683716,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              1844,
+              1844,
+              1848,
+              1844
+            ]
+          }
+        }
+      },
+      "997.0_1.0": {
+        "cell": {
+          "amplitude": 1.0,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "tool_path": {
+          "16": {
+            "count_spread_with_phase": 4,
+            "counted_by_phase": [
+              8636,
+              8636,
+              8632,
+              8636
+            ],
+            "max_peak_abs": 0.999969482421875,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "24": {
+            "count_spread_with_phase": 4,
+            "counted_by_phase": [
+              8652,
+              8652,
+              8648,
+              8652
+            ],
+            "max_peak_abs": 1.0,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "32": {
+            "count_spread_with_phase": 4,
+            "counted_by_phase": [
+              8652,
+              8652,
+              8648,
+              8652
+            ],
+            "max_peak_abs": 1.0,
+            "state_by_phase": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "state_flips_with_phase": false,
+            "state_matches_count": true,
+            "uncounted_by_phase": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      }
+    },
+    "phases_rad": [
+      0.0,
+      0.1,
+      1.0,
+      2.0
+    ],
+    "sample_rate_hz": 48000
+  },
+  "one_step_case_pcm16": {
+    "amplitudes_tested": 42,
+    "baseline_no_becomes_yes_one_step_away_from_zero": [
+      "0.990030",
+      "0.990040",
+      "0.990050"
+    ],
+    "baseline_yes_becomes_no_one_step_toward_zero": [
+      "0.990060",
+      "0.990070",
+      "0.990080"
+    ],
+    "bit_depth": 16,
+    "cells": {
+      "0.989900": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989837646484375
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9898681640625
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.98980712890625
+        }
+      },
+      "0.989910": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9898681640625
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989898681640625
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989837646484375
+        }
+      },
+      "0.989920": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9898681640625
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989898681640625
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989837646484375
+        }
+      },
+      "0.989930": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9898681640625
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989898681640625
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989837646484375
+        }
+      },
+      "0.989940": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989898681640625
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.98992919921875
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9898681640625
+        }
+      },
+      "0.989950": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989898681640625
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.98992919921875
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9898681640625
+        }
+      },
+      "0.989960": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989898681640625
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.98992919921875
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9898681640625
+        }
+      },
+      "0.989970": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.98992919921875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989959716796875
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989898681640625
+        }
+      },
+      "0.989980": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.98992919921875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989959716796875
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989898681640625
+        }
+      },
+      "0.989990": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.98992919921875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989959716796875
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989898681640625
+        }
+      },
+      "0.990000": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989959716796875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989990234375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.98992919921875
+        }
+      },
+      "0.990010": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989959716796875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989990234375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.98992919921875
+        }
+      },
+      "0.990011": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989959716796875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989990234375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.98992919921875
+        }
+      },
+      "0.990020": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989959716796875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989990234375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.98992919921875
+        }
+      },
+      "0.990030": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989990234375
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990020751953125
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989959716796875
+        }
+      },
+      "0.990040": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989990234375
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990020751953125
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989959716796875
+        }
+      },
+      "0.990050": {
+        "baseline_rounded": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989990234375
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990020751953125
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989959716796875
+        }
+      },
+      "0.990060": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990020751953125
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99005126953125
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989990234375
+        }
+      },
+      "0.990070": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990020751953125
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99005126953125
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989990234375
+        }
+      },
+      "0.990080": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990020751953125
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99005126953125
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": false,
+          "full_scale_sample_count": 0,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.989990234375
+        }
+      },
+      "0.990090": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99005126953125
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990081787109375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990020751953125
+        }
+      },
+      "0.990100": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99005126953125
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990081787109375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990020751953125
+        }
+      },
+      "0.990110": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99005126953125
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990081787109375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990020751953125
+        }
+      },
+      "0.990120": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990081787109375
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9901123046875
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99005126953125
+        }
+      },
+      "0.990130": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990081787109375
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9901123046875
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99005126953125
+        }
+      },
+      "0.990140": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990081787109375
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9901123046875
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99005126953125
+        }
+      },
+      "0.990150": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9901123046875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990142822265625
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990081787109375
+        }
+      },
+      "0.990160": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9901123046875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990142822265625
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990081787109375
+        }
+      },
+      "0.990170": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9901123046875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990142822265625
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990081787109375
+        }
+      },
+      "0.990180": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990142822265625
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99017333984375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9901123046875
+        }
+      },
+      "0.990190": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990142822265625
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99017333984375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9901123046875
+        }
+      },
+      "0.990200": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990142822265625
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99017333984375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.9901123046875
+        }
+      },
+      "0.990210": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99017333984375
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990203857421875
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990142822265625
+        }
+      },
+      "0.990220": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99017333984375
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990203857421875
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990142822265625
+        }
+      },
+      "0.990230": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99017333984375
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990203857421875
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990142822265625
+        }
+      },
+      "0.990240": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990203857421875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990234375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99017333984375
+        }
+      },
+      "0.990250": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990203857421875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990234375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 800,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99017333984375
+        }
+      },
+      "0.990260": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990203857421875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990234375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99017333984375
+        }
+      },
+      "0.990270": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990203857421875
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990234375
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.99017333984375
+        }
+      },
+      "0.990280": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990234375
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990264892578125
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990203857421875
+        }
+      },
+      "0.990290": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990234375
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990264892578125
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990203857421875
+        }
+      },
+      "0.990300": {
+        "baseline_rounded": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990234375
+        },
+        "one_step_away_from_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990264892578125
+        },
+        "one_step_toward_zero": {
+          "full_scale_detected": true,
+          "full_scale_sample_count": 1600,
+          "over_threshold_uncounted": 0,
+          "peak_abs": 0.990203857421875
+        }
+      }
+    },
+    "frequency_hz": 100.0,
+    "phase_rad": 0.006544984694978735,
+    "sample_rate_hz": 48000
   },
   "probe": "OQ-020 full tool path reproduction",
   "tool_path_by_bit_depth": {

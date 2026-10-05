@@ -43,6 +43,14 @@ BitDepth = Literal[16, 24, 32]
 WHITE_NOISE_SEED = 0
 WHITE_NOISE_RMS = 0.5
 CLIP_LEVELS = (0.5, 0.9, 0.98)
+# Pre-clip amplitude above every clip level, so each row is genuinely clipped.
+CLIPPED_SINE_INPUT_AMPLITUDE = 1.2
+NEAR_THRESHOLD_SAMPLE_RATE_HZ = 48_000
+NEAR_THRESHOLD_FREQUENCIES_HZ = (100.0, 997.0, 2000.0)
+NEAR_THRESHOLD_PEAKS = (0.985, 0.9895, 0.99, 0.9905, 0.992, 0.9925, 0.995, 1.0)
+ONE_STEP_CASE_FREQUENCY_HZ = 100.0
+ONE_STEP_CASE_AMPLITUDE = 0.990011
+ONE_STEP_CASE_PHASE_RAD = float(np.pi / 480.0)
 
 
 @dataclass(frozen=True, slots=True)
@@ -87,6 +95,15 @@ def encode_pcm16_mono_wav(samples: np.ndarray, *, sample_rate_hz: int) -> bytes:
     )
 
 
+def encode_pcm16_codes_wav(codes: np.ndarray, *, sample_rate_hz: int) -> bytes:
+    """Mono int16 codes -> 16-bit PCM WAV, written as given."""
+    pcm = np.clip(np.asarray(codes, dtype=np.int64), -32768, 32767).astype("<i2")
+    return _riff_wave(
+        fmt_payload=_pcm_fmt(channels=1, rate=sample_rate_hz, bits=16),
+        data=pcm.tobytes(),
+    )
+
+
 def encode_wav(samples: np.ndarray, *, sample_rate_hz: int, bits: BitDepth) -> bytes:
     if bits == 16:
         return encode_pcm16_mono_wav(samples, sample_rate_hz=sample_rate_hz)
@@ -119,6 +136,22 @@ def full_scale_sample_count(
         if stop - start >= min_consecutive_samples:
             qualified[start:stop] = True
     return int(np.count_nonzero(qualified))
+
+
+def over_threshold_uncounted(
+    values: np.ndarray,
+    *,
+    full_scale_threshold: float = FULL_SCALE_THRESHOLD,
+    min_consecutive_samples: int = MIN_CONSECUTIVE_SAMPLES,
+) -> int:
+    """Count samples with |x| >= threshold that sit in runs shorter than the minimum."""
+    arr = np.asarray(values, dtype=np.float64).reshape(-1)
+    total = int(np.count_nonzero(np.abs(arr) >= full_scale_threshold))
+    return total - full_scale_sample_count(
+        arr,
+        full_scale_threshold=full_scale_threshold,
+        min_consecutive_samples=min_consecutive_samples,
+    )
 
 
 def _selection_for_cell(cell: CellKey) -> MeasurementSelection:
@@ -229,15 +262,19 @@ def _phase_toolpath(cell: CellKey, phase_rad: float, bits: BitDepth) -> dict[str
         phase_rad=phase_rad,
     )
     wav_bytes = encode_wav(case.record.samples, sample_rate_hz=cell.sample_rate_hz, bits=bits)
+    return _measure_wav_toolpath(wav_bytes, cell=cell, run_id=f"probe_{bits}")
+
+
+def _measure_wav_toolpath(wav_bytes: bytes, *, cell: CellKey, run_id: str) -> dict[str, Any]:
+    """WAV bytes -> load_wav_bytes -> measure_output; clipping fields plus full-scale counts."""
     loaded = load_wav_bytes(wav_bytes, filename=f"oq020_{cell.sample_rate_hz}_{cell.frequency_hz}.wav")
     repository = InMemorySignalRepository()
     repository.put(loaded.record)
     signal_id = loaded.record.meta.signal_id
-    wav_sha = hashlib.sha256(wav_bytes).hexdigest()
     selection = _selection_for_cell(cell)
     identity = _build_identity(
-        run_id=f"probe_{bits}",
-        wav_sha256=wav_sha,
+        run_id=run_id,
+        wav_sha256=hashlib.sha256(wav_bytes).hexdigest(),
         signal_id=signal_id,
         repository=repository,
         selection=selection,
@@ -246,7 +283,128 @@ def _phase_toolpath(cell: CellKey, phase_rad: float, bits: BitDepth) -> dict[str
     decoded = repository.get(signal_id).samples[:, 0]
     metrics = _clip_metrics_from_tool(bundle.clipping)
     metrics["full_scale_sample_count"] = full_scale_sample_count(decoded)
+    metrics["over_threshold_uncounted"] = over_threshold_uncounted(decoded)
     return metrics
+
+
+def _near_threshold_cases(quick: bool) -> dict[str, Any]:
+    """Clean sines with peak near the full-scale threshold, through the tool path.
+
+    Reports, per frequency / peak / bit depth, how the full-scale state and count
+    move with start phase alone. No clipping is applied to any of these signals.
+    """
+    freqs = (997.0,) if quick else NEAR_THRESHOLD_FREQUENCIES_HZ
+    peaks = (0.992,) if quick else NEAR_THRESHOLD_PEAKS
+    depths: tuple[BitDepth, ...] = (32,) if quick else (16, 24, 32)
+    phases = (0.0, 1.0) if quick else PHASES_RAD
+    rows: dict[str, Any] = {}
+    for freq in freqs:
+        for peak in peaks:
+            cell = CellKey(
+                sample_rate_hz=NEAR_THRESHOLD_SAMPLE_RATE_HZ,
+                frequency_hz=freq,
+                amplitude=peak,
+            )
+            by_depth: dict[str, Any] = {}
+            for bits in depths:
+                per_phase = [_phase_toolpath(cell, phase, bits) for phase in phases]
+                counts = [row["full_scale_sample_count"] for row in per_phase]
+                states = [row["full_scale_detected"] for row in per_phase]
+                by_depth[str(bits)] = {
+                    "counted_by_phase": counts,
+                    "uncounted_by_phase": [row["over_threshold_uncounted"] for row in per_phase],
+                    "state_by_phase": states,
+                    "state_flips_with_phase": len(set(states)) > 1,
+                    "count_spread_with_phase": max(counts) - min(counts),
+                    "state_matches_count": all(
+                        state == (count > 0) for state, count in zip(states, counts)
+                    ),
+                    "max_peak_abs": max(row["peak_abs"] for row in per_phase),
+                }
+            rows[f"{freq}_{peak}"] = {"cell": cell.as_dict(), "tool_path": by_depth}
+    return {
+        "sample_rate_hz": NEAR_THRESHOLD_SAMPLE_RATE_HZ,
+        "phases_rad": list(phases),
+        "cells": rows,
+    }
+
+
+def _one_step_variants(amplitude: float) -> dict[str, dict[str, Any]]:
+    rate = NEAR_THRESHOLD_SAMPLE_RATE_HZ
+    case = generate_sine(
+        frequency_hz=ONE_STEP_CASE_FREQUENCY_HZ,
+        sample_rate_hz=rate,
+        duration_s=DURATION_S,
+        amplitude=amplitude,
+        phase_rad=ONE_STEP_CASE_PHASE_RAD,
+    )
+    mono = np.asarray(case.record.samples[:, 0], dtype=np.float64)
+    base_codes = np.rint(mono * 32767.0).astype(np.int64)
+    sign = np.sign(base_codes)
+    variants = {
+        "baseline_rounded": base_codes,
+        "one_step_away_from_zero": base_codes + sign,
+        "one_step_toward_zero": base_codes - sign,
+    }
+    cell = CellKey(
+        sample_rate_hz=rate,
+        frequency_hz=ONE_STEP_CASE_FREQUENCY_HZ,
+        amplitude=amplitude,
+    )
+    out: dict[str, dict[str, Any]] = {}
+    for name, codes in variants.items():
+        wav_bytes = encode_pcm16_codes_wav(codes, sample_rate_hz=rate)
+        metrics = _measure_wav_toolpath(wav_bytes, cell=cell, run_id=f"one_step_{name}")
+        out[name] = {
+            key: metrics[key]
+            for key in (
+                "full_scale_sample_count",
+                "over_threshold_uncounted",
+                "full_scale_detected",
+                "peak_abs",
+            )
+        }
+    return out
+
+
+def _one_step_case(quick: bool) -> dict[str, Any]:
+    """One 16-bit quantization step on clean sines just around the threshold.
+
+    For each amplitude: the sine rounded to int16 (baseline), every sample moved
+    one code away from zero, and every sample moved one code toward zero. All
+    three go through the tool path as 16-bit WAV. A "flip" is a baseline whose
+    full-scale state differs from a one-step variant.
+    """
+    amplitudes = (
+        (ONE_STEP_CASE_AMPLITUDE,)
+        if quick
+        else tuple(round(0.98990 + 0.00001 * i, 5) for i in range(41))
+        + (ONE_STEP_CASE_AMPLITUDE,)
+    )
+    rows: dict[str, Any] = {}
+    no_to_yes: list[str] = []
+    yes_to_no: list[str] = []
+    for amplitude in amplitudes:
+        variants = _one_step_variants(amplitude)
+        base = variants["baseline_rounded"]
+        up = variants["one_step_away_from_zero"]
+        down = variants["one_step_toward_zero"]
+        key = f"{amplitude:.6f}"
+        if not base["full_scale_detected"] and up["full_scale_detected"]:
+            no_to_yes.append(key)
+        if base["full_scale_detected"] and not down["full_scale_detected"]:
+            yes_to_no.append(key)
+        rows[key] = variants
+    return {
+        "frequency_hz": ONE_STEP_CASE_FREQUENCY_HZ,
+        "sample_rate_hz": NEAR_THRESHOLD_SAMPLE_RATE_HZ,
+        "phase_rad": ONE_STEP_CASE_PHASE_RAD,
+        "bit_depth": 16,
+        "amplitudes_tested": len(amplitudes),
+        "baseline_no_becomes_yes_one_step_away_from_zero": no_to_yes,
+        "baseline_yes_becomes_no_one_step_toward_zero": yes_to_no,
+        "cells": rows,
+    }
 
 
 def _aggregate_phases(phase_rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -418,7 +576,7 @@ def _clipped_sine_cases(quick: bool) -> dict[str, Any]:
             clip_level=level,
             sample_rate_hz=48_000,
             duration_s=DURATION_S,
-            amplitude=0.9,
+            amplitude=CLIPPED_SINE_INPUT_AMPLITUDE,
         )
         mono = case.record.samples[:, 0]
         direct = analyze_clipping(mono)
@@ -427,7 +585,11 @@ def _clipped_sine_cases(quick: bool) -> dict[str, Any]:
         repository = InMemorySignalRepository()
         repository.put(loaded.record)
         signal_id = loaded.record.meta.signal_id
-        cell = CellKey(sample_rate_hz=48_000, frequency_hz=440.0, amplitude=0.9)
+        cell = CellKey(
+            sample_rate_hz=48_000,
+            frequency_hz=440.0,
+            amplitude=CLIPPED_SINE_INPUT_AMPLITUDE,
+        )
         selection = _selection_for_cell(cell)
         identity = _build_identity(
             run_id=f"clip_{level}",
@@ -446,7 +608,8 @@ def _clipped_sine_cases(quick: bool) -> dict[str, Any]:
                 "full_scale_sample_count": full_scale_sample_count(mono),
             },
             "tool_path_pcm32_clipped_waveform": tool_clip,
-            "note": "tool_path via generate_sine would be clean; clipped row uses clipped waveform",
+            "input_amplitude": CLIPPED_SINE_INPUT_AMPLITUDE,
+            "note": "pre-clip amplitude exceeds every clip level, so each row is genuinely clipped",
         }
     return rows
 
@@ -493,6 +656,20 @@ def _print_summary(payload: dict[str, Any]) -> None:
         for cell in payload["direct_dsp"]["cells"].values()
     )
     print(f"direct_dsp clean sines: max full_scale_sample_count always 0 -> {clean_fs}")
+    near = payload["near_threshold_clean_sine"]["cells"]
+    flips = sorted(
+        f"{key}@pcm{bits}"
+        for key, row in near.items()
+        for bits, agg in row["tool_path"].items()
+        if agg["state_flips_with_phase"]
+    )
+    print(f"near-threshold clean sines: state flips with phase alone in {len(flips)} cell/depth rows")
+    step = payload["one_step_case_pcm16"]
+    print(
+        f"one-step sweep pcm16 ({step['amplitudes_tested']} amplitudes): "
+        f"no->yes on +1 step at {len(step['baseline_no_becomes_yes_one_step_away_from_zero'])}; "
+        f"yes->no on -1 step at {len(step['baseline_yes_becomes_no_one_step_toward_zero'])}"
+    )
     for bits in ("16", "24", "32"):
         if bits not in payload["tool_path_by_bit_depth"]:
             continue
@@ -533,6 +710,8 @@ def main(argv: list[str] | None = None) -> int:
             "tool_path_pcm32": _noise_metrics_tool(32),
         },
         "clipped_sine_sub_full_scale": _clipped_sine_cases(args.quick),
+        "near_threshold_clean_sine": _near_threshold_cases(args.quick),
+        "one_step_case_pcm16": _one_step_case(args.quick),
         "examples": _example_cells(grid_payload) if not args.quick else {},
         "disclaimer": (
             "Probe only; not layer-1 characterization approval; no floor values; "
