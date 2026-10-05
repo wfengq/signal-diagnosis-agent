@@ -108,6 +108,7 @@ def choose_fixed_retest(context: RetestContext) -> RetestSelection:
     )
 
 
+def _case_by_id(
     cases: tuple[RetestEvaluationCase, ...],
 ) -> dict[str, RetestEvaluationCase]:
     return {case.case_id: case for case in cases}
@@ -197,12 +198,11 @@ def score_retest_cases(
                 tallies["valid_selection"] += 1
                 truth = case.truth
                 case_revealed = reveal_outcome_for_selection(case, selection)
-                if row.revealed is not None:
-                    if row.revealed != case_revealed:
-                        raise ValueError(
-                            "result.revealed disagrees with case-derived reveal for "
-                            f"case_id={case_id!r} arm={arm!r}"
-                        )
+                if row.revealed is not None and row.revealed != case_revealed:
+                    raise ValueError(
+                        "result.revealed disagrees with case-derived reveal for "
+                        f"case_id={case_id!r} arm={arm!r}"
+                    )
                 if (
                     selection.option_id in truth.useful_option_ids
                     and case_revealed is not None
