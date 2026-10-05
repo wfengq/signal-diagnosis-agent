@@ -1,6 +1,6 @@
 # Regression workbench offline acceptance (Phase A + Phase B + Phase C Task 7–8)
 
-Status: Phase A–B as before + **Phase C Task 7 offline** (PR #34 at `3684c20`) + **Phase C Task 8 offline revise1** on branch `cursor/s1-regression-task8-offline-8b52`. Claude Code revise **P1s fixed** at tip `revise1` (see measured checks below). Merge/seal/RealLLM/product tolerances **still gated**.
+Status: Phase A–B as before + **Phase C Task 7 offline** (PR #34 at `3684c20`) + **Phase C Task 8 offline + Task 9 closeout Claude Code accept** at tip `840651c` on branch `cursor/s1-regression-task8-offline-8b52`. Merge/seal/RealLLM/product tolerances **still gated** (accept does not authorize).
 
 Product comparison profiles enabled in production: **0**.
 
@@ -69,17 +69,18 @@ P1 fixes at revise1:
 2. `useful_retest` uses case `revealed_outcomes` via `reveal_outcome_for_selection`; mismatched `result.revealed` raises `ValueError`.
 3. `scheduled_arms` default emits both contrast arms with `scheduled=len(cases)` even when results absent.
 
-| Check | Result (Cursor Cloud Agent, revise1) |
+| Check | Result |
 |---|---|
-| Focused Task 8 + recommendations | `pytest tests/evaluation/test_regression_retests.py tests/app/test_regression_recommendations.py -q` → **29 passed** |
+| Claude Code independent recheck | **accept** at tip `840651c` (Task 8 offline + Task 9 closeout only; prior 3 P1s closed) |
+| Focused Task 8 + recommendations | `pytest tests/evaluation/test_regression_retests.py tests/app/test_regression_recommendations.py -q` → **29 passed** (Cursor + Claude Code) |
 | Architecture (incl. T285 allowlist) | `pytest tests/test_architecture_boundaries.py -q` → **62 passed** |
 | Identity T-CX254 | `pytest tests/agent/test_v03_prompt_v9_11.py -k t_cx254 -q` → **3 passed** |
-| Full `pytest -q` | **1943 passed**, 1 warning |
-| `ruff check src/signal_diag/evaluation/regression.py` | pass |
-| `mypy src/signal_diag/evaluation/regression.py` | pass |
+| Full `pytest -q` | Cursor **1943 passed**, 1 warning; Claude Code **1942 passed**, 1 failed (`test_t133_*` needs `pip wheel`; env) |
+| `ruff check` (touched / full as run) | pass |
+| `mypy src/signal_diag/evaluation/regression.py` | pass (Cursor); Claude Code env could not run mypy |
 | `git diff --check 3684c20` | clean |
 | RealLLM network / product tolerances | **not verified** |
-| Merge / seal | **blocked** (revise does not authorize) |
+| Merge / seal | **blocked** (accept does not authorize) |
 
 Contrast arms (Task 8):
 
@@ -96,6 +97,7 @@ Service-chain test asserts oracle/truth never appears in planner `user_json` (on
 - Prior active tip retained: `d042_regression_workbench_phase_c_task7_revise1b` / `27849cc6…`
 - `current_implementation_sha256` unchanged: `9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3`
 - `model_calls`: **0**
+- Note: `contextual_product_tree_sha256()` covers `signal/dsp/tools/rules/knowledge/agent/app` only. Task 8 `evaluation/regression.py` is outside that tree; its engineering identity is this tip’s scope text + T285 exact path + focused tests, not the product-tree digest alone.
 
 ## Allowlist / layering
 
@@ -110,8 +112,12 @@ Service-chain test asserts oracle/truth never appears in planner `user_json` (on
 - RealLLM retest quality / user-benefit claims
 - Merge, seal
 
-Commit/push of this Task 8 revise1 tip is for **independent recheck only**. It does **not** authorize merge, seal, RealLLM network runs, or product tolerances.
+Claude Code **accept** at tip `840651c` covers Task 8 offline + Task 9 closeout only. It does **not** authorize merge, seal, RealLLM network runs, or product tolerances.
 
-## Remaining P2 (not blocking recheck)
+## Remaining P2 (not blocking accept)
 
-Empty OpenAI org/project headers; duplicate JSON keys; `#recommendation-status` UI; button/HTTP 409 recommendation tests; cancel-wait proof strength; typed HTTP error codes; wheel/CPython matrix not reclaimed as release gate.
+- Recommendation history has no row/call budget (handle before RealLLM product enablement)
+- `scheduled_arms` runtime does not reject unknown arm names; empty cases with non-empty results return `{}`
+- Scoring edge cases: invalid completed rows skip subclasses; loose legal_abstain; no harness that scores real service-chain output as `real_adapter_fake_transport`
+- RetestLink may point at failed/unavailable recommendations; `_recommendation_for_comparison` unused; initial “not enabled” placeholder can linger after planner is configured
+- Empty OpenAI org/project headers; duplicate JSON keys; `#recommendation-status` UI; button/HTTP 409 recommendation tests; cancel-wait proof strength; typed HTTP error codes; wheel/CPython matrix not a release gate here
