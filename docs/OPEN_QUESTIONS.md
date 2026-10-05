@@ -1,7 +1,7 @@
 # Open Contract and Architecture Questions
 
 **Status:** Active register
-**Current open questions:** 1 open (OQ-021); 20 resolved (OQ-001–OQ-020)
+**Current open questions:** 2 open (OQ-021, OQ-022); 20 resolved (OQ-001–OQ-020)
 
 Use this file only for concrete issues that may require changing an approved
 contract or architectural boundary.
@@ -396,5 +396,20 @@ Minimal proposed change: Decide before any floor record is approved. Option A: f
 Compatibility impact: None today (no product floor). Option A changes check-record contents only for inputs with missing facts.
 Test impact: Option A needs a rules test (one side without facts plus a matching fixture floor: no floor on the record, `floor_missing` listed) and an adjusted 9B-7 test. Option B needs a contract revision and a test pinning the current behavior.
 Related cleanup (no contract impact): in `src/signal_diag/app/regression_reporting.py` `_validate_full_scale_checks`, a record whose anchor is a repeat is rejected with "anchor_comparison_id is missing from comparisons", and the in-loop "not an anchor" check is unreachable. Fix the message or remove the dead check in the same change.
+User decision: pending.
+```
+
+## OQ-022 — Full-scale check: fixed-minimum critical zone under the cumulative tolerance reading
+
+```text
+ID: OQ-022
+Date: 2026-10-05
+Status: open
+Affected document and section: CONTRACTS_V0_3_CONTEXTUAL.md §23.4 (tolerance decision; fixed minimum of the critical zone); src/signal_diag/rules/full_scale_check.py (`_in_critical_zone`, `_quantization_step`).
+Observed problem: The operator decided on 2026-10-05 that §23.4 "at most one quantization step of the coarser of the two bit depths … plus bit-depth conversion" means both can occur together (layer-1 characterization plan, decision A.10). Under that reading the fixed minimum ("a `no` side with `peak_abs >= full_scale_threshold - step` is inside the critical zone") does not contain every tolerated difference. Full tool path, measured in the independent review of the characterization plan and reproduced: 100 Hz, 48 kHz, amplitude 0.989993, phase π/480. The 16-bit rounded file has peak 0.98995972 and counts 0, below 0.99 − 2^-15 = 0.98996948, so it is outside the fixed minimum. The same waveform as 32-bit, rounded and then moved one 16-bit step away from zero, counts 800. With the fixed minimum alone this pair would be judged `regression_detected`.
+Why the current contract cannot represent a correct implementation: It can, as long as a floor record exists. The product uses `max(zone_below_threshold, step)` for a `no` side, and the layer-1 characterization now includes this composite in its tolerated null pairs, so under full coverage the fitted `zone_below_threshold` covers it. Without a floor record no judged status is reachable. What is lost is the property that the fixed minimum alone, independent of sampling, contains every tolerated difference.
+Minimal proposed change: Decide before any floor record is approved, together with OQ-021. Option A: widen the fixed minimum to `full_scale_threshold - 2 * step` (one step plus a bit-depth conversion error of up to one step when conversion truncates), as a contract revision to §23.4 and a one-line change to `_in_critical_zone`. Option B: keep one step and state in §23.4 that the fixed minimum covers single-depth differences only and that the reviewed floor record must cover the composite. The characterization report gives flip counts outside the one-step and the two-step bounds as evidence. Option A is recommended because it restores a guarantee that does not depend on the characterization grid.
+Compatibility impact: None today (no product floor; no judged status). Option A moves some `no` sides into the critical zone once a floor exists, reducing coverage slightly.
+Test impact: Option A needs an update to the T-CX357 fixed-minimum tests and a regression case built from the pair above. Option B needs a contract revision and a test that pins the one-step bound.
 User decision: pending.
 ```
