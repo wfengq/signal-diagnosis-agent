@@ -386,20 +386,30 @@ async def test_cancel_during_sdk_call_closes_without_second_request() -> None:
 def test_adapter_rejects_nonzero_max_retries() -> None:
     sdk = _FakeSDK()
     sdk.max_retries = 2
-    with pytest.raises(RetestPlannerError, match="max_retries must be 0"):
+    with pytest.raises(RetestPlannerError, match="max_retries must be int 0"):
+        OpenAICompatibleRetestClient(sdk)
+    sdk.max_retries = 0.0  # type: ignore[assignment]
+    with pytest.raises(RetestPlannerError, match="max_retries must be int 0"):
+        OpenAICompatibleRetestClient(sdk)
+    del sdk.max_retries
+    with pytest.raises(RetestPlannerError, match="max_retries must be int 0"):
         OpenAICompatibleRetestClient(sdk)
 
 
 def test_build_openai_retest_client_locks_retries_and_base_url(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    pytest.importorskip("openai")
+    # Evidence for max_retries=0 without importing openai in tests (T285).
+    # Missing llm extra fails hard via RetestPlannerError from the builder.
     monkeypatch.setenv("OPENAI_BASE_URL", "https://evil.example/v1")
     monkeypatch.setenv("OPENAI_ORG_ID", "org-should-not-matter")
+    monkeypatch.setenv("OPENAI_PROJECT_ID", "proj-should-not-matter")
     client = build_openai_retest_client(api_key="sk-test")
     sdk = client._client
     assert sdk.max_retries == 0
     assert str(sdk.base_url).rstrip("/") == "https://api.openai.com/v1"
+    assert sdk.organization == ""
+    assert sdk.project == ""
     custom = build_openai_retest_client(
         api_key="sk-test",
         base_url="https://custom.example/v1",
@@ -409,8 +419,8 @@ def test_build_openai_retest_client_locks_retries_and_base_url(
 
 @pytest.mark.asyncio
 async def test_real_async_openai_mock_transport_one_call_on_http_500() -> None:
-    openai = pytest.importorskip("openai")
-    httpx = pytest.importorskip("httpx")
+    # Real SDK path via builder + httpx MockTransport; no openai import (T285).
+    import httpx
 
     record = await _record(same_input="unknown")
     context = build_retest_context(record)
@@ -422,14 +432,13 @@ async def test_real_async_openai_mock_transport_one_call_on_http_500() -> None:
 
     transport = httpx.MockTransport(handler)
     http_client = httpx.AsyncClient(transport=transport)
-    sdk = openai.AsyncOpenAI(
+    adapter = build_openai_retest_client(
         api_key="sk-test",
         base_url="https://example.test/v1",
-        max_retries=0,
         http_client=http_client,
     )
     planner = RealLLMRetestPlanner(
-        client=OpenAICompatibleRetestClient(sdk),
+        client=adapter,
         model="fake-model",
         limits=RetestCallLimits(max_output_tokens=32, timeout_s=2.0),
     )

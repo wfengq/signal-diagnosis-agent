@@ -358,8 +358,8 @@ class OpenAICompatibleRetestClient:
 
     def __init__(self, client: Any) -> None:
         retries = getattr(client, "max_retries", None)
-        if retries is not None and retries != 0:
-            raise RetestPlannerError("retest SDK client max_retries must be 0")
+        if not isinstance(retries, int) or isinstance(retries, bool) or retries != 0:
+            raise RetestPlannerError("retest SDK client max_retries must be int 0")
         self._client = client
 
     async def complete(
@@ -449,6 +449,7 @@ def build_openai_retest_client(
     *,
     api_key: str,
     base_url: str | None = None,
+    http_client: Any | None = None,
 ) -> OpenAICompatibleRetestClient:
     """Construct the locked SDK client with retries disabled."""
     try:
@@ -457,11 +458,16 @@ def build_openai_retest_client(
         raise RetestPlannerError(
             "Retest planner requires the optional llm dependency"
         ) from error
-    # Always set base_url so OPENAI_BASE_URL ambient env cannot redirect product calls.
+    # Pin base_url and blank org/project so ambient OPENAI_* env cannot redirect
+    # or attach unintended tenant headers to the locked offline adapter path.
     resolved_base = base_url if base_url is not None else _DEFAULT_OPENAI_BASE_URL
-    client = AsyncOpenAI(
-        api_key=api_key,
-        base_url=resolved_base,
-        max_retries=0,
-    )
-    return OpenAICompatibleRetestClient(client)
+    kwargs: dict[str, Any] = {
+        "api_key": api_key,
+        "base_url": resolved_base,
+        "max_retries": 0,
+        "organization": "",
+        "project": "",
+    }
+    if http_client is not None:
+        kwargs["http_client"] = http_client
+    return OpenAICompatibleRetestClient(AsyncOpenAI(**kwargs))
