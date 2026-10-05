@@ -24,8 +24,6 @@ from signal_diag.evaluation.full_scale_characterization.models import (
 from signal_diag.evaluation.full_scale_characterization.pairs import COMBO_CODES
 from tests.evaluation.full_scale_characterization.mini_manifest import MINI
 
-ROUND_1_WALL_BUDGET_S = 60.0
-
 
 def test_source_group_side_consistency() -> None:
     manifest = build_manifest(MINI)

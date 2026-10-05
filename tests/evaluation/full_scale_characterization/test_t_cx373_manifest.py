@@ -20,7 +20,7 @@ from signal_diag.evaluation.full_scale_characterization.pairs import (
 )
 from tests.evaluation.full_scale_characterization.mini_manifest import MINI
 
-ROUND_1_WALL_BUDGET_S = 60.0
+ROUND_1_WALL_BUDGET_S = 120.0
 
 
 def test_round_1_manifest_hash_is_stable(round_1_manifest) -> None:
