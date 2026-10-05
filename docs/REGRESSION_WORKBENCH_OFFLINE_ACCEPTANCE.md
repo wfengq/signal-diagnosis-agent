@@ -77,20 +77,20 @@ Codex revise P1s addressed across revise1 / revise1b:
 
 | Check | Result |
 |---|---|
-| Focused Task 7 suite | **28 passed** (pre-commit dirty; tip number below after commit) |
-| Architecture incl. T285 | **89 passed** with Task 7 tests (pre-commit) |
+| Focused Task 7 + identity tip | **29 passed** at tip `7a2b0c8` |
+| Architecture (incl. T285) | **62 passed** at tip `7a2b0c8` |
 | Identity tip | `d042_regression_workbench_phase_c_task7_revise1b` / product tree `27849cc6…` |
-| Full `pytest -q` | re-measured on clean tip after commit (dirty tree sealing fails expected) |
+| Full `pytest -q` | **1923 passed**, 1 warning at tip `7a2b0c8` |
 | RealLLM network / product tolerances | **not verified** |
 | Merge / Task 8 / seal | **blocked** |
 
-Commands (measured on revise1b; tip numbers filled after commit):
+Commands (measured on clean tip `7a2b0c8`):
 
 | Command | Result |
 |---|---|
-| `pytest tests/agent/test_retest_planner.py tests/app/test_regression_recommendations.py -q` | see tip note |
-| `pytest tests/test_architecture_boundaries.py -q` | see tip note |
-| Full `pytest -q` | see tip note |
+| `pytest tests/agent/test_retest_planner.py tests/app/test_regression_recommendations.py tests/agent/test_v03_prompt_v9_11.py::test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches -q` | **29 passed** |
+| `pytest tests/test_architecture_boundaries.py -q` | **62 passed** (T285 green; no importorskip/openai imports) |
+| Full `pytest -q` | **1923 passed**, 1 warning |
 | Wheel / CPython 3.11/3.12 matrix | **not executed** (not a release gate) |
 
 Correction: earlier drafts wrongly mapped interactive browser GUI to design AC14. Spec AC14 is scheme admission (“不适用方案或未批准参数不能由模型输出绕过”). Task 6 Web dual-file/manual retest is **T-CX339**.
