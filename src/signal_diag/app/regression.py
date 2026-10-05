@@ -665,11 +665,8 @@ class RegressionWorkbenchService:
                 self._busy = True
             slot_held = not reuse_operation_slot
 
-            existing = self._recommendation_for_comparison(case, comparison_id)
-            recommendation_id = (
-                existing.recommendation_id if existing is not None else _new_id("rec")
-            )
-            created_at = existing.created_at if existing is not None else self._clock()
+            recommendation_id = _new_id("rec")
+            created_at = self._clock()
             comparison_record = item.record
 
         record_snapshot = comparison_record.model_copy(deep=True)
@@ -826,14 +823,7 @@ class RegressionWorkbenchService:
             )
             if item.record.model_dump_json() != record_snapshot.model_dump_json():
                 raise _invalid("comparison record changed during recommendation")
-            replaced = False
-            for index, row in enumerate(case.recommendations):
-                if row.comparison_id == comparison_id:
-                    case.recommendations[index] = recommendation
-                    replaced = True
-                    break
-            if not replaced:
-                case.recommendations.append(recommendation)
+            case.recommendations.append(recommendation)
             case.recommendation_outcomes[request_id] = _RecommendationOutcome(
                 kind=kind,
                 content_fingerprint=fingerprint,

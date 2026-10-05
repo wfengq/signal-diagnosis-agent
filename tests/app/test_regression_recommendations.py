@@ -165,6 +165,44 @@ async def test_fake_sdk_path_one_call_and_idempotent_request_id() -> None:
 
 
 @pytest.mark.asyncio
+async def test_two_request_ids_append_distinct_recommendation_history() -> None:
+    sdk = _FakeSDK()
+    service = _configured_service(sdk)
+    wav = _mono_wav()
+    case = service.create_case("goal")
+    snap = await service.submit_comparison(
+        case.case_id,
+        _upload(wav, wav, conditions=_conditions(same_input="unknown")),
+        request_id="cmp-1",
+    )
+    comparison_id = snap.comparisons[0].comparison_id
+    sdk.completions.text = json.dumps(
+        {
+            "option_id": "opt_complete_conditions",
+            "basis_refs": ["decl_same_input"],
+            "abstain_reason_code": None,
+        }
+    )
+    first = await service.request_recommendation(
+        case.case_id,
+        comparison_id,
+        request_id="rec-1",
+    )
+    second = await service.request_recommendation(
+        case.case_id,
+        comparison_id,
+        request_id="rec-2",
+    )
+    assert len(first.recommendations) == 2
+    assert len(second.recommendations) == 3
+    completed = [row for row in second.recommendations if row.status == "completed"]
+    assert len(completed) == 2
+    assert completed[0].recommendation_id != completed[1].recommendation_id
+    assert len(sdk.completions.calls) == 2
+    await service.aclose()
+
+
+@pytest.mark.asyncio
 async def test_request_id_conflict_and_unknown_comparison() -> None:
     sdk = _FakeSDK()
     service = _configured_service(sdk)
