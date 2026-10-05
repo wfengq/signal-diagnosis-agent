@@ -101,6 +101,36 @@
           <option value="right">right</option>
         </select>
       </p>
+      <fieldset>
+        <legend>Full-scale declarations (declared, not verified)</legend>
+        <p>
+          <label for="fs-periodic">Periodic test signal</label>
+          <select id="fs-periodic">
+            <option value="unknown" selected>unknown</option>
+            <option value="yes">yes</option>
+            <option value="no">no</option>
+          </select>
+        </p>
+        <p>
+          <label for="fs-baseline-independent">Baseline independent render (repeat only)</label>
+          <select id="fs-baseline-independent">
+            <option value="unknown" selected>unknown</option>
+            <option value="yes">yes</option>
+            <option value="no">no</option>
+          </select>
+        </p>
+        <p>
+          <label for="fs-candidate-independent">Candidate independent render (repeat only)</label>
+          <select id="fs-candidate-independent">
+            <option value="unknown" selected>unknown</option>
+            <option value="yes">yes</option>
+            <option value="no">no</option>
+          </select>
+        </p>
+        <p class="muted">
+          For a one-sided repeat, re-upload the unchanged side and select no for that side.
+        </p>
+      </fieldset>
       <p>
         <button type="button" id="submit-comparison" disabled>Compare measurements</button>
       </p>

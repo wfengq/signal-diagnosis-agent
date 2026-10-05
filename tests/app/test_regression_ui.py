@@ -73,3 +73,14 @@ def test_regression_html_has_no_pass_badge() -> None:
     html = _static_text("regression.html")
     assert "pass-badge" not in html
     assert not re.search(r"class=\"[^\"]*pass[^\"]*\"", html, flags=re.IGNORECASE)
+
+
+def test_ui_has_declaration_inputs_and_no_wording_literals() -> None:
+    html = _static_text("regression.html")
+    js = _static_text("regression.js")
+    for element_id in ("fs-periodic", "fs-baseline-independent", "fs-candidate-independent"):
+        assert f'id="{element_id}"' in html
+    assert html.count('value="unknown" selected') >= 3
+    assert "full_scale_checks" in js and "full_scale_declarations" in js and "lines" in js
+    assert "full-scale threshold" not in js.casefold()
+    assert "overall pass" not in js.casefold()

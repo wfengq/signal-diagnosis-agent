@@ -16,11 +16,14 @@ from signal_diag.app.multipart import (
     ParsedRegressionComparisonUpload,
     parse_regression_comparison_upload,
 )
+from signal_diag.app.full_scale_wording import full_scale_check_lines
 from signal_diag.app.regression import (
     ComparisonUpload,
+    RegressionCaseSnapshot,
     RegressionWorkbenchService,
     RetestLink,
 )
+from signal_diag.rules.full_scale_check import FullScaleDeclarations
 from signal_diag.app.regression_reporting import (
     build_case_report,
     render_case_html,
@@ -64,6 +67,21 @@ class RegressionComparisonMetadata(BaseModel):
     candidate_filename: str | None = Field(default=None, max_length=256)
     original_filename: str | None = Field(default=None, max_length=256)
     link: RetestLink | None = None
+    full_scale_declarations: FullScaleDeclarations = Field(
+        default_factory=FullScaleDeclarations
+    )
+
+
+def _snapshot_payload(snapshot: RegressionCaseSnapshot) -> dict[str, Any]:
+    payload = snapshot.model_dump(mode="json")
+    payload["full_scale_checks"] = [
+        {
+            **check.model_dump(mode="json"),
+            "lines": list(full_scale_check_lines(check)),
+        }
+        for check in snapshot.full_scale_checks
+    ]
+    return payload
 
 
 def _envelope(detail: AppErrorDetail) -> dict[str, Any]:
@@ -178,6 +196,7 @@ def _upload_from_parsed(parsed: ParsedRegressionComparisonUpload) -> ComparisonU
         selection=metadata.selection,
         original_input_data=parsed.original_data,
         original_input_filename=original_filename,
+        full_scale_declarations=metadata.full_scale_declarations,
     )
 
 
@@ -204,12 +223,12 @@ def build_regression_router(service: RegressionWorkbenchService) -> APIRouter:
     async def create_case(body: _CreateCaseBody) -> JSONResponse:
         del body.request_id
         snapshot = service.create_case(body.goal)
-        return JSONResponse(content=snapshot.model_dump(mode="json"))
+        return JSONResponse(content=_snapshot_payload(snapshot))
 
     @router.get("/api/v1/regression/cases/{case_id}")
     async def get_case(case_id: str) -> JSONResponse:
         snapshot = service.get_case(case_id)
-        return JSONResponse(content=snapshot.model_dump(mode="json"))
+        return JSONResponse(content=_snapshot_payload(snapshot))
 
     @router.delete("/api/v1/regression/cases/{case_id}")
     async def delete_case(case_id: str) -> Response:
@@ -241,7 +260,7 @@ def build_regression_router(service: RegressionWorkbenchService) -> APIRouter:
                 link=metadata.link,
                 reuse_operation_slot=True,
             )
-        return JSONResponse(content=snapshot.model_dump(mode="json"))
+        return JSONResponse(content=_snapshot_payload(snapshot))
 
     @router.post(
         "/api/v1/regression/cases/{case_id}/comparisons/{comparison_id}/recommendations"
@@ -258,7 +277,7 @@ def build_regression_router(service: RegressionWorkbenchService) -> APIRouter:
                 request_id=body.request_id,
                 reuse_operation_slot=True,
             )
-        return JSONResponse(content=snapshot.model_dump(mode="json"))
+        return JSONResponse(content=_snapshot_payload(snapshot))
 
     @router.get("/api/v1/regression/cases/{case_id}/report.json")
     async def case_report_json(case_id: str) -> Response:
