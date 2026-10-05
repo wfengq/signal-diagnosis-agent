@@ -136,3 +136,20 @@ def verify_full_scale_facts(facts: FullScaleFacts, bundle: MeasurementBundle) ->
     expected_analyzed = identity.resolved_end_sample - identity.resolved_start_sample
     if facts.analyzed_samples != expected_analyzed:
         raise ValueError("facts analyzed_samples mismatch")
+
+    if facts.counted_samples + facts.over_threshold_uncounted > facts.analyzed_samples:
+        raise ValueError("facts counts exceed analyzed_samples")
+    over_total = facts.counted_samples + facts.over_threshold_uncounted
+    peak_at_or_above = facts.peak_abs >= facts.full_scale_threshold
+    if peak_at_or_above != (over_total > 0):
+        raise ValueError("facts peak_abs inconsistent with over-threshold counts")
+
+    if facts.counted_samples > clipping.result.clipped_samples:
+        raise ValueError("facts counted_samples exceeds bundle clipped_samples")
+    if (
+        not clipping.result.flat_top_detected
+        and facts.counted_samples != clipping.result.clipped_samples
+    ):
+        raise ValueError(
+            "facts counted_samples must equal clipped_samples when flat_top is absent"
+        )

@@ -438,3 +438,102 @@ def test_t_cx368_check_stays_out_of_diagnosis() -> None:
 
     assert "full_scale" not in inspect.getsource(diagnosis)
     assert "FullScale" not in json.dumps(StructuredDiagnosis.model_json_schema())
+
+
+@pytest.mark.asyncio
+async def test_9b2_rejects_dropped_anchor_candidate_facts(service) -> None:
+    snapshot = await _snapshot_with_two_submits(service)
+    payload = json.loads(
+        render_case_json(build_case_report(snapshot, generated_at=NOW))
+    )
+    payload["comparisons"][0]["candidate_full_scale"] = None
+    with pytest.raises(ValidationError):
+        RegressionCaseReport.model_validate(payload)
+
+
+@pytest.mark.asyncio
+async def test_9b4_rejects_empty_checks_when_facts_present(service) -> None:
+    snapshot = await _snapshot_with_two_submits(service)
+    payload = json.loads(
+        render_case_json(build_case_report(snapshot, generated_at=NOW))
+    )
+    payload["full_scale_checks"] = []
+    with pytest.raises(ValidationError):
+        RegressionCaseReport.model_validate(payload)
+
+
+@pytest.mark.asyncio
+async def test_9b4_rejects_missing_checks_for_one_anchor(service) -> None:
+    case = service.create_case("two-anchors")
+    first = await service.submit_comparison(
+        case.case_id, _fs_upload(), request_id="a1"
+    )
+    second = await service.submit_comparison(
+        case.case_id, _fs_upload(), request_id="a2"
+    )
+    report = build_case_report(second, generated_at=NOW)
+    payload = json.loads(render_case_json(report))
+    payload["full_scale_checks"] = [
+        check
+        for check in payload["full_scale_checks"]
+        if check["anchor_comparison_id"] == first.comparisons[0].comparison_id
+    ]
+    with pytest.raises(ValidationError):
+        RegressionCaseReport.model_validate(payload)
+
+
+@pytest.mark.asyncio
+async def test_9b5_rejects_repeat_used_as_anchor(service) -> None:
+    snapshot = await _snapshot_with_two_submits(service)
+    payload = json.loads(
+        render_case_json(build_case_report(snapshot, generated_at=NOW))
+    )
+    repeat_id = payload["comparisons"][1]["comparison_id"]
+    forged = copy.deepcopy(payload["full_scale_checks"][-1])
+    forged["anchor_comparison_id"] = repeat_id
+    forged["check_id"] = "forged_repeat_anchor"
+    forged["supersedes"] = None
+    forged["repeat_comparison_ids"] = []
+    from signal_diag.rules.full_scale_check import (
+        FullScaleCheckRecord,
+        _check_record_digest,
+    )
+
+    model = FullScaleCheckRecord.model_validate(forged)
+    forged["digest"] = _check_record_digest(model)
+    payload["full_scale_checks"].append(forged)
+    with pytest.raises(ValidationError):
+        RegressionCaseReport.model_validate(payload)
+
+
+@pytest.mark.asyncio
+async def test_9b6_rejects_duplicate_check_ids(service) -> None:
+    snapshot = await _snapshot_with_two_submits(service)
+    payload = json.loads(
+        render_case_json(build_case_report(snapshot, generated_at=NOW))
+    )
+    payload["full_scale_checks"][1]["check_id"] = payload["full_scale_checks"][0][
+        "check_id"
+    ]
+    from signal_diag.rules.full_scale_check import (
+        FullScaleCheckRecord,
+        _check_record_digest,
+    )
+
+    model = FullScaleCheckRecord.model_validate(payload["full_scale_checks"][1])
+    payload["full_scale_checks"][1]["digest"] = _check_record_digest(model)
+    with pytest.raises(ValidationError):
+        RegressionCaseReport.model_validate(payload)
+
+
+@pytest.mark.asyncio
+async def test_9b8_declaration_mismatch_without_recompute_fails(service) -> None:
+    snapshot = await _snapshot_with_two_submits(service)
+    payload = json.loads(
+        render_case_json(build_case_report(snapshot, generated_at=NOW))
+    )
+    payload["comparisons"][1]["full_scale_declarations"][
+        "baseline_independent_render"
+    ] = "no"
+    with pytest.raises(ValidationError):
+        RegressionCaseReport.model_validate(payload)

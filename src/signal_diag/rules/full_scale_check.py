@@ -20,7 +20,11 @@ from signal_diag.tools.regression_full_scale import (
     FullScaleFacts,
     verify_full_scale_facts,
 )
-from signal_diag.tools.regression_measurement import ComparisonSide, InputIdentity
+from signal_diag.tools.regression_measurement import (
+    ComparisonSide,
+    InputIdentity,
+    MeasurementBundle,
+)
 
 FULL_SCALE_MIN_PCM_BIT_DEPTH = 16
 TOLERATED_DIFFERENCE_ID = "one_step_of_coarser_depth_one_sided_plus_depth_conversion"
@@ -420,10 +424,17 @@ def validate_full_scale_check_record(
         raise ValueError("full-scale check record digest mismatch")
     if record.floor is not None and record.floor not in approved_floors:
         raise ValueError("floor is not in the product approved registry")
-    if record.baseline_renders:
-        verify_full_scale_facts(record.baseline_renders[0], anchor.record.baseline_bundle)
-    if record.candidate_renders:
-        verify_full_scale_facts(record.candidate_renders[0], anchor.record.candidate_bundle)
+    applicable = _applicable_approved_floors(
+        approved_floors,
+        anchor.baseline_facts,
+        anchor.candidate_facts,
+    )
+    if applicable and record.floor not in applicable:
+        raise ValueError("applicable approved floor must be present on the check record")
+    for facts in record.baseline_renders:
+        verify_full_scale_facts(facts, _bundle_for_facts(facts, anchor, repeats))
+    for facts in record.candidate_renders:
+        verify_full_scale_facts(facts, _bundle_for_facts(facts, anchor, repeats))
     expected = evaluate_full_scale_check(
         check_id=record.check_id,
         anchor=anchor,
@@ -433,6 +444,33 @@ def validate_full_scale_check_record(
     )
     if expected.model_dump() != record.model_dump():
         raise ValueError("full-scale check record does not match recomputed evaluation")
+
+
+def _bundle_for_facts(
+    facts: FullScaleFacts,
+    anchor: FullScaleSubmission,
+    repeats: Sequence[FullScaleSubmission],
+) -> MeasurementBundle:
+    # Match the submission slot that carries these facts. Identity fields alone
+    # are not unique when independently encoded WAVs share the same bytes.
+    for submission in (anchor, *repeats):
+        if submission.baseline_facts == facts:
+            return submission.record.baseline_bundle
+        if submission.candidate_facts == facts:
+            return submission.record.candidate_bundle
+    raise ValueError("full-scale facts do not match any submission bundle")
+
+
+def _applicable_approved_floors(
+    approved_floors: Sequence[FullScaleMethodFloor],
+    baseline: FullScaleFacts | None,
+    candidate: FullScaleFacts | None,
+) -> tuple[FullScaleMethodFloor, ...]:
+    matched: list[FullScaleMethodFloor] = []
+    for floor in approved_floors:
+        if _floor_identity_ok(floor, baseline, candidate):
+            matched.append(floor)
+    return tuple(matched)
 
 
 def _canonical_json(payload: object) -> str:

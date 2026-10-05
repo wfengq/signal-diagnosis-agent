@@ -22,10 +22,13 @@ from signal_diag.app.regression import (
 from signal_diag.rules.full_scale_check import (
     PRODUCT_APPROVED_FULL_SCALE_FLOORS,
     FullScaleCheckRecord,
+    FullScaleDeclarations,
+    FullScaleMethodFloor,
     resolve_anchor_id,
     validate_full_scale_check_record,
 )
 from signal_diag.rules.regression import ComparisonRecord, validate_comparison_record
+from signal_diag.tools.regression_full_scale import verify_full_scale_facts
 
 _MEASUREMENT_ONLY_NOTICE = (
     "Reporting measurement changes only; no approved comparison tolerances yet"
@@ -39,7 +42,7 @@ def validate_regression_case_report_integrity(
     failures: tuple[CaseFailureRecord, ...],
     recommendations: tuple[CaseRecommendationRecord, ...],
     full_scale_checks: tuple[FullScaleCheckRecord, ...] = (),
-    approved_floors: tuple = PRODUCT_APPROVED_FULL_SCALE_FLOORS,
+    approved_floors: tuple[FullScaleMethodFloor, ...] = PRODUCT_APPROVED_FULL_SCALE_FLOORS,
 ) -> None:
     """Reject tampered or inconsistent case report payloads."""
     seen_ids: set[str] = set()
@@ -58,6 +61,7 @@ def validate_regression_case_report_integrity(
         ):
             raise ValueError("parent comparison_id is missing or out of order")
         validate_comparison_record(item.record)
+        _verify_item_full_scale_facts(item)
         seen_ids.add(item.comparison_id)
 
     for failure in failures:
@@ -84,22 +88,56 @@ def validate_regression_case_report_integrity(
     )
 
 
+def _verify_item_full_scale_facts(item: CaseComparisonItem) -> None:
+    pairs = (
+        ("baseline", item.baseline_full_scale, item.record.baseline_bundle),
+        ("candidate", item.candidate_full_scale, item.record.candidate_bundle),
+    )
+    for side, facts, bundle in pairs:
+        has_result = bundle.clipping.status == "success" and bundle.clipping.result is not None
+        if (facts is not None) != has_result:
+            raise ValueError(
+                f"full-scale facts presence must match clipping success on {side}"
+            )
+        if facts is not None:
+            verify_full_scale_facts(facts, bundle)
+
+
 def _validate_full_scale_checks(
     *,
     comparisons: tuple[CaseComparisonItem, ...],
     full_scale_checks: tuple[FullScaleCheckRecord, ...],
-    approved_floors: tuple,
+    approved_floors: tuple[FullScaleMethodFloor, ...],
 ) -> None:
-    if not full_scale_checks:
-        return
     index = submissions_from_items(comparisons)
+    anchor_ids = {
+        resolve_anchor_id(item.comparison_id, index) for item in comparisons
+    }
+    if not full_scale_checks:
+        legacy_ok = all(
+            item.baseline_full_scale is None
+            and item.candidate_full_scale is None
+            and item.full_scale_declarations == FullScaleDeclarations()
+            for item in comparisons
+        )
+        if legacy_ok or not comparisons:
+            return
+        raise ValueError("full-scale checks are required when facts or declarations exist")
+
+    check_ids = [check.check_id for check in full_scale_checks]
+    if len(check_ids) != len(set(check_ids)):
+        raise ValueError("full-scale check_id values must be unique")
+
     by_anchor: dict[str, list[FullScaleCheckRecord]] = {}
     for check in full_scale_checks:
         by_anchor.setdefault(check.anchor_comparison_id, []).append(check)
 
-    for anchor_id, checks in by_anchor.items():
-        if anchor_id not in index:
-            raise ValueError("full-scale anchor_comparison_id is missing from comparisons")
+    for anchor_id in anchor_ids:
+        checks = by_anchor.get(anchor_id, [])
+        if not checks:
+            raise ValueError("full-scale checks missing for an anchor")
+        if resolve_anchor_id(anchor_id, index) != anchor_id:
+            raise ValueError("full-scale anchor_comparison_id is not an anchor")
         repeats_in_order = tuple(
             row.comparison_id
             for row in comparisons
@@ -109,6 +147,8 @@ def _validate_full_scale_checks(
         if len(checks) != len(repeats_in_order) + 1:
             raise ValueError("full-scale check count does not match repeat submissions")
         for position, check in enumerate(checks):
+            if resolve_anchor_id(check.anchor_comparison_id, index) != check.anchor_comparison_id:
+                raise ValueError("full-scale anchor_comparison_id is not an anchor")
             expected_repeats = repeats_in_order[:position]
             if check.repeat_comparison_ids != expected_repeats:
                 raise ValueError("full-scale repeat_comparison_ids mismatch")
@@ -123,6 +163,10 @@ def _validate_full_scale_checks(
                 repeats=repeat_submissions,
                 approved_floors=approved_floors,
             )
+
+    for anchor_id in by_anchor:
+        if anchor_id not in anchor_ids:
+            raise ValueError("full-scale anchor_comparison_id is missing from comparisons")
 
 
 class RegressionCaseReport(BaseModel):
@@ -157,7 +201,7 @@ def build_case_report(
     snapshot: RegressionCaseSnapshot,
     *,
     generated_at: datetime,
-    approved_floors: tuple = PRODUCT_APPROVED_FULL_SCALE_FLOORS,
+    approved_floors: tuple[FullScaleMethodFloor, ...] = PRODUCT_APPROVED_FULL_SCALE_FLOORS,
 ) -> RegressionCaseReport:
     validate_regression_case_report_integrity(
         case_id=snapshot.case_id,
