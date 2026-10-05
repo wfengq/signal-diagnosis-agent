@@ -1,10 +1,10 @@
 # Regression workbench offline acceptance (Phase A + Phase B + Phase C Task 7)
 
-Status: Phase A–B as before + **Phase C Task 7 revise1b** on branch `cursor/s1-regression-task7-offline-8b52` (baseline `41b0cba`; awaiting Codex re-recheck). Merge/Task 8/seal/RealLLM still gated.
+Status: Phase A–B as before + **Phase C Task 7 offline + Task 9 closeout Codex accept** at code tip `7a2b0c8` / docs tip `9f0f74f` on branch `cursor/s1-regression-task7-offline-8b52` (baseline `41b0cba`). Merge/Task 8/seal/RealLLM/product tolerances still gated.
 Product comparison profiles enabled in production: **0**.
 User-benefit and RealLLM retest claims: **unverified**.
-Independent Codex offline accept recorded for tip `6997400`. Merge/seal/RealLLM remain gated.
-Phase C Task 7 revise1b: removes `importorskip`/direct `openai` imports from required tests (T285); real SDK one-call evidence via `build_openai_retest_client(http_client=...)`.
+Independent Codex offline accept recorded for Phase B tip `6997400` and Phase C Task 7 tip `7a2b0c8`/`9f0f74f`. Merge/seal/RealLLM remain gated.
+Phase C Task 7: closed abstain codes, service-boundary admission, T285-clean real SDK one-call evidence via `build_openai_retest_client(http_client=...)`.
 Task 8 (offline contrast evaluation chain) **not authorized**.
 Browser dual-file / retest / export path: **executed** (T-CX339). Design AC14 is scheme admission (Task 7 catalog/parse), not the browser path.
 
@@ -77,20 +77,26 @@ Codex revise P1s addressed across revise1 / revise1b:
 
 | Check | Result |
 |---|---|
-| Focused Task 7 + identity tip | **29 passed** at tip `7a2b0c8` |
+| Codex independent recheck | **accept** (Task 7 offline + Task 9 closeout only) |
+| Focused Task 7 files | **27 passed** |
+| Focused Task 7 + T-CX254 identity tip | **28 passed** (corrected; was mistyped as 29) |
 | Architecture (incl. T285) | **62 passed** at tip `7a2b0c8` |
 | Identity tip | `d042_regression_workbench_phase_c_task7_revise1b` / product tree `27849cc6…` |
-| Full `pytest -q` | **1923 passed**, 1 warning at tip `7a2b0c8` |
+| Full `pytest -q` (this Cloud Agent) | **1923 passed**, 1 warning at tip `7a2b0c8` |
+| Codex reviewer full suite | **1922 passed**, 1 failed (`test_t133_*` needs `pip wheel`; same on baseline; env) |
 | RealLLM network / product tolerances | **not verified** |
-| Merge / Task 8 / seal | **blocked** |
+| Merge / Task 8 / seal | **blocked** (accept does not authorize) |
 
-Commands (measured on clean tip `7a2b0c8`):
+Remaining P2 (not blocking accept): acceptance count typo (fixed here); empty OpenAI org/project headers; duplicate JSON keys; selection shape at service boundary; recommendation overwrite history; missing `#recommendation-status`; button/UI and HTTP 409 recommendation tests; cancel-wait proof strength.
+
+Commands (measured on clean tip `7a2b0c8`; Cursor Cloud Agent + Codex reviewer):
 
 | Command | Result |
 |---|---|
-| `pytest tests/agent/test_retest_planner.py tests/app/test_regression_recommendations.py tests/agent/test_v03_prompt_v9_11.py::test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches -q` | **29 passed** |
+| `pytest tests/agent/test_retest_planner.py tests/app/test_regression_recommendations.py -q` | **27 passed** |
+| `pytest … + test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches -q` | **28 passed** |
 | `pytest tests/test_architecture_boundaries.py -q` | **62 passed** (T285 green; no importorskip/openai imports) |
-| Full `pytest -q` | **1923 passed**, 1 warning |
+| Full `pytest -q` | **1923 passed** here / **1922** at Codex (t133 wheel env) |
 | Wheel / CPython 3.11/3.12 matrix | **not executed** (not a release gate) |
 
 Correction: earlier drafts wrongly mapped interactive browser GUI to design AC14. Spec AC14 is scheme admission (“不适用方案或未批准参数不能由模型输出绕过”). Task 6 Web dual-file/manual retest is **T-CX339**.
