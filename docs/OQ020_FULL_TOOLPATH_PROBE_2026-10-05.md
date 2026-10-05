@@ -5,7 +5,7 @@ values. V0.3 §23 implementation remains unauthorized.
 
 **Branch context:** `cursor/oq020-full-toolpath-probe-8b52` from `e659170`.
 
-**Script:** `scripts/probe_oq020_clipping_toolpath.py`  
+**Script:** `scripts/probe_oq020_clipping_toolpath.py`
 **Machine-readable summary:** `docs/OQ020_FULL_TOOLPATH_PROBE_2026-10-05.json`
 
 ## What was measured
@@ -92,7 +92,7 @@ Matches OQ-020’s ≈ 0.004; valid ratio on non-periodic input (no N/A path).
 ## §23 design assumption: full-scale count on clean sines
 
 On **all 60 clean-sine cells**, `max_full_scale_sample_count` across phases is **0** for
-direct DSP and for **each** tool-path bit depth (16 / 24 / 32).  
+direct DSP and for **each** tool-path bit depth (16 / 24 / 32).
 `full_scale_detected` stays false on clean sines; false positives are flat-top only.
 
 ## Sub-full-scale clipped sine (mechanism / full-scale flags)
