@@ -2,7 +2,7 @@
 
 **Branch:** `cursor/s1-full-scale-check`
 **Baseline tip:** `16450ffe904c48294148418ddadfe87c04af6e74`
-**Acceptance tip:** `a1b58164b7cab6ca819d638b1d3ba283d43bff0a` (Task 9 closeout; filled after commit)
+**Acceptance tip:** `c74581d39dfe364a3cea93406b36241c29b1c433` (Task 9 closeout; filled after commit)
 
 ## Validation scope
 
