@@ -1,9 +1,11 @@
 # S1 regression workbench: full-scale check — contract amendment draft
 
 Date: 2026-10-05, Asia/Shanghai.
-Status: **draft for operator review, revision 2. Not applied.** Nothing in this
-file is in force. `CONTRACTS_V0_3_CONTEXTUAL.md`, `DECISIONS.md` and
-`TEST_PLAN_V0_3_CONTEXTUAL.md` are unchanged by this file.
+Status: **revision 2 approved by the operator on 2026-10-05 and applied** as
+`CONTRACTS_V0_3_CONTEXTUAL.md` §23, `DECISIONS.md` D043 and
+`TEST_PLAN_V0_3_CONTEXTUAL.md` T-CX349–T-CX370. Those files are authoritative;
+this file is kept as the amendment record. Wording below ("draft",
+"proposed") is as written before approval.
 
 Basis: OQ-020; operator-approved design
 `2026-10-05-s1-regression-clipping-comparison-semantics-design.md` §12–§13 and

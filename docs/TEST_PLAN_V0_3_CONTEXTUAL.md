@@ -35,6 +35,7 @@
 | T-CX324..325 | OQ-019/dev_2 preseal evidence separation + PRESEAL status board (definitions; seal/RealLLM gated) |
 | T-CX319..323 | D039 single-file observed facts on context_guidance (definitions; implementation gated) |
 | T-CX329..348 | D042 regression troubleshooting workbench (definitions; Phase A–C implementation gated) |
+| T-CX349..370 | D043 regression full-scale check (definitions; implementation, characterization and floor approval gated) |
 
 ## Registered identities (Task 1)
 
@@ -279,6 +280,28 @@
 | T-CX346 | Layering, frozen allowlists, and append-only identity bridges for new modules (definition; Tasks 4/9). |
 | T-CX347 | Repair retest outcomes distinguish disappeared, persistent, not-applicable, and failed runs (definition; Tasks 5/6). |
 | T-CX348 | Without approved rules/benefit evidence, do not claim product or planner acceptance complete (definition; Tasks 8/9). |
+| T-CX349 | Count equals the existing full-scale mechanism sample for sample; isolated single samples go to `over_threshold_uncounted`; facts use the bundle's range and channel (definition; §23). |
+| T-CX350 | Clean-sine cells with non-zero `clipping_ratio` have `counted_samples = 0`; a ratio difference never changes the check status (definition; §23). |
+| T-CX351 | `ClippingOutput`, `MeasurementBundle` digest, `ComparisonRecord` content, `required_checks`, overall pass and validation are unchanged (definition; §23). |
+| T-CX352 | no → yes is `regression_detected` when eligible, and has no judged status when any gate is missing, however large the change (definition; §23). |
+| T-CX353 | yes → yes: above floor is regression; at or below floor and equal are not (definition; §23). |
+| T-CX354 | Decrease and disappearance are `no_regression_detected` with the same-screen notice; missing notice fails (definition; §23). |
+| T-CX355 | Templates contain neither "clipping" nor "no clipping"; regression carries the export-settings notice; THD and ratio coverage lines present; "declared, not verified", unchecked-fundamental and render-count lines present; required values shown (definition; §23). |
+| T-CX356 | `periodic_test_signal` omitted, `unknown` or `no` gives `descriptive_only`; read from the anchor only (definition; §23). |
+| T-CX357 | Critical zone: either side inside gives `descriptive_only` naming the side; fixed minimum for a `no` side within one coarser-depth step below threshold; a one-step difference on such a baseline does not yield `regression_detected` (definition; §23). |
+| T-CX358 | Counted-repeat rules: declared independent, same selection/range/rate/channel/versions, own declarations not blocking; others listed with reason and create no contradiction; byte-identical counted repeats are marked; independence declarations ignored on the anchor (definition; §23). |
+| T-CX359 | No counted repeat on a side gives `descriptive_only`; inconsistent counted renders give `not_comparable` with the contradiction (definition; §23). |
+| T-CX360 | Service construction rejects a profile with a `clipping_ratio` rule; test fixtures exempt; ratio stays descriptive with its notice; overall pass not presented as pending (definition; §23). |
+| T-CX361 | Sub-full-scale clipped pair gets no judgment beyond the full-scale state; auxiliary facts visible (definition; §23). |
+| T-CX362 | Equal versions, missing fundamental, out-of-domain samples per period or periods in range, and bit depth below 16 each give `descriptive_only` with the reason (definition; §23). |
+| T-CX363 | No floor record, or one whose identity fields mismatch, gives no judged status; unevaluable conditions are listed as unevaluated; clients cannot upload a floor or approval flag (definition; §23). |
+| T-CX364 | Record lifecycle: one per completed comparison, none for failed submits or idempotent replays, no quota use, immutable, superseding pointer (definition; §23). |
+| T-CX365 | Anchor resolution: repeat of repeat reaches the root; `repair` and `recommendation` comparisons are their own anchors (definition; §23). |
+| T-CX366 | Blocking anchor declarations and missing facts (tool error) give `not_comparable`; `not_comparable` precedes `descriptive_only`; all unmet conditions listed (definition; §23). |
+| T-CX367 | Validation recomputes selection, eligibility, status and digests; cross-checks state, peak, length and threshold against the bundle; tampering raises (definition; §23). |
+| T-CX368 | The check never enters `StructuredDiagnosis` or the causal gate; legacy diagnosis paths unchanged (definition; §23). |
+| T-CX369 | Layering: counting in `dsp/`, adapter in `tools/`, judgment in `rules/`; allowlist appended; `rules/` imports no `app/` (definition; §23). |
+| T-CX370 | Submit fingerprint covers `FullScaleDeclarations`; strict models reject unknown fields; omission equals `unknown` (definition; §23). |
 | T-CX324 | Offline observation capability/event-graph tests and per-run ledgers do not admit production worst-case planner/SDK/HTTP/token ceilings; each ceiling needs an independent applicable authenticated proof; preseal must not require a formal RealLLM campaign ledger before seal. |
 | T-CX325 | `PRESEAL_BUDGET_STATUS.md` is a permitted unsealed status board under `study_s1_planner_ablation_dev_2`; it is not a numeric bound-fact citation; formal candidate readiness follows source-aware validation, not legacy `inspect_limits`. |
 
@@ -384,3 +407,11 @@ product tolerances, RealLLM, commit/push/merge, and seal remain separately
 gated. They must not alter frozen V0.2 §§1–64, D037/D039 diagnosis semantics,
 v9.11 planner identity, sealed evaluation/Demo assets, planner-ablation study
 authority, or T-CX001–T-CX328 meanings.
+T-CX349–T-CX370 are definitions for D043 regression full-scale check
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §23). Registering these IDs does not implement
+or pass the behaviors and authorizes no floor, critical-zone or
+approved-domain value. Implementation, the layer-1 characterization run, floor
+approval, RealLLM, merge, and seal remain separately gated. They must not
+alter frozen V0.2 §§1–64, D037/D039 diagnosis semantics, v9.11 planner
+identity, sealed evaluation/Demo assets, or T-CX001–T-CX348 definitions;
+D043 changes the reading of §22 only as stated in §23.1 and D043.
