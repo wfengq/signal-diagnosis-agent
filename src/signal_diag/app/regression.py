@@ -29,12 +29,22 @@ from signal_diag.app.errors import (
     PayloadTooLargeError,
 )
 from signal_diag.app.models import AppErrorDetail
+from signal_diag.rules.full_scale_check import (
+    FullScaleCheckRecord,
+    FullScaleDeclarations,
+    FullScaleMethodFloor,
+    FullScaleSubmission,
+    assert_product_profile_allowed,
+    evaluate_full_scale_check,
+    resolve_anchor_id,
+)
 from signal_diag.rules.regression import (
     ComparisonConditions,
     ComparisonProfile,
     ComparisonRecord,
     compare_measurements,
 )
+from signal_diag.tools.regression_full_scale import FullScaleFacts, measure_full_scale_facts
 from signal_diag.signal import (
     InvalidWavError,
     SignalLimitExceededError,
@@ -96,6 +106,9 @@ class ComparisonUpload(BaseModel):
     selection: MeasurementSelection
     original_input_data: bytes | None = None
     original_input_filename: str | None = Field(default=None, max_length=256)
+    full_scale_declarations: FullScaleDeclarations = Field(
+        default_factory=FullScaleDeclarations
+    )
 
     @model_validator(mode="after")
     def validate_versions_match_conditions(self) -> ComparisonUpload:
@@ -134,6 +147,11 @@ class CaseComparisonItem(BaseModel):
     link_kind: _RetestKind | None = None
     request_id: str
     created_at: datetime
+    full_scale_declarations: FullScaleDeclarations = Field(
+        default_factory=FullScaleDeclarations
+    )
+    baseline_full_scale: FullScaleFacts | None = None
+    candidate_full_scale: FullScaleFacts | None = None
 
 
 class CaseFailureRecord(BaseModel):
@@ -166,6 +184,7 @@ class RegressionCaseSnapshot(BaseModel):
     revision: int
     goal: str
     comparisons: tuple[CaseComparisonItem, ...]
+    full_scale_checks: tuple[FullScaleCheckRecord, ...] = ()
     failures: tuple[CaseFailureRecord, ...]
     recommendations: tuple[CaseRecommendationRecord, ...]
     latest_submit_status: _SubmitStatus
@@ -205,6 +224,7 @@ class _CaseState:
     accepted_submit_count: int = 0
     latest_submit_status: _SubmitStatus = "idle"
     running: bool = False
+    full_scale_checks: list[FullScaleCheckRecord] = field(default_factory=list)
 
 
 def _upload_fingerprint(
@@ -284,12 +304,37 @@ def _build_identity(
     )
 
 
+@dataclass(frozen=True, slots=True)
+class _ComparisonGroupResult:
+    record: ComparisonRecord
+    baseline_facts: FullScaleFacts | None
+    candidate_facts: FullScaleFacts | None
+
+
+def submissions_from_items(
+    items: tuple[CaseComparisonItem, ...] | list[CaseComparisonItem],
+) -> dict[str, FullScaleSubmission]:
+    """Map comparison items to full-scale submissions for anchor resolution."""
+    return {
+        item.comparison_id: FullScaleSubmission(
+            comparison_id=item.comparison_id,
+            parent_comparison_id=item.parent_comparison_id,
+            link_kind=item.link_kind,
+            record=item.record,
+            declarations=item.full_scale_declarations,
+            baseline_facts=item.baseline_full_scale,
+            candidate_facts=item.candidate_full_scale,
+        )
+        for item in items
+    }
+
+
 def _execute_comparison_group(
     upload: ComparisonUpload,
     *,
     profile: ComparisonProfile | None,
     max_file_bytes: int,
-) -> ComparisonRecord:
+) -> _ComparisonGroupResult:
     """Decode, measure both sides, and compare. Sync so tests can wrap it."""
     _check_file_sizes(upload, max_file_bytes=max_file_bytes)
     repository = InMemorySignalRepository()
@@ -361,12 +406,27 @@ def _execute_comparison_group(
             identity=candidate_identity,
             selection=upload.selection,
         )
-        return compare_measurements(
+        baseline_facts = measure_full_scale_facts(
+            repository=repository,
+            bundle=baseline_bundle,
+            pcm_bit_depth=baseline_loaded.source_info.bits_per_sample,
+        )
+        candidate_facts = measure_full_scale_facts(
+            repository=repository,
+            bundle=candidate_bundle,
+            pcm_bit_depth=candidate_loaded.source_info.bits_per_sample,
+        )
+        record = compare_measurements(
             baseline_bundle,
             candidate_bundle,
             conditions=conditions,
             profile=profile,
             comparison_id=_new_id("cmp"),
+        )
+        return _ComparisonGroupResult(
+            record=record,
+            baseline_facts=baseline_facts,
+            candidate_facts=candidate_facts,
         )
     finally:
         for meta in list(repository.list_meta()):
@@ -385,9 +445,11 @@ class RegressionWorkbenchService:
         retest_planner: RetestPlanner | None = None,
         retest_model: str | None = None,
         retest_limits: RetestCallLimits | None = None,
+        full_scale_floor: FullScaleMethodFloor | None = None,
     ) -> None:
         self._clock = clock or _utc_now
         self._comparison_profile = comparison_profile
+        self._full_scale_floor = full_scale_floor
         self._wav_limits = wav_limits or WavLoadLimits()
         self._retest_planner = retest_planner
         self._retest_model = retest_model.strip() if retest_model else None
@@ -521,9 +583,10 @@ class RegressionWorkbenchService:
                             continue
                     raise
                 if inspect.isawaitable(outcome):
-                    record = await outcome
+                    group_result = await outcome
                 else:
-                    record = outcome
+                    group_result = outcome
+                record = group_result.record
             except (InvalidRequestError, PayloadTooLargeError, AppCapacityError) as error:
                 async with self._lock:
                     case = self._require_case(case_id)
@@ -583,8 +646,35 @@ class RegressionWorkbenchService:
                     link_kind=link.kind if link else None,
                     request_id=request_id,
                     created_at=self._clock(),
+                    full_scale_declarations=upload.full_scale_declarations,
+                    baseline_full_scale=group_result.baseline_facts,
+                    candidate_full_scale=group_result.candidate_facts,
                 )
                 case.comparisons.append(item)
+                submission_index = submissions_from_items(case.comparisons)
+                anchor_id = resolve_anchor_id(record.comparison_id, submission_index)
+                anchor_submission = submission_index[anchor_id]
+                repeats = tuple(
+                    submission_index[row.comparison_id]
+                    for row in case.comparisons
+                    if row.link_kind == "repeat"
+                    and resolve_anchor_id(row.comparison_id, submission_index) == anchor_id
+                )
+                prior_checks = [
+                    check
+                    for check in case.full_scale_checks
+                    if check.anchor_comparison_id == anchor_id
+                ]
+                supersedes = prior_checks[-1].check_id if prior_checks else None
+                case.full_scale_checks.append(
+                    evaluate_full_scale_check(
+                        check_id=_new_id("fsc"),
+                        anchor=anchor_submission,
+                        repeats=repeats,
+                        floor=self._full_scale_floor,
+                        supersedes=supersedes,
+                    )
+                )
                 recommendation = CaseRecommendationRecord(
                     case_id=case_id,
                     recommendation_id=_new_id("rec"),
@@ -879,6 +969,9 @@ class RegressionWorkbenchService:
             comparisons=tuple(
                 item.model_copy(deep=True) for item in case.comparisons
             ),
+            full_scale_checks=tuple(
+                item.model_copy(deep=True) for item in case.full_scale_checks
+            ),
             failures=tuple(item.model_copy(deep=True) for item in case.failures),
             recommendations=tuple(
                 item.model_copy(deep=True) for item in case.recommendations
@@ -891,4 +984,6 @@ class RegressionWorkbenchService:
 
 def build_regression_service() -> RegressionWorkbenchService:
     """Product builder: descriptive-only comparisons, no fixture profiles."""
-    return RegressionWorkbenchService(comparison_profile=None)
+    profile = None
+    assert_product_profile_allowed(profile)
+    return RegressionWorkbenchService(comparison_profile=profile, full_scale_floor=None)
