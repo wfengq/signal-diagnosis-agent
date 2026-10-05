@@ -164,15 +164,11 @@ def select_counted_repeats(
             continue
         cid = repeat.comparison_id
         sides_blocked: dict[ComparisonSide, str] = {}
-
         decl_block = _declarations_block_regression(repeat.record.conditions)
-        if decl_block is not None:
-            for side in _BOTH_SIDES:
-                sides_blocked[side] = "declarations_block"
 
+        # Reason priority per side: not_declared_independent, facts_missing,
+        # declarations_block, then selection/range/rate/version mismatches.
         for side in _BOTH_SIDES:
-            if side in sides_blocked:
-                continue
             if not _independent_declared(repeat.declarations, side):
                 sides_blocked[side] = "not_declared_independent"
                 continue
@@ -180,33 +176,32 @@ def select_counted_repeats(
             if facts is None:
                 sides_blocked[side] = "facts_missing"
                 continue
+            if decl_block is not None:
+                sides_blocked[side] = "declarations_block"
 
-        if "declarations_block" not in sides_blocked.values():
+        open_sides = tuple(side for side in _BOTH_SIDES if side not in sides_blocked)
+        if open_sides:
             if _identity_mismatch(anchor_base_id, repeat.record.baseline_bundle.identity) or (
                 _identity_mismatch(anchor_cand_id, repeat.record.candidate_bundle.identity)
             ):
-                for side in _BOTH_SIDES:
-                    if side not in sides_blocked:
-                        sides_blocked[side] = "selection_mismatch"
+                for side in open_sides:
+                    sides_blocked[side] = "selection_mismatch"
             elif _range_mismatch(anchor_base_id, repeat.record.baseline_bundle.identity) or (
                 _range_mismatch(anchor_cand_id, repeat.record.candidate_bundle.identity)
             ):
-                for side in _BOTH_SIDES:
-                    if side not in sides_blocked:
-                        sides_blocked[side] = "range_mismatch"
+                for side in open_sides:
+                    sides_blocked[side] = "range_mismatch"
             elif anchor_base_id.sample_rate_hz != repeat.record.baseline_bundle.identity.sample_rate_hz or (
                 anchor_cand_id.sample_rate_hz != repeat.record.candidate_bundle.identity.sample_rate_hz
             ):
-                for side in _BOTH_SIDES:
-                    if side not in sides_blocked:
-                        sides_blocked[side] = "sample_rate_mismatch"
+                for side in open_sides:
+                    sides_blocked[side] = "sample_rate_mismatch"
             elif (
                 anchor_conditions.baseline_version != repeat.record.conditions.baseline_version
                 or anchor_conditions.candidate_version != repeat.record.conditions.candidate_version
             ):
-                for side in _BOTH_SIDES:
-                    if side not in sides_blocked:
-                        sides_blocked[side] = "version_mismatch"
+                for side in open_sides:
+                    sides_blocked[side] = "version_mismatch"
 
         for side in _BOTH_SIDES:
             if side in sides_blocked:
@@ -292,24 +287,36 @@ def evaluate_full_scale_check(
     identity = anchor.record.baseline_bundle.identity
     both_facts = anchor_base is not None and anchor_cand is not None
 
-    if both_facts:
-        assert anchor_base is not None and anchor_cand is not None
-        if len(base_rep) < 1:
-            unmet.append("repeat_missing:baseline")
-        if len(cand_rep) < 1:
-            unmet.append("repeat_missing:candidate")
-        if len(base_rep) >= 1 and not _renders_consistent(anchor_base, base_rep):
-            unmet.append("renders_inconsistent:baseline")
-        if len(cand_rep) >= 1 and not _renders_consistent(anchor_cand, cand_rep):
-            unmet.append("renders_inconsistent:candidate")
-        if conditions.baseline_version == conditions.candidate_version:
-            unmet.append("same_version")
-        if anchor.declarations.periodic_test_signal != "yes":
-            unmet.append("periodic_not_declared")
-        if anchor_base.pcm_bit_depth < FULL_SCALE_MIN_PCM_BIT_DEPTH:
-            unmet.append("bit_depth_below_16:baseline")
-        if anchor_cand.pcm_bit_depth < FULL_SCALE_MIN_PCM_BIT_DEPTH:
-            unmet.append("bit_depth_below_16:candidate")
+    if len(base_rep) < 1:
+        unmet.append("repeat_missing:baseline")
+    if len(cand_rep) < 1:
+        unmet.append("repeat_missing:candidate")
+    if (
+        anchor_base is not None
+        and len(base_rep) >= 1
+        and not _renders_consistent(anchor_base, base_rep)
+    ):
+        unmet.append("renders_inconsistent:baseline")
+    if (
+        anchor_cand is not None
+        and len(cand_rep) >= 1
+        and not _renders_consistent(anchor_cand, cand_rep)
+    ):
+        unmet.append("renders_inconsistent:candidate")
+    if conditions.baseline_version == conditions.candidate_version:
+        unmet.append("same_version")
+    if anchor.declarations.periodic_test_signal != "yes":
+        unmet.append("periodic_not_declared")
+    if (
+        anchor_base is not None
+        and anchor_base.pcm_bit_depth < FULL_SCALE_MIN_PCM_BIT_DEPTH
+    ):
+        unmet.append("bit_depth_below_16:baseline")
+    if (
+        anchor_cand is not None
+        and anchor_cand.pcm_bit_depth < FULL_SCALE_MIN_PCM_BIT_DEPTH
+    ):
+        unmet.append("bit_depth_below_16:candidate")
 
     floor_ok = _floor_identity_ok(floor, anchor_base, anchor_cand)
     if not floor_ok:
@@ -326,13 +333,21 @@ def evaluate_full_scale_check(
     fundamental_ok = f0 is not None and math.isfinite(f0) and f0 > 0
     if not fundamental_ok:
         unmet.append("fundamental_not_declared")
-    elif floor_ok and both_facts and floor is not None and anchor_base is not None and f0 is not None:
+    elif floor_ok and floor is not None and f0 is not None:
         sr = identity.sample_rate_hz
-        analyzed = anchor_base.analyzed_samples
         if sr / f0 < floor.min_samples_per_period:
             unmet.append("samples_per_period_below_domain")
-        if analyzed * f0 / sr < floor.min_periods_in_range:
-            unmet.append("periods_in_range_below_domain")
+        analyzed_for_periods: int | None = None
+        if both_facts:
+            assert anchor_base is not None
+            analyzed_for_periods = anchor_base.analyzed_samples
+        elif anchor_base is not None:
+            analyzed_for_periods = anchor_base.analyzed_samples
+        elif anchor_cand is not None:
+            analyzed_for_periods = anchor_cand.analyzed_samples
+        if analyzed_for_periods is not None:
+            if analyzed_for_periods * f0 / sr < floor.min_periods_in_range:
+                unmet.append("periods_in_range_below_domain")
 
     if anchor_base is not None or anchor_cand is not None:
         step = _quantization_step(anchor_base, anchor_cand)

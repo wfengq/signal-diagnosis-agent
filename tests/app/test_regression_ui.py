@@ -89,3 +89,10 @@ def test_ui_has_declaration_inputs_and_no_wording_literals() -> None:
 def test_ui_renders_ratio_notice_from_payload() -> None:
     js = _static_text("regression.js")
     assert "clipping_ratio_notice" in js and "flat-top" not in js.casefold()
+
+
+def test_ui_marks_current_check_per_anchor() -> None:
+    js = _static_text("regression.js")
+    assert "anchor_comparison_id" in js
+    assert "full_scale_checks.length - 1" not in js
+    assert "checkIndex === snapshot.full_scale_checks.length - 1" not in js

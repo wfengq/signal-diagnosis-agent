@@ -225,11 +225,16 @@ function renderResults(snapshot) {
   if (snapshot.full_scale_checks && snapshot.full_scale_checks.length) {
     const fsBlock = document.createElement("section");
     appendText(fsBlock, "h3", "Full-scale check");
+    const currentByAnchor = new Map();
     snapshot.full_scale_checks.forEach((check, checkIndex) => {
-      const title =
-        checkIndex === snapshot.full_scale_checks.length - 1
-          ? `Anchor ${check.anchor_comparison_id} (current)`
-          : `Anchor ${check.anchor_comparison_id} (superseded)`;
+      currentByAnchor.set(check.anchor_comparison_id, checkIndex);
+    });
+    snapshot.full_scale_checks.forEach((check, checkIndex) => {
+      const isCurrent =
+        currentByAnchor.get(check.anchor_comparison_id) === checkIndex;
+      const title = isCurrent
+        ? `Anchor ${check.anchor_comparison_id} (current)`
+        : `Anchor ${check.anchor_comparison_id} (superseded)`;
       appendText(fsBlock, "h4", title);
       const list = document.createElement("ul");
       (check.lines || []).forEach((line) => {

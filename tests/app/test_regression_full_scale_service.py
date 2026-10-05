@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 from datetime import UTC, datetime
 
 import pytest
@@ -70,6 +71,13 @@ def _upload(**overrides: object) -> ComparisonUpload:
 @pytest.fixture
 def service() -> RegressionWorkbenchService:
     return RegressionWorkbenchService(clock=lambda: NOW)
+
+
+def test_9c4_evaluate_before_comparisons_append() -> None:
+    source = inspect.getsource(RegressionWorkbenchService.submit_comparison)
+    eval_at = source.index("evaluate_full_scale_check(")
+    append_at = source.index("case.comparisons.append(item)")
+    assert eval_at < append_at
 
 
 @pytest.mark.asyncio

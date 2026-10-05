@@ -653,13 +653,13 @@ class RegressionWorkbenchService:
                     baseline_full_scale=group_result.baseline_facts,
                     candidate_full_scale=group_result.candidate_facts,
                 )
-                case.comparisons.append(item)
-                submission_index = submissions_from_items(case.comparisons)
+                pending_comparisons = (*case.comparisons, item)
+                submission_index = submissions_from_items(pending_comparisons)
                 anchor_id = resolve_anchor_id(record.comparison_id, submission_index)
                 anchor_submission = submission_index[anchor_id]
                 repeats = tuple(
                     submission_index[row.comparison_id]
-                    for row in case.comparisons
+                    for row in pending_comparisons
                     if row.link_kind == "repeat"
                     and resolve_anchor_id(row.comparison_id, submission_index) == anchor_id
                 )
@@ -669,15 +669,15 @@ class RegressionWorkbenchService:
                     if check.anchor_comparison_id == anchor_id
                 ]
                 supersedes = prior_checks[-1].check_id if prior_checks else None
-                case.full_scale_checks.append(
-                    evaluate_full_scale_check(
-                        check_id=_new_id("fsc"),
-                        anchor=anchor_submission,
-                        repeats=repeats,
-                        floor=self._full_scale_floor,
-                        supersedes=supersedes,
-                    )
+                check_record = evaluate_full_scale_check(
+                    check_id=_new_id("fsc"),
+                    anchor=anchor_submission,
+                    repeats=repeats,
+                    floor=self._full_scale_floor,
+                    supersedes=supersedes,
                 )
+                case.comparisons.append(item)
+                case.full_scale_checks.append(check_record)
                 recommendation = CaseRecommendationRecord(
                     case_id=case_id,
                     recommendation_id=_new_id("rec"),

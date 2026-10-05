@@ -276,6 +276,40 @@ def test_t_cx363_no_floor_means_no_judged_status() -> None:
     assert "floor_missing" in _status(anchor, repeats, floor=broken)[2]
 
 
+def test_t_cx366_lists_all_unmet_when_one_side_has_no_facts() -> None:
+    anchor, repeats = eligible(
+        candidate=(20000, 1.0),
+        drop_facts="candidate",
+        candidate_version="v1",
+        periodic="unknown",
+    )
+    status, _, unmet, _ = _status(anchor, repeats)
+    assert status == "not_comparable"
+    assert {
+        "facts_missing:candidate",
+        "same_version",
+        "periodic_not_declared",
+        "repeat_missing:candidate",
+    } <= set(unmet)
+
+
+def test_9c2_uncounted_reason_priority_independent_before_declarations_block() -> None:
+    anchor = make_submission(comparison_id="a")
+    repeat = make_submission(
+        comparison_id="r1",
+        parent="a",
+        kind="repeat",
+        declarations=FullScaleDeclarations(candidate_independent_render="yes"),
+        same_input="unknown",
+    )
+    _, _, uncounted = select_counted_repeats(anchor, (repeat,))
+    by_side = {entry.side: entry.reason for entry in uncounted}
+    assert by_side == {
+        "baseline": "not_declared_independent",
+        "candidate": "declarations_block",
+    }
+
+
 def test_t_cx366_not_comparable_precedes_descriptive_and_all_are_listed() -> None:
     anchor, repeats = eligible(
         baseline=(0, 0.5),
