@@ -85,11 +85,40 @@ def product_quantization_step(bits: int) -> float:
     return max(2.0 ** -(bits - 1), 2.0**-24)
 
 
-def _abort(pair: PairRecord, channel: ChannelMode, check: str, detail: str) -> SanityAbort:
-    return SanityAbort(
+class PairSanityAbort(SanityAbort):
+    """SanityAbort carrying the triggering pair, check item and values (abort record)."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        pair_id: str,
+        check: str,
+        perturbation_code: str,
+        perturbation_detail: str,
+        channel: str,
+        values: str,
+    ) -> None:
+        super().__init__(message)
+        self.pair_id = pair_id
+        self.check = check
+        self.perturbation_code = perturbation_code
+        self.perturbation_detail = perturbation_detail
+        self.channel = channel
+        self.values = values
+
+
+def _abort(pair: PairRecord, channel: ChannelMode, check: str, detail: str) -> PairSanityAbort:
+    return PairSanityAbort(
         f"sanity abort [{check}] pair_id={pair.pair_id} "
         f"code={pair.perturbation_code} detail={pair.perturbation_detail} "
-        f"channel={channel}: {detail}"
+        f"channel={channel}: {detail}",
+        pair_id=pair.pair_id,
+        check=check,
+        perturbation_code=pair.perturbation_code,
+        perturbation_detail=pair.perturbation_detail,
+        channel=channel,
+        values=detail,
     )
 
 
