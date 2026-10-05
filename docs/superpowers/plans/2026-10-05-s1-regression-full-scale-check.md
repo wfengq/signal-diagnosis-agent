@@ -10,7 +10,7 @@
 
 **Spec:** `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §23（权威）；`docs/DECISIONS.md` D043；`docs/TEST_PLAN_V0_3_CONTEXTUAL.md` T-CX349–T-CX370；设计 `docs/superpowers/specs/2026-10-05-s1-regression-clipping-comparison-semantics-design.md` §12–§14；实测 `docs/OQ020_FULL_TOOLPATH_PROBE_2026-10-05.md`。
 
-**Status:** 修订 3（2026-10-05）。Task 1–8 已由 Cursor 实现（PR #41，tip `a374a9f`）并经独立代码审阅；修订 3 在文末新增 Task 9（审阅后的修复）并修改三处规则，操作员已同意这三处修改。Task 9 与正文冲突处以 Task 9 为准。修订 3 本身未再经独立审阅。
+**Status:** 修订 3（2026-10-05）。Task 1–8 已由 Cursor 实现（PR #41，tip `a374a9f`）并经独立代码审阅；修订 3 在文末新增 Task 9（审阅后的修复）并修改三处规则，操作员已同意这三处修改。Task 9 与正文冲突处以 Task 9 为准。修订 3 本身未再经独立审阅。修订 4（同日）：按 Cursor 的停工报告更正 9B 的前提与 9B-1。
 **Read-only baseline:** `386a9b2` on `codex/v0.2-real-world-validation`（2026-10-05 读取）。执行前在当时基线上重新核对本计划引用的文件、行号与空闲测试 ID。
 
 ## Global Constraints
@@ -1034,16 +1034,20 @@ def test_ui_renders_ratio_notice_from_payload() -> None:
 
 ### 9B. 校验缺口（实现缺陷，批准任何下限之前必须修复）
 
-每条都先写一个“篡改后重算摘要、校验必须失败”的测试；下面括号内是审阅实测能通过的篡改。
+**校验能保证什么（修订 4 更正）。** 各摘要是不带密钥的哈希，任何人都能重算。因此校验保证的是一份报告内部一致，不保证它没有被整体改写。合同 §23.5 已写明：`counted_samples` 与 `over_threshold_uncounted` 在提交后无法重算，只受事实摘要保护。所以“改动一个无法重算的字段，再把沿途所有摘要都重算一遍”这类篡改，校验拦不住，也不要求拦住；修订 3 把其中一种列为必须失败，是计划的错误（Cursor 的停工报告指出，属实）。
 
-1. **每一份事实都要校验。** `validate_full_scale_check_record` 对 `baseline_renders` 与 `candidate_renders` 的每一项调用 `verify_full_scale_facts`，对应其所属提交的包。报告层另外对每个比较项自带的两侧事实做同样校验，无论是否被检查记录引用。（把一条重复的 `counted_samples` 由 2400 改为 2000 → “无法比较”变“发现回归”；重复的两侧事实互换；重复事实的 `bundle_digest` 置零。）
+本节每条的测试只针对“留下了可检出矛盾”的篡改：改动后与测量包、与其它记录或与登记处不一致。下面括号内列出各条必须拒绝的篡改。
+
+1. **每一份事实都要校验，并加上与测量包的计数界。** `validate_full_scale_check_record` 对 `baseline_renders` 与 `candidate_renders` 的每一项调用 `verify_full_scale_facts`，对应其所属提交的包。报告层另外对每个比较项自带的两侧事实做同样校验，无论是否被检查记录引用。`verify_full_scale_facts` 增加两条与包内削波结果的核对：`counted_samples <= ClippingOutput.clipped_samples`；当 `ClippingOutput.flat_top_detected` 为假时二者必须相等（此时现有削波分析的计数只来自满刻度机制）。
+   - 必须拒绝：重复的两侧事实互换；重复事实的 `bundle_digest` 置零；改动重复事实的任一字段而不重算事实摘要；把 `counted_samples` 改成大于包内 `clipped_samples` 的值并重算摘要；在未检出平顶的包上把 `counted_samples` 改成任何其它值并重算摘要（用 `sine(amplitude=0.9905)` 这类未削平的波形构造）。
+   - 不要求拒绝（合同接受的剩余风险，写一条测试把现状钉住并注明原因）：包内检出了平顶时，把 `counted_samples` 改成另一个不超过 `clipped_samples` 的正数并重算全部摘要。审阅报告的“2400 改 2000”属于这一类。
 2. **事实存在性与包一致。** 报告层要求：某侧事实存在，当且仅当该侧包的削波工具状态为 `success` 且有结果。（把锚点候选侧事实置为 `None`。）
 3. **事实内部一致。** `verify_full_scale_facts` 增加：`counted_samples + over_threshold_uncounted <= analyzed_samples`；`peak_abs >= full_scale_threshold` 当且仅当两个计数之和大于 0。（`counted_samples=96001`、`analyzed_samples=96000`。）
 4. **检查记录必须齐全。** 报告层从 `comparisons` 推出全部锚点，每个锚点必须恰有“重复数 + 1”条检查记录。唯一例外：`full_scale_checks` 为空，且所有比较项都没有事实、声明均为默认值（旧载荷）。（删掉全部检查记录；删掉某个锚点的全部记录。）
 5. **锚点必须是真锚点。** 要求 `resolve_anchor_id(record.anchor_comparison_id, index) == record.anchor_comparison_id`。（以一条重复为锚点伪造一条记录。）
 6. **`check_id` 唯一。**（两个锚点共用一个编号；同一锚点的三条记录共用一个编号。）
 7. **适用的已批准下限不得被去掉。** `validate_full_scale_check_record` 中，若 `approved_floors` 里有一条的 `facts_version`、阈值、最少连续样本数与锚点事实相同，则 `record.floor` 必须是它。（把“发现回归”记录的 `floor` 置为 `None` 后重算 → “仅描述”并通过。）
-8. **声明受摘要约束。** 检查记录的 `declarations` 须与各提交项携带的声明逐项相等（重算时已比较，补一条测试钉住：改动重复项的独立渲染声明后报告校验失败）。
+8. **声明与检查记录一致。** 检查记录的 `declarations` 须与各提交项携带的声明逐项相等。补一条测试钉住：只改动某个重复项的独立渲染声明、不重算检查记录，报告校验失败。（同时改动提交项并重算检查记录属于上面说的整体改写，不要求拒绝。）
 
 ### 9C. 与计划不符之处（实现缺陷）
 
@@ -1070,7 +1074,7 @@ def test_t_cx366_lists_all_unmet_when_one_side_has_no_facts() -> None:
 - 删除 `build_case_report` 的 `approved_floors` 参数（模型校验器恒用产品登记处，该参数无效），相应测试直接调用 `validate_regression_case_report_integrity(..., approved_floors=...)`。
 - `rules/full_scale_check.py` 不再自带 `_canonical_json`，复用 `tools.regression_measurement._canonical_json`。
 - `zone_min_counted_samples` 加 `ge=0`；`approved_floors` 的类型标注补全。
-- `docs/REGRESSION_FULL_SCALE_CHECK_OFFLINE_ACCEPTANCE.md`：写明最终 tip 的完整 SHA；偏离清单补上代码身份登记行与本节涉及的修改；打包验证脚本如仍无法在本地运行，继续如实标注，并注明以 CI 为准。
+- `docs/REGRESSION_FULL_SCALE_CHECK_OFFLINE_ACCEPTANCE.md`：增加一段“校验的范围”，照 9B 开头的说明写明校验保证内部一致、不保证未被整体改写，并列出 9B-1 中不要求拒绝的那种篡改；写明最终 tip 的完整 SHA；偏离清单补上代码身份登记行与本节涉及的修改；打包验证脚本如仍无法在本地运行，继续如实标注，并注明以 CI 为准。
 
 ### 完成标准
 
