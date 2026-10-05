@@ -34,6 +34,12 @@ Deterministic version comparison and case workflow; product comparison
 tolerances, retest level parameters, RealLLM retest planner quality, commit,
 push, merge, and seal remain separately gated.
 
+**D043 regression full-scale check (definitions; explicit amendment of the
+reading of §22):** §23;
+`docs/superpowers/specs/2026-10-05-s1-regression-clipping-comparison-semantics-design.md`
+§12–§13. No floor value, characterization run, implementation, or judged
+product status is authorized.
+
 **Test IDs:** `docs/TEST_PLAN_V0_3_CONTEXTUAL.md` (T-CX001–T-CX348)
 
 **Live product identity (HEAD):** prompt `v0.3-s1-planner-9.11` with causal
@@ -1507,3 +1513,261 @@ proves adapter wiring only and is not a product RealLLM run.
 
 Registering these definitions does not enable product pass/fail tolerances or
 claim user-benefit acceptance.
+
+## 23. Regression full-scale check (D043; amends the reading of §22)
+
+Separate judgment surface for one comparison fact: samples reaching the
+full-scale threshold. It adds new objects next to §22. Design:
+`docs/superpowers/specs/2026-10-05-s1-regression-clipping-comparison-semantics-design.md`
+§12–§13. It does not authorize any count floor, critical-zone boundary or
+approved-domain limit; those come only from a reviewed floor record (§23.4).
+
+### 23.1 Scope clarification of §22
+
+The word "only" in §22.2 constrains metrics carried by `ComparisonRecord`.
+The §22.3 float-only rule shape governs `ComparisonRule`. Neither governs
+`FullScaleCheckRecord`.
+
+`clipping_ratio` remains displayed and is descriptive only, with the fixed
+notice of §23.6. A `ComparisonProfile` containing a rule whose metric is
+`clipping_ratio` must be rejected where the product service is constructed.
+Profiles defined under `tests/` for fixture purposes are exempt and remain
+unloadable by product builders, as §22.3 already requires. As a consequence
+the overall pass of a `ComparisonRecord` can never be true on the product
+path; reports must not present it as a pending result.
+
+### 23.2 Full-scale facts
+
+```text
+FullScaleFacts =
+  side: ComparisonSide
+  run_id: str
+  bundle_digest: str                   # the side's MeasurementBundle
+  full_scale_threshold: float          # from the ClippingInput snapshot
+  min_consecutive_samples: int         # fixed 2; the DSP default, recorded
+  counted_samples: int                 # |x| >= threshold, in runs >= min
+  over_threshold_uncounted: int        # |x| >= threshold, in shorter runs
+  state: "yes" | "no"                  # yes iff counted_samples > 0
+  peak_abs: float
+  analyzed_samples: int
+  pcm_bit_depth: int                   # bits per sample from the WAV header
+  facts_version: str
+  digest: str                          # canonical JSON, as §22.2
+```
+
+Layering. Counting is a deterministic function in `dsp/`. A `tools/` adapter
+calls it during `measure_output`, in the same repository lifetime and on the
+same samples, resolved range and channel as the side's clipping measurement;
+samples are not available afterwards. The facts are stored beside the
+bundle, not inside it; `MeasurementBundle`, its digest and
+`measurement_version` are unchanged. `app/` passes the bit depth it already
+holds from the WAV loader. Judgment is a pure function in `rules/`;
+orchestration and record keeping are in `app/`. New files in frozen-path
+packages are appended to the architecture allowlist (T-CX346 practice).
+
+The counting criterion must equal the existing full-scale mechanism of
+`detect_clipping` sample for sample. No flat-top result contributes. Frozen
+`ClippingOutput` gains no field. `ratio = counted_samples /
+analyzed_samples` is display only. An LLM never produces or alters these
+values.
+
+If a side's clipping tool result is `error` or carries no output, no facts
+exist for that side and every check using it is `not_comparable`.
+
+### 23.3 Declarations
+
+```text
+FullScaleDeclarations =
+  periodic_test_signal: "yes" | "no" | "unknown"
+  baseline_independent_render: "yes" | "no" | "unknown"
+  candidate_independent_render: "yes" | "no" | "unknown"
+```
+
+Optional on each submit, carried next to `ComparisonConditions` and covered
+by the submit fingerprint. Omission is `unknown`, never `yes`. The nominal
+fundamental is the existing `ComparisonConditions.nominal_fundamental_hz`.
+
+`periodic_test_signal` is read from the anchor submit only. The two
+independence declarations are read from repeat submits only and are ignored
+on the anchor. To repeat one side, the user resubmits the other side's
+original file and declares it `no`.
+
+All of these are user declarations. The system does not detect periodicity,
+does not check the fundamental against the signal, and has no evidence that
+a file came from a separate render. Reports say "declared", not "verified".
+
+### 23.4 Floor record
+
+```text
+FullScaleMethodFloor =
+  floor_id, version, digest
+  facts_version
+  full_scale_threshold, min_consecutive_samples
+  min_samples_per_period: float
+  min_periods_in_range: float
+  critical_zone: reviewed boundary form and values
+  count_floor: reviewed form and values
+  tolerated_difference: str                 # fixed identifier, see below
+```
+
+Shipped with the product from reviewed configuration only. Clients cannot
+upload it or assert approval. A record applies only when `facts_version`,
+`full_scale_threshold` and `min_consecutive_samples` equal those of both
+sides' facts. With no applicable record, no check reaches a judged status
+(it is `descriptive_only` or `not_comparable`). The product ships with none
+until a characterization package is reviewed and approved.
+
+Tolerance decision. A floor record tolerates sample-wise differences of at
+most one quantization step of the coarser of the two bit depths, taken in
+the one-sided worst case (every sample moved one step in the same
+direction), plus bit-depth conversion. Time offset, start phase, added noise
+and larger gain differences are not tolerated.
+
+Critical zone. The reviewed `critical_zone` applies to a side in either
+state. It must contain every signal that a tolerated difference can move
+across the yes/no boundary. As a fixed minimum, independent of any record, a
+side in state `no` is inside the critical zone when
+`peak_abs >= full_scale_threshold - step`, where `step` is one quantization
+step of the coarser of the two files' bit depths. (For a `no` side,
+"peak at or above threshold" and "has over-threshold uncounted samples" are
+the same condition; both are covered by this minimum.)
+
+### 23.5 Check record
+
+```text
+FullScaleCheck.status =
+  "not_comparable" | "descriptive_only"
+  | "regression_detected" | "no_regression_detected"
+
+FullScaleCheckRecord =
+  check_id
+  anchor_comparison_id, anchor_digest
+  repeat_comparison_ids: tuple[str, ...]
+  uncounted_repeats: tuple[(comparison_id, side, reason), ...]
+  declarations per submit
+  baseline_renders, candidate_renders: tuple[FullScaleFacts, ...]
+  counted_baseline_repeats, counted_candidate_repeats: int
+  floor identity or None
+  status, transition
+  unmet_conditions: tuple[str, ...]
+  unevaluated_conditions: tuple[str, ...]
+  supersedes: check_id | None
+  digest
+```
+
+Anchor. A completed comparison with no link, or with a `repair` or
+`recommendation` link, is its own anchor. A completed comparison with a
+`repeat` link belongs to the anchor reached by following
+`parent_comparison_id` through `repeat` links. `RetestLink` is unchanged.
+
+Production. One record is produced after every completed comparison, for
+that comparison's anchor. A failed submit produces none. An idempotent
+replay of a `request_id` produces none. Producing a record does not consume
+the 16-submit quota. Records are immutable; a later record for the same
+anchor names the one it supersedes, and reports show the latest as current
+and earlier ones as superseded history. The subject of the judgment is
+always the anchor pair. The record has its own summary and inherits nothing
+from the anchor's `required_checks`.
+
+Counted renders. All eligibility conditions that read declarations or
+versions read the anchor submit. A repeat file counts toward a side only
+when all hold:
+
+- its side is declared independent (`yes`) on that repeat submit;
+- the repeat's `MeasurementSelection`, resolved start and end sample,
+  sample rate, channel and both version strings equal the anchor's;
+- the repeat's own §22 declarations do not block;
+- facts exist for that file.
+
+Any other repeat file is shown with its reason in `uncounted_repeats`, is
+not counted, and cannot create a contradiction. A counted repeat whose bytes
+equal the anchor file's is counted and marked byte-identical.
+
+Eligibility. All must hold for a judged status:
+
+| # | Condition | If not |
+| --- | --- | --- |
+| 1 | facts exist for both anchor files | `not_comparable` |
+| 2 | the anchor's §22 declarations do not block (`repeatability = declared_deterministic` included; existing blocking semantics unchanged) | `not_comparable` |
+| 3 | each side has at least 1 counted repeat | `descriptive_only` |
+| 4 | within each side, `counted_samples` and `state` are identical across the anchor file and all counted repeats | `not_comparable`, contradiction with the declaration shown |
+| 5 | `baseline_version != candidate_version` | `descriptive_only` |
+| 6 | `periodic_test_signal = "yes"` | `descriptive_only` |
+| 7 | both files have `pcm_bit_depth >= 16` | `descriptive_only` |
+| 8 | an applicable floor record exists | `descriptive_only` |
+| 9 | `nominal_fundamental_hz` is declared, and samples per period (`sample_rate_hz / nominal_fundamental_hz`) and periods in range are both at or above the floor record's limits | `descriptive_only` |
+| 10 | both sides are outside the critical zone (§23.4) | `descriptive_only` |
+
+Every unmet condition is listed. Where the existing declaration check
+reports only its first blocking field, condition 2 is listed once with that
+field. The fixed-minimum part of condition 10 is always evaluated. When
+condition 8 fails, condition 9's limits and the reviewed part of condition
+10 cannot be evaluated and are listed in `unevaluated_conditions`.
+`not_comparable` takes precedence over `descriptive_only`.
+
+On the product path the anchor's `ComparisonRecord` keeps its own status
+(`descriptive_only` with no profile) even when the check record is
+`not_comparable`; reports show both and do not reconcile them.
+
+Judgment when eligible:
+
+| Baseline → candidate | Status |
+| --- | --- |
+| no → no | `no_regression_detected` |
+| no → yes | `regression_detected`, by state, no numeric floor |
+| yes → yes, increase above `count_floor` | `regression_detected` |
+| yes → yes, increase at or below `count_floor`, or equal | `no_regression_detected` |
+| yes → no, or yes → yes with fewer samples | `no_regression_detected` |
+
+Every judged or unjudged record shows both sides' `counted_samples`,
+`peak_abs` and counted-repeat numbers; a yes → yes record also shows the
+difference and the floor.
+
+The repeat requirement is a gate on the determinism declaration. It supplies
+no number to the boundary. How observed variation composes with the floor is
+deferred with the `observed_variable` block.
+
+Validation. `validate_full_scale_check_record(record)` runs at report build
+and parse boundaries and raises `ValueError` on failure. It recomputes
+anchor resolution, counted-render selection, eligibility, status and all
+digests from the stored facts, declarations and floor record. It
+cross-checks each `FullScaleFacts` against its bundle: `bundle_digest`,
+`state == "yes"` iff `ClippingOutput.full_scale_detected`, `peak_abs`,
+`analyzed_samples`, threshold. `counted_samples` and
+`over_threshold_uncounted` cannot be recomputed after the submit because
+samples are not retained; they are protected by the facts digest only.
+
+### 23.6 Fixed wording
+
+Judgment and notice text for this check uses fixed templates and never the
+words "clipping" or "no clipping". It states that samples reaching the
+full-scale threshold increased, did not increase, or decreased.
+
+- `regression_detected` carries, on the same screen: the difference may come
+  from export settings (bit depth, dither, gain, start point) and not
+  necessarily from the version.
+- A decrease or disappearance carries, on the same screen, a notice that
+  such samples decreased, with both values, and no stated cause.
+- Every report showing this check lists, on the same screen, that THD is not
+  covered and that `clipping_ratio` is descriptive only.
+- `clipping_ratio` carries: the ratio includes flat-top detection results
+  and may be non-zero on unclipped low-frequency or low-level input.
+- Every judged record states: the declarations are declared, not verified;
+  the fundamental is declared and unchecked, and if it is wrong the
+  approved-domain limits do not apply; the number of consistent renders per
+  side the judgment rests on.
+
+The check never enters `StructuredDiagnosis` and never changes the diagnosis
+causal gate.
+
+### 23.7 Staged authority
+
+1. Definitions in this section and T-CX349–T-CX370.
+2. Implementation of facts, declarations, record and gates under an explicit
+   grant. With no floor record, product output has no judged status.
+3. Layer-1 characterization run under a separate grant, through the full tool
+   path, after step 2.
+4. Review and approval of a floor record under a separate grant. Only then
+   can a product check reach a judged status.
+5. Sub-full-scale flat-top judgment, any change to the `observed_variable`
+   block, THD judgment, RealLLM, seal and merge remain external gates.

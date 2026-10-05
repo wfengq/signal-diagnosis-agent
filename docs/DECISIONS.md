@@ -733,3 +733,42 @@ Related: design
 `docs/superpowers/specs/2026-10-04-s1-regression-troubleshooting-workbench-design.md`;
 plan
 `docs/superpowers/plans/2026-10-04-s1-regression-troubleshooting-workbench.md`.
+
+## D043 — Regression full-scale check as a separate judged record (OQ-020)
+
+**Decision (operator approval 2026-10-05, definitions only):** Register V0.3 §23 and
+T-CX349–T-CX370. Regression comparison judges a comparison-specific
+full-scale sample count and state in a separate immutable record, gated by
+user declarations and a reviewed floor record. `clipping_ratio` is
+permanently descriptive in comparison and no product profile may carry a
+rule for it.
+
+**This is an explicit amendment.** It narrows the reading of §22.2 "only"
+and of the §22.3 rule shape; withdraws the possibility of a `clipping_ratio`
+rule, which leaves `ComparisonRecord` overall pass permanently not true on
+the product path; partly supersedes the D042 / §22.6 statement that product
+tolerances and pass/fail are not authorized, by fixing what a floor record
+tolerates and defining a judgment path, while authorizing no value; and
+extends the §22.4 submit fingerprint, upload and snapshot shapes.
+
+**Constraints preserved:** frozen V0.2 §§1–64; `ComparisonRecord` and its
+validation; `MeasurementBundle` and `measurement_version`; `RetestLink`;
+product `profile=None`; the single-file clipping detector, thresholds, v9.11
+prompt and causal policy; D037/D039; the §22 block on `observed_variable`.
+
+**Not authorized by this decision:** any floor, critical-zone or
+approved-domain value; a characterization run; a judged product status;
+sub-full-scale flat-top judgment; THD judgment; RealLLM; seal; merge.
+
+**Known limits recorded with the decision:** the fact counts samples at the
+threshold and does not tell a flattened waveform from a high unclipped level;
+sub-full-scale clipping is invisible to it; all gating declarations are
+unverifiable; 8-bit files and chains with any render-to-render variation get
+no judgment; sample counts cannot be recomputed at validation.
+
+Related: OQ-020; design
+`docs/superpowers/specs/2026-10-05-s1-regression-clipping-comparison-semantics-design.md`
+§12–§13 and
+`docs/superpowers/specs/2026-10-05-s1-regression-layer1-characterization-materials-scoring-design.md`
+§10–§11; amendment record
+`docs/superpowers/specs/2026-10-05-s1-regression-full-scale-check-contract-amendment-draft.md`.
