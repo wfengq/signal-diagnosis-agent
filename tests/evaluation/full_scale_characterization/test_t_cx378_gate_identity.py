@@ -139,3 +139,19 @@ def test_t_cx378_package_digest_change_blocks_calibrate_and_validate(
     assert main(steps[6]) != 0
     monkeypatch.setattr(identity_mod, "_package_sha256", real)
     assert main(steps[6]) == 0
+
+
+def test_t_cx378_runs_take_frozen_report_json_from_the_comparison_set() -> None:
+    """The CLI steps must build stage reports from fitting.py, not the record-only reporting.py."""
+    import ast
+
+    from signal_diag.evaluation.full_scale_characterization import runs
+
+    tree = ast.parse(inspect.getsource(runs))
+    sources: dict[str, set[str]] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module:
+            for alias in node.names:
+                sources.setdefault(alias.name, set()).add(node.module.rsplit(".", 1)[-1])
+    for name in ("stage1_report_json", "stage2_report_json"):
+        assert sources.get(name) == {"fitting"}, (name, sources.get(name))

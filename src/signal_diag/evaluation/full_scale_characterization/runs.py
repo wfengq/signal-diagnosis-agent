@@ -403,8 +403,10 @@ def _stage1_rows(store: CharacterizationStore) -> tuple[Stage1Row, ...]:
 
 
 def step_report_stage1(store: CharacterizationStore) -> None:
-    from signal_diag.evaluation.full_scale_characterization.reporting import (
+    from signal_diag.evaluation.full_scale_characterization.fitting import (
         stage1_report_json,
+    )
+    from signal_diag.evaluation.full_scale_characterization.reporting import (
         stage1_report_markdown,
     )
 
@@ -418,8 +420,10 @@ def step_report_stage1(store: CharacterizationStore) -> None:
 
 
 def step_report_stage2(store: CharacterizationStore) -> None:
-    from signal_diag.evaluation.full_scale_characterization.reporting import (
+    from signal_diag.evaluation.full_scale_characterization.fitting import (
         stage2_report_json,
+    )
+    from signal_diag.evaluation.full_scale_characterization.reporting import (
         stage2_report_markdown,
     )
 

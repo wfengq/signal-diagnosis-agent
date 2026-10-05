@@ -190,3 +190,36 @@ def test_t_cx380_reruns_are_refused_before_any_measurement(
     CharacterizationStore(aborted).write_json("abort_record.json", {"stage": "calibration"})
     assert main(["calibrate", "--out", str(aborted)]) != 0
     assert calls == []
+
+
+def test_t_cx380_pair_rows_resolve_to_the_measured_rows(tmp_path: Path) -> None:
+    """Pair-table row references must resolve to the rows actually measured for that pair."""
+    from signal_diag.evaluation.full_scale_characterization import runs
+
+    constants_path = tmp_path / "constants.json"
+    constants_path.write_text(json.dumps(E2E.model_dump(mode="json")), encoding="utf-8")
+    out = tmp_path / "e2e"
+    steps = _steps(out, constants_path)
+    assert main(steps[0]) == 0
+    assert main(steps[1]) == 0
+
+    store = CharacterizationStore(out)
+    manifest, constants = runs._checked(store)
+    items = runs._measure_side(store, manifest, constants, "calibration", None)
+    expected = {
+        (pair.pair_id, measured.channel): runs._scored(
+            pair.model_dump(mode="json"), measured, constants.full_scale_threshold
+        )
+        for pair, measured in items
+    }
+    loaded = {(p.pair_id, p.channel): p for p in runs.load_scored(store, "calibration")}
+    assert len(expected) > 1
+    assert loaded == expected
+    # The population must contain distinct side facts, so a wrong row reference cannot pass.
+    distinct_sides = {
+        json.dumps(side.model_dump(mode="json"), sort_keys=True)
+        for p in expected.values()
+        for side in (p.old, p.new)
+        if side is not None
+    }
+    assert len(distinct_sides) > 1
