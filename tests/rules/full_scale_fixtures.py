@@ -34,7 +34,7 @@ from signal_diag.tools.regression_measurement import (
 
 
 def q16(value: float) -> float:
-    code = int(round(value * 32768.0))
+    code = round(value * 32768.0)
     code = max(-32768, min(32767, code))
     return code / 32768.0
 
@@ -265,14 +265,14 @@ def make_submission(
     b_bundle, b_repo, _ = measured(
         b_samples,
         side="baseline",
-        bits=16 if bits[0] != 8 else 16,
+        bits=bits[0] if bits[0] != 8 else 16,
         time_range=time_range,
         full_scale_threshold=full_scale_threshold,
     )
     c_bundle, c_repo, _ = measured(
         c_samples,
         side="candidate",
-        bits=16 if bits[1] != 8 else 16,
+        bits=bits[1] if bits[1] != 8 else 16,
         time_range=time_range,
         full_scale_threshold=full_scale_threshold,
     )

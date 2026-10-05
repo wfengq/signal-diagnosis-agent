@@ -251,14 +251,20 @@ def evaluate_full_scale_check(
     for repeat in repeats:
         if repeat.link_kind != "repeat":
             continue
-        if anchor_base is not None and repeat.baseline_facts is not None:
-            if repeat.baseline_facts.wav_sha256 == anchor_base.wav_sha256:
-                if repeat.baseline_facts in base_rep:
-                    byte_identical.append((repeat.comparison_id, "baseline"))
-        if anchor_cand is not None and repeat.candidate_facts is not None:
-            if repeat.candidate_facts.wav_sha256 == anchor_cand.wav_sha256:
-                if repeat.candidate_facts in cand_rep:
-                    byte_identical.append((repeat.comparison_id, "candidate"))
+        if (
+            anchor_base is not None
+            and repeat.baseline_facts is not None
+            and repeat.baseline_facts.wav_sha256 == anchor_base.wav_sha256
+            and repeat.baseline_facts in base_rep
+        ):
+            byte_identical.append((repeat.comparison_id, "baseline"))
+        if (
+            anchor_cand is not None
+            and repeat.candidate_facts is not None
+            and repeat.candidate_facts.wav_sha256 == anchor_cand.wav_sha256
+            and repeat.candidate_facts in cand_rep
+        ):
+            byte_identical.append((repeat.comparison_id, "candidate"))
 
     declarations: list[tuple[str, FullScaleDeclarations]] = [
         (anchor.comparison_id, anchor.declarations)
@@ -331,22 +337,28 @@ def evaluate_full_scale_check(
         else:
             assert anchor_cand is not None
             threshold = anchor_cand.full_scale_threshold
-        if anchor_base is not None and not _facts_missing_side(unmet, "baseline"):
-            if _in_critical_zone(
+        if (
+            anchor_base is not None
+            and not _facts_missing_side(unmet, "baseline")
+            and _in_critical_zone(
                 anchor_base,
                 threshold=threshold,
                 step=step,
                 floor=floor if floor_ok else None,
-            ):
-                unmet.append("critical_zone:baseline")
-        if anchor_cand is not None and not _facts_missing_side(unmet, "candidate"):
-            if _in_critical_zone(
+            )
+        ):
+            unmet.append("critical_zone:baseline")
+        if (
+            anchor_cand is not None
+            and not _facts_missing_side(unmet, "candidate")
+            and _in_critical_zone(
                 anchor_cand,
                 threshold=threshold,
                 step=step,
                 floor=floor if floor_ok else None,
-            ):
-                unmet.append("critical_zone:candidate")
+            )
+        ):
+            unmet.append("critical_zone:candidate")
 
     transition: FullScaleTransition | None = None
     count_difference: int | None = None
@@ -533,10 +545,8 @@ def _transition(baseline: FullScaleFacts, candidate: FullScaleFacts) -> FullScal
 
 def _resolve_status(unmet: Sequence[str], unevaluated: Sequence[str]) -> MetricStatus:
     for code in unmet:
-        if (
-            code.startswith("facts_missing:")
-            or code.startswith("declarations_block:")
-            or code.startswith("renders_inconsistent:")
+        if code.startswith(
+            ("facts_missing:", "declarations_block:", "renders_inconsistent:")
         ):
             return "not_comparable"
     if unmet or unevaluated:

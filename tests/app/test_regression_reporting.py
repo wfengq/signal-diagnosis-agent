@@ -10,10 +10,13 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
+from signal_diag.agent.models import StructuredDiagnosis
+from signal_diag.app.full_scale_wording import (
+    CLIPPING_RATIO_NOTICE,
+    FULL_SCALE_TEMPLATES,
+)
 from signal_diag.app.pcm_wav import encode_pcm32_wav
 from signal_diag.app.regression import RegressionWorkbenchService
-from signal_diag.agent.models import StructuredDiagnosis
-from signal_diag.app.full_scale_wording import CLIPPING_RATIO_NOTICE, FULL_SCALE_TEMPLATES
 from signal_diag.app.regression_reporting import (
     RegressionCaseReport,
     build_case_report,
@@ -21,12 +24,12 @@ from signal_diag.app.regression_reporting import (
     render_case_json,
 )
 from signal_diag.rules.full_scale_check import FullScaleDeclarations
-from tests.rules.full_scale_fixtures import FIXTURE_FLOOR, sine, wav16
 from signal_diag.rules.regression import (
     validate_comparison_record,
 )
 from signal_diag.signal import generate_sine
 from tests.app.test_regression_service import _upload
+from tests.rules.full_scale_fixtures import FIXTURE_FLOOR, sine, wav16
 
 NOW = datetime(2026, 10, 4, 15, 0, tzinfo=UTC)
 
@@ -325,7 +328,11 @@ def test_model_validate_rejects_forged_comparison_record() -> None:
         RegressionCaseReport.model_validate(payload)
 
 
-from signal_diag.app.regression import ComparisonUpload, RegressionCaseSnapshot, RetestLink
+from signal_diag.app.regression import (
+    ComparisonUpload,
+    RegressionCaseSnapshot,
+    RetestLink,
+)
 from signal_diag.rules.regression import ComparisonConditions
 from signal_diag.tools.contracts import ClippingInput, HarmonicDistortionInput
 from signal_diag.tools.regression_measurement import MeasurementSelection

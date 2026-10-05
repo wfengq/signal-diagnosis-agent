@@ -2,19 +2,19 @@
 
 **Branch:** `cursor/s1-full-scale-check`
 **Baseline tip:** `16450ffe904c48294148418ddadfe87c04af6e74`
-**Acceptance tip:** see `git rev-parse HEAD` on this branch after Task 8 commit.
+**Acceptance tip:** `f3109ee` (closeout identity + ruff); post-closeout `git rev-parse HEAD` after any further commits.
 
 ## Verification commands (raw summaries)
 
 ### `python -m pytest -q -rxXs -p no:cacheprovider`
 
-Full suite on acceptance tip: **2018 passed, 1 failed** (see blockers). Focused full-scale slice: **68 passed** (`tests/dsp/test_full_scale.py`, `tests/tools/test_regression_full_scale.py`, `tests/rules/test_full_scale_check.py`, `tests/app/test_full_scale_wording.py`, `tests/app/test_regression_full_scale_service.py`, architecture gates T-CX369/T-CX351/T-CX363).
+Full suite on closeout tip: **2019 passed**, 1 warning (`python3 -m pytest -q -rxXs -p no:cacheprovider`). Focused full-scale slice: **65 passed** (full-scale pytest files listed below; architecture gates T-CX369/T-CX351/T-CX363 included in full suite) (`tests/dsp/test_full_scale.py`, `tests/tools/test_regression_full_scale.py`, `tests/rules/test_full_scale_check.py`, `tests/app/test_full_scale_wording.py`, `tests/app/test_regression_full_scale_service.py`, architecture gates T-CX369/T-CX351/T-CX363).
 
-Failure: `tests/agent/test_v03_prompt_v9_11.py::test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches` — `contextual_product_tree_sha256()` no longer matches the last sealed `code_identity_amendment.json` row after this feature branch (product tree drift; requires a new append-only identity amendment, out of scope for §23 implementation).
+Identity T-CX254: **3 passed** after append-only `d043_regression_full_scale_check_impl` (`product_tree_sha256` matches live `contextual_product_tree_sha256()` at closeout tip; `d042_regression_workbench_phase_c_task8_revise1` pinned to `e45c301d…`).
 
 ### `python -m ruff check --no-cache src tests scripts`
 
-Repo-wide: **23 findings** (mostly style on new/edited files; fixable import ordering and unused imports). New full-scale modules pass after targeted `ruff check --fix` on touched paths.
+Repo-wide `python3 -m ruff check --no-cache src tests scripts`: **clean** (0 findings) at closeout tip.
 
 ### `python -m mypy --no-incremental src`
 

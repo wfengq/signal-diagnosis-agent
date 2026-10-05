@@ -16,7 +16,10 @@ from signal_diag.app.regression import (
     build_regression_service,
 )
 from signal_diag.rules.full_scale_check import FullScaleDeclarations
-from signal_diag.rules.regression import ComparisonConditions, validate_comparison_record
+from signal_diag.rules.regression import (
+    ComparisonConditions,
+    validate_comparison_record,
+)
 from signal_diag.tools.contracts import ClippingInput, HarmonicDistortionInput
 from signal_diag.tools.regression_measurement import MeasurementSelection
 from tests.rules.full_scale_fixtures import sine, wav16, wav24

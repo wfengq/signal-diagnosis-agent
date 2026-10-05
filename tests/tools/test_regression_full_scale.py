@@ -62,7 +62,7 @@ def test_t_cx351_bundle_digest_unchanged_by_facts() -> None:
 
 
 def test_facts_absent_when_clipping_tool_failed() -> None:
-    bundle, repo, bits = measured(wav16(sine(amplitude=0.5)))
+    bundle, _repo, bits = measured(wav16(sine(amplitude=0.5)))
     empty = InMemorySignalRepository()
     snap = bundle.identity.tool_parameter_snapshot
     failed = measure_output(
