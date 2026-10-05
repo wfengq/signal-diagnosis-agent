@@ -18,6 +18,29 @@ _RetestKind = Literal[
     "lower_both_inputs",
 ]
 
+AbstainReasonCode = Literal[
+    "no_eligible_options",
+    "insufficient_basis",
+    "ambiguous_options",
+    "planner_abstain",
+]
+
+_ABSTAIN_REASON_CODES: frozenset[str] = frozenset(
+    {
+        "no_eligible_options",
+        "insufficient_basis",
+        "ambiguous_options",
+        "planner_abstain",
+    }
+)
+
+_ABSTAIN_USER_TEXT: dict[str, str] = {
+    "no_eligible_options": "no eligible retest options",
+    "insufficient_basis": "insufficient supporting findings",
+    "ambiguous_options": "eligible options are ambiguous",
+    "planner_abstain": "planner abstained",
+}
+
 _OPTION_COMPLETE = "opt_complete_conditions"
 _OPTION_REPEAT = "opt_repeat_conditions"
 _OPTION_LOWER = "opt_lower_both_inputs"
@@ -31,6 +54,8 @@ _REPEAT_TEMPLATE = (
 _LOWER_TEMPLATE = (
     "Lower both baseline and candidate input levels with an approved level parameter."
 )
+
+_DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1"
 
 
 def _reject_bool(value: object, *, what: str) -> object:
@@ -98,15 +123,22 @@ class RetestSelection(BaseModel):
 
     option_id: str | None = None
     basis_refs: tuple[str, ...] = ()
-    abstain_reason_code: str | None = None
+    abstain_reason_code: AbstainReasonCode | None = None
 
     @model_validator(mode="after")
     def _selection_shape(self) -> RetestSelection:
         if self.option_id is None:
-            if not self.abstain_reason_code:
+            if self.abstain_reason_code is None:
                 raise ValueError("abstain_reason_code is required when option_id is None")
-        elif self.abstain_reason_code is not None:
-            raise ValueError("abstain_reason_code must be None when option_id is set")
+            if self.abstain_reason_code not in _ABSTAIN_REASON_CODES:
+                raise ValueError("abstain_reason_code is not an approved closed code")
+            if self.basis_refs:
+                raise ValueError("basis_refs must be empty when abstaining")
+        else:
+            if self.abstain_reason_code is not None:
+                raise ValueError("abstain_reason_code must be None when option_id is set")
+            if not self.basis_refs:
+                raise ValueError("basis_refs are required when option_id is set")
         return self
 
 
@@ -181,8 +213,9 @@ def eligible_retests(record: ComparisonRecord) -> tuple[RetestOption, ...]:
     """Deterministic catalog filter. Clients cannot inject options or parameters."""
     options: list[RetestOption] = []
     conditions = record.conditions
+    # Plan: complete_conditions only when declared info is missing (unknown).
     missing_declarations = any(
-        getattr(conditions, name) != "yes"
+        getattr(conditions, name) == "unknown"
         for name in ("same_input", "parameters_unchanged", "aligned_ranges")
     )
     if missing_declarations:
@@ -269,8 +302,16 @@ def validate_selection_against_context(
 ) -> RetestSelection:
     allowed_ids = {option.option_id for option in context.eligible_options}
     finding_ids = {finding.finding_id for finding in context.compact_findings}
-    if selection.option_id is not None and selection.option_id not in allowed_ids:
+    if selection.option_id is None:
+        if selection.abstain_reason_code not in _ABSTAIN_REASON_CODES:
+            raise RetestPlannerError("abstain_reason_code is not an approved closed code")
+        return selection
+    if selection.option_id not in allowed_ids:
         raise RetestPlannerError("selected option_id is not in the eligible catalog")
+    if not selection.basis_refs:
+        raise RetestPlannerError("basis_refs are required when option_id is set")
+    if len(selection.basis_refs) != len(set(selection.basis_refs)):
+        raise RetestPlannerError("basis_refs must not contain duplicates")
     for ref in selection.basis_refs:
         if ref not in finding_ids:
             raise RetestPlannerError("basis_refs must resolve to compact findings")
@@ -283,12 +324,20 @@ def render_recommendation_detail(
     context: RetestContext,
 ) -> str:
     if selection.option_id is None:
-        reason = selection.abstain_reason_code or "unavailable"
+        code = selection.abstain_reason_code or "planner_abstain"
+        reason = _ABSTAIN_USER_TEXT.get(code, _ABSTAIN_USER_TEXT["planner_abstain"])
         return f"No retest recommendation ({reason})."
     option = next(
-        item for item in context.eligible_options if item.option_id == selection.option_id
+        (
+            item
+            for item in context.eligible_options
+            if item.option_id == selection.option_id
+        ),
+        None,
     )
-    basis = ", ".join(selection.basis_refs) if selection.basis_refs else "none"
+    if option is None:
+        raise RetestPlannerError("selected option_id is not in the eligible catalog")
+    basis = ", ".join(selection.basis_refs)
     return f"{option.explanation_template} Basis: {basis}."
 
 
@@ -297,6 +346,9 @@ _SYSTEM_PROMPT = (
     f"{RETEST_PLANNER_IDENTITY}. "
     "Choose at most one option_id from eligible_options or abstain. "
     "Return JSON only with keys option_id, basis_refs, abstain_reason_code. "
+    "abstain_reason_code must be one of: "
+    + ", ".join(sorted(_ABSTAIN_REASON_CODES))
+    + ". "
     "Do not invent thresholds, gains, faults, or shell commands."
 )
 
@@ -305,6 +357,9 @@ class OpenAICompatibleRetestClient:
     """Narrow adapter over an OpenAI-compatible chat client (max_retries=0)."""
 
     def __init__(self, client: Any) -> None:
+        retries = getattr(client, "max_retries", None)
+        if retries is not None and retries != 0:
+            raise RetestPlannerError("retest SDK client max_retries must be 0")
         self._client = client
 
     async def complete(
@@ -316,7 +371,7 @@ class OpenAICompatibleRetestClient:
         limits: RetestCallLimits,
     ) -> str:
         create = self._client.chat.completions.create
-        # Explicit limits only; do not read environment defaults.
+        # Explicit limits only; do not read environment defaults for token/timeout.
         response = await create(
             model=model,
             messages=[
@@ -390,7 +445,11 @@ class RealLLMRetestPlanner:
         await self._client.aclose()
 
 
-def build_openai_retest_client(*, api_key: str, base_url: str | None = None) -> OpenAICompatibleRetestClient:
+def build_openai_retest_client(
+    *,
+    api_key: str,
+    base_url: str | None = None,
+) -> OpenAICompatibleRetestClient:
     """Construct the locked SDK client with retries disabled."""
     try:
         from openai import AsyncOpenAI
@@ -398,7 +457,11 @@ def build_openai_retest_client(*, api_key: str, base_url: str | None = None) -> 
         raise RetestPlannerError(
             "Retest planner requires the optional llm dependency"
         ) from error
-    kwargs: dict[str, Any] = {"api_key": api_key, "max_retries": 0}
-    if base_url is not None:
-        kwargs["base_url"] = base_url
-    return OpenAICompatibleRetestClient(AsyncOpenAI(**kwargs))
+    # Always set base_url so OPENAI_BASE_URL ambient env cannot redirect product calls.
+    resolved_base = base_url if base_url is not None else _DEFAULT_OPENAI_BASE_URL
+    client = AsyncOpenAI(
+        api_key=api_key,
+        base_url=resolved_base,
+        max_retries=0,
+    )
+    return OpenAICompatibleRetestClient(client)

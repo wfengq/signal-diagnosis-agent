@@ -16,9 +16,11 @@ from signal_diag.agent.retest_planner import (
     RealLLMRetestPlanner,
     RetestCallLimits,
     RetestPlannerError,
+    build_openai_retest_client,
     build_retest_context,
     eligible_retests,
     parse_retest_selection,
+    render_recommendation_detail,
 )
 from signal_diag.app.pcm_wav import encode_pcm32_wav
 from signal_diag.app.regression import RegressionWorkbenchService
@@ -101,6 +103,13 @@ async def test_eligible_complete_when_declaration_missing() -> None:
 
 
 @pytest.mark.asyncio
+async def test_complete_conditions_not_offered_for_declared_no() -> None:
+    record = await _record(same_input="no")
+    options = eligible_retests(record)
+    assert "complete_conditions" not in {item.kind for item in options}
+
+
+@pytest.mark.asyncio
 async def test_eligible_repeat_when_repeatability_unknown() -> None:
     record = await _record(repeatability="unknown")
     options = eligible_retests(record)
@@ -179,6 +188,47 @@ async def test_parse_rejects_unknown_option_forged_refs_and_forbidden_fields() -
             ),
             context=context,
         )
+
+
+@pytest.mark.asyncio
+async def test_parse_rejects_free_text_abstain_and_empty_basis() -> None:
+    record = await _record(same_input="unknown")
+    context = build_retest_context(record)
+    with pytest.raises(RetestPlannerError, match="validation"):
+        parse_retest_selection(
+            json.dumps(
+                {
+                    "option_id": None,
+                    "basis_refs": [],
+                    "abstain_reason_code": (
+                        "the candidate build has a clipping FAULT, lower gain by 6 dB"
+                    ),
+                }
+            ),
+            context=context,
+        )
+    with pytest.raises(RetestPlannerError, match="validation"):
+        parse_retest_selection(
+            json.dumps(
+                {
+                    "option_id": context.eligible_options[0].option_id,
+                    "basis_refs": [],
+                    "abstain_reason_code": None,
+                }
+            ),
+            context=context,
+        )
+    closed = parse_retest_selection(
+        json.dumps(
+            {
+                "option_id": None,
+                "basis_refs": [],
+                "abstain_reason_code": "planner_abstain",
+            }
+        ),
+        context=context,
+    )
+    assert closed.abstain_reason_code == "planner_abstain"
 
 
 class _FakeCompletions:
@@ -331,3 +381,96 @@ async def test_cancel_during_sdk_call_closes_without_second_request() -> None:
     await asyncio.sleep(0.02)
     assert len(sdk.completions.calls) == 1
     await planner.aclose()
+
+
+def test_adapter_rejects_nonzero_max_retries() -> None:
+    sdk = _FakeSDK()
+    sdk.max_retries = 2
+    with pytest.raises(RetestPlannerError, match="max_retries must be 0"):
+        OpenAICompatibleRetestClient(sdk)
+
+
+def test_build_openai_retest_client_locks_retries_and_base_url(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    pytest.importorskip("openai")
+    monkeypatch.setenv("OPENAI_BASE_URL", "https://evil.example/v1")
+    monkeypatch.setenv("OPENAI_ORG_ID", "org-should-not-matter")
+    client = build_openai_retest_client(api_key="sk-test")
+    sdk = client._client
+    assert sdk.max_retries == 0
+    assert str(sdk.base_url).rstrip("/") == "https://api.openai.com/v1"
+    custom = build_openai_retest_client(
+        api_key="sk-test",
+        base_url="https://custom.example/v1",
+    )
+    assert str(custom._client.base_url).rstrip("/") == "https://custom.example/v1"
+
+
+@pytest.mark.asyncio
+async def test_real_async_openai_mock_transport_one_call_on_http_500() -> None:
+    openai = pytest.importorskip("openai")
+    httpx = pytest.importorskip("httpx")
+
+    record = await _record(same_input="unknown")
+    context = build_retest_context(record)
+    hits: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        hits.append(request.method)
+        return httpx.Response(500, json={"error": {"message": "boom"}})
+
+    transport = httpx.MockTransport(handler)
+    http_client = httpx.AsyncClient(transport=transport)
+    sdk = openai.AsyncOpenAI(
+        api_key="sk-test",
+        base_url="https://example.test/v1",
+        max_retries=0,
+        http_client=http_client,
+    )
+    planner = RealLLMRetestPlanner(
+        client=OpenAICompatibleRetestClient(sdk),
+        model="fake-model",
+        limits=RetestCallLimits(max_output_tokens=32, timeout_s=2.0),
+    )
+    with pytest.raises(RetestPlannerError, match="transport failed"):
+        await planner.choose(context)
+    assert len(hits) == 1
+    await planner.aclose()
+    await http_client.aclose()
+
+
+@pytest.mark.asyncio
+async def test_transport_connection_error_is_planner_error() -> None:
+    record = await _record(same_input="unknown")
+    context = build_retest_context(record)
+    sdk = _FakeSDK()
+    sdk.completions.set_error(ConnectionError("down"))
+    planner = RealLLMRetestPlanner(
+        client=OpenAICompatibleRetestClient(sdk),
+        model="m",
+        limits=RetestCallLimits(max_output_tokens=32, timeout_s=1.0),
+    )
+    with pytest.raises(RetestPlannerError, match="transport failed"):
+        await planner.choose(context)
+    assert len(sdk.completions.calls) == 1
+
+
+@pytest.mark.asyncio
+async def test_render_abstain_uses_closed_user_text_not_model_prose() -> None:
+    record = await _record(same_input="unknown")
+    context = build_retest_context(record)
+    selection = parse_retest_selection(
+        json.dumps(
+            {
+                "option_id": None,
+                "basis_refs": [],
+                "abstain_reason_code": "planner_abstain",
+            }
+        ),
+        context=context,
+    )
+    detail = render_recommendation_detail(selection, context=context)
+    assert detail == "No retest recommendation (planner abstained)."
+    assert "FAULT" not in detail
+    assert "gain" not in detail.casefold()

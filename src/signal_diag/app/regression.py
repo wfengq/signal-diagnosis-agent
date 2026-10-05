@@ -21,6 +21,7 @@ from signal_diag.agent.retest_planner import (
     RetestPlannerError,
     build_retest_context,
     render_recommendation_detail,
+    validate_selection_against_context,
 )
 from signal_diag.app.errors import (
     AppCapacityError,
@@ -717,6 +718,11 @@ class RegressionWorkbenchService:
                         except asyncio.CancelledError:
                             continue
                     raise
+                # AC14: admit at the service boundary, not only inside RealLLMRetestPlanner.
+                selection = validate_selection_against_context(
+                    selection, context=context
+                )
+                detail = render_recommendation_detail(selection, context=context)
             except RetestPlannerError as error:
                 return await self._finalize_recommendation(
                     case_id=case_id,
@@ -730,10 +736,20 @@ class RegressionWorkbenchService:
                     kind="failed",
                     record_snapshot=record_snapshot,
                 )
+            except Exception:  # noqa: BLE001 - fail closed; never surface raw planner faults
+                return await self._finalize_recommendation(
+                    case_id=case_id,
+                    comparison_id=comparison_id,
+                    request_id=request_id,
+                    fingerprint=fingerprint,
+                    recommendation_id=recommendation_id,
+                    created_at=created_at,
+                    status="failed",
+                    detail="retest recommendation failed",
+                    kind="failed",
+                    record_snapshot=record_snapshot,
+                )
 
-            detail = render_recommendation_detail(selection, context=context)
-            status: _RecommendationStatus = "completed"
-            kind: Literal["completed", "failed", "unavailable"] = "completed"
             return await self._finalize_recommendation(
                 case_id=case_id,
                 comparison_id=comparison_id,
@@ -741,9 +757,9 @@ class RegressionWorkbenchService:
                 fingerprint=fingerprint,
                 recommendation_id=recommendation_id,
                 created_at=created_at,
-                status=status,
+                status="completed",
                 detail=detail,
-                kind=kind,
+                kind="completed",
                 record_snapshot=record_snapshot,
             )
         finally:

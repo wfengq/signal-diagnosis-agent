@@ -1,10 +1,10 @@
 # Regression workbench offline acceptance (Phase A + Phase B + Phase C Task 7)
 
-Status: Phase A Tasks 1–4 + Phase B Tasks 5–6 + Task 9 closeout + revise4 **Codex accept** at tip `6997400` (code `d66f346`) + **browser T-CX339 proof** at tip `4972100` + **Phase C Task 7 offline** tip `aced981` on branch `cursor/s1-regression-task7-offline-8b52` (baseline `41b0cba`; **commit/push for Codex git fetch / independent recheck**; merge/Task 8/seal/RealLLM still gated).
+Status: Phase A–B as before + **Phase C Task 7 revise1** on branch `cursor/s1-regression-task7-offline-8b52` (baseline `41b0cba`; awaiting Codex re-recheck after P1 fixes). Merge/Task 8/seal/RealLLM still gated.
 Product comparison profiles enabled in production: **0**.
 User-benefit and RealLLM retest claims: **unverified**.
 Independent Codex offline accept recorded for tip `6997400`. Merge/seal/RealLLM remain gated.
-Phase C Task 7 (offline retest planner adapter + recommendation API): tip `aced981` awaiting Codex recheck; Task 9 Phase C Task 7 closeout checks below.
+Phase C Task 7 revise1 closes Codex P1s: closed abstain codes, service-boundary admission, real AsyncOpenAI+MockTransport max_retries=0 evidence.
 Task 8 (offline contrast evaluation chain) **not authorized**.
 Browser dual-file / retest / export path: **executed** (T-CX339). Design AC14 is scheme admission (Task 7 catalog/parse), not the browser path.
 
@@ -33,8 +33,8 @@ Browser dual-file / retest / export path: **executed** (T-CX339). Design AC14 is
 | Report integrity + pre-parse slot + Web F0 revise3 | Yes | shared report validate; `hold_operation_slot` before multipart read; omit hardcoded Web F0 |
 | Case ownership + double-cancel revise4 | Yes | `case_id` on case records; nested cancel wait until worker done |
 | Browser dual-file / repeat / repair / export (T-CX339) | Yes | headed Playwright + screen recording; see browser proof doc |
-| Design AC14 scheme admission (Task 7) | Yes (offline) | eligible catalog + strict parse; forged option/refs/forbidden fields rejected; fake SDK only |
-| Retest planner offline adapter (Task 7) | Yes (working tree) | `tests/agent/test_retest_planner.py`, `tests/app/test_regression_recommendations.py` |
+| Design AC14 scheme admission (Task 7) | Yes (offline) | eligible catalog + strict parse + **service-boundary** `validate_selection_against_context`; closed abstain codes |
+| Retest planner offline adapter (Task 7) | Yes (committed tip) | `tests/agent/test_retest_planner.py`, `tests/app/test_regression_recommendations.py`; real AsyncOpenAI MockTransport |
 | Retest planner / offline contrast (Task 8) | **Not yet** | Task 8 evaluation chain |
 
 ## Product / UI posture
@@ -66,39 +66,28 @@ Single `ThreadPoolExecutor(max_workers=1)`. HTTP comparison and recommendation r
 | AC14 方案准入 | T-CX340 | Task 7: `eligible_retests` + `parse_retest_selection` + recommendation service path (fake transport) |
 | AC15 planner / benefit | T-CX340–344, T-CX348 | Task 7 offline wiring only; **not** product RealLLM or benefit claims |
 
-## Phase C Task 7 + Task 9 closeout (working tree; baseline `41b0cba`)
+## Phase C Task 7 revise1 (Codex P1 fixes; baseline `41b0cba`)
+
+Codex revise P1s addressed:
+1. Closed `abstain_reason_code` enum + fixed user-facing templates (no free-text diagnosis).
+2. `request_recommendation` calls `validate_selection_against_context` before render; forged protocol planner → `failed`.
+3. `OpenAICompatibleRetestClient` rejects `max_retries != 0`; `build_openai_retest_client` covered; real `AsyncOpenAI` + `httpx.MockTransport` asserts one HTTP call on 500.
+
+Also: `complete_conditions` only when declaration is `unknown` (not `no`); empty `basis_refs` rejected when option selected; builder pins default `base_url` so `OPENAI_BASE_URL` cannot redirect.
 
 | Check | Result |
 |---|---|
-| Independent identity `v0.3-s1-retest-1.0` (unqualified) | registered §22.5; no v9.11 prompt change |
-| Eligibility + strict parse + fake SDK adapter | **11 passed** `tests/agent/test_retest_planner.py` |
-| Service/API recommendations + product default unavailable | **7 passed** `tests/app/test_regression_recommendations.py` |
-| Focused Task 7 suite | **18 passed** |
-| Regression app suite + Task 7 | **54 passed** |
-| Identity tip + architecture (T285 allowlist includes `agent/retest_planner.py`) | **63 passed** |
-| `ruff check` on touched modules | pass |
-| `mypy` on `retest_planner.py` / `regression.py` / `regression_api.py` | pass |
-| `git diff --check 41b0cba` | clean |
+| Focused Task 7 suite (revise1) | **27 passed** |
+| Prior tip `aced981` full suite | **1914 passed**, 1 warning (pre-revise1) |
+| Identity tip | `d042_regression_workbench_phase_c_task7_revise1` / product tree `81b974c1…` |
 | RealLLM network / product tolerances | **not verified** |
-| Full `pytest -q` at tip `aced981` | **1914 passed**, 1 warning |
-| Commit / push for Codex fetch | tip `aced981` on `cursor/s1-regression-task7-offline-8b52`; merge / Task 8 / seal / RealLLM still blocked |
+| Merge / Task 8 / seal | **blocked** |
 
-New modules (unqualified; not Phase 4.3.1 certified):
-
-- `src/signal_diag/agent/retest_planner.py` (`RETEST_PLANNER_IDENTITY=v0.3-s1-retest-1.0`)
-- Recommendation wiring in `app/regression.py`, `app/regression_api.py`, `app/static/regression.{html,js}`
-
-Commands (measured on Task 7 working tree):
+Commands (measured on revise1 working tree):
 
 | Command | Result |
 |---|---|
-| `pytest tests/agent/test_retest_planner.py tests/app/test_regression_recommendations.py -q` | **18 passed** |
-| `pytest tests/app/test_regression_{service,api,ui,recommendations}.py tests/agent/test_retest_planner.py -q` | **54 passed** |
-| `pytest tests/agent/test_v03_prompt_v9_11.py::test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches tests/test_architecture_boundaries.py -q` | **63 passed** |
-| `python -m ruff check` (touched paths) | pass |
-| `python -m mypy` (touched src modules) | pass |
-| `git diff --check 41b0cba` | clean |
-| Full `pytest -q` (tip `aced981`) | **1914 passed**, 1 warning |
+| `pytest tests/agent/test_retest_planner.py tests/app/test_regression_recommendations.py -q` | **27 passed** |
 | Wheel / CPython 3.11/3.12 matrix | **not executed** (not a release gate) |
 
 Correction: earlier drafts wrongly mapped interactive browser GUI to design AC14. Spec AC14 is scheme admission (“不适用方案或未批准参数不能由模型输出绕过”). Task 6 Web dual-file/manual retest is **T-CX339**.
@@ -121,8 +110,9 @@ Correction: earlier drafts wrongly mapped interactive browser GUI to design AC14
 - `code_identity_amendment.json` under the contextual development study is an **append-only identity bridge**, not a sealed Demo/official evaluation asset. Revise rows only append tip entries; prior rows retain prior digests.
 - `tests/agent/test_v03_prompt_v9_11.py` tip assertions are updated so the active tip equals `contextual_product_tree_sha256()`; older tip rows stay pinned to historical digests. Prompt/causal identity remains `v0.3-s1-planner-9.11` / `v9_11_mode_aware_no_fault_recovery`.
 - Phase B tips: `d042_regression_workbench_phase_b` → `…_revise` → `…_revise2` → `…_revise3` → `…_revise4`
-- Phase C tip: `d042_regression_workbench_phase_c_task7_offline`
-- Tip `product_tree_sha256`: `29df07a0c0560e20bf7961a11d97c8cffa8f0ccfdc51713cef47d3376901ba87`
+- Phase C tips: `d042_regression_workbench_phase_c_task7_offline` → `…_task7_revise1`
+- Tip `product_tree_sha256`: `81b974c13740110def2154d28286542165845e916e24650e3cbab82201c9b39b`
+- Prior Task 7 offline tip retained: `29df07a0c0560e20bf7961a11d97c8cffa8f0ccfdc51713cef47d3376901ba87`
 - `current_implementation_sha256` unchanged: `9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3`
 - `model_calls`: **0**
 

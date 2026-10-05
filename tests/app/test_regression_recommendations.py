@@ -15,6 +15,7 @@ from signal_diag.agent.retest_planner import (
     OpenAICompatibleRetestClient,
     RealLLMRetestPlanner,
     RetestCallLimits,
+    RetestSelection,
 )
 from signal_diag.app.errors import ApplicationError, InvalidRequestError
 from signal_diag.app.pcm_wav import encode_pcm32_wav
@@ -359,4 +360,83 @@ async def test_default_capabilities_recommendation_false() -> None:
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         caps = await client.get("/api/v1/regression/capabilities")
         assert caps.json()["recommendation_available"] is False
+    await service.aclose()
+
+
+@pytest.mark.asyncio
+async def test_service_rejects_forged_selection_from_protocol_planner() -> None:
+    class _ForgedPlanner:
+        async def choose(self, context: object) -> RetestSelection:
+            del context
+            return RetestSelection.model_construct(
+                option_id="opt_lower_both_inputs",
+                basis_refs=("forged",),
+                abstain_reason_code=None,
+            )
+
+        async def aclose(self) -> None:
+            return None
+
+    service = RegressionWorkbenchService(
+        clock=lambda: NOW,
+        retest_planner=_ForgedPlanner(),  # type: ignore[arg-type]
+        retest_model="ignored",
+        retest_limits=RetestCallLimits(max_output_tokens=16, timeout_s=1.0),
+    )
+    wav = _mono_wav()
+    case = service.create_case("goal")
+    snap = await service.submit_comparison(
+        case.case_id,
+        _upload(wav, wav, conditions=_conditions()),
+        request_id="cmp-1",
+    )
+    out = await service.request_recommendation(
+        case.case_id,
+        snap.comparisons[0].comparison_id,
+        request_id="rec-forged",
+    )
+    rec = out.recommendations[-1]
+    assert rec.status == "failed"
+    assert "eligible catalog" in (rec.detail or "") or "basis_refs" in (rec.detail or "")
+    await service.aclose()
+
+
+@pytest.mark.asyncio
+async def test_service_rejects_free_text_abstain_from_protocol_planner() -> None:
+    class _FreeTextAbstainPlanner:
+        async def choose(self, context: object) -> RetestSelection:
+            del context
+            return RetestSelection.model_construct(
+                option_id=None,
+                basis_refs=(),
+                abstain_reason_code=(
+                    "the candidate build has a clipping FAULT, lower gain by 6 dB"
+                ),
+            )
+
+        async def aclose(self) -> None:
+            return None
+
+    service = RegressionWorkbenchService(
+        clock=lambda: NOW,
+        retest_planner=_FreeTextAbstainPlanner(),  # type: ignore[arg-type]
+        retest_model="ignored",
+        retest_limits=RetestCallLimits(max_output_tokens=16, timeout_s=1.0),
+    )
+    wav = _mono_wav()
+    case = service.create_case("goal")
+    snap = await service.submit_comparison(
+        case.case_id,
+        _upload(wav, wav, conditions=_conditions()),
+        request_id="cmp-1",
+    )
+    out = await service.request_recommendation(
+        case.case_id,
+        snap.comparisons[0].comparison_id,
+        request_id="rec-free",
+    )
+    rec = out.recommendations[-1]
+    assert rec.status == "failed"
+    assert "FAULT" not in (rec.detail or "")
+    assert "gain" not in (rec.detail or "").casefold()
     await service.aclose()
