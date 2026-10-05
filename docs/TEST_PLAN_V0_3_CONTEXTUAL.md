@@ -36,6 +36,7 @@
 | T-CX319..323 | D039 single-file observed facts on context_guidance (definitions; implementation gated) |
 | T-CX329..348 | D042 regression troubleshooting workbench (definitions; Phase A–C implementation gated) |
 | T-CX349..370 | D043 regression full-scale check (implemented, PR #41 `0770514`; characterization and floor approval gated) |
+| T-CX371..380 | D043 layer-1 characterization tool (definitions; characterization runs and floor approval gated) |
 
 ## Registered identities (Task 1)
 
@@ -419,3 +420,23 @@ Implementation status: T-CX349–T-CX370 are implemented by PR #41 (`0770514`); 
 test function for each ID is listed in
 `docs/REGRESSION_FULL_SCALE_CHECK_OFFLINE_ACCEPTANCE.md`. The tests use
 fixture floors only; their values are not tolerances.
+T-CX371–T-CX380 are definitions for the D043 layer-1 characterization tool
+(plan `docs/superpowers/plans/2026-10-05-s1-regression-layer1-characterization.md`;
+`CONTRACTS_V0_3_CONTEXTUAL.md` §23.7 step 3 tool portion). Registering these
+IDs does not authorize any formal characterization run (R0–R4), floor value,
+critical-zone value, or approved-domain value. Implementation of the tool,
+characterization runs, floor approval, RealLLM, merge, and seal remain
+separately gated.
+
+| ID | Definition |
+|----|------------|
+| T-CX371 | Characterization package imports only lower layers; product code does not import the package; product floor registry stays empty |
+| T-CX372 | Integer PCM codes match the loader (32-bit vs float32 decode); one-step perturbations stay within one step and keep direction; seed fixes bytes |
+| T-CX373 | Manifest is deterministic and hashable; sensitivity pairs carry one perturbation; tolerance codes are only those listed; seed sets do not overlap |
+| T-CX374 | Split by source group; no leakage by effective params/codes per channel; near-duplicate sensitivity pairs are excluded and listed; validation subgrid is complete and scale-bounded |
+| T-CX375 | Executor uses the full tool path; identity and digests are deterministic; terminal states stay in the denominator; channels are isolated |
+| T-CX376 | P0, sandwich, one-sided worst-case equality, single-step flip, or facts verify failure aborts; P9 out-of-zone flips are counted only |
+| T-CX377 | Zone checks match product case-by-case; two-step fitting uses the fixed candidate tables only; no margin; no validation-side reads; reports do not rank |
+| T-CX378 | Two-step freeze is select-only; artifacts are write-once; incomplete freeze blocks validation side; identity compare set covers measurement path and scoring code |
+| T-CX379 | Validation counts only; both hard conditions and all mandatory disclosures are present; abort has a record; no product-judgment wording |
+| T-CX380 | End-to-end six steps on a mini manifest are reproducible byte-for-byte |
