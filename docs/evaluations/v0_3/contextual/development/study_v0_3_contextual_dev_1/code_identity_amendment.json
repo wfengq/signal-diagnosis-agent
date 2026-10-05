@@ -490,7 +490,7 @@
     "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
     "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
     "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
-    "product_tree_sha256": "PLACEHOLDER",
+    "product_tree_sha256": "e45c301db1944c425eaae0ab0671ea1bfa100b4b3d6f4ca51c5073e2af1dbcf3",
     "prompt_version": "v0.3-s1-planner-9.11",
     "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
     "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
