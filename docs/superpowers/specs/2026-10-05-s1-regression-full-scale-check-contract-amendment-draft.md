@@ -147,6 +147,10 @@ thresholds, v9.11 prompt and causal policy; D037/D039.
 > the 16-submit quota. Records are immutable; a later record names the one it
 > supersedes, and reports show the latest as current and earlier ones as
 > superseded history. The subject of the judgment is always the anchor pair.
+> The anchor is the comparison with no `repeat` link that is reached by
+> following `RetestLink.parent_comparison_id` through `repeat` links; a repeat
+> whose parent is itself a repeat belongs to the same anchor. `RetestLink` is
+> unchanged.
 > The record has its own summary and inherits nothing from the anchor's
 > `required_checks`.
 >
@@ -278,30 +282,26 @@ Definitions only; CS numbers refer to the design's tracking list.
 | T-CX363 | No matching floor record gives `descriptive_only`; clients cannot upload a floor or approval flag; product ships with none | §12.3 |
 | T-CX364 | Record lifecycle: one record per accepted anchor or repeat submit, no quota use, immutable, superseding pointer, `not_comparable` precedence, tamper rejected at validation | §12.2 |
 
-## E. Points that need an operator decision before this is applied
+## E. Placement decisions (operator, 2026-10-05)
 
-These are choices this draft had to make where the approved design left the
-placement open. Each is marked in the text above and can be changed without
-touching the design.
+The approved design left these placements open. The operator decided them on
+2026-10-05; the text above already follows them.
 
-1. **Where the three new declarations live.** Drafted as a new
-   `FullScaleDeclarations` object carried next to `ComparisonConditions`, so
-   §22.1 stays untouched. This still adds an optional field to the submit
-   surface of §22.4 (`ComparisonUpload`). The alternative is adding fields to
-   `ComparisonConditions`, which edits §22.1 and changes the submit
-   fingerprint for existing records.
-2. **Who computes the facts.** Drafted as a comparison-side deterministic
-   function reading the same samples as the bundle, leaving
-   `MeasurementBundle` and its digest unchanged. The alternative, a new field
-   on the bundle, changes the bundle digest and `MEASUREMENT_VERSION`.
-3. **Bit depth as an observed fact.** `InputIdentity` has no bit-depth field
-   today. Drafted as a field of `FullScaleFacts` read from the WAV header, not
-   added to `InputIdentity`.
-4. **Equal sample counts on yes → yes.** Drafted as `no_regression_detected`,
-   as in design §12.6.
-5. **Numbering.** §23, D043 and T-CX349–T-CX364 assume the numbers are still
-   free when this is applied.
+1. **Declarations.** The three new declarations live in a new
+   `FullScaleDeclarations` object carried next to `ComparisonConditions`.
+   §22.1 is untouched and existing submit fingerprints do not change. The
+   submit surface of §22.4 (`ComparisonUpload`) gains one optional field.
+2. **Computation.** The facts are computed by a comparison-side deterministic
+   function reading the same samples as the bundle. `MeasurementBundle`, its
+   digest and `MEASUREMENT_VERSION` are unchanged.
+3. **Bit depth.** Bit depth is a field of `FullScaleFacts`, read from the WAV
+   header. `InputIdentity` is unchanged.
 
-Not verified while drafting: `app/regression.py` was not read in full, so the
-statement that a repeat submit can be linked to an anchor without changing
-`RetestLink` rests on §22.4 text only; no tests were run.
+Still to check when this is applied: §23, D043 and T-CX349–T-CX364 assume those
+numbers are free on the baseline at that time.
+
+Checked while drafting: at `fb38314`, `RetestLink` in `app/regression.py`
+carries `kind` and `parent_comparison_id`, and the service rejects a parent
+that is not in the same case, so a repeat submit can be tied to its anchor
+without changing that model. Not checked: the rest of `app/regression.py`
+beyond the link handling; no tests were run.
