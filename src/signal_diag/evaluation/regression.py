@@ -10,7 +10,9 @@ from pydantic import BaseModel, ConfigDict
 from signal_diag.agent.retest_planner import (
     RetestContext,
     RetestOption,
+    RetestPlannerError,
     RetestSelection,
+    validate_selection_against_context,
 )
 
 RetestArm = Literal["fixed_strategy", "real_adapter_fake_transport"]
@@ -106,34 +108,57 @@ def choose_fixed_retest(context: RetestContext) -> RetestSelection:
     )
 
 
-def _truth_for_case(
     cases: tuple[RetestEvaluationCase, ...],
-    case_id: str,
-) -> RetestTruthLabel:
-    for case in cases:
-        if case.case_id == case_id:
-            return case.truth
-    raise ValueError("case_id not in planned set")
+) -> dict[str, RetestEvaluationCase]:
+    return {case.case_id: case for case in cases}
+
+
+def _valid_selection_for_row(
+    case: RetestEvaluationCase,
+    row: RetestEvaluationResult,
+) -> bool:
+    if row.status != "completed":
+        return False
+    selection = row.selection
+    if selection is None or selection.option_id is None:
+        return False
+    try:
+        validate_selection_against_context(selection, context=case.context)
+    except RetestPlannerError:
+        return False
+    return True
 
 
 def score_retest_cases(
     cases: tuple[RetestEvaluationCase, ...],
     results: tuple[RetestEvaluationResult, ...],
+    *,
+    scheduled_arms: tuple[RetestArm, ...] = (
+        "fixed_strategy",
+        "real_adapter_fake_transport",
+    ),
 ) -> RetestEvaluationSummary:
     if not cases:
         return RetestEvaluationSummary(by_arm={})
+
+    if not scheduled_arms:
+        raise ValueError("scheduled_arms must be non-empty when cases are non-empty")
 
     planned_ids = [case.case_id for case in cases]
     if len(planned_ids) != len(set(planned_ids)):
         raise ValueError("duplicate case_id in cases")
 
     planned_set = frozenset(planned_ids)
+    case_map = _case_by_id(cases)
+    scheduled_arm_set = frozenset(scheduled_arms)
     seen_keys: set[tuple[str, RetestArm]] = set()
     by_arm: dict[RetestArm, dict[str, RetestEvaluationResult]] = defaultdict(dict)
 
     for result in results:
         if result.case_id not in planned_set:
             raise ValueError("result case_id not in planned set")
+        if result.arm not in scheduled_arm_set:
+            raise ValueError("result arm not in scheduled_arms")
         key = (result.case_id, result.arm)
         if key in seen_keys:
             raise ValueError("duplicate (case_id, arm) in results")
@@ -142,7 +167,8 @@ def score_retest_cases(
 
     summary: dict[str, ArmCounts] = {}
     scheduled = len(cases)
-    for arm, result_map in by_arm.items():
+    for arm in scheduled_arms:
+        result_map = by_arm.get(arm, {})
         tallies = {
             "scheduled": scheduled,
             "completed": 0,
@@ -153,6 +179,7 @@ def score_retest_cases(
             "missing": 0,
         }
         for case_id in planned_ids:
+            case = case_map[case_id]
             row = result_map.get(case_id)
             if row is None or row.status == "missing":
                 tallies["missing"] += 1
@@ -166,14 +193,20 @@ def score_retest_cases(
             selection = row.selection
             if selection is None:
                 continue
-            if selection.option_id is not None:
+            if _valid_selection_for_row(case, row):
                 tallies["valid_selection"] += 1
-                truth = _truth_for_case(cases, case_id)
+                truth = case.truth
+                case_revealed = reveal_outcome_for_selection(case, selection)
+                if row.revealed is not None:
+                    if row.revealed != case_revealed:
+                        raise ValueError(
+                            "result.revealed disagrees with case-derived reveal for "
+                            f"case_id={case_id!r} arm={arm!r}"
+                        )
                 if (
                     selection.option_id in truth.useful_option_ids
-                    and row.revealed is not None
-                    and row.revealed.option_id == selection.option_id
-                    and row.revealed.resolved
+                    and case_revealed is not None
+                    and case_revealed.resolved
                 ):
                     tallies["useful_retest"] += 1
             elif selection.abstain_reason_code is not None:

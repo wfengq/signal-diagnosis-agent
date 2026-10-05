@@ -507,3 +507,225 @@ async def test_fixed_arm_contrast_matches_catalog_not_sdk() -> None:
     assert fixed.option_id == adapter.option_id
     assert fixed.option_id == "opt_complete_conditions"
     assert len(sdk.completions.calls) == 1
+
+
+def test_forged_option_not_valid_selection() -> None:
+    ctx = _manual_context(
+        eligible=(
+            RetestOption(
+                option_id="opt_complete_conditions",
+                kind="complete_conditions",
+                required_inputs=("declared_conditions",),
+                keep_conditions=("baseline_version",),
+                explanation_template="Complete.",
+            ),
+        ),
+        findings=(
+            CompactFinding(
+                finding_id="decl_same_input",
+                kind="declaration",
+                code="same_input=unknown",
+            ),
+        ),
+    )
+    eval_case = RetestEvaluationCase(
+        case_id="forged",
+        context=ctx,
+        revealed_outcomes=(
+            RevealedRetestOutcome(
+                option_id="opt_complete_conditions",
+                resolved=True,
+            ),
+        ),
+        truth=RetestTruthLabel(useful_option_ids=("opt_complete_conditions",)),
+    )
+    result = RetestEvaluationResult(
+        case_id="forged",
+        arm="fixed_strategy",
+        status="completed",
+        selection=RetestSelection(
+            option_id="opt_complete_conditions",
+            basis_refs=("nonexistent_finding",),
+            abstain_reason_code=None,
+        ),
+        revealed=RevealedRetestOutcome(
+            option_id="opt_complete_conditions",
+            resolved=True,
+        ),
+    )
+    summary = score_retest_cases((eval_case,), (result,))
+    counts = summary.by_arm["fixed_strategy"]
+    assert counts.valid_selection == 0
+    assert counts.useful_retest == 0
+
+
+def test_useful_retest_raises_on_revealed_disagreement() -> None:
+    ctx = _manual_context(
+        eligible=(
+            RetestOption(
+                option_id="opt_complete_conditions",
+                kind="complete_conditions",
+                required_inputs=("declared_conditions",),
+                keep_conditions=("baseline_version",),
+                explanation_template="Complete.",
+            ),
+        ),
+        findings=(
+            CompactFinding(
+                finding_id="decl_same_input",
+                kind="declaration",
+                code="same_input=unknown",
+            ),
+        ),
+    )
+    eval_case = RetestEvaluationCase(
+        case_id="disagree",
+        context=ctx,
+        revealed_outcomes=(
+            RevealedRetestOutcome(
+                option_id="opt_complete_conditions",
+                resolved=False,
+            ),
+        ),
+        truth=RetestTruthLabel(useful_option_ids=("opt_complete_conditions",)),
+    )
+    selection = choose_fixed_retest(ctx)
+    result = RetestEvaluationResult(
+        case_id="disagree",
+        arm="fixed_strategy",
+        status="completed",
+        selection=selection,
+        revealed=RevealedRetestOutcome(
+            option_id="opt_complete_conditions",
+            resolved=True,
+        ),
+    )
+    with pytest.raises(ValueError, match="disagrees"):
+        score_retest_cases((eval_case,), (result,))
+
+
+def test_useful_retest_omitted_revealed_when_case_unresolved() -> None:
+    ctx = _manual_context(
+        eligible=(
+            RetestOption(
+                option_id="opt_complete_conditions",
+                kind="complete_conditions",
+                required_inputs=("declared_conditions",),
+                keep_conditions=("baseline_version",),
+                explanation_template="Complete.",
+            ),
+        ),
+        findings=(
+            CompactFinding(
+                finding_id="decl_same_input",
+                kind="declaration",
+                code="same_input=unknown",
+            ),
+        ),
+    )
+    eval_case = RetestEvaluationCase(
+        case_id="unresolved_no_row_reveal",
+        context=ctx,
+        revealed_outcomes=(
+            RevealedRetestOutcome(
+                option_id="opt_complete_conditions",
+                resolved=False,
+            ),
+        ),
+        truth=RetestTruthLabel(useful_option_ids=("opt_complete_conditions",)),
+    )
+    selection = choose_fixed_retest(ctx)
+    result = RetestEvaluationResult(
+        case_id="unresolved_no_row_reveal",
+        arm="fixed_strategy",
+        status="completed",
+        selection=selection,
+        revealed=None,
+    )
+    summary = score_retest_cases((eval_case,), (result,))
+    assert summary.by_arm["fixed_strategy"].useful_retest == 0
+    assert summary.by_arm["fixed_strategy"].valid_selection == 1
+
+
+def test_absent_arm_counts_all_missing() -> None:
+    ctx = _manual_context(eligible=(), findings=())
+    case_a = RetestEvaluationCase(
+        case_id="a",
+        context=ctx,
+        revealed_outcomes=(),
+        truth=RetestTruthLabel(useful_option_ids=()),
+    )
+    case_b = RetestEvaluationCase(
+        case_id="b",
+        context=ctx,
+        revealed_outcomes=(),
+        truth=RetestTruthLabel(useful_option_ids=()),
+    )
+    summary = score_retest_cases((case_a, case_b), ())
+    assert summary.by_arm["fixed_strategy"].scheduled == 2
+    assert summary.by_arm["fixed_strategy"].missing == 2
+    assert summary.by_arm["real_adapter_fake_transport"].scheduled == 2
+    assert summary.by_arm["real_adapter_fake_transport"].missing == 2
+
+
+def test_partial_arm_results_keep_other_arm_missing() -> None:
+    ctx = _manual_context(
+        eligible=(
+            RetestOption(
+                option_id="opt_complete_conditions",
+                kind="complete_conditions",
+                required_inputs=("declared_conditions",),
+                keep_conditions=("baseline_version",),
+                explanation_template="Complete.",
+            ),
+        ),
+        findings=(
+            CompactFinding(
+                finding_id="decl_same_input",
+                kind="declaration",
+                code="same_input=unknown",
+            ),
+        ),
+    )
+    eval_case = RetestEvaluationCase(
+        case_id="partial",
+        context=ctx,
+        revealed_outcomes=(
+            RevealedRetestOutcome(
+                option_id="opt_complete_conditions",
+                resolved=True,
+            ),
+        ),
+        truth=RetestTruthLabel(useful_option_ids=("opt_complete_conditions",)),
+    )
+    selection = choose_fixed_retest(ctx)
+    result = RetestEvaluationResult(
+        case_id="partial",
+        arm="fixed_strategy",
+        status="completed",
+        selection=selection,
+        revealed=eval_case.revealed_outcomes[0],
+    )
+    summary = score_retest_cases((eval_case,), (result,))
+    assert summary.by_arm["fixed_strategy"].completed == 1
+    assert summary.by_arm["fixed_strategy"].missing == 0
+    adapter = summary.by_arm["real_adapter_fake_transport"]
+    assert adapter.scheduled == 1
+    assert adapter.missing == 1
+
+
+def test_score_rejects_unknown_case_id() -> None:
+    ctx = _manual_context(eligible=(), findings=())
+    eval_case = RetestEvaluationCase(
+        case_id="planned",
+        context=ctx,
+        revealed_outcomes=(),
+        truth=RetestTruthLabel(useful_option_ids=()),
+    )
+    result = RetestEvaluationResult(
+        case_id="not_planned",
+        arm="fixed_strategy",
+        status="missing",
+    )
+    with pytest.raises(ValueError, match="not in planned"):
+        score_retest_cases((eval_case,), (result,))
