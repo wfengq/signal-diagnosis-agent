@@ -79,7 +79,7 @@ Also: `complete_conditions` only when declaration is `unknown` (not `no`); empty
 |---|---|
 | Focused Task 7 suite (revise1) | **27 passed** |
 | Prior tip `aced981` full suite | **1914 passed**, 1 warning (pre-revise1) |
-| Identity tip | `d042_regression_workbench_phase_c_task7_revise1` / product tree `81b974c1…` |
+| Identity tip | `d042_regression_workbench_phase_c_task7_revise1` / product tree `5f9c03ae…` |
 | RealLLM network / product tolerances | **not verified** |
 | Merge / Task 8 / seal | **blocked** |
 
@@ -111,7 +111,7 @@ Correction: earlier drafts wrongly mapped interactive browser GUI to design AC14
 - `tests/agent/test_v03_prompt_v9_11.py` tip assertions are updated so the active tip equals `contextual_product_tree_sha256()`; older tip rows stay pinned to historical digests. Prompt/causal identity remains `v0.3-s1-planner-9.11` / `v9_11_mode_aware_no_fault_recovery`.
 - Phase B tips: `d042_regression_workbench_phase_b` → `…_revise` → `…_revise2` → `…_revise3` → `…_revise4`
 - Phase C tips: `d042_regression_workbench_phase_c_task7_offline` → `…_task7_revise1`
-- Tip `product_tree_sha256`: `81b974c13740110def2154d28286542165845e916e24650e3cbab82201c9b39b`
+- Tip `product_tree_sha256`: `5f9c03ae4e34b73a33ab06f3510bb9a81a19c5c2763b33487eb922ed76ea58e7`
 - Prior Task 7 offline tip retained: `29df07a0c0560e20bf7961a11d97c8cffa8f0ccfdc51713cef47d3376901ba87`
 - `current_implementation_sha256` unchanged: `9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3`
 - `model_calls`: **0**
