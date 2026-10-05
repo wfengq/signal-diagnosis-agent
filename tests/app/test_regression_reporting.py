@@ -2,19 +2,26 @@
 
 from __future__ import annotations
 
+import copy
+import inspect
 import json
 from datetime import UTC, datetime
 
 import pytest
+from pydantic import ValidationError
 
 from signal_diag.app.pcm_wav import encode_pcm32_wav
 from signal_diag.app.regression import RegressionWorkbenchService
+from signal_diag.agent.models import StructuredDiagnosis
+from signal_diag.app.full_scale_wording import CLIPPING_RATIO_NOTICE, FULL_SCALE_TEMPLATES
 from signal_diag.app.regression_reporting import (
     RegressionCaseReport,
     build_case_report,
     render_case_html,
     render_case_json,
 )
+from signal_diag.rules.full_scale_check import FullScaleDeclarations
+from tests.rules.full_scale_fixtures import FIXTURE_FLOOR, sine, wav16
 from signal_diag.rules.regression import (
     validate_comparison_record,
 )
@@ -316,3 +323,111 @@ def test_model_validate_rejects_forged_comparison_record() -> None:
     payload["comparisons"][0]["record"]["metric_comparisons"][0]["difference"] = 999.0
     with pytest.raises(ValueError, match="mismatch"):
         RegressionCaseReport.model_validate(payload)
+
+
+from signal_diag.app.regression import ComparisonUpload, RegressionCaseSnapshot, RetestLink
+from signal_diag.rules.regression import ComparisonConditions
+from signal_diag.tools.contracts import ClippingInput, HarmonicDistortionInput
+from signal_diag.tools.regression_measurement import MeasurementSelection
+
+
+def _fs_conditions() -> ComparisonConditions:
+    return ComparisonConditions(
+        baseline_version="v1",
+        candidate_version="v2",
+        stimulus_key="sine",
+        parameters_key="default",
+        same_input="yes",
+        parameters_unchanged="yes",
+        aligned_ranges="yes",
+        repeatability="declared_deterministic",
+        nominal_fundamental_hz=100.0,
+    )
+
+
+def _fs_selection() -> MeasurementSelection:
+    return MeasurementSelection(
+        clipping=ClippingInput(channel="left"),
+        harmonic=HarmonicDistortionInput(channel="left", fundamental_hz=100.0),
+    )
+
+
+def _fs_upload(**overrides: object) -> ComparisonUpload:
+    wav = wav16(sine(amplitude=0.5))
+    return ComparisonUpload(
+        baseline_data=overrides.get("baseline_data", wav),
+        candidate_data=overrides.get("candidate_data", wav),
+        baseline_filename="b.wav",
+        candidate_filename="c.wav",
+        baseline_version="v1",
+        candidate_version="v2",
+        conditions=overrides.get("conditions", _fs_conditions()),
+        selection=overrides.get("selection", _fs_selection()),
+        full_scale_declarations=overrides.get(
+            "full_scale_declarations", FullScaleDeclarations()
+        ),
+    )
+
+
+async def _snapshot_with_two_submits(
+    service: RegressionWorkbenchService,
+) -> RegressionCaseSnapshot:
+    case = service.create_case("goal")
+    snap = await service.submit_comparison(case.case_id, _fs_upload(), request_id="r1")
+    link = RetestLink(kind="repeat", parent_comparison_id=snap.comparisons[0].comparison_id)
+    indep = FullScaleDeclarations(
+        baseline_independent_render="yes", candidate_independent_render="yes"
+    )
+    return await service.submit_comparison(
+        case.case_id,
+        _fs_upload(full_scale_declarations=indep),
+        request_id="r2",
+        link=link,
+    )
+
+
+@pytest.mark.asyncio
+async def test_t_cx367_report_carries_and_validates_checks(service) -> None:
+    snapshot = await _snapshot_with_two_submits(service)
+    report = build_case_report(snapshot, generated_at=NOW)
+    assert report.full_scale_checks == snapshot.full_scale_checks
+    parsed = RegressionCaseReport.model_validate_json(render_case_json(report))
+    assert parsed.full_scale_checks == report.full_scale_checks
+    payload = json.loads(render_case_json(report))
+    payload["full_scale_checks"][1]["status"] = "regression_detected"
+    with pytest.raises(ValidationError):
+        RegressionCaseReport.model_validate(payload)
+
+
+@pytest.mark.asyncio
+async def test_t_cx367_report_rejects_dropped_repeat_and_fabricated_floor(service) -> None:
+    snapshot = await _snapshot_with_two_submits(service)
+    payload = json.loads(
+        render_case_json(build_case_report(snapshot, generated_at=NOW))
+    )
+    dropped = copy.deepcopy(payload)
+    dropped["full_scale_checks"][1]["repeat_comparison_ids"] = []
+    with pytest.raises(ValidationError):
+        RegressionCaseReport.model_validate(dropped)
+    forged = copy.deepcopy(payload)
+    forged["full_scale_checks"][1]["floor"] = FIXTURE_FLOOR.model_dump(mode="json")
+    with pytest.raises(ValidationError):
+        RegressionCaseReport.model_validate(forged)
+
+
+@pytest.mark.asyncio
+async def test_t_cx355_html_shows_current_and_superseded_checks(service) -> None:
+    html = render_case_html(
+        build_case_report(await _snapshot_with_two_submits(service), generated_at=NOW)
+    )
+    assert "Full-scale check" in html and "Superseded" in html
+    assert FULL_SCALE_TEMPLATES["notice.coverage"] in html and CLIPPING_RATIO_NOTICE in html
+    assert "overall" not in html.casefold()
+    assert "descriptive_only" in html
+
+
+def test_t_cx368_check_stays_out_of_diagnosis() -> None:
+    from signal_diag.agent import diagnosis
+
+    assert "full_scale" not in inspect.getsource(diagnosis)
+    assert "FullScale" not in json.dumps(StructuredDiagnosis.model_json_schema())

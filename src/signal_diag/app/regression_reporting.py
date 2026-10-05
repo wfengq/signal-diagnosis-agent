@@ -8,11 +8,19 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from signal_diag.app.full_scale_wording import CLIPPING_RATIO_NOTICE, full_scale_check_lines
 from signal_diag.app.regression import (
     CaseComparisonItem,
     CaseFailureRecord,
     CaseRecommendationRecord,
     RegressionCaseSnapshot,
+    submissions_from_items,
+)
+from signal_diag.rules.full_scale_check import (
+    FullScaleCheckRecord,
+    PRODUCT_APPROVED_FULL_SCALE_FLOORS,
+    resolve_anchor_id,
+    validate_full_scale_check_record,
 )
 from signal_diag.rules.regression import ComparisonRecord, validate_comparison_record
 
@@ -27,6 +35,8 @@ def validate_regression_case_report_integrity(
     comparisons: tuple[CaseComparisonItem, ...],
     failures: tuple[CaseFailureRecord, ...],
     recommendations: tuple[CaseRecommendationRecord, ...],
+    full_scale_checks: tuple[FullScaleCheckRecord, ...] = (),
+    approved_floors: tuple = PRODUCT_APPROVED_FULL_SCALE_FLOORS,
 ) -> None:
     """Reject tampered or inconsistent case report payloads."""
     seen_ids: set[str] = set()
@@ -64,6 +74,53 @@ def validate_regression_case_report_integrity(
                 "recommendation comparison_id is not present in this report"
             )
 
+    _validate_full_scale_checks(
+        comparisons=comparisons,
+        full_scale_checks=full_scale_checks,
+        approved_floors=approved_floors,
+    )
+
+
+def _validate_full_scale_checks(
+    *,
+    comparisons: tuple[CaseComparisonItem, ...],
+    full_scale_checks: tuple[FullScaleCheckRecord, ...],
+    approved_floors: tuple,
+) -> None:
+    if not full_scale_checks:
+        return
+    index = submissions_from_items(comparisons)
+    by_anchor: dict[str, list[FullScaleCheckRecord]] = {}
+    for check in full_scale_checks:
+        by_anchor.setdefault(check.anchor_comparison_id, []).append(check)
+
+    for anchor_id, checks in by_anchor.items():
+        if anchor_id not in index:
+            raise ValueError("full-scale anchor_comparison_id is missing from comparisons")
+        repeats_in_order = tuple(
+            row.comparison_id
+            for row in comparisons
+            if row.link_kind == "repeat"
+            and resolve_anchor_id(row.comparison_id, index) == anchor_id
+        )
+        if len(checks) != len(repeats_in_order) + 1:
+            raise ValueError("full-scale check count does not match repeat submissions")
+        for position, check in enumerate(checks):
+            expected_repeats = repeats_in_order[:position]
+            if check.repeat_comparison_ids != expected_repeats:
+                raise ValueError("full-scale repeat_comparison_ids mismatch")
+            expected_supersedes = checks[position - 1].check_id if position else None
+            if check.supersedes != expected_supersedes:
+                raise ValueError("full-scale supersedes chain mismatch")
+            anchor_submission = index[anchor_id]
+            repeat_submissions = tuple(index[cid] for cid in expected_repeats)
+            validate_full_scale_check_record(
+                check,
+                anchor=anchor_submission,
+                repeats=repeat_submissions,
+                approved_floors=approved_floors,
+            )
+
 
 class RegressionCaseReport(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
@@ -74,6 +131,7 @@ class RegressionCaseReport(BaseModel):
     goal: str
     revision: int
     comparisons: tuple[CaseComparisonItem, ...]
+    full_scale_checks: tuple[FullScaleCheckRecord, ...] = ()
     failures: tuple[CaseFailureRecord, ...]
     recommendations: tuple[CaseRecommendationRecord, ...]
     latest_submit_status: str
@@ -86,6 +144,8 @@ class RegressionCaseReport(BaseModel):
             comparisons=self.comparisons,
             failures=self.failures,
             recommendations=self.recommendations,
+            full_scale_checks=self.full_scale_checks,
+            approved_floors=PRODUCT_APPROVED_FULL_SCALE_FLOORS,
         )
         return self
 
@@ -94,12 +154,15 @@ def build_case_report(
     snapshot: RegressionCaseSnapshot,
     *,
     generated_at: datetime,
+    approved_floors: tuple = PRODUCT_APPROVED_FULL_SCALE_FLOORS,
 ) -> RegressionCaseReport:
     validate_regression_case_report_integrity(
         case_id=snapshot.case_id,
         comparisons=snapshot.comparisons,
         failures=snapshot.failures,
         recommendations=snapshot.recommendations,
+        full_scale_checks=snapshot.full_scale_checks,
+        approved_floors=approved_floors,
     )
     return RegressionCaseReport(
         generated_at=generated_at,
@@ -107,6 +170,7 @@ def build_case_report(
         goal=snapshot.goal,
         revision=snapshot.revision,
         comparisons=snapshot.comparisons,
+        full_scale_checks=snapshot.full_scale_checks,
         failures=snapshot.failures,
         recommendations=snapshot.recommendations,
         latest_submit_status=snapshot.latest_submit_status,
@@ -213,6 +277,7 @@ def render_case_html(report: RegressionCaseReport) -> str:
                 "<tbody>",
                 _render_metric_rows(record),
                 "</tbody></table>",
+                f"<p class=\"notice\">{_esc(CLIPPING_RATIO_NOTICE)}</p>",
                 "<h3>Coverage</h3>",
                 "<ul>",
                 _render_coverage(record),
@@ -220,6 +285,19 @@ def render_case_html(report: RegressionCaseReport) -> str:
                 "</section>",
             ]
         )
+    if report.full_scale_checks:
+        parts.append('<section id="full-scale-checks"><h2>Full-scale check</h2>')
+        by_anchor: dict[str, list[FullScaleCheckRecord]] = {}
+        for check in report.full_scale_checks:
+            by_anchor.setdefault(check.anchor_comparison_id, []).append(check)
+        for anchor_id, checks in by_anchor.items():
+            for position, check in enumerate(checks):
+                label = "Current" if position == len(checks) - 1 else "Superseded"
+                parts.append(f"<h3>{_esc(anchor_id)} ({_esc(label)})</h3><ul>")
+                for line in full_scale_check_lines(check):
+                    parts.append(f"<li>{_esc(line)}</li>")
+                parts.append("</ul>")
+        parts.append("</section>")
     if report.failures:
         parts.append('<section id="failures"><h2>Failures</h2><ul>')
         for failure in report.failures:
