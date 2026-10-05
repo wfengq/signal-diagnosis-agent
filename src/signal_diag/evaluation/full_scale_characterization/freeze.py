@@ -388,4 +388,3 @@ __all__ = [
     "write_freeze_record",
     "write_freeze_stage1",
 ]
-
