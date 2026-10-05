@@ -21,9 +21,9 @@ from signal_diag.evaluation.full_scale_characterization.models import (
     SideGenerationSpec,
 )
 from signal_diag.evaluation.full_scale_characterization.pcm import (
-    encode_pcm_wav,
     RoundingMode,
     StepBits,
+    encode_pcm_wav,
 )
 from signal_diag.signal import InMemorySignalRepository, build_signal_record
 from signal_diag.signal.models import ChannelMode, TimeRange
