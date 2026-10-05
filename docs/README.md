@@ -45,11 +45,12 @@ Read these before changing behavior or public interfaces:
 3. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) — deterministic T001–T285 and
    separately gated real-model evaluation/Demo requirements.
 4. [DECISIONS.md](DECISIONS.md) — D001–D043 architectural and process choices.
-5. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — OQ-001–OQ-020 (OQ-013–OQ-018
+5. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — OQ-001–OQ-021 (OQ-013–OQ-018
    hygiene dispositions resolve HEAD vs frozen V0.2 documentation gaps;
    OQ-019 / D038 freezes the S1 planner-ablation study shape only;
    OQ-020 is approved as D043: regression full-scale check, V0.3 §23,
-   definitions only; 2026-10-05 designs under `superpowers/specs/` and a
+   implemented in PR #41 (`0770514`) with no product floor; OQ-021 is open on
+   floor applicability when a side has no facts; 2026-10-05 designs under `superpowers/specs/` and a
    roadmap amendment proposal under `superpowers/roadmaps/`).
 6. [CONTRACTS_V0_3_CONTEXTUAL.md](CONTRACTS_V0_3_CONTEXTUAL.md) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) — additive
@@ -58,7 +59,9 @@ Read these before changing behavior or public interfaces:
    study definitions, regression workbench; do not edit frozen §§1–64).
    Phase A offline evidence:
    [REGRESSION_WORKBENCH_OFFLINE_ACCEPTANCE.md](REGRESSION_WORKBENCH_OFFLINE_ACCEPTANCE.md),
-   [REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md](REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md).
+   [REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md](REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md);
+   §23 offline evidence:
+   [REGRESSION_FULL_SCALE_CHECK_OFFLINE_ACCEPTANCE.md](REGRESSION_FULL_SCALE_CHECK_OFFLINE_ACCEPTANCE.md).
 7. [EXTERNAL_VALIDATION_CONTRACTS_V0_2.md](EXTERNAL_VALIDATION_CONTRACTS_V0_2.md)
    and [EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md](EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md)
    — external-WAV study contracts.

@@ -1,7 +1,7 @@
 # Open Contract and Architecture Questions
 
 **Status:** Active register
-**Current open questions:** 0 open; 20 resolved (OQ-001–OQ-020)
+**Current open questions:** 1 open (OQ-021); 20 resolved (OQ-001–OQ-020)
 
 Use this file only for concrete issues that may require changing an approved
 contract or architectural boundary.
@@ -370,7 +370,7 @@ User decision: approved 2026-09-30 — OQ-019 study-shape freeze accepted. Appro
 ```text
 ID: OQ-020
 Date: 2026-10-05
-Status: approved — definitions registered as V0.3 §23, D043, T-CX349–T-CX370 on 2026-10-05; implementation not authorized
+Status: approved — definitions registered as V0.3 §23, D043, T-CX349–T-CX370 on 2026-10-05; implementation merged 2026-10-05 (PR #41, `0770514`); characterization run, floor values and a judged product status not authorized
 Affected document and section: CONTRACTS_V0_3_CONTEXTUAL.md §22.2 (first-phase compare metric `detect_clipping / clipping_ratio`) and §22.3 (comparison rules); src/signal_diag/dsp/clipping.py (`analyze_clipping`); any future method-floor or comparison-tolerance design built on `clipping_ratio`.
 Observed problem: A read-only probe at fb38314 called `analyze_clipping` with default parameters on clean, unclipped sines from `generate_sine` (sample rates 44100/48000 Hz; 50/100/220/440/880/997 Hz; amplitudes 0.01/0.05/0.2/0.5/0.9; four start phases each, 0/0.1/1.0/2.0 rad; 2.0 s). 29 of 60 frequency/amplitude/rate cells returned non-zero `clipping_ratio` with `flat_top_detected=true` and `clipping_mechanism=false`. Examples: 100 Hz, amplitude 0.01, 48 kHz ≈ 0.55; 50 Hz, amplitude 0.9, 48 kHz ≈ 0.0125–0.0146; 100 Hz, amplitude 0.9, 48 kHz = 0.0125 at phase 0 and 0.0 at the other three phases. Values change with start phase and sample rate. Cells at ≥ 440 Hz with amplitude ≥ 0.2 were all zero. Cause by code reading: the flat-top mask uses an absolute adjacent-sample tolerance (default 1e-4, minimum 3 samples); near the peak of a low-frequency or low-amplitude sine, adjacent differences fall below that tolerance. Separately, white noise (rms 0.5, limited to full scale, one seed) returned a valid `clipping_ratio` ≈ 0.004; the clipping measurement has no non-applicable outcome for non-periodic input.
 Evidence classification: (measured) the clean-sine and white-noise results above; the probe script was not committed, and this was a probe, not a frozen characterization — a reproducible in-repo rerun is recommended before these numbers are cited as formal evidence. (code reading, not measured) `clipping_mechanism` is `full_scale_detected or (flat_top_detected and peak >= full_scale_threshold)`, so genuine sub-full-scale flat-top clipping and clean-sine false plateaus both present as `flat_top_detected=true, clipping_mechanism=false` and are not separable by that flag. (not verified) any effect on the single-file diagnosis path. The §8 causal gate requires `clipping_mechanism=true`, and all 29 cells had it false, so by that rule no clipping claim should form; no end-to-end diagnosis run was made to confirm.
@@ -380,4 +380,21 @@ Review status: an independent read-only subagent review reproduced the probe (29
 Compatibility impact: None from recording this entry. The product already ships descriptive-only comparison (approved profiles: 0), so no judgment is affected today; descriptive `clipping_ratio` values and differences shown in the workbench may be non-zero on unclipped low-frequency or low-level input.
 Test impact: None for this entry. Implementation needs new T-CX IDs; design-tracking requirements are CS01–CS14 in the design, plus the clean-sine cells above and a sub-full-scale clipped sine as regression cases.
 User decision: approved 2026-10-05 — design (spec §12–§13, characterization §10–§11) and amendment draft revision 2; recorded as D043. Not authorized: implementation plan, implementation, characterization run, any floor value, a judged product status. Revision 2 of the amendment and the last correction sections were not independently re-reviewed before approval.
+Implementation (2026-10-05): the implementation plan (revision 4) and its implementation were later authorized separately and merged as PR #41 (`0770514`) after independent review. The product ships no floor record and has no judged status. The layer-1 characterization run, any floor value and floor approval remain unauthorized. Follow-up: OQ-021.
+```
+
+## OQ-021 — Full-scale check: floor applicability when one side has no facts
+
+```text
+ID: OQ-021
+Date: 2026-10-05
+Status: open
+Affected document and section: CONTRACTS_V0_3_CONTEXTUAL.md §23.4 (floor applicability) and §23.5 (eligibility condition 8, validation); src/signal_diag/rules/full_scale_check.py (`_floor_identity_ok`, `_applicable_approved_floors`, `validate_full_scale_check_record`).
+Observed problem: §23.4 says a floor record applies only when `facts_version`, `full_scale_threshold` and `min_consecutive_samples` equal those of both sides' facts. The merged implementation (`0770514`) skips a side whose facts are missing, so a floor counts as applicable when one or both anchor sides have no facts. Such a record then carries the floor, and plan Task 9B-7 validation requires an applicable approved floor to be present on it. Found in the independent review of PR #41 (finding F4, Info).
+Why the current contract cannot represent a correct implementation: The contract can represent it; the question is which reading is intended. Today there is no product impact: the registry is empty, and a missing side already yields `facts_missing:<side>` and `not_comparable`, so no judged status is reachable either way. It matters once a floor record is approved, because the two readings produce different `floor`, `unmet_conditions` and `unevaluated_conditions` contents for the same input.
+Minimal proposed change: Decide before any floor record is approved. Option A: follow §23.4 literally; a floor applies only when both anchor sides have facts and all three identity fields match, otherwise `floor_missing` is listed and condition 9 and the reviewed part of condition 10 go to `unevaluated_conditions`. Option B: keep the current behavior and amend §23.4 to say that sides without facts are not compared. Option A is recommended because it matches the frozen wording and needs no contract change.
+Compatibility impact: None today (no product floor). Option A changes check-record contents only for inputs with missing facts.
+Test impact: Option A needs a rules test (one side without facts plus a matching fixture floor: no floor on the record, `floor_missing` listed) and an adjusted 9B-7 test. Option B needs a contract revision and a test pinning the current behavior.
+Related cleanup (no contract impact): in `src/signal_diag/app/regression_reporting.py` `_validate_full_scale_checks`, a record whose anchor is a repeat is rejected with "anchor_comparison_id is missing from comparisons", and the in-loop "not an anchor" check is unreachable. Fix the message or remove the dead check in the same change.
+User decision: pending.
 ```
