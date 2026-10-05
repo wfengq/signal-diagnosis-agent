@@ -481,7 +481,7 @@ python -m pytest -q tests/test_architecture_boundaries.py
 python -m ruff check --no-cache src tests scripts
 python -m mypy --no-incremental src
 python scripts/verify_phase5_wheel.py
-git diff --check 61cad20..HEAD
+git diff --check de08fe56eae7589a43f081c629a2b6756c7397b3..HEAD
 ```
 
 - [ ] 写 `docs/REGRESSION_LAYER1_CHARACTERIZATION_TOOL_OFFLINE_ACCEPTANCE.md`，内容包括：

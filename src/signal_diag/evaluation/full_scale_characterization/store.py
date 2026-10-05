@@ -120,6 +120,13 @@ class CharacterizationStore:
                 digest.update(f"{relpath}\0{self.file_sha256(relpath)}\n".encode())
         return digest.hexdigest()
 
+    def list_dir(self, directory: str) -> list[str]:
+        """Sorted artifact paths directly under ``directory`` (empty when absent)."""
+        base = self.root / directory
+        if not base.is_dir():
+            return []
+        return [f"{directory}/{p.name}" for p in sorted(base.iterdir()) if p.is_file()]
+
     # -- writing -----------------------------------------------------------
 
     def write_bytes(self, relpath: str, data: bytes, *, validation_access: object = None) -> str:
