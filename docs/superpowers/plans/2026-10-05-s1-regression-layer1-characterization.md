@@ -42,9 +42,10 @@
 10. **合同 §23.4 的容忍范围按叠加理解：** “一个较粗位深量化步长的差异”与“位深转换”可以同时出现。容忍类因此新增 P9（B.3）。审阅实测（完整工具路径）：100 Hz、48 kHz、幅度 0.989993、相位 π/480，16 位舍入峰值 0.98995972、计入 0，低于固定最低要求界线 0.99 − 2⁻¹⁵ = 0.9899695；同一波形 32 位舍入后整体远离零偏一个 16 位步长，计入 800。这类翻转由拟合出的 `zone_below` 覆盖（产品用 `max(zone_below, step)`），不会让产品判错；但固定最低要求作为与抽样无关的理论保证不再充分，另登记 OQ-022，与 OQ-021 一起在下限审批前决定。
 11. **校准侧起始变化对的深度 0.9999 改为 0.9995**，0.9999 只留在验证侧。0.9999 是 M3 的验证留出深度，原表会让校准侧看到验证组的同一段波形（M6）。这改动了已批准的表征设计 §9.5，记入表征设计 §12。
 12. **验证侧取留出值子网格**（B.2 末），规模与校准侧同量级；精确对数由清单生成器给出，操作员批准。
-13. **结果存储形态：** 测量表每个“文件 × 声道 × 范围 × 角色”一行，对表只引用测量表行号与对级字段（C.1）。两表都按“侧（校准/验证）× 材料族”分片，每片一个 gzip 文件；清单不展开逐对描述（D 节）。
+13. **结果存储形态：** 测量表每个“文件 × 声道 × 范围 × 角色”一行，对表只引用测量表行号与对级字段（C.1）。两表都按“侧（校准/验证）× 材料族 × 分析范围长度”分片（依据 A.16），每片一个 gzip 文件；清单不展开逐对描述（D 节）。
 14. **拟合分两步冻结，候选值用预先写死的短表**（C.4、C.5）。第一步只拟合并输出 (域, K 行)，审阅者选定后写入冻结记录的第一部分；第二步只在选定的域与区上拟合 F，审阅者再选，写入第二部分。两步都在任何验证侧运行之前完成。
 15. **校准侧敏感度对若近似复现验证留出材料，生成清单时剔除并列出**（B.3 末、T-CX374）。
+16. **分片粒度由“侧 × 族”改为“侧 × 族 × 分析范围长度”。** 独立复审后补齐 B.2/B.4 组合，使 validation/M3 预计 70.8 MB，超过 A.7 的 50 MB 单文件上限；操作员 2026-10-05 决定。
 
 **决定记录（操作员，2026-10-05）：**
 
@@ -65,6 +66,7 @@
 | A.13 测量表 + 对表 | 采纳（修订 3 补充分片与清单不展开） |
 | A.14 两步冻结 + 固定候选表 | 采纳（第二轮审阅后决定） |
 | A.15 近似复现的敏感度对生成时剔除并列出 | 采纳（第二轮审阅后决定） |
+| A.16 按范围长度细分分片 | 采纳（复审修复后决定） |
 
 ## B. 冻结清单（候选数值，均为材料取值，不是容差）
 
@@ -302,14 +304,14 @@ P9 的翻转落在 k = 1 的固定最低要求之外**不中止**，按 C.3 单�
 docs/evaluations/v0_3/full_scale_characterization/round_1/
   manifest.json                 # R0 生成：来源组、扰动模板、长度、种子、展开规则、计数、剔除清单，以及展开后对列表的 sha256；不含逐对描述
   identity.json                 # 代码与配置身份
-  calibration_measurements/<族>.jsonl.gz
-  calibration_pairs/<族>.jsonl.gz
+  calibration_measurements/<族>/<长度>.jsonl.gz   # A.16
+  calibration_pairs/<族>/<长度>.jsonl.gz
   calibration_report_stage1.{json,md}
   freeze_record_stage1.json     # 第一步选定的 (域, K 行)
   calibration_report_stage2.{json,md}
   freeze_record.json            # 两部分齐全的冻结记录
-  validation_measurements/<族>.jsonl.gz
-  validation_pairs/<族>.jsonl.gz
+  validation_measurements/<族>/<长度>.jsonl.gz    # A.16
+  validation_pairs/<族>/<长度>.jsonl.gz
   validation_report.{json,md}
   abort_record.json             # 仅在中止时出现
   SHA256SUMS
@@ -481,7 +483,7 @@ python -m pytest -q tests/test_architecture_boundaries.py
 python -m ruff check --no-cache src tests scripts
 python -m mypy --no-incremental src
 python scripts/verify_phase5_wheel.py
-git diff --check 61cad20..HEAD
+git diff --check de08fe56eae7589a43f081c629a2b6756c7397b3..HEAD
 ```
 
 - [ ] 写 `docs/REGRESSION_LAYER1_CHARACTERIZATION_TOOL_OFFLINE_ACCEPTANCE.md`，内容包括：
