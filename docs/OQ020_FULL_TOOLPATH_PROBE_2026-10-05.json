@@ -1,0 +1,4641 @@
+{
+  "clipped_sine_sub_full_scale": {
+    "0.5": {
+      "direct_dsp": {
+        "clipped_samples": 60000,
+        "clipping_mechanism": false,
+        "clipping_ratio": 0.625,
+        "flat_top_detected": true,
+        "full_scale_detected": false,
+        "full_scale_sample_count": 0,
+        "peak_abs": 0.5
+      },
+      "note": "tool_path via generate_sine would be clean; clipped row uses clipped waveform",
+      "tool_path_pcm32_clipped_waveform": {
+        "clipped_samples": 60000,
+        "clipping_mechanism": false,
+        "clipping_ratio": 0.625,
+        "flat_top_detected": true,
+        "full_scale_detected": false,
+        "full_scale_sample_count": 0,
+        "peak_abs": 0.5
+      }
+    },
+    "0.9": {
+      "direct_dsp": {
+        "clipped_samples": 0,
+        "clipping_mechanism": false,
+        "clipping_ratio": 0.0,
+        "flat_top_detected": false,
+        "full_scale_detected": false,
+        "full_scale_sample_count": 0,
+        "peak_abs": 0.8999999761581421
+      },
+      "note": "tool_path via generate_sine would be clean; clipped row uses clipped waveform",
+      "tool_path_pcm32_clipped_waveform": {
+        "clipped_samples": 0,
+        "clipping_mechanism": false,
+        "clipping_ratio": 0.0,
+        "flat_top_detected": false,
+        "full_scale_detected": false,
+        "full_scale_sample_count": 0,
+        "peak_abs": 0.8999999761581421
+      }
+    },
+    "0.98": {
+      "direct_dsp": {
+        "clipped_samples": 0,
+        "clipping_mechanism": false,
+        "clipping_ratio": 0.0,
+        "flat_top_detected": false,
+        "full_scale_detected": false,
+        "full_scale_sample_count": 0,
+        "peak_abs": 0.8999999761581421
+      },
+      "note": "tool_path via generate_sine would be clean; clipped row uses clipped waveform",
+      "tool_path_pcm32_clipped_waveform": {
+        "clipped_samples": 0,
+        "clipping_mechanism": false,
+        "clipping_ratio": 0.0,
+        "flat_top_detected": false,
+        "full_scale_detected": false,
+        "full_scale_sample_count": 0,
+        "peak_abs": 0.8999999761581421
+      }
+    }
+  },
+  "direct_dsp": {
+    "cells": {
+      "44100_100.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.5009637188208617,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999996051192284,
+        "min_clipping_ratio": 0.4985827664399093
+      },
+      "44100_100.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.09523809523809523,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999997839331627,
+        "min_clipping_ratio": 0.09297052154195011
+      },
+      "44100_100.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.027210884353741496,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.19999991357326508,
+        "min_clipping_ratio": 0.027210884353741496
+      },
+      "44100_100.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.013605442176870748,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.4999997913837433,
+        "min_clipping_ratio": 0.006802721088435374
+      },
+      "44100_100.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999996185302734,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_220.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.2167800453514739,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.2167800453514739
+      },
+      "44100_220.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.050793650793650794,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999999701976776,
+        "min_clipping_ratio": 0.050793650793650794
+      },
+      "44100_220.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.19999998807907104,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_220.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.4999999701976776,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_220.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999165534973,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.1219954648526077,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.12154195011337869
+      },
+      "44100_440.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0013605442176870747,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999999701976776,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.19999998807907104,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.4999999701976776,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999165534973,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_50.0_0.01": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999996051192284,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_50.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.1836734693877551,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999997839331627,
+        "min_clipping_ratio": 0.18140589569160998
+      },
+      "44100_50.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.047619047619047616,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.19999991357326508,
+        "min_clipping_ratio": 0.045351473922902494
+      },
+      "44100_50.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.02040816326530612,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.4999997913837433,
+        "min_clipping_ratio": 0.018140589569160998
+      },
+      "44100_50.0_0.9": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.013605442176870748,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999996185302734,
+        "min_clipping_ratio": 0.011337868480725623
+      },
+      "44100_880.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0326530612244898,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.0326530612244898
+      },
+      "44100_880.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999999701976776,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_880.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.19999998807907104,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_880.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.4999999701976776,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_880.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999165534973,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.01": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_100.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.5583333333333333,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.5541666666666667
+      },
+      "48000_100.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.10416666666666667,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.1
+      },
+      "48000_100.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.029166666666666667,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.029166666666666667
+      },
+      "48000_100.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.016666666666666666,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0125
+      },
+      "48000_100.0_0.9": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0125,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_220.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.235,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.23416666666666666
+      },
+      "48000_220.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.05416666666666667,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.05333333333333334
+      },
+      "48000_220.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0075,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.005
+      },
+      "48000_220.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_220.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_440.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.12833333333333333,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.12833333333333333
+      },
+      "48000_440.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.015,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.015
+      },
+      "48000_440.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_440.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_440.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_50.0_0.01": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_50.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.2,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.19791666666666666
+      },
+      "48000_50.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.052083333333333336,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.05
+      },
+      "48000_50.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.022916666666666665,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.020833333333333332
+      },
+      "48000_50.0_0.9": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.014583333333333334,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0125
+      },
+      "48000_880.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.06,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.05
+      },
+      "48000_880.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_880.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_880.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_880.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.022,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.021875
+      },
+      "48000_997.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      }
+    },
+    "nonzero_cells": 29,
+    "total_cells": 60
+  },
+  "disclaimer": "Probe only; not layer-1 characterization approval; no floor values; \u00a723 implementation unauthorized.",
+  "examples": {
+    "44100_100.0_0.01": {
+      "direct_dsp": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.5009637188208617,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999996051192284,
+        "min_clipping_ratio": 0.4985827664399093,
+        "phases": {
+          "0.0": {
+            "clipped_samples": 44000,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.4988662131519274,
+            "flat_top_detected": true,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.009999936446547508
+          },
+          "0.1": {
+            "clipped_samples": 44000,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.4988662131519274,
+            "flat_top_detected": true,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.009999945759773254
+          },
+          "1.0": {
+            "clipped_samples": 44185,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.5009637188208617,
+            "flat_top_detected": true,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.009999996051192284
+          },
+          "2.0": {
+            "clipped_samples": 43975,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.4985827664399093,
+            "flat_top_detected": true,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.009999983943998814
+          }
+        }
+      },
+      "tool_path": {
+        "16": {
+          "any_flat_top": true,
+          "any_full_scale_detected": false,
+          "any_mechanism": false,
+          "any_nonzero_ratio": true,
+          "cell": {
+            "amplitude": 0.01,
+            "frequency_hz": 100.0,
+            "sample_rate_hz": 44100
+          },
+          "max_clipping_ratio": 0.4852607709750567,
+          "max_full_scale_sample_count": 0,
+          "max_peak_abs": 0.010009765625,
+          "min_clipping_ratio": 0.4850113378684807,
+          "phases": {
+            "0.0": {
+              "clipped_samples": 42800,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.4852607709750567,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.010009765625
+            },
+            "0.1": {
+              "clipped_samples": 42800,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.4852607709750567,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.010009765625
+            },
+            "1.0": {
+              "clipped_samples": 42788,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.485124716553288,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.010009765625
+            },
+            "2.0": {
+              "clipped_samples": 42778,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.4850113378684807,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.010009765625
+            }
+          }
+        },
+        "24": {
+          "any_flat_top": true,
+          "any_full_scale_detected": false,
+          "any_mechanism": false,
+          "any_nonzero_ratio": true,
+          "cell": {
+            "amplitude": 0.01,
+            "frequency_hz": 100.0,
+            "sample_rate_hz": 44100
+          },
+          "max_clipping_ratio": 0.5009637188208617,
+          "max_full_scale_sample_count": 0,
+          "max_peak_abs": 0.009999990463256836,
+          "min_clipping_ratio": 0.4985827664399093,
+          "phases": {
+            "0.0": {
+              "clipped_samples": 44000,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.4988662131519274,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999990463256836
+            },
+            "0.1": {
+              "clipped_samples": 44000,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.4988662131519274,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999990463256836
+            },
+            "1.0": {
+              "clipped_samples": 44185,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.5009637188208617,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999990463256836
+            },
+            "2.0": {
+              "clipped_samples": 43975,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.4985827664399093,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999990463256836
+            }
+          }
+        },
+        "32": {
+          "any_flat_top": true,
+          "any_full_scale_detected": false,
+          "any_mechanism": false,
+          "any_nonzero_ratio": true,
+          "cell": {
+            "amplitude": 0.01,
+            "frequency_hz": 100.0,
+            "sample_rate_hz": 44100
+          },
+          "max_clipping_ratio": 0.5009637188208617,
+          "max_full_scale_sample_count": 0,
+          "max_peak_abs": 0.009999996051192284,
+          "min_clipping_ratio": 0.4985827664399093,
+          "phases": {
+            "0.0": {
+              "clipped_samples": 44000,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.4988662131519274,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999936446547508
+            },
+            "0.1": {
+              "clipped_samples": 44000,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.4988662131519274,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999945759773254
+            },
+            "1.0": {
+              "clipped_samples": 44185,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.5009637188208617,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999996051192284
+            },
+            "2.0": {
+              "clipped_samples": 43975,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.4985827664399093,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999983943998814
+            }
+          }
+        }
+      }
+    },
+    "48000_100.0_0.01": {
+      "direct_dsp": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.5583333333333333,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.5541666666666667,
+        "phases": {
+          "0.0": {
+            "clipped_samples": 53200,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.5541666666666667,
+            "flat_top_detected": true,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.009999999776482582
+          },
+          "0.1": {
+            "clipped_samples": 53600,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.5583333333333333,
+            "flat_top_detected": true,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.009999888949096203
+          },
+          "1.0": {
+            "clipped_samples": 53577,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.55809375,
+            "flat_top_detected": true,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.009999866597354412
+          },
+          "2.0": {
+            "clipped_samples": 53565,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.55796875,
+            "flat_top_detected": true,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.009999961592257023
+          }
+        }
+      },
+      "tool_path": {
+        "16": {
+          "any_flat_top": true,
+          "any_full_scale_detected": false,
+          "any_mechanism": false,
+          "any_nonzero_ratio": true,
+          "cell": {
+            "amplitude": 0.01,
+            "frequency_hz": 100.0,
+            "sample_rate_hz": 48000
+          },
+          "max_clipping_ratio": 0.5413229166666667,
+          "max_full_scale_sample_count": 0,
+          "max_peak_abs": 0.010009765625,
+          "min_clipping_ratio": 0.5164583333333334,
+          "phases": {
+            "0.0": {
+              "clipped_samples": 50000,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.5208333333333334,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.010009765625
+            },
+            "0.1": {
+              "clipped_samples": 50000,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.5208333333333334,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.010009765625
+            },
+            "1.0": {
+              "clipped_samples": 49580,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.5164583333333334,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.010009765625
+            },
+            "2.0": {
+              "clipped_samples": 51967,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.5413229166666667,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.010009765625
+            }
+          }
+        },
+        "24": {
+          "any_flat_top": true,
+          "any_full_scale_detected": false,
+          "any_mechanism": false,
+          "any_nonzero_ratio": true,
+          "cell": {
+            "amplitude": 0.01,
+            "frequency_hz": 100.0,
+            "sample_rate_hz": 48000
+          },
+          "max_clipping_ratio": 0.5583333333333333,
+          "max_full_scale_sample_count": 0,
+          "max_peak_abs": 0.009999990463256836,
+          "min_clipping_ratio": 0.5541666666666667,
+          "phases": {
+            "0.0": {
+              "clipped_samples": 53200,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.5541666666666667,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999990463256836
+            },
+            "0.1": {
+              "clipped_samples": 53600,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.5583333333333333,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999871253967285
+            },
+            "1.0": {
+              "clipped_samples": 53577,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.55809375,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999871253967285
+            },
+            "2.0": {
+              "clipped_samples": 53565,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.55796875,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999990463256836
+            }
+          }
+        },
+        "32": {
+          "any_flat_top": true,
+          "any_full_scale_detected": false,
+          "any_mechanism": false,
+          "any_nonzero_ratio": true,
+          "cell": {
+            "amplitude": 0.01,
+            "frequency_hz": 100.0,
+            "sample_rate_hz": 48000
+          },
+          "max_clipping_ratio": 0.5583333333333333,
+          "max_full_scale_sample_count": 0,
+          "max_peak_abs": 0.009999999776482582,
+          "min_clipping_ratio": 0.5541666666666667,
+          "phases": {
+            "0.0": {
+              "clipped_samples": 53200,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.5541666666666667,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999999776482582
+            },
+            "0.1": {
+              "clipped_samples": 53600,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.5583333333333333,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999888949096203
+            },
+            "1.0": {
+              "clipped_samples": 53577,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.55809375,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999866597354412
+            },
+            "2.0": {
+              "clipped_samples": 53565,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.55796875,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.009999961592257023
+            }
+          }
+        }
+      }
+    },
+    "48000_100.0_0.9": {
+      "direct_dsp": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0125,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0,
+        "phases": {
+          "0.0": {
+            "clipped_samples": 1200,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.0125,
+            "flat_top_detected": true,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.8999999761581421
+          },
+          "0.1": {
+            "clipped_samples": 0,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.0,
+            "flat_top_detected": false,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.8999899625778198
+          },
+          "1.0": {
+            "clipped_samples": 0,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.0,
+            "flat_top_detected": false,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.8999879956245422
+          },
+          "2.0": {
+            "clipped_samples": 0,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.0,
+            "flat_top_detected": false,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.8999965786933899
+          }
+        }
+      },
+      "tool_path": {
+        "16": {
+          "any_flat_top": true,
+          "any_full_scale_detected": false,
+          "any_mechanism": false,
+          "any_nonzero_ratio": true,
+          "cell": {
+            "amplitude": 0.9,
+            "frequency_hz": 100.0,
+            "sample_rate_hz": 48000
+          },
+          "max_clipping_ratio": 0.0125,
+          "max_full_scale_sample_count": 0,
+          "max_peak_abs": 0.89996337890625,
+          "min_clipping_ratio": 0.0,
+          "phases": {
+            "0.0": {
+              "clipped_samples": 1200,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0125,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.89996337890625
+            },
+            "0.1": {
+              "clipped_samples": 0,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0,
+              "flat_top_detected": false,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.89996337890625
+            },
+            "1.0": {
+              "clipped_samples": 0,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0,
+              "flat_top_detected": false,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.89996337890625
+            },
+            "2.0": {
+              "clipped_samples": 1200,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0125,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.89996337890625
+            }
+          }
+        },
+        "24": {
+          "any_flat_top": true,
+          "any_full_scale_detected": false,
+          "any_mechanism": false,
+          "any_nonzero_ratio": true,
+          "cell": {
+            "amplitude": 0.9,
+            "frequency_hz": 100.0,
+            "sample_rate_hz": 48000
+          },
+          "max_clipping_ratio": 0.0125,
+          "max_full_scale_sample_count": 0,
+          "max_peak_abs": 0.8999999761581421,
+          "min_clipping_ratio": 0.0,
+          "phases": {
+            "0.0": {
+              "clipped_samples": 1200,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0125,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999999761581421
+            },
+            "0.1": {
+              "clipped_samples": 0,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0,
+              "flat_top_detected": false,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999899625778198
+            },
+            "1.0": {
+              "clipped_samples": 0,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0,
+              "flat_top_detected": false,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999879360198975
+            },
+            "2.0": {
+              "clipped_samples": 0,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0,
+              "flat_top_detected": false,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999965190887451
+            }
+          }
+        },
+        "32": {
+          "any_flat_top": true,
+          "any_full_scale_detected": false,
+          "any_mechanism": false,
+          "any_nonzero_ratio": true,
+          "cell": {
+            "amplitude": 0.9,
+            "frequency_hz": 100.0,
+            "sample_rate_hz": 48000
+          },
+          "max_clipping_ratio": 0.0125,
+          "max_full_scale_sample_count": 0,
+          "max_peak_abs": 0.8999999761581421,
+          "min_clipping_ratio": 0.0,
+          "phases": {
+            "0.0": {
+              "clipped_samples": 1200,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0125,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999999761581421
+            },
+            "0.1": {
+              "clipped_samples": 0,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0,
+              "flat_top_detected": false,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999899625778198
+            },
+            "1.0": {
+              "clipped_samples": 0,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0,
+              "flat_top_detected": false,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999879956245422
+            },
+            "2.0": {
+              "clipped_samples": 0,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0,
+              "flat_top_detected": false,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999965786933899
+            }
+          }
+        }
+      }
+    },
+    "48000_50.0_0.9": {
+      "direct_dsp": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.014583333333333334,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0125,
+        "phases": {
+          "0.0": {
+            "clipped_samples": 1400,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.014583333333333334,
+            "flat_top_detected": true,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.8999999761581421
+          },
+          "0.1": {
+            "clipped_samples": 1200,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.0125,
+            "flat_top_detected": true,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.8999984860420227
+          },
+          "1.0": {
+            "clipped_samples": 1200,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.0125,
+            "flat_top_detected": true,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.8999991416931152
+          },
+          "2.0": {
+            "clipped_samples": 1200,
+            "clipping_mechanism": false,
+            "clipping_ratio": 0.0125,
+            "flat_top_detected": true,
+            "full_scale_detected": false,
+            "full_scale_sample_count": 0,
+            "peak_abs": 0.8999965786933899
+          }
+        }
+      },
+      "tool_path": {
+        "16": {
+          "any_flat_top": true,
+          "any_full_scale_detected": false,
+          "any_mechanism": false,
+          "any_nonzero_ratio": true,
+          "cell": {
+            "amplitude": 0.9,
+            "frequency_hz": 50.0,
+            "sample_rate_hz": 48000
+          },
+          "max_clipping_ratio": 0.014583333333333334,
+          "max_full_scale_sample_count": 0,
+          "max_peak_abs": 0.89996337890625,
+          "min_clipping_ratio": 0.0125,
+          "phases": {
+            "0.0": {
+              "clipped_samples": 1400,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.014583333333333334,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.89996337890625
+            },
+            "0.1": {
+              "clipped_samples": 1400,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.014583333333333334,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.89996337890625
+            },
+            "1.0": {
+              "clipped_samples": 1400,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.014583333333333334,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.89996337890625
+            },
+            "2.0": {
+              "clipped_samples": 1200,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0125,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.89996337890625
+            }
+          }
+        },
+        "24": {
+          "any_flat_top": true,
+          "any_full_scale_detected": false,
+          "any_mechanism": false,
+          "any_nonzero_ratio": true,
+          "cell": {
+            "amplitude": 0.9,
+            "frequency_hz": 50.0,
+            "sample_rate_hz": 48000
+          },
+          "max_clipping_ratio": 0.014583333333333334,
+          "max_full_scale_sample_count": 0,
+          "max_peak_abs": 0.8999999761581421,
+          "min_clipping_ratio": 0.0125,
+          "phases": {
+            "0.0": {
+              "clipped_samples": 1400,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.014583333333333334,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999999761581421
+            },
+            "0.1": {
+              "clipped_samples": 1200,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0125,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999984264373779
+            },
+            "1.0": {
+              "clipped_samples": 1200,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0125,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999991416931152
+            },
+            "2.0": {
+              "clipped_samples": 1200,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0125,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999965190887451
+            }
+          }
+        },
+        "32": {
+          "any_flat_top": true,
+          "any_full_scale_detected": false,
+          "any_mechanism": false,
+          "any_nonzero_ratio": true,
+          "cell": {
+            "amplitude": 0.9,
+            "frequency_hz": 50.0,
+            "sample_rate_hz": 48000
+          },
+          "max_clipping_ratio": 0.014583333333333334,
+          "max_full_scale_sample_count": 0,
+          "max_peak_abs": 0.8999999761581421,
+          "min_clipping_ratio": 0.0125,
+          "phases": {
+            "0.0": {
+              "clipped_samples": 1400,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.014583333333333334,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999999761581421
+            },
+            "0.1": {
+              "clipped_samples": 1200,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0125,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999984860420227
+            },
+            "1.0": {
+              "clipped_samples": 1200,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0125,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999991416931152
+            },
+            "2.0": {
+              "clipped_samples": 1200,
+              "clipping_mechanism": false,
+              "clipping_ratio": 0.0125,
+              "flat_top_detected": true,
+              "full_scale_detected": false,
+              "full_scale_sample_count": 0,
+              "peak_abs": 0.8999965786933899
+            }
+          }
+        }
+      }
+    }
+  },
+  "generated_on": "2026-10-05",
+  "grid": {
+    "amplitudes": [
+      0.01,
+      0.05,
+      0.2,
+      0.5,
+      0.9
+    ],
+    "duration_s": 2.0,
+    "frequencies_hz": [
+      50.0,
+      100.0,
+      220.0,
+      440.0,
+      880.0,
+      997.0
+    ],
+    "phases_rad": [
+      0.0,
+      0.1,
+      1.0,
+      2.0
+    ],
+    "quick": false,
+    "sample_rates": [
+      44100,
+      48000
+    ]
+  },
+  "probe": "OQ-020 full tool path reproduction",
+  "tool_path_by_bit_depth": {
+    "16": {
+      "44100_100.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.4852607709750567,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.010009765625,
+        "min_clipping_ratio": 0.4850113378684807
+      },
+      "44100_100.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.09523809523809523,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04998779296875,
+        "min_clipping_ratio": 0.09523809523809523
+      },
+      "44100_100.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.02947845804988662,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.199981689453125,
+        "min_clipping_ratio": 0.027210884353741496
+      },
+      "44100_100.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.013605442176870748,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.499969482421875,
+        "min_clipping_ratio": 0.006802721088435374
+      },
+      "44100_100.0_0.9": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.006802721088435374,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.89996337890625,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_220.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.22403628117913832,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.010009765625,
+        "min_clipping_ratio": 0.22312925170068026
+      },
+      "44100_220.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.053514739229024944,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04998779296875,
+        "min_clipping_ratio": 0.053061224489795916
+      },
+      "44100_220.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.005442176870748299,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.199981689453125,
+        "min_clipping_ratio": 0.005442176870748299
+      },
+      "44100_220.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.499969482421875,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_220.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.89996337890625,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.12970521541950114,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.010009765625,
+        "min_clipping_ratio": 0.1287981859410431
+      },
+      "44100_440.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.010884353741496598,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04998779296875,
+        "min_clipping_ratio": 0.010884353741496598
+      },
+      "44100_440.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.199981689453125,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.499969482421875,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.89996337890625,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_50.0_0.01": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.010009765625,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_50.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.18594104308390022,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04998779296875,
+        "min_clipping_ratio": 0.1746031746031746
+      },
+      "44100_50.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.049886621315192746,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.199981689453125,
+        "min_clipping_ratio": 0.047619047619047616
+      },
+      "44100_50.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.024943310657596373,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.499969482421875,
+        "min_clipping_ratio": 0.02040816326530612
+      },
+      "44100_50.0_0.9": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.013605442176870748,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.89996337890625,
+        "min_clipping_ratio": 0.011337868480725623
+      },
+      "44100_880.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.031292517006802724,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.010009765625,
+        "min_clipping_ratio": 0.029931972789115645
+      },
+      "44100_880.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04998779296875,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_880.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.199981689453125,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_880.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.499969482421875,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_880.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.89996337890625,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.01": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.010009765625,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04998779296875,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.199981689453125,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.89996337890625,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_100.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.5413229166666667,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.010009765625,
+        "min_clipping_ratio": 0.5164583333333334
+      },
+      "48000_100.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.1125,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04998779296875,
+        "min_clipping_ratio": 0.1
+      },
+      "48000_100.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.03333333333333333,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.199981689453125,
+        "min_clipping_ratio": 0.029166666666666667
+      },
+      "48000_100.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.016666666666666666,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0125
+      },
+      "48000_100.0_0.9": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0125,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.89996337890625,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_220.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.24083333333333334,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.010009765625,
+        "min_clipping_ratio": 0.24
+      },
+      "48000_220.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0575,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04998779296875,
+        "min_clipping_ratio": 0.05583333333333333
+      },
+      "48000_220.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0125,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.199981689453125,
+        "min_clipping_ratio": 0.01
+      },
+      "48000_220.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_220.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.89996337890625,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_440.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.14166666666666666,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.010009765625,
+        "min_clipping_ratio": 0.13833333333333334
+      },
+      "48000_440.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.025,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04998779296875,
+        "min_clipping_ratio": 0.02
+      },
+      "48000_440.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.199981689453125,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_440.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_440.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.89996337890625,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_50.0_0.01": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.010009765625,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_50.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.19583333333333333,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04998779296875,
+        "min_clipping_ratio": 0.19166666666666668
+      },
+      "48000_50.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.05625,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.199981689453125,
+        "min_clipping_ratio": 0.05
+      },
+      "48000_50.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.025,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.022916666666666665
+      },
+      "48000_50.0_0.9": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.014583333333333334,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.89996337890625,
+        "min_clipping_ratio": 0.0125
+      },
+      "48000_880.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.07,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.010009765625,
+        "min_clipping_ratio": 0.06
+      },
+      "48000_880.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04998779296875,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_880.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.199981689453125,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_880.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_880.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.89996337890625,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.016625,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.010009765625,
+        "min_clipping_ratio": 0.016625
+      },
+      "48000_997.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04998779296875,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.199981689453125,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.89996337890625,
+        "min_clipping_ratio": 0.0
+      }
+    },
+    "24": {
+      "44100_100.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.5009637188208617,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999990463256836,
+        "min_clipping_ratio": 0.4985827664399093
+      },
+      "44100_100.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.09523809523809523,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999995231628418,
+        "min_clipping_ratio": 0.09297052154195011
+      },
+      "44100_100.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.027210884353741496,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.19999992847442627,
+        "min_clipping_ratio": 0.027210884353741496
+      },
+      "44100_100.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.013605442176870748,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.4999997615814209,
+        "min_clipping_ratio": 0.006802721088435374
+      },
+      "44100_100.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999996185302734,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_220.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.2167800453514739,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999990463256836,
+        "min_clipping_ratio": 0.2163265306122449
+      },
+      "44100_220.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.050793650793650794,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999995231628418,
+        "min_clipping_ratio": 0.050793650793650794
+      },
+      "44100_220.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000004768371582,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_220.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_220.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999998569488525,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.1219954648526077,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999990463256836,
+        "min_clipping_ratio": 0.12154195011337869
+      },
+      "44100_440.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0013605442176870747,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999995231628418,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000004768371582,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999998569488525,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_50.0_0.01": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999990463256836,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_50.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.1836734693877551,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999995231628418,
+        "min_clipping_ratio": 0.18140589569160998
+      },
+      "44100_50.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.047619047619047616,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.19999992847442627,
+        "min_clipping_ratio": 0.045351473922902494
+      },
+      "44100_50.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.02040816326530612,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.4999997615814209,
+        "min_clipping_ratio": 0.018140589569160998
+      },
+      "44100_50.0_0.9": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.013605442176870748,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999996185302734,
+        "min_clipping_ratio": 0.011337868480725623
+      },
+      "44100_880.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0326530612244898,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999990463256836,
+        "min_clipping_ratio": 0.0326530612244898
+      },
+      "44100_880.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999995231628418,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_880.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000004768371582,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_880.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_880.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999998569488525,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.01": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999990463256836,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999995231628418,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000004768371582,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_100.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.5583333333333333,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999990463256836,
+        "min_clipping_ratio": 0.5541666666666667
+      },
+      "48000_100.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.10416666666666667,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999995231628418,
+        "min_clipping_ratio": 0.1
+      },
+      "48000_100.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.029166666666666667,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000004768371582,
+        "min_clipping_ratio": 0.029166666666666667
+      },
+      "48000_100.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.016666666666666666,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0125
+      },
+      "48000_100.0_0.9": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0125,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_220.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.235,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999990463256836,
+        "min_clipping_ratio": 0.23416666666666666
+      },
+      "48000_220.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.05416666666666667,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999995231628418,
+        "min_clipping_ratio": 0.05333333333333334
+      },
+      "48000_220.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0075,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000004768371582,
+        "min_clipping_ratio": 0.005
+      },
+      "48000_220.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_220.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_440.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.12833333333333333,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999990463256836,
+        "min_clipping_ratio": 0.12833333333333333
+      },
+      "48000_440.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.015,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999995231628418,
+        "min_clipping_ratio": 0.015
+      },
+      "48000_440.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000004768371582,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_440.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_440.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_50.0_0.01": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999990463256836,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_50.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.2,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999995231628418,
+        "min_clipping_ratio": 0.19791666666666666
+      },
+      "48000_50.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.052083333333333336,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000004768371582,
+        "min_clipping_ratio": 0.05
+      },
+      "48000_50.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.022916666666666665,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.020833333333333332
+      },
+      "48000_50.0_0.9": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.014583333333333334,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0125
+      },
+      "48000_880.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.06,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999990463256836,
+        "min_clipping_ratio": 0.05
+      },
+      "48000_880.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999995231628418,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_880.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000004768371582,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_880.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_880.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.021875,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999990463256836,
+        "min_clipping_ratio": 0.02175
+      },
+      "48000_997.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999995231628418,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000004768371582,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      }
+    },
+    "32": {
+      "44100_100.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.5009637188208617,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999996051192284,
+        "min_clipping_ratio": 0.4985827664399093
+      },
+      "44100_100.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.09523809523809523,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999997839331627,
+        "min_clipping_ratio": 0.09297052154195011
+      },
+      "44100_100.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.027210884353741496,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.19999991357326508,
+        "min_clipping_ratio": 0.027210884353741496
+      },
+      "44100_100.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.013605442176870748,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.4999997913837433,
+        "min_clipping_ratio": 0.006802721088435374
+      },
+      "44100_100.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999996185302734,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_220.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.2167800453514739,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.2167800453514739
+      },
+      "44100_220.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.050793650793650794,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999999701976776,
+        "min_clipping_ratio": 0.050793650793650794
+      },
+      "44100_220.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.19999998807907104,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_220.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.4999999701976776,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_220.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999165534973,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.1219954648526077,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.12154195011337869
+      },
+      "44100_440.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0013605442176870747,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999999701976776,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.19999998807907104,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.4999999701976776,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_440.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999165534973,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_50.0_0.01": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999996051192284,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_50.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.1836734693877551,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999997839331627,
+        "min_clipping_ratio": 0.18140589569160998
+      },
+      "44100_50.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.047619047619047616,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.19999991357326508,
+        "min_clipping_ratio": 0.045351473922902494
+      },
+      "44100_50.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.02040816326530612,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.4999997913837433,
+        "min_clipping_ratio": 0.018140589569160998
+      },
+      "44100_50.0_0.9": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.013605442176870748,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999996185302734,
+        "min_clipping_ratio": 0.011337868480725623
+      },
+      "44100_880.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0326530612244898,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.0326530612244898
+      },
+      "44100_880.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.04999999701976776,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_880.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.19999998807907104,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_880.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.4999999701976776,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_880.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999165534973,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.01": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "44100_997.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 44100
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_100.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.5583333333333333,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.5541666666666667
+      },
+      "48000_100.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.10416666666666667,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.1
+      },
+      "48000_100.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.029166666666666667,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.029166666666666667
+      },
+      "48000_100.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.016666666666666666,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0125
+      },
+      "48000_100.0_0.9": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 100.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0125,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_220.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.235,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.23416666666666666
+      },
+      "48000_220.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.05416666666666667,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.05333333333333334
+      },
+      "48000_220.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0075,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.005
+      },
+      "48000_220.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_220.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 220.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_440.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.12833333333333333,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.12833333333333333
+      },
+      "48000_440.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.015,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.015
+      },
+      "48000_440.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_440.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_440.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 440.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_50.0_0.01": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_50.0_0.05": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.2,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.19791666666666666
+      },
+      "48000_50.0_0.2": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.052083333333333336,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.05
+      },
+      "48000_50.0_0.5": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.022916666666666665,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.020833333333333332
+      },
+      "48000_50.0_0.9": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 50.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.014583333333333334,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0125
+      },
+      "48000_880.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.06,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.05
+      },
+      "48000_880.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_880.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_880.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_880.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 880.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.01": {
+        "any_flat_top": true,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": true,
+        "cell": {
+          "amplitude": 0.01,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.022,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.009999999776482582,
+        "min_clipping_ratio": 0.021875
+      },
+      "48000_997.0_0.05": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.05,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.05000000074505806,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.2": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.2,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.20000000298023224,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.5": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.5,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.5,
+        "min_clipping_ratio": 0.0
+      },
+      "48000_997.0_0.9": {
+        "any_flat_top": false,
+        "any_full_scale_detected": false,
+        "any_mechanism": false,
+        "any_nonzero_ratio": false,
+        "cell": {
+          "amplitude": 0.9,
+          "frequency_hz": 997.0,
+          "sample_rate_hz": 48000
+        },
+        "max_clipping_ratio": 0.0,
+        "max_full_scale_sample_count": 0,
+        "max_peak_abs": 0.8999999761581421,
+        "min_clipping_ratio": 0.0
+      }
+    }
+  },
+  "tool_path_summary": {
+    "16": {
+      "cells_differing_from_direct": 25,
+      "nonzero_cells": 31,
+      "total_cells": 60
+    },
+    "24": {
+      "cells_differing_from_direct": 1,
+      "nonzero_cells": 29,
+      "total_cells": 60
+    },
+    "32": {
+      "cells_differing_from_direct": 0,
+      "nonzero_cells": 29,
+      "total_cells": 60
+    }
+  },
+  "white_noise": {
+    "direct_dsp": {
+      "clipped_samples": 420,
+      "clipping_mechanism": true,
+      "clipping_ratio": 0.004375,
+      "flat_top_detected": true,
+      "full_scale_detected": true,
+      "full_scale_sample_count": 420,
+      "path": "direct_dsp",
+      "peak_abs": 1.0
+    },
+    "limited_to_full_scale": true,
+    "rms": 0.5,
+    "seed": 0,
+    "tool_path_pcm16": {
+      "clipped_samples": 420,
+      "clipping_mechanism": true,
+      "clipping_ratio": 0.004375,
+      "flat_top_detected": true,
+      "full_scale_detected": true,
+      "full_scale_sample_count": 420,
+      "path": "tool_path_pcm16",
+      "peak_abs": 0.999969482421875
+    },
+    "tool_path_pcm24": {
+      "clipped_samples": 420,
+      "clipping_mechanism": true,
+      "clipping_ratio": 0.004375,
+      "flat_top_detected": true,
+      "full_scale_detected": true,
+      "full_scale_sample_count": 420,
+      "path": "tool_path_pcm24",
+      "peak_abs": 1.0
+    },
+    "tool_path_pcm32": {
+      "clipped_samples": 420,
+      "clipping_mechanism": true,
+      "clipping_ratio": 0.004375,
+      "flat_top_detected": true,
+      "full_scale_detected": true,
+      "full_scale_sample_count": 420,
+      "path": "tool_path_pcm32",
+      "peak_abs": 1.0
+    }
+  }
+}
