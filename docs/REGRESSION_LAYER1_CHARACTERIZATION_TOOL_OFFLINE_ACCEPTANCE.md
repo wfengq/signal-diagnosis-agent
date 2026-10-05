@@ -704,6 +704,16 @@ Interpretations made in this round:
     streaming pair descriptions, the validation wave index only holds materials that
     share a calibration (f0, sr), side specs are memoised and perturbed full waves are
     cached per group (`c67017c`).
+36. Second-round review follow-ups (`5e9b6f6`, after the content tip above; code only, no
+    change to materials, hashes or dry-run output): `runs.py` now imports
+    `stage1_report_json` / `stage2_report_json` from `fitting.py` (identity comparison
+    set) instead of `reporting.py`, pinned by
+    `test_t_cx378_runs_take_frozen_report_json_from_the_comparison_set`; and
+    `test_t_cx380_pair_rows_resolve_to_the_measured_rows` asserts that pair-table row
+    references resolve to the rows actually measured. Verified after the change:
+    `tests/evaluation/full_scale_characterization` plus `tests/test_architecture_boundaries.py`
+    216 passed; ruff `All checks passed!`; mypy `Success: no issues found in 167 source
+    files`.
 
 ## Validation gate
 
