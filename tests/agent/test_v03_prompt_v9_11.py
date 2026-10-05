@@ -347,7 +347,58 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
         contextual_implementation_sha256()
     )
     assert d042_phase_b_revise4["product_tree_sha256"] == (
-        contextual_product_tree_sha256()
+        "5f73c757dee9771d6499cd2413ff5751679250e332ffb31332eaca5c43a7208d"
     )
     assert d042_phase_b_revise4["prompt_sha256"] == oq014["prompt_sha256"]
     assert d042_phase_b_revise4["model_calls"] == 0
+    d042_phase_c_task7 = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d042_regression_workbench_phase_c_task7_offline"
+    )
+    assert d042_phase_c_task7["amendment_kind"] == "append_only_code_identity"
+    assert d042_phase_c_task7["prior_bridge_current_implementation_sha256"] == (
+        d042_phase_b_revise4["current_implementation_sha256"]
+    )
+    assert d042_phase_c_task7["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d042_phase_c_task7["product_tree_sha256"] == (
+        "29df07a0c0560e20bf7961a11d97c8cffa8f0ccfdc51713cef47d3376901ba87"
+    )
+    assert d042_phase_c_task7["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d042_phase_c_task7["model_calls"] == 0
+    d042_phase_c_task7_revise1 = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d042_regression_workbench_phase_c_task7_revise1"
+    )
+    assert d042_phase_c_task7_revise1["amendment_kind"] == "append_only_code_identity"
+    assert d042_phase_c_task7_revise1["prior_bridge_current_implementation_sha256"] == (
+        d042_phase_c_task7["current_implementation_sha256"]
+    )
+    assert d042_phase_c_task7_revise1["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d042_phase_c_task7_revise1["product_tree_sha256"] == (
+        "5f9c03ae4e34b73a33ab06f3510bb9a81a19c5c2763b33487eb922ed76ea58e7"
+    )
+    assert d042_phase_c_task7_revise1["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d042_phase_c_task7_revise1["model_calls"] == 0
+    d042_phase_c_task7_revise1b = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d042_regression_workbench_phase_c_task7_revise1b"
+    )
+    assert d042_phase_c_task7_revise1b["amendment_kind"] == "append_only_code_identity"
+    assert d042_phase_c_task7_revise1b["prior_bridge_current_implementation_sha256"] == (
+        d042_phase_c_task7_revise1["current_implementation_sha256"]
+    )
+    assert d042_phase_c_task7_revise1b["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d042_phase_c_task7_revise1b["product_tree_sha256"] == (
+        contextual_product_tree_sha256()
+    )
+    assert d042_phase_c_task7_revise1b["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d042_phase_c_task7_revise1b["model_calls"] == 0

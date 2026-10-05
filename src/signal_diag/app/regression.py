@@ -15,6 +15,14 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from signal_diag.agent.retest_planner import (
+    RetestCallLimits,
+    RetestPlanner,
+    RetestPlannerError,
+    build_retest_context,
+    render_recommendation_detail,
+    validate_selection_against_context,
+)
 from signal_diag.app.errors import (
     AppCapacityError,
     InvalidRequestError,
@@ -174,6 +182,13 @@ class _RequestOutcome:
 
 
 @dataclass
+class _RecommendationOutcome:
+    kind: Literal["completed", "failed", "unavailable"]
+    content_fingerprint: str
+    recommendation: CaseRecommendationRecord
+
+
+@dataclass
 class _CaseState:
     case_id: str
     goal: str
@@ -184,6 +199,9 @@ class _CaseState:
     failures: list[CaseFailureRecord] = field(default_factory=list)
     recommendations: list[CaseRecommendationRecord] = field(default_factory=list)
     request_outcomes: dict[str, _RequestOutcome] = field(default_factory=dict)
+    recommendation_outcomes: dict[str, _RecommendationOutcome] = field(
+        default_factory=dict
+    )
     accepted_submit_count: int = 0
     latest_submit_status: _SubmitStatus = "idle"
     running: bool = False
@@ -211,6 +229,21 @@ def _upload_fingerprint(
         hasher.update(b"link:none")
     else:
         hasher.update(link.model_dump_json().encode("utf-8"))
+    return hasher.hexdigest()
+
+
+def _recommendation_fingerprint(
+    *,
+    case_id: str,
+    comparison_id: str,
+    comparison_digest: str,
+) -> str:
+    hasher = hashlib.sha256()
+    hasher.update(case_id.encode("utf-8"))
+    hasher.update(b"\0")
+    hasher.update(comparison_id.encode("utf-8"))
+    hasher.update(b"\0")
+    hasher.update(comparison_digest.encode("ascii"))
     return hasher.hexdigest()
 
 
@@ -349,10 +382,16 @@ class RegressionWorkbenchService:
         clock: Callable[[], datetime] | None = None,
         comparison_profile: ComparisonProfile | None = None,
         wav_limits: WavLoadLimits | None = None,
+        retest_planner: RetestPlanner | None = None,
+        retest_model: str | None = None,
+        retest_limits: RetestCallLimits | None = None,
     ) -> None:
         self._clock = clock or _utc_now
         self._comparison_profile = comparison_profile
         self._wav_limits = wav_limits or WavLoadLimits()
+        self._retest_planner = retest_planner
+        self._retest_model = retest_model.strip() if retest_model else None
+        self._retest_limits = retest_limits
         self._cases: dict[str, _CaseState] = {}
         self._lock = asyncio.Lock()
         self._busy = False
@@ -360,6 +399,14 @@ class RegressionWorkbenchService:
         self._executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=1,
             thread_name_prefix="regression-measure",
+        )
+
+    @property
+    def recommendation_available(self) -> bool:
+        return (
+            self._retest_planner is not None
+            and self._retest_model is not None
+            and self._retest_limits is not None
         )
 
     def create_case(self, goal: str) -> RegressionCaseSnapshot:
@@ -568,6 +615,158 @@ class RegressionWorkbenchService:
                     if slot_held:
                         self._busy = False
 
+    async def request_recommendation(
+        self,
+        case_id: str,
+        comparison_id: str,
+        *,
+        request_id: str,
+        reuse_operation_slot: bool = False,
+    ) -> RegressionCaseSnapshot:
+        if self._closed:
+            raise _invalid("regression service is closed")
+        self._validate_request_id(request_id)
+
+        slot_held = False
+        async with self._lock:
+            case = self._require_case(case_id)
+            item = next(
+                (
+                    row
+                    for row in case.comparisons
+                    if row.comparison_id == comparison_id
+                ),
+                None,
+            )
+            if item is None:
+                raise _invalid("comparison does not exist in this case")
+            if item.case_id != case_id:
+                raise _invalid("comparison does not belong to this case")
+            fingerprint = _recommendation_fingerprint(
+                case_id=case_id,
+                comparison_id=comparison_id,
+                comparison_digest=item.record.digest,
+            )
+            prior = case.recommendation_outcomes.get(request_id)
+            if prior is not None:
+                if prior.content_fingerprint != fingerprint:
+                    raise _invalid("request_id was reused with different content")
+                return self._snapshot(case)
+
+            if case.running:
+                raise _invalid("regression service is busy")
+            if reuse_operation_slot:
+                if not self._busy:
+                    raise _invalid("regression operation slot is not held")
+            elif self._busy:
+                raise _invalid("regression service is busy")
+
+            if not reuse_operation_slot:
+                self._busy = True
+            slot_held = not reuse_operation_slot
+
+            existing = self._recommendation_for_comparison(case, comparison_id)
+            recommendation_id = (
+                existing.recommendation_id if existing is not None else _new_id("rec")
+            )
+            created_at = existing.created_at if existing is not None else self._clock()
+            comparison_record = item.record
+
+        record_snapshot = comparison_record.model_copy(deep=True)
+        try:
+            if not self.recommendation_available:
+                return await self._finalize_recommendation(
+                    case_id=case_id,
+                    comparison_id=comparison_id,
+                    request_id=request_id,
+                    fingerprint=fingerprint,
+                    recommendation_id=recommendation_id,
+                    created_at=created_at,
+                    status="unavailable",
+                    detail=(
+                        "retest recommendations are not enabled on this product path"
+                    ),
+                    kind="unavailable",
+                    record_snapshot=record_snapshot,
+                )
+
+            context = build_retest_context(comparison_record)
+            if not context.eligible_options:
+                return await self._finalize_recommendation(
+                    case_id=case_id,
+                    comparison_id=comparison_id,
+                    request_id=request_id,
+                    fingerprint=fingerprint,
+                    recommendation_id=recommendation_id,
+                    created_at=created_at,
+                    status="unavailable",
+                    detail="no eligible retest options for this comparison",
+                    kind="unavailable",
+                    record_snapshot=record_snapshot,
+                )
+
+            planner = self._retest_planner
+            assert planner is not None
+            choose_task = asyncio.create_task(planner.choose(context))
+            try:
+                try:
+                    selection = await choose_task
+                except asyncio.CancelledError:
+                    while not choose_task.done():
+                        try:
+                            await asyncio.sleep(0.01)
+                        except asyncio.CancelledError:
+                            continue
+                    raise
+                # AC14: admit at the service boundary, not only inside RealLLMRetestPlanner.
+                selection = validate_selection_against_context(
+                    selection, context=context
+                )
+                detail = render_recommendation_detail(selection, context=context)
+            except RetestPlannerError as error:
+                return await self._finalize_recommendation(
+                    case_id=case_id,
+                    comparison_id=comparison_id,
+                    request_id=request_id,
+                    fingerprint=fingerprint,
+                    recommendation_id=recommendation_id,
+                    created_at=created_at,
+                    status="failed",
+                    detail=str(error),
+                    kind="failed",
+                    record_snapshot=record_snapshot,
+                )
+            except Exception:  # noqa: BLE001 - fail closed; never surface raw planner faults
+                return await self._finalize_recommendation(
+                    case_id=case_id,
+                    comparison_id=comparison_id,
+                    request_id=request_id,
+                    fingerprint=fingerprint,
+                    recommendation_id=recommendation_id,
+                    created_at=created_at,
+                    status="failed",
+                    detail="retest recommendation failed",
+                    kind="failed",
+                    record_snapshot=record_snapshot,
+                )
+
+            return await self._finalize_recommendation(
+                case_id=case_id,
+                comparison_id=comparison_id,
+                request_id=request_id,
+                fingerprint=fingerprint,
+                recommendation_id=recommendation_id,
+                created_at=created_at,
+                status="completed",
+                detail=detail,
+                kind="completed",
+                record_snapshot=record_snapshot,
+            )
+        finally:
+            if slot_held:
+                async with self._lock:
+                    self._busy = False
+
     async def aclose(self) -> None:
         self._closed = True
         while True:
@@ -576,8 +775,73 @@ class RegressionWorkbenchService:
             if not running:
                 break
             await asyncio.sleep(0.01)
+        planner = self._retest_planner
+        if planner is not None:
+            close = getattr(planner, "aclose", None)
+            if close is not None:
+                result = close()
+                if inspect.isawaitable(result):
+                    await result
         self._cases.clear()
         self._executor.shutdown(wait=True, cancel_futures=False)
+
+    def _recommendation_for_comparison(
+        self,
+        case: _CaseState,
+        comparison_id: str,
+    ) -> CaseRecommendationRecord | None:
+        for row in reversed(case.recommendations):
+            if row.comparison_id == comparison_id:
+                return row
+        return None
+
+    async def _finalize_recommendation(
+        self,
+        *,
+        case_id: str,
+        comparison_id: str,
+        request_id: str,
+        fingerprint: str,
+        recommendation_id: str,
+        created_at: datetime,
+        status: _RecommendationStatus,
+        detail: str,
+        kind: Literal["completed", "failed", "unavailable"],
+        record_snapshot: ComparisonRecord,
+    ) -> RegressionCaseSnapshot:
+        recommendation = CaseRecommendationRecord(
+            case_id=case_id,
+            recommendation_id=recommendation_id,
+            comparison_id=comparison_id,
+            status=status,
+            detail=detail,
+            created_at=created_at,
+        )
+        async with self._lock:
+            case = self._require_case(case_id)
+            item = next(
+                row
+                for row in case.comparisons
+                if row.comparison_id == comparison_id
+            )
+            if item.record.model_dump_json() != record_snapshot.model_dump_json():
+                raise _invalid("comparison record changed during recommendation")
+            replaced = False
+            for index, row in enumerate(case.recommendations):
+                if row.comparison_id == comparison_id:
+                    case.recommendations[index] = recommendation
+                    replaced = True
+                    break
+            if not replaced:
+                case.recommendations.append(recommendation)
+            case.recommendation_outcomes[request_id] = _RecommendationOutcome(
+                kind=kind,
+                content_fingerprint=fingerprint,
+                recommendation=recommendation,
+            )
+            case.revision += 1
+            case.updated_at = self._clock()
+            return self._snapshot(case)
 
     def _require_case(self, case_id: str) -> _CaseState:
         try:
