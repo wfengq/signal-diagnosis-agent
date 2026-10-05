@@ -24,7 +24,34 @@ from signal_diag.evaluation.full_scale_characterization.models import (
 )
 
 Side = Literal["calibration", "validation"]
+BitDepth = Literal[8, 16, 24, 32]
+StepBits = Literal[16, 24, 32]
+RoundingMode = Literal[
+    "round", "trunc", "away_one_step", "toward_one_step", "random_one_step"
+]
 
+_EMPTY_BIT_DEPTHS: tuple[Literal[16, 24, 32], ...] = (16, 24, 32)
+_P4_COMBOS: tuple[tuple[Literal[32, 24, 16], Literal[32, 24, 16]], ...] = (
+    (32, 24),
+    (32, 16),
+    (24, 16),
+)
+_P9_COMBOS: tuple[tuple[Literal[32, 24, 16], Literal[32, 24, 16]], ...] = (
+    (32, 16),
+    (24, 16),
+    (32, 24),
+)
+_P7_ONE_STEP: tuple[tuple[str, RoundingMode], ...] = (
+    ("P7a", "away_one_step"),
+    ("P7b", "toward_one_step"),
+    ("P7c", "trunc"),
+)
+_P9_VARIANTS: tuple[tuple[str, RoundingMode], ...] = (
+    ("P9a", "away_one_step"),
+    ("P9b", "toward_one_step"),
+    ("P9c", "trunc"),
+)
+_P8_COARSE: tuple[Literal[16, 32], ...] = (16, 32)
 TOLERANCE_CODES = frozenset(
     {
         "P0",
@@ -153,7 +180,7 @@ def _append_empty_pairs(
     seeds = _seeds_for_side(c, side)
     base = _base_effective(group)
     for range_len in ranges:
-        for bits in (16, 24, 32):
+        for bits in _EMPTY_BIT_DEPTHS:
             enc = EncodingSpec(bits=bits)
             old = _side_spec(base, encoding=enc)
             _emit_identity(
@@ -172,7 +199,7 @@ def _append_empty_pairs(
                     new_side=old,
             )
 
-        for coarse, fine in ((32, 24), (32, 16), (24, 16)):
+        for coarse, fine in _P4_COMBOS:
             old = _side_spec(base, encoding=EncodingSpec(bits=coarse))
             new = _side_spec(base, encoding=EncodingSpec(bits=fine))
             _emit_identity(
@@ -191,13 +218,9 @@ def _append_empty_pairs(
                     new_side=new,
             )
 
-        for bits in (16, 24, 32):
+        for bits in _EMPTY_BIT_DEPTHS:
             round_enc = EncodingSpec(bits=bits, rounding="round")
-            for code, rounding in (
-                ("P7a", "away_one_step"),
-                ("P7b", "toward_one_step"),
-                ("P7c", "trunc"),
-            ):
+            for code, rounding in _P7_ONE_STEP:
                 old = _side_spec(base, encoding=round_enc)
                 new = _side_spec(
                     base,
@@ -243,13 +266,8 @@ def _append_empty_pairs(
                 new_side=new,
                     )
 
-        p9_pairs = (
-            ("P9a", "away_one_step", ((32, 16), (24, 16), (32, 24))),
-            ("P9b", "toward_one_step", ((32, 16), (24, 16), (32, 24))),
-            ("P9c", "trunc", ((32, 16), (24, 16), (32, 24))),
-        )
-        for code, rounding, combos in p9_pairs:
-            for coarse, fine in combos:
+        for code, rounding in _P9_VARIANTS:
+            for coarse, fine in _P9_COMBOS:
                 old = _side_spec(base, encoding=EncodingSpec(bits=coarse, rounding="round"))
                 new = _side_spec(
                     base,
@@ -399,7 +417,7 @@ def _append_sensitivity_pairs(
                 new_side=new,
                     )
 
-        for coarse in (16, 32):
+        for coarse in _P8_COARSE:
             old = _side_spec(base, encoding=EncodingSpec(bits=coarse, rounding="round"))
             new = _side_spec(base, encoding=EncodingSpec(bits=8, rounding="round"))
             _emit_identity(

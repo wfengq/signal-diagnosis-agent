@@ -25,6 +25,7 @@ from signal_diag.evaluation.full_scale_characterization.leakage import (
 )
 from signal_diag.evaluation.full_scale_characterization.models import (
     Manifest,
+    PairRecord,
     PlannedPairCounts,
     ScaleLimitExceeded,
 )
@@ -127,35 +128,35 @@ def build_manifest(
             pairs=(),
         )
 
-    stored_pairs: list = []
-    excluded_accum: list = []
+    stored_pairs: list[PairRecord] = []
+    mini_excluded: list = []
     pair_hasher = hashlib.sha256()
     wave_index = _validation_wave_index(groups, constants)
     validation_index = build_validation_effective_index(groups)
-    excluded_families: list[tuple[str, str]] = []
+    mini_excluded_families: list[tuple[str, str]] = []
 
     for batch in enumerate_pair_batches(groups, constants, batch_size=1024):
         assert_no_param_leakage(batch, validation_index)
-        records = [_identity_dict_to_pair_record(d) for d in batch]
-        records, excluded_part = exclude_near_duplicate_sensitivity_pairs(
+        records: list[PairRecord] = [_identity_dict_to_pair_record(d) for d in batch]
+        kept_records, excluded_part = exclude_near_duplicate_sensitivity_pairs(
             records,
             groups,
             constants,
             wave_index=wave_index,
         )
-        kept_ids = {r.pair_id for r in records}
+        kept_ids = {r.pair_id for r in kept_records}
         for entry in excluded_part:
-            excluded_accum.append(entry)
+            mini_excluded.append(entry)
             src = next(d for d in batch if d["pair_id"] == entry.pair_id)
-            excluded_families.append((src["family"], src["perturbation_code"]))
+            mini_excluded_families.append((src["family"], src["perturbation_code"]))
         for d in batch:
             if d["pair_id"] not in kept_ids:
                 continue
             pair_hasher.update(canonical_pair_tuple_bytes(pair_tuple_for_hash(d)))
-        stored_pairs.extend(records)
+        stored_pairs.extend(kept_records)
 
     counts = planned_pair_counts_from_formulas(groups, constants)
-    counts = _subtract_excluded_counts(counts, excluded_families)
+    counts = _subtract_excluded_counts(counts, mini_excluded_families)
     _enforce_scale_limit(counts, constants)
     return Manifest(
         round_id=constants.round_id,
@@ -164,7 +165,7 @@ def build_manifest(
         pair_templates=default_pair_templates(),
         pairs_list_sha256=pair_hasher.hexdigest(),
         planned_pair_counts=counts,
-        excluded_near_duplicates=tuple(excluded_accum),
+        excluded_near_duplicates=tuple(mini_excluded),
         pairs=tuple(stored_pairs),
     )
 

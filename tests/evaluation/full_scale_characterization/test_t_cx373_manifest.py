@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import time
-
 import pytest
 
 from signal_diag.evaluation.full_scale_characterization.constants import (

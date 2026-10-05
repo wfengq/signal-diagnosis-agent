@@ -54,8 +54,10 @@ class EncodingSpec(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     bits: Literal[8, 16, 24, 32]
-    rounding: str = "round"
-    step_bits: int | None = None
+    rounding: Literal[
+        "round", "trunc", "away_one_step", "toward_one_step", "random_one_step"
+    ] = "round"
+    step_bits: Literal[16, 24, 32] | None = None
     seed: int | None = None
     filename: str = "material.wav"
 

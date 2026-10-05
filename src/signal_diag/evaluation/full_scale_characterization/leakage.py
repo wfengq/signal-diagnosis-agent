@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Sequence
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -359,21 +360,20 @@ def scan_calibration_near_duplicate_exclusions(
 
 
 def exclude_near_duplicate_sensitivity_pairs(
-    pairs: list[PairRecord | dict],
+    pairs: Sequence[PairRecord],
     groups: tuple[SourceGroupRecord, ...],
     c: CharacterizationConstants,
     *,
     wave_index: dict[ParamBucketKey, list[tuple[NDArray[np.float64], str]]] | None = None,
-) -> tuple[list[PairRecord | dict], tuple[ExcludedNearDuplicate, ...]]:
+) -> tuple[list[PairRecord], tuple[ExcludedNearDuplicate, ...]]:
     if wave_index is None:
         wave_index = _validation_wave_index(groups, c)
-    kept: list[PairRecord | dict] = []
+    kept: list[PairRecord] = []
     excluded: list[ExcludedNearDuplicate] = []
 
-    for raw in pairs:
-        pair = _as_pair_record(raw)
+    for pair in pairs:
         if pair.side != "calibration":
-            kept.append(raw)
+            kept.append(pair)
             continue
 
         if is_tolerance_pair(pair) and pair.perturbation_code == "P5t":
@@ -392,7 +392,7 @@ def exclude_near_duplicate_sensitivity_pairs(
                     raise ManifestLeakageAbort(
                         f"tolerance near-duplicate on pair {pair.pair_id} vs validation {val_key}"
                     )
-            kept.append(raw)
+            kept.append(pair)
             continue
 
         if is_sensitivity_pair(pair) and pair.perturbation_code == "P5":
@@ -418,10 +418,10 @@ def exclude_near_duplicate_sensitivity_pairs(
             if hit is not None:
                 excluded.append(hit)
             else:
-                kept.append(raw)
+                kept.append(pair)
             continue
 
-        kept.append(raw)
+        kept.append(pair)
 
     return kept, tuple(excluded)
 
