@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Sequence
 
 import numpy as np
 
@@ -266,7 +266,7 @@ def _effective_from_pair_side(side: SideGenerationSpec | dict) -> object:
 
 
 def assert_no_param_leakage(
-    pairs: list[PairRecord | dict],
+    pairs: Sequence[PairRecord | dict[str, Any]],
     validation_index: dict[tuple, str],
 ) -> None:
     for pair in pairs:

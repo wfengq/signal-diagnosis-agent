@@ -6,8 +6,13 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from signal_diag.signal.models import ChannelMode, TimeRange
+
 Side = Literal["calibration", "validation"]
 PairKind = Literal["empty", "onset_change", "aggravation_change", "blind_change"]
+PairRole = Literal["old", "new"]
+RowTerminalState = Literal["measured", "invalid", "generation_failed"]
+PairTerminalState = Literal["measured", "invalid", "generation_failed"]
 
 
 class EffectiveMaterialParams(BaseModel):
@@ -136,3 +141,65 @@ class ScaleLimitExceeded(Exception):
 
 class ManifestLeakageAbort(Exception):
     """Manifest generation aborted because grids overlap on base or tolerance material."""
+
+
+class SanityAbort(Exception):
+    """C.2 sanity check failure; abort the characterization round."""
+
+
+class MeasurementRowSpec(BaseModel):
+    """One WAV × channel × range × role measurement request."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    side_spec: SideGenerationSpec
+    role: PairRole
+    channel: ChannelMode
+    time_range: TimeRange
+    file_duration_s: float
+    full_scale_threshold: float = 0.99
+    m9_layout: dict[str, Any] | None = None
+
+
+class MeasurementRow(BaseModel):
+    """One row of the characterization measurement table (C.1)."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    wav_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    channel: ChannelMode
+    time_range: TimeRange
+    role: PairRole
+    terminal_state: RowTerminalState
+    terminal_reason: str | None = None
+    counted_samples: int | None = Field(default=None, ge=0)
+    over_threshold_uncounted: int | None = Field(default=None, ge=0)
+    state: Literal["yes", "no"] | None = None
+    peak_abs: float | None = None
+    analyzed_samples: int | None = Field(default=None, gt=0)
+    pcm_bit_depth: Literal[8, 16, 24, 32] | None = None
+    clipping_ratio: float | None = None
+    clipped_samples: int | None = None
+    full_scale_detected: bool | None = None
+    flat_top_detected: bool | None = None
+    clipping_mechanism: bool | None = None
+    bundle_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    facts_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    harmonic_tool_status: str | None = None
+
+
+class MeasuredPair(BaseModel):
+    """Pair-level scoring record referencing measurement rows (C.1)."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    pair_id: str
+    channel: ChannelMode
+    range_length_s: float
+    old_row: MeasurementRow
+    new_row: MeasurementRow
+    count_diff: int | None = None
+    ratio_diff: float | None = None
+    flip: bool | None = None
+    terminal_state: PairTerminalState
+    terminal_reason: str | None = None

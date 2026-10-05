@@ -26,13 +26,15 @@ ROUND_1_WALL_BUDGET_S = 60.0
 
 
 def test_round_1_manifest_hash_is_stable(round_1_manifest) -> None:
+    """Hash is deterministic; wall budget is enforced on the session cold build."""
     first = round_1_manifest
-    start = time.monotonic()
     second = build_manifest(ROUND_1)
-    elapsed = time.monotonic() - start
-    assert elapsed < ROUND_1_WALL_BUDGET_S, f"BLOCKED: ROUND_1 rebuild took {elapsed:.1f}s"
     assert manifest_sha256(first) == manifest_sha256(second)
     assert first.pairs_list_sha256 == second.pairs_list_sha256
+
+
+def test_round_1_build_within_wall_budget(round_1_build_elapsed_s: float) -> None:
+    assert round_1_build_elapsed_s < ROUND_1_WALL_BUDGET_S
 
 
 def test_constants_change_changes_manifest_hash(round_1_manifest) -> None:

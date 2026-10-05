@@ -9,6 +9,7 @@ import numpy as np
 from signal_diag.evaluation.full_scale_characterization.constants import M9ChannelLayout
 from signal_diag.evaluation.full_scale_characterization.models import (
     EffectiveMaterialParams,
+    SideGenerationSpec,
 )
 from signal_diag.evaluation.full_scale_characterization.synthesis import (
     clipped,
@@ -240,6 +241,53 @@ def params_from_group_record(record) -> EffectiveMaterialParams:
         depth=record.depth,
         harmonics=record.harmonics,
         m7_marked=record.m7_marked,
+    )
+
+
+def synthesize_side_waveform(
+    spec: SideGenerationSpec,
+    *,
+    file_duration_s: float,
+    m9_layout: M9ChannelLayout | None = None,
+) -> tuple[np.ndarray, ...]:
+    """Return one mono buffer or stereo (left, right) buffers for a pair side."""
+    eff = spec.effective
+    if eff.family == "M9":
+        if m9_layout is None:
+            raise ValueError("M9 synthesis requires m9_layout")
+        left_params, right_params = _layout_channel_params(
+            m9_layout,
+            f0_hz=eff.f0_hz,
+            sample_rate_hz=eff.sample_rate_hz,
+            phase_rad=eff.phase_rad,
+        )
+        return (
+            synthesize_mono(
+                left_params,
+                duration_s=file_duration_s,
+                sample_offset=spec.sample_offset,
+                gain_factor=spec.gain_factor,
+                noise_rms=spec.noise_rms,
+                noise_seed=spec.noise_seed,
+            ),
+            synthesize_mono(
+                right_params,
+                duration_s=file_duration_s,
+                sample_offset=spec.sample_offset,
+                gain_factor=spec.gain_factor,
+                noise_rms=spec.noise_rms,
+                noise_seed=spec.noise_seed,
+            ),
+        )
+    return (
+        synthesize_mono(
+            eff,
+            duration_s=file_duration_s,
+            sample_offset=spec.sample_offset,
+            gain_factor=spec.gain_factor,
+            noise_rms=spec.noise_rms,
+            noise_seed=spec.noise_seed,
+        ),
     )
 
 

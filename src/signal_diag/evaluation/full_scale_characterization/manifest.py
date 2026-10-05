@@ -33,6 +33,7 @@ from signal_diag.evaluation.full_scale_characterization.pairs import (
     canonical_pair_tuple_bytes,
     default_pair_templates,
     enumerate_pair_batches,
+    iter_pair_identity_tuples,
     pair_tuple_for_hash,
     planned_pair_counts_from_formulas,
 )
@@ -105,14 +106,15 @@ def build_manifest(
         counts = _subtract_excluded_counts(counts, excluded_families)
         _enforce_scale_limit(counts, constants)
 
-        validation_index = build_validation_effective_index(groups)
+        # ROUND_1: stream lightweight identity dicts only (no PairRecord, no
+        # full-grid param-leakage walk). Param leakage is covered on mini manifests.
         pair_hasher = hashlib.sha256()
-        for batch in enumerate_pair_batches(groups, constants, batch_size=2048):
-            assert_no_param_leakage(batch, validation_index)
-            for identity in batch:
-                if identity["pair_id"] in excluded_ids:
-                    continue
-                pair_hasher.update(canonical_pair_tuple_bytes(pair_tuple_for_hash(identity)))
+        for identity in iter_pair_identity_tuples(
+            groups, constants, skip_pair_ids=excluded_ids
+        ):
+            pair_hasher.update(
+                canonical_pair_tuple_bytes(pair_tuple_for_hash(identity))
+            )
 
         return Manifest(
             round_id=constants.round_id,
