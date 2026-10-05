@@ -8,9 +8,9 @@
 
 **Tech Stack:** 现有 Python 3.11/3.12、NumPy、Pydantic 2。不新增依赖。
 
-**Spec:** 表征设计 `docs/superpowers/specs/2026-10-05-s1-regression-layer1-characterization-materials-scoring-design.md`（§12 优先，其次 §11、§10、§9、§2–§8）；削波语义设计 `docs/superpowers/specs/2026-10-05-s1-regression-clipping-comparison-semantics-design.md` §12–§14；合同 `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §23.4、§23.5、§23.7；`docs/OPEN_QUESTIONS.md` OQ-021、OQ-022；探查 `docs/OQ020_FULL_TOOLPATH_PROBE_2026-10-05.md`；已合并实现 PR #41（`0770514`）。
+**Spec:** 表征设计 `docs/superpowers/specs/2026-10-05-s1-regression-layer1-characterization-materials-scoring-design.md`（§13 优先，其次 §12、§11、§10、§9、§2–§8）；削波语义设计 `docs/superpowers/specs/2026-10-05-s1-regression-clipping-comparison-semantics-design.md` §12–§14；合同 `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §23.4、§23.5、§23.7；`docs/OPEN_QUESTIONS.md` OQ-021、OQ-022；探查 `docs/OQ020_FULL_TOOLPATH_PROBE_2026-10-05.md`；已合并实现 PR #41（`0770514`）。
 
-**Status:** 修订 2（2026-10-05）。修订 1 经一次独立只读审阅（结论“修改后可批准”，10 条 Major 及若干 Minor），修订 2 逐条处理，对照见文末 G 节；修订 2 本身未再经独立审阅。A 节 13 条落点决定均已由操作员决定（A.1–A.9 于修订 1 决定，A.10–A.13 于审阅后决定）。B、C 节与计划整体尚未批准。计划本身不授权实施；实施授权只覆盖 Task 0–9，不覆盖任何正式运行。
+**Status:** 修订 3（2026-10-05）。修订 1 与修订 2 各经一次独立只读审阅（审阅者不同，结论均为“修改后可批准”）；修订 2、修订 3 逐条处理，对照见文末 G 节（G.1 对应第一轮，G.2 对应第二轮）。修订 3 未再经独立审阅。A 节 15 条落点决定均已由操作员决定。B、C 节与计划整体尚未批准。计划本身不授权实施；实施授权只覆盖 Task 0–9，不覆盖任何正式运行。
 **Read-only baseline:** `61cad20` on `codex/v0.2-real-world-validation`。执行前在当时基线上重新核对本计划引用的文件、接口与空闲测试 ID。
 
 ## Global Constraints
@@ -31,18 +31,20 @@
 表征设计 §7 有五项未勾选。本计划把它们落成 B 节清单。**操作员批准本计划即批准 B 节与 C 节**；Task 0 把批准结果写回表征设计 §7。批准后再改任何一项，按表征设计 §1 固定规则 2 处理（记录理由、作废已看过的验证结果）。
 
 1. **基础材料加起始相位轴。** 状态翻转的位置取决于采样相位（语义设计 §12.5、§14）；100 Hz、48 kHz 时每周期恰好 480 个样本，所有周期的采样相位相同。M2/M11、M3、M5 的基础材料加相位轴，校准 {0, 1.0, 2.0} rad，验证留出 {0.5, 3.0} rad。round_1 固定启用，不提供关闭开关。
-2. **临界区候选形式增加 K4（表征设计 §11 要求）。** 形式同 K2，但把峰值换成“两样本等效电平” `e = peak_abs · cos(π / N)`。依据：连续两个样本都过阈值，要求跨峰两样本中较低者不低于阈值，其上界约为 `A · cos(π/N)`；翻转点约在 `thr / cos(π/N)`。N 用材料的生成参数计算（产品里来自用户声明的基频，报告须披露）。K4 若被选中，`FullScaleMethodFloor` 现有字段表达不了，下限审批时须修订模型与合同 §23.4 的取值形式。
+2. **临界区候选形式增加 K4（表征设计 §11 要求）。** 形式同 K2，但把峰值换成“两样本等效电平” `e = peak_abs · cos(π / N)`。依据：连续两个样本都过阈值，要求跨峰两样本中较低者不低于阈值，其上界约为 `A · cos(π/N)`；翻转点约在 `thr / cos(π/N)`。N 用材料的生成参数计算（产品里来自用户声明的基频，报告须披露）。K4 若被选中，`FullScaleMethodFloor` 现有字段表达不了，下限审批时须修订模型与合同 §23.4 的取值形式。F0 同样表达不了：模型校验器要求 `count_floor_samples` 与 `count_floor_ratio` 至少设一个。
 3. **F3 的分段条件必须是产品可观测的量**，并限定为一个变量（N 或范围内周期数）上的单一切点、两段（C.4）。F3 若被选中，同样须在下限审批时修订模型与 §23.4。
 4. **分析范围长度不进来源组键。** 分析范围都从文件开头取，短范围是长范围的前缀，把长度并入组键会让同一段波形同时出现在两侧。校准侧来源组只跑校准长度；验证侧来源组跑 B.1 列出的验证长度。
 5. **临界区拟合要求翻转对的两侧都在区内。** 最小解唯一。合同 §23.4 “must contain every signal that a tolerated difference can move across” 本来就是这一要求。验证侧仍按产品规则判（任一侧在区内即排除）。
-6. **32 位文件的一步取 2⁻²⁴**（与 PR #41 落点决定 15 一致），即 128 个 32 位码值。32 位编码先把码值量化到 128 的整数倍，保证经加载器 float32 解码后，偏移恰为一步（M4）。
+6. **32 位文件的一步取 2⁻²⁴**（与 PR #41 落点决定 15 一致），即 128 个 32 位码值。32 位编码的全部方式都在 2⁻²⁴ 网格上执行：`c = clip(mode(x · 2^24), −2^24, 2^24 − 1) · 128`，`mode` 为舍入、截断或偏移；这样既不会超出 int32（x = 1.0 时舍入后截到 `2^24 − 1`），又保证经加载器 float32 解码后偏移恰为一步。
 7. **产物以“测量表 + 对表”存放**（A.13），确定性 gzip（`mtime=0`）入库；单文件压缩后超过 50 MB 停下由操作员决定。
 8. **M10 白噪声不进表征人口**（表征设计 §9.4）。
 9. **测试 ID：** 新登记 T-CX371–T-CX380（仅定义，Task 0）。
 10. **合同 §23.4 的容忍范围按叠加理解：** “一个较粗位深量化步长的差异”与“位深转换”可以同时出现。容忍类因此新增 P9（B.3）。审阅实测（完整工具路径）：100 Hz、48 kHz、幅度 0.989993、相位 π/480，16 位舍入峰值 0.98995972、计入 0，低于固定最低要求界线 0.99 − 2⁻¹⁵ = 0.9899695；同一波形 32 位舍入后整体远离零偏一个 16 位步长，计入 800。这类翻转由拟合出的 `zone_below` 覆盖（产品用 `max(zone_below, step)`），不会让产品判错；但固定最低要求作为与抽样无关的理论保证不再充分，另登记 OQ-022，与 OQ-021 一起在下限审批前决定。
 11. **校准侧起始变化对的深度 0.9999 改为 0.9995**，0.9999 只留在验证侧。0.9999 是 M3 的验证留出深度，原表会让校准侧看到验证组的同一段波形（M6）。这改动了已批准的表征设计 §9.5，记入表征设计 §12。
 12. **验证侧取留出值子网格**（B.2 末），规模与校准侧同量级；精确对数由清单生成器给出，操作员批准。
-13. **结果存储形态：** 测量表每个“文件 × 声道 × 范围 × 侧”一行，对表只引用测量表行号与对级字段（C.1）。
+13. **结果存储形态：** 测量表每个“文件 × 声道 × 范围 × 角色”一行，对表只引用测量表行号与对级字段（C.1）。两表都按“侧（校准/验证）× 材料族”分片，每片一个 gzip 文件；清单不展开逐对描述（D 节）。
+14. **拟合分两步冻结，候选值用预先写死的短表**（C.4、C.5）。第一步只拟合并输出 (域, K 行)，审阅者选定后写入冻结记录的第一部分；第二步只在选定的域与区上拟合 F，审阅者再选，写入第二部分。两步都在任何验证侧运行之前完成。
+15. **校准侧敏感度对若近似复现验证留出材料，生成清单时剔除并列出**（B.3 末、T-CX374）。
 
 **决定记录（操作员，2026-10-05）：**
 
@@ -60,7 +62,9 @@
 | A.10 容忍范围按叠加理解 | 采纳；另开 OQ-022 |
 | A.11 校准侧起始变化对 0.9999 → 0.9995 | 采纳 |
 | A.12 验证侧留出值子网格 | 采纳 |
-| A.13 测量表 + 对表 | 采纳 |
+| A.13 测量表 + 对表 | 采纳（修订 3 补充分片与清单不展开） |
+| A.14 两步冻结 + 固定候选表 | 采纳（第二轮审阅后决定） |
+| A.15 近似复现的敏感度对生成时剔除并列出 | 采纳（第二轮审阅后决定） |
 
 ## B. 冻结清单（候选数值，均为材料取值，不是容差）
 
@@ -105,13 +109,16 @@
 
 **验证侧（A.12 留出值子网格）** = 下列组合的并集，其余维度取下表的固定子集；采样率两个都取：
 
-1. 恰有一个维度取留出值，其余维度取固定子集；
-2. f0 与削波程度两个维度同时取留出值，相位为 0。
+1. 恰有一个维度取留出值，其余维度取固定子集。M3/M4 的电平与深度各算一个维度；M5 的谐波、深度各算一个维度。
+2. f0 取留出值，且削波程度中至少一个维度（M2/M11 峰值、M1 幅度、M3/M4 电平或深度、M5 谐波或深度）取留出值，其余维度取固定子集，相位为 0。
+3. M9 只用留出 f0（220、997、3000），声道组合见族表。
+
+相位子集只用于有相位轴的族（M2/M11、M3、M5）；其余族相位固定为 0。
 
 | 维度 | 验证侧非留出维度的固定子集 |
 |---|---|
 | f0 | 100、880、4000 |
-| 起始相位 | 0、2.0 |
+| 起始相位（仅 M2/M11、M3、M5） | 0、2.0 |
 | M2/M11 峰值 | 0.9899、0.99、0.9905、0.992、0.995、1.0 |
 | M3 电平 / 深度 | 0.9901、0.995、1.0 / 0.99、0.9 |
 | M4 电平 / 深度 | 0.5、0.9 / 0.99、0.9 |
@@ -148,11 +155,13 @@
 | P8 8 位（域外） | 16↔8、32↔8 | 同左 | — |
 | 组合（仅验证侧） | — | P1(1)+P6(1e-4)；P4(32↔16)+P5(1e-4)；两侧各加不同种子噪声 1e-4 | — |
 
-P3 只施加在相位 0 的组上，保证校准侧的结果相位只有 0.1、1.0、2.0，不会叠加出留出相位 3.0。P5 的若干档会近似复现内插留出峰值（例如 0.995 × (1 + 1e-3) ≈ 0.996），P5 属敏感度类、不参与拟合，报告须披露这一近似。
+P3 只施加在相位 0 的组上，保证校准侧的结果相位只有 0.1、1.0、2.0，不会叠加出留出相位 3.0。
+
+**近似复现的剔除（A.15）。** 清单生成时，对校准侧每一对的每一侧，逐声道找出与之同族形式、同 f0、同采样率、同相位的全部验证留出材料，按 16 位舍入编码比较：若在该对的分析范围内逐样本码值相差都不超过 1，则从清单中剔除该对，并在清单的 `excluded_near_duplicates` 中列出（对标识、命中的验证组键、最大码值差）。只有敏感度对可以这样剔除。若命中的是基础材料或容忍范围内的对，说明网格本身有重合，清单生成中止，交操作员处理。第二轮审阅实测已知的命中例子：M3 电平 0.9901 × (1 − 1e-4) 对留出电平 0.99；0.9905 × 1.001 对 0.9915；0.9975 × 0.995 对 0.9925；0.995 × 1.001 对 0.996。
 
 ### B.4 变化对
 
-两侧同位深（16、24、32 各一份），相位 0，在该侧的全部范围长度上运行。
+两侧同位深（16、24、32 各一份），相位 0，在该侧的全部范围长度上运行。归属：起始变化对属于其旧版 M1（幅度 0.9）在该 f0、采样率上的来源组；加重变化对属于其旧版 M3 来源组。校准侧变化对只用校准 f0；验证侧起始变化对只用留出 f0（220、997、3000、50、12000），使旧版材料不与任何校准组相同；验证侧加重变化对来自验证侧 M3 来源组。
 
 | 类型 | 校准侧 | 验证侧 |
 |---|---|---|
@@ -162,29 +171,33 @@ P3 只施加在相位 0 的组上，保证校准侧的结果相位只有 0.1、1
 
 ### B.5 规模估算（推算，非实测）
 
-校准侧约 1,400 份材料 × 4 个范围长度 × 约 75 对（容忍约 45、敏感度约 30）≈ 42 万对；去重后约 40 万行测量。验证侧按 B.2 子网格与校准侧同量级。审阅实测 `measure_output` 在 2.0 s 范围约 30–130 ms，0.1 s 及更短约 2–9 ms，校准侧单进程约 2–3 小时。精确数由 Task 3 的清单生成器给出；验证侧计划对数超过校准侧 2 倍时停下由操作员决定。
+校准侧约 1,400 份材料 × 4 个范围长度 × 约 75 对（容忍约 45、敏感度约 30）≈ 42 万对；去重后约 40 万行测量。验证侧按 B.2 子网格与校准侧同量级。审阅实测 `measure_output` 在 2.0 s 范围约 30–130 ms，0.1 s 及更短约 2–9 ms，校准侧单进程约 2–3 小时。第二轮审阅推算验证侧约为校准侧的 1.0–1.4 倍，但长范围占比更高，耗时可能达到校准侧的 1.5–2 倍。精确数由 Task 3 的清单生成器给出；验证侧计划对数超过校准侧 2 倍时停下由操作员决定。测量表按每行压缩后约 170 B 推算，校准侧全量约 50–70 MB，因此按 A.13 分片；`--dry-run` 须给出每片的预计压缩体积，任一片超过 50 MB 即停。
 
 ## C. 计分与拟合定义（写死，运行后不改）
 
 ### C.1 记录
 
-**测量表**（每个“WAV 文件 × 声道 × 分析范围 × 侧”一行）：行号、`wav_sha256`、声道、范围、侧、`signal_id`、`run_id`、终态与原因码，以及：`counted_samples`、`over_threshold_uncounted`、`state`、`peak_abs`、`analyzed_samples`、`pcm_bit_depth`、`clipping_ratio`、`clipped_samples`、`full_scale_detected`、`flat_top_detected`、`clipping_mechanism`、`bundle_digest`、`facts_digest`、谐波工具状态。
+术语：对的两边称“旧”“新”（对应产品的 baseline / candidate）；“校准侧/验证侧”只指划分。空对中舍入编码或较粗位深的一边为旧，扰动的一边为新。
+
+**测量表**（每个“WAV 文件 × 声道 × 分析范围 × 角色”一行，角色为旧或新）：行号、`wav_sha256`、声道、范围、角色、终态与原因码，以及：`counted_samples`、`over_threshold_uncounted`、`state`、`peak_abs`、`analyzed_samples`、`pcm_bit_depth`、`clipping_ratio`、`clipped_samples`、`full_scale_detected`、`flat_top_detected`、`clipping_mechanism`、`bundle_digest`、`facts_digest`、谐波工具状态。
 
 **对表**（每对一行）：清单字段（族、来源组、侧、扰动代号与档位、种子、两侧编码描述、范围长度、f0、采样率、`N = sr / f0`、范围内周期数 `analyzed_samples · f0 / sr`、M7 标记）、旧侧与新侧的测量表行号，以及：
 
 - `count_diff = 新 − 旧`；
 - `ratio_diff = count_diff / 旧侧 analyzed_samples`（与产品 `_judgment_status` 的比例公式一致；不是 `clipping_ratio` 之差）；
 - `flip = 两侧 state 不同`；
-- 对的终态（`measured` / `rejected` / `invalid` / `generation_failed`）与原因码。
+- 对的终态（`measured` / `invalid` / `generation_failed`）与原因码。
 
-确定性：`signal_id = "sig_" + wav_sha256[:32]`，用 `build_signal_record(..., signal_id=...)` 以加载器解码出的样本重建记录；`run_id = "run_" + <侧> + "_" + wav_sha256[:16]`。
+`N` 与周期数的计算表达式与产品 `rules/full_scale_check.py` 逐字相同（`sr / f0`；`analyzed_samples * f0 / sr`），避免边界值差 1 ulp。
+
+确定性：`signal_id = "sig_" + wav_sha256[:32]`，用 `build_signal_record(samples, sample_rate_hz=..., source_type="wav", filename=<加载时的文件名>, signal_id=...)` 以加载器解码出的样本重建记录；`run_id = "run_" + <角色> + "_" + wav_sha256[:16]`。两者可由 `wav_sha256` 与角色推出，不写入测量表。每次测量用独立的仓库实例，避免同一文件以两个角色测量时 `signal_id` 冲突。
 
 ### C.2 健全性检查
 
 任何一条失败即中止该轮，写出中止记录（触发的对、检查项、数值），不出报告，旧产物保留：
 
 1. P0 的任一对 `count_diff` 非零，或两侧 `wav_sha256` 不同。
-2. 对每个容忍范围内的对，以舍入侧 `x` 为参照，`δ` 取该对较粗位深的步长，记 `δ' = δ`；P9 的两侧差异是一步加一次位深转换（截断转换的误差可达一步），取 `δ' = 2δ`，用 `count_full_scale_samples` 直接对解码样本检验夹逼式 `count(x, thr + δ') ≤ count(y) ≤ count(x, thr − δ')`。
+2. 对每个容忍范围内的对，以旧侧 `x` 为参照（P4、P9 的旧侧为较粗位深一边），计数在该对的声道与分析范围片段上进行，`δ` 取该对较粗位深的步长，记 `δ' = δ`；P9 的两侧差异是一步加一次位深转换（截断转换的误差可达一步），取 `δ' = 2δ`，用 `count_full_scale_samples` 直接对解码样本检验夹逼式 `count(x, thr + δ') ≤ count(y) ≤ count(x, thr − δ')`。
 3. 等式检验：P7a 的计数等于 `count(x, thr − δ)`，P7b 的计数等于 `count(x, thr + δ)`。这一条证明单向最坏情形确在扰动集里。
 4. P7 各对（单项一步扰动）中出现翻转，且“否”侧不在固定最低要求内（C.3，k = 1）：按推导这不可能发生，出现即说明编码器有缺陷。
 5. 任一侧 `verify_full_scale_facts` 失败。
@@ -193,57 +206,56 @@ P9 的翻转落在 k = 1 的固定最低要求之外**不中止**，按 C.3 单�
 
 ### C.3 固定最低要求
 
-与产品 `_in_critical_zone` 及 `_quantization_step` 逐字等价：“否”侧 `peak_abs ≥ thr − k · step` 即在区内，`step = max(2^-(b-1), 2^-24)`，b 取两侧较粗位深；产品现行 k = 1。报告对 k = 1 与 k = 2 分别给出：应用前的翻转数、应用后仍在区外的翻转数，并按扰动代号分列。k = 2 的数字只作 OQ-022 的依据，不改变拟合与判定。
+与产品 `_in_critical_zone` 及 `_quantization_step` 逐字等价：“否”侧 `peak_abs ≥ thr − k · step` 即在区内，`step = max(2^-(b-1), 2^-24)`，b 取两侧较粗位深；产品现行 k = 1。报告对 k = 1 与 k = 2 分别给出：应用前的翻转数、应用后仍在区外的翻转数，并按扰动代号分列。k = 2 的数字只作 OQ-022 的依据，不改变拟合与判定。按 C.2 的推导，容忍范围内两侧之差恒小于 2δ，k = 2 区外翻转理论上恒为 0；报告的作用是印证这一点。
 
 ### C.4 候选形式（只能从中选）
 
-- **批准域 D1：** `N ≥ n_min` 且 `范围内周期数 ≥ p_min`。候选值为校准网格中实际出现的 N 与周期数的去重值，逐一列举。
-- **临界区 K1–K4、K0**（定义见 C.5），每个都与 k = 1 的固定最低要求取或。
+- **批准域 D1：** `N ≥ n_min` 且 `范围内周期数 ≥ p_min`。候选值预先写死（A.14）：`n_min` 取校准网格中出现的 `sr / f0` 去重值（12 个）；`p_min` 取 1、2、5、10、20、50、100。
+- **临界区 K1、K2、K3、K4**（定义见 C.5），每个都与 k = 1 的固定最低要求取或。K3 的门槛 `c` 取 2、4、8、16、32、64（`c = 0` 即 K2）。K0 不是一种形式，而是拟合结果的标签（C.5 第 7 步）。
 - **样本数下限：**
   - F1：`ratio_diff` 下限；
   - F2：`count_diff` 下限；
-  - F3：在 N 或范围内周期数中的一个变量上取单一切点（候选值同 D1），两段，两段同为 F2，或两段同为 F1；
+  - F3：在 N 或范围内周期数中的一个变量上取单一切点（候选值为大于所选 `n_min` 或 `p_min` 的 D1 候选值），两段，两段同为 F2，或两段同为 F1；
   - F0：不设下限。
-- 某组合在校准侧无法满足全覆盖时，结论为该组合不成立；不得临时发明新形式。
+- 按最大值拟合，全覆盖总能满足；一个 K 行若被标为 K0，或第二步只剩 F0，即为该轮不成立的情形。不得临时发明新形式或新候选值。
 
-### C.5 拟合算法（确定性；工具输出全部组合，审阅者只选择）
+### C.5 拟合算法（确定性；分两步，审阅者只选择）
 
-对每个候选批准域 `(n_min, p_min)`，只用域内、容忍范围内的校准侧已测量对。
+**第一步：(域, K 行)。** 对每个候选批准域 `(n_min, p_min)`（12 × 7 = 84 个），只用域内、容忍范围内的校准侧已测量对，拟合每个 K 行（K1、K2、K4，以及 6 个 `c` 值的 K3，共 9 行），输出约 756 行。
 
 **临界区。** 判定方式与产品一致：按状态区分，不按峰值在阈值哪一侧区分。
 
 - “否”侧在区内：`peak ≥ thr − max(zb, k·step)`（无上界）；K4 用 `e ≥ thr − zb`，再与固定最低要求取或。
-- “是”侧在区内：`peak ≤ thr + za`；K4 用 `e ≤ thr + za`；K3 另加 `counted < c`。
+- “是”侧在区内：`peak ≤ thr + za`；K4 用 `e ≤ thr + za`；K3 为 `peak ≤ thr + za` **或** `counted < c`（与产品一致）。
 
 拟合步骤：
 
 1. 待覆盖点 = 全部翻转对的两侧（A.5）。
 2. 剔除已被固定最低要求（k = 1）覆盖的“否”侧点。
-3. K2：`zb = max(thr − peak)`，取自剩余“否”侧点；`za = max(peak − thr)`，取自“是”侧点。没有点的一边取 0。
-4. K1：`zb = za = max(K2 的 zb, za)`。
-5. K3：门槛 `c` 的候选值为翻转对“是”侧 `counted_samples + 1` 的去重值，另加 0（不用门槛）。对每个候选 `c`，计入数低于 `c` 的“是”侧视为已覆盖，其余点按 K2 求 `(zb, za)`。每个 `(c, zb, za)` 一行，带行标识。
-6. K4：同 K2，以 `e` 代替 `peak`。
-7. K0：拟合出的区使域内主要工况（M2/M11、M3、M5 中电平 ≥ 阈值者）没有任何一对两侧都在区外。
+3. K2：`zb = max(0, max(thr − peak))`，取自剩余“否”侧点；`za = max(0, max(peak − thr))`，取自“是”侧点。没有点的一边取 0。
+4. K1：`zb = za = max(K2 的 zb, za)`（K1 被 K2 支配，保留只为对照）。
+5. K3：对每个候选 `c`，计入数低于 `c` 的“是”侧视为已覆盖，其余点按 K2 求 `(zb, za)`。表征设计 §9.2 写的是“K1 或 K2 之外”；因 K1 被 K2 支配，只在 K2 上枚举。
+6. K4：同 K2，以 `e = peak · cos(π / N)` 代替 `peak`，同样取 `max(0, ·)`。
+7. K0 标签：若某 (域, K 行) 拟合出的区使域内主要工况（M2/M11、M3、M5 中电平 ≥ 阈值者）的容忍范围内空对中，没有任何一对两侧都在区外，该行标为 K0（退化）。
 
-**样本数下限。** 只用两侧都为“是”且两侧都在所选临界区外的对。
+第一步每行输出：参数；K0 标签；域内覆盖率与按族覆盖率；k = 1、k = 2 的翻转计数；校准侧起始变化对的检出情况（按档）。审阅者选定一行，写入冻结记录的第一部分（A.14）。
+
+**第二步：F。** 只在第一步选定的 (域, K 行) 上进行。
+
+只用两侧都为“是”且两侧都在所选临界区外的对。
 
 - F1 = `max |ratio_diff|`，F2 = `max |count_diff|`，不加余量。
 - F3 对每个切点分两段，各段分别取 max。
 
-**输出。** 对每个 (域, K[行], F[切点]) 组合，给出：
+第二步每行（F0、F1、F2，以及各切点的 F3，约 40 行）输出：参数；适用对数；校准侧加重变化对按档被盖掉的对数；被排除的对及原因。审阅者选定一行，写入冻结记录的第二部分。
 
-- 参数；
-- 域内覆盖率（适用对 ÷ 域内计划对），以及按族覆盖率；
-- 校准侧变化对的检出情况（按档）；
-- 被排除的对及原因。
-
-工具不排名、不推荐。
+工具不排名、不推荐。`--dry-run` 打印两步的行数；第一步超过 1,000 行或第二步超过 100 行即停。
 
 **对拍测试。** `tests/` 下用 `FullScaleMethodFloor` 夹具，把本包的临界区与判定函数（K1–K3、F1、F2）和产品 `rules.full_scale_check._in_critical_zone`、`_quantization_step`、`_judgment_status` 逐例对拍。本包不导入 `rules/`，对拍只在测试里进行。
 
 ### C.6 验证侧计数（冻结后原样套用，不调整）
 
-只对冻结记录中的 (域, K 行, F 切点)：
+只对冻结记录两部分中选定的 (域, K 行) 与 F 行：
 
 - **硬条件一：** 域内、容忍范围内的适用空对中，两侧都在区外而状态翻转的对数，须为 0。
 - **硬条件二：** 两侧都为“是”且都在区外的适用空对中，`|count_diff|`（F1 用 `|ratio_diff|`）严格大于下限的对数，须为 0。空对的新旧方向是任意的，所以用绝对值。
@@ -288,14 +300,16 @@ P9 的翻转落在 k = 1 的固定最低要求之外**不中止**，按 C.3 单�
 
 ```text
 docs/evaluations/v0_3/full_scale_characterization/round_1/
-  manifest.json                 # R0 生成；批准时记录其 sha256
+  manifest.json                 # R0 生成：来源组、扰动模板、长度、种子、展开规则、计数、剔除清单，以及展开后对列表的 sha256；不含逐对描述
   identity.json                 # 代码与配置身份
-  calibration_measurements.jsonl.gz
-  calibration_pairs.jsonl.gz
-  calibration_report.{json,md}
-  freeze_record.json
-  validation_measurements.jsonl.gz
-  validation_pairs.jsonl.gz
+  calibration_measurements/<族>.jsonl.gz
+  calibration_pairs/<族>.jsonl.gz
+  calibration_report_stage1.{json,md}
+  freeze_record_stage1.json     # 第一步选定的 (域, K 行)
+  calibration_report_stage2.{json,md}
+  freeze_record.json            # 两部分齐全的冻结记录
+  validation_measurements/<族>.jsonl.gz
+  validation_pairs/<族>.jsonl.gz
   validation_report.{json,md}
   abort_record.json             # 仅在中止时出现
   SHA256SUMS
@@ -306,12 +320,12 @@ docs/evaluations/v0_3/full_scale_characterization/round_1/
 - **比对项**（校准与验证运行前都比对，不一致即拒绝运行）：
   - `MEASUREMENT_VERSION`、`FULL_SCALE_FACTS_VERSION`；
   - 阈值 0.99、最少连续样本数 2、`analyze_clipping` 的平顶默认值；
-  - 以下文件的 sha256：`dsp/full_scale.py`、`dsp/clipping.py`、`dsp/preprocess.py`、`tools/regression_full_scale.py`、`tools/regression_measurement.py`、`tools/service.py`、`signal/wav.py`、`signal/factory.py`、`signal/segment.py`；
-  - `contextual_product_tree_sha256()`；
-  - 本包测量相关模块（`constants.py`、`synthesis.py`、`pcm.py`、`manifest.py`、`executor.py`）的合并摘要。
-- **只记录项**：Git 提交号、本包其余模块的摘要。
+  - 测量路径闭包中各文件的 sha256：`dsp/full_scale.py`、`dsp/clipping.py`、`dsp/preprocess.py`、`tools/regression_full_scale.py`、`tools/regression_measurement.py`、`tools/service.py`、`tools/contracts.py`、`tools/results.py`、`signal/wav.py`、`signal/factory.py`、`signal/segment.py`、`signal/models.py`；
+  - 本包除 `reporting.py` 与 `__main__.py` 外全部模块的合并摘要（包括 `zone.py`、`checks.py`、`fitting.py`、`validation.py`：它们决定区判定、中止与硬条件，冻结后不得改动）；
+  - Python 版本与 NumPy 版本（合成依赖 `np.sin`，版本变化可能改变 WAV 字节）。
+- **只记录项**：Git 提交号、`contextual_product_tree_sha256()`、`reporting.py` 与 `__main__.py` 的摘要。
 
-测量相关模块的任何改动都要求起 `round_2`；报告模块的修复不影响比对。
+比对项的任何变化都要求起 `round_2`。产品树哈希只记录：测量路径以外的产品改动（例如 knowledge 文档、Web 界面）不应挡住验证运行。
 
 ---
 
@@ -347,7 +361,7 @@ def encode_pcm_wav(channels: Sequence[np.ndarray], *, sr: int, bits: Literal[8, 
 码值约定与加载器一致：
 
 - 16 位码值 = `round(x · 32768)`，截到 `[-32768, 32767]`；24 位缩放 `2^23`；8 位为无符号偏置 128。
-- 32 位先求 `round(x · 2^31)`，再就近量化到 128 的整数倍。
+- 32 位按 A.6：`c = clip(mode(x · 2^24), −2^24, 2^24 − 1) · 128`，全部方式都在 2⁻²⁴ 网格上执行。16、24 位的截断与偏移同样先在本位深网格上取整再截幅。
 - `step_bits` 用于 P9：在较细位深文件上偏移一个较粗位深的步长；缺省为本文件的步长。
 
 - [ ] 写失败测试：
@@ -355,6 +369,7 @@ def encode_pcm_wav(channels: Sequence[np.ndarray], *, sr: int, bits: Literal[8, 
   - 解码域中，偏一步的样本与舍入样本之差的绝对值逐样本 ≤ 对应步长；`away`/`toward` 方向全部一致；32 位解码域偏移恰为 2⁻²⁴（|x| ≥ 0.5 的样本）。
   - 相同种子两次编码字节相同；不同种子不同。
   - `clipped` 的削波前峰值等于 `level / depth`（数值求 max），输出绝对值 ≤ `level`；M5 先加谐波再缩放、再削波。
+  - x = ±1.0 在各位深下都不溢出；32 位截断（P7c）与舍入在 2⁻²⁴ 网格上确有差别，不退化为 P0。
   - 不得调用 `app/pcm_wav.py`。
 - [ ] 实现。
 - [ ] Commit — `feat(eval): characterization waveform synthesis and integer PCM encoder (T-CX372)`
@@ -363,11 +378,11 @@ def encode_pcm_wav(channels: Sequence[np.ndarray], *, sr: int, bits: Literal[8, 
 
 **Interfaces:** `build_manifest(constants=ROUND_1) -> Manifest`；`manifest_sha256(m) -> str`（规范 JSON：键排序、无空白、`allow_nan=False`）。`Manifest` 含 `round_id`、`constants_digest`、`source_groups`（键、侧）、`pairs`（每对的完整生成描述，不含任何测量值）、各侧与各族的计划对数。
 
-- [ ] 写失败测试（用 `ROUND_1` 与微型常量各测一次）：
+- [ ] 写失败测试（`ROUND_1` 只做计数与哈希，不实例化逐对模型；逐对断言用微型常量）：
   - T-CX373：同一常量两次生成的哈希相同；`constants.py` 任一取值改变则哈希改变。
   - T-CX373：每个敏感度对只含一项扰动（组合只在验证侧）；容忍类只含 B.3 列出的代号；种子来自该侧的种子集，两侧不重叠。
   - T-CX374：一个来源组的全部对只落在一侧；校准侧只出现校准长度；改文件名、种子、扰动幅度不产生新组键。
-  - T-CX374（防泄漏，按有效生成参数检查）：校准侧任一对任一侧的有效参数（f0、采样率、相位取模 2π、峰值、电平、深度、谐波），与验证组键的参数组合都不相同；P3 结果相位不等于任何留出相位；起始变化对的校准深度不含 0.9999。
+  - T-CX374（防泄漏，逐声道、按有效生成参数与码值检查）：校准侧任一对任一侧的任一声道，其有效参数（族形式、f0、采样率、相位取模 2π、峰值、电平、深度、谐波）都不等于任何验证材料的对应参数；近似复现（A.15）的敏感度对已被剔除并列出，命中基础材料或容忍对时生成中止；P3 结果相位不等于任何留出相位；起始变化对的校准深度不含 0.9999；验证侧 M9 与起始变化对的旧版材料不与任何校准材料相同。
   - T-CX374：验证侧包含每个材料族至少一个组、全部组合扰动与全部盲区变化对；校准侧不含盲区与组合。
   - 验证侧计划对数超过校准侧 2 倍时 `build_manifest` 抛出 `ScaleLimitExceeded`。
 - [ ] 实现；命令 `python -m signal_diag.evaluation.full_scale_characterization manifest --round round_1 --dry-run` 只打印各侧、各族、各扰动的计划对数和预计测量行数，不写文件。写文件属于 R0。
@@ -380,14 +395,14 @@ def encode_pcm_wav(channels: Sequence[np.ndarray], *, sr: int, bits: Literal[8, 
 每侧的步骤：
 
 1. 合成，再用 `encode_pcm_wav` 编码。
-2. `load_wav_bytes` 加载，再用 `build_signal_record(samples, sample_rate_hz=..., signal_id="sig_" + wav_sha256[:32], ...)` 重建记录，放入 `InMemorySignalRepository`。
-3. `signal.segment._resolve_sample_bounds` 求起止样本，组装 `InputIdentity`（确定的 `run_id`）。
+2. `load_wav_bytes` 加载，再用 `build_signal_record(samples, sample_rate_hz=..., source_type="wav", filename=..., signal_id="sig_" + wav_sha256[:32])` 重建记录，放入本次测量专用的 `InMemorySignalRepository`。
+3. 按 `app/regression.py` 中 `_build_identity` 的做法（本包不得导入 `app/`，照其字段逐一组装）：`_resolve_sample_bounds` 求起止样本；`InputIdentity` 填 `run_id`、`side`（旧 → baseline，新 → candidate）、`wav_sha256`、`signal_id`、`sample_rate_hz`、`source_channels`、`total_frames`、`resolved_start_sample`、`resolved_end_sample`、`channel`、`tool_parameter_snapshot`。
 4. 调用 `measure_output`，参数为 `MeasurementSelection(clipping=ClippingInput(channel, time_range, full_scale_threshold=0.99), harmonic=HarmonicDistortionInput(channel, time_range))`。
-5. 依次调用 `measure_full_scale_facts` 和 `verify_full_scale_facts`。
+5. 依次调用 `measure_full_scale_facts(repository=..., bundle=..., pcm_bit_depth=loaded.source_info.bits_per_sample)` 和 `verify_full_scale_facts`。
 
 其余约定：
 
-- 缓存键为 `(wav_sha256, channel, time_range, side)`。
+- 缓存键为 `(wav_sha256, channel, time_range, 角色)`。
 - 谐波结果不参与计分，只记录状态。审阅实测：基频 2–12 kHz 时谐波多为 invalid，但削波结果全部为 success，摘要正常。
 
 **终态映射：**
@@ -418,22 +433,23 @@ def encode_pcm_wav(channels: Sequence[np.ndarray], *, sr: int, bits: Literal[8, 
 
 - [ ] 写失败测试（手工记录，数值只为验证逻辑）：
   - `zone.py` 与产品对拍：K1–K3、F1、F2 的判定，对一组覆盖边界的手工事实，与 `rules.full_scale_check._in_critical_zone`、`_quantization_step`、`_judgment_status` 逐例一致（对拍测试放在 `tests/`，可导入 `rules`）。
-  - K1/K2/K4 的最小参数与手算一致；K3 输出全部候选 `c` 行，每行都与手算一致；剔除固定最低要求已覆盖点的规则生效；K0 按 C.5 第 7 步判定。
+  - K1/K2/K4 的最小参数与手算一致，且全部 ≥ 0；K3 对 6 个 `c` 值各输出一行，与手算一致，判定为“或”；剔除固定最低要求已覆盖点的规则生效；K0 标签按 C.5 第 7 步判定，只看容忍范围内空对。
+  - 两步拟合：第二步只接受第一步冻结记录中的 (域, K 行)；候选值只能取 C.4 的固定表；行数上限生效。
   - F1/F2 等于适用对 `|ratio_diff|`、`|count_diff|` 的最大值，不加余量；F3 只接受 N 或周期数上的单一切点；按材料族分段的输入被拒绝。
   - C.3 中 k = 1、k = 2 的翻转数分别给出。
   - 拟合函数只接受校准侧记录，传入任何验证侧记录抛错。
-  - 报告列出全部 (域, K 行, F 切点) 组合，不含排名、推荐或“通过”字样。
+  - 第一步、第二步报告分别列出全部行，不含排名、推荐或“通过”字样。
 - [ ] 实现 C.3–C.5 与校准报告。
 - [ ] Commit — `feat(eval): critical-zone functions and calibration fitting (T-CX377)`
 
 ### Task 7: 冻结记录与只写一次（T-CX378）
 
-**Interfaces:** `FreezeRecord(round_id, manifest_sha256, identity_sha256, calibration_measurements_sha256, calibration_pairs_sha256, calibration_report_sha256, domain, zone_form, zone_row_id, zone_params, floor_form, floor_cut, floor_params, rationale, approved_by, approved_at, digest)`。
+**Interfaces:** `FreezeStage1(round_id, manifest_sha256, identity_sha256, calibration_measurements_sha256, calibration_pairs_sha256, stage1_report_sha256, domain, zone_form, zone_row_id, zone_params, rationale, approved_by, approved_at, digest)`；`FreezeRecord(stage1, stage1_digest, stage2_report_sha256, floor_form, floor_cut, floor_params, rationale, approved_by, approved_at, digest)`。
 
 - [ ] 写失败测试：
   - `store` 对已存在的产物文件拒绝写入；`SHA256SUMS` 与文件一致。
   - 冻结记录的上游哈希与磁盘文件不符时拒绝；所选形式、K3 行标识或 F3 切点不在拟合输出中时拒绝；参数不等于拟合输出中对应组合的值时拒绝（只能选，不能改）。
-  - 没有有效冻结记录时，生成或测量任何验证侧对都抛错。
+  - 没有两部分齐全的有效冻结记录时，生成或测量任何验证侧对都抛错；只有第一部分时同样抛错。
   - `identity.json` 的比对项与当前不一致时，校准与验证都拒绝运行；只记录项（提交号等）变化时照常运行。
 - [ ] 实现。
 - [ ] Commit — `feat(eval): freeze record and write-once characterization store (T-CX378)`
@@ -484,7 +500,7 @@ git diff --check 61cad20..HEAD
 |---|---|---|---|
 | R0 | 生成 `round_1` 清单与身份；操作员审阅对数并批准其 sha256 | `manifest.json`、`identity.json` | 清单批准 |
 | R1 | 校准运行；健全性检查；校准报告 | `calibration_*` | 校准运行授权 |
-| R2 | 审阅者从拟合输出中选定 (域, K 行, F 切点) 并写理由；不得查看任何验证侧数据 | `freeze_record.json` | 形式与取值冻结批准 |
+| R2 | 两步：先从第一步输出选定 (域, K 行)，再从第二步输出选定 F 行，各写理由；不得查看任何验证侧数据 | `freeze_record_stage1.json`、`freeze_record.json` | 形式与取值冻结批准（两步可分别批准） |
 | R3 | 验证运行与报告 | `validation_*` | 验证运行授权 |
 | R4 | 独立审阅；决定 OQ-021、OQ-022；若通过，起草下限记录（选中 K4 或 F3 时先修订模型与 §23.4 形式） | 审阅包 | 下限审批（§23.7 第 4 步） |
 
@@ -501,15 +517,17 @@ git diff --check 61cad20..HEAD
 | T-CX371 | 表征包只导入下层；产品代码不导入表征包；产品登记处仍为空 |
 | T-CX372 | 整数 PCM 编码与加载器码值一致（32 位与 float32 解码一致）；一步扰动在解码域逐样本不超过一步且方向一致；种子决定字节 |
 | T-CX373 | 清单确定且可哈希；敏感度对只含一项扰动；容忍类只含列出的代号；两侧种子不重叠 |
-| T-CX374 | 按来源组划分；按有效生成参数无泄漏；验证侧子网格齐全且规模受限 |
+| T-CX374 | 按来源组划分；逐声道按有效参数与码值无泄漏，近似复现的敏感度对被剔除并列出；验证侧子网格齐全且规模受限 |
 | T-CX375 | 执行器走完整工具路径；身份与摘要确定；终态与分母完整；声道隔离 |
 | T-CX376 | P0、夹逼、单向最坏等式、单步翻转与事实校验任一失败即中止；P9 区外翻转只计数 |
-| T-CX377 | 区判定与产品逐例一致；拟合只在预列形式中求最小参数；不加余量；不读验证侧；报告不排名 |
-| T-CX378 | 冻结只能选不能改；产物只写一次；无冻结记录不得触碰验证侧；身份比对项与只记录项分开 |
+| T-CX377 | 区判定与产品逐例一致；两步拟合只在固定候选表中求最小参数；不加余量；不读验证侧；报告不排名 |
+| T-CX378 | 两步冻结只能选不能改；产物只写一次；冻结记录不齐全不得触碰验证侧；身份比对项覆盖测量路径与计分代码 |
 | T-CX379 | 验证只计数；两条硬条件与强制披露齐全；中止有记录；无产品判定措辞 |
 | T-CX380 | 端到端六步在微型清单上可重现，逐字节一致 |
 
-## G. 修订 2 对独立审阅发现的处理
+## G. 对独立审阅发现的处理
+
+### G.1 第一轮（修订 1 → 修订 2）
 
 | 发现 | 处理 |
 |---|---|
@@ -532,3 +550,23 @@ git diff --check 61cad20..HEAD
 | Minor：验证中止记录 | C.6、Task 8 |
 | Minor：Task 9 缺 wheel 与架构测试；dry-run | Task 9 |
 | Minor：`include_phase_axis` | A.1 固定启用 |
+
+### G.2 第二轮（修订 2 → 修订 3）
+
+| 发现 | 处理 |
+|---|---|
+| M-1 计分代码只记录；产品树哈希误挡；缺 NumPy 版本 | D 节：比对项改为测量路径闭包 + 本包除报告外全部模块 + Python/NumPy 版本；产品树哈希只记录 |
+| M-2 验证 M9 与验证起始变化对由校准材料组成 | B.2 规则 3：M9 只用留出 f0；B.4：验证起始变化对只用留出 f0，写明变化对的组归属；T-CX374 逐声道检查 |
+| M-3 P5 近似复现验证留出材料 | A.15、B.3 末：生成时按 16 位码值差 ≤ 1 剔除并列出；命中基础材料即中止 |
+| M-4 拟合组合爆炸；“无法全覆盖”条件为空 | A.14、C.4、C.5：两步冻结 + 固定候选表，行数上限；不成立的情形改为 K0 标签或只剩 F0 |
+| M-5 存储与清单体积 | A.13：按族分片，清单不展开逐对描述，测量表去掉可推导字段；`--dry-run` 估算每片体积；ROUND_1 测试只计数 |
+| m-1 32 位截幅溢出、截断退化 | A.6、Task 2：全部方式在 2⁻²⁴ 网格上执行，新增 ±1.0 与 P7c 测试 |
+| m-2 K0 定义不清 | C.4、C.5 第 7 步：K0 为标签，只看容忍范围内空对；记入表征设计 §13 |
+| m-3 K4 参数可能为负；K3 措辞 | C.5：`max(0, ·)`；K3 写明为“或”；注明 K1 被 K2 支配 |
+| m-4 验证子网格歧义 | B.2：电平与深度各算一维；相位子集只用于有相位轴的族；M9 与变化对的 f0 写明 |
+| m-5 C.2 参照侧 | C.2：参照为旧侧（P4、P9 为较粗位深一边），在该对的声道与范围片段上计数 |
+| m-6 “侧”混用、`rejected` 无来源、同文件两角色 | C.1：旧/新与校准/验证分开命名；删去 `rejected`；每次测量独立仓库 |
+| m-7 Task 4 漏写参数 | Task 4：`source_type`、`filename`、`pcm_bit_depth`、`InputIdentity` 全部字段 |
+| m-8 浮点表达式顺序 | C.1：与产品逐字相同 |
+| Info：k = 2 区外翻转理论上恒为 0 | C.3 写明 |
+| Info：F0 同样需修订模型 | A.2 写明 |
