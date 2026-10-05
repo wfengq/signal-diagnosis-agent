@@ -31,15 +31,16 @@ RoundingMode = Literal[
 ]
 
 _EMPTY_BIT_DEPTHS: tuple[Literal[16, 24, 32], ...] = (16, 24, 32)
-_P4_COMBOS: tuple[tuple[Literal[32, 24, 16], Literal[32, 24, 16]], ...] = (
-    (32, 24),
-    (32, 16),
-    (24, 16),
+# (coarser bit depth, finer bit depth); plan B.3 / C.1: the coarser side is old.
+_P4_COMBOS: tuple[tuple[Literal[16, 24], Literal[24, 32]], ...] = (
+    (24, 32),
+    (16, 32),
+    (16, 24),
 )
-_P9_COMBOS: tuple[tuple[Literal[32, 24, 16], Literal[32, 24, 16]], ...] = (
-    (32, 16),
-    (24, 16),
-    (32, 24),
+_P9_COMBOS: tuple[tuple[Literal[16, 24], Literal[24, 32]], ...] = (
+    (16, 32),
+    (16, 24),
+    (24, 32),
 )
 _P7_ONE_STEP: tuple[tuple[str, RoundingMode], ...] = (
     ("P7a", "away_one_step"),
@@ -204,13 +205,15 @@ def _append_empty_pairs(
             new = _side_spec(base, encoding=EncodingSpec(bits=fine))
             _emit_identity(
                 pair_counter,
-                    pair_id=_pair_id(group.group_key, "P4", f"{coarse}-{fine}", str(range_len)),
+                    pair_id=_pair_id(
+                        group.group_key, "P4", f"coarse{coarse}-fine{fine}", str(range_len)
+                    ),
                     side=side,
                     kind="empty",
                     family=group.family,
                     source_group_key=group.group_key,
                     perturbation_code="P4",
-                    perturbation_detail=f"{coarse}->{fine}",
+                    perturbation_detail=f"coarse{coarse}<-fine{fine}",
                     range_length_s=range_len,
                     f0_hz=group.f0_hz,
                     sample_rate_hz=group.sample_rate_hz,
@@ -268,24 +271,33 @@ def _append_empty_pairs(
 
         for code, rounding in _P9_VARIANTS:
             for coarse, fine in _P9_COMBOS:
-                old = _side_spec(base, encoding=EncodingSpec(bits=coarse, rounding="round"))
-                new = _side_spec(
-                    base,
-                    encoding=EncodingSpec(
-                        bits=fine,
-                        rounding=rounding,
-                        step_bits=coarse,
-                    ),
-                )
+                if code == "P9c":
+                    # Coarser-depth truncation (old) vs finer-depth rounding (new).
+                    old = _side_spec(base, encoding=EncodingSpec(bits=coarse, rounding="trunc"))
+                    new = _side_spec(base, encoding=EncodingSpec(bits=fine, rounding="round"))
+                else:
+                    # Coarser-depth rounding (old) vs finer-depth rounding shifted by one
+                    # coarser-depth step on the finer-depth file (new).
+                    old = _side_spec(base, encoding=EncodingSpec(bits=coarse, rounding="round"))
+                    new = _side_spec(
+                        base,
+                        encoding=EncodingSpec(
+                            bits=fine,
+                            rounding=rounding,
+                            step_bits=coarse,
+                        ),
+                    )
                 _emit_identity(
                 pair_counter,
-                pair_id=_pair_id(group.group_key, code, f"{coarse}-{fine}", str(range_len)),
+                pair_id=_pair_id(
+                    group.group_key, code, f"coarse{coarse}-fine{fine}", str(range_len)
+                ),
                 side=side,
                 kind="empty",
                 family=group.family,
                 source_group_key=group.group_key,
                 perturbation_code=code,
-                perturbation_detail=f"{coarse}->{fine}",
+                perturbation_detail=f"coarse{coarse}<-fine{fine}",
                 range_length_s=range_len,
                 f0_hz=group.f0_hz,
                 sample_rate_hz=group.sample_rate_hz,
