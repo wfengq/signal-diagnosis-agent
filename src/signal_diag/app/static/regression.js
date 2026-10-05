@@ -108,8 +108,25 @@ function readSelection() {
   };
 }
 
+function readFullScaleDeclarations(forRepeat) {
+  const periodic = document.getElementById("fs-periodic").value;
+  if (!forRepeat) {
+    return {
+      periodic_test_signal: periodic,
+      baseline_independent_render: "unknown",
+      candidate_independent_render: "unknown",
+    };
+  }
+  return {
+    periodic_test_signal: periodic,
+    baseline_independent_render: document.getElementById("fs-baseline-independent").value,
+    candidate_independent_render: document.getElementById("fs-candidate-independent").value,
+  };
+}
+
 function buildMetadata(requestId, link) {
   const conditions = readConditions();
+  const forRepeat = Boolean(link && link.kind === "repeat");
   const metadata = {
     request_id: requestId,
     baseline_version: conditions.baseline_version,
@@ -117,6 +134,7 @@ function buildMetadata(requestId, link) {
     conditions,
     selection: readSelection(),
     link: link || null,
+    full_scale_declarations: readFullScaleDeclarations(forRepeat),
   };
   return metadata;
 }
@@ -204,6 +222,28 @@ function renderResults(snapshot) {
     appendText(root, "p", "No comparisons yet.", "muted");
     return;
   }
+  if (snapshot.full_scale_checks && snapshot.full_scale_checks.length) {
+    const fsBlock = document.createElement("section");
+    appendText(fsBlock, "h3", "Full-scale check");
+    const currentByAnchor = new Map();
+    snapshot.full_scale_checks.forEach((check, checkIndex) => {
+      currentByAnchor.set(check.anchor_comparison_id, checkIndex);
+    });
+    snapshot.full_scale_checks.forEach((check, checkIndex) => {
+      const isCurrent =
+        currentByAnchor.get(check.anchor_comparison_id) === checkIndex;
+      const title = isCurrent
+        ? `Anchor ${check.anchor_comparison_id} (current)`
+        : `Anchor ${check.anchor_comparison_id} (superseded)`;
+      appendText(fsBlock, "h4", title);
+      const list = document.createElement("ul");
+      (check.lines || []).forEach((line) => {
+        appendText(list, "li", line);
+      });
+      fsBlock.appendChild(list);
+    });
+    root.appendChild(fsBlock);
+  }
   snapshot.comparisons.forEach((item, index) => {
     const block = document.createElement("article");
     appendText(block, "h3", `Comparison ${index + 1}: ${item.comparison_id}`);
@@ -249,6 +289,9 @@ function renderResults(snapshot) {
     });
     table.appendChild(body);
     block.appendChild(table);
+    if (snapshot.clipping_ratio_notice) {
+      appendText(block, "p", snapshot.clipping_ratio_notice, "muted");
+    }
     if (record.coverage && record.coverage.length) {
       appendText(block, "h4", "Coverage");
       const list = document.createElement("ul");

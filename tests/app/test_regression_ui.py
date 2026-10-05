@@ -73,3 +73,26 @@ def test_regression_html_has_no_pass_badge() -> None:
     html = _static_text("regression.html")
     assert "pass-badge" not in html
     assert not re.search(r"class=\"[^\"]*pass[^\"]*\"", html, flags=re.IGNORECASE)
+
+
+def test_ui_has_declaration_inputs_and_no_wording_literals() -> None:
+    html = _static_text("regression.html")
+    js = _static_text("regression.js")
+    for element_id in ("fs-periodic", "fs-baseline-independent", "fs-candidate-independent"):
+        assert f'id="{element_id}"' in html
+    assert html.count('value="unknown" selected') >= 3
+    assert "full_scale_checks" in js and "full_scale_declarations" in js and "lines" in js
+    assert "full-scale threshold" not in js.casefold()
+    assert "overall pass" not in js.casefold()
+
+
+def test_ui_renders_ratio_notice_from_payload() -> None:
+    js = _static_text("regression.js")
+    assert "clipping_ratio_notice" in js and "flat-top" not in js.casefold()
+
+
+def test_ui_marks_current_check_per_anchor() -> None:
+    js = _static_text("regression.js")
+    assert "anchor_comparison_id" in js
+    assert "full_scale_checks.length - 1" not in js
+    assert "checkIndex === snapshot.full_scale_checks.length - 1" not in js

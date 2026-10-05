@@ -1299,13 +1299,16 @@ _V03_ADDITIVE_EXACT_PATHS = frozenset(
         "src/signal_diag/evaluation/recording.py",
         "src/signal_diag/evaluation/external/reference_harmonics.py",
         "src/signal_diag/dsp/clipping.py",
+        "src/signal_diag/dsp/full_scale.py",
         "src/signal_diag/tools/contracts.py",
         "src/signal_diag/tools/service.py",
         "src/signal_diag/tools/__init__.py",
         "src/signal_diag/tools/contextual.py",
         "src/signal_diag/tools/registry.py",
         "src/signal_diag/tools/regression_measurement.py",
+        "src/signal_diag/tools/regression_full_scale.py",
         "src/signal_diag/rules/regression.py",
+        "src/signal_diag/rules/full_scale_check.py",
         "src/signal_diag/agent/retest_planner.py",
         "src/signal_diag/evaluation/regression.py",
         "src/signal_diag/agent/diagnosis.py",
@@ -1711,3 +1714,51 @@ def test_t_cx301_dev1_reproducer_and_evidence_root_untouched() -> None:
         "RESOURCE_BOUNDS.md",
         "PRESEAL_BUDGET_STATUS.md",
     }
+
+
+def test_t_cx369_full_scale_layering() -> None:
+    full_scale_source = (SRC_ROOT / "dsp" / "full_scale.py").read_text(encoding="utf-8")
+    assert (
+        find_forbidden_imports(
+            "dsp",
+            full_scale_source,
+            filename="src/signal_diag/dsp/full_scale.py",
+        )
+        == []
+    )
+    tools = _modules_imported_from(SRC_ROOT / "tools" / "regression_full_scale.py")
+    assert not [
+        m
+        for m in tools
+        if m.startswith(("signal_diag.rules", "signal_diag.app", "signal_diag.agent"))
+    ]
+    rules = _modules_imported_from(SRC_ROOT / "rules" / "full_scale_check.py")
+    assert not [
+        m for m in rules if m.startswith(("signal_diag.app", "signal_diag.agent", "signal_diag.dsp"))
+    ]
+
+
+def test_t_cx351_frozen_surfaces_untouched_by_full_scale() -> None:
+    changed = set(_git_name_only("16450ffe904c48294148418ddadfe87c04af6e74..HEAD").stdout.splitlines())
+    assert not changed & {
+        "src/signal_diag/dsp/clipping.py",
+        "src/signal_diag/tools/contracts.py",
+        "src/signal_diag/tools/service.py",
+        "src/signal_diag/tools/regression_measurement.py",
+        "src/signal_diag/rules/regression.py",
+        "src/signal_diag/agent/diagnosis.py",
+    }
+
+
+def test_t_cx363_no_floor_values_under_src() -> None:
+    from signal_diag.rules.full_scale_check import PRODUCT_APPROVED_FULL_SCALE_FLOORS
+
+    assert PRODUCT_APPROVED_FULL_SCALE_FLOORS == ()
+    hits: list[str] = []
+    for path in SRC_ROOT.rglob("*.py"):
+        for node in ast.walk(ast.parse(path.read_text("utf-8"))):
+            if isinstance(node, ast.Call) and getattr(
+                node.func, "id", getattr(node.func, "attr", "")
+            ) == "FullScaleMethodFloor":
+                hits.append(str(path))
+    assert hits == []

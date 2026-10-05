@@ -432,7 +432,56 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
         contextual_implementation_sha256()
     )
     assert d042_phase_c_task8_revise1["product_tree_sha256"] == (
-        contextual_product_tree_sha256()
+        "e45c301db1944c425eaae0ab0671ea1bfa100b4b3d6f4ca51c5073e2af1dbcf3"
     )
     assert d042_phase_c_task8_revise1["prompt_sha256"] == oq014["prompt_sha256"]
     assert d042_phase_c_task8_revise1["model_calls"] == 0
+    d043 = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d043_regression_full_scale_check_impl"
+    )
+    assert d043["amendment_kind"] == "append_only_code_identity"
+    assert d043["prior_bridge_current_implementation_sha256"] == (
+        d042_phase_c_task8_revise1["current_implementation_sha256"]
+    )
+    assert d043["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d043["product_tree_sha256"] == (
+        "380a9585e301db9bf3e09c2969b3cfc7c668601c2f999f23e3c07b3a014fce7e"
+    )
+    assert d043["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d043["model_calls"] == 0
+    d043_task9a = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d043_regression_full_scale_check_task9a"
+    )
+    assert d043_task9a["amendment_kind"] == "append_only_code_identity"
+    assert d043_task9a["prior_bridge_current_implementation_sha256"] == (
+        d043["current_implementation_sha256"]
+    )
+    assert d043_task9a["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d043_task9a["product_tree_sha256"] == (
+        "48779c0fbbdd0b621f2944386d05c67a4433990f8382e76368b68d1265f94dad"
+    )
+    assert d043_task9a["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d043_task9a["model_calls"] == 0
+    d043_task9 = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d043_regression_full_scale_check_task9"
+    )
+    assert d043_task9["amendment_kind"] == "append_only_code_identity"
+    assert d043_task9["prior_bridge_current_implementation_sha256"] == (
+        d043_task9a["current_implementation_sha256"]
+    )
+    assert d043_task9["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d043_task9["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert d043_task9["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d043_task9["model_calls"] == 0

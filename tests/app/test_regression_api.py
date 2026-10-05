@@ -333,3 +333,112 @@ async def test_regression_page_and_js_packaged() -> None:
         script = _static_asset_response("regression.js")
         assert script.status_code == 200
     await service.aclose()
+
+
+async def _post_comparison(
+    client: AsyncClient,
+    case_id: str,
+    *,
+    metadata: bytes | None = None,
+    request_id: str | None = None,
+) -> dict[str, Any]:
+    wav = _mono_wav_bytes()
+    meta = metadata or _metadata_bytes()
+    if request_id is not None:
+        payload = json.loads(meta.decode("utf-8"))
+        payload["request_id"] = request_id
+        meta = json.dumps(payload).encode("utf-8")
+    body, content_type = _comparison_form(wav, wav, metadata=meta)
+    response = await client.post(
+        f"/api/v1/regression/cases/{case_id}/comparisons",
+        content=body,
+        headers={"Content-Type": content_type},
+    )
+    assert response.status_code == 200
+    return response.json()
+
+
+async def _post_comparison_raw(
+    client: AsyncClient,
+    case_id: str,
+    metadata: bytes,
+) -> Any:
+    wav = _mono_wav_bytes()
+    body, content_type = _comparison_form(wav, wav, metadata=metadata)
+    return await client.post(
+        f"/api/v1/regression/cases/{case_id}/comparisons",
+        content=body,
+        headers={"Content-Type": content_type},
+    )
+
+
+@pytest.mark.asyncio
+async def test_t_cx370_api_accepts_declarations_and_defaults_unknown(
+    regression_client: AsyncClient,
+) -> None:
+    created = await regression_client.post(
+        "/api/v1/regression/cases",
+        json={"goal": "declarations"},
+    )
+    case_id = created.json()["case_id"]
+    body = await _post_comparison(regression_client, case_id)
+    assert body["comparisons"][0]["full_scale_declarations"]["periodic_test_signal"] == "unknown"
+    body = await _post_comparison(
+        regression_client,
+        case_id,
+        metadata=_metadata_bytes(
+            full_scale_declarations={"periodic_test_signal": "yes"}
+        ),
+        request_id="req-compare-2",
+    )
+    assert body["comparisons"][-1]["full_scale_declarations"]["periodic_test_signal"] == "yes"
+    assert body["full_scale_checks"][-1]["lines"][0].startswith(
+        ("Descriptive only.", "Not comparable.")
+    )
+
+
+@pytest.mark.asyncio
+async def test_t_cx370_api_rejects_unknown_declaration_fields(
+    regression_client: AsyncClient,
+) -> None:
+    created = await regression_client.post(
+        "/api/v1/regression/cases",
+        json={"goal": "declarations"},
+    )
+    case_id = created.json()["case_id"]
+    response = await _post_comparison_raw(
+        regression_client,
+        case_id,
+        _metadata_bytes(full_scale_declarations={"approved": True}),
+    )
+    assert response.status_code == 422 and response.json()["error"]["code"] == "invalid_request"
+
+
+@pytest.mark.asyncio
+async def test_api_snapshot_carries_ratio_notice(
+    regression_client: AsyncClient,
+) -> None:
+    from signal_diag.app.full_scale_wording import CLIPPING_RATIO_NOTICE
+
+    created = await regression_client.post(
+        "/api/v1/regression/cases",
+        json={"goal": "ratio-notice"},
+    )
+    case_id = created.json()["case_id"]
+    body = await _post_comparison(regression_client, case_id)
+    assert body["clipping_ratio_notice"] == CLIPPING_RATIO_NOTICE
+
+
+@pytest.mark.asyncio
+async def test_report_json_has_no_lines(regression_client: AsyncClient) -> None:
+    created = await regression_client.post(
+        "/api/v1/regression/cases",
+        json={"goal": "report"},
+    )
+    case_id = created.json()["case_id"]
+    await _post_comparison(regression_client, case_id)
+    report = await regression_client.get(f"/api/v1/regression/cases/{case_id}/report.json")
+    payload = report.json()
+    assert payload["full_scale_checks"]
+    for check in payload["full_scale_checks"]:
+        assert "lines" not in check
