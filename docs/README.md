@@ -79,8 +79,13 @@ A disagreement is a contract concern; do not resolve it silently.
 ## Engineering evolution
 
 Formal designs and plans remain under `superpowers/specs/` and
-`superpowers/plans/`. They preserve the complete reasoning trail without making
-the root README read like a task ledger.
+`superpowers/plans/`. Product-round sequencing (not an implementation grant)
+lives under `superpowers/roadmaps/`. They preserve the complete reasoning trail
+without making the root README read like a task ledger.
+
+- [S1 product evolution roadmap (2026-10-04)](superpowers/roadmaps/2026-10-04-s1-product-evolution.md)
+  — R1–R4 direction draft for operator review; does not authorize implement,
+  merge, seal, or RealLLM.
 
 - Phase 1: deterministic signal foundation, T001–T063.
 - Phase 2: minimal Agent runtime and real/scripted planner boundary, T064–T092.
