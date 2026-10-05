@@ -58,6 +58,7 @@ def test_t_cx358_359_uncounted_identical_and_inconsistent_lines() -> None:
         in lines
     )
     assert "Repeat r1 (baseline) is byte-identical to the original file." in lines
+    assert not any(line.startswith("Based on ") for line in lines)
     one_side = _record(baseline=(0, 0.5), candidate=(2000, 0.995), drop_repeats="candidate")
     assert (
         "Repeat r1 (candidate) is not counted: not_declared_independent."

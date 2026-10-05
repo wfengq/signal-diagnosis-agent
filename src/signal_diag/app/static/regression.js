@@ -284,6 +284,9 @@ function renderResults(snapshot) {
     });
     table.appendChild(body);
     block.appendChild(table);
+    if (snapshot.clipping_ratio_notice) {
+      appendText(block, "p", snapshot.clipping_ratio_notice, "muted");
+    }
     if (record.coverage && record.coverage.length) {
       appendText(block, "h4", "Coverage");
       const list = document.createElement("ul");

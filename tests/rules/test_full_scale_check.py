@@ -241,6 +241,26 @@ def test_t_cx357_isolated_over_threshold_no_side_is_inside_zone() -> None:
     assert "critical_zone:baseline" in _status(anchor, repeats)[2]
 
 
+def test_critical_zone_covers_counted_repeats() -> None:
+    # Anchor baseline is normal; its counted repeat has counted=0 but 40
+    # isolated over-threshold samples (critical zone on that render).
+    anchor, _repeats = eligible(baseline=(0, 0.5), candidate=(2000, 0.995))
+    noisy = make_submission(
+        comparison_id="r1",
+        parent="a",
+        kind="repeat",
+        declarations=FullScaleDeclarations(
+            baseline_independent_render="yes",
+            candidate_independent_render="yes",
+        ),
+        baseline=(0, 0.5),
+        baseline_isolated=40,
+        candidate=(2000, 0.995),
+    )
+    status, _, unmet, _ = _status(anchor, (noisy,))
+    assert status == "descriptive_only" and "critical_zone:baseline" in unmet
+
+
 def test_t_cx363_no_floor_means_no_judged_status() -> None:
     anchor, repeats = eligible(baseline=(0, 0.5), candidate=(20000, 1.0))
     status, _, unmet, unevaluated = _status(anchor, repeats, floor=None)

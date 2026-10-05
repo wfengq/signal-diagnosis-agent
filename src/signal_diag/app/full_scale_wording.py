@@ -88,7 +88,14 @@ def full_scale_check_lines(record: FullScaleCheckRecord) -> tuple[str, ...]:
             )
         )
 
-    if baseline is not None and candidate is not None:
+    inconsistent = any(
+        code.startswith("renders_inconsistent:") for code in record.unmet_conditions
+    )
+    if (
+        baseline is not None
+        and candidate is not None
+        and not inconsistent
+    ):
         lines.append(
             FULL_SCALE_TEMPLATES["notice.renders"].format(
                 baseline_n=len(record.baseline_renders),

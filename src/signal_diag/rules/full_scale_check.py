@@ -337,25 +337,30 @@ def evaluate_full_scale_check(
         else:
             assert anchor_cand is not None
             threshold = anchor_cand.full_scale_threshold
+        zone_floor = floor if floor_ok else None
         if (
-            anchor_base is not None
-            and not _facts_missing_side(unmet, "baseline")
-            and _in_critical_zone(
-                anchor_base,
-                threshold=threshold,
-                step=step,
-                floor=floor if floor_ok else None,
+            not _facts_missing_side(unmet, "baseline")
+            and any(
+                _in_critical_zone(
+                    facts,
+                    threshold=threshold,
+                    step=step,
+                    floor=zone_floor,
+                )
+                for facts in baseline_renders
             )
         ):
             unmet.append("critical_zone:baseline")
         if (
-            anchor_cand is not None
-            and not _facts_missing_side(unmet, "candidate")
-            and _in_critical_zone(
-                anchor_cand,
-                threshold=threshold,
-                step=step,
-                floor=floor if floor_ok else None,
+            not _facts_missing_side(unmet, "candidate")
+            and any(
+                _in_critical_zone(
+                    facts,
+                    threshold=threshold,
+                    step=step,
+                    floor=zone_floor,
+                )
+                for facts in candidate_renders
             )
         ):
             unmet.append("critical_zone:candidate")

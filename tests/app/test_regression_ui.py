@@ -84,3 +84,8 @@ def test_ui_has_declaration_inputs_and_no_wording_literals() -> None:
     assert "full_scale_checks" in js and "full_scale_declarations" in js and "lines" in js
     assert "full-scale threshold" not in js.casefold()
     assert "overall pass" not in js.casefold()
+
+
+def test_ui_renders_ratio_notice_from_payload() -> None:
+    js = _static_text("regression.js")
+    assert "clipping_ratio_notice" in js and "flat-top" not in js.casefold()

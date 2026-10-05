@@ -11,7 +11,10 @@ from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from signal_diag.app.errors import ApplicationError, InvalidRequestError
-from signal_diag.app.full_scale_wording import full_scale_check_lines
+from signal_diag.app.full_scale_wording import (
+    CLIPPING_RATIO_NOTICE,
+    full_scale_check_lines,
+)
 from signal_diag.app.models import AppErrorDetail, AppErrorEnvelope
 from signal_diag.app.multipart import (
     ParsedRegressionComparisonUpload,
@@ -74,6 +77,7 @@ class RegressionComparisonMetadata(BaseModel):
 
 def _snapshot_payload(snapshot: RegressionCaseSnapshot) -> dict[str, Any]:
     payload = snapshot.model_dump(mode="json")
+    payload["clipping_ratio_notice"] = CLIPPING_RATIO_NOTICE
     payload["full_scale_checks"] = [
         {
             **check.model_dump(mode="json"),

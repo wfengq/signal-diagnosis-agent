@@ -415,6 +415,21 @@ async def test_t_cx370_api_rejects_unknown_declaration_fields(
 
 
 @pytest.mark.asyncio
+async def test_api_snapshot_carries_ratio_notice(
+    regression_client: AsyncClient,
+) -> None:
+    from signal_diag.app.full_scale_wording import CLIPPING_RATIO_NOTICE
+
+    created = await regression_client.post(
+        "/api/v1/regression/cases",
+        json={"goal": "ratio-notice"},
+    )
+    case_id = created.json()["case_id"]
+    body = await _post_comparison(regression_client, case_id)
+    assert body["clipping_ratio_notice"] == CLIPPING_RATIO_NOTICE
+
+
+@pytest.mark.asyncio
 async def test_report_json_has_no_lines(regression_client: AsyncClient) -> None:
     created = await regression_client.post(
         "/api/v1/regression/cases",
