@@ -1,0 +1,59 @@
+{
+  "comparison": {
+    "analyze_clipping_defaults": {
+      "flat_top_tolerance": 0.0001,
+      "full_scale_threshold": 0.99,
+      "min_consecutive_samples": 2,
+      "min_flat_top_samples": 3
+    },
+    "full_scale_facts_version": "v0.3-full-scale-facts-1",
+    "full_scale_threshold": 0.99,
+    "measurement_closure_sha256": {
+      "dsp/clipping.py": "ecb0f3baba6406680c2be669e2d02a54396073c212a47572884262caf7c3d296",
+      "dsp/full_scale.py": "3c324713af5b1fde7e14c72e68dcf51ca7f8536c4d3020079582f612c188524f",
+      "dsp/preprocess.py": "172bb982407e5eccd6976eac6b20910e06fe89cd70f4ed914adbbcd0abda698c",
+      "signal/factory.py": "d78ccbb637b5b3cd13da5aad287b53c6b79846efd325cdebf0653da90267aa88",
+      "signal/models.py": "af699b37d47d2ced1c953890f4c29b17c651170450ecba83200f4c5ce7a0d1e7",
+      "signal/segment.py": "a74931a3340c948ff50afe961565d361651d3044aaf336b59a52a516085b2607",
+      "signal/wav.py": "fe156cb4b20319ba8a693cfbeb376268734e1d0025085796434d6a591dcc79c7",
+      "tools/contracts.py": "ecdeff508c404d126e2b7de0c66f20a40dddf0285d873f15c40d700133edddcb",
+      "tools/regression_full_scale.py": "c9141dd6571d2f946b06572711a8ab0e95f4a328a1626f53f41be8bfa289c5c0",
+      "tools/regression_measurement.py": "93789c78851460a00ebefcba3b5a4e1a1a61abff5da5293d40727c5326bd7066",
+      "tools/results.py": "ff0a57492ef2b7f126aab7cc4375559fd9ebe15e7a48423dc887ed259ff6fe09",
+      "tools/service.py": "5c6ee03f70fa3f86962e5e617cb094c45c7c062a3c829cddaf15cf68e47d16db"
+    },
+    "measurement_version": "v0.3-regression-measurement-1",
+    "min_consecutive_samples": 2,
+    "numpy_version": "2.4.6",
+    "package_files": [
+      "__init__.py",
+      "checks.py",
+      "constants.py",
+      "executor.py",
+      "fitting.py",
+      "freeze.py",
+      "gate.py",
+      "groups.py",
+      "identity.py",
+      "leakage.py",
+      "manifest.py",
+      "materials.py",
+      "models.py",
+      "pairs.py",
+      "pcm.py",
+      "runs.py",
+      "store.py",
+      "synthesis.py",
+      "validation.py",
+      "zone.py"
+    ],
+    "package_sha256": "b0ea55529f8a1da74abfd9efbaee6df43bf37ff2300af918bc52c6541493e679",
+    "python_version": "3.11.15"
+  },
+  "record_only": {
+    "contextual_product_tree_sha256": "1bbf7378ebd58e72b70a90f75dfd845aef88138cf7eb346708ac42f11aa2226a",
+    "git_commit": "a53739ff496c35c8412e5fbb8dc82fad0e8a8571",
+    "main_sha256": "af668ef59c63eb2c88ac60f16872e49312cdff0d4a563cbab9f26719552b696b",
+    "reporting_sha256": "6501238b536c307a7cd17cc62f0b4218c9f6493f3aaead2891d8e59581d9bfe7"
+  }
+}
