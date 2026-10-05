@@ -16,6 +16,15 @@ from signal_diag.signal import (
     load_wav_bytes,
 )
 from signal_diag.tools.contracts import ClippingInput, HarmonicDistortionInput
+from signal_diag.rules.regression import ComparisonConditions, compare_measurements
+from signal_diag.rules.full_scale_check import (
+    TOLERATED_DIFFERENCE_ID,
+    FullScaleDeclarations,
+    FullScaleMethodFloor,
+    FullScaleSubmission,
+    full_scale_floor_digest,
+)
+from signal_diag.tools.regression_full_scale import measure_full_scale_facts
 from signal_diag.tools.regression_measurement import (
     InputIdentity,
     MeasurementBundle,
@@ -187,6 +196,195 @@ def measured(
     return bundle, repository, loaded.source_info.bits_per_sample
 
 
+def shaped(
+    counted: int,
+    peak: float,
+    *,
+    isolated: int = 0,
+    duration_s: float = 2.0,
+    sample_rate_hz: int = 48_000,
+) -> np.ndarray:
+    samples = sine(amplitude=0.25, duration_s=duration_s, sample_rate_hz=sample_rate_hz)
+    if counted == 0 and isolated == 0:
+        return sine(amplitude=peak, duration_s=duration_s, sample_rate_hz=sample_rate_hz)
+    if counted > 0:
+        end = min(1000 + counted, len(samples))
+        samples[1000:end] = q16(peak)
+    if isolated > 0:
+        isolated_peak = peak if peak >= 0.99 else 1.0
+        index = 2000
+        placed = 0
+        while placed < isolated and index < len(samples):
+            samples[index] = q16(isolated_peak)
+            placed += 1
+            index += 97
+    return samples
+
+
+def _conditions(**overrides: object) -> ComparisonConditions:
+    base: dict[str, object] = {
+        "baseline_version": "v1",
+        "candidate_version": "v2",
+        "stimulus_key": "fixture",
+        "parameters_key": "default",
+        "same_input": "yes",
+        "parameters_unchanged": "yes",
+        "aligned_ranges": "yes",
+        "repeatability": "declared_deterministic",
+        "nominal_fundamental_hz": 100.0,
+    }
+    base.update(overrides)
+    return ComparisonConditions(**base)
+
+
+def make_submission(
+    *,
+    comparison_id: str,
+    parent: str | None = None,
+    kind: str | None = None,
+    baseline: tuple[int, float] = (0, 0.5),
+    candidate: tuple[int, float] = (0, 0.5),
+    baseline_isolated: int = 0,
+    candidate_isolated: int = 0,
+    bits: tuple[int, int] = (16, 16),
+    declarations: FullScaleDeclarations | None = None,
+    time_range: TimeRange | None = None,
+    baseline_samples: np.ndarray | None = None,
+    candidate_samples: np.ndarray | None = None,
+    drop_facts: str | None = None,
+    full_scale_threshold: float = 0.99,
+    candidate_version: str | None = None,
+    **condition_overrides: object,
+) -> FullScaleSubmission:
+    b_samples = baseline_samples
+    if b_samples is None:
+        b_samples = shaped(*baseline, isolated=baseline_isolated)
+    c_samples = candidate_samples
+    if c_samples is None:
+        c_samples = shaped(*candidate, isolated=candidate_isolated)
+
+    b_bundle, b_repo, _ = measured(
+        b_samples,
+        side="baseline",
+        bits=16 if bits[0] != 8 else 16,
+        time_range=time_range,
+        full_scale_threshold=full_scale_threshold,
+    )
+    c_bundle, c_repo, _ = measured(
+        c_samples,
+        side="candidate",
+        bits=16 if bits[1] != 8 else 16,
+        time_range=time_range,
+        full_scale_threshold=full_scale_threshold,
+    )
+    b_bits = bits[0]
+    c_bits = bits[1]
+    b_facts = measure_full_scale_facts(
+        repository=b_repo, bundle=b_bundle, pcm_bit_depth=b_bits
+    )
+    c_facts = measure_full_scale_facts(
+        repository=c_repo, bundle=c_bundle, pcm_bit_depth=c_bits
+    )
+    if drop_facts == "baseline":
+        b_facts = None
+    if drop_facts == "candidate":
+        c_facts = None
+
+    if candidate_version is not None:
+        condition_overrides = {**condition_overrides, "candidate_version": candidate_version}
+
+    record = compare_measurements(
+        b_bundle,
+        c_bundle,
+        conditions=_conditions(**condition_overrides),
+        comparison_id=comparison_id,
+    )
+    return FullScaleSubmission(
+        comparison_id=comparison_id,
+        parent_comparison_id=parent,
+        link_kind=kind,
+        record=record,
+        declarations=declarations or FullScaleDeclarations(),
+        baseline_facts=b_facts,
+        candidate_facts=c_facts,
+    )
+
+
+def eligible(
+    *,
+    baseline: tuple[int, float] = (0, 0.5),
+    candidate: tuple[int, float] = (0, 0.5),
+    periodic: str = "yes",
+    drop_repeats: str | None = None,
+    repeat_baseline: tuple[int, float] | None = None,
+    repeat_candidate: tuple[int, float] | None = None,
+    baseline_isolated: int = 0,
+    baseline_samples: np.ndarray | None = None,
+    candidate_samples: np.ndarray | None = None,
+    **kw: object,
+) -> tuple[FullScaleSubmission, tuple[FullScaleSubmission, ...]]:
+    decl = FullScaleDeclarations(periodic_test_signal=periodic)
+    anchor = make_submission(
+        comparison_id="a",
+        baseline=baseline,
+        candidate=candidate,
+        declarations=decl,
+        baseline_isolated=baseline_isolated,
+        baseline_samples=baseline_samples,
+        candidate_samples=candidate_samples,
+        **kw,
+    )
+    indep = FullScaleDeclarations(
+        periodic_test_signal=periodic,
+        baseline_independent_render="yes",
+        candidate_independent_render="yes",
+    )
+    if drop_repeats == "candidate":
+        indep = FullScaleDeclarations(
+            periodic_test_signal=periodic,
+            baseline_independent_render="yes",
+            candidate_independent_render="unknown",
+        )
+    repeat = make_submission(
+        comparison_id="r1",
+        parent="a",
+        kind="repeat",
+        baseline=repeat_baseline or baseline,
+        candidate=repeat_candidate or candidate,
+        declarations=indep,
+        baseline_isolated=baseline_isolated,
+        baseline_samples=baseline_samples,
+        candidate_samples=candidate_samples,
+        **kw,
+    )
+    return anchor, (repeat,)
+
+
+def index(*subs: FullScaleSubmission) -> dict[str, FullScaleSubmission]:
+    return {s.comparison_id: s for s in subs}
+
+
+_fixture_floor_body = FullScaleMethodFloor(
+    floor_id="fixture_floor",
+    version="test-1",
+    facts_version="v0.3-full-scale-facts-1",
+    full_scale_threshold=0.99,
+    min_consecutive_samples=2,
+    min_samples_per_period=20.0,
+    min_periods_in_range=10.0,
+    zone_below_threshold=0.001,
+    zone_above_threshold=0.001,
+    zone_min_counted_samples=None,
+    count_floor_samples=10,
+    count_floor_ratio=None,
+    tolerated_difference=TOLERATED_DIFFERENCE_ID,
+    digest="0" * 64,
+)
+FIXTURE_FLOOR = _fixture_floor_body.model_copy(
+    update={"digest": full_scale_floor_digest(_fixture_floor_body)}
+)
+
+
 def redigest(model):  # noqa: ANN001, ANN201
     """Recompute digest field after model_copy updates (full-scale facts/floor helpers)."""
     from pydantic import BaseModel
@@ -198,4 +396,10 @@ def redigest(model):  # noqa: ANN001, ANN201
         from signal_diag.tools.regression_full_scale import full_scale_facts_digest
 
         return model.model_copy(update={"digest": full_scale_facts_digest(model)})
+    if name == "FullScaleMethodFloor":
+        return model.model_copy(update={"digest": full_scale_floor_digest(model)})
+    if name == "FullScaleCheckRecord":
+        from signal_diag.rules.full_scale_check import _check_record_digest
+
+        return model.model_copy(update={"digest": _check_record_digest(model)})
     raise TypeError(f"redigest not implemented for {name}")

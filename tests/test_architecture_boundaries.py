@@ -1308,6 +1308,7 @@ _V03_ADDITIVE_EXACT_PATHS = frozenset(
         "src/signal_diag/tools/regression_measurement.py",
         "src/signal_diag/tools/regression_full_scale.py",
         "src/signal_diag/rules/regression.py",
+        "src/signal_diag/rules/full_scale_check.py",
         "src/signal_diag/agent/retest_planner.py",
         "src/signal_diag/evaluation/regression.py",
         "src/signal_diag/agent/diagnosis.py",
