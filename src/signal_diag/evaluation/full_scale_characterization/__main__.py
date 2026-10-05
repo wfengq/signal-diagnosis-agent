@@ -83,8 +83,12 @@ def _run(args: argparse.Namespace) -> int:
     if args.command == "manifest":
         constants = runs.load_constants(args.constants_json)
         if args.dry_run:
-            for line in runs.dry_run_lines(constants):
+            lines = runs.dry_run_lines(constants)
+            for line in lines:
                 print(line)
+            if "param_leakage_hits=0" not in lines:
+                print("BLOCKED: parameter leakage hits", file=sys.stderr)
+                return 3
             stage1, stage2 = runs.fit_row_counts(constants)
             if stage1 > runs.STAGE1_MAX_ROWS or stage2 > runs.STAGE2_MAX_ROWS:
                 print("BLOCKED: fitting row limit exceeded", file=sys.stderr)

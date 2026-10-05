@@ -266,3 +266,21 @@ def test_t_cx376_p9_flip_outside_k1_zone_is_counted_not_aborted() -> None:
 
     direct = p9_out_of_zone_flip_counts([(pair, measured)], full_scale_threshold=THR)
     assert direct == counts
+
+
+# Crest pair at A*cos(pi/480) between thr - 4*2^-15 and thr - 2*2^-15 after 16-bit rounding.
+_BETWEEN_2_AND_4_STEPS_PEAK = 0.9899296
+
+
+def test_t_cx376_p9_deviation_beyond_two_steps_aborts() -> None:
+    """A P9 count only reachable with |y - x| in (2d, 4d] must abort (guards d' = 2d, not 4d)."""
+    pair = _with_peak(_pair("P9a", "coarse16<-fine32"), _BETWEEN_2_AND_4_STEPS_PEAK)
+    measured = _measure(pair)[0]
+    assert measured.old_row.counted_samples == 0
+    assert measured.old_row.peak_abs is not None
+    step = 2.0**-15
+    assert THR - 4 * step < measured.old_row.peak_abs < THR - 2 * step
+    tampered = _tamper_new(measured, counted_samples=40)
+    with pytest.raises(SanityAbort) as excinfo:
+        _check(pair, tampered)
+    _assert_abort(excinfo, pair, CHECK_SANDWICH)

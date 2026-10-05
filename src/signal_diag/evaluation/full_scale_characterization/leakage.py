@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
 from signal_diag.evaluation.full_scale_characterization.constants import (
     CharacterizationConstants,
+    M9ChannelLayout,
 )
 from signal_diag.evaluation.full_scale_characterization.materials import (
+    _layout_channel_params,
     channel_effectives_from_group,
     codes_for_analysis_range,
     normalize_phase,
@@ -18,6 +20,7 @@ from signal_diag.evaluation.full_scale_characterization.materials import (
     synthesize_mono,
 )
 from signal_diag.evaluation.full_scale_characterization.models import (
+    EffectiveMaterialParams,
     EncodingSpec,
     ExcludedNearDuplicate,
     ManifestLeakageAbort,
@@ -26,17 +29,10 @@ from signal_diag.evaluation.full_scale_characterization.models import (
     SourceGroupRecord,
 )
 from signal_diag.evaluation.full_scale_characterization.pairs import (
-    _identity_dict_to_pair_record,
-    _pair_id,
-    is_sensitivity_pair,
-    is_tolerance_pair,
+    TOLERANCE_CODES,
+    _pairs_for_group,
+    _r0_description_batches,
 )
-
-
-def _as_pair_record(pair: PairRecord | dict) -> PairRecord:
-    if isinstance(pair, dict):
-        return _identity_dict_to_pair_record(pair)
-    return pair
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -208,28 +204,6 @@ def _validation_wave_index(
     return index
 
 
-def _min_delta_for_bucket(
-    wave: NDArray[np.float64],
-    *,
-    sample_rate_hz: int,
-    range_length_s: float,
-    bucket: list[tuple[NDArray[np.float64], str]],
-) -> tuple[int, str | None]:
-    best = 10**9
-    hit: str | None = None
-    for val_wave, val_key in bucket:
-        is_hit, delta = near_duplicate_hit(
-            wave,
-            val_wave,
-            sample_rate_hz=sample_rate_hz,
-            range_length_s=range_length_s,
-        )
-        if is_hit and delta < best:
-            best = delta
-            hit = val_key
-    return best, hit
-
-
 def _effective_key(params) -> tuple:
     return (
         params.family,
@@ -256,174 +230,285 @@ def build_validation_effective_index(
     return index
 
 
-def _effective_from_pair_side(side: SideGenerationSpec | dict) -> object:
-    if isinstance(side, dict):
-        from signal_diag.evaluation.full_scale_characterization.models import (
-            EffectiveMaterialParams,
-        )
+def _side_from_any(side: SideGenerationSpec | dict) -> SideGenerationSpec:
+    if isinstance(side, SideGenerationSpec):
+        return side
+    enc = side["encoding"]
+    return SideGenerationSpec(
+        encoding=EncodingSpec(
+            bits=enc["bits"],
+            rounding=enc.get("rounding", "round"),
+            step_bits=enc.get("step_bits"),
+            seed=enc.get("seed"),
+            filename=enc.get("filename", "material.wav"),
+        ),
+        effective=EffectiveMaterialParams(**side["effective"]),
+        sample_offset=side.get("sample_offset", 0),
+        gain_factor=side.get("gain_factor", 1.0),
+        noise_rms=side.get("noise_rms"),
+        noise_seed=side.get("noise_seed"),
+        phase_delta_rad=side.get("phase_delta_rad", 0.0),
+    )
 
-        return EffectiveMaterialParams(**side["effective"])
-    return side.effective
+
+def _channel_params(
+    side: SideGenerationSpec, m9_layout: Mapping[str, Any] | None
+) -> list[tuple[str, EffectiveMaterialParams]]:
+    """Per-channel effective parameters of a pair side (M9 split into left/right)."""
+    eff = side.effective
+    if eff.family != "M9":
+        return [("mono", eff)]
+    if m9_layout is None:
+        raise ManifestLeakageAbort("M9 side without a channel layout")
+    left, right = _layout_channel_params(
+        M9ChannelLayout.model_validate(m9_layout),
+        f0_hz=eff.f0_hz,
+        sample_rate_hz=eff.sample_rate_hz,
+        phase_rad=eff.phase_rad,
+    )
+    return [("left", left), ("right", right)]
+
+
+def param_leakage_hits(
+    pairs: Sequence[PairRecord | dict[str, Any]],
+    validation_index: dict[tuple, str],
+    *,
+    m9_layouts: Mapping[str, Mapping[str, Any] | None],
+) -> list[str]:
+    """Calibration sides whose per-channel effective parameters equal a validation material."""
+    hits: list[str] = []
+    for pair in pairs:
+        record = pair if isinstance(pair, dict) else pair.model_dump(mode="python")
+        if record["side"] != "calibration":
+            continue
+        layout = m9_layouts.get(record["source_group_key"])
+        for label in ("old_side", "new_side"):
+            side = _side_from_any(record[label])
+            for channel, params in _channel_params(side, layout):
+                hit_key = validation_index.get(_effective_key(params))
+                if hit_key is not None:
+                    hits.append(
+                        f"calibration pair {record['pair_id']} ({record['family']}) {label} "
+                        f"{channel} matches validation material {hit_key}"
+                    )
+    return hits
 
 
 def assert_no_param_leakage(
     pairs: Sequence[PairRecord | dict[str, Any]],
     validation_index: dict[tuple, str],
+    *,
+    m9_layouts: Mapping[str, Mapping[str, Any] | None],
 ) -> None:
-    for pair in pairs:
-        side = pair["side"] if isinstance(pair, dict) else pair.side
-        family = pair["family"] if isinstance(pair, dict) else pair.family
-        pair_id = pair["pair_id"] if isinstance(pair, dict) else pair.pair_id
-        if side != "calibration" or family == "M9":
-            continue
-        old = pair["old_side"] if isinstance(pair, dict) else pair.old_side
-        new = pair["new_side"] if isinstance(pair, dict) else pair.new_side
-        for label, side_spec in (("old", old), ("new", new)):
-            hit_key = validation_index.get(_effective_key(_effective_from_pair_side(side_spec)))
-            if hit_key is not None:
-                msg = (
-                    f"calibration pair {pair_id} {label} side matches "
-                    f"validation material {hit_key}"
+    hits = param_leakage_hits(pairs, validation_index, m9_layouts=m9_layouts)
+    if hits:
+        raise ManifestLeakageAbort(hits[0] + (f" (+{len(hits) - 1} more)" if len(hits) > 1 else ""))
+
+
+def count_param_leakage(
+    groups: tuple[SourceGroupRecord, ...],
+    c: CharacterizationConstants,
+    *,
+    skip_pair_ids: frozenset[str] = frozenset(),
+) -> list[str]:
+    """Streaming per-channel parameter leakage scan over every calibration pair (R0 path)."""
+    validation_index = build_validation_effective_index(groups)
+    layouts = {g.group_key: g.m9_layout for g in groups}
+    hits: list[str] = []
+    for batch in _r0_description_batches(groups, c, batch_size=2048):
+        kept = [d for d in batch if d["side"] == "calibration" and d["pair_id"] not in skip_pair_ids]
+        hits.extend(param_leakage_hits(kept, validation_index, m9_layouts=layouts))
+    return hits
+
+
+# ---------------------------------------------------------------------------
+# A.15 near-reproduction scan
+
+
+class _Bucket:
+    """Validation waves of one (family, f0, sr, phase) bucket with short-prefix matrices."""
+
+    def __init__(self, entries: list[tuple[NDArray[np.float64], str]]) -> None:
+        self.entries = entries
+        self._prefix: dict[int, NDArray[np.float64]] = {}
+
+    def prefix(self, n: int) -> NDArray[np.float64]:
+        if n not in self._prefix:
+            self._prefix[n] = np.stack([wave[:n] for wave, _ in self.entries])
+        return self._prefix[n]
+
+
+def _short_length(c: CharacterizationConstants, sample_rate_hz: int) -> int:
+    return round(min(c.calibration_range_lengths_s) * sample_rate_hz)
+
+
+def _candidates(bucket: _Bucket, prefix: NDArray[np.float64]) -> list[int]:
+    """Exact necessary condition on the shortest range: max |a - b| * 32768 <= 2."""
+    n = prefix.shape[0]
+    d = np.max(np.abs(bucket.prefix(n) - prefix[None, :]), axis=1)
+    return [int(i) for i in np.flatnonzero(d * 32768.0 <= 2.0)]
+
+
+def _best_hit(
+    wave: NDArray[np.float64],
+    bucket: _Bucket,
+    candidates: list[int],
+    *,
+    sample_rate_hz: int,
+    range_length_s: float,
+) -> tuple[int, str | None]:
+    best, hit = 10**9, None
+    for i in candidates:
+        val_wave, val_key = bucket.entries[i]
+        ok, delta = near_duplicate_hit(
+            wave, val_wave, sample_rate_hz=sample_rate_hz, range_length_s=range_length_s
+        )
+        if ok and delta < best:
+            best, hit = delta, val_key
+    return best, hit
+
+
+class _SideWave:
+    """Lazily synthesised channel wave of one pair side; prefixes avoid full synthesis."""
+
+    def __init__(
+        self,
+        params: EffectiveMaterialParams,
+        side: SideGenerationSpec,
+        c: CharacterizationConstants,
+        base_cache: dict[tuple, NDArray[np.float64]],
+    ) -> None:
+        self.params = params
+        self.side = side
+        self.c = c
+        self.base_cache = base_cache
+        self._full: NDArray[np.float64] | None = None
+
+    def _base(self) -> NDArray[np.float64]:
+        key = _effective_key(self.params)
+        if key not in self.base_cache:
+            self.base_cache[key] = synthesize_mono(self.params, duration_s=self.c.file_duration_s)
+        return self.base_cache[key]
+
+    def _simple(self) -> bool:
+        return self.side.sample_offset == 0
+
+    def prefix(self, n: int) -> NDArray[np.float64]:
+        if not self._simple():
+            return self.full()[:n]
+        wave = self._base()[:n]
+        side = self.side
+        if side.gain_factor != 1.0:
+            wave = np.clip(wave * side.gain_factor, -1.0, 1.0)
+        if side.noise_rms is not None:
+            rng = np.random.default_rng(side.noise_seed)
+            wave = np.clip(wave + rng.normal(0.0, side.noise_rms, size=n), -1.0, 1.0)
+        return wave
+
+    def full(self) -> NDArray[np.float64]:
+        if self._full is None:
+            if self._simple() and self.side.gain_factor == 1.0 and self.side.noise_rms is None:
+                self._full = self._base()
+            else:
+                self._full = synthesize_mono(
+                    self.params,
+                    duration_s=self.c.file_duration_s,
+                    sample_offset=self.side.sample_offset,
+                    gain_factor=self.side.gain_factor,
+                    noise_rms=self.side.noise_rms,
+                    noise_seed=self.side.noise_seed,
                 )
-                raise ManifestLeakageAbort(msg)
+        return self._full
 
 
-def scan_calibration_near_duplicate_exclusions(
+def _side_hit(
+    side: SideGenerationSpec,
+    layout: Mapping[str, Any] | None,
+    buckets: dict[ParamBucketKey, _Bucket],
+    c: CharacterizationConstants,
+    base_cache: dict[tuple, NDArray[np.float64]],
+    range_length_s: float,
+) -> tuple[int, str | None]:
+    """Smallest code delta to any same-bucket validation material over any channel."""
+    best, hit = 10**9, None
+    for _channel, params in _channel_params(side, layout):
+        bucket = buckets.get(_bucket_key(params))
+        if bucket is None:
+            continue
+        sw = _SideWave(params, side, c, base_cache)
+        sr = params.sample_rate_hz
+        candidates = _candidates(bucket, sw.prefix(_short_length(c, sr)))
+        if not candidates:
+            continue
+        delta, key = _best_hit(
+            sw.full(), bucket, candidates, sample_rate_hz=sr, range_length_s=range_length_s
+        )
+        if key is not None and delta < best:
+            best, hit = delta, key
+    return best, hit
+
+
+def scan_near_duplicates(
     groups: tuple[SourceGroupRecord, ...],
     c: CharacterizationConstants,
     *,
     wave_index: dict[ParamBucketKey, list[tuple[NDArray[np.float64], str]]],
 ) -> tuple[frozenset[str], tuple[ExcludedNearDuplicate, ...], list[tuple[str, str]]]:
-    """A.15 for ROUND_1: scan only calibration P5 / P5t candidates (no full pair walk)."""
-    excluded_ids: set[str] = set()
-    excluded_entries: list[ExcludedNearDuplicate] = []
-    excluded_families: list[tuple[str, str]] = []
-    enc16 = EncodingSpec(bits=16, rounding="round")
+    """A.15 over every side of every calibration pair, channel by channel (M9 included).
 
+    Base material or tolerance-pair hits abort generation. Sensitivity and change
+    pairs whose new side lands within one 16-bit code of a same-form, same-f0,
+    same-rate, same-phase validation material over the pair's analysis range are
+    excluded and listed.
+    """
+    buckets = {key: _Bucket(entries) for key, entries in wave_index.items()}
+    rate_keys = {(key[1], key[2]) for key in buckets}
+    excluded_ids: set[str] = set()
+    entries: list[ExcludedNearDuplicate] = []
+    families: list[tuple[str, str]] = []
     for group in groups:
         if group.side != "calibration":
             continue
-        base_eff = params_from_group_record(group)
+        layout = group.m9_layout
+        base_side = SideGenerationSpec(
+            encoding=EncodingSpec(bits=16), effective=params_from_group_record(group)
+        )
+        # Every bucket key carries (f0, sr); a perturbed side keeps the group's f0 and sr.
+        if (group.f0_hz, group.sample_rate_hz) not in rate_keys:
+            continue
+        group_pairs = _pairs_for_group(group, c)
+        base_cache: dict[tuple, NDArray[np.float64]] = {}
         for range_len in c.calibration_range_lengths_s:
-            for gain in c.p5t_calibration_gains:
-                for side_spec in (
-                    SideGenerationSpec(encoding=enc16, effective=base_eff, gain_factor=1.0),
-                    SideGenerationSpec(
-                        encoding=enc16, effective=base_eff, gain_factor=1.0 + gain
-                    ),
-                ):
-                    bucket = wave_index.get(_bucket_key(side_spec.effective))
-                    if not bucket:
-                        continue
-                    wave = _side_wave_cached(side_spec, duration_s=c.file_duration_s)
-                    delta, val_key = _min_delta_for_bucket(
-                        wave,
-                        sample_rate_hz=side_spec.effective.sample_rate_hz,
-                        range_length_s=range_len,
-                        bucket=bucket,
-                    )
-                    if delta <= 1 and val_key is not None:
-                        pid = _pair_id(group.group_key, "P5t", str(gain), str(range_len))
-                        raise ManifestLeakageAbort(
-                            f"tolerance near-duplicate on pair {pid} vs validation {val_key}"
-                        )
-
-            for gain in c.p5_calibration_gains:
-                pair_id = _pair_id(group.group_key, "P5", str(gain), str(range_len))
-                new_side = SideGenerationSpec(
-                    encoding=enc16,
-                    effective=base_eff,
-                    gain_factor=1.0 + gain,
+            delta, key = _side_hit(base_side, layout, buckets, c, base_cache, range_len)
+            if key is not None:
+                raise ManifestLeakageAbort(
+                    f"base material of calibration group {group.group_key} reproduces "
+                    f"validation material {key} (max code delta {delta})"
                 )
-                bucket = wave_index.get(_bucket_key(new_side.effective))
-                if not bucket:
-                    continue
-                wave = _side_wave_cached(new_side, duration_s=c.file_duration_s)
-                delta, val_key = _min_delta_for_bucket(
-                    wave,
-                    sample_rate_hz=new_side.effective.sample_rate_hz,
-                    range_length_s=range_len,
-                    bucket=bucket,
-                )
-                if delta <= 1 and val_key is not None:
-                    excluded_ids.add(pair_id)
-                    excluded_entries.append(
-                        ExcludedNearDuplicate(
-                            pair_id=pair_id,
-                            validation_group_key=val_key,
-                            max_code_delta=delta,
-                        )
-                    )
-                    excluded_families.append((group.family, "P5"))
-
-    return frozenset(excluded_ids), tuple(excluded_entries), excluded_families
-
-
-def exclude_near_duplicate_sensitivity_pairs(
-    pairs: Sequence[PairRecord],
-    groups: tuple[SourceGroupRecord, ...],
-    c: CharacterizationConstants,
-    *,
-    wave_index: dict[ParamBucketKey, list[tuple[NDArray[np.float64], str]]] | None = None,
-) -> tuple[list[PairRecord], tuple[ExcludedNearDuplicate, ...]]:
-    if wave_index is None:
-        wave_index = _validation_wave_index(groups, c)
-    kept: list[PairRecord] = []
-    excluded: list[ExcludedNearDuplicate] = []
-
-    for pair in pairs:
-        if pair.side != "calibration":
-            kept.append(pair)
-            continue
-
-        if is_tolerance_pair(pair) and pair.perturbation_code == "P5t":
-            for side_spec in (pair.old_side, pair.new_side):
-                bucket = wave_index.get(_bucket_key(side_spec.effective))
-                if not bucket:
-                    continue
-                wave = _side_wave_cached(side_spec, duration_s=c.file_duration_s)
-                delta, val_key = _min_delta_for_bucket(
-                    wave,
-                    sample_rate_hz=side_spec.effective.sample_rate_hz,
-                    range_length_s=pair.range_length_s,
-                    bucket=bucket,
-                )
-                if delta <= 1 and val_key is not None:
+        for d in group_pairs:
+            code = d["perturbation_code"]
+            new_side = _side_from_any(d["new_side"])
+            if code in TOLERANCE_CODES:
+                if code != "P5t":
+                    continue  # same float material as the base; checked above
+                delta, key = _side_hit(new_side, layout, buckets, c, base_cache, d["range_length_s"])
+                if key is not None:
                     raise ManifestLeakageAbort(
-                        f"tolerance near-duplicate on pair {pair.pair_id} vs validation {val_key}"
+                        f"tolerance near-duplicate on pair {d['pair_id']} vs validation {key}"
                     )
-            kept.append(pair)
-            continue
-
-        if is_sensitivity_pair(pair) and pair.perturbation_code == "P5":
-            hit: ExcludedNearDuplicate | None = None
-            for side_spec in (pair.new_side,):
-                bucket = wave_index.get(_bucket_key(side_spec.effective))
-                if not bucket:
-                    continue
-                wave = _side_wave_cached(side_spec, duration_s=c.file_duration_s)
-                delta, val_key = _min_delta_for_bucket(
-                    wave,
-                    sample_rate_hz=side_spec.effective.sample_rate_hz,
-                    range_length_s=pair.range_length_s,
-                    bucket=bucket,
+                continue
+            if code == "P8":
+                continue  # new side is the base material at 8 bits
+            delta, key = _side_hit(new_side, layout, buckets, c, base_cache, d["range_length_s"])
+            if key is not None:
+                excluded_ids.add(d["pair_id"])
+                entries.append(
+                    ExcludedNearDuplicate(
+                        pair_id=d["pair_id"], validation_group_key=key, max_code_delta=delta
+                    )
                 )
-                if delta <= 1 and val_key is not None:
-                    hit = ExcludedNearDuplicate(
-                        pair_id=pair.pair_id,
-                        validation_group_key=val_key,
-                        max_code_delta=delta,
-                    )
-                    break
-            if hit is not None:
-                excluded.append(hit)
-            else:
-                kept.append(pair)
-            continue
-
-        kept.append(pair)
-
-    return kept, tuple(excluded)
+                families.append((d["family"], code))
+    return frozenset(excluded_ids), tuple(entries), families
 
 
 def assert_p3_phases_disjoint(c: CharacterizationConstants) -> None:

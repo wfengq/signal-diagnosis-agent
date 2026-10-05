@@ -35,6 +35,9 @@ E2E = MINI.model_copy(
         "m3_validation_depths_heldout": (),
         "validation_start_phases_heldout_rad": (),
         "validation_f0_heldout": (),
+        "m3_calibration_levels": (0.995,),
+        "m3_validation_levels_heldout": (0.991,),
+        "p5_calibration_gains": (1e-4,),
     }
 )
 
@@ -150,3 +153,34 @@ def test_t_cx380_dry_run_writes_nothing_and_prints_fit_row_counts(tmp_path: Path
     assert "stage2_rows_max=" in printed
     assert "calibration/M3/P0" in printed
     assert "stage2_rows_max=15" in printed
+
+
+def test_t_cx380_reruns_are_refused_before_any_measurement(
+    tmp_path: Path, monkeypatch
+) -> None:
+    from signal_diag.evaluation.full_scale_characterization import runs
+
+    constants_path = tmp_path / "constants.json"
+    constants_path.write_text(json.dumps(E2E.model_dump(mode="json")), encoding="utf-8")
+    out = tmp_path / "e2e"
+    steps = _steps(out, constants_path)
+    for argv in steps:
+        assert main(argv) == 0, argv
+
+    calls: list[str] = []
+
+    def counting(*args, **kwargs):
+        calls.append("measure")
+        raise AssertionError("re-run must be refused before measuring")
+
+    monkeypatch.setattr(runs, "measure_pair_checked", counting)
+    for argv in (steps[1], steps[6]):  # calibrate, validate
+        assert main(argv) != 0, argv
+    assert calls == []
+
+    # An aborted round refuses calibrate before measuring anything.
+    aborted = tmp_path / "aborted"
+    assert main(["manifest", "--constants-json", str(constants_path), "--out", str(aborted)]) == 0
+    CharacterizationStore(aborted).write_json("abort_record.json", {"stage": "calibration"})
+    assert main(["calibrate", "--out", str(aborted)]) != 0
+    assert calls == []

@@ -24,8 +24,8 @@ from signal_diag.evaluation.full_scale_characterization.leakage import (
     assert_p3_phases_disjoint,
     build_validation_effective_index,
     clear_wave_cache,
-    exclude_near_duplicate_sensitivity_pairs,
-    scan_calibration_near_duplicate_exclusions,
+    count_param_leakage,
+    scan_near_duplicates,
 )
 from signal_diag.evaluation.full_scale_characterization.models import (
     Manifest,
@@ -97,74 +97,42 @@ def _enforce_scale_limit(
 def build_manifest(
     constants: CharacterizationConstants = ROUND_1,
 ) -> Manifest:
+    """Build the manifest; A.15 runs over every calibration side for both modes.
+
+    ``constants.expand_pairs`` (small test grids) also stores calibration
+    PairRecords and runs the per-channel parameter-leakage check inline; the
+    full round streams descriptions into the hash, and its parameter-leakage
+    check runs on the R0 path (``count_param_leakage``).
+    """
     assert_p3_phases_disjoint(constants)
     assert_onset_depths(constants)
     clear_wave_cache()
     groups = enumerate_source_groups(constants)
-
-    if not constants.expand_pairs:
-        wave_index = _validation_wave_index(groups, constants)
-        excluded_ids, excluded_accum, excluded_families = scan_calibration_near_duplicate_exclusions(
-            groups,
-            constants,
-            wave_index=wave_index,
-        )
-        counts = planned_pair_counts_from_formulas(groups, constants)
-        counts = _subtract_excluded_counts(counts, excluded_families)
-        _enforce_scale_limit(counts, constants)
-
-        # ROUND_1: stream lightweight identity dicts only (no PairRecord, no
-        # full-grid param-leakage walk). Param leakage is covered on mini manifests.
-        pair_hasher = hashlib.sha256()
-        for identity in iter_pair_identity_tuples(
-            groups, constants, skip_pair_ids=excluded_ids
-        ):
-            pair_hasher.update(
-                canonical_pair_tuple_bytes(pair_tuple_for_hash(identity))
-            )
-
-        return Manifest(
-            round_id=constants.round_id,
-            constants_digest=constants_digest(constants),
-            source_groups=groups,
-            pair_templates=default_pair_templates(),
-            pairs_list_sha256=pair_hasher.hexdigest(),
-            planned_pair_counts=counts,
-            excluded_near_duplicates=excluded_accum,
-            pairs=(),
-        )
-
-    stored_pairs: list[PairRecord] = []
-    mini_excluded: list = []
-    pair_hasher = hashlib.sha256()
     wave_index = _validation_wave_index(groups, constants)
-    validation_index = build_validation_effective_index(groups)
-    mini_excluded_families: list[tuple[str, str]] = []
-
-    for batch in _r0_description_batches(groups, constants, batch_size=1024):
-        assert_no_param_leakage(batch, validation_index)
-        records: list[PairRecord] = [_identity_dict_to_pair_record(d) for d in batch]
-        kept_records, excluded_part = exclude_near_duplicate_sensitivity_pairs(
-            records,
-            groups,
-            constants,
-            wave_index=wave_index,
-        )
-        kept_ids = {r.pair_id for r in kept_records}
-        for entry in excluded_part:
-            mini_excluded.append(entry)
-            src = next(d for d in batch if d["pair_id"] == entry.pair_id)
-            mini_excluded_families.append((src["family"], src["perturbation_code"]))
-        for d in batch:
-            if d["pair_id"] not in kept_ids:
-                continue
-            pair_hasher.update(canonical_pair_tuple_bytes(pair_tuple_for_hash(d)))
-        # Only calibration records are stored; validation descriptions enter the hash only.
-        stored_pairs.extend(r for r in kept_records if r.side == "calibration")
-
+    excluded_ids, excluded_entries, excluded_families = scan_near_duplicates(
+        groups, constants, wave_index=wave_index
+    )
     counts = planned_pair_counts_from_formulas(groups, constants)
-    counts = _subtract_excluded_counts(counts, mini_excluded_families)
+    counts = _subtract_excluded_counts(counts, excluded_families)
     _enforce_scale_limit(counts, constants)
+
+    pair_hasher = hashlib.sha256()
+    stored_pairs: list[PairRecord] = []
+    if constants.expand_pairs:
+        validation_index = build_validation_effective_index(groups)
+        layouts = {g.group_key: g.m9_layout for g in groups}
+        for batch in _r0_description_batches(groups, constants, batch_size=1024):
+            kept = [d for d in batch if d["pair_id"] not in excluded_ids]
+            assert_no_param_leakage(kept, validation_index, m9_layouts=layouts)
+            for d in kept:
+                pair_hasher.update(canonical_pair_tuple_bytes(pair_tuple_for_hash(d)))
+                # Only calibration records are stored; validation descriptions enter the hash only.
+                if d["side"] == "calibration":
+                    stored_pairs.append(_identity_dict_to_pair_record(d))
+    else:
+        for identity in iter_pair_identity_tuples(groups, constants, skip_pair_ids=excluded_ids):
+            pair_hasher.update(canonical_pair_tuple_bytes(pair_tuple_for_hash(identity)))
+
     return Manifest(
         round_id=constants.round_id,
         constants_digest=constants_digest(constants),
@@ -172,9 +140,15 @@ def build_manifest(
         pair_templates=default_pair_templates(),
         pairs_list_sha256=pair_hasher.hexdigest(),
         planned_pair_counts=counts,
-        excluded_near_duplicates=tuple(mini_excluded),
+        excluded_near_duplicates=excluded_entries,
         pairs=tuple(stored_pairs),
     )
+
+
+def r0_param_leakage_hits(manifest: Manifest, constants: CharacterizationConstants) -> list[str]:
+    """Streaming per-channel parameter-leakage check over every kept calibration pair (R0)."""
+    excluded = frozenset(e.pair_id for e in manifest.excluded_near_duplicates)
+    return count_param_leakage(manifest.source_groups, constants, skip_pair_ids=excluded)
 
 
 def estimate_measurement_rows(manifest: Manifest, *, channels: int = 1) -> int:

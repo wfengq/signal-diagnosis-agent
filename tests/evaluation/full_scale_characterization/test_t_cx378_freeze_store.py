@@ -439,3 +439,40 @@ def test_t_cx378_tampered_freeze_record_locks_validation(tmp_path: Path) -> None
     path.write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises((ValidationLocked, StoreIntegrityError, FreezeRejected)):
         authorize_validation(store, constants=MINI)
+
+
+def _rewrite_consistently(store: CharacterizationStore, relpath: str, payload: dict) -> None:
+    """Replace an artifact and its SHA256SUMS line so only semantic checks can catch it."""
+    from signal_diag.evaluation.full_scale_characterization.store import (
+        canonical_json_document,
+        sha256_bytes,
+    )
+
+    data = canonical_json_document(payload).encode("utf-8")
+    (store.root / relpath).write_bytes(data)
+    sums = store.read_sums()
+    sums[relpath] = sha256_bytes(data)
+    (store.root / "SHA256SUMS").write_text(
+        "".join(f"{sums[p]}  {p}\n" for p in sorted(sums)), encoding="utf-8"
+    )
+    store.verify_sha256sums()
+
+
+def test_t_cx378_consistently_rewritten_freeze_record_is_rejected(tmp_path: Path) -> None:
+    store, record = _frozen(tmp_path)
+    other_stage1 = rebuild_with_digest(record.stage1, rationale="rewritten after the fact")
+    forged = rebuild_with_digest(record, stage1=other_stage1, stage1_digest=other_stage1.digest)
+    _rewrite_consistently(store, "freeze_record.json", forged.model_dump(mode="json"))
+    with pytest.raises(FreezeRejected):
+        authorize_validation(store, constants=MINI)
+
+
+def test_t_cx378_consistently_rewritten_floor_is_rejected(tmp_path: Path) -> None:
+    store, record = _frozen(tmp_path)
+    edited = record.floor_params.model_copy(
+        update={"value_below_cut": (record.floor_params.value_below_cut or 0.0) + 5.0}
+    )
+    forged = rebuild_with_digest(record, floor_params=edited)
+    _rewrite_consistently(store, "freeze_record.json", forged.model_dump(mode="json"))
+    with pytest.raises(FreezeRejected):
+        authorize_validation(store, constants=MINI)

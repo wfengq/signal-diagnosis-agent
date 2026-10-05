@@ -57,9 +57,11 @@ from signal_diag.evaluation.full_scale_characterization.manifest import (
     estimate_shard_sizes_bytes,
     iter_side_pairs,
     manifest_sha256,
+    r0_param_leakage_hits,
 )
 from signal_diag.evaluation.full_scale_characterization.models import (
     Manifest,
+    ManifestLeakageAbort,
     MeasuredPair,
     MeasurementRow,
     PairRecord,
@@ -118,6 +120,9 @@ def dry_run_lines(constants: CharacterizationConstants) -> list[str]:
     for shard, nbytes in sorted(estimate_shard_sizes_bytes(manifest.planned_pair_counts).items()):
         lines.append(f"estimated_shard_gzip_bytes {shard}: {nbytes}")
     lines.append(f"excluded_near_duplicates={len(manifest.excluded_near_duplicates)}")
+    hits = r0_param_leakage_hits(manifest, constants)
+    lines.append(f"param_leakage_hits={len(hits)}")
+    lines.extend(f"  {hit}" for hit in hits[:20])
     stage1, stage2 = fit_row_counts(constants)
     lines.append(f"stage1_rows={stage1} (limit {STAGE1_MAX_ROWS})")
     lines.append(f"stage2_rows_max={stage2} (limit {STAGE2_MAX_ROWS})")
@@ -130,6 +135,9 @@ def step_manifest(store: CharacterizationStore, constants: CharacterizationConst
         if store.exists(name):
             raise WriteOnceViolation(f"{name} already exists")
     manifest = build_manifest(constants)
+    hits = r0_param_leakage_hits(manifest, constants)
+    if hits:
+        raise ManifestLeakageAbort(f"{len(hits)} parameter-leakage hits; first: {hits[0]}")
     store.write_json(
         "manifest.json",
         {
