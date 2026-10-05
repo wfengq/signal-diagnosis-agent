@@ -10,7 +10,7 @@
 
 **Spec:** 表征设计 `docs/superpowers/specs/2026-10-05-s1-regression-layer1-characterization-materials-scoring-design.md`（§13 优先，其次 §12、§11、§10、§9、§2–§8）；削波语义设计 `docs/superpowers/specs/2026-10-05-s1-regression-clipping-comparison-semantics-design.md` §12–§14；合同 `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §23.4、§23.5、§23.7；`docs/OPEN_QUESTIONS.md` OQ-021、OQ-022；探查 `docs/OQ020_FULL_TOOLPATH_PROBE_2026-10-05.md`；已合并实现 PR #41（`0770514`）。
 
-**Status:** 修订 3（2026-10-05）。修订 1 与修订 2 各经一次独立只读审阅（审阅者不同，结论均为“修改后可批准”）；修订 2、修订 3 逐条处理，对照见文末 G 节（G.1 对应第一轮，G.2 对应第二轮）。修订 3 未再经独立审阅。A 节 15 条落点决定均已由操作员决定。B、C 节与计划整体尚未批准。计划本身不授权实施；实施授权只覆盖 Task 0–9，不覆盖任何正式运行。
+**Status:** 修订 3（2026-10-05）。修订 1 与修订 2 各经一次独立只读审阅（审阅者不同，结论均为“修改后可批准”）；修订 2、修订 3 逐条处理，对照见文末 G 节（G.1 对应第一轮，G.2 对应第二轮）。修订 3 未再经独立审阅。A 节 15 条落点决定均已由操作员决定。**操作员 2026-10-05 批准 B、C 节与计划整体（修订 3）**；按 A 节开头的约定，这同时批准了表征设计 §7 的五项，由 Task 0 写回表征设计。实施（Task 0–9）尚未授权；授权时只覆盖 Task 0–9，不覆盖任何正式运行。
 **Read-only baseline:** `61cad20` on `codex/v0.2-real-world-validation`。执行前在当时基线上重新核对本计划引用的文件、接口与空闲测试 ID。
 
 ## Global Constraints
