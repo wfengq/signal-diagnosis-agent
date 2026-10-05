@@ -2,7 +2,9 @@
 
 **Branch:** `cursor/s1-full-scale-check`
 **Baseline tip:** `16450ffe904c48294148418ddadfe87c04af6e74`
-**Acceptance tip:** `0a2dd59055e6c7bdea5ecad80b983b3a55ace07e` (Task 9 closeout; filled after commit)
+**Task 9 content tip:** `0a2dd59055e6c7bdea5ecad80b983b3a55ace07e`
+**Docs-only follow-ups after content tip:** `40cb82d09d4f0680cca9baa3abf949b034244bfb`, `a043d198b594226b97478f6fc7ffa6eb1361ba76` (SHA line / acceptance wording only)
+**Branch tip at this revision:** see `git rev-parse HEAD` after the F1–F3 fix commit.
 
 ## Validation scope
 
@@ -12,27 +14,42 @@ It does **not** guarantee that a report was not **wholly rewritten**. Digests ar
 
 **Not required to reject (accepted residual risk, plan revision 4 / 9B-1):** when the bundle has `flat_top_detected=true`, changing `counted_samples` to another positive value ≤ `clipped_samples` and redigesting all digests stays internally consistent. Covered by `test_9b1_flat_top_count_rewrite_within_clipped_is_accepted_residual_risk`.
 
-## Verification commands (raw summaries)
+## Verification commands (tip `a043d198b594226b97478f6fc7ffa6eb1361ba76`)
 
 ### `python -m pytest -q -rxXs -p no:cacheprovider`
 
-See PR description for the raw closeout tip output after Task 9.
+```text
+2042 passed, 1 warning in 109.54s (0:01:49)
+```
 
 ### `python -m ruff check --no-cache src tests scripts`
 
-See PR description (closeout tip).
+```text
+All checks passed!
+```
 
 ### `python -m mypy --no-incremental src`
 
-See PR description (closeout tip).
+```text
+Success: no issues found in 145 source files
+```
 
 ### `python scripts/verify_phase5_wheel.py`
 
-**Blocked in this cloud image:** `python3-venv` / ensurepip unavailable; script cannot create its temporary venv. **CI wheel job is authoritative.**
+```text
+Successfully built signal-diagnosis-agent-0.2.0.tar.gz and signal_diagnosis_agent-0.2.0-py3-none-any.whl
+The virtual environment was not created successfully because ensurepip is not available.
+...
+Failing command: /tmp/signal-diag-phase5-wheel-*/venv/bin/python3
+```
+
+Wheel smoke **blocked** in this cloud image (no ensurepip/venv). **CI wheel job is authoritative.**
 
 ### `git diff --check 16450ffe904c48294148418ddadfe87c04af6e74..HEAD`
 
-See PR description (closeout tip).
+```text
+(empty — exit 0)
+```
 
 ## T-CX349–T-CX370 → tests
 
@@ -75,3 +92,4 @@ See PR description (closeout tip).
 3. Task 4 commit is an **empty marker** (`c7fb811`); eligibility/judgment shipped in `ec8317a`.
 4. Append-only code-identity tips: `d043_regression_full_scale_check_impl`, `d043_regression_full_scale_check_task9a`, `d043_regression_full_scale_check_task9` (each prior tip’s `product_tree_sha256` pinned to a literal when the live tree moved).
 5. Task 9 (plan revisions 3–4): 9A–9D review fixes on this branch; 9B-1 residual flat-top count rewrite documented as not rejected per §23.5.
+6. 9B-1 non-flat-top fixture uses runs of exactly two over-threshold samples (`_non_flat_top_samples`), not bare `sine(amplitude=0.9905)`. On PCM16 the plan’s sine construction triggers `flat_top_detected` (min flat-top length 3); short runs of length 2 keep flat-top false so the equality bound is testable. Plan wording was wrong for PCM16; this construction is intentional.

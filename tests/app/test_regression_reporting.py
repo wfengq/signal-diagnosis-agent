@@ -16,18 +16,34 @@ from signal_diag.app.full_scale_wording import (
     FULL_SCALE_TEMPLATES,
 )
 from signal_diag.app.pcm_wav import encode_pcm32_wav
-from signal_diag.app.regression import RegressionWorkbenchService
+from signal_diag.app.regression import (
+    CaseComparisonItem,
+    ComparisonUpload,
+    RegressionCaseSnapshot,
+    RegressionWorkbenchService,
+    RetestLink,
+    submissions_from_items,
+)
 from signal_diag.app.regression_reporting import (
     RegressionCaseReport,
     build_case_report,
     render_case_html,
     render_case_json,
+    validate_regression_case_report_integrity,
 )
-from signal_diag.rules.full_scale_check import FullScaleDeclarations
+from signal_diag.rules.full_scale_check import (
+    FullScaleDeclarations,
+    FullScaleMethodFloor,
+    evaluate_full_scale_check,
+    resolve_anchor_id,
+)
 from signal_diag.rules.regression import (
+    ComparisonConditions,
     validate_comparison_record,
 )
 from signal_diag.signal import generate_sine
+from signal_diag.tools.contracts import ClippingInput, HarmonicDistortionInput
+from signal_diag.tools.regression_measurement import MeasurementSelection
 from tests.app.test_regression_service import _upload
 from tests.rules.full_scale_fixtures import FIXTURE_FLOOR, sine, wav16
 
@@ -328,16 +344,6 @@ def test_model_validate_rejects_forged_comparison_record() -> None:
         RegressionCaseReport.model_validate(payload)
 
 
-from signal_diag.app.regression import (
-    ComparisonUpload,
-    RegressionCaseSnapshot,
-    RetestLink,
-)
-from signal_diag.rules.regression import ComparisonConditions
-from signal_diag.tools.contracts import ClippingInput, HarmonicDistortionInput
-from signal_diag.tools.regression_measurement import MeasurementSelection
-
-
 def _fs_conditions() -> ComparisonConditions:
     return ComparisonConditions(
         baseline_version="v1",
@@ -391,6 +397,46 @@ async def _snapshot_with_two_submits(
         request_id="r2",
         link=link,
     )
+
+
+async def _snapshot_with_unreferenced_repeat(
+    service: RegressionWorkbenchService,
+) -> RegressionCaseSnapshot:
+    """Anchor + repeat without independent-render declarations (facts stored, not counted)."""
+    case = service.create_case("unreferenced")
+    snap = await service.submit_comparison(case.case_id, _fs_upload(), request_id="r1")
+    link = RetestLink(kind="repeat", parent_comparison_id=snap.comparisons[0].comparison_id)
+    return await service.submit_comparison(
+        case.case_id, _fs_upload(), request_id="r2", link=link
+    )
+
+
+def _rebuild_checks(
+    items: tuple[CaseComparisonItem, ...] | list[CaseComparisonItem],
+    *,
+    floor: FullScaleMethodFloor | None,
+) -> tuple:
+    index = submissions_from_items(items)
+    checks = []
+    for position, item in enumerate(items):
+        anchor_id = resolve_anchor_id(item.comparison_id, index)
+        repeats = tuple(
+            index[row.comparison_id]
+            for row in items[: position + 1]
+            if row.link_kind == "repeat"
+            and resolve_anchor_id(row.comparison_id, index) == anchor_id
+        )
+        prior = [check for check in checks if check.anchor_comparison_id == anchor_id]
+        checks.append(
+            evaluate_full_scale_check(
+                check_id=f"chk_{position}",
+                anchor=index[anchor_id],
+                repeats=repeats,
+                floor=floor,
+                supersedes=prior[-1].check_id if prior else None,
+            )
+        )
+    return tuple(checks)
 
 
 @pytest.mark.asyncio
@@ -449,6 +495,85 @@ async def test_9b2_rejects_dropped_anchor_candidate_facts(service) -> None:
     payload["comparisons"][0]["candidate_full_scale"] = None
     with pytest.raises(ValidationError):
         RegressionCaseReport.model_validate(payload)
+
+
+@pytest.mark.asyncio
+async def test_9b1_report_rejects_swapped_facts_on_unreferenced_repeat(service) -> None:
+    snapshot = await _snapshot_with_unreferenced_repeat(service)
+    items = list(snapshot.comparisons)
+    repeat = items[1]
+    assert repeat.full_scale_declarations.baseline_independent_render == "unknown"
+    items[1] = repeat.model_copy(
+        update={
+            "baseline_full_scale": repeat.candidate_full_scale,
+            "candidate_full_scale": repeat.baseline_full_scale,
+        }
+    )
+    checks = _rebuild_checks(items, floor=None)
+    with pytest.raises(ValueError, match="side"):
+        validate_regression_case_report_integrity(
+            case_id=snapshot.case_id,
+            comparisons=tuple(items),
+            failures=snapshot.failures,
+            recommendations=snapshot.recommendations,
+            full_scale_checks=checks,
+        )
+
+
+@pytest.mark.asyncio
+async def test_9b2_rejects_dropped_anchor_facts_after_recompute(service) -> None:
+    snapshot = await _snapshot_with_two_submits(service)
+    items = list(snapshot.comparisons)
+    items[0] = items[0].model_copy(update={"candidate_full_scale": None})
+    checks = _rebuild_checks(items, floor=None)
+    with pytest.raises(ValueError, match="presence"):
+        validate_regression_case_report_integrity(
+            case_id=snapshot.case_id,
+            comparisons=tuple(items),
+            failures=snapshot.failures,
+            recommendations=snapshot.recommendations,
+            full_scale_checks=checks,
+        )
+
+
+@pytest.mark.asyncio
+async def test_9b2_rejects_dropped_facts_on_unreferenced_repeat(service) -> None:
+    snapshot = await _snapshot_with_unreferenced_repeat(service)
+    items = list(snapshot.comparisons)
+    items[1] = items[1].model_copy(update={"candidate_full_scale": None})
+    checks = _rebuild_checks(items, floor=None)
+    with pytest.raises(ValueError, match="presence"):
+        validate_regression_case_report_integrity(
+            case_id=snapshot.case_id,
+            comparisons=tuple(items),
+            failures=snapshot.failures,
+            recommendations=snapshot.recommendations,
+            full_scale_checks=checks,
+        )
+
+
+@pytest.mark.asyncio
+async def test_9b7_report_layer_requires_applicable_floor(service) -> None:
+    snapshot = await _snapshot_with_two_submits(service)
+    with_floor = _rebuild_checks(snapshot.comparisons, floor=FIXTURE_FLOOR)
+    validate_regression_case_report_integrity(
+        case_id=snapshot.case_id,
+        comparisons=snapshot.comparisons,
+        failures=snapshot.failures,
+        recommendations=snapshot.recommendations,
+        full_scale_checks=with_floor,
+        approved_floors=(FIXTURE_FLOOR,),
+    )
+    dropped = _rebuild_checks(snapshot.comparisons, floor=None)
+    with pytest.raises(ValueError, match="floor"):
+        validate_regression_case_report_integrity(
+            case_id=snapshot.case_id,
+            comparisons=snapshot.comparisons,
+            failures=snapshot.failures,
+            recommendations=snapshot.recommendations,
+            full_scale_checks=dropped,
+            approved_floors=(FIXTURE_FLOOR,),
+        )
 
 
 @pytest.mark.asyncio

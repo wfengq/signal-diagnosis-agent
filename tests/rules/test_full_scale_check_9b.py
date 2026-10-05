@@ -151,6 +151,23 @@ def test_9b1_rejects_counted_above_clipped_samples() -> None:
         verify_full_scale_facts(bad, bundle)
 
 
+def test_9b1_rejects_counted_above_clipped_when_flat_top_present() -> None:
+    """Nail the clipped upper bound when equality-with-no-flat-top does not fire."""
+    samples = shaped(2400, 0.995)
+    bundle, repo, _ = measured(samples, side="candidate", bits=16)
+    facts = measure_full_scale_facts(
+        repository=repo, bundle=bundle, pcm_bit_depth=16
+    )
+    assert facts is not None
+    assert bundle.clipping.result.flat_top_detected is True
+    clipped = bundle.clipping.result.clipped_samples
+    bad = redigest(
+        facts.model_copy(update={"counted_samples": clipped + 1, "state": "yes"})
+    )
+    with pytest.raises(ValueError, match="clipped_samples"):
+        verify_full_scale_facts(bad, bundle)
+
+
 def test_9b1_rejects_count_rewrite_when_flat_top_absent() -> None:
     samples = _non_flat_top_samples()
     bundle, repo, _ = measured(samples, side="candidate", bits=16)
