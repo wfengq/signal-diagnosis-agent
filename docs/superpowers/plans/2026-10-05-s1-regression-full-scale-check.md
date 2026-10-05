@@ -10,7 +10,7 @@
 
 **Spec:** `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §23（权威）；`docs/DECISIONS.md` D043；`docs/TEST_PLAN_V0_3_CONTEXTUAL.md` T-CX349–T-CX370；设计 `docs/superpowers/specs/2026-10-05-s1-regression-clipping-comparison-semantics-design.md` §12–§14；实测 `docs/OQ020_FULL_TOOLPATH_PROBE_2026-10-05.md`。
 
-**Status:** 修订 2（2026-10-05）。修订 1 经操作员审阅通过后做了一次独立只读审阅，本修订按审阅意见修改；修订 2 本身未再经独立审阅。实施授权须由操作员另行向 Cursor 给出；在此之前任何 Task 不得开始。
+**Status:** 修订 3（2026-10-05）。Task 1–8 已由 Cursor 实现（PR #41，tip `a374a9f`）并经独立代码审阅；修订 3 在文末新增 Task 9（审阅后的修复）并修改三处规则，操作员已同意这三处修改。Task 9 与正文冲突处以 Task 9 为准。修订 3 本身未再经独立审阅。
 **Read-only baseline:** `386a9b2` on `codex/v0.2-real-world-validation`（2026-10-05 读取）。执行前在当时基线上重新核对本计划引用的文件、行号与空闲测试 ID。
 
 ## Global Constraints
@@ -990,3 +990,88 @@ git diff --check 386a9b2..HEAD
 ## 不在本计划内
 
 第一层表征的实现与运行；任何下限、临界区或批准域数值；次满刻度平顶削波的判定；`observed_variable` 阻断的修订；THD 判定；复测 planner 的输入变更；RealLLM；seal；案例持久化。
+
+---
+
+## 修订 3：独立代码审阅后的修改（Task 9）
+
+依据：对 PR #41（tip `a374a9f`）的独立只读审阅。判定核心经对抗测试与 §23 一致；以下是需要修改的地方。9A 是计划本身的缺陷（实现照计划做了），9B–9D 是实现与计划不符或计划未写明的校验。全部在 PR #41 的分支上完成，每个小节一个提交，仍按“先写失败测试”进行。
+
+审阅同时确认：Cursor 追加的代码身份登记行（`code_identity_amendment.json` 与 `tests/agent/test_v03_prompt_v9_11.py`）遵循该文件现有的只追加做法，保留。这是计划漏写的一步。
+
+### 9A. 三处规则修改（计划缺陷）
+
+**9A-1 临界区覆盖全部计入渲染。** 条件 `critical_zone:<side>` 改为：该侧的锚点文件与每一条计入的重复，只要有一份在临界区内，即输出该码（每侧至多输出一次）。固定最低要求与下限记录给出的部分都按此处理；`step` 仍取两侧锚点文件位深的较小者。
+
+```python
+def test_critical_zone_covers_counted_repeats() -> None:
+    # 锚点基线正常；它的计入重复计入数同为 0，但含 40 个孤立的过阈值样本
+    anchor, repeats = eligible(baseline=(0, 0.5), candidate=(2000, 0.995))
+    noisy = make_submission(comparison_id="r1", parent="a", kind="repeat",
+                            declarations=FullScaleDeclarations(baseline_independent_render="yes",
+                                                               candidate_independent_render="yes"),
+                            baseline=(0, 0.5), baseline_isolated=40, candidate=(2000, 0.995),
+                            periodic="yes")
+    status, _, unmet, _ = _status(anchor, (noisy,))
+    assert status == "descriptive_only" and "critical_zone:baseline" in unmet
+```
+
+**9A-2 不一致时不显示“一致的渲染”。** `notice.renders` 只在两侧都没有 `renders_inconsistent` 时输出。某侧事实缺失时也不输出（该侧没有可数的渲染）。计划 Task 6 的 `test_t_cx358_359_uncounted_identical_and_inconsistent_lines` 增加断言：不一致的那条记录的各行中没有以 `"Based on "` 开头的行。
+
+**9A-3 实时页面显示 `clipping_ratio` 的固定说明。** `_snapshot_payload` 在顶层增加 `"clipping_ratio_notice": CLIPPING_RATIO_NOTICE`；`regression.js` 在指标表下方以文本节点渲染它，不在 JS 里写该文案。
+
+```python
+async def test_api_snapshot_carries_ratio_notice(regression_client) -> None:
+    body = await _post_comparison(regression_client, _metadata_bytes())
+    assert body["clipping_ratio_notice"] == CLIPPING_RATIO_NOTICE
+
+def test_ui_renders_ratio_notice_from_payload() -> None:
+    js = _static_text("regression.js")
+    assert "clipping_ratio_notice" in js and "flat-top" not in js.casefold()
+```
+
+不改的两处：未判定的记录不加“样本减少”的专门提示（数值与差值已显示）；临界区边界的浮点比较留到下限审阅时用码值精确的数处理。
+
+### 9B. 校验缺口（实现缺陷，批准任何下限之前必须修复）
+
+每条都先写一个“篡改后重算摘要、校验必须失败”的测试；下面括号内是审阅实测能通过的篡改。
+
+1. **每一份事实都要校验。** `validate_full_scale_check_record` 对 `baseline_renders` 与 `candidate_renders` 的每一项调用 `verify_full_scale_facts`，对应其所属提交的包。报告层另外对每个比较项自带的两侧事实做同样校验，无论是否被检查记录引用。（把一条重复的 `counted_samples` 由 2400 改为 2000 → “无法比较”变“发现回归”；重复的两侧事实互换；重复事实的 `bundle_digest` 置零。）
+2. **事实存在性与包一致。** 报告层要求：某侧事实存在，当且仅当该侧包的削波工具状态为 `success` 且有结果。（把锚点候选侧事实置为 `None`。）
+3. **事实内部一致。** `verify_full_scale_facts` 增加：`counted_samples + over_threshold_uncounted <= analyzed_samples`；`peak_abs >= full_scale_threshold` 当且仅当两个计数之和大于 0。（`counted_samples=96001`、`analyzed_samples=96000`。）
+4. **检查记录必须齐全。** 报告层从 `comparisons` 推出全部锚点，每个锚点必须恰有“重复数 + 1”条检查记录。唯一例外：`full_scale_checks` 为空，且所有比较项都没有事实、声明均为默认值（旧载荷）。（删掉全部检查记录；删掉某个锚点的全部记录。）
+5. **锚点必须是真锚点。** 要求 `resolve_anchor_id(record.anchor_comparison_id, index) == record.anchor_comparison_id`。（以一条重复为锚点伪造一条记录。）
+6. **`check_id` 唯一。**（两个锚点共用一个编号；同一锚点的三条记录共用一个编号。）
+7. **适用的已批准下限不得被去掉。** `validate_full_scale_check_record` 中，若 `approved_floors` 里有一条的 `facts_version`、阈值、最少连续样本数与锚点事实相同，则 `record.floor` 必须是它。（把“发现回归”记录的 `floor` 置为 `None` 后重算 → “仅描述”并通过。）
+8. **声明受摘要约束。** 检查记录的 `declarations` 须与各提交项携带的声明逐项相等（重算时已比较，补一条测试钉住：改动重复项的独立渲染声明后报告校验失败）。
+
+### 9C. 与计划不符之处（实现缺陷）
+
+1. **一侧事实缺失时仍须列出全部未满足条件。** 只有需要该侧事实的条件（`renders_inconsistent`、`bit_depth_below_16`、`critical_zone`）对该侧跳过；`repeat_missing`、`same_version`、`periodic_not_declared`、`fundamental_not_declared`、`samples_per_period_below_domain` 照常评估；`periods_in_range_below_domain` 用存在的那一侧的 `analyzed_samples`。两侧都缺失时 `periods_in_range_below_domain` 跳过，不列为未评估。
+
+```python
+def test_t_cx366_lists_all_unmet_when_one_side_has_no_facts() -> None:
+    anchor, repeats = eligible(candidate=(20000, 1.0), drop_facts="candidate",
+                               candidate_version="v1", periodic="unknown")
+    status, _, unmet, _ = _status(anchor, repeats)
+    assert status == "not_comparable"
+    assert {"facts_missing:candidate", "same_version", "periodic_not_declared",
+            "repeat_missing:candidate"} <= set(unmet)
+```
+
+2. **未计入原因的顺序按计划**：`not_declared_independent`、`facts_missing`、`declarations_block`、其余。补测试：`same_input="unknown"` 且只声明候选侧独立的重复，基线侧原因为 `not_declared_independent`、候选侧为 `declarations_block`。
+3. **页面按锚点标注当前记录。** `regression.js` 中每个 `anchor_comparison_id` 的最后一条为当前，其余为已取代。补测试：断言 JS 中出现 `anchor_comparison_id`，且不再用“全局最后一条”判断。
+4. **先算后改。** `evaluate_full_scale_check` 在 `case.comparisons.append(item)` 之前调用，结果与比较项在同一锁区间内一起追加。
+
+### 9D. 小修
+
+- `test_report_json_has_no_lines` 先断言 `payload["full_scale_checks"]` 非空，再检查不含 `lines`。
+- “declared, not verified” 一行补一条测试：`no_regression_detected` 的记录也有。
+- 删除 `build_case_report` 的 `approved_floors` 参数（模型校验器恒用产品登记处，该参数无效），相应测试直接调用 `validate_regression_case_report_integrity(..., approved_floors=...)`。
+- `rules/full_scale_check.py` 不再自带 `_canonical_json`，复用 `tools.regression_measurement._canonical_json`。
+- `zone_min_counted_samples` 加 `ge=0`；`approved_floors` 的类型标注补全。
+- `docs/REGRESSION_FULL_SCALE_CHECK_OFFLINE_ACCEPTANCE.md`：写明最终 tip 的完整 SHA；偏离清单补上代码身份登记行与本节涉及的修改；打包验证脚本如仍无法在本地运行，继续如实标注，并注明以 CI 为准。
+
+### 完成标准
+
+Task 8 Step 3 的五条命令在新的 tip 上全部通过，输出贴入 PR 描述；9A–9D 每条对应的测试函数名列入 PR 描述。随后由 Claude Code 复审。
