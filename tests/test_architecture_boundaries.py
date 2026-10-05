@@ -1299,6 +1299,7 @@ _V03_ADDITIVE_EXACT_PATHS = frozenset(
         "src/signal_diag/evaluation/recording.py",
         "src/signal_diag/evaluation/external/reference_harmonics.py",
         "src/signal_diag/dsp/clipping.py",
+        "src/signal_diag/dsp/full_scale.py",
         "src/signal_diag/tools/contracts.py",
         "src/signal_diag/tools/service.py",
         "src/signal_diag/tools/__init__.py",
