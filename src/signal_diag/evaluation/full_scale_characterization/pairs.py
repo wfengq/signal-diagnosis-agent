@@ -529,51 +529,31 @@ def _append_combo_pairs(
             )
 
 
+_CHANGE_BIT_DEPTHS: tuple[Literal[16, 24, 32], ...] = (16, 24, 32)
+
+
 def _append_change_pairs(
     group: SourceGroupRecord,
     c: CharacterizationConstants,
     *,
     pair_counter: list[dict],
 ) -> None:
+    """B.4 change pairs: both sides at the same bit depth (16, 24, 32), phase 0."""
     side = group.side
     ranges = _range_lengths_for_side(c, side)
-    enc16 = EncodingSpec(bits=16, rounding="round")
+    if abs(group.start_phase_rad) >= 1e-12:
+        return
 
     if group.family == "M1" and group.amplitude == 0.9:
         base = _base_effective(group)
-        depths = c.onset_calibration_depths if side == "calibration" else ()
-        specs = c.onset_validation_specs if side == "validation" else ()
+        if side == "calibration":
+            specs = tuple((0.995, depth) for depth in c.onset_calibration_depths)
+        else:
+            specs = c.onset_validation_specs
         for range_len in ranges:
-            if side == "calibration":
-                for depth in depths:
-                    old = _side_spec(base, encoding=enc16)
-                    new_eff = EffectiveMaterialParams(
-                        family="M3",
-                        f0_hz=group.f0_hz,
-                        sample_rate_hz=group.sample_rate_hz,
-                        phase_rad=group.start_phase_rad,
-                        level=0.995,
-                        depth=depth,
-                    )
-                    new = _side_spec(new_eff, encoding=enc16)
-                    _emit_identity(
-                        pair_counter,
-                        pair_id=_pair_id(group.group_key, "ONSET", str(depth), str(range_len)),
-                        side=side,
-                        kind="onset_change",
-                        family=group.family,
-                        source_group_key=group.group_key,
-                        perturbation_code="ONSET",
-                        perturbation_detail=f"depth={depth}",
-                        range_length_s=range_len,
-                        f0_hz=group.f0_hz,
-                        sample_rate_hz=group.sample_rate_hz,
-                        old_side=old,
-                        new_side=new,
-                    )
-            else:
-                for level, depth in specs:
-                    old = _side_spec(base, encoding=enc16)
+            for level, depth in specs:
+                for bits in _CHANGE_BIT_DEPTHS:
+                    enc = EncodingSpec(bits=bits, rounding="round")
                     new_eff = EffectiveMaterialParams(
                         family="M3",
                         f0_hz=group.f0_hz,
@@ -582,74 +562,74 @@ def _append_change_pairs(
                         level=level,
                         depth=depth,
                     )
-                    new = _side_spec(new_eff, encoding=enc16)
+                    id_parts: tuple[str, ...]
+                    if side == "calibration":
+                        id_parts = (group.group_key, "ONSET", str(depth), str(bits), str(range_len))
+                        detail = f"depth={depth}"
+                    else:
+                        id_parts = (
+                            group.group_key, "ONSET", str(level), str(depth), str(bits), str(range_len)
+                        )
+                        detail = f"level={level};depth={depth}"
                     _emit_identity(
                         pair_counter,
-                        pair_id=_pair_id(
-                            group.group_key, "ONSET", str(level), str(depth), str(range_len)
-                        ),
+                        pair_id=_pair_id(*id_parts),
                         side=side,
                         kind="onset_change",
                         family=group.family,
                         source_group_key=group.group_key,
                         perturbation_code="ONSET",
-                        perturbation_detail=f"level={level};depth={depth}",
+                        perturbation_detail=detail,
                         range_length_s=range_len,
                         f0_hz=group.f0_hz,
                         sample_rate_hz=group.sample_rate_hz,
-                        old_side=old,
-                        new_side=new,
+                        old_side=_side_spec(base, encoding=enc),
+                        new_side=_side_spec(new_eff, encoding=enc),
                     )
 
     if group.family == "M3" and group.level is not None and group.depth is not None:
         base = _base_effective(group)
         for range_len in ranges:
             for rel in c.aggravation_relative_peaks:
-                old = _side_spec(base, encoding=enc16)
-                aggravated = base.model_copy(
-                    update={"depth": group.depth / (1.0 + rel)}
-                )
-                new = _side_spec(aggravated, encoding=enc16)
-                _emit_identity(
-                    pair_counter,
-                    pair_id=_pair_id(group.group_key, "AGGR", str(rel), str(range_len)),
-                    side=side,
-                    kind="aggravation_change",
-                    family=group.family,
-                    source_group_key=group.group_key,
-                    perturbation_code="AGGR",
-                    perturbation_detail=f"rel_peak={rel}",
-                    range_length_s=range_len,
-                    f0_hz=group.f0_hz,
-                    sample_rate_hz=group.sample_rate_hz,
-                    old_side=old,
-                    new_side=new,
-                )
+                aggravated = base.model_copy(update={"depth": group.depth / (1.0 + rel)})
+                for bits in _CHANGE_BIT_DEPTHS:
+                    enc = EncodingSpec(bits=bits, rounding="round")
+                    _emit_identity(
+                        pair_counter,
+                        pair_id=_pair_id(group.group_key, "AGGR", str(rel), str(bits), str(range_len)),
+                        side=side,
+                        kind="aggravation_change",
+                        family=group.family,
+                        source_group_key=group.group_key,
+                        perturbation_code="AGGR",
+                        perturbation_detail=f"rel_peak={rel}",
+                        range_length_s=range_len,
+                        f0_hz=group.f0_hz,
+                        sample_rate_hz=group.sample_rate_hz,
+                        old_side=_side_spec(base, encoding=enc),
+                        new_side=_side_spec(aggravated, encoding=enc),
+                    )
 
 
 def _append_blind_pairs(c: CharacterizationConstants, *, pair_counter: list[dict]) -> None:
+    """B.4 blind-spot pairs (validation only, disclosure).
+
+    Sub-full-scale: for each level, depth old -> new at the same level.
+    Single sample: old = unclipped sine (amplitude ``blind_single_sample_old_amplitude``),
+    new = clipped at ``level`` with pre-clip peak ``pre_peak`` (depth = level / pre_peak).
+    """
     enc16 = EncodingSpec(bits=16, rounding="round")
+    old_depth, new_depth = c.blind_sublevel_depths
     for range_len in _range_lengths_for_side(c, "validation"):
-        for old_level, new_level, old_depth, new_depth in c.blind_sublevel_change:
+        for level in c.blind_sublevel_levels:
             for sr in c.sample_rates:
                 for f0 in c.validation_fixed_f0:
                     old_eff = EffectiveMaterialParams(
-                        family="M4",
-                        f0_hz=f0,
-                        sample_rate_hz=sr,
-                        phase_rad=0.0,
-                        level=old_level,
-                        depth=old_depth,
+                        family="M4", f0_hz=f0, sample_rate_hz=sr, phase_rad=0.0,
+                        level=level, depth=old_depth,
                     )
-                    new_eff = EffectiveMaterialParams(
-                        family="M4",
-                        f0_hz=f0,
-                        sample_rate_hz=sr,
-                        phase_rad=0.0,
-                        level=new_level,
-                        depth=new_depth,
-                    )
-                    key = f"blind_sub|{f0}|{sr}|{old_level}|{new_level}"
+                    new_eff = old_eff.model_copy(update={"depth": new_depth})
+                    key = f"blind_sub|{f0}|{sr}|{level}|{old_depth}->{new_depth}"
                     _emit_identity(
                         pair_counter,
                         pair_id=_pair_id(key, str(range_len)),
@@ -658,7 +638,7 @@ def _append_blind_pairs(c: CharacterizationConstants, *, pair_counter: list[dict
                         family="M4",
                         source_group_key=key,
                         perturbation_code="BLIND_SUB",
-                        perturbation_detail="sublevel",
+                        perturbation_detail=f"level={level};depth={old_depth}->{new_depth}",
                         range_length_s=range_len,
                         f0_hz=f0,
                         sample_rate_hz=sr,
@@ -668,16 +648,14 @@ def _append_blind_pairs(c: CharacterizationConstants, *, pair_counter: list[dict
                     )
         f0, level, pre_peak = c.blind_single_sample
         for sr in c.sample_rates:
-            depth = pre_peak / level if level else 1.0
             old_eff = EffectiveMaterialParams(
-                family="M3",
-                f0_hz=f0,
-                sample_rate_hz=sr,
-                phase_rad=0.0,
-                level=level,
-                depth=depth,
+                family="M1", f0_hz=f0, sample_rate_hz=sr, phase_rad=0.0,
+                amplitude=c.blind_single_sample_old_amplitude,
             )
-            new_eff = old_eff
+            new_eff = EffectiveMaterialParams(
+                family="M3", f0_hz=f0, sample_rate_hz=sr, phase_rad=0.0,
+                level=level, depth=level / pre_peak,
+            )
             key = f"blind_single|{f0}|{sr}"
             _emit_identity(
                 pair_counter,
@@ -825,16 +803,22 @@ def planned_pair_counts_from_formulas(
             if seeds >= 2:
                 bump(side, family, "COMBO_P6_DUAL", ranges)
 
-        if group.family == "M1" and group.amplitude == 0.9:
+        phase_zero = abs(group.start_phase_rad) < 1e-12
+        if phase_zero and group.family == "M1" and group.amplitude == 0.9:
             if side == "calibration":
-                bump(side, family, "ONSET", ranges * len(c.onset_calibration_depths))
+                bump(side, family, "ONSET", ranges * len(c.onset_calibration_depths) * 3)
             else:
-                bump(side, family, "ONSET", ranges * len(c.onset_validation_specs))
-        if group.family == "M3" and group.level is not None and group.depth is not None:
-            bump(side, family, "AGGR", ranges * len(c.aggravation_relative_peaks))
+                bump(side, family, "ONSET", ranges * len(c.onset_validation_specs) * 3)
+        if (
+            phase_zero
+            and group.family == "M3"
+            and group.level is not None
+            and group.depth is not None
+        ):
+            bump(side, family, "AGGR", ranges * len(c.aggravation_relative_peaks) * 3)
 
     blind_ranges = len(_range_lengths_for_side(c, "validation"))
-    sub = len(c.blind_sublevel_change) * len(c.sample_rates) * len(c.validation_fixed_f0)
+    sub = len(c.blind_sublevel_levels) * len(c.sample_rates) * len(c.validation_fixed_f0)
     single = len(c.sample_rates)
     bump("validation", "M4", "BLIND_SUB", blind_ranges * sub)
     bump("validation", "M3", "BLIND_SINGLE", blind_ranges * single)

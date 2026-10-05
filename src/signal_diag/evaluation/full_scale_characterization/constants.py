@@ -108,8 +108,13 @@ class CharacterizationConstants(BaseModel):
     onset_calibration_depths: tuple[float, ...]
     onset_validation_specs: tuple[tuple[float, float], ...]
     aggravation_relative_peaks: tuple[float, ...]
-    blind_sublevel_change: tuple[tuple[float, float, float, float], ...]
+    # Sub-full-scale blind pairs: for each level, depth old -> new at the same level (B.4).
+    blind_sublevel_levels: tuple[float, ...]
+    blind_sublevel_depths: tuple[float, float]
+    # Single-sample blind pair: (f0, new-side level, new-side pre-clip peak); the old side
+    # is an unclipped sine of ``blind_single_sample_old_amplitude`` at the same f0.
     blind_single_sample: tuple[float, float, float]
+    blind_single_sample_old_amplitude: float
     validation_max_pair_ratio_to_calibration: float = 2.0
     scale_limit_enabled: bool = True
 
@@ -192,7 +197,6 @@ def make_round_1_constants() -> CharacterizationConstants:
                 left_depth=0.9,
                 right_family="M1",
                 right_amplitude=0.5,
-                swap_channels=True,
             ),
         ),
         m9_validation_layouts=(
@@ -225,8 +229,10 @@ def make_round_1_constants() -> CharacterizationConstants:
             (0.9901, 0.9),
         ),
         aggravation_relative_peaks=(1e-4, 1e-3, 1e-2, 5e-2, 1e-1),
-        blind_sublevel_change=((0.9, 0.98, 0.99, 0.9),),
+        blind_sublevel_levels=(0.9, 0.98),
+        blind_sublevel_depths=(0.99, 0.9),
         blind_single_sample=(997.0, 0.9905, 0.991),
+        blind_single_sample_old_amplitude=0.9,
         validation_max_pair_ratio_to_calibration=2.0,
         scale_limit_enabled=True,
     )

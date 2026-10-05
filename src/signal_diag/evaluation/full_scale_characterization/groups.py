@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
-from typing import Literal
+from typing import Any, Literal
 
 from signal_diag.evaluation.full_scale_characterization.constants import (
     CharacterizationConstants,
@@ -163,150 +163,155 @@ def _calibration_m9(c: CharacterizationConstants) -> Iterator[_GroupDraft]:
                 )
 
 
-def _validation_m1(c: CharacterizationConstants) -> Iterator[_GroupDraft]:
-    fixed_amps = c.m1_calibration_amplitudes
+_Dim = tuple[str, tuple, tuple]  # (name, fixed subset, held-out values)
+
+
+def _validation_grid(
+    c: CharacterizationConstants,
+    *,
+    family: str,
+    level_dims: list[_Dim],
+    has_phase: bool,
+    make: Callable[[float, int, float, dict[str, Any]], _GroupDraft],
+) -> Iterator[_GroupDraft]:
+    """Plan B.2 validation sub-grid for one family.
+
+    Rule 1: exactly one dimension (f0, phase where applicable, or one clipping
+    dimension) takes a held-out value; all others take the fixed subset.
+    Rule 2: f0 held out and at least one clipping dimension held out; the other
+    clipping dimensions fixed; phase 0.
+    """
+    phases_fixed = c.validation_fixed_start_phases_rad if has_phase else (0.0,)
+    f0_fixed = c.validation_fixed_f0
+    f0_held = c.validation_f0_heldout
+
+    def combos(held: frozenset[str]) -> Iterator[dict[str, Any]]:
+        pools = [(name, held_vals if name in held else fixed) for name, fixed, held_vals in level_dims]
+
+        def rec(i: int, acc: dict[str, Any]) -> Iterator[dict[str, Any]]:
+            if i == len(pools):
+                yield dict(acc)
+                return
+            name, values = pools[i]
+            for v in values:
+                acc[name] = v
+                yield from rec(i + 1, acc)
+            acc.pop(name, None)
+
+        yield from rec(0, {})
+
     for sr in c.sample_rates:
-        for f0 in c.validation_fixed_f0:
-            for amp in c.m1_validation_amplitudes_heldout:
-                yield _GroupDraft("validation", "M1", f0, sr, 0.0, amplitude=amp)
-        for f0 in c.validation_f0_heldout:
-            for amp in fixed_amps:
-                yield _GroupDraft("validation", "M1", f0, sr, 0.0, amplitude=amp)
-        for f0 in c.validation_f0_heldout:
-            for amp in c.m1_validation_amplitudes_heldout:
-                yield _GroupDraft("validation", "M1", f0, sr, 0.0, amplitude=amp)
+        # Rule 1, one clipping dimension held out.
+        for name, _fixed, _held in level_dims:
+            for f0 in f0_fixed:
+                for phase in phases_fixed:
+                    for values in combos(frozenset({name})):
+                        yield make(f0, sr, phase, values)
+        # Rule 1, phase held out.
+        if has_phase:
+            for f0 in f0_fixed:
+                for phase in c.validation_start_phases_heldout_rad:
+                    for values in combos(frozenset()):
+                        yield make(f0, sr, phase, values)
+        # Rule 1, f0 held out.
+        for f0 in f0_held:
+            for phase in phases_fixed:
+                for values in combos(frozenset()):
+                    yield make(f0, sr, phase, values)
+        # Rule 2: f0 held out and a non-empty set of clipping dimensions held out.
+        names = [name for name, _f, _h in level_dims]
+        subsets = [
+            frozenset(n for j, n in enumerate(names) if mask >> j & 1)
+            for mask in range(1, 1 << len(names))
+        ]
+        for f0 in f0_held:
+            for held in subsets:
+                for values in combos(held):
+                    yield make(f0, sr, 0.0, values)
+
+
+def _validation_m1(c: CharacterizationConstants) -> Iterator[_GroupDraft]:
+    yield from _validation_grid(
+        c,
+        family="M1",
+        level_dims=[("amp", c.m1_calibration_amplitudes, c.m1_validation_amplitudes_heldout)],
+        has_phase=False,
+        make=lambda f0, sr, ph, v: _GroupDraft("validation", "M1", f0, sr, ph, amplitude=v["amp"]),
+    )
 
 
 def _validation_m2(c: CharacterizationConstants) -> Iterator[_GroupDraft]:
-    for sr in c.sample_rates:
-        for f0 in c.validation_fixed_f0:
-            for peak in c.m2_validation_peaks_heldout:
-                for phase in c.validation_fixed_start_phases_rad:
-                    yield _GroupDraft("validation", "M2", f0, sr, phase, peak=peak)
-            for peak in c.validation_fixed_m2_peaks:
-                for phase in c.validation_start_phases_heldout_rad:
-                    yield _GroupDraft("validation", "M2", f0, sr, phase, peak=peak)
-        for f0 in c.validation_f0_heldout:
-            for peak in c.m2_validation_peaks_heldout:
-                yield _GroupDraft("validation", "M2", f0, sr, 0.0, peak=peak)
+    yield from _validation_grid(
+        c,
+        family="M2",
+        level_dims=[("peak", c.validation_fixed_m2_peaks, c.m2_validation_peaks_heldout)],
+        has_phase=True,
+        make=lambda f0, sr, ph, v: _GroupDraft("validation", "M2", f0, sr, ph, peak=v["peak"]),
+    )
 
 
 def _validation_m3(c: CharacterizationConstants) -> Iterator[_GroupDraft]:
-    for sr in c.sample_rates:
-        for f0 in c.validation_fixed_f0:
-            for level in c.m3_validation_levels_heldout:
-                for depth in c.validation_fixed_m3_depths:
-                    for phase in c.validation_fixed_start_phases_rad:
-                        yield _GroupDraft(
-                            "validation", "M3", f0, sr, phase, level=level, depth=depth
-                        )
-            for depth in c.m3_validation_depths_heldout:
-                for level in c.validation_fixed_m3_levels:
-                    for phase in c.validation_fixed_start_phases_rad:
-                        yield _GroupDraft(
-                            "validation", "M3", f0, sr, phase, level=level, depth=depth
-                        )
-            for phase in c.validation_start_phases_heldout_rad:
-                for level in c.validation_fixed_m3_levels:
-                    for depth in c.validation_fixed_m3_depths:
-                        yield _GroupDraft(
-                            "validation", "M3", f0, sr, phase, level=level, depth=depth
-                        )
-        for f0 in c.validation_f0_heldout:
-            for level in c.m3_validation_levels_heldout:
-                for depth in c.validation_fixed_m3_depths:
-                    yield _GroupDraft("validation", "M3", f0, sr, 0.0, level=level, depth=depth)
-            for depth in c.m3_validation_depths_heldout:
-                for level in c.validation_fixed_m3_levels:
-                    yield _GroupDraft("validation", "M3", f0, sr, 0.0, level=level, depth=depth)
+    yield from _validation_grid(
+        c,
+        family="M3",
+        level_dims=[
+            ("level", c.validation_fixed_m3_levels, c.m3_validation_levels_heldout),
+            ("depth", c.validation_fixed_m3_depths, c.m3_validation_depths_heldout),
+        ],
+        has_phase=True,
+        make=lambda f0, sr, ph, v: _GroupDraft(
+            "validation", "M3", f0, sr, ph, level=v["level"], depth=v["depth"]
+        ),
+    )
 
 
 def _validation_m4(c: CharacterizationConstants) -> Iterator[_GroupDraft]:
-    for sr in c.sample_rates:
-        for f0 in c.validation_fixed_f0:
-            for level in c.m4_validation_levels_heldout:
-                for depth in c.validation_fixed_m4_depths:
-                    yield _GroupDraft("validation", "M4", f0, sr, 0.0, level=level, depth=depth)
-            for depth in c.m4_validation_depths_heldout:
-                for level in c.validation_fixed_m4_levels:
-                    yield _GroupDraft("validation", "M4", f0, sr, 0.0, level=level, depth=depth)
-        for f0 in c.validation_f0_heldout:
-            for level in c.m4_validation_levels_heldout:
-                for depth in c.validation_fixed_m4_depths:
-                    yield _GroupDraft("validation", "M4", f0, sr, 0.0, level=level, depth=depth)
+    yield from _validation_grid(
+        c,
+        family="M4",
+        level_dims=[
+            ("level", c.validation_fixed_m4_levels, c.m4_validation_levels_heldout),
+            ("depth", c.validation_fixed_m4_depths, c.m4_validation_depths_heldout),
+        ],
+        has_phase=False,
+        make=lambda f0, sr, ph, v: _GroupDraft(
+            "validation", "M4", f0, sr, ph, level=v["level"], depth=v["depth"]
+        ),
+    )
 
 
 def _validation_m5(c: CharacterizationConstants) -> Iterator[_GroupDraft]:
-    for sr in c.sample_rates:
-        for f0 in c.validation_fixed_f0:
-            for harm in c.m5_validation_harmonics_heldout:
-                for level in c.validation_fixed_m5_levels:
-                    for depth in c.validation_fixed_m5_depths:
-                        for phase in c.validation_fixed_start_phases_rad:
-                            yield _GroupDraft(
-                                "validation",
-                                "M5",
-                                f0,
-                                sr,
-                                phase,
-                                level=level,
-                                depth=depth,
-                                harmonics=harm,
-                            )
-            for depth in c.m5_validation_depths_heldout:
-                for harm in c.validation_fixed_m5_harmonics:
-                    for level in c.validation_fixed_m5_levels:
-                        for phase in c.validation_fixed_start_phases_rad:
-                            yield _GroupDraft(
-                                "validation",
-                                "M5",
-                                f0,
-                                sr,
-                                phase,
-                                level=level,
-                                depth=depth,
-                                harmonics=harm,
-                            )
-            for phase in c.validation_start_phases_heldout_rad:
-                for harm in c.validation_fixed_m5_harmonics:
-                    for level in c.validation_fixed_m5_levels:
-                        for depth in c.validation_fixed_m5_depths:
-                            yield _GroupDraft(
-                                "validation",
-                                "M5",
-                                f0,
-                                sr,
-                                phase,
-                                level=level,
-                                depth=depth,
-                                harmonics=harm,
-                            )
-        for f0 in c.validation_f0_heldout:
-            for harm in c.m5_validation_harmonics_heldout:
-                for depth in c.validation_fixed_m5_depths:
-                    for level in c.validation_fixed_m5_levels:
-                        yield _GroupDraft(
-                            "validation",
-                            "M5",
-                            f0,
-                            sr,
-                            0.0,
-                            level=level,
-                            depth=depth,
-                            harmonics=harm,
-                        )
+    # The M5 level is not held out (B.2): both fixed levels are crossed with every combination.
+    yield from _validation_grid(
+        c,
+        family="M5",
+        level_dims=[
+            ("harm", c.validation_fixed_m5_harmonics, c.m5_validation_harmonics_heldout),
+            ("depth", c.validation_fixed_m5_depths, c.m5_validation_depths_heldout),
+            ("level", c.validation_fixed_m5_levels, ()),
+        ],
+        has_phase=True,
+        make=lambda f0, sr, ph, v: _GroupDraft(
+            "validation",
+            "M5",
+            f0,
+            sr,
+            ph,
+            level=v["level"],
+            depth=v["depth"],
+            harmonics=v["harm"],
+        ),
+    )
 
 
 def _validation_m6(c: CharacterizationConstants) -> Iterator[_GroupDraft]:
-    for sr in c.sample_rates:
-        for f0 in c.validation_fixed_f0:
-            for harm in c.m6_validation_harmonics:
-                yield _GroupDraft("validation", "M6", f0, sr, 0.0, harmonics=harm)
-        for f0 in c.validation_f0_heldout:
-            for harm in c.m6_calibration_harmonics:
-                yield _GroupDraft("validation", "M6", f0, sr, 0.0, harmonics=harm)
-            for harm in c.m6_validation_harmonics:
-                yield _GroupDraft("validation", "M6", f0, sr, 0.0, harmonics=harm)
+    yield from _validation_grid(
+        c,
+        family="M6",
+        level_dims=[("harm", c.m6_calibration_harmonics, c.m6_validation_harmonics)],
+        has_phase=False,
+        make=lambda f0, sr, ph, v: _GroupDraft("validation", "M6", f0, sr, ph, harmonics=v["harm"]),
+    )
 
 
 def _validation_m9(c: CharacterizationConstants) -> Iterator[_GroupDraft]:

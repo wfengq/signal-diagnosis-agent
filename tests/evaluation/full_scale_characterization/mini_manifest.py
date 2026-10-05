@@ -70,8 +70,10 @@ MINI = CharacterizationConstants(
     onset_calibration_depths=(0.9995,),
     onset_validation_specs=((0.995, 0.9999),),
     aggravation_relative_peaks=(1e-4,),
-    blind_sublevel_change=((0.9, 0.98, 0.99, 0.9),),
+    blind_sublevel_levels=(0.9, 0.98),
+    blind_sublevel_depths=(0.99, 0.9),
     blind_single_sample=(997.0, 0.9905, 0.991),
+    blind_single_sample_old_amplitude=0.9,
     validation_max_pair_ratio_to_calibration=2.0,
     scale_limit_enabled=False,
 )
