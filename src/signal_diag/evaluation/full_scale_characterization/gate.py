@@ -33,8 +33,8 @@ class ValidationAccess:
         return f"ValidationAccess(round_id={self.round_id!r}, freeze_digest={self.freeze_digest!r})"
 
 
-def issue_validation_access(freeze_digest: str, round_id: str) -> ValidationAccess:
-    """Internal: called by ``freeze.authorize_validation`` after full verification."""
+def _issue_validation_access(freeze_digest: str, round_id: str) -> ValidationAccess:
+    """Private: only ``freeze.authorize_validation`` issues access, after full verification."""
     return ValidationAccess(freeze_digest, round_id, _issuer=_ISSUER)
 
 

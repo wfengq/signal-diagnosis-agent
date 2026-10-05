@@ -155,6 +155,7 @@ class MeasurementRowSpec(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     side_spec: SideGenerationSpec
+    side: Side
     role: PairRole
     channel: ChannelMode
     time_range: TimeRange

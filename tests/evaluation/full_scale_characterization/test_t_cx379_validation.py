@@ -17,7 +17,10 @@ from signal_diag.evaluation.full_scale_characterization.freeze import (
     authorize_validation,
 )
 from signal_diag.evaluation.full_scale_characterization.gate import ValidationLocked
-from signal_diag.evaluation.full_scale_characterization.manifest import build_manifest
+from signal_diag.evaluation.full_scale_characterization.manifest import (
+    build_manifest,
+    iter_side_pairs,
+)
 from signal_diag.evaluation.full_scale_characterization.models import (
     Manifest,
     SanityAbort,
@@ -253,8 +256,8 @@ def test_t_cx379_count_requires_validation_access(frozen, tmp_path: Path) -> Non
 
 def _measured_validation_p0(access):
     pair = next(
-        p for p in _manifest().pairs
-        if p.side == "validation" and p.family == "M3" and p.perturbation_code == "P0"
+        p for p in iter_side_pairs(_manifest(), MINI, "validation", validation_access=access)
+        if p.family == "M3" and p.perturbation_code == "P0"
     )
     rows = measure_pair_checked(
         pair, file_duration_s=MINI.file_duration_s, full_scale_threshold=0.99, m9_layout=None,

@@ -117,6 +117,8 @@ class CharacterizationConstants(BaseModel):
     blind_single_sample_old_amplitude: float
     validation_max_pair_ratio_to_calibration: float = 2.0
     scale_limit_enabled: bool = True
+    # Expand calibration PairRecords into the manifest (small test grids only).
+    expand_pairs: bool = False
 
 
 def constants_digest(constants: CharacterizationConstants) -> str:

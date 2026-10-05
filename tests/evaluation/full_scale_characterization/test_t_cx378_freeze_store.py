@@ -51,6 +51,9 @@ from signal_diag.evaluation.full_scale_characterization.manifest import (
     iter_side_pairs,
 )
 from signal_diag.evaluation.full_scale_characterization.models import Manifest
+from signal_diag.evaluation.full_scale_characterization.pairs import (
+    _r0_description_records,
+)
 from signal_diag.evaluation.full_scale_characterization.reporting import (
     stage1_report_json,
     stage1_report_markdown,
@@ -81,9 +84,12 @@ def _rows_payload() -> list[dict]:
     return [{"b": 2, "a": 1.5, "pair_id": f"p{i}"} for i in range(50)]
 
 
-def _calibrated_store(root: Path) -> CharacterizationStore:
+def _calibrated_store(root: Path, *, manifest_round_id: str = "mini") -> CharacterizationStore:
     store = CharacterizationStore(root)
-    store.write_json("manifest.json", {"round_id": "mini", "pairs_list_sha256": "0" * 64})
+    store.write_json(
+        "manifest.json",
+        {"manifest": {"round_id": manifest_round_id}, "pairs_list_sha256": "0" * 64},
+    )
     store.write_json("identity.json", compute_identity(MINI))
     store.write_jsonl_gz("calibration_measurements/M2.jsonl.gz", _rows_payload())
     store.write_jsonl_gz("calibration_pairs/M2.jsonl.gz", _rows_payload())
@@ -94,8 +100,10 @@ def _calibrated_store(root: Path) -> CharacterizationStore:
     return store
 
 
-def _with_stage1(root: Path) -> tuple[CharacterizationStore, FreezeStage1]:
-    store = _calibrated_store(root)
+def _with_stage1(
+    root: Path, *, manifest_round_id: str = "mini"
+) -> tuple[CharacterizationStore, FreezeStage1]:
+    store = _calibrated_store(root, manifest_round_id=manifest_round_id)
     stage1 = draft_freeze_stage1(store, zone_row_id=_rid("K3c8"), **APPROVAL)
     write_freeze_stage1(store, stage1)
     records = _stage2_population()
@@ -111,8 +119,8 @@ def _with_stage1(root: Path) -> tuple[CharacterizationStore, FreezeStage1]:
     return store, stage1
 
 
-def _frozen(root: Path) -> tuple[CharacterizationStore, FreezeRecord]:
-    store, _ = _with_stage1(root)
+def _frozen(root: Path, *, manifest_round_id: str = "mini") -> tuple[CharacterizationStore, FreezeRecord]:
+    store, _ = _with_stage1(root, manifest_round_id=manifest_round_id)
     record = draft_freeze_record(store, floor_row_id="F3[periods<20.0|F2]", **APPROVAL)
     write_freeze_record(store, record)
     return store, record
@@ -359,7 +367,9 @@ def test_t_cx378_stage2_accepts_only_the_written_stage1(tmp_path: Path) -> None:
 
 
 def _validation_pair():
-    return next(p for p in _manifest().pairs if p.side == "validation" and p.family == "M2")
+    """A validation-side description without access (the manifest stores calibration only)."""
+    pair = next(p for p in _manifest().pairs if p.family == "M2" and p.perturbation_code == "P0")
+    return pair.model_copy(update={"side": "validation", "pair_id": pair.pair_id + "-v"})
 
 
 def test_t_cx378_no_freeze_record_locks_validation_entry_points(tmp_path: Path) -> None:
@@ -370,9 +380,9 @@ def test_t_cx378_no_freeze_record_locks_validation_entry_points(tmp_path: Path) 
         measure_pair_checked(pair, file_duration_s=MINI.file_duration_s, full_scale_threshold=0.99, m9_layout=None)
     with pytest.raises(ValidationLocked):
         next(iter_side_pairs(_manifest(), MINI, "validation"))
-    cal_pair = next(p for p in _manifest().pairs if p.side == "calibration" and p.family == "M2")
+    cal_pair = next(p for p in _manifest().pairs if p.family == "M2")
     calibration = list(iter_side_pairs(_manifest(), MINI, "calibration"))
-    assert calibration == [p for p in _manifest().pairs if p.side == "calibration"]
+    assert calibration == list(_manifest().pairs)
     assert row_specs_for_pair(
         cal_pair, file_duration_s=MINI.file_duration_s, full_scale_threshold=0.99, m9_layout=None
     )
@@ -409,7 +419,13 @@ def test_t_cx378_full_freeze_unlocks_validation_entry_points(tmp_path: Path) -> 
         validation_access=access,
     )
     pairs = list(iter_side_pairs(_manifest(), MINI, "validation", validation_access=access))
-    assert pairs == [p for p in _manifest().pairs if p.side == "validation"]
+    excluded = {e.pair_id for e in _manifest().excluded_near_duplicates}
+    expected = [
+        p
+        for p in _r0_description_records(_manifest().source_groups, MINI)
+        if p.side == "validation" and p.pair_id not in excluded
+    ]
+    assert pairs == expected
     store.write_jsonl_gz("validation_pairs/M2.jsonl.gz", [{"a": 1}], validation_access=access)
     with pytest.raises(TypeError):
         ValidationAccess("x" * 64)  # type: ignore[call-arg]

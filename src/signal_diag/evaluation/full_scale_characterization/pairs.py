@@ -11,6 +11,9 @@ from typing import Literal
 from signal_diag.evaluation.full_scale_characterization.constants import (
     CharacterizationConstants,
 )
+from signal_diag.evaluation.full_scale_characterization.gate import (
+    require_validation_access,
+)
 from signal_diag.evaluation.full_scale_characterization.materials import (
     normalize_phase,
     params_from_group_record,
@@ -687,12 +690,18 @@ def _pairs_for_group(group: SourceGroupRecord, c: CharacterizationConstants) -> 
 def enumerate_pairs(
     groups: tuple[SourceGroupRecord, ...],
     c: CharacterizationConstants,
+    *,
+    side: Side = "calibration",
+    validation_access: object = None,
 ) -> list[PairRecord]:
-    pairs: list[dict] = []
-    for group in groups:
-        pairs.extend(_pairs_for_group(group, c))
-    _append_blind_pairs(c, pair_counter=pairs)
-    return [_identity_dict_to_pair_record(d) for d in pairs]
+    """Pair records of one side; the validation side needs ``ValidationAccess``."""
+    return [
+        _identity_dict_to_pair_record(d)
+        for batch in enumerate_pair_batches(
+            groups, c, side=side, validation_access=validation_access
+        )
+        for d in batch
+    ]
 
 
 def enumerate_pair_batches(
@@ -700,7 +709,48 @@ def enumerate_pair_batches(
     c: CharacterizationConstants,
     *,
     batch_size: int = 512,
+    side: Side = "calibration",
+    validation_access: object = None,
 ) -> Iterator[list[dict]]:
+    """Batches of pair descriptions of one side; the validation side needs ``ValidationAccess``.
+
+    The check happens at call time, before anything is generated.
+    """
+    if side == "validation":
+        require_validation_access(validation_access, what="enumerate validation pairs")
+
+    def _filtered() -> Iterator[list[dict]]:
+        for batch in _r0_description_batches(groups, c, batch_size=batch_size):
+            kept = [d for d in batch if d["side"] == side]
+            if kept:
+                yield kept
+
+    return _filtered()
+
+
+def _r0_description_records(
+    groups: tuple[SourceGroupRecord, ...],
+    c: CharacterizationConstants,
+) -> list[PairRecord]:
+    """Private: every pair description of both sides (R0 hashing, A.15 scan, tests)."""
+    return [
+        _identity_dict_to_pair_record(d)
+        for batch in _r0_description_batches(groups, c)
+        for d in batch
+    ]
+
+
+def _r0_description_batches(
+    groups: tuple[SourceGroupRecord, ...],
+    c: CharacterizationConstants,
+    *,
+    batch_size: int = 512,
+) -> Iterator[list[dict]]:
+    """Private: pair descriptions of both sides, for R0 hashing and the A.15 scan only.
+
+    Descriptions carry no measured data; R0 needs them for the manifest hash
+    (plan A.15). Generation and measurement stay behind the validation gate.
+    """
     batch: list[dict] = []
     for group in groups:
         batch.extend(_pairs_for_group(group, c))
@@ -899,7 +949,7 @@ def iter_pair_identity_tuples(
     skip_pair_ids: frozenset[str] = frozenset(),
 ):
     """Yield canonical pair dicts without constructing PairRecord (ROUND_1 hash path)."""
-    for batch in enumerate_pair_batches(groups, c, batch_size=2048):
+    for batch in _r0_description_batches(groups, c, batch_size=2048):
         for pair in batch:
             if pair["pair_id"] in skip_pair_ids:
                 continue
@@ -911,7 +961,7 @@ def iter_pair_tuples(
     c: CharacterizationConstants,
 ):
     """Yield canonical pair dicts in deterministic expansion order."""
-    for batch in enumerate_pair_batches(groups, c, batch_size=2048):
+    for batch in _r0_description_batches(groups, c, batch_size=2048):
         for pair in batch:
             yield pair_tuple_for_hash(pair)
 

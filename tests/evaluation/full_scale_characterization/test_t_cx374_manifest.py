@@ -21,14 +21,27 @@ from signal_diag.evaluation.full_scale_characterization.models import (
     EffectiveMaterialParams,
     ScaleLimitExceeded,
 )
-from signal_diag.evaluation.full_scale_characterization.pairs import COMBO_CODES
+from signal_diag.evaluation.full_scale_characterization.pairs import (
+    COMBO_CODES,
+    _r0_description_records,
+)
 from tests.evaluation.full_scale_characterization.mini_manifest import MINI
+
+
+def _descriptions(manifest, constants=MINI):
+    """All pair descriptions (both sides) minus A.15 exclusions; R0-level access for tests."""
+    excluded = {e.pair_id for e in manifest.excluded_near_duplicates}
+    return [
+        p
+        for p in _r0_description_records(manifest.source_groups, constants)
+        if p.pair_id not in excluded
+    ]
 
 
 def test_source_group_side_consistency() -> None:
     manifest = build_manifest(MINI)
     group_side = {g.group_key: g.side for g in manifest.source_groups}
-    for pair in manifest.pairs:
+    for pair in _descriptions(manifest):
         assert group_side.get(pair.source_group_key, pair.side) == pair.side or pair.is_blind
 
 
@@ -53,9 +66,9 @@ def test_validation_has_each_family_combo_and_blind() -> None:
     manifest = build_manifest(MINI)
     families = {g.family for g in manifest.source_groups if g.side == "validation"}
     assert {"M1", "M2", "M3", "M4", "M5", "M6", "M9"}.issubset(families)
-    combo = [p for p in manifest.pairs if p.perturbation_code in COMBO_CODES]
+    combo = [p for p in _descriptions(manifest) if p.perturbation_code in COMBO_CODES]
     assert combo
-    blind = [p for p in manifest.pairs if p.is_blind]
+    blind = [p for p in _descriptions(manifest) if p.is_blind]
     assert blind
 
 

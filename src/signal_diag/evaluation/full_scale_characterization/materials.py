@@ -250,7 +250,11 @@ def synthesize_side_waveform(
     file_duration_s: float,
     m9_layout: M9ChannelLayout | None = None,
 ) -> tuple[np.ndarray, ...]:
-    """Return one mono buffer or stereo (left, right) buffers for a pair side."""
+    """Return one mono buffer or stereo (left, right) buffers for a pair side.
+
+    Internal: called by the executor (behind the validation gate) and by the R0
+    A.15 scan. Do not use it to generate validation materials directly.
+    """
     eff = spec.effective
     if eff.family == "M9":
         if m9_layout is None:

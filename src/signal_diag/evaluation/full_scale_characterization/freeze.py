@@ -28,7 +28,7 @@ from signal_diag.evaluation.full_scale_characterization.fitting import (
 from signal_diag.evaluation.full_scale_characterization.gate import (
     ValidationAccess,
     ValidationLocked,
-    issue_validation_access,
+    _issue_validation_access,
 )
 from signal_diag.evaluation.full_scale_characterization.identity import (
     assert_identity_matches,
@@ -368,7 +368,20 @@ def authorize_validation(
     except ValidationError as error:
         raise ValidationLocked(f"{FREEZE_RECORD} is invalid: {error}") from error
     verify_freeze_record(store, record)
-    return issue_validation_access(record.digest, record.stage1.round_id)
+    manifest_round = _manifest_round_id(store)
+    if record.stage1.round_id != manifest_round:
+        raise ValidationLocked(
+            f"freeze record round {record.stage1.round_id!r} differs from manifest round {manifest_round!r}"
+        )
+    return _issue_validation_access(record.digest, record.stage1.round_id)
+
+
+def _manifest_round_id(store: CharacterizationStore) -> str:
+    payload = store.read_json("manifest.json")
+    try:
+        return str(payload["manifest"]["round_id"])
+    except (KeyError, TypeError) as error:
+        raise ValidationLocked("manifest.json does not carry manifest.round_id") from error
 
 
 __all__ = [

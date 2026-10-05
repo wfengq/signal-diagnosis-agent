@@ -21,7 +21,20 @@ from signal_diag.evaluation.full_scale_characterization.materials import (
     synthesize_mono,
 )
 from signal_diag.evaluation.full_scale_characterization.models import SourceGroupRecord
+from signal_diag.evaluation.full_scale_characterization.pairs import (
+    _r0_description_records,
+)
 from tests.evaluation.full_scale_characterization.mini_manifest import MINI
+
+
+def _descriptions(manifest, constants=MINI):
+    """All pair descriptions (both sides) minus A.15 exclusions; R0-level access for tests."""
+    excluded = {e.pair_id for e in manifest.excluded_near_duplicates}
+    return [
+        p
+        for p in _r0_description_records(manifest.source_groups, constants)
+        if p.pair_id not in excluded
+    ]
 
 
 def _held_out_dims(g: SourceGroupRecord, c: CharacterizationConstants) -> tuple[set[str], bool]:
@@ -132,7 +145,7 @@ def test_t_cx374_change_pairs_cover_three_bit_depths_at_phase_zero() -> None:
     c = _mini_with_phases()
     manifest = build_manifest(c)
     groups = {g.group_key: g for g in manifest.source_groups}
-    change = [p for p in manifest.pairs if p.kind in ("onset_change", "aggravation_change")]
+    change = [p for p in _descriptions(manifest, c) if p.kind in ("onset_change", "aggravation_change")]
     assert change
     bits_by_cell: dict[tuple, set[int]] = {}
     for p in change:
@@ -159,9 +172,10 @@ def test_t_cx374_change_pairs_cover_three_bit_depths_at_phase_zero() -> None:
 def test_t_cx374_formula_counts_match_enumerated_pairs() -> None:
     c = _mini_with_phases()
     manifest = build_manifest(c)
-    enumerated = Counter(p.side for p in manifest.pairs)
+    described = _descriptions(manifest, c)
+    enumerated = Counter(p.side for p in described)
     assert dict(enumerated) == manifest.planned_pair_counts.by_side
-    per = Counter((p.side, p.family, p.perturbation_code) for p in manifest.pairs)
+    per = Counter((p.side, p.family, p.perturbation_code) for p in described)
     planned = {
         (side, fam, code): n
         for side, fams in manifest.planned_pair_counts.by_side_family_perturbation.items()
@@ -182,9 +196,9 @@ def test_t_cx374_m9_calibration_layouts_swap_left_and_right() -> None:
 
 
 def test_t_cx374_blind_pairs_change_material_and_clip_new_side() -> None:
-    manifest = build_manifest(MINI)
-    single = [p for p in manifest.pairs if p.perturbation_code == "BLIND_SINGLE"]
-    sub = [p for p in manifest.pairs if p.perturbation_code == "BLIND_SUB"]
+    described = _descriptions(build_manifest(MINI))
+    single = [p for p in described if p.perturbation_code == "BLIND_SINGLE"]
+    sub = [p for p in described if p.perturbation_code == "BLIND_SUB"]
     assert single and sub
     f0, level, pre_peak = MINI.blind_single_sample
     for p in single:

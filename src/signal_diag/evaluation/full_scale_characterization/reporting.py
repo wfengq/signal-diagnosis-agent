@@ -1,4 +1,4 @@
-"""Calibration stage reports (JSON + Markdown); rows are listed in grid order, unordered by merit."""
+"""Report rendering; rows are listed in grid order, unordered by merit.\n\nStage-1/stage-2 JSON comes from fitting.py (re-exported here); this module renders\nMarkdown and the validation report.\n"""
 
 from __future__ import annotations
 
@@ -7,54 +7,27 @@ from collections.abc import Sequence
 from typing import Any
 
 from signal_diag.evaluation.full_scale_characterization.fitting import (
+    STAGE1_REPORT_NOTE,
+    STAGE2_REPORT_NOTE,
     Stage1Row,
     Stage1Selection,
     Stage2Row,
+    stage1_report_json,
+    stage2_report_json,
 )
 from signal_diag.evaluation.full_scale_characterization.validation import (
     ValidationResult,
     Violation,
 )
 
-_STAGE1_NOTE = (
-    "Every (domain, K row) from the fixed C.4 tables is listed in generation order. "
-    "The tool does not order or select rows; a reviewer selects one for the freeze record."
-)
-_STAGE2_NOTE = (
-    "Every F row for the selected (domain, K row) is listed in generation order. "
-    "The tool does not order or select rows; a reviewer selects one for the freeze record."
-)
+# The stage-1/stage-2 JSON reports are the frozen-value source for freeze records, so
+# they are built in fitting.py (identity comparison set); this module adds Markdown only.
+_STAGE1_NOTE = STAGE1_REPORT_NOTE
+_STAGE2_NOTE = STAGE2_REPORT_NOTE
 
 
 def _dumps(payload: dict[str, Any]) -> str:
     return json.dumps(payload, sort_keys=True, indent=2, allow_nan=False, ensure_ascii=False) + "\n"
-
-
-def stage1_report_json(rows: Sequence[Stage1Row], *, round_id: str) -> str:
-    return _dumps(
-        {
-            "round_id": round_id,
-            "stage": 1,
-            "note": _STAGE1_NOTE,
-            "row_count": len(rows),
-            "rows": [r.model_dump(mode="json") for r in rows],
-        }
-    )
-
-
-def stage2_report_json(
-    rows: Sequence[Stage2Row], *, round_id: str, selection: Stage1Selection
-) -> str:
-    return _dumps(
-        {
-            "round_id": round_id,
-            "stage": 2,
-            "note": _STAGE2_NOTE,
-            "stage1_selection": selection.model_dump(mode="json"),
-            "row_count": len(rows),
-            "rows": [r.model_dump(mode="json") for r in rows],
-        }
-    )
 
 
 def _fmt(value: object) -> str:
@@ -303,3 +276,13 @@ def validation_report_markdown(result: ValidationResult, *, round_id: str) -> st
         "",
     ]
     return "\n".join(lines)
+
+
+__all__ = [
+    "stage1_report_json",
+    "stage1_report_markdown",
+    "stage2_report_json",
+    "stage2_report_markdown",
+    "validation_report_json",
+    "validation_report_markdown",
+]

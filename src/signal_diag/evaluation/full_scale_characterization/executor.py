@@ -133,8 +133,18 @@ def _encode_side(spec: SideGenerationSpec, *, file_duration_s: float, m9_layout:
     )
 
 
-def measure_row(spec: MeasurementRowSpec, *, cache: MeasurementCache | None = None) -> MeasurementRow:
-    """Run the full tool path for one measurement-table row."""
+def measure_row(
+    spec: MeasurementRowSpec,
+    *,
+    cache: MeasurementCache | None = None,
+    validation_access: object = None,
+) -> MeasurementRow:
+    """Run the full tool path for one measurement-table row.
+
+    Validation-side specs require a ``ValidationAccess`` from a verified freeze record.
+    """
+    if spec.side == "validation":
+        require_validation_access(validation_access, what="measure a validation row")
     store = cache if cache is not None else {}
     m9_layout = (
         M9ChannelLayout.model_validate(spec.m9_layout) if spec.m9_layout is not None else None
@@ -279,6 +289,7 @@ def row_specs_for_pair(
             specs.append(
                 MeasurementRowSpec(
                     side_spec=side_spec,
+                    side=pair.side,
                     role=cast(PairRole, role),
                     channel=channel,
                     time_range=time_range,
@@ -354,8 +365,11 @@ def direct_reference_counts(
     spec: MeasurementRowSpec,
     *,
     wav_bytes: bytes | None = None,
+    validation_access: object = None,
 ) -> tuple[object, object]:
     """Re-run facts and sample counting for test verification (not cached)."""
+    if spec.side == "validation":
+        require_validation_access(validation_access, what="measure a validation row")
     m9_layout = (
         M9ChannelLayout.model_validate(spec.m9_layout) if spec.m9_layout is not None else None
     )

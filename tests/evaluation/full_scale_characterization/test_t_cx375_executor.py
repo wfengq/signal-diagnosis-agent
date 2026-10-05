@@ -102,6 +102,7 @@ def test_m9_left_channel_matches_mono_same_params() -> None:
         phase_rad=pair.old_side.effective.phase_rad,
     )
     mono_spec = MeasurementRowSpec(
+        side="calibration",
         side_spec=SideGenerationSpec(
             encoding=pair.old_side.encoding,
             effective=left_params,

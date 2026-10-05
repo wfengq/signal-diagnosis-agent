@@ -76,4 +76,5 @@ MINI = CharacterizationConstants(
     blind_single_sample_old_amplitude=0.9,
     validation_max_pair_ratio_to_calibration=2.0,
     scale_limit_enabled=False,
+    expand_pairs=True,
 )

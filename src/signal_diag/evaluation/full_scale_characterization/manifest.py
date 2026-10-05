@@ -36,6 +36,7 @@ from signal_diag.evaluation.full_scale_characterization.models import (
 )
 from signal_diag.evaluation.full_scale_characterization.pairs import (
     _identity_dict_to_pair_record,
+    _r0_description_batches,
     canonical_pair_tuple_bytes,
     default_pair_templates,
     enumerate_pair_batches,
@@ -101,7 +102,7 @@ def build_manifest(
     clear_wave_cache()
     groups = enumerate_source_groups(constants)
 
-    if constants.round_id == "round_1":
+    if not constants.expand_pairs:
         wave_index = _validation_wave_index(groups, constants)
         excluded_ids, excluded_accum, excluded_families = scan_calibration_near_duplicate_exclusions(
             groups,
@@ -140,7 +141,7 @@ def build_manifest(
     validation_index = build_validation_effective_index(groups)
     mini_excluded_families: list[tuple[str, str]] = []
 
-    for batch in enumerate_pair_batches(groups, constants, batch_size=1024):
+    for batch in _r0_description_batches(groups, constants, batch_size=1024):
         assert_no_param_leakage(batch, validation_index)
         records: list[PairRecord] = [_identity_dict_to_pair_record(d) for d in batch]
         kept_records, excluded_part = exclude_near_duplicate_sensitivity_pairs(
@@ -158,7 +159,8 @@ def build_manifest(
             if d["pair_id"] not in kept_ids:
                 continue
             pair_hasher.update(canonical_pair_tuple_bytes(pair_tuple_for_hash(d)))
-        stored_pairs.extend(kept_records)
+        # Only calibration records are stored; validation descriptions enter the hash only.
+        stored_pairs.extend(r for r in kept_records if r.side == "calibration")
 
     counts = planned_pair_counts_from_formulas(groups, constants)
     counts = _subtract_excluded_counts(counts, mini_excluded_families)
@@ -206,10 +208,18 @@ def iter_side_pairs(
         raise ValueError("constants do not match the manifest constants_digest")
     excluded = {e.pair_id for e in manifest.excluded_near_duplicates}
 
+    batches = enumerate_pair_batches(
+        manifest.source_groups,
+        constants,
+        batch_size=1024,
+        side=side,
+        validation_access=validation_access,
+    )
+
     def _generate() -> Iterator[PairRecord]:
-        for batch in enumerate_pair_batches(manifest.source_groups, constants, batch_size=1024):
+        for batch in batches:
             for identity in batch:
-                if identity["side"] != side or identity["pair_id"] in excluded:
+                if identity["pair_id"] in excluded:
                     continue
                 yield _identity_dict_to_pair_record(identity)
 

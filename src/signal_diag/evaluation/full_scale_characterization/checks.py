@@ -145,7 +145,9 @@ def measure_pair_checked(
         validation_access=validation_access,
     ):
         try:
-            rows[(spec.role, spec.channel)] = measure_row(spec, cache=cache)
+            rows[(spec.role, spec.channel)] = measure_row(
+                spec, cache=cache, validation_access=validation_access
+            )
         except SanityAbort as error:
             raise _abort(pair, spec.channel, CHECK_FACTS, f"role={spec.role}: {error}") from error
     return rows

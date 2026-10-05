@@ -136,6 +136,7 @@ def test_t_cx373_p9a_review_counterexample_flips_on_full_tool_path() -> None:
         rows[role] = measure_row(
             MeasurementRowSpec(
                 side_spec=side,
+                side="calibration",
                 role=role,  # type: ignore[arg-type]
                 channel="left",
                 time_range=TimeRange(start_s=0.0, end_s=0.1),

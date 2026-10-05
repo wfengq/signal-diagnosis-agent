@@ -8,9 +8,10 @@ accepted.
 
 from __future__ import annotations
 
+import json
 import math
 from collections.abc import Sequence
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
@@ -559,4 +560,49 @@ def fit_stage2(
             excluded_by_reason=dict(sorted(excluded.items())),
         )
         for row_id, floor, segments in floors
+    )
+
+
+# ---------------------------------------------------------------------------
+# Stage reports (JSON). Freeze records select from these files, so they are built
+# here, inside the identity comparison set; reporting.py renders Markdown only.
+
+STAGE1_REPORT_NOTE = (
+    "Every (domain, K row) from the fixed C.4 tables is listed in generation order. "
+    "The tool does not order or select rows; a reviewer selects one for the freeze record."
+)
+STAGE2_REPORT_NOTE = (
+    "Every F row for the selected (domain, K row) is listed in generation order. "
+    "The tool does not order or select rows; a reviewer selects one for the freeze record."
+)
+
+
+def _report_text(payload: dict[str, Any]) -> str:
+    return json.dumps(payload, sort_keys=True, indent=2, allow_nan=False, ensure_ascii=False) + "\n"
+
+
+def stage1_report_json(rows: Sequence[Stage1Row], *, round_id: str) -> str:
+    return _report_text(
+        {
+            "round_id": round_id,
+            "stage": 1,
+            "note": STAGE1_REPORT_NOTE,
+            "row_count": len(rows),
+            "rows": [r.model_dump(mode="json") for r in rows],
+        }
+    )
+
+
+def stage2_report_json(
+    rows: Sequence[Stage2Row], *, round_id: str, selection: Stage1Selection
+) -> str:
+    return _report_text(
+        {
+            "round_id": round_id,
+            "stage": 2,
+            "note": STAGE2_REPORT_NOTE,
+            "stage1_selection": selection.model_dump(mode="json"),
+            "row_count": len(rows),
+            "rows": [r.model_dump(mode="json") for r in rows],
+        }
     )
