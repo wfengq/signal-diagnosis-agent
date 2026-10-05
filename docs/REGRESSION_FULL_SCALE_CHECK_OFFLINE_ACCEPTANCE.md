@@ -2,7 +2,7 @@
 
 **Branch:** `cursor/s1-full-scale-check`
 **Baseline tip:** `16450ffe904c48294148418ddadfe87c04af6e74`
-**Acceptance tip:** `f3109ee` (closeout identity + ruff); post-closeout `git rev-parse HEAD` after any further commits.
+**Acceptance tip:** see `git rev-parse HEAD` on this branch after closeout commit.
 
 ## Verification commands (raw summaries)
 
