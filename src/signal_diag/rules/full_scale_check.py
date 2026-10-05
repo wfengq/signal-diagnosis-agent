@@ -11,17 +11,13 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from signal_diag.rules.regression import (
-    ComparisonConditions,
     ComparisonProfile,
     ComparisonRecord,
     MetricStatus,
     _declarations_block_regression,
 )
 from signal_diag.tools.regression_full_scale import (
-    FULL_SCALE_FACTS_VERSION,
-    FULL_SCALE_MIN_CONSECUTIVE_SAMPLES,
     FullScaleFacts,
-    full_scale_facts_digest,
     verify_full_scale_facts,
 )
 from signal_diag.tools.regression_measurement import ComparisonSide, InputIdentity
@@ -126,6 +122,8 @@ class FullScaleCheckRecord(BaseModel):
 
 PRODUCT_APPROVED_FULL_SCALE_FLOORS: tuple[FullScaleMethodFloor, ...] = ()
 
+_BOTH_SIDES: tuple[ComparisonSide, ComparisonSide] = ("baseline", "candidate")
+
 
 def resolve_anchor_id(
     comparison_id: str,
@@ -165,10 +163,10 @@ def select_counted_repeats(
 
         decl_block = _declarations_block_regression(repeat.record.conditions)
         if decl_block is not None:
-            for side in ("baseline", "candidate"):
+            for side in _BOTH_SIDES:
                 sides_blocked[side] = "declarations_block"
 
-        for side in ("baseline", "candidate"):
+        for side in _BOTH_SIDES:
             if side in sides_blocked:
                 continue
             if not _independent_declared(repeat.declarations, side):
@@ -183,30 +181,30 @@ def select_counted_repeats(
             if _identity_mismatch(anchor_base_id, repeat.record.baseline_bundle.identity) or (
                 _identity_mismatch(anchor_cand_id, repeat.record.candidate_bundle.identity)
             ):
-                for side in ("baseline", "candidate"):
+                for side in _BOTH_SIDES:
                     if side not in sides_blocked:
                         sides_blocked[side] = "selection_mismatch"
             elif _range_mismatch(anchor_base_id, repeat.record.baseline_bundle.identity) or (
                 _range_mismatch(anchor_cand_id, repeat.record.candidate_bundle.identity)
             ):
-                for side in ("baseline", "candidate"):
+                for side in _BOTH_SIDES:
                     if side not in sides_blocked:
                         sides_blocked[side] = "range_mismatch"
             elif anchor_base_id.sample_rate_hz != repeat.record.baseline_bundle.identity.sample_rate_hz or (
                 anchor_cand_id.sample_rate_hz != repeat.record.candidate_bundle.identity.sample_rate_hz
             ):
-                for side in ("baseline", "candidate"):
+                for side in _BOTH_SIDES:
                     if side not in sides_blocked:
                         sides_blocked[side] = "sample_rate_mismatch"
             elif (
                 anchor_conditions.baseline_version != repeat.record.conditions.baseline_version
                 or anchor_conditions.candidate_version != repeat.record.conditions.candidate_version
             ):
-                for side in ("baseline", "candidate"):
+                for side in _BOTH_SIDES:
                     if side not in sides_blocked:
                         sides_blocked[side] = "version_mismatch"
 
-        for side in ("baseline", "candidate"):
+        for side in _BOTH_SIDES:
             if side in sides_blocked:
                 uncounted.append(
                     UncountedRepeat(comparison_id=cid, side=side, reason=sides_blocked[side])
@@ -285,6 +283,7 @@ def evaluate_full_scale_check(
     both_facts = anchor_base is not None and anchor_cand is not None
 
     if both_facts:
+        assert anchor_base is not None and anchor_cand is not None
         if len(base_rep) < 1:
             unmet.append("repeat_missing:baseline")
         if len(cand_rep) < 1:
@@ -317,7 +316,7 @@ def evaluate_full_scale_check(
     fundamental_ok = f0 is not None and math.isfinite(f0) and f0 > 0
     if not fundamental_ok:
         unmet.append("fundamental_not_declared")
-    elif floor_ok and both_facts and floor is not None:
+    elif floor_ok and both_facts and floor is not None and anchor_base is not None and f0 is not None:
         sr = identity.sample_rate_hz
         analyzed = anchor_base.analyzed_samples
         if sr / f0 < floor.min_samples_per_period:
@@ -327,11 +326,11 @@ def evaluate_full_scale_check(
 
     if anchor_base is not None or anchor_cand is not None:
         step = _quantization_step(anchor_base, anchor_cand)
-        threshold = (
-            anchor_base.full_scale_threshold
-            if anchor_base is not None
-            else anchor_cand.full_scale_threshold
-        )
+        if anchor_base is not None:
+            threshold = anchor_base.full_scale_threshold
+        else:
+            assert anchor_cand is not None
+            threshold = anchor_cand.full_scale_threshold
         if anchor_base is not None and not _facts_missing_side(unmet, "baseline"):
             if _in_critical_zone(
                 anchor_base,
@@ -352,11 +351,19 @@ def evaluate_full_scale_check(
     transition: FullScaleTransition | None = None
     count_difference: int | None = None
     if both_facts:
+        assert anchor_base is not None and anchor_cand is not None
         transition = _transition(anchor_base, anchor_cand)
         count_difference = anchor_cand.counted_samples - anchor_base.counted_samples
 
     status = _resolve_status(unmet, unevaluated)
-    if not unmet and not unevaluated and both_facts and floor is not None:
+    if (
+        not unmet
+        and not unevaluated
+        and both_facts
+        and floor is not None
+        and transition is not None
+        and anchor_base is not None
+    ):
         status = _judgment_status(transition, count_difference, anchor_base, floor)
 
     record_without_digest = FullScaleCheckRecord(

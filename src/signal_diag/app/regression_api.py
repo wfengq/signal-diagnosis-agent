@@ -11,24 +11,24 @@ from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from signal_diag.app.errors import ApplicationError, InvalidRequestError
+from signal_diag.app.full_scale_wording import full_scale_check_lines
 from signal_diag.app.models import AppErrorDetail, AppErrorEnvelope
 from signal_diag.app.multipart import (
     ParsedRegressionComparisonUpload,
     parse_regression_comparison_upload,
 )
-from signal_diag.app.full_scale_wording import full_scale_check_lines
 from signal_diag.app.regression import (
     ComparisonUpload,
     RegressionCaseSnapshot,
     RegressionWorkbenchService,
     RetestLink,
 )
-from signal_diag.rules.full_scale_check import FullScaleDeclarations
 from signal_diag.app.regression_reporting import (
     build_case_report,
     render_case_html,
     render_case_json,
 )
+from signal_diag.rules.full_scale_check import FullScaleDeclarations
 from signal_diag.rules.regression import ComparisonConditions
 from signal_diag.signal import WavLoadLimits
 from signal_diag.tools.regression_measurement import MeasurementSelection

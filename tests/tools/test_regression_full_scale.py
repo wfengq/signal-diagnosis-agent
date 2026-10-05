@@ -15,7 +15,13 @@ from signal_diag.tools.regression_measurement import (
     measure_output,
     verify_measurement_bundle_digest,
 )
-from tests.rules.full_scale_fixtures import measured, redigest, sine, wav16, wav16_stereo
+from tests.rules.full_scale_fixtures import (
+    measured,
+    redigest,
+    sine,
+    wav16,
+    wav16_stereo,
+)
 
 
 def test_t_cx349_facts_follow_bundle_range_and_channel() -> None:

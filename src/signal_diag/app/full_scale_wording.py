@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Mapping
+from collections.abc import Mapping
 
-from signal_diag.rules.full_scale_check import FullScaleCheckRecord, FullScaleMethodFloor
+from signal_diag.rules.full_scale_check import (
+    FullScaleCheckRecord,
+    FullScaleMethodFloor,
+)
 
 FULL_SCALE_TEMPLATES: Mapping[str, str] = {
     "status.regression_detected": "Samples reaching the full-scale threshold increased.",

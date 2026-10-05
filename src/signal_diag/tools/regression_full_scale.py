@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import hashlib
-import json
-from typing import Literal
+from typing import Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from signal_diag.dsp.full_scale import count_full_scale_samples
 from signal_diag.signal import SignalRepository
 from signal_diag.signal.segment import extract_segment
 from signal_diag.tools.regression_measurement import (
@@ -15,7 +15,6 @@ from signal_diag.tools.regression_measurement import (
     MeasurementBundle,
     _canonical_json,
 )
-from signal_diag.dsp.full_scale import count_full_scale_samples
 
 FULL_SCALE_FACTS_VERSION = "v0.3-full-scale-facts-1"
 FULL_SCALE_MIN_CONSECUTIVE_SAMPLES = 2
@@ -73,6 +72,7 @@ def measure_full_scale_facts(
     state: Literal["yes", "no"] = "yes" if counts.counted_samples > 0 else "no"
     if pcm_bit_depth not in (8, 16, 24, 32):
         raise ValueError("pcm_bit_depth must be 8, 16, 24, or 32")
+    depth = cast(Literal[8, 16, 24, 32], pcm_bit_depth)
 
     without_digest = FullScaleFacts(
         side=identity.side,
@@ -86,7 +86,7 @@ def measure_full_scale_facts(
         state=state,
         peak_abs=counts.peak_abs,
         analyzed_samples=counts.analyzed_samples,
-        pcm_bit_depth=pcm_bit_depth,
+        pcm_bit_depth=depth,
         facts_version=FULL_SCALE_FACTS_VERSION,
         digest="0" * 64,
     )

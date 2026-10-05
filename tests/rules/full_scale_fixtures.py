@@ -3,20 +3,11 @@
 from __future__ import annotations
 
 import hashlib
-import math
 import struct
 from typing import Literal
 
 import numpy as np
 
-from signal_diag.signal import (
-    InMemorySignalRepository,
-    TimeRange,
-    generate_sine,
-    load_wav_bytes,
-)
-from signal_diag.tools.contracts import ClippingInput, HarmonicDistortionInput
-from signal_diag.rules.regression import ComparisonConditions, compare_measurements
 from signal_diag.rules.full_scale_check import (
     TOLERATED_DIFFERENCE_ID,
     FullScaleDeclarations,
@@ -24,6 +15,14 @@ from signal_diag.rules.full_scale_check import (
     FullScaleSubmission,
     full_scale_floor_digest,
 )
+from signal_diag.rules.regression import ComparisonConditions, compare_measurements
+from signal_diag.signal import (
+    InMemorySignalRepository,
+    TimeRange,
+    generate_sine,
+    load_wav_bytes,
+)
+from signal_diag.tools.contracts import ClippingInput, HarmonicDistortionInput
 from signal_diag.tools.regression_full_scale import measure_full_scale_facts
 from signal_diag.tools.regression_measurement import (
     InputIdentity,
@@ -385,7 +384,7 @@ FIXTURE_FLOOR = _fixture_floor_body.model_copy(
 )
 
 
-def redigest(model):  # noqa: ANN001, ANN201
+def redigest(model):
     """Recompute digest field after model_copy updates (full-scale facts/floor helpers)."""
     from pydantic import BaseModel
 

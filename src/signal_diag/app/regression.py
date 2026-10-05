@@ -44,7 +44,6 @@ from signal_diag.rules.regression import (
     ComparisonRecord,
     compare_measurements,
 )
-from signal_diag.tools.regression_full_scale import FullScaleFacts, measure_full_scale_facts
 from signal_diag.signal import (
     InvalidWavError,
     SignalLimitExceededError,
@@ -55,6 +54,10 @@ from signal_diag.signal.models import TimeRange
 from signal_diag.signal.repository import InMemorySignalRepository
 from signal_diag.signal.segment import _resolve_sample_bounds
 from signal_diag.signal.wav import WavLoadLimits
+from signal_diag.tools.regression_full_scale import (
+    FullScaleFacts,
+    measure_full_scale_facts,
+)
 from signal_diag.tools.regression_measurement import (
     InputIdentity,
     MeasurementSelection,

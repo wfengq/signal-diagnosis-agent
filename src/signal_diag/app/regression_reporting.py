@@ -8,7 +8,10 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from signal_diag.app.full_scale_wording import CLIPPING_RATIO_NOTICE, full_scale_check_lines
+from signal_diag.app.full_scale_wording import (
+    CLIPPING_RATIO_NOTICE,
+    full_scale_check_lines,
+)
 from signal_diag.app.regression import (
     CaseComparisonItem,
     CaseFailureRecord,
@@ -17,8 +20,8 @@ from signal_diag.app.regression import (
     submissions_from_items,
 )
 from signal_diag.rules.full_scale_check import (
-    FullScaleCheckRecord,
     PRODUCT_APPROVED_FULL_SCALE_FLOORS,
+    FullScaleCheckRecord,
     resolve_anchor_id,
     validate_full_scale_check_record,
 )

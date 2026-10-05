@@ -6,8 +6,6 @@ import numpy as np
 import pytest
 from pydantic import ValidationError
 
-from signal_diag.signal import TimeRange
-
 from signal_diag.rules.full_scale_check import (
     FullScaleDeclarations,
     assert_product_profile_allowed,
@@ -16,6 +14,7 @@ from signal_diag.rules.full_scale_check import (
     select_counted_repeats,
     validate_full_scale_check_record,
 )
+from signal_diag.signal import TimeRange
 from tests.rules.full_scale_fixtures import (
     FIXTURE_FLOOR,
     eligible,
