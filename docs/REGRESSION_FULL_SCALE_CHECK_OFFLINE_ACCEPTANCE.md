@@ -2,31 +2,37 @@
 
 **Branch:** `cursor/s1-full-scale-check`
 **Baseline tip:** `16450ffe904c48294148418ddadfe87c04af6e74`
-**Acceptance tip:** see `git rev-parse HEAD` on this branch after closeout commit.
+**Acceptance tip:** `a1b58164b7cab6ca819d638b1d3ba283d43bff0a` (Task 9 closeout; filled after commit)
+
+## Validation scope
+
+Report validation guarantees **internal consistency** of a payload: digests match recomputation, facts match their bundles where checkable, check records match re-evaluation, anchors/repeats/`check_id` structure is complete, and applicable approved floors are not dropped.
+
+It does **not** guarantee that a report was not **wholly rewritten**. Digests are unkeyed hashes. Per §23.5, `counted_samples` and `over_threshold_uncounted` cannot be recomputed after submit (samples are not retained) and are protected only by the facts digest.
+
+**Not required to reject (accepted residual risk, plan revision 4 / 9B-1):** when the bundle has `flat_top_detected=true`, changing `counted_samples` to another positive value ≤ `clipped_samples` and redigesting all digests stays internally consistent. Covered by `test_9b1_flat_top_count_rewrite_within_clipped_is_accepted_residual_risk`.
 
 ## Verification commands (raw summaries)
 
 ### `python -m pytest -q -rxXs -p no:cacheprovider`
 
-Full suite on closeout tip: **2019 passed**, 1 warning (`python3 -m pytest -q -rxXs -p no:cacheprovider`). Focused full-scale slice: **65 passed** (full-scale pytest files listed below; architecture gates T-CX369/T-CX351/T-CX363 included in full suite) (`tests/dsp/test_full_scale.py`, `tests/tools/test_regression_full_scale.py`, `tests/rules/test_full_scale_check.py`, `tests/app/test_full_scale_wording.py`, `tests/app/test_regression_full_scale_service.py`, architecture gates T-CX369/T-CX351/T-CX363).
-
-Identity T-CX254: **3 passed** after append-only `d043_regression_full_scale_check_impl` (`product_tree_sha256` matches live `contextual_product_tree_sha256()` at closeout tip; `d042_regression_workbench_phase_c_task8_revise1` pinned to `e45c301d…`).
+See PR description for the raw closeout tip output after Task 9.
 
 ### `python -m ruff check --no-cache src tests scripts`
 
-Repo-wide `python3 -m ruff check --no-cache src tests scripts`: **clean** (0 findings) at closeout tip.
+See PR description (closeout tip).
 
 ### `python -m mypy --no-incremental src`
 
-**Success: no issues found in 145 source files** (acceptance tip).
+See PR description (closeout tip).
 
 ### `python scripts/verify_phase5_wheel.py`
 
-**Blocked in this cloud image:** `python3-venv` / `python3.12-venv` not installable; script cannot create its temporary venv.
+**Blocked in this cloud image:** `python3-venv` / ensurepip unavailable; script cannot create its temporary venv. **CI wheel job is authoritative.**
 
 ### `git diff --check 16450ffe904c48294148418ddadfe87c04af6e74..HEAD`
 
-No whitespace errors (empty output).
+See PR description (closeout tip).
 
 ## T-CX349–T-CX370 → tests
 
@@ -49,7 +55,7 @@ No whitespace errors (empty output).
 | T-CX363 | `test_t_cx363_no_floor_means_no_judged_status`, `test_t_cx363_unapproved_floor_fails_validation`, `test_t_cx363_product_builder_has_no_floor_and_no_judged_status`, `test_t_cx363_no_floor_values_under_src` |
 | T-CX364 | `test_t_cx364_one_record_per_completed_comparison_with_superseding`, `test_t_cx364_replay_and_failure_produce_no_record`, `test_t_cx364_records_do_not_consume_submit_quota` |
 | T-CX365 | `test_t_cx365_anchor_resolution` |
-| T-CX366 | `test_t_cx356_359_362_366_each_gate_blocks_a_large_onset` |
+| T-CX366 | `test_t_cx356_359_362_366_each_gate_blocks_a_large_onset`, `test_t_cx366_lists_all_unmet_when_one_side_has_no_facts` |
 | T-CX367 | `test_t_cx367_validation_recomputes_and_rejects_tampering`, `test_t_cx367_report_carries_and_validates_checks`, `test_t_cx367_report_rejects_dropped_repeat_and_fabricated_floor` |
 | T-CX368 | `test_t_cx368_check_stays_out_of_diagnosis` |
 | T-CX369 | `test_t_cx369_full_scale_layering` |
@@ -67,3 +73,5 @@ No whitespace errors (empty output).
 1. `shaped()` uses `isolated_peak = 1.0` when the requested peak is below `0.99` so isolated over-threshold samples match probe semantics (plan tuple `(0, 0.5)` + `baseline_isolated=40`).
 2. `test_report_shows_record_status_beside_not_comparable_check` asserts clipping_ratio stays `descriptive_only` while THD may be `not_comparable` under the frozen comparison rules (plan expected a single-status set).
 3. Task 4 commit is an **empty marker** (`c7fb811`); eligibility/judgment shipped in `ec8317a`.
+4. Append-only code-identity tips: `d043_regression_full_scale_check_impl`, `d043_regression_full_scale_check_task9a`, `d043_regression_full_scale_check_task9` (each prior tip’s `product_tree_sha256` pinned to a literal when the live tree moved).
+5. Task 9 (plan revisions 3–4): 9A–9D review fixes on this branch; 9B-1 residual flat-top count rewrite documented as not rejected per §23.5.

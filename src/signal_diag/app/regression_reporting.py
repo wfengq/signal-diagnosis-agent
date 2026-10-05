@@ -201,7 +201,6 @@ def build_case_report(
     snapshot: RegressionCaseSnapshot,
     *,
     generated_at: datetime,
-    approved_floors: tuple[FullScaleMethodFloor, ...] = PRODUCT_APPROVED_FULL_SCALE_FLOORS,
 ) -> RegressionCaseReport:
     validate_regression_case_report_integrity(
         case_id=snapshot.case_id,
@@ -209,7 +208,7 @@ def build_case_report(
         failures=snapshot.failures,
         recommendations=snapshot.recommendations,
         full_scale_checks=snapshot.full_scale_checks,
-        approved_floors=approved_floors,
+        approved_floors=PRODUCT_APPROVED_FULL_SCALE_FLOORS,
     )
     return RegressionCaseReport(
         generated_at=generated_at,

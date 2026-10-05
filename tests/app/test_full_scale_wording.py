@@ -81,3 +81,9 @@ def test_no_floor_record_lines() -> None:
     assert lines[0].startswith("Descriptive only.")
     assert FULL_SCALE_TEMPLATES["notice.no_floor"] in lines
     assert any(line.startswith("Conditions not evaluated") for line in lines)
+
+
+def test_9d_declared_notice_on_no_regression_detected() -> None:
+    lines = full_scale_check_lines(_record(baseline=(0, 0.5), candidate=(0, 0.6)))
+    assert lines[0] == FULL_SCALE_TEMPLATES["status.no_regression_detected.no_increase"]
+    assert FULL_SCALE_TEMPLATES["notice.declared"] in lines

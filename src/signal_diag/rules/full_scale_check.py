@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import math
 from collections.abc import Mapping, Sequence
 from typing import Literal
@@ -24,6 +23,7 @@ from signal_diag.tools.regression_measurement import (
     ComparisonSide,
     InputIdentity,
     MeasurementBundle,
+    _canonical_json,
 )
 
 FULL_SCALE_MIN_PCM_BIT_DEPTH = 16
@@ -61,7 +61,7 @@ class FullScaleMethodFloor(BaseModel):
     min_periods_in_range: float = Field(gt=0)
     zone_below_threshold: float = Field(ge=0)
     zone_above_threshold: float = Field(ge=0)
-    zone_min_counted_samples: int | None = None
+    zone_min_counted_samples: int | None = Field(default=None, ge=0)
     count_floor_samples: int | None = Field(default=None, ge=0)
     count_floor_ratio: float | None = Field(default=None, ge=0)
     tolerated_difference: Literal["one_step_of_coarser_depth_one_sided_plus_depth_conversion"]
@@ -345,9 +345,11 @@ def evaluate_full_scale_check(
             analyzed_for_periods = anchor_base.analyzed_samples
         elif anchor_cand is not None:
             analyzed_for_periods = anchor_cand.analyzed_samples
-        if analyzed_for_periods is not None:
-            if analyzed_for_periods * f0 / sr < floor.min_periods_in_range:
-                unmet.append("periods_in_range_below_domain")
+        if (
+            analyzed_for_periods is not None
+            and analyzed_for_periods * f0 / sr < floor.min_periods_in_range
+        ):
+            unmet.append("periods_in_range_below_domain")
 
     if anchor_base is not None or anchor_cand is not None:
         step = _quantization_step(anchor_base, anchor_cand)
@@ -486,10 +488,6 @@ def _applicable_approved_floors(
         if _floor_identity_ok(floor, baseline, candidate):
             matched.append(floor)
     return tuple(matched)
-
-
-def _canonical_json(payload: object) -> str:
-    return json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
 
 def _check_record_digest(record: FullScaleCheckRecord) -> str:

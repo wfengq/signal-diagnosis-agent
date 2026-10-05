@@ -439,5 +439,6 @@ async def test_report_json_has_no_lines(regression_client: AsyncClient) -> None:
     await _post_comparison(regression_client, case_id)
     report = await regression_client.get(f"/api/v1/regression/cases/{case_id}/report.json")
     payload = report.json()
-    for check in payload.get("full_scale_checks", []):
+    assert payload["full_scale_checks"]
+    for check in payload["full_scale_checks"]:
         assert "lines" not in check
