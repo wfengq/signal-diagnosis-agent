@@ -91,8 +91,8 @@ def _calibrated_store(root: Path, *, manifest_round_id: str = "mini") -> Charact
         {"manifest": {"round_id": manifest_round_id}, "pairs_list_sha256": "0" * 64},
     )
     store.write_json("identity.json", compute_identity(MINI))
-    store.write_jsonl_gz("calibration_measurements/M2.jsonl.gz", _rows_payload())
-    store.write_jsonl_gz("calibration_pairs/M2.jsonl.gz", _rows_payload())
+    store.write_jsonl_gz("calibration_measurements/M2/L100000us.jsonl.gz", _rows_payload())
+    store.write_jsonl_gz("calibration_pairs/M2/L100000us.jsonl.gz", _rows_payload())
     records = _stage2_population()
     rows = fit_stage1(records, constants=MINI)
     store.write_text("calibration_report_stage1.json", stage1_report_json(rows, round_id="mini"))
@@ -136,10 +136,10 @@ def test_t_cx378_store_refuses_to_overwrite_and_sums_match(tmp_path: Path) -> No
         store.write_json("manifest.json", {"x": 2})
     with pytest.raises(WriteOnceViolation):
         store.write_bytes("manifest.json", b"{}")
-    store.write_jsonl_gz("calibration_pairs/M3.jsonl.gz", _rows_payload())
+    store.write_jsonl_gz("calibration_pairs/M3/L100000us.jsonl.gz", _rows_payload())
     store.verify_sha256sums()
     sums = (tmp_path / "SHA256SUMS").read_text(encoding="utf-8").splitlines()
-    assert [line.split("  ")[1] for line in sums] == ["calibration_pairs/M3.jsonl.gz", "manifest.json"]
+    assert [line.split("  ")[1] for line in sums] == ["calibration_pairs/M3/L100000us.jsonl.gz", "manifest.json"]
     assert json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8")) == {"x": 1}
 
 
@@ -167,30 +167,30 @@ def test_t_cx378_gzip_shards_are_deterministic(tmp_path: Path) -> None:
     a = CharacterizationStore(tmp_path / "a")
     b = CharacterizationStore(tmp_path / "b")
     rows = _rows_payload()
-    a.write_jsonl_gz("calibration_measurements/M2.jsonl.gz", rows)
-    b.write_jsonl_gz("calibration_measurements/M2.jsonl.gz", [dict(reversed(r.items())) for r in rows])
-    raw_a = (tmp_path / "a" / "calibration_measurements/M2.jsonl.gz").read_bytes()
-    raw_b = (tmp_path / "b" / "calibration_measurements/M2.jsonl.gz").read_bytes()
+    a.write_jsonl_gz("calibration_measurements/M2/L100000us.jsonl.gz", rows)
+    b.write_jsonl_gz("calibration_measurements/M2/L100000us.jsonl.gz", [dict(reversed(r.items())) for r in rows])
+    raw_a = (tmp_path / "a" / "calibration_measurements/M2/L100000us.jsonl.gz").read_bytes()
+    raw_b = (tmp_path / "b" / "calibration_measurements/M2/L100000us.jsonl.gz").read_bytes()
     assert raw_a == raw_b
     lines = gzip.decompress(raw_a).decode("utf-8").splitlines()
     assert lines[0] == '{"a":1.5,"b":2,"pair_id":"p0"}'
     with pytest.raises(ValueError):
-        a.write_jsonl_gz("calibration_pairs/M2.jsonl.gz", [{"x": float("nan")}])
+        a.write_jsonl_gz("calibration_pairs/M2/L100000us.jsonl.gz", [{"x": float("nan")}])
 
 
 def test_t_cx378_shard_size_limit(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(store_mod, "SHARD_MAX_BYTES", 64)
     store = CharacterizationStore(tmp_path)
     with pytest.raises(ShardTooLarge):
-        store.write_jsonl_gz("calibration_measurements/M2.jsonl.gz", _rows_payload())
-    assert not (tmp_path / "calibration_measurements/M2.jsonl.gz").exists()
-    store.write_jsonl_gz("calibration_measurements/M1.jsonl.gz", [{"a": 1}])
+        store.write_jsonl_gz("calibration_measurements/M2/L100000us.jsonl.gz", _rows_payload())
+    assert not (tmp_path / "calibration_measurements/M2/L100000us.jsonl.gz").exists()
+    store.write_jsonl_gz("calibration_measurements/M1/L100000us.jsonl.gz", [{"a": 1}])
 
 
 def test_t_cx378_validation_artifacts_need_validation_access(tmp_path: Path) -> None:
     store = CharacterizationStore(tmp_path)
     with pytest.raises(ValidationLocked):
-        store.write_jsonl_gz("validation_pairs/M2.jsonl.gz", _rows_payload())
+        store.write_jsonl_gz("validation_pairs/M2/L100000us.jsonl.gz", _rows_payload())
     with pytest.raises(ValidationLocked):
         store.write_text("validation_report.md", "x")
 
@@ -312,7 +312,7 @@ def test_t_cx378_stage1_rejects_upstream_hash_mismatch(tmp_path: Path) -> None:
             verify_freeze_stage1(store, rebuild_with_digest(stage1, **{field: "b" * 64}))
     verify_freeze_stage1(store, stage1)
     # Disk changed after drafting: the record no longer matches.
-    store.write_jsonl_gz("calibration_measurements/M3.jsonl.gz", [{"a": 1}])
+    store.write_jsonl_gz("calibration_measurements/M3/L100000us.jsonl.gz", [{"a": 1}])
     with pytest.raises(FreezeRejected, match="calibration_measurements_sha256"):
         write_freeze_stage1(store, stage1)
 
@@ -426,7 +426,7 @@ def test_t_cx378_full_freeze_unlocks_validation_entry_points(tmp_path: Path) -> 
         if p.side == "validation" and p.pair_id not in excluded
     ]
     assert pairs == expected
-    store.write_jsonl_gz("validation_pairs/M2.jsonl.gz", [{"a": 1}], validation_access=access)
+    store.write_jsonl_gz("validation_pairs/M2/L100000us.jsonl.gz", [{"a": 1}], validation_access=access)
     with pytest.raises(TypeError):
         ValidationAccess("x" * 64)  # type: ignore[call-arg]
 

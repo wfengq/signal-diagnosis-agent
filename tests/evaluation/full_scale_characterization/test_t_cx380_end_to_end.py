@@ -38,6 +38,8 @@ E2E = MINI.model_copy(
         "m3_calibration_levels": (0.995,),
         "m3_validation_levels_heldout": (0.991,),
         "p5_calibration_gains": (1e-4,),
+        "calibration_range_lengths_s": (0.1, 0.05),
+        "validation_range_lengths_s": (0.1, 0.05),
     }
 )
 
@@ -46,8 +48,10 @@ APPROVAL = ["--rationale", "e2e selection", "--approved-by", "tester", "--approv
 EXPECTED_FILES = {
     "manifest.json",
     "identity.json",
-    "calibration_measurements/M3.jsonl.gz",
-    "calibration_pairs/M3.jsonl.gz",
+    "calibration_measurements/M3/L100000us.jsonl.gz",
+    "calibration_measurements/M3/L50000us.jsonl.gz",
+    "calibration_pairs/M3/L100000us.jsonl.gz",
+    "calibration_pairs/M3/L50000us.jsonl.gz",
     "calibration_report_stage1.json",
     "calibration_report_stage1.md",
     "freeze_record_stage1.json",
@@ -105,7 +109,9 @@ def test_t_cx380_six_steps_end_to_end_reproducible(tmp_path: Path) -> None:
     assert files == EXPECTED_FILES
     store = CharacterizationStore(out)
     store.verify_sha256sums()
-    assert store.list_dir("validation_measurements") and store.list_dir("validation_pairs")
+    assert len(store.list_dir("validation_measurements")) >= 2
+    assert len(store.list_dir("validation_pairs")) >= 2
+    assert all(p.endswith(("/L100000us.jsonl.gz", "/L50000us.jsonl.gz")) for p in store.list_dir("validation_pairs"))
     assert not store.exists("abort_record.json")
     report = store.read_json("validation_report.json")
     assert {"hard_condition_1", "hard_condition_2", "disclosures"} <= set(report)

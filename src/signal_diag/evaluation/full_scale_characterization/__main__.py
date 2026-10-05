@@ -89,6 +89,9 @@ def _run(args: argparse.Namespace) -> int:
             if "param_leakage_hits=0" not in lines:
                 print("BLOCKED: parameter leakage hits", file=sys.stderr)
                 return 3
+            if not any(line.startswith("shards_over_limit=0 ") for line in lines):
+                print("BLOCKED: a shard exceeds the size limit", file=sys.stderr)
+                return 2
             stage1, stage2 = runs.fit_row_counts(constants)
             if stage1 > runs.STAGE1_MAX_ROWS or stage2 > runs.STAGE2_MAX_ROWS:
                 print("BLOCKED: fitting row limit exceeded", file=sys.stderr)

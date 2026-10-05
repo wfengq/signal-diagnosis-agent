@@ -193,8 +193,13 @@ def _validation_wave_index(
     c: CharacterizationConstants,
 ) -> dict[ParamBucketKey, list[tuple[NDArray[np.float64], str]]]:
     index: dict[ParamBucketKey, list[tuple[NDArray[np.float64], str]]] = {}
+    # Calibration sides never change f0 or sample rate, so only validation materials
+    # sharing a calibration (f0, sr) can ever be compared (same-f0, same-rate rule).
+    calibration_rates = {(g.f0_hz, g.sample_rate_hz) for g in groups if g.side == "calibration"}
     for group in groups:
         if group.side != "validation":
+            continue
+        if (group.f0_hz, group.sample_rate_hz) not in calibration_rates:
             continue
         for params in channel_effectives_from_group(group):
             side_spec = SideGenerationSpec(encoding=EncodingSpec(bits=16), effective=params)
@@ -407,10 +412,20 @@ class _SideWave:
 
     def full(self) -> NDArray[np.float64]:
         if self._full is None:
-            if self._simple() and self.side.gain_factor == 1.0 and self.side.noise_rms is None:
+            side = self.side
+            key = (
+                _effective_key(self.params),
+                side.sample_offset,
+                side.gain_factor,
+                side.noise_rms,
+                side.noise_seed,
+            )
+            if self._simple() and side.gain_factor == 1.0 and side.noise_rms is None:
                 self._full = self._base()
+            elif key in self.base_cache:
+                self._full = self.base_cache[key]
             else:
-                self._full = synthesize_mono(
+                self._full = self.base_cache[key] = synthesize_mono(
                     self.params,
                     duration_s=self.c.file_duration_s,
                     sample_offset=self.side.sample_offset,
@@ -453,7 +468,7 @@ def scan_near_duplicates(
     c: CharacterizationConstants,
     *,
     wave_index: dict[ParamBucketKey, list[tuple[NDArray[np.float64], str]]],
-) -> tuple[frozenset[str], tuple[ExcludedNearDuplicate, ...], list[tuple[str, str]]]:
+) -> tuple[frozenset[str], tuple[ExcludedNearDuplicate, ...], list[tuple[str, str, float]]]:
     """A.15 over every side of every calibration pair, channel by channel (M9 included).
 
     Base material or tolerance-pair hits abort generation. Sensitivity and change
@@ -465,7 +480,7 @@ def scan_near_duplicates(
     rate_keys = {(key[1], key[2]) for key in buckets}
     excluded_ids: set[str] = set()
     entries: list[ExcludedNearDuplicate] = []
-    families: list[tuple[str, str]] = []
+    families: list[tuple[str, str, float]] = []
     for group in groups:
         if group.side != "calibration":
             continue
@@ -507,7 +522,7 @@ def scan_near_duplicates(
                         pair_id=d["pair_id"], validation_group_key=key, max_code_delta=delta
                     )
                 )
-                families.append((d["family"], code))
+                families.append((d["family"], code, d["range_length_s"]))
     return frozenset(excluded_ids), tuple(entries), families
 
 

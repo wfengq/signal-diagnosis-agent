@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import gc
 import hashlib
 import json
 from collections.abc import Iterator
+from contextlib import contextmanager
 
 from signal_diag.evaluation.full_scale_characterization.constants import (
     ROUND_1,
@@ -44,6 +46,7 @@ from signal_diag.evaluation.full_scale_characterization.pairs import (
     pair_tuple_for_hash,
     planned_pair_counts_from_formulas,
 )
+from signal_diag.evaluation.full_scale_characterization.store import encode_range_key
 
 
 def manifest_sha256(manifest: Manifest) -> str:
@@ -54,9 +57,10 @@ def manifest_sha256(manifest: Manifest) -> str:
 
 def _subtract_excluded_counts(
     counts: PlannedPairCounts,
-    excluded_families: list[tuple[str, str]],
+    excluded: list[tuple[str, str, float]],
 ) -> PlannedPairCounts:
-    if not excluded_families:
+    """Remove A.15-excluded calibration pairs (family, code, range length) from the counts."""
+    if not excluded:
         return counts
     by_side = dict(counts.by_side)
     by_side_family = {side: dict(fams) for side, fams in counts.by_side_family.items()}
@@ -64,16 +68,24 @@ def _subtract_excluded_counts(
         side: {fam: dict(perts) for fam, perts in families.items()}
         for side, families in counts.by_side_family_perturbation.items()
     }
-    for family, perturbation in excluded_families:
+    by_side_family_range = {
+        side: {fam: dict(lengths) for fam, lengths in families.items()}
+        for side, families in counts.by_side_family_range.items()
+    }
+    for family, perturbation, range_length in excluded:
         by_side["calibration"] = by_side.get("calibration", 0) - 1
-        by_side_family.setdefault("calibration", {})
-        by_side_family["calibration"][family] = by_side_family["calibration"].get(family, 0) - 1
+        fams = by_side_family.setdefault("calibration", {})
+        fams[family] = fams.get(family, 0) - 1
         perts = by_side_family_perturbation.setdefault("calibration", {}).setdefault(family, {})
         perts[perturbation] = perts.get(perturbation, 0) - 1
+        lengths = by_side_family_range.setdefault("calibration", {}).setdefault(family, {})
+        key = encode_range_key(range_length)
+        lengths[key] = lengths.get(key, 0) - 1
     return PlannedPairCounts(
         by_side=by_side,
         by_side_family=by_side_family,
         by_side_family_perturbation=by_side_family_perturbation,
+        by_side_family_range=by_side_family_range,
     )
 
 
@@ -94,8 +106,27 @@ def _enforce_scale_limit(
         )
 
 
+@contextmanager
+def _gc_paused() -> Iterator[None]:
+    """Pause cyclic GC while streaming ~10^6 short-lived acyclic pair dicts (speed only)."""
+    was_enabled = gc.isenabled()
+    gc.disable()
+    try:
+        yield
+    finally:
+        if was_enabled:
+            gc.enable()
+
+
 def build_manifest(
     constants: CharacterizationConstants = ROUND_1,
+) -> Manifest:
+    with _gc_paused():
+        return _build_manifest(constants)
+
+
+def _build_manifest(
+    constants: CharacterizationConstants,
 ) -> Manifest:
     """Build the manifest; A.15 runs over every calibration side for both modes.
 
@@ -157,10 +188,12 @@ def estimate_measurement_rows(manifest: Manifest, *, channels: int = 1) -> int:
 
 
 def estimate_shard_sizes_bytes(counts: PlannedPairCounts, *, bytes_per_row: int = 170) -> dict[str, int]:
+    """Estimated compressed size per shard ``<side>/<family>/<range key>`` (A.16)."""
     shards: dict[str, int] = {}
-    for side, families in counts.by_side_family.items():
-        for family, pair_count in families.items():
-            shards[f"{side}/{family}"] = pair_count * 2 * bytes_per_row
+    for side, families in counts.by_side_family_range.items():
+        for family, lengths in families.items():
+            for key, pair_count in lengths.items():
+                shards[f"{side}/{family}/{key}"] = pair_count * 2 * bytes_per_row
     return shards
 
 

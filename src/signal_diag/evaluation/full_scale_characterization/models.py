@@ -122,6 +122,8 @@ class PlannedPairCounts(BaseModel):
     by_side_family_perturbation: dict[str, dict[str, dict[str, int]]] = Field(
         default_factory=dict
     )
+    # side -> family -> range shard key (A.16) -> planned pairs
+    by_side_family_range: dict[str, dict[str, dict[str, int]]] = Field(default_factory=dict)
 
 
 class Manifest(BaseModel):

@@ -27,23 +27,53 @@ GZIP_LEVEL = 9
 SUMS_NAME = "SHA256SUMS"
 
 _FAMILY = r"[A-Za-z0-9_]+"
+_RANGE = r"L[0-9]+us"
+_SHARD = rf"{_FAMILY}/{_RANGE}\.jsonl\.gz"
 _ALLOWED = tuple(
     re.compile(p)
     for p in (
         r"manifest\.json",
         r"identity\.json",
-        rf"calibration_measurements/{_FAMILY}\.jsonl\.gz",
-        rf"calibration_pairs/{_FAMILY}\.jsonl\.gz",
+        rf"calibration_measurements/{_SHARD}",
+        rf"calibration_pairs/{_SHARD}",
         r"calibration_report_stage1\.(json|md)",
         r"freeze_record_stage1\.json",
         r"calibration_report_stage2\.(json|md)",
         r"freeze_record\.json",
-        rf"validation_measurements/{_FAMILY}\.jsonl\.gz",
-        rf"validation_pairs/{_FAMILY}\.jsonl\.gz",
+        rf"validation_measurements/{_SHARD}",
+        rf"validation_pairs/{_SHARD}",
         r"validation_report\.(json|md)",
         r"abort_record\.json",
     )
 )
+_RANGE_KEY = re.compile(r"L([0-9]+)us")
+
+
+def encode_range_key(range_length_s: float) -> str:
+    """Analysis-range length as a shard key: integer microseconds, ``L<us>us`` (A.16).
+
+    The only encoder; refuses lengths that do not round-trip exactly.
+    """
+    micros = round(range_length_s * 1_000_000)
+    key = f"L{micros}us"
+    if micros <= 0 or decode_range_key(key) != range_length_s:
+        raise ValueError(f"range length {range_length_s!r} has no exact microsecond shard key")
+    return key
+
+
+def decode_range_key(key: str) -> float:
+    """Inverse of :func:`encode_range_key`."""
+    match = _RANGE_KEY.fullmatch(key)
+    if match is None:
+        raise ValueError(f"{key!r} is not a range shard key")
+    return int(match.group(1)) / 1_000_000
+
+
+def shard_path(side: str, table: str, family: str, range_length_s: float) -> str:
+    """``<side>_<table>/<family>/<range key>.jsonl.gz`` (side x family x range length, A.16)."""
+    if table not in ("measurements", "pairs"):
+        raise ValueError(f"unknown table {table!r}")
+    return f"{side}_{table}/{family}/{encode_range_key(range_length_s)}.jsonl.gz"
 
 
 class WriteOnceViolation(FileExistsError):
@@ -113,19 +143,18 @@ class CharacterizationStore:
     def directory_sha256(self, directory: str) -> str:
         """Combined digest of every shard under ``directory`` (sorted ``path\\0sha\\n``)."""
         digest = hashlib.sha256()
-        base = self.root / directory
-        if base.is_dir():
-            for path in sorted(base.iterdir()):
-                relpath = f"{directory}/{path.name}"
-                digest.update(f"{relpath}\0{self.file_sha256(relpath)}\n".encode())
+        for relpath in self.list_dir(directory):
+            digest.update(f"{relpath}\0{self.file_sha256(relpath)}\n".encode())
         return digest.hexdigest()
 
     def list_dir(self, directory: str) -> list[str]:
-        """Sorted artifact paths directly under ``directory`` (empty when absent)."""
+        """Sorted artifact paths anywhere under ``directory`` (empty when absent)."""
         base = self.root / directory
         if not base.is_dir():
             return []
-        return [f"{directory}/{p.name}" for p in sorted(base.iterdir()) if p.is_file()]
+        return sorted(
+            p.relative_to(self.root).as_posix() for p in base.rglob("*") if p.is_file()
+        )
 
     # -- writing -----------------------------------------------------------
 

@@ -6,6 +6,7 @@ import hashlib
 import json
 from collections import defaultdict
 from collections.abc import Iterator
+from functools import lru_cache
 from typing import Literal
 
 from signal_diag.evaluation.full_scale_characterization.constants import (
@@ -25,6 +26,7 @@ from signal_diag.evaluation.full_scale_characterization.models import (
     SideGenerationSpec,
     SourceGroupRecord,
 )
+from signal_diag.evaluation.full_scale_characterization.store import encode_range_key
 
 Side = Literal["calibration", "validation"]
 BitDepth = Literal[8, 16, 24, 32]
@@ -87,6 +89,22 @@ def _side_spec(
     noise_rms: float | None = None,
     noise_seed: int | None = None,
     phase_delta_rad: float = 0.0,
+) -> SideGenerationSpec:
+    # Frozen models: identical arguments give an identical (shared, immutable) spec.
+    return _side_spec_cached(
+        effective, encoding, sample_offset, gain_factor, noise_rms, noise_seed, phase_delta_rad
+    )
+
+
+@lru_cache(maxsize=1 << 16)
+def _side_spec_cached(
+    effective: EffectiveMaterialParams,
+    encoding: EncodingSpec,
+    sample_offset: int,
+    gain_factor: float,
+    noise_rms: float | None,
+    noise_seed: int | None,
+    phase_delta_rad: float,
 ) -> SideGenerationSpec:
     eff = effective.model_copy(
         update={"phase_rad": normalize_phase(effective.phase_rad + phase_delta_rad)}
@@ -806,72 +824,81 @@ def planned_pair_counts_from_formulas(
         lambda: defaultdict(lambda: defaultdict(int))
     )
 
-    def bump(side: str, family: str, perturbation: str, n: int) -> None:
-        if n <= 0:
+    by_side_family_range: dict[str, dict[str, dict[str, int]]] = defaultdict(
+        lambda: defaultdict(lambda: defaultdict(int))
+    )
+
+    def bump(
+        side: str, family: str, perturbation: str, per_range: int, ranges: tuple[float, ...]
+    ) -> None:
+        if per_range <= 0:
             return
+        n = per_range * len(ranges)
         by_side[side] += n
         by_side_family[side][family] += n
         by_side_family_perturbation[side][family][perturbation] += n
+        for length in ranges:
+            by_side_family_range[side][family][encode_range_key(length)] += per_range
 
     for group in groups:
         side = group.side
         family = group.family
-        ranges = len(_range_lengths_for_side(c, side))
+        ranges = _range_lengths_for_side(c, side)
         seeds = len(_seeds_for_side(c, side))
         p5t = (
             c.p5t_calibration_gains if side == "calibration" else c.p5t_validation_gains
         )
-        bump(side, family, "P0", ranges * 3)
-        bump(side, family, "P4", ranges * 3)
-        bump(side, family, "P7a", ranges * 3)
-        bump(side, family, "P7b", ranges * 3)
-        bump(side, family, "P7c", ranges * 3)
-        bump(side, family, "P7d", ranges * 3 * seeds)
-        bump(side, family, "P9a", ranges * 3)
-        bump(side, family, "P9b", ranges * 3)
-        bump(side, family, "P9c", ranges * 3)
-        bump(side, family, "P5t", ranges * len(p5t))
+        bump(side, family, "P0", 3, ranges)
+        bump(side, family, "P4", 3, ranges)
+        bump(side, family, "P7a", 3, ranges)
+        bump(side, family, "P7b", 3, ranges)
+        bump(side, family, "P7c", 3, ranges)
+        bump(side, family, "P7d", 3 * seeds, ranges)
+        bump(side, family, "P9a", 3, ranges)
+        bump(side, family, "P9b", 3, ranges)
+        bump(side, family, "P9c", 3, ranges)
+        bump(side, family, "P5t", len(p5t), ranges)
 
         offsets = c.p1_calibration_offsets if side == "calibration" else c.p1_validation_offsets
-        bump(side, family, "P1", ranges * len(offsets))
+        bump(side, family, "P1", len(offsets), ranges)
         if abs(group.start_phase_rad) < 1e-12:
             deltas = (
                 c.p3_calibration_deltas_rad
                 if side == "calibration"
                 else c.p3_validation_deltas_rad
             )
-            bump(side, family, "P3", ranges * len(deltas))
+            bump(side, family, "P3", len(deltas), ranges)
         gains = c.p5_calibration_gains if side == "calibration" else c.p5_validation_gains
-        bump(side, family, "P5", ranges * len(gains))
+        bump(side, family, "P5", len(gains), ranges)
         rms_values = c.p6_calibration_rms if side == "calibration" else c.p6_validation_rms
-        bump(side, family, "P6", ranges * len(rms_values) * seeds)
-        bump(side, family, "P8", ranges * 2)
+        bump(side, family, "P6", len(rms_values) * seeds, ranges)
+        bump(side, family, "P8", 2, ranges)
 
         if side == "validation":
-            bump(side, family, "COMBO_P1_P6", ranges)
-            bump(side, family, "COMBO_P4_P5", ranges)
+            bump(side, family, "COMBO_P1_P6", 1, ranges)
+            bump(side, family, "COMBO_P4_P5", 1, ranges)
             if seeds >= 2:
-                bump(side, family, "COMBO_P6_DUAL", ranges)
+                bump(side, family, "COMBO_P6_DUAL", 1, ranges)
 
         phase_zero = abs(group.start_phase_rad) < 1e-12
         if phase_zero and group.family == "M1" and group.amplitude == 0.9:
             if side == "calibration":
-                bump(side, family, "ONSET", ranges * len(c.onset_calibration_depths) * 3)
+                bump(side, family, "ONSET", len(c.onset_calibration_depths) * 3, ranges)
             else:
-                bump(side, family, "ONSET", ranges * len(c.onset_validation_specs) * 3)
+                bump(side, family, "ONSET", len(c.onset_validation_specs) * 3, ranges)
         if (
             phase_zero
             and group.family == "M3"
             and group.level is not None
             and group.depth is not None
         ):
-            bump(side, family, "AGGR", ranges * len(c.aggravation_relative_peaks) * 3)
+            bump(side, family, "AGGR", len(c.aggravation_relative_peaks) * 3, ranges)
 
-    blind_ranges = len(_range_lengths_for_side(c, "validation"))
+    blind_ranges = _range_lengths_for_side(c, "validation")
     sub = len(c.blind_sublevel_levels) * len(c.sample_rates) * len(c.validation_fixed_f0)
     single = len(c.sample_rates)
-    bump("validation", "M4", "BLIND_SUB", blind_ranges * sub)
-    bump("validation", "M3", "BLIND_SINGLE", blind_ranges * single)
+    bump("validation", "M4", "BLIND_SUB", sub, blind_ranges)
+    bump("validation", "M3", "BLIND_SINGLE", single, blind_ranges)
 
     return PlannedPairCounts(
         by_side=dict(by_side),
@@ -879,6 +906,10 @@ def planned_pair_counts_from_formulas(
         by_side_family_perturbation={
             side: {fam: dict(perts) for fam, perts in families.items()}
             for side, families in by_side_family_perturbation.items()
+        },
+        by_side_family_range={
+            side: {fam: dict(lengths) for fam, lengths in families.items()}
+            for side, families in by_side_family_range.items()
         },
     )
 

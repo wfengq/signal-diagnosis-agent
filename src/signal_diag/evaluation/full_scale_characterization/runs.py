@@ -7,6 +7,7 @@ once.  The CLI module only parses arguments.
 
 from __future__ import annotations
 
+import gzip
 import json
 from collections.abc import Sequence
 from pathlib import Path
@@ -69,8 +70,12 @@ from signal_diag.evaluation.full_scale_characterization.models import (
 )
 from signal_diag.evaluation.full_scale_characterization.pairs import TOLERANCE_CODES
 from signal_diag.evaluation.full_scale_characterization.store import (
+    SHARD_MAX_BYTES,
     CharacterizationStore,
     WriteOnceViolation,
+    decode_range_key,
+    encode_range_key,
+    shard_path,
 )
 from signal_diag.evaluation.full_scale_characterization.validation import (
     count_validation,
@@ -117,8 +122,11 @@ def dry_run_lines(constants: CharacterizationConstants) -> list[str]:
             for pert, count in sorted(families[family].items()):
                 lines.append(f"  {side}/{family}/{pert}: {count}")
     lines.append(f"estimated_measurement_rows={estimate_measurement_rows(manifest)}")
-    for shard, nbytes in sorted(estimate_shard_sizes_bytes(manifest.planned_pair_counts).items()):
+    shards = estimate_shard_sizes_bytes(manifest.planned_pair_counts)
+    for shard, nbytes in sorted(shards.items()):
         lines.append(f"estimated_shard_gzip_bytes {shard}: {nbytes}")
+    over = sorted(shard for shard, nbytes in shards.items() if nbytes > SHARD_MAX_BYTES)
+    lines.append(f"shards_over_limit={len(over)} (limit {SHARD_MAX_BYTES} B)")
     lines.append(f"excluded_near_duplicates={len(manifest.excluded_near_duplicates)}")
     hits = r0_param_leakage_hits(manifest, constants)
     lines.append(f"param_leakage_hits={len(hits)}")
@@ -214,8 +222,8 @@ def _measure_side(
 def _pair_line(
     pair: PairRecord,
     measured: MeasuredPair,
-    old_index: int,
-    new_index: int,
+    old_ref: dict[str, Any],
+    new_ref: dict[str, Any],
     threshold: float,
 ) -> dict[str, Any]:
     scored = _scored(pair.model_dump(mode="json"), measured, threshold)
@@ -242,8 +250,8 @@ def _pair_line(
         "periods_in_range": periods_in_range(scored) if scored.measured else None,
         "m7_marked": pair.old_side.effective.m7_marked or pair.new_side.effective.m7_marked,
         "level": pair.old_side.effective.level,
-        "old_row": old_index,
-        "new_row": new_index,
+        "old_row": old_ref,
+        "new_row": new_ref,
         "count_diff": measured.count_diff,
         "ratio_diff": measured.ratio_diff,
         "flip": measured.flip,
@@ -274,6 +282,10 @@ def _scored(pair_json: dict[str, Any], measured: MeasuredPair, threshold: float)
     )
 
 
+def _shard_key(family: str, range_length_s: float) -> str:
+    return f"{family}/{encode_range_key(range_length_s)}"
+
+
 def _write_shards(
     store: CharacterizationStore,
     side: SideName,
@@ -281,26 +293,39 @@ def _write_shards(
     threshold: float,
     access: ValidationAccess | None,
 ) -> None:
-    rows: dict[str, list[dict[str, Any]]] = {}
-    index: dict[str, dict[str, int]] = {}
-    pairs: dict[str, list[dict[str, Any]]] = {}
+    """Measurement and pair tables per side x family x range length (A.16).
 
-    def row_index(family: str, row: MeasurementRow) -> int:
+    Pair lines reference measurement rows as ``{"shard": "<family>/<range key>", "row": n}``.
+    """
+    rows: dict[tuple[str, float], list[dict[str, Any]]] = {}
+    index: dict[tuple[str, float], dict[str, int]] = {}
+    pairs: dict[tuple[str, float], list[dict[str, Any]]] = {}
+
+    def row_ref(cell: tuple[str, float], row: MeasurementRow) -> dict[str, Any]:
         line = row.model_dump(mode="json")
         key = json.dumps(line, sort_keys=True)
-        fam_index = index.setdefault(family, {})
-        if key not in fam_index:
-            fam_index[key] = len(fam_index)
-            rows.setdefault(family, []).append({"row": fam_index[key], **line})
-        return fam_index[key]
+        cell_index = index.setdefault(cell, {})
+        if key not in cell_index:
+            cell_index[key] = len(cell_index)
+            rows.setdefault(cell, []).append({"row": cell_index[key], **line})
+        return {"shard": _shard_key(*cell), "row": cell_index[key]}
 
     for pair, measured in items:
-        old_i = row_index(pair.family, measured.old_row)
-        new_i = row_index(pair.family, measured.new_row)
-        pairs.setdefault(pair.family, []).append(_pair_line(pair, measured, old_i, new_i, threshold))
-    for family in sorted(pairs):
-        store.write_jsonl_gz(f"{side}_measurements/{family}.jsonl.gz", rows[family], validation_access=access)
-        store.write_jsonl_gz(f"{side}_pairs/{family}.jsonl.gz", pairs[family], validation_access=access)
+        cell = (pair.family, pair.range_length_s)
+        old_ref = row_ref(cell, measured.old_row)
+        new_ref = row_ref(cell, measured.new_row)
+        pairs.setdefault(cell, []).append(_pair_line(pair, measured, old_ref, new_ref, threshold))
+    for family, length in sorted(pairs):
+        store.write_jsonl_gz(
+            shard_path(side, "measurements", family, length),
+            rows[(family, length)],
+            validation_access=access,
+        )
+        store.write_jsonl_gz(
+            shard_path(side, "pairs", family, length),
+            pairs[(family, length)],
+            validation_access=access,
+        )
 
 
 def _require_absent(store: CharacterizationStore, side: SideName) -> None:
@@ -327,19 +352,26 @@ def step_validate(store: CharacterizationStore) -> None:
 
 
 def load_scored(store: CharacterizationStore, side: SideName) -> list[ScoredPair]:
-    """Rebuild pair records from the measurement and pair tables of one side."""
-    import gzip
+    """Rebuild pair records from the sharded measurement and pair tables of one side."""
+    tables: dict[str, dict[int, MeasurementRow]] = {}
+
+    def lines(relpath: str) -> list[dict[str, Any]]:
+        return [json.loads(line) for line in gzip.decompress(store.read_bytes(relpath)).decode().splitlines()]
+
+    def resolve(ref: dict[str, Any]) -> MeasurementRow:
+        shard = ref["shard"]
+        if shard not in tables:
+            family, key = shard.split("/")
+            relpath = shard_path(side, "measurements", family, decode_range_key(key))
+            tables[shard] = {
+                entry["row"]: MeasurementRow.model_validate({k: v for k, v in entry.items() if k != "row"})
+                for entry in lines(relpath)
+            }
+        return tables[shard][ref["row"]]
 
     out: list[ScoredPair] = []
     for pairs_path in store.list_dir(f"{side}_pairs"):
-        family = pairs_path.rsplit("/", 1)[-1]
-        table = [
-            json.loads(line)
-            for line in gzip.decompress(store.read_bytes(f"{side}_measurements/{family}")).decode().splitlines()
-        ]
-        rows = {entry["row"]: MeasurementRow.model_validate({k: v for k, v in entry.items() if k != "row"}) for entry in table}
-        for line in gzip.decompress(store.read_bytes(pairs_path)).decode().splitlines():
-            p = json.loads(line)
+        for p in lines(pairs_path):
             out.append(
                 ScoredPair(
                     pair_id=p["pair_id"],
@@ -355,8 +387,8 @@ def load_scored(store: CharacterizationStore, side: SideName) -> list[ScoredPair
                     sample_rate_hz=p["sample_rate_hz"],
                     range_length_s=p["range_length_s"],
                     terminal_state=p["terminal_state"],
-                    old=_side_facts(rows[p["old_row"]]),
-                    new=_side_facts(rows[p["new_row"]]),
+                    old=_side_facts(resolve(p["old_row"])),
+                    new=_side_facts(resolve(p["new_row"])),
                 )
             )
     return out
