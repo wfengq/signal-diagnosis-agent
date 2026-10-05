@@ -10,7 +10,7 @@
 
 **Spec:** `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §23（权威）；`docs/DECISIONS.md` D043；`docs/TEST_PLAN_V0_3_CONTEXTUAL.md` T-CX349–T-CX370；设计 `docs/superpowers/specs/2026-10-05-s1-regression-clipping-comparison-semantics-design.md` §12–§14；实测 `docs/OQ020_FULL_TOOLPATH_PROBE_2026-10-05.md`。
 
-**Status:** 计划待操作员审阅。任何 Task 尚未获实施授权。
+**Status:** 计划已于 2026-10-05 经操作员审阅通过。实施授权须由操作员另行向 Cursor 给出；在此之前任何 Task 不得开始。
 **Read-only baseline:** `386a9b2` on `codex/v0.2-real-world-validation`（2026-10-05 读取）。执行前在当时基线上重新核对本计划引用的文件、行号与空闲测试 ID。
 
 ## Global Constraints
