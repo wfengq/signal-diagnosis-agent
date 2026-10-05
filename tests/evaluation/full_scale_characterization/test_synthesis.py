@@ -16,7 +16,7 @@ def test_t_cx372_sine_amplitude_and_phase() -> None:
     f0 = 100.0
     duration_s = 0.01
     out = sine(f0=f0, sr=sr, duration_s=duration_s, amplitude=0.5, phase_rad=0.0)
-    n = int(round(duration_s * sr))
+    n = round(duration_s * sr)
     t = np.arange(n, dtype=np.float64) / sr
     expected = 0.5 * np.sin(2.0 * np.pi * f0 * t)
     np.testing.assert_allclose(out, expected, rtol=0.0, atol=1e-12)
@@ -38,7 +38,7 @@ def test_t_cx372_clipped_pre_clip_peak_and_output_bound() -> None:
         depth=depth,
         phase_rad=phase_rad,
     )
-    n = int(round(duration_s * sr))
+    n = round(duration_s * sr)
     t = np.arange(n, dtype=np.float64) / sr
     w = np.sin(2.0 * np.pi * f0 * t + phase_rad)
     peak = float(np.max(np.abs(w)))
@@ -64,7 +64,7 @@ def test_t_cx372_clipped_m5_harmonics_before_scale_and_clip() -> None:
         phase_rad=0.0,
         harmonics=harmonics,
     )
-    n = int(round(duration_s * sr))
+    n = round(duration_s * sr)
     t = np.arange(n, dtype=np.float64) / sr
     w = np.sin(2.0 * np.pi * f0 * t)
     for k, r in harmonics.items():
@@ -104,7 +104,7 @@ def test_t_cx372_harmonic_sine_m6_no_extra_scaling() -> None:
         harmonics=harmonics,
         phase_rad=0.25,
     )
-    n = int(round(duration_s * sr))
+    n = round(duration_s * sr)
     t = np.arange(n, dtype=np.float64) / sr
     phase_rad = 0.25
     w = fundamental * np.sin(2.0 * np.pi * f0 * t + phase_rad)

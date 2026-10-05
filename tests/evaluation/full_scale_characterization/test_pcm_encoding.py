@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import struct
-
 import numpy as np
 
 from signal_diag.evaluation.full_scale_characterization.pcm import encode_pcm_wav

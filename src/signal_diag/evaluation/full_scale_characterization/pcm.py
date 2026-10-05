@@ -28,12 +28,12 @@ def _step_float(step_bits: StepBits) -> float:
 def _step_in_codes(step_bits: StepBits, file_bits: BitDepth) -> int:
     step_f = _step_float(step_bits)
     if file_bits == 8:
-        return max(1, int(round(step_f * 128.0)))
+        return max(1, round(step_f * 128.0))
     if file_bits == 16:
-        return max(1, int(round(step_f * 32768.0)))
+        return max(1, round(step_f * 32768.0))
     if file_bits == 24:
-        return max(1, int(round(step_f * float(2**23))))
-    return max(128, int(round(step_f * float(2**31))))
+        return max(1, round(step_f * float(2**23)))
+    return max(128, round(step_f * float(2**31)))
 
 
 def _quantize_round(x: np.ndarray, *, bits: BitDepth) -> np.ndarray:

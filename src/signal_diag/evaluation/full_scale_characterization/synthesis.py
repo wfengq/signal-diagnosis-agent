@@ -8,7 +8,7 @@ import numpy as np
 
 
 def _time_axis(sr: int, duration_s: float) -> np.ndarray:
-    n = int(round(duration_s * sr))
+    n = round(duration_s * sr)
     return np.arange(n, dtype=np.float64) / float(sr)
 
 
