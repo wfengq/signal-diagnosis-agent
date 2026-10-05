@@ -107,7 +107,8 @@ def _clip_codes(codes: np.ndarray, *, bits: BitDepth) -> np.ndarray:
         return np.clip(codes, -32768, 32767).astype(np.int64)
     if bits == 24:
         return np.clip(codes, -(2**23), 2**23 - 1).astype(np.int64)
-    return np.clip(codes, -(2**31), 2**31 - 1).astype(np.int64)
+    # 32-bit codes live on the 2^-24 grid (A.6): clip to the grid's extremes.
+    return np.clip(codes, -(2**24) * 128, (2**24 - 1) * 128).astype(np.int64)
 
 
 def _encode_channel_codes(

@@ -193,7 +193,6 @@ def measure_row(
             harmonic=HarmonicDistortionInput(
                 channel=spec.channel,
                 time_range=spec.time_range,
-                fundamental_hz=spec.side_spec.effective.f0_hz,
             ),
         )
         comparison_side = _comparison_side(spec.role)
@@ -398,7 +397,6 @@ def direct_reference_counts(
         harmonic=HarmonicDistortionInput(
             channel=spec.channel,
             time_range=spec.time_range,
-            fundamental_hz=spec.side_spec.effective.f0_hz,
         ),
     )
     wav_sha256 = hashlib.sha256(wav_bytes).hexdigest()

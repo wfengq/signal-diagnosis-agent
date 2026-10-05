@@ -15,7 +15,10 @@ from signal_diag.evaluation.full_scale_characterization.constants import (
 from signal_diag.evaluation.full_scale_characterization.materials import (
     compute_m7_marked,
 )
-from signal_diag.evaluation.full_scale_characterization.models import SourceGroupRecord
+from signal_diag.evaluation.full_scale_characterization.models import (
+    EffectiveMaterialParams,
+    SourceGroupRecord,
+)
 
 Side = Literal["calibration", "validation"]
 
@@ -52,15 +55,19 @@ class _GroupDraft:
     def to_record(self, *, threshold: float, duration_s: float) -> SourceGroupRecord:
         harmonics = self.harmonics.coefficients if self.harmonics else ()
         m7 = False
-        if self.family in {"M3", "M4"} and self.level is not None and self.depth is not None:
+        if self.family in {"M2", "M3", "M5"}:
             m7 = compute_m7_marked(
-                family=self.family,
-                f0_hz=self.f0_hz,
-                sample_rate_hz=self.sample_rate_hz,
-                level=self.level,
-                depth=self.depth,
+                EffectiveMaterialParams(
+                    family=self.family,
+                    f0_hz=self.f0_hz,
+                    sample_rate_hz=self.sample_rate_hz,
+                    phase_rad=self.start_phase_rad,
+                    peak=self.peak,
+                    level=self.level,
+                    depth=self.depth,
+                    harmonics=harmonics,
+                ),
                 duration_s=duration_s,
-                phase_rad=self.start_phase_rad,
                 threshold=threshold,
             )
         return SourceGroupRecord(

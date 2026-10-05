@@ -27,34 +27,28 @@ def normalize_phase(phase_rad: float) -> float:
 
 
 def compute_m7_marked(
+    params: EffectiveMaterialParams,
     *,
-    family: str,
-    f0_hz: float,
-    sample_rate_hz: int,
-    level: float,
-    depth: float,
     duration_s: float,
-    phase_rad: float,
     threshold: float,
 ) -> bool:
-    if family not in {"M3", "M4"}:
+    """M7 marker (B.2): some peak of the generated material has 1-3 samples at or over threshold.
+
+    Counted per peak as maximal runs of consecutive samples with ``|x| >= threshold``
+    on the material synthesised from its generation parameters (M2, M3, M5; other
+    families are never marked).
+    """
+    if params.family not in {"M2", "M3", "M5"}:
         return False
-    wave = clipped(
-        f0=f0_hz,
-        sr=sample_rate_hz,
-        duration_s=duration_s,
-        level=level,
-        depth=depth,
-        phase_rad=phase_rad,
-    )
-    samples_per_period = max(1, round(sample_rate_hz / f0_hz))
-    n_periods = max(1, wave.shape[0] // samples_per_period)
-    for period_idx in range(n_periods):
-        segment = wave[period_idx * samples_per_period : (period_idx + 1) * samples_per_period]
-        count = int(np.sum(np.abs(segment) >= threshold))
-        if 1 <= count <= 3:
-            return True
-    return False
+    wave = synthesize_mono(params, duration_s=duration_s)
+    over = np.abs(wave) >= threshold
+    if not over.any():
+        return False
+    edges = np.diff(np.concatenate(([0], over.astype(np.int8), [0])))
+    starts = np.flatnonzero(edges == 1)
+    stops = np.flatnonzero(edges == -1)
+    lengths = stops - starts
+    return bool(np.any((lengths >= 1) & (lengths <= 3)))
 
 
 def _synthesize_mono_core(
