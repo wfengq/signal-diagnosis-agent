@@ -7,7 +7,6 @@ import argparse
 import hashlib
 import json
 import struct
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
@@ -321,9 +320,11 @@ def run_grid(quick: bool) -> dict[str, Any]:
         differs = 0
         for cid, tool_agg in agg_map.items():
             direct_agg = direct_by_cell[cid]
-            if tool_agg["any_nonzero_ratio"] != direct_agg["any_nonzero_ratio"]:
-                differs += 1
-            elif abs(tool_agg["max_clipping_ratio"] - direct_agg["max_clipping_ratio"]) > 1e-12:
+            if (
+                tool_agg["any_nonzero_ratio"] != direct_agg["any_nonzero_ratio"]
+                or abs(tool_agg["max_clipping_ratio"] - direct_agg["max_clipping_ratio"])
+                > 1e-12
+            ):
                 differs += 1
         depth_summary[bits_key] = {
             "nonzero_cells": nz,
