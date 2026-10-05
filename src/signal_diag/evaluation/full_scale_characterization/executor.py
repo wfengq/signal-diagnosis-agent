@@ -7,6 +7,9 @@ from typing import cast
 
 from signal_diag.dsp.full_scale import count_full_scale_samples
 from signal_diag.evaluation.full_scale_characterization.constants import M9ChannelLayout
+from signal_diag.evaluation.full_scale_characterization.gate import (
+    require_validation_access,
+)
 from signal_diag.evaluation.full_scale_characterization.materials import (
     synthesize_side_waveform,
 )
@@ -258,8 +261,14 @@ def row_specs_for_pair(
     file_duration_s: float,
     full_scale_threshold: float,
     m9_layout: dict | None,
+    validation_access: object = None,
 ) -> list[MeasurementRowSpec]:
-    """Expand a manifest pair into per-channel row specs for both roles."""
+    """Expand a manifest pair into per-channel row specs for both roles.
+
+    Validation-side pairs require a ``ValidationAccess`` from a verified freeze record.
+    """
+    if pair.side == "validation":
+        require_validation_access(validation_access, what=f"measure validation pair {pair.pair_id}")
     time_range = TimeRange(start_s=0.0, end_s=pair.range_length_s)
     channels: tuple[ChannelMode, ...] = (
         ("left", "right") if pair.family == "M9" else ("left",)

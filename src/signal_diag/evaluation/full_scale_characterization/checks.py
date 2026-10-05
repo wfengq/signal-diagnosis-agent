@@ -21,6 +21,9 @@ from signal_diag.evaluation.full_scale_characterization.executor import (
     measure_row,
     row_specs_for_pair,
 )
+from signal_diag.evaluation.full_scale_characterization.gate import (
+    require_validation_access,
+)
 from signal_diag.evaluation.full_scale_characterization.models import (
     MeasuredPair,
     MeasurementRow,
@@ -97,6 +100,7 @@ def measure_pair_checked(
     full_scale_threshold: float,
     m9_layout: dict[str, Any] | None,
     cache: MeasurementCache | None = None,
+    validation_access: object = None,
 ) -> dict[tuple[PairRole, ChannelMode], MeasurementRow]:
     """Measure every row of a pair; re-raise facts-verification aborts (C.2#5) with the pair id.
 
@@ -109,6 +113,7 @@ def measure_pair_checked(
         file_duration_s=file_duration_s,
         full_scale_threshold=full_scale_threshold,
         m9_layout=m9_layout,
+        validation_access=validation_access,
     ):
         try:
             rows[(spec.role, spec.channel)] = measure_row(spec, cache=cache)
@@ -250,6 +255,7 @@ def run_sanity_checks(
     file_duration_s: float,
     full_scale_threshold: float,
     m9_layouts: Mapping[str, dict[str, Any]] | None = None,
+    validation_access: object = None,
 ) -> P9FlipCounts:
     """Apply C.2 checks 1–4 to measured pair records; return P9 flip counts (C.3).
 
@@ -258,6 +264,8 @@ def run_sanity_checks(
     disclosure-only.
     """
     materialized = list(items)
+    if any(pair.side == "validation" for pair, _ in materialized):
+        require_validation_access(validation_access, what="sanity-check validation pairs")
     layouts = m9_layouts or {}
     for pair, measured in materialized:
         if pair.pair_id != measured.pair_id:

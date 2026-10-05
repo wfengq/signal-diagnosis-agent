@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Iterator
 
 from signal_diag.evaluation.full_scale_characterization.constants import (
     ROUND_1,
     CharacterizationConstants,
     constants_digest,
+)
+from signal_diag.evaluation.full_scale_characterization.gate import (
+    require_validation_access,
 )
 from signal_diag.evaluation.full_scale_characterization.groups import (
     enumerate_source_groups,
@@ -28,6 +32,7 @@ from signal_diag.evaluation.full_scale_characterization.models import (
     PairRecord,
     PlannedPairCounts,
     ScaleLimitExceeded,
+    Side,
 )
 from signal_diag.evaluation.full_scale_characterization.pairs import (
     _identity_dict_to_pair_record,
@@ -181,3 +186,31 @@ def estimate_shard_sizes_bytes(counts: PlannedPairCounts, *, bytes_per_row: int 
         for family, pair_count in families.items():
             shards[f"{side}/{family}"] = pair_count * 2 * bytes_per_row
     return shards
+
+
+def iter_side_pairs(
+    manifest: Manifest,
+    constants: CharacterizationConstants,
+    side: Side,
+    *,
+    validation_access: object = None,
+) -> Iterator[PairRecord]:
+    """Expand the run pairs of one side (near-duplicate exclusions removed).
+
+    Validation-side expansion requires a ``ValidationAccess`` from a verified,
+    complete freeze record; the check happens before anything is generated.
+    """
+    if side == "validation":
+        require_validation_access(validation_access, what="expand validation pairs")
+    if constants_digest(constants) != manifest.constants_digest:
+        raise ValueError("constants do not match the manifest constants_digest")
+    excluded = {e.pair_id for e in manifest.excluded_near_duplicates}
+
+    def _generate() -> Iterator[PairRecord]:
+        for batch in enumerate_pair_batches(manifest.source_groups, constants, batch_size=1024):
+            for identity in batch:
+                if identity["side"] != side or identity["pair_id"] in excluded:
+                    continue
+                yield _identity_dict_to_pair_record(identity)
+
+    return _generate()
