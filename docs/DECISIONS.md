@@ -772,3 +772,17 @@ Related: OQ-020; design
 `docs/superpowers/specs/2026-10-05-s1-regression-layer1-characterization-materials-scoring-design.md`
 §10–§11; amendment record
 `docs/superpowers/specs/2026-10-05-s1-regression-full-scale-check-contract-amendment-draft.md`.
+
+**Implementation status (merged 2026-10-05):** §23 stage 2 is implemented
+under the operator's implementation grant: PR #41, squash commit `0770514` on
+`codex/v0.2-real-world-validation` (independently reviewed, Accept at
+`31ba78a`; implementation branch `cursor/s1-full-scale-check` retained for the
+SHAs cited in the acceptance record). Plan:
+`docs/superpowers/plans/2026-10-05-s1-regression-full-scale-check.md`
+(revision 4); offline record:
+`docs/REGRESSION_FULL_SCALE_CHECK_OFFLINE_ACCEPTANCE.md`. The product ships no
+floor record (`PRODUCT_APPROVED_FULL_SCALE_FLOORS` is empty), so product checks
+are `descriptive_only` or `not_comparable` only. Still not authorized: the
+layer-1 characterization run, any floor, critical-zone or approved-domain
+value, floor approval, a judged product status, and every item listed above as
+not authorized. Open follow-up: OQ-021.

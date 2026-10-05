@@ -35,7 +35,7 @@
 | T-CX324..325 | OQ-019/dev_2 preseal evidence separation + PRESEAL status board (definitions; seal/RealLLM gated) |
 | T-CX319..323 | D039 single-file observed facts on context_guidance (definitions; implementation gated) |
 | T-CX329..348 | D042 regression troubleshooting workbench (definitions; Phase A–C implementation gated) |
-| T-CX349..370 | D043 regression full-scale check (definitions; implementation, characterization and floor approval gated) |
+| T-CX349..370 | D043 regression full-scale check (implemented, PR #41 `0770514`; characterization and floor approval gated) |
 
 ## Registered identities (Task 1)
 
@@ -415,3 +415,7 @@ approval, RealLLM, merge, and seal remain separately gated. They must not
 alter frozen V0.2 §§1–64, D037/D039 diagnosis semantics, v9.11 planner
 identity, sealed evaluation/Demo assets, or T-CX001–T-CX348 definitions;
 D043 changes the reading of §22 only as stated in §23.1 and D043.
+Implementation status: T-CX349–T-CX370 are implemented by PR #41 (`0770514`); the
+test function for each ID is listed in
+`docs/REGRESSION_FULL_SCALE_CHECK_OFFLINE_ACCEPTANCE.md`. The tests use
+fixture floors only; their values are not tolerances.

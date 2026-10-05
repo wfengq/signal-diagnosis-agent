@@ -11,6 +11,7 @@
 **Spec:** `docs/CONTRACTS_V0_3_CONTEXTUAL.md` §23（权威）；`docs/DECISIONS.md` D043；`docs/TEST_PLAN_V0_3_CONTEXTUAL.md` T-CX349–T-CX370；设计 `docs/superpowers/specs/2026-10-05-s1-regression-clipping-comparison-semantics-design.md` §12–§14；实测 `docs/OQ020_FULL_TOOLPATH_PROBE_2026-10-05.md`。
 
 **Status:** 修订 3（2026-10-05）。Task 1–8 已由 Cursor 实现（PR #41，tip `a374a9f`）并经独立代码审阅；修订 3 在文末新增 Task 9（审阅后的修复）并修改三处规则，操作员已同意这三处修改。Task 9 与正文冲突处以 Task 9 为准。修订 3 本身未再经独立审阅。修订 4（同日）：按 Cursor 的停工报告更正 9B 的前提与 9B-1。
+**结项（2026-10-05）：** Task 1–9 全部完成。独立复审在 `31ba78a` 给出 Accept，PR #41 已 squash 合并为 `0770514`。后续事项见文末“结项”。
 **Read-only baseline:** `386a9b2` on `codex/v0.2-real-world-validation`（2026-10-05 读取）。执行前在当时基线上重新核对本计划引用的文件、行号与空闲测试 ID。
 
 ## Global Constraints
@@ -1079,3 +1080,14 @@ def test_t_cx366_lists_all_unmet_when_one_side_has_no_facts() -> None:
 ### 完成标准
 
 Task 8 Step 3 的五条命令在新的 tip 上全部通过，输出贴入 PR 描述；9A–9D 每条对应的测试函数名列入 PR 描述。随后由 Claude Code 复审。
+
+---
+
+## 结项（2026-10-05）
+
+- PR #41 squash 合并为 `0770514`（`codex/v0.2-real-world-validation`）。实现分支 `cursor/s1-full-scale-check` 保留在 `31ba78a`，验收记录引用的中间提交仍可访问。
+- 复审经过：首轮审阅（tip `a374a9f`）结论为修复后可合并，据此新增 Task 9。复审一（tip `a043d19`）结论为 Accept with fixes：三项 9B 修复没有测试钉住（F1），报告层没有用非空登记处测过（F2），验收文档缺项（F3）。复审二（tip `31ba78a`）结论为 Accept：F1–F3 关闭，9B 的 12 个变异全部被行为测试抓到。
+- 后续事项：
+  1. OQ-021：一侧没有事实时下限是否算适用（§23.4 写的是两侧事实都相等）。须在批准任何下限记录之前决定，同一改动顺手处理 9B-5 的报错文案和死代码。
+  2. 验收文档里的 pytest 数字取自 `a043d19`（2042 passed）。`31ba78a` 只新增测试与文档，产品源码未变。
+- 仍未授权：第一层表征运行、任何下限、临界区或批准域数值、下限审批、产品判定、RealLLM、seal。
