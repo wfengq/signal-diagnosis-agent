@@ -1,0 +1,8 @@
+draft mode: single_signal
+draft reference_file: None
+draft nominal_fundamental_hz: None
+draft stimulus_kind: None
+draft missing: nominal_fundamental_hz, stimulus_kind
+question (nominal_fundamental_hz): What is the nominal fundamental frequency of the test tone in Hz?
+question (stimulus_kind): Is the stimulus a single tone or something else?
+submitting mode: single_signal

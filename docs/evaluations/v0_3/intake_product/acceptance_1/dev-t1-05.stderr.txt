@@ -1,0 +1,5 @@
+draft mode: paired_reference
+draft reference_file: cxdev_6fb80bbda391c26c_ref.wav
+draft nominal_fundamental_hz: 1000.0
+draft stimulus_kind: single_tone
+submitting mode: paired_reference

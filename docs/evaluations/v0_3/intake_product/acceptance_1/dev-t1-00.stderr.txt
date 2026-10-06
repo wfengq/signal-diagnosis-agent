@@ -1,0 +1,5 @@
+draft mode: nominal_single_tone
+draft reference_file: None
+draft nominal_fundamental_hz: 1000.0
+draft stimulus_kind: single_tone
+submitting mode: nominal_single_tone
