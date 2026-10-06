@@ -1,4 +1,4 @@
-"""Free-text intake planner (v0.3-s1-intake-1.0).
+"""Free-text intake planner (v0.3-s1-intake-1.1).
 
 The product builder constructs ``RealLLMIntakePlanner`` only. ``ScriptedIntakePlanner``
 is a test double and is not a credential fallback.
@@ -13,7 +13,7 @@ from typing import Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
-INTAKE_PLANNER_IDENTITY = "v0.3-s1-intake-1.0"
+INTAKE_PLANNER_IDENTITY = "v0.3-s1-intake-1.1"
 
 IntakeMode = Literal["single_signal", "paired_reference", "nominal_single_tone"]
 StimulusKind = Literal["single_tone", "unknown"]
@@ -31,16 +31,33 @@ _MODEL_PAYLOAD_KEYS = (
     "sample_rates_hz",
 )
 
+# 1.1: D1 round 2 returned 12/12 drafts that failed validation; 1.0 named the
+# keys but not their allowed values or types.
 _SYSTEM_PROMPT = (
     "You propose a context draft for an audio distortion diagnosis. "
-    "Return one JSON object with keys mode, nominal_fundamental_hz, "
-    "reference_file, stimulus_kind, missing_fields, questions. "
-    "nominal_fundamental_hz must be null or a number written in the user text. "
+    "Return one JSON object with exactly these keys and no others: "
+    "mode, nominal_fundamental_hz, reference_file, stimulus_kind, "
+    "missing_fields, questions, asked_fields. "
+    'mode is one of "single_signal", "paired_reference", "nominal_single_tone": '
+    '"paired_reference" when the user names another uploaded file as a reference '
+    'or earlier recording; otherwise "nominal_single_tone" when the user writes '
+    'the frequency of the test tone; otherwise "single_signal". '
+    "nominal_fundamental_hz is null or a number written in the user text. "
     "A trailing kHz multiplies that written number by 1000. "
-    "Never use a measured fundamental. Never emit thresholds, percentages, "
-    "or standards. reference_file must be one of the uploaded filenames and "
-    "must not be the test file. If a field is not in the text, leave it null "
-    "and add a question. Do not invent files."
+    "Never use a measured fundamental. "
+    "reference_file is null or one of the uploaded filenames, and never the "
+    "test file. "
+    'stimulus_kind is null, "single_tone" or "unknown": "single_tone" when the '
+    "user describes a single tone or sine, null when the text does not say. "
+    "missing_fields is a list of key names you left null because the text does "
+    "not state them. questions is a list of short question strings for the "
+    "user, one per missing field. asked_fields is a list drawn from "
+    '"mode", "nominal_fundamental_hz", "reference_file", "stimulus_kind": the '
+    "fields your questions ask about. "
+    "Never emit thresholds, percentages, or standards. Do not invent files. "
+    'Example: {"mode": "paired_reference", "nominal_fundamental_hz": 1000.0, '
+    '"reference_file": "old_amp.wav", "stimulus_kind": "single_tone", '
+    '"missing_fields": [], "questions": [], "asked_fields": []}'
 )
 
 

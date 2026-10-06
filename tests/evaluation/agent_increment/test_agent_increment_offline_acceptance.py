@@ -18,9 +18,9 @@ def test_t_cx398_scripted_arms_write_a_complete_report(tmp_path: Path) -> None:
     assert isinstance(identity, dict)
     assert identity["study_id"] == "study_s1_agent_increment_1"
     assert identity["model"] == "deepseek-v4-flash"
-    assert identity["prompt_version"] == "v0.3-s1-planner-9.12"
+    assert identity["prompt_version"] == "v0.3-s1-planner-9.13"
     assert identity["prompt_sha256"]
-    assert identity["intake_identity"] == "v0.3-s1-intake-1.0"
+    assert identity["intake_identity"] == "v0.3-s1-intake-1.1"
     assert identity["rule_profile_id"] == "profile_s1_segment_evidence"
     assert identity["rule_profile_version"] == "1.0.0-demo"
     assert identity["http_calls"] == 0

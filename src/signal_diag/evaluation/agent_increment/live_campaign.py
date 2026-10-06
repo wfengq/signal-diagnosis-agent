@@ -21,7 +21,7 @@ from pydantic import ValidationError
 from signal_diag.agent import intake as intake_module
 from signal_diag.agent.intake import INTAKE_PLANNER_IDENTITY, IntakePlannerError
 from signal_diag.agent.models import AgentRunResult
-from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_12
+from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_13
 from signal_diag.evaluation.agent_increment.budget import (
     DEV_STAGE_CAP,
     HELD_OUT_STAGE_CAP,
@@ -80,8 +80,8 @@ def _sha256_text(text: str) -> str:
 def frozen_prompt_identity() -> dict[str, str]:
     """Versions and full-text hashes of every fixed text a live stage sends."""
     return {
-        "planner_prompt_version": _S1_PROMPT_V9_12.version,
-        "planner_prompt_sha256": _sha256_text(_S1_PROMPT_V9_12.system_prompt),
+        "planner_prompt_version": _S1_PROMPT_V9_13.version,
+        "planner_prompt_sha256": _sha256_text(_S1_PROMPT_V9_13.system_prompt),
         "intake_identity": INTAKE_PLANNER_IDENTITY,
         "intake_prompt_sha256": _sha256_text(intake_module._SYSTEM_PROMPT),
         "diagnosis_request_sha256": _sha256_text(DIAGNOSIS_REQUEST),
@@ -307,6 +307,7 @@ def _case_record(
     http_calls: int,
     agent_error: str | None,
     duration_s: float | None = None,
+    intake_error_detail: list[dict[str, str]] | None = None,
 ) -> dict[str, object]:
     run = result.run if result is not None else None
     record: dict[str, object] = {
@@ -316,6 +317,7 @@ def _case_record(
         "arms": [row.model_dump(mode="json") for row in rows],
         "http_calls": http_calls,
         "agent_error": agent_error,
+        "intake_error_detail": intake_error_detail,
         "predicted_conclusion": predicted_conclusion(run) if run is not None else "failed",
         "termination_reason": run.termination_reason if run is not None else None,
         "run_status": run.status if run is not None else None,
@@ -405,6 +407,23 @@ def _intake_transport_failure(error: IntakePlannerError) -> bool:
     if cause is None:
         return str(error) in _INTAKE_HARNESS_ERRORS
     return not isinstance(cause, (ValidationError, ValueError))
+
+
+def _intake_error_detail(error: IntakePlannerError) -> list[dict[str, str]] | None:
+    """Why a draft failed: field location and error kind, never the model's values."""
+    cause = error.__cause__
+    if isinstance(cause, ValidationError):
+        return [
+            {
+                "loc": ".".join(str(part) for part in item["loc"]),
+                "type": item["type"],
+                "msg": item["msg"],
+            }
+            for item in cause.errors(include_url=False, include_input=False, include_context=False)
+        ]
+    if cause is not None:
+        return [{"loc": "", "type": type(cause).__name__, "msg": ""}]
+    return None
 
 
 def _report_payload(
@@ -506,6 +525,7 @@ async def run_campaign(
             case = item.case
             result: LiveAgentResult | None = None
             agent_error: str | None = None
+            intake_detail: list[dict[str, str]] | None = None
             try:
                 result = await run_live_agent(
                     family=case.family,
@@ -539,6 +559,7 @@ async def run_campaign(
                     break
                 else:
                     agent_error = f"intake_failed: {error}"
+                    intake_detail = _intake_error_detail(error)
             except Exception as error:  # noqa: BLE001 - any other failure is an outage: stop, never score it
                 if ledger.stop_reason is None:
                     stop = {
@@ -564,6 +585,7 @@ async def run_campaign(
                     http_calls=ledger.per_case.get(case.case_id, 0),
                     agent_error=agent_error,
                     duration_s=item.duration_s,
+                    intake_error_detail=intake_detail,
                 ),
             )
     except BaseException as error:

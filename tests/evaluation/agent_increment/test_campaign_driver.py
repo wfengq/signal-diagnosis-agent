@@ -328,7 +328,7 @@ async def test_t_cx404_mini_dev_stage_runs_all_arms_and_writes_once(tmp_path: Pa
     report = json.loads((out / "report.json").read_text(encoding="utf-8"))
     assert "scripted stand-in" in report["notes"]["t1_downstream_fixed_arms"]
     identity = json.loads((out / "identity.json").read_text(encoding="utf-8"))
-    assert identity["planner_prompt_version"] == "v0.3-s1-planner-9.12"
+    assert identity["planner_prompt_version"] == "v0.3-s1-planner-9.13"
     assert identity["scripted_stand_in"] is False
     text = _all_text(out)
     assert "sk-test" not in text
@@ -426,6 +426,50 @@ async def test_t_cx401_invalid_intake_draft_is_scored_not_stopped(tmp_path: Path
     assert t1["agent_error"].startswith("intake_failed")
     agent = next(row for row in t1["arms"] if row["arm"] == "agent")
     assert agent["conclusion_correct"] is False and agent["draft_all_correct"] is False
+
+
+@pytest.mark.asyncio
+async def test_t_cx407_schema_failure_records_fields_not_model_text(tmp_path: Path) -> None:
+    """D1 round 2: 12/12 drafts failed validation and the record did not say why."""
+    study = _mini_study(tmp_path)
+    out = study / "runs" / "dev_bad_schema"
+
+    class BadSchemaSDK(FakeSDK):
+        async def reply(self, **kwargs: Any) -> _Response:
+            system = str(kwargs["messages"][0]["content"])
+            if "v0.3-s1-planner" not in system:
+                self.sends += 1
+                bad = dict(_INTAKE_DRAFT, mode="duplex_mode_xyz", reasoning="zz_private_zz")
+                return _Response(json.dumps(bad))
+            return await super().reply(**kwargs)
+
+    payload = await run_campaign(
+        split="dev",
+        study_dir=study,
+        output_dir=out,
+        api_key="sk-test",
+        client_factory=BadSchemaSDK,
+    )
+    assert payload["stop"] is None
+    path = next(
+        path
+        for path in (out / "cases").glob("*.json")
+        if json.loads(path.read_text(encoding="utf-8"))["family"] == "T1"
+    )
+    record = json.loads(path.read_text(encoding="utf-8"))
+    detail = record["intake_error_detail"]
+    found = {(item["loc"], item["type"]) for item in detail}
+    assert ("mode", "literal_error") in found
+    assert ("reasoning", "extra_forbidden") in found
+    text = path.read_text(encoding="utf-8")
+    assert "duplex_mode_xyz" not in text
+    assert "zz_private_zz" not in text
+    t2 = next(
+        json.loads(p.read_text(encoding="utf-8"))
+        for p in (out / "cases").glob("*.json")
+        if json.loads(p.read_text(encoding="utf-8"))["family"] == "T2"
+    )
+    assert t2["intake_error_detail"] is None
 
 
 # ---------------------------------------------------------------------------

@@ -793,3 +793,35 @@ _S1_PROMPT_V9_12 = _PlannerPromptSpec(
     version="v0.3-s1-planner-9.12",
     system_prompt=_S1_SYSTEM_PROMPT_V9_12,
 )
+
+# D1 rounds 1-2 (v9.12): every T2 run stopped after two whole-file calls. v9.13
+# replaces the v9.12 paragraph with an explicit, budget-sized call plan.
+_S1_V9_13_SEGMENT_GUIDANCE = (
+    "\nSegment and channel localization (v0.3-s1-planner-9.13). "
+    "When the request asks where a fault occurs, whole-file Evidence never gives "
+    "a location, and it can dilute a short fault below the rule threshold. Plan "
+    "the calls from signal_meta.duration_s, signal_meta.channels and "
+    "remaining_tool_calls: "
+    "(1) call detect_clipping on the whole file with channel mixdown; "
+    "(2) if signal_meta.channels is 2, call detect_clipping on the whole file "
+    "with channel left and again with channel right, because a fault in one "
+    "channel can vanish in the mixdown; "
+    "(3) call detect_clipping on consecutive windows of equal length that "
+    "together cover the file, each with an explicit time_range, on the channel "
+    "where step 1 or 2 found clipping, or mixdown when none did; use four "
+    "windows for a file of about 2 s and fewer when remaining_tool_calls is "
+    "short; "
+    "(4) when a window shows clipping, finish with a conclusion that cites that "
+    "window's Evidence, which carries its time_range and channel. "
+    "An analyze_harmonic_distortion result with valid=false is Evidence neither "
+    "for nor against a fault; do not repeat it in place of the window calls. "
+    "Do not finish before step 3 unless remaining_tool_calls is used up. Do not "
+    "extrapolate a window result to the whole file. Do not invent thresholds, "
+    "percentages, standards, or a fundamental frequency.\n"
+)
+
+_S1_SYSTEM_PROMPT_V9_13 = _S1_SYSTEM_PROMPT_V9_11 + _S1_V9_13_SEGMENT_GUIDANCE
+_S1_PROMPT_V9_13 = _PlannerPromptSpec(
+    version="v0.3-s1-planner-9.13",
+    system_prompt=_S1_SYSTEM_PROMPT_V9_13,
+)
