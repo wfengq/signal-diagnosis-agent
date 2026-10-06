@@ -1,0 +1,10 @@
+{
+  "approved_at": "2026-10-06",
+  "approved_by": "wfengq",
+  "diagnosis_request_sha256": "243fdcb04d0cf556e36d820f4d88233dd397c8731f27bcc459834ead0ee0b71d",
+  "intake_identity": "v0.3-s1-intake-1.1",
+  "intake_prompt_sha256": "a41827a6e2684a14b21f737b185fbb5327e73e5c251645c8db37c9c4d2afa3c9",
+  "planner_prompt_sha256": "ad3d27ed324265dda8e7049f7f71c3d0cd1f651d7c658f616de2aa63c810455c",
+  "planner_prompt_version": "v0.3-s1-planner-9.15",
+  "study_id": "study_s1_agent_increment_1"
+}
