@@ -133,10 +133,10 @@
   - `estimate_f0_autocorrelation` 新增 `subharmonic_guard`（默认 `None`，即关闭；关闭时与旧估计逐字节一致）和 `subharmonic_tolerance`（0.01）。
   - 开启后，在所有局部峰中，按抛物线插值后的峰高，取不低于最高峰减容差的最短延迟，再用插值位置算频率。
   - 比较插值后的峰高，才能修好 8 kHz、700 Hz：整数延迟处的峰高会被低估。
-- **`dsp/harmonics.py`：** 把开关透传给基频估计。
+- **`dsp/harmonics.py` 与 `dsp/contextual.py` 不改：** 它们属于情境校准实现身份，T-CX249 要求该身份不变。开关通过下面的作用范围到达它们内部的基频估计。
 - **开关的作用范围：** 用 `subharmonic_guard_enabled()` 设定，嵌套的调用也生效，例如 `dsp/contextual.py` 内部的谐波分析。
-- **`tools/guarded_service.py`（新文件）：** `GuardedSignalToolService` 在开关打开的范围内运行三个依赖基频的工具。
-  - 原 `tools/service.py` 是 D043 起冻结的文件（T-CX351），因此不改它。
+- **`app/guarded_tools.py`（新文件）：** `GuardedSignalToolService` 在开关打开的范围内运行三个依赖基频的工具，本身不含测量逻辑。
+  - `tools/service.py` 是 D043 起冻结的文件（T-CX351），`tools/` 目录又属于冻结的 Phase 1–4.3.1 树（T285），所以放在 `app/`。
 - **产品接线：** `app/service.py` 的两条运行路径改用 `GuardedSignalToolService`。规划器消融适配器中的固定流程组也改用它，否则产品组与固定流程组的工具不一致，T-CX293 的对齐断言会失败。
 - **保持旧估计的地方：** 评测运行器、已记录的研究、回归工作台、数据集校验，继续用旧估计，以保证已记录结果可复现。
 - **测试：** 新增 T-CX433，固定上述接线范围。T-A-002、T-A-004、T-B-001、T-B-004 与 Workstream A 规格不改，全部通过。

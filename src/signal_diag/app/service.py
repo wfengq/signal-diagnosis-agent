@@ -36,6 +36,7 @@ from signal_diag.app.errors import (
     InvalidRequestError,
     PlannerNotConfiguredError,
 )
+from signal_diag.app.guarded_tools import GuardedSignalToolService
 from signal_diag.app.models import (
     AppErrorDetail,
     AppRunSnapshot,
@@ -76,7 +77,6 @@ from signal_diag.signal import (
 )
 from signal_diag.signal.context import EffectiveCapabilities, StimulusContext
 from signal_diag.tools.evidence import Evidence
-from signal_diag.tools.guarded_service import GuardedSignalToolService
 
 _MAX_USER_REQUEST_CHARS = 2_000
 _DEFAULT_WAV_DISPLAY_NAME = "input.wav"

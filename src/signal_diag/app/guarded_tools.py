@@ -1,11 +1,10 @@
-"""Tool service with the D049 F0 subharmonic guard turned on (live product only)."""
+"""Product tool service with the D049 F0 subharmonic guard turned on."""
 
 from __future__ import annotations
 
 from signal_diag.dsp.pitch import subharmonic_guard_enabled
 from signal_diag.signal.context import StimulusContext
-
-from .contracts import (
+from signal_diag.tools.contracts import (
     ContextualDistortionInput,
     ContextualDistortionOutput,
     FundamentalInput,
@@ -13,16 +12,17 @@ from .contracts import (
     HarmonicDistortionInput,
     HarmonicDistortionOutput,
 )
-from .results import ToolResult
-from .service import SignalToolService
+from signal_diag.tools.results import ToolResult
+from signal_diag.tools.service import SignalToolService
 
 
 class GuardedSignalToolService(SignalToolService):
     """Runs the F0-dependent tools with the subharmonic guard on.
 
-    ``SignalToolService`` itself is a frozen surface (T-CX351), so the guard is
-    scoped here instead. Evaluation runners and the regression workbench keep the
-    base class and therefore the pre-D049 estimator.
+    It adds no measurement logic: it only scopes the guard around the base
+    tools. ``SignalToolService`` (T-CX351) and the Phase 1–4.3.1 ``tools/`` tree
+    (T285) are frozen, so the scope lives here. Evaluation runners and the
+    regression workbench keep the base class and the pre-D049 estimator.
     """
 
     def estimate_fundamental(

@@ -1006,6 +1006,6 @@ The accepted V0.2 79/80 is unchanged and was produced by the default path.
 
 **Unchanged:** the default estimator and everything that uses it (evaluation
 runners, recorded studies, the regression workbench, dataset validation, the
-independent external reference analyzer), the frozen `tools/service.py`,
+independent external reference analyzer), the frozen `tools/service.py`, `dsp/harmonics.py` and `dsp/contextual.py`,
 Workstream A tests T-A-* and T-B-*, rule thresholds and prompts. Whether to run
 a new T2 study on the guarded product is a separate decision.

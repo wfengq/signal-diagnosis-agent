@@ -10,6 +10,8 @@ import pytest
 
 from signal_diag.dsp import estimate_f0_autocorrelation
 from signal_diag.dsp.harmonics import analyze_harmonic_distortion
+from signal_diag.dsp.models import HarmonicAnalysis
+from signal_diag.dsp.pitch import subharmonic_guard_enabled
 from signal_diag.evaluation.dataset import _generate, load_dataset_manifest
 from signal_diag.evaluation.external.reference_harmonics import estimate_f0_reference
 from signal_diag.signal import load_wav_bytes
@@ -18,6 +20,11 @@ ROOT = Path(__file__).resolve().parents[2]
 BASELINE = Path(__file__).resolve().parent / "fixtures" / "f0_v02_baseline.json"
 MANIFESTS = sorted((ROOT / "src/signal_diag/evaluation/manifests").glob("s1_distortion_v1*.yaml"))
 THD_THRESHOLD_PERCENT = 5.0  # profile_s1_distortion rule_thd_acceptable (demonstration)
+
+
+def _guarded_harmonics(samples: np.ndarray, rate: int) -> HarmonicAnalysis:
+    with subharmonic_guard_enabled():
+        return analyze_harmonic_distortion(samples, rate)
 
 
 def _tone(frequency_hz: float, sample_rate_hz: int, seconds: float = 1.0) -> np.ndarray:
@@ -89,7 +96,7 @@ def test_t_cx430_v02_estimates_move_little_and_judgments_do_not_change() -> None
         samples = generated.record.samples[:, 0]
         rate = generated.record.meta.sample_rate_hz
         estimate = estimate_f0_autocorrelation(samples, rate, subharmonic_guard=True)
-        harmonic = analyze_harmonic_distortion(samples, rate, subharmonic_guard=True)
+        harmonic = _guarded_harmonics(samples, rate)
         assert estimate.voiced == before["voiced"], key
         if before["f0_hz"] is not None:
             assert estimate.f0_hz == pytest.approx(before["f0_hz"], rel=2e-3), key
@@ -112,7 +119,7 @@ def test_t_cx430_auto_f0_thd_now_matches_thd_at_the_true_fundamental() -> None:
         generated = _generate(case)  # type: ignore[arg-type]
         samples = generated.record.samples[:, 0]
         rate = generated.record.meta.sample_rate_hz
-        auto = analyze_harmonic_distortion(samples, rate, subharmonic_guard=True)
+        auto = _guarded_harmonics(samples, rate)
         if not auto.valid or true_hz is None:
             continue
         pinned = analyze_harmonic_distortion(samples, rate, fundamental_hz=true_hz)
@@ -152,7 +159,7 @@ def test_t_cx432_aperiodic_input_gains_no_harmonic_claim() -> None:
     )
     bark_estimate = estimate_f0_autocorrelation(bark, rate, subharmonic_guard=True)
     assert bark_estimate.f0_reliability == "unreliable"
-    harmonic = analyze_harmonic_distortion(bark, rate, subharmonic_guard=True)
+    harmonic = _guarded_harmonics(bark, rate)
     assert not harmonic.valid
     assert harmonic.thd_percent is None
 
@@ -173,10 +180,10 @@ def test_t_cx430_default_path_is_the_pre_d049_estimator() -> None:
 
 
 def test_t_cx433_only_the_live_product_turns_the_guard_on() -> None:
+    from signal_diag.app.guarded_tools import GuardedSignalToolService
     from signal_diag.signal import InMemorySignalRepository, build_signal_record
     from signal_diag.tools import SignalToolService
     from signal_diag.tools.contracts import FundamentalInput
-    from signal_diag.tools.guarded_service import GuardedSignalToolService
 
     repository = InMemorySignalRepository()
     record = build_signal_record(
@@ -206,6 +213,7 @@ def test_t_cx433_only_the_live_product_turns_the_guard_on() -> None:
         "src/signal_diag/evaluation/agent_increment/segment_baseline.py",
         "src/signal_diag/tools/regression_measurement.py",
         "src/signal_diag/tools/service.py",
+        "src/signal_diag/dsp/harmonics.py",
     ):
         text = (ROOT / relative).read_text(encoding="utf-8")
         assert "subharmonic_guard" not in text, relative

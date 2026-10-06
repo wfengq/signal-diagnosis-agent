@@ -21,6 +21,7 @@ from signal_diag.agent.planner import (
 from signal_diag.agent.telemetry import TelemetryBinding, TelemetryEvent
 from signal_diag.app.context_guidance import ContextGuidance, build_context_guidance
 from signal_diag.app.contextual_models import ContextualAppRunSnapshot
+from signal_diag.app.guarded_tools import GuardedSignalToolService
 from signal_diag.app.service import (
     ApplicationDependencies,
     DiagnosisApplicationService,
@@ -61,7 +62,6 @@ from signal_diag.signal import (
 )
 from signal_diag.signal.context import StimulusContext
 from signal_diag.signal.repository import SignalRepository
-from signal_diag.tools.guarded_service import GuardedSignalToolService
 from signal_diag.tools.service import SignalToolService
 
 _APPROVED_PRODUCT_PLANNER_CLASS = "RealLLMPlanner"
