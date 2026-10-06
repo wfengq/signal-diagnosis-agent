@@ -65,3 +65,4 @@ and does not submit the existing diagnosis form.
 - D1 round 1 fix (T-CX405): the intake request sends the diagnosis planner's settings (reasoning disabled, JSON object, temperature 0), and empty intake content stops the stage. Round 1's T1 numbers measure the missing settings, not the agent.
 - Before D1 round 3 (T-CX406, T-CX407): intake prompt `v0.3-s1-intake-1.1` names every allowed value; validation failures record field locations and error types; the study planner is `v0.3-s1-planner-9.13` (channel and window call plan). See D045 for the two case-set limits found in round 2.
 - Before D1 round 4 (T-CX408): the study planner is `v0.3-s1-planner-9.14`, whose call plans fit the runtime's four rule evaluations per run.
+- Before D1 round 5 (T-CX409, T-CX410): the study planner is `v0.3-s1-planner-9.15` (single-file no-clipping outcome is `inconclusive`); a run without a diagnosis is never scored correct; case files record `run_errors`.

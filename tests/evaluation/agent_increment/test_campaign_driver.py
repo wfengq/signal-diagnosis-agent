@@ -259,6 +259,42 @@ def test_t_cx400_failed_intake_scores_as_wrong_without_unsupported_claim() -> No
     assert row.context_fields_graded == 4
 
 
+def test_t_cx410_run_without_diagnosis_is_never_correct() -> None:
+    """D1 round 4: crashed runs on clean T2 cases scored as correct (no claim made)."""
+    from signal_diag.evaluation.agent_increment.live import LiveAgentResult
+
+    case = next(
+        c for c in load_study_cases(STUDY) if c.family == "T2" and c.truth.conclusion == "no_supported_fault"
+    )
+    crashed = AgentRunResult.model_construct(
+        run_id="run_x",
+        status="error",
+        diagnosis=None,
+        observations=(),
+        evidence=(),
+        tool_history=(),
+        termination_reason="max_planner_retries",
+        errors=("supported or no-supported-fault finish requires at least one claim",),
+        rule_evaluation_batches=(),
+    )
+
+    def result(run: AgentRunResult) -> LiveAgentResult:
+        return LiveAgentResult.model_construct(
+            family="T2",
+            case_id=case.case_id,
+            draft=None,
+            confirmed=None,
+            correction_count=0,
+            context_downgraded=False,
+            run=run,
+            http_calls=7,
+        )
+
+    assert live_outcome(case, result(crashed)).conclusion_correct is False
+    finished = _run("inconclusive", [], [])
+    assert live_outcome(case, result(finished)).conclusion_correct is True
+
+
 def test_t_cx400_reference_only_from_confirmed_upload() -> None:
     names = {"test.wav": "sig_t", "ref.wav": "sig_r"}
     paired = ConfirmedContext(mode="paired_reference", reference_file="ref.wav")
@@ -319,6 +355,7 @@ async def test_t_cx404_mini_dev_stage_runs_all_arms_and_writes_once(tmp_path: Pa
         assert record["http_calls"] >= 2
         assert [entry["tool_name"] for entry in record["tool_history"]] == ["detect_clipping"]
         assert record["termination_reason"] == "planner_finished"
+        assert record["run_errors"] == []  # T-CX410: runtime rejections are recorded
     t2_case = next(c for c in load_study_cases(study) if c.family == "T2")
     assert not any(_sent(t2_case.text, user) for user in sdk.planner_users)
     assert any(_sent(live_campaign.DIAGNOSIS_REQUEST, user) for user in sdk.planner_users)
@@ -328,7 +365,7 @@ async def test_t_cx404_mini_dev_stage_runs_all_arms_and_writes_once(tmp_path: Pa
     report = json.loads((out / "report.json").read_text(encoding="utf-8"))
     assert "scripted stand-in" in report["notes"]["t1_downstream_fixed_arms"]
     identity = json.loads((out / "identity.json").read_text(encoding="utf-8"))
-    assert identity["planner_prompt_version"] == "v0.3-s1-planner-9.14"
+    assert identity["planner_prompt_version"] == "v0.3-s1-planner-9.15"
     assert identity["scripted_stand_in"] is False
     text = _all_text(out)
     assert "sk-test" not in text

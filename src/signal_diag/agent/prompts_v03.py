@@ -866,3 +866,27 @@ _S1_PROMPT_V9_14 = _PlannerPromptSpec(
     version="v0.3-s1-planner-9.14",
     system_prompt=_S1_SYSTEM_PROMPT_V9_14,
 )
+
+# D1 round 4 (v9.14): with no clipping window, the planner finished with
+# no_supported_fault and no claims. In single_signal mode that claim needs
+# harmonic and THD PASS citations, which this plan never collects, so every
+# such finish was rejected. v9.15 names the outcome the runtime accepts.
+_V9_14_NO_CLIP_FINISH = (
+    "If no window shows clipping, finish without a positive fault claim. "
+)
+_V9_15_NO_CLIP_FINISH = (
+    "If no window shows clipping, finish with outcome inconclusive, "
+    "confidence_label low and no claims: in single_signal mode a "
+    "no_supported_fault claim needs harmonic analysis and THD PASS citations, "
+    "which this plan does not collect. "
+)
+assert _S1_V9_14_SEGMENT_GUIDANCE.count(_V9_14_NO_CLIP_FINISH) == 1
+_S1_V9_15_SEGMENT_GUIDANCE = _S1_V9_14_SEGMENT_GUIDANCE.replace(
+    "(v0.3-s1-planner-9.14)", "(v0.3-s1-planner-9.15)"
+).replace(_V9_14_NO_CLIP_FINISH, _V9_15_NO_CLIP_FINISH)
+
+_S1_SYSTEM_PROMPT_V9_15 = _S1_SYSTEM_PROMPT_V9_11 + _S1_V9_15_SEGMENT_GUIDANCE
+_S1_PROMPT_V9_15 = _PlannerPromptSpec(
+    version="v0.3-s1-planner-9.15",
+    system_prompt=_S1_SYSTEM_PROMPT_V9_15,
+)
