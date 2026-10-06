@@ -140,14 +140,14 @@ async def test_t_cx363_product_builder_wires_d044_floor() -> None:
     case = service.create_case("goal")
     snap = await service.submit_comparison(case.case_id, _upload(), request_id="r1")
     check = snap.full_scale_checks[0]
-    # Default upload lacks eligible repeats/declarations; status stays non-judged
-    # unless the full eligibility ladder holds. Floor identity is wired.
-    assert check.status in (
-        "descriptive_only",
-        "not_comparable",
-        "regression_detected",
-        "no_regression_detected",
+    assert check.floor == PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]
+    assert check.status == "descriptive_only"
+    assert check.unmet_conditions == (
+        "repeat_missing:baseline",
+        "repeat_missing:candidate",
+        "periodic_not_declared",
     )
+    assert check.unevaluated_conditions == ()
 
 
 def test_t_cx363_client_cannot_supply_floor_or_approval() -> None:
