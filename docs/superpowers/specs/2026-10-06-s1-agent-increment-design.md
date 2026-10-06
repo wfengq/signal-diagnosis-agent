@@ -15,7 +15,7 @@
 | v9.11 情境验证 20 例全部目标通过（结论正确 16/17，证据可追溯 21/21，不支持的正面结论 0/10） | `docs/evaluations/v0_3/contextual/V9_11_CONTEXTUAL_VALIDATION_ACCEPTANCE_REPORT.md` |
 | 同一验证里确定性固定流程结论正确 17/17 | 同上 |
 | 规划器消融研究结论 `fixed_pipeline_dominance`：真实 LLM 与固定流程质量同为 0.85、有用性同为 0.75 | `docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_1/agent_realllm_campaign_1/study_conclusion.json` |
-| HEAD 运行的不是被验证的配置：v9.11 prompt 文本在验证后被改（`f0a629b`），哈希从 `ecd10554…` 变为 `b4c279df…`，版本号未变；`agent/planner.py`、`agent/diagnosis.py` 也有改动 | `git diff c46feff HEAD -- src/signal_diag/agent` |
+| HEAD 运行的不是被验证的配置：v9.11 prompt 文本在验证后经追加式身份修正（OQ-014 Option C，`f0a629b`）改动，哈希从 `ecd10554…` 变为 `b4c279df…`，版本号未变，修正记录注明 `model_calls: 0`（未经真实模型验证）；`agent/planner.py`、`agent/diagnosis.py` 也有改动 | `code_identity_amendment.json`；`git diff c46feff HEAD -- src/signal_diag/agent` |
 
 结论：现有 S1 任务（在给定上下文下区分削波与谐波）已经可以被一条写死的流程完成。再做一次同类认证，只会再次证明“agent ≈ 固定流程”。本切片改为测量 **agent 相对固定流程的增量**，并选取固定流程结构上做不好的任务。
 
@@ -92,7 +92,7 @@ T2 需要的规则层补充：分段证据如何构成结论（例如“任一�
 
 ### 4.3 版本与身份
 
-- HEAD prompt 以新版本号（如 `v0.3-s1-planner-9.12`）登记，文本即现 HEAD 文本，哈希 `b4c279df…`；T1/T2 需要的 prompt 增补再递增版本。
+- 评测用新版本号 `v0.3-s1-planner-9.12`：现行 v9.11 文本（哈希 `b4c279df…`）加 T2 分段指引；v9.11 规格与既有修正记录不动。既有任务回归臂使用同一 v9.12，从而让现 HEAD 行为第一次经过真实模型运行。产品默认是否切换到 v9.12，在留出结果出来后另行决定。
 - 评测记录模型、prompt 哈希、产品树哈希、规则版本；沿用既有 `evaluation/contextual` 的 campaign/ledger/sealing 机制，不新造。
 
 ## 5. 预算与流程（比满刻度那条线轻）
