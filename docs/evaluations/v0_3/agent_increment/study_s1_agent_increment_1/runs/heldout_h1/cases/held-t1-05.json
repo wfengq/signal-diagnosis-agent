@@ -1,0 +1,103 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "held-t1-05",
+      "conclusion_correct": false,
+      "context_fields_correct": 4,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": true,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 1,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "held-t1-05",
+      "conclusion_correct": true,
+      "context_fields_correct": 2,
+      "context_fields_graded": 4,
+      "correction_count": 1,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "held-t1-05",
+      "conclusion_correct": true,
+      "context_fields_correct": 1,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "held-t1-05",
+  "cited_locations": [],
+  "claims": [
+    {
+      "claim_id": "claim_nominal_f0_mismatch",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_003"
+      ],
+      "fault_type": "inconclusive",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_18570d1d55acc8df"
+      ],
+      "statement": "Contextual distortion analysis is invalid because the measured fundamental is incompatible with the declared 1000 Hz single-tone context, so neither clipping nor harmonic distortion can be causally established."
+    }
+  ],
+  "confirmed": {
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 1000.0,
+    "reference_file": null,
+    "stimulus_kind": "single_tone"
+  },
+  "context_downgraded": false,
+  "correction_count": 0,
+  "draft": {
+    "asked_fields": [],
+    "missing_fields": [],
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 1000.0,
+    "questions": [],
+    "reference_file": null,
+    "stimulus_kind": "single_tone"
+  },
+  "family": "T1",
+  "http_calls": 3,
+  "intake_error_detail": null,
+  "predicted_conclusion": "inconclusive",
+  "run_errors": [],
+  "run_status": "inconclusive",
+  "split": "heldout",
+  "termination_reason": "planner_finished",
+  "tool_history": [
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "purpose": "In nominal_single_tone mode, contextual distortion analysis is the required tool for causal harmonic closure against the declared 1000 Hz single-tone context.",
+      "status": "invalid",
+      "tool_name": "analyze_contextual_distortion"
+    }
+  ]
+}

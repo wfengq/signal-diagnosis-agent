@@ -1,0 +1,171 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "held-t1-18",
+      "conclusion_correct": true,
+      "context_fields_correct": 3,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 1,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "held-t1-18",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 4,
+      "correction_count": 1,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "held-t1-18",
+      "conclusion_correct": false,
+      "context_fields_correct": 0,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "held-t1-18",
+  "cited_locations": [
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_d696040a5ce8eb4c",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_d696040a5ce8eb4c",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_016",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f2cece788c67624a",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000",
+      "fault": "harmonic_distortion",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f2cece788c67624a",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_005",
+      "fault": "harmonic_distortion",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f2cece788c67624a",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_012",
+      "fault": "harmonic_distortion",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f2cece788c67624a",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_013",
+      "fault": "harmonic_distortion",
+      "time_range": null
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_paired_1",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_016"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_d696040a5ce8eb4c"
+      ],
+      "statement": "Clipping is affirmatively supported: test_clipping_mechanism is true and the same-run test clipping-ratio rule is FAIL."
+    },
+    {
+      "claim_id": "claim_harm_paired_1",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_013"
+      ],
+      "fault_type": "harmonic_distortion",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_f2cece788c67624a",
+        "ruleval_ff4fb99021a80996",
+        "ruleval_8b96ccc97e3898b3",
+        "ruleval_000e243c0ce1783e",
+        "ruleval_7fb424d7f955eecd"
+      ],
+      "statement": "Independent harmonic distortion is supported: contextual analysis is valid, F0 is compatible, reference clipping is excluded, and the even-harmonic-growth rule is FAIL with reportable order-2 growth."
+    }
+  ],
+  "confirmed": {
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": 440.0,
+    "reference_file": "extwav_validation_8d15a36dd636befa_ref.wav",
+    "stimulus_kind": "single_tone"
+  },
+  "context_downgraded": false,
+  "correction_count": 0,
+  "draft": {
+    "asked_fields": [
+      "stimulus_kind"
+    ],
+    "missing_fields": [
+      "stimulus_kind"
+    ],
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": 440.0,
+    "questions": [
+      "测试信号是单音正弦吗？"
+    ],
+    "reference_file": "extwav_validation_8d15a36dd636befa_ref.wav",
+    "stimulus_kind": null
+  },
+  "family": "T1",
+  "http_calls": 3,
+  "intake_error_detail": null,
+  "predicted_conclusion": "combined",
+  "run_errors": [],
+  "run_status": "success",
+  "split": "heldout",
+  "termination_reason": "planner_finished",
+  "tool_history": [
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "purpose": "Paired_reference mode requires contextual comparison Evidence for causal harmonic closure; obtain it first.",
+      "status": "success",
+      "tool_name": "analyze_contextual_distortion"
+    }
+  ]
+}

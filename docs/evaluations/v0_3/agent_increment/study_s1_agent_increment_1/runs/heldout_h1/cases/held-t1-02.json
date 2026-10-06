@@ -1,0 +1,115 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "held-t1-02",
+      "conclusion_correct": false,
+      "context_fields_correct": 4,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": true,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 2,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "held-t1-02",
+      "conclusion_correct": false,
+      "context_fields_correct": 4,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": true,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": true
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "held-t1-02",
+      "conclusion_correct": true,
+      "context_fields_correct": 1,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "held-t1-02",
+  "cited_locations": [],
+  "claims": [
+    {
+      "claim_id": "claim_inc_nominal_f0_mismatch",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_003"
+      ],
+      "fault_type": "inconclusive",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_472ea3b94d546ae2",
+        "ruleval_447a9dcc9a636177"
+      ],
+      "statement": "Contextual distortion analysis is invalid because the measured fundamental is incompatible with the declared nominal single tone, so causal harmonic_distortion attribution cannot be established."
+    }
+  ],
+  "confirmed": {
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 440.0,
+    "reference_file": null,
+    "stimulus_kind": "single_tone"
+  },
+  "context_downgraded": false,
+  "correction_count": 0,
+  "draft": {
+    "asked_fields": [],
+    "missing_fields": [],
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 440.0,
+    "questions": [],
+    "reference_file": null,
+    "stimulus_kind": "single_tone"
+  },
+  "family": "T1",
+  "http_calls": 4,
+  "intake_error_detail": null,
+  "predicted_conclusion": "inconclusive",
+  "run_errors": [],
+  "run_status": "inconclusive",
+  "split": "heldout",
+  "termination_reason": "planner_finished",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "purpose": "Obtain clipping Evidence first for this nominal single-tone distortion request.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "purpose": "Clipping is ruled out by same-run Evidence; nominal_single_tone requires analyze_contextual_distortion for causal harmonic closure.",
+      "status": "invalid",
+      "tool_name": "analyze_contextual_distortion"
+    }
+  ]
+}
