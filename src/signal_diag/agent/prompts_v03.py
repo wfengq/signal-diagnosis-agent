@@ -777,3 +777,19 @@ _S1_PROMPT_V9_11 = _PlannerPromptSpec(
     version="v0.3-s1-planner-9.11",
     system_prompt=_S1_SYSTEM_PROMPT_V9_11,
 )
+
+_S1_V9_12_SEGMENT_GUIDANCE = (
+    "\nSegment and channel drill-down (v0.3-s1-planner-9.12). "
+    "After a coarse whole-file look, call detect_clipping and "
+    "analyze_harmonic_distortion with an explicit time_range and channel "
+    "when a short interval or one channel may carry the fault. "
+    "A supported conclusion must cite the same-run segment Evidence from "
+    "that call. Do not extrapolate a segment result to the whole file. "
+    "Do not invent thresholds, percentages, or standards.\n"
+)
+
+_S1_SYSTEM_PROMPT_V9_12 = _S1_SYSTEM_PROMPT_V9_11 + _S1_V9_12_SEGMENT_GUIDANCE
+_S1_PROMPT_V9_12 = _PlannerPromptSpec(
+    version="v0.3-s1-planner-9.12",
+    system_prompt=_S1_SYSTEM_PROMPT_V9_12,
+)
