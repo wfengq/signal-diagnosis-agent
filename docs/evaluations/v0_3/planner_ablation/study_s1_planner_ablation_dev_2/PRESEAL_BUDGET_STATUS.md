@@ -145,3 +145,5 @@ Still blocked for formal candidate `seal_ready`: input/output token ceilings,
 failed-attempt token exposure, production non-fixture observation bind, and
 remaining `admitted_independent_proof` rows above. Partial closure is the
 intended honest outcome. Do not force `seal_ready=true` to finish the plan.
+
+**Closed 2026-10-06 (D046):** this study stops at the partial preseal state above and will not be sealed or run. The text above is kept unchanged as the historical record.

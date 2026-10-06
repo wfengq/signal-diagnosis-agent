@@ -903,3 +903,31 @@ Related: plan
 **D1 round 2 and fixes before round 3 (2026-10-06, T-CX406, T-CX407):** Round 2 (`runs/dev_r2`, PR #57, 50 HTTP calls; D1 total 99) is kept as recorded. The request fix worked, but all 12 intake drafts failed schema validation. Prompt `v0.3-s1-intake-1.0` named the draft keys without their allowed values or types, so the T1 numbers of round 2 again measure the harness, not the agent. The intake prompt is now `v0.3-s1-intake-1.1`: it names every allowed `mode` and `stimulus_kind` value, gives the mode precedence the labels use (a named reference file, then a written test-tone frequency, then `single_signal`), and includes a JSON example that validates. A draft that fails validation now records the failing field locations and error types in the case file, without the model's values. T2 in both rounds was consistent: the planner made two whole-file calls and finished, so localization was 0. Planner `signal_meta` already carries `duration_s` and `channels`, so the gap is the guidance. The study planner is now `v0.3-s1-planner-9.13`: the v9.11 text plus a call plan (whole-file mixdown, each channel when there are two, then equal windows that cover the file, citing the window Evidence). It fits the runtime's default 8 tool calls. v9.11 and v9.12 texts and hashes are unchanged, and the product default stays v9.11. Two case-set limits found in review are recorded, not fixed here: (1) dev clean controls `dev-t1-00` to `dev-t1-03` state a tone frequency in the text but are labelled `single_signal` with no frequency, which the held-out labels never do, so a consistent intake cannot match them; (2) at 8 kHz, automatic F0 estimation picks a subharmonic (about 87.9 Hz) for the 440 Hz T2 tone, over the whole file and over the 1.0–1.25 s fault window, so `analyze_harmonic_distortion` without a stated fundamental returns invalid, and the 2 dev and 6 held-out harmonic T2 cases cannot be answered by any arm. The same tone at 48 kHz, or 400 Hz and 500 Hz at 8 kHz, is estimated correctly.
 
 **D1 round 3 and the fix before round 4 (2026-10-06, T-CX408):** Round 3 (`runs/dev_r3`, PR #59, 130 HTTP calls; D1 total 229) is kept as recorded. Intake 1.1 worked: every draft validated, first-draft field accuracy was 0.71 and the T1 increment +1. Diagnosis did not finish in 23 of 24 runs: each rule-backed tool call spends one automatic rule evaluation, `AgentLimits.max_rule_evaluations` is 4, and a fifth such call ends the run with no diagnosis. The v9.13 plan needed 5 to 7 calls; its design checked `max_tool_calls` (8) and missed this limit. The study planner is now `v0.3-s1-planner-9.14`. It keeps the runtime limits, which are the product's, and sizes each path to them: contextual runs (reference or nominal frequency) follow the v9.11 procedure without window scans; single-file mono runs check four equal windows; single-file stereo runs check left and right over the whole file, then two halves of the channel that clipped. The budget figures in the text are derived from `AgentLimits`, and a test fails if any plan exceeds it. Executed deterministically, the single-file plan flags and localizes every dev clipping case and flags no clean case; the same check over the held-out audio was used to confirm feasibility only, without a model.
+
+## D046 — Stop OQ-019 planner-ablation `dev_2` before sealing
+
+**Decision (operator 2026-10-06):** `study_s1_planner_ablation_dev_2` stops at
+its partial preseal state and will not be sealed or run. No live model call was
+made for it, so it has no results and no conclusion may be cited from it.
+
+**Why:** the remaining preseal blockers (all-outcome and per-send token
+ceilings, failed-attempt token exposure; see D041 and
+`PRESEAL_BUDGET_STATUS.md`) had no practical route to closure. The question
+dev_2 was set up to answer, whether the RealLLM planner earns its complexity
+over a truth-free fixed pipeline, is now measured by the agent-increment study
+(D045), which budgets by HTTP call caps instead of token proofs. D045 is a
+separate study, not a continuation of dev_2.
+
+**Kept as historical record, unchanged:** every file under
+`docs/evaluations/v0_3/planner_ablation/study_s1_planner_ablation_dev_2/`,
+D038–D041, and the `planner_ablation` code and tests. `dev_1` and its
+`fixed_pipeline_dominance` conclusion are unaffected.
+
+**Reusable:** the scenarios and oracles approved in `LABEL_REVIEW.md` (an
+independent review that did not use arm outputs as truth, with separate
+single-file and paired-reference oracles for each scenario) may seed a later
+study, for example on the value of context upgrades. Reuse needs its own
+design and authorization.
+
+**Housekeeping:** PR #28 (D041 proof-binding revision) and PR #20 (telemetry
+design docs, already on trunk byte-identical) were closed without merge.

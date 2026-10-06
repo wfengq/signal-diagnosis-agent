@@ -350,7 +350,7 @@ User decision: append historical EV-C026+ entries + keep pyproject 0.2.0 with RE
 ```text
 ID: OQ-019
 Date: 2026-09-30
-Status: resolved — study shape approved (2026-09-30)
+Status: resolved — study shape approved (2026-09-30); `dev_2` stopped before sealing (2026-10-06, D046)
 Disposition: D038; docs/superpowers/specs/2026-09-30-s1-planner-ablation-utility-study-design.md (revised)
 Affected document and section: AGENTS.md scope gates; CONTRACTS_V0_3_CONTEXTUAL.md §11 / §16 / §17; evaluation/contextual/; app/contextual_campaign.py; docs/evaluations/v0_3/contextual/V9_11_CONTEXTUAL_VALIDATION_ACCEPTANCE_REPORT.md
 Observed problem: v9.11 showed truth-free fixed_pipeline at 17/17 outcome and causal exact-set accuracy while the contextual Agent was 16/17, with retained diagnosis-less failure 675073735bc06f76. Sealed studies do not answer whether RealLLMPlanner earns its complexity on a fresh matched set that includes the D037 single_signal default path and upgrade utility metrics.
