@@ -487,15 +487,78 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     )
     assert d043_task9["prompt_sha256"] == oq014["prompt_sha256"]
     assert d043_task9["model_calls"] == 0
+    d044_oq021 = next(
+        row for row in rows if row["amendment_id"] == "d044_oq021_floor_identity"
+    )
+    assert d044_oq021["amendment_kind"] == "append_only_code_identity"
+    assert d044_oq021["prior_bridge_current_implementation_sha256"] == (
+        d043_task9["current_implementation_sha256"]
+    )
+    assert d044_oq021["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d044_oq021["product_tree_sha256"] == (
+        "b5c73b90e45a88cb84dc62b3588467198be3ad84aff86175e3d62c678d9d9944"
+    )
+    assert d044_oq021["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d044_oq021["model_calls"] == 0
+    d044_floor = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d044_full_scale_floor_registration"
+    )
+    assert d044_floor["amendment_kind"] == "append_only_code_identity"
+    assert d044_floor["prior_bridge_current_implementation_sha256"] == (
+        d044_oq021["current_implementation_sha256"]
+    )
+    assert d044_floor["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d044_floor["product_tree_sha256"] == (
+        "38f1fa27b8292417cfc5a33521c4876c4dbab17974d305f5a8820c8212e7dee2"
+    )
+    assert d044_floor["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d044_floor["model_calls"] == 0
+    d044_ruff = next(
+        row
+        for row in rows
+        if row["amendment_id"] == "d044_floor_yaml_loader_ruff_try004"
+    )
+    assert d044_ruff["amendment_kind"] == "append_only_code_identity"
+    assert d044_ruff["prior_bridge_current_implementation_sha256"] == (
+        d044_floor["current_implementation_sha256"]
+    )
+    assert d044_ruff["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert d044_ruff["product_tree_sha256"] == (
+        "38400c7ddbede4e6504a8cb5a8c809cd80ffc5b05265f79cbb487df7f3e1a316"
+    )
+    assert d044_ruff["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d044_ruff["model_calls"] == 0
     d045 = next(
         row for row in rows if row["amendment_id"] == "d045_s1_agent_increment_offline"
     )
     assert d045["amendment_kind"] == "append_only_code_identity"
     assert d045["prior_bridge_current_implementation_sha256"] == (
-        d043_task9["current_implementation_sha256"]
+        d044_ruff["current_implementation_sha256"]
     )
     assert d045["current_implementation_sha256"] == contextual_implementation_sha256()
-    assert d045["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert d045["product_tree_sha256"] == (
+        "fe8541422fd5f4728995c8854069bb8c0646a7d26e22401bae70fe2a257a80f0"
+    )
     assert d045["prompt_sha256"] == oq014["prompt_sha256"]
     assert d045["prompt_version"] == "v0.3-s1-planner-9.11"
     assert d045["model_calls"] == 0
+    merged = next(
+        row for row in rows if row["amendment_id"] == "d045_merge_d044_product_tree"
+    )
+    assert merged["amendment_kind"] == "append_only_code_identity"
+    assert merged["prior_bridge_current_implementation_sha256"] == (
+        d045["current_implementation_sha256"]
+    )
+    assert merged["current_implementation_sha256"] == contextual_implementation_sha256()
+    assert merged["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert merged["prompt_sha256"] == oq014["prompt_sha256"]
+    assert merged["prompt_version"] == "v0.3-s1-planner-9.11"
+    assert merged["model_calls"] == 0

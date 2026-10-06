@@ -37,6 +37,7 @@
 | T-CX329..348 | D042 regression troubleshooting workbench (definitions; Phase A–C implementation gated) |
 | T-CX349..370 | D043 regression full-scale check (implemented, PR #41 `0770514`; characterization and floor approval gated) |
 | T-CX371..380 | D043 layer-1 characterization tool (definitions; characterization runs and floor approval gated) |
+| T-CX381..386 | D044 round_1 full-scale method floor registration (OQ-021 A, OQ-022 B) |
 
 ## Registered identities (Task 1)
 
@@ -430,7 +431,7 @@ separately gated.
 
 | ID | Definition |
 |----|------------|
-| T-CX371 | Characterization package imports only lower layers; product code does not import the package; product floor registry stays empty |
+| T-CX371 | Characterization package imports only lower layers; product code does not import the package; product floor registry stays empty (empty-registry clause superseded by D044 / T-CX386) |
 | T-CX372 | Integer PCM codes match the loader (32-bit vs float32 decode); one-step perturbations stay within one step and keep direction; seed fixes bytes |
 | T-CX373 | Manifest is deterministic and hashable; sensitivity pairs carry one perturbation; tolerance codes are only those listed; seed sets do not overlap |
 | T-CX374 | Split by source group; no leakage by effective params/codes per channel; near-duplicate sensitivity pairs are excluded and listed; validation subgrid is complete and scale-bounded |
@@ -440,6 +441,30 @@ separately gated.
 | T-CX378 | Two-step freeze is select-only; artifacts are write-once; incomplete freeze blocks validation side; identity compare set covers measurement path and scoring code |
 | T-CX379 | Validation counts only; both hard conditions and all mandatory disclosures are present; abort has a record; no product-judgment wording |
 | T-CX380 | End-to-end six steps on a mini manifest are reproducible byte-for-byte |
+
+T-CX381–T-CX386 are definitions for D044 round_1 full-scale method floor
+registration (`docs/DECISIONS.md` D044; closes OQ-021 Option A and OQ-022
+Option B). They authorize the reviewed freeze values as the product floor
+record. They must not alter frozen V0.2 §§1–64, `FullScaleMethodFloor` model
+fields, critical-zone or judgment logic (except OQ-021 identity applicability),
+sealed evaluation/Demo digests, or T285 allowlists. If product-tree hash
+changes from adding a versioned floor YAML under `rules/profiles/` cause V0.2
+protection, T285, or sealed-identity failures, stop and report without
+updating sealed hashes or allowlists.
+
+**D044 T285 allowlist (operator-authorized 2026-10-06):** append-only addition
+to `_V03_ADDITIVE_EXACT_PATHS` of
+`src/signal_diag/rules/profiles/s1_full_scale_floor_round_1.yaml` (one line;
+no other allowlist or hash rewrites in that authorization).
+
+| ID | Definition |
+|----|------------|
+| T-CX381 | OQ-021 Option A: when either anchor side has no facts, `_floor_identity_ok` is false; check lists `floor_missing` and does not carry the floor |
+| T-CX382 | OQ-022 Option B: §23.4 requires any approved floor `zone_above` ≥ one 16-bit step; registered floor satisfies it; `_in_critical_zone` unchanged |
+| T-CX383 | Versioned floor YAML under `rules/profiles/` loads; digest self-check rejects tampering |
+| T-CX384 | YAML numeric fields equal freeze_record.json at full precision (no rounding) |
+| T-CX385 | `build_regression_service` wires the approved floor (no longer `full_scale_floor=None`); eligible submissions judged with `PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]` follow the product count floor (1280 samples) and transition table (regression / no regression / critical-zone descriptive_only) |
+| T-CX386 | `PRODUCT_APPROVED_FULL_SCALE_FLOORS` equals the loaded YAML floor; supersedes empty-registry assertions where they conflict |
 
 T-CX387–T-CX398 are additive definitions for D045
 (`CONTRACTS_V0_3_CONTEXTUAL.md` §24; plan

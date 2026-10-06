@@ -84,8 +84,11 @@ def test_t_cx371_product_layers_do_not_mention_characterization_package() -> Non
     )
 
 
-def test_t_cx371_product_approved_full_scale_floors_stays_empty() -> None:
-    """T-CX371: no approved method floors on the product path."""
+def test_t_cx371_product_layers_do_not_import_characterization_package() -> None:
+    """T-CX371 empty-registry clause superseded by D044 / T-CX386."""
     from signal_diag.rules.full_scale_check import PRODUCT_APPROVED_FULL_SCALE_FLOORS
 
-    assert PRODUCT_APPROVED_FULL_SCALE_FLOORS == ()
+    assert len(PRODUCT_APPROVED_FULL_SCALE_FLOORS) == 1
+    assert PRODUCT_APPROVED_FULL_SCALE_FLOORS[0].floor_id == (
+        "s1_full_scale_floor_round_1"
+    )

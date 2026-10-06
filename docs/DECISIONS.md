@@ -2,7 +2,7 @@
 
 **Status:** Active
 **Current architecture version:** V0.2 accepted; HEAD may run V0.3 contextual product identity
-**Last updated:** 2026-09-30
+**Last updated:** 2026-10-06
 
 This file records approved decisions that affect implementation. Historical V0.1
 documents are preserved under `docs/archive/v0.1/`.
@@ -782,10 +782,83 @@ SHAs cited in the acceptance record). Plan:
 (revision 4); offline record:
 `docs/REGRESSION_FULL_SCALE_CHECK_OFFLINE_ACCEPTANCE.md`. The product ships no
 floor record (`PRODUCT_APPROVED_FULL_SCALE_FLOORS` is empty), so product checks
-are `descriptive_only` or `not_comparable` only. Still not authorized: the
-layer-1 characterization run, any floor, critical-zone or approved-domain
-value, floor approval, a judged product status, and every item listed above as
-not authorized. Open follow-up: OQ-021.
+are `descriptive_only` or `not_comparable` only. Still not authorized at the
+time of that merge: the layer-1 characterization run, any floor, critical-zone
+or approved-domain value, floor approval, a judged product status, and every
+item listed above as not authorized. Open follow-up at that time: OQ-021.
+Product floor status is superseded by D044 (round_1 YAML registration).
+
+## D044 — Approve round_1 full-scale method floor (OQ-021 A, OQ-022 B)
+
+**Decision (operator approval 2026-10-06):** Close OQ-021 with Option A and
+OQ-022 with Option B. Register the reviewed round_1 layer-1 freeze as the
+product `FullScaleMethodFloor`, with the values below taken at full precision
+from `docs/evaluations/v0_3/full_scale_characterization/round_1/freeze_record.json`
+(digest `447751cee16da908ec179ab8966b3342ef273fc2a71028fb1ba01d07e585af06`).
+Register T-CX381–T-CX386.
+
+**Approved floor values (full precision; do not round):**
+
+| Field | Value | Freeze source |
+|-------|-------|---------------|
+| `facts_version` | `v0.3-full-scale-facts-1` | product facts identity |
+| `full_scale_threshold` | `0.99` | facts / characterization |
+| `min_consecutive_samples` | `2` | facts / characterization |
+| `min_samples_per_period` | `5.5125` | stage1 `domain.n_min` |
+| `min_periods_in_range` | `1.0` | stage1 `domain.p_min` |
+| `zone_below_threshold` | `0.0` | stage1 K2 `zone_below` |
+| `zone_above_threshold` | `0.002004394531250009` | stage1 K2 `zone_above` |
+| `zone_min_counted_samples` | `null` | stage1 K2 `min_counted` |
+| `count_floor_samples` | `1280` | stage2 F2 `floor_params.value` |
+| `count_floor_ratio` | `null` | F2 form |
+| `tolerated_difference` | `one_step_of_coarser_depth_one_sided_plus_depth_conversion` | §23.4 fixed id |
+| zone form / floor form | K2 / F2 | freeze `zone_form` / `floor_form` |
+| stage1 row | `n=5.5125;p=1;K2` | freeze `zone_row_id` |
+
+**OQ-021 Option A:** a floor applies only when both anchor sides have facts and
+the three identity fields match. Missing facts on either side means the floor
+is not applicable (`floor_missing`). Change only `_floor_identity_ok`.
+
+**OQ-022 Option B:** keep the fixed minimum at one coarser-depth step. Append
+to §23.4 that any approved floor record must have `zone_above` of at least one
+16-bit step (`2^-15`). No change to `_in_critical_zone` or judgment logic.
+
+**Mandatory disclosures (must accompany any product use of this floor):**
+
+1. **Low sensitivity.** Freeze rationale: the 10% aggravation tier remains
+   masked in 663/1728 pairs. Validation `rel_peak=0.1` tier:
+   masked 684 of 1248 judged pairs (disclosures in
+   `validation_report.json` / `.md`).
+2. **Near-threshold clipping is not separable.** Validation M11 note: the
+   existing outputs cannot distinguish a flattened from an unflattened sine at
+   the threshold (characterization design §10.4).
+3. **k=1 / k=2 flip counts.** Validation fixed-minimum totals: flips 4809,
+   outside k=1: 0, outside k=2: 0
+   (`disclosures.fixed_minimum_flip_totals`).
+4. **Fundamental source.** Characterization uses the generated fundamental; the
+   product uses the user-declared fundamental and does not check it (§10.6).
+5. **Not an industry standard.** These floor, zone, and domain limits are
+   demonstration / reviewed characterization values, not industry standards or
+   SLAs.
+
+**Constraints preserved:** frozen V0.2 §§1–64; `FullScaleMethodFloor` model
+fields; critical-zone and judgment logic (except OQ-021 identity applicability);
+no silent rewrite of sealed evaluation/Demo digests or T285 allowlists. Adding
+a versioned floor YAML under `rules/profiles/` changes
+`contextual_product_tree_sha256`; if V0.2 protection, T285, or sealed-identity
+tests fail, stop and report without updating sealed hashes or allowlists.
+
+**Tests:** T-CX381 (OQ-021 A), T-CX382 (OQ-022 B contract pin), T-CX383 (YAML
+load + digest check), T-CX384 (YAML equals freeze values at full precision),
+T-CX385 (product builder wires the floor; eligible checks judged with the
+registered product floor), T-CX386 (registry equals loaded
+YAML; supersedes empty-registry assertions of T-CX363/T-CX371 where they
+conflict).
+
+Related: OQ-021; OQ-022; freeze
+`docs/evaluations/v0_3/full_scale_characterization/round_1/freeze_record.json`;
+validation
+`docs/evaluations/v0_3/full_scale_characterization/round_1/validation_report.md`.
 
 ## D045 — S1 agent-increment slice (definitions and offline implementation)
 

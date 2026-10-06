@@ -17,6 +17,8 @@ plus A.16), Tasks 0–9.
 - No floor, critical-zone or approved-domain value was produced or selected.
 - The product registry is still empty (`PRODUCT_APPROVED_FULL_SCALE_FLOORS == ()`,
   asserted by `test_t_cx371_product_approved_full_scale_floors_stays_empty`).
+  Later superseded for the live product path by D044 (round_1 floor YAML
+  registration; empty-registry clause of T-CX371 replaced by T-CX386).
 - No RealLLM call and no seal.
 - This document is not a manifest approval (R0) and is not evidence for any floor.
 

@@ -91,12 +91,15 @@ def _planner_with_sdk(sdk: _FakeSDK) -> RealLLMRetestPlanner:
 
 
 def _configured_service(sdk: _FakeSDK) -> RegressionWorkbenchService:
+    from signal_diag.rules.full_scale_check import PRODUCT_APPROVED_FULL_SCALE_FLOORS
+
     limits = RetestCallLimits(max_output_tokens=64, timeout_s=2.0)
     return RegressionWorkbenchService(
         clock=lambda: NOW,
         retest_planner=_planner_with_sdk(sdk),
         retest_model="fake-retest",
         retest_limits=limits,
+        full_scale_floor=PRODUCT_APPROVED_FULL_SCALE_FLOORS[0],
     )
 
 
