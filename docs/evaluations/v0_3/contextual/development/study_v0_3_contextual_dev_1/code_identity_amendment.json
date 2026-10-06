@@ -720,5 +720,22 @@
     "qualification_recompute_unchanged": true,
     "scope": "D045 before D1 round 5: study planner prompt v0.3-s1-planner-9.15 names inconclusive as the single-file outcome when no window shows clipping; v9.11 to v9.14 texts unchanged; product default prompt remains v9.11; model_calls=0",
     "selected_threshold_percent_unchanged": 5.0
+  },
+  {
+    "amendment_id": "d047_intake_product_flow",
+    "amendment_kind": "append_only_code_identity",
+    "calibration_recompute_unchanged": true,
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "created_at_utc": "2026-10-06T15:00:00+00:00",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "model_calls": 0,
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "product_tree_sha256": "e6ecf9fb2f9806ecd9d628e6bae0f71fb6e7349be16e5f4ae3153fd7d8da4dde",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "qualification_recompute_unchanged": true,
+    "scope": "D047: free-text intake confirm-then-diagnose flow in app/ (Web UI, CLI intake diagnose, context_origin provenance); agent/ and prompts unchanged; product default prompt remains v9.11; model_calls=0",
+    "selected_threshold_percent_unchanged": 5.0
   }
 ]

@@ -167,8 +167,10 @@ def render_contextual_report_html(report: ContextualDiagnosisReport) -> str:
         f"<dt>stimulus_kind</dt><dd>{_esc(context.get('stimulus_kind'))}</dd>",
         *(
             (
-                "<dt>context_source</dt>"
-                f"<dd>{_esc(_CONTEXT_ORIGIN_LABELS[data['context_origin']])}</dd>",
+                (
+                    "<dt>context_source</dt>"
+                    f"<dd>{_esc(_CONTEXT_ORIGIN_LABELS[data['context_origin']])}</dd>"
+                ),
             )
             if data.get("context_origin") is not None
             else ()

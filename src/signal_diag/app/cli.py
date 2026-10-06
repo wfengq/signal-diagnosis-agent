@@ -10,7 +10,6 @@ from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
-from signal_diag.agent.intake import ContextDraft
 from signal_diag.app.composition import build_product_service
 from signal_diag.app.contextual_models import ContextualDiagnosisReport
 from signal_diag.app.contextual_reporting import (
@@ -23,6 +22,7 @@ from signal_diag.app.intake_flow import (
     CONTEXT_ORIGIN_INTAKE,
     INTAKE_DIAGNOSIS_QUESTION,
     MAX_INTAKE_FILES,
+    ContextDraft,
     assemble_intake_submission,
     downgrade_message,
     draft_confirmed_by_yes,

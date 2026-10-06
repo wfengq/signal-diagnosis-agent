@@ -29,13 +29,13 @@ from signal_diag.app.errors import (
     RunNotTerminalError,
     sanitize_application_error,
 )
+from signal_diag.app.intake_flow import ContextOrigin
 from signal_diag.app.models import (
     AppErrorDetail,
     AppErrorEnvelope,
     AppRunSnapshot,
     DemoPresetId,
 )
-from signal_diag.app.intake_flow import ContextOrigin
 from signal_diag.app.multipart import parse_contextual_wav_upload, parse_wav_upload
 from signal_diag.app.regression import build_regression_service
 from signal_diag.app.regression_api import (

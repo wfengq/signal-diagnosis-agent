@@ -187,6 +187,7 @@ __all__ = [
     "CONTEXT_ORIGIN_INTAKE",
     "INTAKE_DIAGNOSIS_QUESTION",
     "MAX_INTAKE_FILES",
+    "ContextDraft",
     "ContextOrigin",
     "IntakeAssembly",
     "assemble_intake_submission",
