@@ -17,11 +17,11 @@ from signal_diag.app.regression import (
     RegressionWorkbenchService,
     build_regression_service,
 )
-from signal_diag.rules.full_scale_check import PRODUCT_APPROVED_FULL_SCALE_FLOORS
 from signal_diag.app.regression_api import (
     build_regression_router,
     regression_application_error_handler,
 )
+from signal_diag.rules.full_scale_check import PRODUCT_APPROVED_FULL_SCALE_FLOORS
 from signal_diag.signal import WavLoadLimits, generate_sine
 from tests.app.test_api import (
     CSP,
