@@ -284,6 +284,28 @@ async def test_t_cx405_intake_request_matches_planner_settings() -> None:
     assert body["max_tokens"] == 800
 
 
+def test_t_cx407_intake_prompt_names_every_allowed_value() -> None:
+    """D1 round 2: 12/12 drafts failed schema validation; the 1.0 prompt named keys only."""
+    from typing import get_args
+
+    from signal_diag.agent.intake import _SYSTEM_PROMPT, IntakeMode, StimulusKind
+
+    assert INTAKE_PLANNER_IDENTITY == "v0.3-s1-intake-1.1"
+    for value in (*get_args(IntakeMode), *get_args(StimulusKind)):
+        assert f'"{value}"' in _SYSTEM_PROMPT, value
+    for field in ContextDraft.model_fields:
+        assert field in _SYSTEM_PROMPT, field
+
+
+def test_t_cx407_intake_prompt_example_is_a_valid_draft() -> None:
+    from signal_diag.agent.intake import _SYSTEM_PROMPT
+
+    start = _SYSTEM_PROMPT.index("Example: ") + len("Example: ")
+    example = _SYSTEM_PROMPT[start : _SYSTEM_PROMPT.index("}", start) + 1]
+    draft = ContextDraft.model_validate_json(example)
+    assert draft.mode == "paired_reference"
+
+
 def test_t_cx389_confirmed_context_is_distinct_from_a_draft() -> None:
     confirmed = ConfirmedContext(
         mode="nominal_single_tone",
