@@ -63,12 +63,13 @@ Read these before changing behavior or public interfaces:
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) (T-CX series,
    through T-CX427).
 5. [DECISIONS.md](DECISIONS.md): D001–D048.
-6. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): OQ-001–OQ-023.
+6. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): OQ-001–OQ-024.
    - OQ-013–OQ-018 resolve gaps between the current code and the frozen V0.2
      documents.
    - OQ-019 is the planner-ablation study; its `dev_2` was stopped by D046.
    - OQ-020–OQ-022 cover the full-scale check (D043, D044).
    - OQ-023 is the provider-telemetry SDK identity label (`httpx` vs `httpx2`); approved as D048.
+   - OQ-024 is the octave-ambiguity flag missing subharmonic lock; deferred.
 7. [EXTERNAL_VALIDATION_CONTRACTS_V0_2.md](EXTERNAL_VALIDATION_CONTRACTS_V0_2.md)
    and [EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md](EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md):
    the external-WAV study.

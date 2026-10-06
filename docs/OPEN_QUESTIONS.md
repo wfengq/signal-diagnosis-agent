@@ -428,3 +428,18 @@ Compatibility impact: Option A changes the identity fields of profiles built aft
 Test impact: A test that builds the audited profile and asserts the dispatch family matches `type(AsyncOpenAI(...)._client)`'s module, plus an `httpx2` version-drift blocker test.
 User decision: approved 2026-10-06 — Option A. Recorded as D048; design `docs/superpowers/specs/2026-10-06-oq023-sdk-dispatch-identity-design.md`. Implementation confirmed that no existing test fixture needed changing.
 ```
+
+## OQ-024 — F0: octave-ambiguity detection does not flag subharmonic lock
+
+```text
+ID: OQ-024
+Date: 2026-10-06
+Status: open (deferred by the operator 2026-10-06; not part of the F0 fix)
+Affected document and section: src/signal_diag/dsp/spectral_reliability.py (`detect_octave_ambiguity`); src/signal_diag/dsp/pitch.py and src/signal_diag/dsp/harmonics.py (callers); the `octave_ambiguity_detected` field of F0 and harmonic Evidence.
+Observed problem: For pure tones whose period is not a whole number of samples, `estimate_f0_autocorrelation` locks onto a subharmonic (8 kHz/440 Hz → 87.91 Hz; 16 kHz/440 Hz → 146.79 Hz; 8 kHz/220 Hz → 73.39 Hz), and `detect_octave_ambiguity` returns False in every case measured on 2026-10-06. The flag therefore gives no warning in exactly the situation it exists for.
+Why the current contract cannot represent a correct implementation: It can; the detector's checks simply do not cover a primary lag that is a multiple of the true period. The F0 fix (design `docs/superpowers/specs/2026-10-06-f0-subharmonic-fix-design.md`) removes the measured lock, which reduces but does not remove the need for a working flag.
+Minimal proposed change: After the F0 fix lands, measure the flag on the same corpus and decide whether to (A) also test the shorter-lag peaks that are integer divisors of the chosen lag, or (B) document the flag as covering only the octave-up case.
+Compatibility impact: Option A changes `octave_ambiguity_detected` in Evidence for affected signals; recorded runs are not rewritten.
+Test impact: A table of tones at 8/16/44.1/48 kHz asserting the flag for any deliberately forced subharmonic lag.
+User decision: pending; deferred 2026-10-06.
+```
