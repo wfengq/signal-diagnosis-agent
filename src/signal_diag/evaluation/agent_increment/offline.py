@@ -250,7 +250,14 @@ def _t2_outcome(
     arm: str,
     supports: tuple[SegmentSupport, ...],
     tool_calls: int,
+    *,
+    whole_file: bool = False,
 ) -> ArmOutcome:
+    """``whole_file``: the arm only analysed the whole file, which never localizes.
+
+    The live agent's whole-file Evidence carries ``time_range=None`` and is not
+    localized either, so all arms share one localization rule.
+    """
     positive = tuple(
         item for item in supports if item.fault in {"clipping", "harmonic_distortion"}
     )
@@ -272,7 +279,11 @@ def _t2_outcome(
         context_fields_correct=0,
         context_fields_graded=0,
         correction_count=0,
-        localization_correct=fault_localized(positive, case),
+        localization_correct=(
+            (False if case.truth.fault_spans else None)
+            if whole_file
+            else fault_localized(positive, case)
+        ),
         tool_calls=tool_calls,
     )
 
@@ -285,7 +296,7 @@ def _run_t2(study_dir: Path, case: IncrementCase) -> list[ArmOutcome]:
     return [
         _t2_outcome(case, "agent", agent_supports, agent_calls),
         _t2_outcome(case, "strong_fixed", strong.supports, strong.tool_calls),
-        _t2_outcome(case, "weak_fixed", weak_supports, weak_calls),
+        _t2_outcome(case, "weak_fixed", weak_supports, weak_calls, whole_file=True),
     ]
 
 

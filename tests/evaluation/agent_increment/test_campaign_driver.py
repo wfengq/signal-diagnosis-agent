@@ -105,6 +105,7 @@ class FakeSDK:
         self.sends = 0
         self.fail_after = fail_after
         self.planner_turns: dict[int, int] = {}
+        self.planner_users: list[str] = []
         self.closed = False
 
     async def reply(self, **kwargs: Any) -> _Response:
@@ -114,6 +115,7 @@ class FakeSDK:
         system = str(kwargs["messages"][0]["content"])
         if "v0.3-s1-planner" not in system:
             return _Response(json.dumps(_INTAKE_DRAFT))
+        self.planner_users.append(str(kwargs["messages"][-1]["content"]))
         # One tool call, then an inconclusive finish, per diagnosis run.
         key = id(kwargs["messages"])
         turn = self.planner_turns.get(key, 0)
@@ -148,6 +150,12 @@ def _mini_study(tmp_path: Path, count_per_family: int = 1, split: str = "dev") -
     )
     (study / "manifest.sha256").write_text("0" * 64 + "\n", encoding="utf-8")
     return study
+
+
+def _sent(text: str, payload: str) -> bool:
+    """True when ``text`` appears in a planner message, raw or JSON-escaped."""
+    escaped = json.dumps(text)[1:-1]
+    return text in payload or escaped in payload
 
 
 def _all_text(directory: Path) -> str:
@@ -269,11 +277,11 @@ def test_t_cx400_reference_only_from_confirmed_upload() -> None:
 
 
 @pytest.mark.asyncio
-async def test_t_cx400_reserving_client_calls_sdk_chat_completions() -> None:
+async def test_t_cx400_reserving_client_calls_sdk_chat_completions(tmp_path: Path) -> None:
     from signal_diag.evaluation.agent_increment.budget import CallLedger
 
     sdk = FakeSDK()
-    ledger = CallLedger(stage_cap=5, output_dir=Path("/tmp/unused-ledger-dir-t-cx400"))
+    ledger = CallLedger(stage_cap=5, output_dir=tmp_path / "ledger")
     guarded = ReservingChatClient(sdk, ledger, "case")
     await guarded.chat.completions.create(
         model="m", messages=[{"role": "system", "content": "x"}, {"role": "user", "content": "y"}]
@@ -306,7 +314,14 @@ async def test_t_cx404_mini_dev_stage_runs_all_arms_and_writes_once(tmp_path: Pa
     for case_file in sorted((out / "cases").glob("*.json")):
         record = json.loads(case_file.read_text(encoding="utf-8"))
         assert {row["arm"] for row in record["arms"]} == {"agent", "strong_fixed", "weak_fixed"}
-        assert record["http_calls"] >= 1
+        assert record["http_calls"] >= 2
+        assert [entry["tool_name"] for entry in record["tool_history"]] == ["detect_clipping"]
+        assert record["termination_reason"] == "planner_finished"
+    t2_case = next(c for c in load_study_cases(study) if c.family == "T2")
+    assert not any(_sent(t2_case.text, user) for user in sdk.planner_users)
+    assert any(_sent(live_campaign.T2_NEUTRAL_REQUEST, user) for user in sdk.planner_users)
+    report = json.loads((out / "report.json").read_text(encoding="utf-8"))
+    assert "scripted stand-in" in report["notes"]["t1_downstream_fixed_arms"]
     identity = json.loads((out / "identity.json").read_text(encoding="utf-8"))
     assert identity["planner_prompt_version"] == "v0.3-s1-planner-9.12"
     assert identity["scripted_stand_in"] is False
@@ -453,3 +468,185 @@ def test_t_cx403_run_requires_credentials_and_dry_run_is_unchanged(
     assert json.loads(capsys.readouterr().out)["max_calls"] == 504
     with pytest.raises(SystemExit):
         increment_main.main(["--dry-run", "--run", "--split", "dev", "--cases", "24"])
+
+
+# ---------------------------------------------------------------------------
+# Review follow-ups (independent review of PR #54)
+
+
+def test_t_cx400_t1_scores_first_draft_not_confirmed_context() -> None:
+    from signal_diag.agent.intake import ContextDraft
+
+    case = next(c for c in load_study_cases(STUDY) if c.family == "T1" and c.truth.mode != "single_signal")
+    wrong_draft = ContextDraft(mode="single_signal")
+    corrected = ConfirmedContext(
+        mode=case.truth.mode,
+        nominal_fundamental_hz=case.truth.nominal_fundamental_hz,
+        reference_file=case.truth.reference_file,
+        stimulus_kind=case.truth.stimulus_kind,
+    )
+    result = LiveAgentResult.model_construct(
+        family="T1",
+        draft=wrong_draft,
+        confirmed=corrected,
+        correction_count=1,
+        run=_run("no_supported_fault", [], []),
+    )
+    row = live_outcome(case, result)
+    assert row.draft_all_correct is False
+    assert row.correction_count == 1
+
+
+def test_t_cx400_weak_whole_file_arm_is_never_localized() -> None:
+    from signal_diag.evaluation.agent_increment.offline import fixed_arm_outcomes
+
+    case = next(
+        c
+        for c in load_study_cases(STUDY)
+        if c.family == "T2" and c.split == "dev" and c.truth.fault_spans
+    )
+    weak = next(row for row in fixed_arm_outcomes(STUDY, case) if row.arm == "weak_fixed")
+    assert weak.localization_correct is False
+
+
+@pytest.mark.asyncio
+async def test_t_cx401_planner_transport_failure_stops_the_stage(tmp_path: Path) -> None:
+    study = _mini_study(tmp_path)
+    out = study / "runs" / "dev_planner_down"
+    sdk = FakeSDK(fail_after=3)  # dev-t1-00 uses 3 sends; dev-t2-00's first planner send fails
+    payload = await run_campaign(
+        split="dev", study_dir=study, output_dir=out, api_key="sk-test", client_factory=lambda: sdk
+    )
+    assert payload["cases_completed"] == 1
+    assert payload["stop"] == {
+        "reason": "infrastructure_error",
+        "case_id": "dev-t2-00",
+        "error_type": "ConnectionError",
+    }
+
+
+@pytest.mark.asyncio
+async def test_t_cx401_malformed_vs_empty_intake_responses(tmp_path: Path) -> None:
+    class NoChoices(FakeSDK):
+        async def reply(self, **kwargs: Any) -> Any:
+            self.sends += 1
+            return type("R", (), {"choices": []})()
+
+    class EmptyContent(FakeSDK):
+        async def reply(self, **kwargs: Any) -> _Response:
+            system = str(kwargs["messages"][0]["content"])
+            if "v0.3-s1-planner" not in system:
+                self.sends += 1
+                return _Response("")
+            return await super().reply(**kwargs)
+
+    study = _mini_study(tmp_path)
+    malformed = await run_campaign(
+        split="dev",
+        study_dir=study,
+        output_dir=study / "runs" / "dev_no_choices",
+        api_key="sk-test",
+        client_factory=NoChoices,
+    )
+    assert malformed["stop"]["reason"] == "infrastructure_error"
+    empty = await run_campaign(
+        split="dev",
+        study_dir=study,
+        output_dir=study / "runs" / "dev_empty",
+        api_key="sk-test",
+        client_factory=EmptyContent,
+    )
+    assert empty["stop"] is None
+
+
+@pytest.mark.asyncio
+async def test_t_cx401_abort_still_writes_ledger_and_report(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    study = _mini_study(tmp_path)
+    out = study / "runs" / "dev_abort"
+    original = live_campaign.fixed_arm_outcomes
+    calls = {"n": 0}
+
+    def flaky(study_dir: Path, case: IncrementCase) -> Any:
+        calls["n"] += 1
+        if calls["n"] == 2:
+            raise OSError("disk went away")
+        return original(study_dir, case)
+
+    monkeypatch.setattr(live_campaign, "fixed_arm_outcomes", flaky)
+    sdk = FakeSDK()
+    with pytest.raises(OSError):
+        await run_campaign(
+            split="dev", study_dir=study, output_dir=out, api_key="sk-test", client_factory=lambda: sdk
+        )
+    ledger = json.loads((out / "ledger.json").read_text(encoding="utf-8"))
+    report = json.loads((out / "report.json").read_text(encoding="utf-8"))
+    stop = json.loads((out / "stop_record.json").read_text(encoding="utf-8"))
+    assert ledger["total"] == sdk.sends == 3
+    assert report["incomplete"] is True and report["cases_completed"] == 1
+    assert stop == {"reason": "aborted", "error_type": "OSError"}
+    assert sdk.closed is True
+
+
+@pytest.mark.asyncio
+async def test_t_cx402_heldout_end_to_end_runs_once(tmp_path: Path) -> None:
+    study = _mini_study(tmp_path, split="heldout")
+    freeze_prompts(study, approved_by="tester", approved_at="2026-10-06")
+    out = study / "runs" / "heldout_a"
+    payload = await run_campaign(
+        split="heldout", study_dir=study, output_dir=out, api_key="sk-test", client_factory=FakeSDK
+    )
+    assert payload["incomplete"] is False and payload["split"] == "heldout"
+    with pytest.raises(CampaignRefused, match="runs once"):
+        await run_campaign(
+            split="heldout",
+            study_dir=study,
+            output_dir=study / "runs" / "heldout_b",
+            api_key="sk-test",
+            client_factory=FakeSDK,
+        )
+
+
+@pytest.mark.asyncio
+async def test_t_cx402_heldout_setup_failure_does_not_use_up_the_run(tmp_path: Path) -> None:
+    study = _mini_study(tmp_path, split="heldout")
+    freeze_prompts(study, approved_by="tester", approved_at="2026-10-06")
+
+    def broken_factory() -> Any:
+        raise RuntimeError("client setup failed")
+
+    with pytest.raises(RuntimeError):
+        await run_campaign(
+            split="heldout",
+            study_dir=study,
+            output_dir=study / "runs" / "heldout_a",
+            api_key="sk-test",
+            client_factory=broken_factory,
+        )
+    assert not (study / "runs").exists()
+    check_heldout_preconditions(study, study / "runs" / "heldout_a")
+
+
+def test_t_cx402_intake_hash_mismatch_is_refused(tmp_path: Path) -> None:
+    study = _mini_study(tmp_path, split="heldout")
+    path = freeze_prompts(study, approved_by="tester", approved_at="2026-10-06")
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record["intake_prompt_sha256"] = "0" * 64
+    path.write_text(json.dumps(record), encoding="utf-8")
+    with pytest.raises(CampaignRefused, match="intake_prompt_sha256"):
+        check_heldout_preconditions(study, study / "runs" / "heldout_a")
+
+
+@pytest.mark.asyncio
+async def test_t_cx402_dev_run_cannot_take_a_heldout_name(tmp_path: Path) -> None:
+    study = _mini_study(tmp_path)
+    with pytest.raises(CampaignRefused, match="heldout_"):
+        await run_campaign(
+            split="dev",
+            study_dir=study,
+            output_dir=study / "runs" / "heldout_x",
+            api_key="sk-test",
+            client_factory=FakeSDK,
+        )
+    assert not (study / "runs").exists()

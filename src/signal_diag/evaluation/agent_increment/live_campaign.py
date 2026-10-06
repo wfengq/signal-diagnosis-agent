@@ -347,17 +347,64 @@ async def _close_client(client: Any) -> None:
         await closed
 
 
-def _intake_transport_failure(error: IntakePlannerError) -> bool:
-    """True when the intake failed below the model (transport), not in its draft.
+# Harness-side intake errors raised before any request is sent (no cause).
+_INTAKE_HARNESS_ERRORS = ("intake payload keys drifted",)
 
-    A draft that fails validation (no cause) or does not parse (pydantic or
-    value error) is the model's answer and is scored. Anything else wrapped by
-    the intake planner is an outage and stops the stage.
+# T2 measures localization from the signal. Case texts for T2 are correlated
+# with the label (e.g. "整段听着平稳" on every no-fault case), so the agent arm
+# receives one neutral request for every T2 case; fixed arms never read text.
+T2_NEUTRAL_REQUEST = "请检查这段测试信号是否存在失真；如果存在，指出出现在哪个时间段和哪个声道。"
+
+
+def _intake_transport_failure(error: IntakePlannerError) -> bool:
+    """True when the intake failed outside the model's answer: an outage or a harness fault.
+
+    Scored as the model's answer: a draft that does not parse (pydantic or value
+    error), fails validation, or is empty. Everything else stops the stage:
+    a transport or malformed-response cause, or a harness-side error.
     """
     cause = error.__cause__
     if cause is None:
-        return False
+        return str(error) in _INTAKE_HARNESS_ERRORS
     return not isinstance(cause, (ValidationError, ValueError))
+
+
+def _report_payload(
+    *,
+    split: Split,
+    stop: dict[str, object] | None,
+    cases: list[IncrementCase],
+    completed: list[str],
+    outcomes: list[ArmOutcome],
+    ledger: CallLedger,
+    finished_at: str,
+) -> dict[str, object]:
+    families: list[FamilyScore] = []
+    for family in ("T1", "T2"):
+        rows = [row for row in outcomes if row.family == family]
+        if rows:
+            families.append(score_family(rows))
+    return {
+        "study_id": STUDY_ID,
+        "split": split,
+        "incomplete": not (stop is None and len(completed) == len(cases)),
+        "stop": stop,
+        "cases_planned": len(cases),
+        "cases_completed": len(completed),
+        "http_calls": ledger.total,
+        "families": [item.model_dump(mode="json") for item in families],
+        "notes": {
+            "t1_primary_metric": "first-draft context fields, before any correction",
+            "t1_downstream_fixed_arms": (
+                "scripted stand-in judge, not the live planner; the downstream "
+                "increment mixes intake context with diagnosis engine and is not "
+                "a paired comparison"
+            ),
+            "t2_agent_request": T2_NEUTRAL_REQUEST,
+            "localization": "whole-file analysis never counts as localized, for every arm",
+        },
+        "finished_at": finished_at,
+    }
 
 
 async def run_campaign(
@@ -371,30 +418,35 @@ async def run_campaign(
     base_url: str | None = "https://api.deepseek.com",
     now: Callable[[], datetime] = lambda: datetime.now(UTC),
 ) -> dict[str, object]:
-    """Run one live stage. Fixed arms are deterministic; only the agent arm sends."""
+    """Run one live stage. Fixed arms are deterministic; only the agent arm sends.
+
+    Every precondition, the identity and the client are settled before the
+    output directory is created, so a refusal or setup failure leaves nothing
+    behind (and cannot use up the single held-out run). Once the directory
+    exists, the ledger and a report are always written, even on an abort.
+    """
     key = require_live_credentials(api_key)
     if split == "heldout":
         check_heldout_preconditions(study_dir, output_dir)
+    elif output_dir.name.startswith("heldout_"):
+        raise CampaignRefused("a dev run must not use a heldout_ output name")
     _check_output_dir(output_dir)
     stage_cap = DEV_STAGE_CAP if split == "dev" else HELD_OUT_STAGE_CAP
-    cases = sorted(
-        (case for case in load_study_cases(study_dir) if case.split == split),
-        key=lambda case: case.case_id,
-    )
+    cases = [case for case in load_study_cases(study_dir) if case.split == split]
     root = _repo_root(study_dir)
     missing = [rel for case in cases for rel in case.files if not (root / rel).is_file()]
     if missing:
         raise CampaignRefused(f"case files missing before any send: {missing[:3]}")
-    output_dir.mkdir(parents=True, exist_ok=True)
     identity = _identity(study_dir, split, model, stage_cap)
     identity["started_at"] = now().isoformat()
-    _write_json(output_dir / "identity.json", identity)
-    ledger = CallLedger(stage_cap=stage_cap, output_dir=output_dir)
     client = client_factory()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    ledger = CallLedger(stage_cap=stage_cap, output_dir=output_dir)
     outcomes: list[ArmOutcome] = []
     completed: list[str] = []
     stop: dict[str, object] | None = None
     try:
+        _write_json(output_dir / "identity.json", identity)
         for case in cases:
             rows = fixed_arm_outcomes(study_dir, case)
             repository, signal_id, by_name = _load_case_signals(study_dir, case)
@@ -408,7 +460,7 @@ async def run_campaign(
                     api_key=key,
                     repository=repository,
                     signal_id=signal_id,
-                    user_text=case.text,
+                    user_text=case.text if case.family == "T1" else T2_NEUTRAL_REQUEST,
                     truth=_truth_draft(case.truth) if case.family == "T1" else None,
                     filenames=tuple(by_name),
                     test_file=case.test_file,
@@ -423,10 +475,11 @@ async def run_campaign(
                 if ledger.stop_reason is not None:
                     pass  # a cap stop wrapped by the intake planner; handled below
                 elif _intake_transport_failure(error):
+                    cause = error.__cause__
                     stop = {
                         "reason": "infrastructure_error",
                         "case_id": case.case_id,
-                        "error_type": type(error.__cause__).__name__,
+                        "error_type": type(cause if cause is not None else error).__name__,
                     }
                     break
                 else:
@@ -455,32 +508,28 @@ async def run_campaign(
                     agent_error=agent_error,
                 ),
             )
+    except BaseException as error:
+        # Setup or harness failure mid-stage (or cancellation): keep the audit trail.
+        stop = {"reason": "aborted", "error_type": type(error).__name__}
+        raise
     finally:
         await _close_client(client)
-    if stop is not None and stop["reason"] == "infrastructure_error":
-        _write_json(output_dir / "stop_record.json", stop)
-    _write_json(
-        output_dir / "ledger.json",
-        {"total": ledger.total, "per_case": dict(sorted(ledger.per_case.items()))},
-    )
-    families: list[FamilyScore] = []
-    complete = stop is None and len(completed) == len(cases)
-    for family in ("T1", "T2"):
-        rows_f = [row for row in outcomes if row.family == family]
-        if rows_f:
-            families.append(score_family(rows_f))
-    payload: dict[str, object] = {
-        "study_id": STUDY_ID,
-        "split": split,
-        "incomplete": not complete,
-        "stop": stop,
-        "cases_planned": len(cases),
-        "cases_completed": len(completed),
-        "http_calls": ledger.total,
-        "families": [item.model_dump(mode="json") for item in families],
-        "finished_at": now().isoformat(),
-    }
-    write_report(output_dir, payload)
+        if stop is not None and stop["reason"] in {"infrastructure_error", "aborted"}:
+            _write_json(output_dir / "stop_record.json", stop)
+        _write_json(
+            output_dir / "ledger.json",
+            {"total": ledger.total, "per_case": dict(sorted(ledger.per_case.items()))},
+        )
+        payload = _report_payload(
+            split=split,
+            stop=stop,
+            cases=cases,
+            completed=completed,
+            outcomes=outcomes,
+            ledger=ledger,
+            finished_at=now().isoformat(),
+        )
+        write_report(output_dir, payload)
     return payload
 
 
