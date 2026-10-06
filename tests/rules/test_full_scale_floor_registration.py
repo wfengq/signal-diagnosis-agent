@@ -38,7 +38,7 @@ FREEZE_RECORD = (
 VALIDATION_REPORT_MD = FREEZE_RECORD.with_name("validation_report.md")
 
 
-def test_t_cx383_floor_yaml_loads_and_digest_self_checks() -> None:
+def test_t_cx383_floor_yaml_loads_and_digest_self_checks(tmp_path: Path) -> None:
     floor, provenance = load_approved_full_scale_floor_yaml(FLOOR_YAML)
     assert full_scale_floor_digest(floor) == floor.digest
     assert provenance["freeze_record_digest"] == (
@@ -46,13 +46,10 @@ def test_t_cx383_floor_yaml_loads_and_digest_self_checks() -> None:
     )
     payload = yaml.safe_load(FLOOR_YAML.read_text(encoding="utf-8"))
     payload["floor"]["digest"] = "0" * 64
-    tampered = FLOOR_YAML.with_name("s1_full_scale_floor_round_1.tampered.yaml")
-    try:
-        tampered.write_text(yaml.safe_dump(payload), encoding="utf-8")
-        with pytest.raises(ValueError, match="digest"):
-            load_approved_full_scale_floor_yaml(tampered)
-    finally:
-        tampered.unlink(missing_ok=True)
+    tampered = tmp_path / "s1_full_scale_floor_round_1.tampered.yaml"
+    tampered.write_text(yaml.safe_dump(payload), encoding="utf-8")
+    with pytest.raises(ValueError, match="digest"):
+        load_approved_full_scale_floor_yaml(tampered)
 
 
 def test_t_cx384_yaml_matches_freeze_record_full_precision() -> None:

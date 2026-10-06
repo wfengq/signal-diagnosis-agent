@@ -452,6 +452,11 @@ changes from adding a versioned floor YAML under `rules/profiles/` cause V0.2
 protection, T285, or sealed-identity failures, stop and report without
 updating sealed hashes or allowlists.
 
+**D044 T285 allowlist (operator-authorized 2026-10-06):** append-only addition
+to `_V03_ADDITIVE_EXACT_PATHS` of
+`src/signal_diag/rules/profiles/s1_full_scale_floor_round_1.yaml` (one line;
+no other allowlist or hash rewrites in that authorization).
+
 | ID | Definition |
 |----|------------|
 | T-CX381 | OQ-021 Option A: when either anchor side has no facts, `_floor_identity_ok` is false; check lists `floor_missing` and does not carry the floor |
