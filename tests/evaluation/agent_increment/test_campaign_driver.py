@@ -561,7 +561,11 @@ async def test_t_cx401_malformed_vs_empty_intake_responses(tmp_path: Path) -> No
         api_key="sk-test",
         client_factory=EmptyContent,
     )
-    assert empty["stop"] is None
+    # D1 round 1: empty content came from a request misconfiguration, not from
+    # the model's draft. It stops the stage so it cannot be scored as an answer.
+    assert empty["stop"]["reason"] == "infrastructure_error"
+    assert empty["incomplete"] is True
+    assert empty["cases_completed"] == 0
 
 
 @pytest.mark.asyncio

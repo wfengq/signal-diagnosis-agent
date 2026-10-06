@@ -38,7 +38,7 @@
 | T-CX349..370 | D043 regression full-scale check (implemented, PR #41 `0770514`; characterization and floor approval gated) |
 | T-CX371..380 | D043 layer-1 characterization tool (definitions; characterization runs and floor approval gated) |
 | T-CX381..386 | D044 round_1 full-scale method floor registration (OQ-021 A, OQ-022 B) |
-| T-CX387..404 | D045 S1 agent-increment slice: offline implementation, live runner and batch driver (live stages D1/F/H1 gated) |
+| T-CX387..405 | D045 S1 agent-increment slice: offline implementation, live runner, batch driver and the D1 round 1 intake fix (live stages D1/F/H1 gated) |
 
 ## Registered identities (Task 1)
 
@@ -467,7 +467,7 @@ no other allowlist or hash rewrites in that authorization).
 | T-CX385 | `build_regression_service` wires the approved floor (no longer `full_scale_floor=None`); eligible submissions judged with `PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]` follow the product count floor (1280 samples) and transition table (regression / no regression / critical-zone descriptive_only) |
 | T-CX386 | `PRODUCT_APPROVED_FULL_SCALE_FLOORS` equals the loaded YAML floor; supersedes empty-registry assertions where they conflict |
 
-T-CX387–T-CX404 are additive definitions for D045
+T-CX387–T-CX405 are additive definitions for D045
 (`CONTRACTS_V0_3_CONTEXTUAL.md` §24; plan
 `docs/superpowers/plans/2026-10-06-s1-agent-increment.md`). Registering these
 IDs does not authorize a real-model run, a product prompt switch, seal, or
@@ -490,7 +490,8 @@ evaluation or Demo assets, or T-CX001–T-CX386 meanings.
 | T-CX398 | Offline end to end: scripted stand-ins run all three arms, the report is complete, and identity fields are present |
 | T-CX399 | Live runner: T1 intake then v9.12 contextual diagnosis, T2 v9.12 runtime; every HTTP send reserves a call first; caps stop before the next send; missing credentials do not fall back; dry-run does not call a model |
 | T-CX400 | Live outcome: the agent row is scored by the same rules as the offline rows of its family; T1 draft accuracy uses the first draft; T2 location comes from the Evidence the claims cite, and whole-file analysis never localizes for any arm; a failed intake scores as wrong without an unsupported claim; a T1 reference and nominal Hz come only from confirmed fields; the call guard reaches the SDK at `chat.completions.create` |
-| T-CX401 | Batch driver: cases run in manifest order under one stage ledger; a cap stop (including one raised inside intake) ends the stage with completed cases kept and the report marked incomplete; a transport failure, a malformed intake response or a harness-side intake error stops the stage instead of being scored; an invalid or empty draft is scored as wrong; an abort still writes the ledger, an incomplete report and a stop record; every live diagnosis run gets one neutral request while the T1 intake reads the case text; a cap stop wrapped in another exception type is still a cap stop; output is write-once |
+| T-CX401 | Batch driver: cases run in manifest order under one stage ledger; a cap stop (including one raised inside intake) ends the stage with completed cases kept and the report marked incomplete; a transport failure, a malformed intake response or a harness-side intake error stops the stage instead of being scored; an invalid draft is scored as wrong, while empty intake content stops the stage; an abort still writes the ledger, an incomplete report and a stop record; every live diagnosis run gets one neutral request while the T1 intake reads the case text; a cap stop wrapped in another exception type is still a cap stop; output is write-once |
 | T-CX402 | Held-out guard: a held-out run needs a matching `prompt_freeze_record.json` (planner and intake prompt hashes), writes only to `<study>/runs/heldout_*`, and runs once; a setup failure before the output directory exists (including an unreadable case WAV) does not use up the run; the freeze record also pins the diagnosis request; a dev run cannot take a `heldout_` name; the freeze record is write-once |
 | T-CX403 | Command line: `--run` needs DEEPSEEK_API_KEY and does not fall back; `--dry-run` is unchanged; `--dry-run`, `--run` and `--freeze-prompts` are mutually exclusive |
 | T-CX404 | Mini dev stage end to end with a fake SDK: all three arms per case, ledger equals sends, identity complete, no credentials, audio or provider payloads in the output |
+| T-CX405 | Intake request settings: the request body sent on the wire disables reasoning (`thinking: disabled`), asks for a JSON object and uses temperature 0, the same settings as the diagnosis planner |

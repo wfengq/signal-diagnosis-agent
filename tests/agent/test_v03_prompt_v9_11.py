@@ -574,7 +574,23 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert draft_metric["current_implementation_sha256"] == (
         contextual_implementation_sha256()
     )
-    assert draft_metric["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert draft_metric["product_tree_sha256"] == (
+        "423dd7f0d5481ca84083647caf93d976a76e7ac18e44d9e9f176620730319231"
+    )
     assert draft_metric["prompt_sha256"] == oq014["prompt_sha256"]
     assert draft_metric["prompt_version"] == "v0.3-s1-planner-9.11"
     assert draft_metric["model_calls"] == 0
+    intake_fix = next(
+        row for row in rows if row["amendment_id"] == "d045_d1_intake_request_settings"
+    )
+    assert intake_fix["amendment_kind"] == "append_only_code_identity"
+    assert intake_fix["prior_bridge_current_implementation_sha256"] == (
+        draft_metric["current_implementation_sha256"]
+    )
+    assert intake_fix["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert intake_fix["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert intake_fix["prompt_sha256"] == oq014["prompt_sha256"]
+    assert intake_fix["prompt_version"] == "v0.3-s1-planner-9.11"
+    assert intake_fix["model_calls"] == 0
