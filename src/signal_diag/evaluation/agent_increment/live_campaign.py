@@ -21,7 +21,7 @@ from pydantic import ValidationError
 from signal_diag.agent import intake as intake_module
 from signal_diag.agent.intake import INTAKE_PLANNER_IDENTITY, IntakePlannerError
 from signal_diag.agent.models import AgentRunResult
-from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_14
+from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_15
 from signal_diag.evaluation.agent_increment.budget import (
     DEV_STAGE_CAP,
     HELD_OUT_STAGE_CAP,
@@ -80,8 +80,8 @@ def _sha256_text(text: str) -> str:
 def frozen_prompt_identity() -> dict[str, str]:
     """Versions and full-text hashes of every fixed text a live stage sends."""
     return {
-        "planner_prompt_version": _S1_PROMPT_V9_14.version,
-        "planner_prompt_sha256": _sha256_text(_S1_PROMPT_V9_14.system_prompt),
+        "planner_prompt_version": _S1_PROMPT_V9_15.version,
+        "planner_prompt_sha256": _sha256_text(_S1_PROMPT_V9_15.system_prompt),
         "intake_identity": INTAKE_PLANNER_IDENTITY,
         "intake_prompt_sha256": _sha256_text(intake_module._SYSTEM_PROMPT),
         "diagnosis_request_sha256": _sha256_text(DIAGNOSIS_REQUEST),
@@ -210,7 +210,9 @@ def live_outcome(
     supports = cited_supports(run, duration_s=duration_s) if run is not None else ()
     expected = case.truth.conclusion
     if expected in _CLEAN:
-        correct_t2 = not supports
+        # D045 scoring correction: a run that ended without a diagnosis made no
+        # claim because it crashed, not because it judged the case clean.
+        correct_t2 = run is not None and run.diagnosis is not None and not supports
     else:
         correct_t2 = any(item.fault == expected for item in supports)
     return ArmOutcome(
@@ -321,6 +323,7 @@ def _case_record(
         "predicted_conclusion": predicted_conclusion(run) if run is not None else "failed",
         "termination_reason": run.termination_reason if run is not None else None,
         "run_status": run.status if run is not None else None,
+        "run_errors": list(run.errors) if run is not None else [],
         "tool_history": (
             [entry.model_dump(mode="json") for entry in run.tool_history]
             if run is not None

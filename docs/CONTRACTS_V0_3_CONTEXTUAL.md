@@ -1846,7 +1846,10 @@ correction. Correction count is reported separately. T1 also reports a
 downstream increment, the paired difference in diagnosis conclusions after
 confirmation. Safety hard conditions are zero unsupported positive conclusions
 and evidence traceability of 1.0. T1 also records context-field accuracy.
-T2 also records localization accuracy and tool-call count. The simulated user
+T2 also records localization accuracy and tool-call count. An agent run that
+ends without a diagnosis is never a correct conclusion, including on a T2
+no-fault case (operator-approved correction, 2026-10-06, before any held-out
+run). The simulated user
 treats a field as asked only when the draft sets it or lists it in
 `asked_fields`.
 An increment of at least +3 on a 24-case family is a measurable increment. An
