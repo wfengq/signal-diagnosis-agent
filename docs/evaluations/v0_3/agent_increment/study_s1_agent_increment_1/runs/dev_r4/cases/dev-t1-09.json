@@ -1,0 +1,137 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t1-09",
+      "conclusion_correct": true,
+      "context_fields_correct": 4,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": true,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 2,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t1-09",
+      "conclusion_correct": true,
+      "context_fields_correct": 4,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": true,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t1-09",
+      "conclusion_correct": true,
+      "context_fields_correct": 1,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t1-09",
+  "cited_locations": [
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_23951ab8b5758afd",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_019",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_23951ab8b5758afd",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_23951ab8b5758afd",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_018",
+      "fault": "clipping",
+      "time_range": null
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_nominal_1",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_019",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_017",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000001_018"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_23951ab8b5758afd",
+        "ruleval_3554830917048299"
+      ],
+      "statement": "Clipping is affirmatively supported: test_clipping_mechanism=true with a same-run substantial test clipping rule FAIL (rule_test_clipping_ratio_acceptable FAIL at 0.133875 and rule_test_flat_top_absent FAIL)."
+    }
+  ],
+  "confirmed": {
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 1000.0,
+    "reference_file": null,
+    "stimulus_kind": "single_tone"
+  },
+  "context_downgraded": false,
+  "correction_count": 0,
+  "draft": {
+    "asked_fields": [],
+    "missing_fields": [],
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 1000.0,
+    "questions": [],
+    "reference_file": null,
+    "stimulus_kind": "single_tone"
+  },
+  "family": "T1",
+  "http_calls": 4,
+  "intake_error_detail": null,
+  "predicted_conclusion": "clipping",
+  "run_status": "success",
+  "split": "dev",
+  "termination_reason": "planner_finished",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "purpose": "Obtain clipping Evidence first; clipping is independent in every mode and needs clipping_mechanism plus a substantial clipping rule FAIL.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_analyze_contextual_distortion_000001",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "purpose": "Clipping is supported by same-run Evidence; harmonic_distortion remains viable and in nominal_single_tone mode requires analyze_contextual_distortion for causal harmonic closure.",
+      "status": "invalid",
+      "tool_name": "analyze_contextual_distortion"
+    }
+  ]
+}
