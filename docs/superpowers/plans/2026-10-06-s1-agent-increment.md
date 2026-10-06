@@ -100,6 +100,13 @@
 - 验收文档 `docs/AGENT_INCREMENT_OFFLINE_ACCEPTANCE.md`。
 - 提交：`docs: agent-increment offline acceptance (T-CX398)`
 
+## 复审补充（2026-10-06，设计 §4.2）
+
+- T1 主增量改为第一版草案四字段全对，纠正次数单独报告。
+- 下游指标是确认后诊断结论正确数之差。离线用脚本替身，live 用 T-CX399 运行器。
+- T1 真值结论取自所复用情境 WAV 的清单标签。`ContextDraft.asked_fields` 是“被问到”的唯一名单。
+- 留出集文本多样性与清单哈希的更新见实现提交，不在本计划里改种子。
+
 ## 运行阶段（各自单独授权）
 
 | 步 | 内容 | 上限 |

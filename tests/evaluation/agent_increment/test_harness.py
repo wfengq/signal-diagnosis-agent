@@ -51,8 +51,13 @@ def test_t_cx394_simulated_user_does_not_fill_unasked_fields() -> None:
     assert silent.confirmed.stimulus_kind is None
     assert silent.confirmed.mode == "nominal_single_tone"
     assert silent.correction_count == 1
+    mentioned = confirm_proposed_fields(
+        _draft(questions=("请告诉我 nominal_fundamental_hz",)),
+        truth,
+    )
+    assert mentioned.confirmed.nominal_fundamental_hz is None
     asked = confirm_proposed_fields(
-        _draft(questions=("nominal_fundamental_hz",)),
+        _draft(asked_fields=("nominal_fundamental_hz",)),
         truth,
     )
     assert asked.confirmed.nominal_fundamental_hz == 1000.0
@@ -76,7 +81,8 @@ def _rows(agent_correct: int, strong_correct: int, *, unsupported: int = 0) -> l
                     case_id=f"c{index}",
                     family="T1",
                     arm=arm,  # type: ignore[arg-type]
-                    conclusion_correct=index < correct_n,
+                    conclusion_correct=index == 0 and arm == "agent",
+                    draft_all_correct=index < correct_n,
                     unsupported_positive=arm == "agent" and index < unsupported,
                     evidence_traceable=True,
                     context_fields_correct=2,
@@ -98,6 +104,7 @@ def test_t_cx395_increment_labels_match_the_pass_line() -> None:
     assert measurable.unsupported_positive_count == 0
     assert measurable.t1_field_accuracy == 1.0
     assert measurable.t1_correction_count == 24
+    assert measurable.t1_downstream_increment == 1
     quiet = score_family(_rows(8, 7))
     assert quiet.increment == 1
     assert quiet.increment_label == "no_significant_increment"

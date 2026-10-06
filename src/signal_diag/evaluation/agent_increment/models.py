@@ -9,7 +9,13 @@ from pydantic import BaseModel, ConfigDict, Field
 Family = Literal["T1", "T2"]
 Split = Literal["dev", "heldout"]
 ArmName = Literal["agent", "strong_fixed", "weak_fixed"]
-Conclusion = Literal["clipping", "harmonic_distortion", "no_supported_fault", "inconclusive"]
+Conclusion = Literal[
+    "clipping",
+    "harmonic_distortion",
+    "combined",
+    "no_supported_fault",
+    "inconclusive",
+]
 
 
 class FaultSpan(BaseModel):
@@ -31,6 +37,8 @@ class CaseTruth(BaseModel):
     stimulus_kind: Literal["single_tone"] | None = None
     fault_spans: tuple[FaultSpan, ...] = ()
     insufficient: bool = False
+    label_source: str = ""
+    label_case_id: str = ""
 
 
 class IncrementCase(BaseModel):
@@ -59,5 +67,6 @@ class ArmOutcome(BaseModel):
     context_fields_correct: int = 0
     context_fields_graded: int = 0
     correction_count: int = 0
+    draft_all_correct: bool = False
     localization_correct: bool | None = None
     tool_calls: int = 0

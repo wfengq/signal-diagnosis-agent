@@ -101,6 +101,10 @@ class ContextDraft(BaseModel):
     stimulus_kind: StimulusKind | None = None
     missing_fields: tuple[str, ...] = ()
     questions: tuple[str, ...] = ()
+    asked_fields: tuple[
+        Literal["mode", "nominal_fundamental_hz", "reference_file", "stimulus_kind"],
+        ...
+    ] = ()
 
     @field_validator("nominal_fundamental_hz", mode="before")
     @classmethod

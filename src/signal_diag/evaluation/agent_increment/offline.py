@@ -87,7 +87,10 @@ def _same(left: float | None, right: float | None) -> bool:
     return abs(left - right) <= 1e-6
 
 
-def _context_grade(confirmed: ConfirmedContext, truth: CaseTruth) -> tuple[int, int, bool]:
+def _context_grade(
+    confirmed: ContextDraft | ConfirmedContext,
+    truth: CaseTruth,
+) -> tuple[int, int, bool]:
     checks = (
         confirmed.mode == truth.mode,
         _same(confirmed.nominal_fundamental_hz, truth.nominal_fundamental_hz),
@@ -101,40 +104,79 @@ def _context_grade(confirmed: ConfirmedContext, truth: CaseTruth) -> tuple[int, 
 def _t1_outcome(
     case: IncrementCase,
     arm: str,
-    confirmed: ConfirmedContext,
+    draft: ContextDraft,
     corrections: int,
+    predicted: str,
 ) -> ArmOutcome:
-    correct, graded, all_match = _context_grade(confirmed, case.truth)
+    correct, graded, all_match = _context_grade(draft, case.truth)
+    positive = predicted in {"clipping", "harmonic_distortion", "combined"}
+    clean = case.truth.conclusion in {"no_supported_fault", "inconclusive"}
     return ArmOutcome(
         case_id=case.case_id,
         family="T1",
         arm=arm,  # type: ignore[arg-type]
-        conclusion_correct=all_match,
-        unsupported_positive=False,
+        conclusion_correct=predicted == case.truth.conclusion,
+        unsupported_positive=positive and clean,
         evidence_traceable=True,
         context_fields_correct=correct,
         context_fields_graded=graded,
         correction_count=corrections,
+        draft_all_correct=all_match,
         localization_correct=None,
         tool_calls=0,
     )
 
 
-def _run_t1(case: IncrementCase) -> list[ArmOutcome]:
+def _scripted_conclusion(record: SignalRecord, confirmed: ConfirmedContext) -> str:
+    supports, _calls = _judge(record, None)
+    faults = {item.fault for item in supports}
+    if confirmed.mode == "single_signal":
+        faults.discard("harmonic_distortion")
+    if faults == {"clipping", "harmonic_distortion"}:
+        return "combined"
+    if faults == {"clipping"}:
+        return "clipping"
+    if faults == {"harmonic_distortion"}:
+        return "harmonic_distortion"
+    return "no_supported_fault"
+
+
+def _run_t1(study_dir: Path, case: IncrementCase) -> list[ArmOutcome]:
     request = _request(case)
     truth = _truth_draft(case.truth)
-    b1 = confirm_proposed_fields(parse_b1(request), truth)
-    agent = confirm_proposed_fields(parse_b1(request), truth)
+    agent_draft = parse_b1(request)
+    strong_draft = parse_b1(request)
+    agent = confirm_proposed_fields(agent_draft, truth)
+    strong = confirm_proposed_fields(strong_draft, truth)
     weak = ConfirmedContext(
         mode="single_signal",
         nominal_fundamental_hz=None,
         reference_file=None,
         stimulus_kind=None,
     )
+    record = _load_record(study_dir, case)
     return [
-        _t1_outcome(case, "agent", agent.confirmed, agent.correction_count),
-        _t1_outcome(case, "strong_fixed", b1.confirmed, b1.correction_count),
-        _t1_outcome(case, "weak_fixed", weak, 0),
+        _t1_outcome(
+            case,
+            "agent",
+            agent_draft,
+            agent.correction_count,
+            _scripted_conclusion(record, agent.confirmed),
+        ),
+        _t1_outcome(
+            case,
+            "strong_fixed",
+            strong_draft,
+            strong.correction_count,
+            _scripted_conclusion(record, strong.confirmed),
+        ),
+        _t1_outcome(
+            case,
+            "weak_fixed",
+            ContextDraft(mode="single_signal"),
+            0,
+            _scripted_conclusion(record, weak),
+        ),
     ]
 
 
@@ -268,7 +310,7 @@ def run_offline(study_dir: Path, output_dir: Path) -> dict[str, object]:
     outcomes: list[ArmOutcome] = []
     for case in cases:
         if case.family == "T1":
-            outcomes.extend(_run_t1(case))
+            outcomes.extend(_run_t1(study_dir, case))
         else:
             outcomes.extend(_run_t2(study_dir, case))
     families: list[FamilyScore] = []

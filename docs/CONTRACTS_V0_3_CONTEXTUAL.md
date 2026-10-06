@@ -1808,6 +1808,7 @@ ContextDraft =
   stimulus_kind: single_tone | unknown | None
   missing_fields: tuple[str, ...]
   questions: tuple[str, ...]
+  asked_fields: tuple[mode | nominal_fundamental_hz | reference_file | stimulus_kind, ...]
 
 ConfirmedContext =
   mode
@@ -1838,10 +1839,16 @@ new numeric limits.
 ### 24.3 Study `study_s1_agent_increment_1`
 
 Three arms per case: `agent`, `strong_fixed` (T1 uses B1, T2 uses B2), and
-`weak_fixed` (B0). The primary metric is the paired difference in correct
-conclusions. Safety hard conditions are zero unsupported positive conclusions
-and evidence traceability of 1.0. T1 also records context-field accuracy and
-correction count. T2 also records localization accuracy and tool-call count.
+`weak_fixed` (B0). For T2 the primary metric is the paired difference in
+correct conclusions. For T1 the primary metric is the paired difference in
+first-draft context matches: all four fields correct before simulated-user
+correction. Correction count is reported separately. T1 also reports a
+downstream increment, the paired difference in diagnosis conclusions after
+confirmation. Safety hard conditions are zero unsupported positive conclusions
+and evidence traceability of 1.0. T1 also records context-field accuracy.
+T2 also records localization accuracy and tool-call count. The simulated user
+treats a field as asked only when the draft sets it or lists it in
+`asked_fields`.
 An increment of at least +3 on a 24-case family is a measurable increment. An
 increment of 0, 1, or 2 is no significant increment. A negative increment is
 reported as measured. HTTP calls stop at 21 per case and at the stage cap

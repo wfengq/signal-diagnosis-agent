@@ -29,6 +29,7 @@ class FamilyScore(BaseModel):
     safety_hard_pass: bool
     t1_field_accuracy: float | None
     t1_correction_count: int | None
+    t1_downstream_increment: int | None = None
     t2_localization_accuracy: float | None
     t2_agent_tool_calls: int | None
     t2_strong_tool_calls: int | None
@@ -55,6 +56,8 @@ def score_family(rows: list[ArmOutcome]) -> FamilyScore:
         grouped[row.case_id][row.arm] = row
     agent_correct = 0
     strong_correct = 0
+    agent_downstream = 0
+    strong_downstream = 0
     unsupported = 0
     traceable = 0
     total_rows = 0
@@ -68,13 +71,20 @@ def score_family(rows: list[ArmOutcome]) -> FamilyScore:
     for case_id, arms in grouped.items():
         if set(arms) != {"agent", "strong_fixed", "weak_fixed"}:
             raise ValueError(f"case {case_id} is missing an arm")
-        agent_correct += int(arms["agent"].conclusion_correct)
-        strong_correct += int(arms["strong_fixed"].conclusion_correct)
+        agent = arms["agent"]
+        strong = arms["strong_fixed"]
+        if family == "T1":
+            agent_correct += int(agent.draft_all_correct)
+            strong_correct += int(strong.draft_all_correct)
+            agent_downstream += int(agent.conclusion_correct)
+            strong_downstream += int(strong.conclusion_correct)
+        else:
+            agent_correct += int(agent.conclusion_correct)
+            strong_correct += int(strong.conclusion_correct)
         for outcome in arms.values():
             total_rows += 1
             unsupported += int(outcome.unsupported_positive)
             traceable += int(outcome.evidence_traceable)
-        agent = arms["agent"]
         field_correct += agent.context_fields_correct
         field_graded += agent.context_fields_graded
         corrections += agent.correction_count
@@ -98,6 +108,7 @@ def score_family(rows: list[ArmOutcome]) -> FamilyScore:
             safety_hard_pass=safety,
             t1_field_accuracy=accuracy,
             t1_correction_count=corrections,
+            t1_downstream_increment=agent_downstream - strong_downstream,
             t2_localization_accuracy=None,
             t2_agent_tool_calls=None,
             t2_strong_tool_calls=None,

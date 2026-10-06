@@ -8,8 +8,22 @@ Held-out manifest hash (frozen with seed `20261006` and template id
 `heldout-templates-1.0`):
 
 ```text
-02590e499a14af67850cb244365042fad1d5b730c03f06901a7a5d44716ff11f
+2f989e736d2b3d4f28c43cd923eeb89e43dee4d1d2d5dec7e6ac6d489975e95f
 ```
+
+T1 ground-truth conclusions are the labels already stored on the reused
+WAV, not a placeholder. Development rows come from
+`docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json`.
+Held-out rows come from
+`docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json`.
+The copied fields are `expected_outcome` and `expected_causal_set`.
+`inconclusive` appears only when that source row says `inconclusive`.
+A reference file is the WAV whose bytes match `reference_wav_sha256`.
+The eight held-out no-fault rows cycle two validation recordings,
+`extwav_validation_6bc03693bd8f0023_test.wav` and
+`extwav_validation_9f719b53a909854f_test.wav`. The validation manifest
+has four distinct `no_supported_fault` test hashes; this study uses two
+of them.
 
 Dry-run ceilings, agent arm only, 21 calls per case:
 

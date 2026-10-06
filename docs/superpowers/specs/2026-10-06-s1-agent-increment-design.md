@@ -81,8 +81,12 @@ T2 需要的规则层补充：分段证据如何构成结论（例如“任一�
 
 - **增量**：agent 结论正确数 − 最强固定流程结论正确数（配对样例）。
 - 安全：不支持的正面结论数（必须为 0）、证据可追溯率（必须为 1.0）。
-- T1：上下文字段提取正确率；需要用户纠正的字段数（越少越好）。
+- T1 主指标“增量”按第一版草案计算。草案不经模拟用户纠正，四个上下文字段全部正确才记为正确。纠正次数单独报告，不进入增量。
+- T1 另报下游指标。用确认后的上下文跑诊断，再取结论正确数之差。离线诊断用脚本替身。真实运行用 live 运行器。
+- T1 样例的真值结论来自所复用 WAV 在情境清单里的既有标签（`expected_outcome` 与 `expected_causal_set`），不用占位的 `inconclusive`。验证集 WAV 的出处是 `docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json`。开发集出处是 `docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json`。参考文件按清单里的 `reference_wav_sha256` 找，不要求与测试文件同名。
+- T1 还记录上下文字段提取正确率。
 - T2：故障定位正确率（段与声道）；工具调用次数（与 B2 比较）。
+- 模拟用户只把草案里已经写出的字段，或 `asked_fields` 里点名的字段，当作“被问到”。问题文本里出现字段名不算被问到。
 
 通过线（建议值，审批时可调）：
 

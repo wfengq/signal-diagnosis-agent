@@ -92,11 +92,87 @@ def _contextual_tests(split: str) -> list[Path]:
     return sorted(folder.glob("*_test.wav"))
 
 
-def _pair(test_path: Path) -> Path | None:
-    ref = test_path.with_name(test_path.name.replace("_test.wav", "_ref.wav"))
-    if ref.is_file():
-        return ref
-    return None
+_DEV_LABEL_SOURCE = (
+    "docs/evaluations/v0_3/contextual/development/"
+    "study_v0_3_contextual_dev_1/contextual_manifest.json"
+)
+_HELD_LABEL_SOURCE = (
+    "docs/evaluations/v0_3/contextual/validation/"
+    "study_v0_3_contextual_validation_1/contextual_manifest.json"
+)
+
+
+def _label_source(split: str) -> str:
+    return _DEV_LABEL_SOURCE if split == "dev" else _HELD_LABEL_SOURCE
+
+
+def _manifest_rows(split: str) -> dict[str, dict[str, object]]:
+    payload = json.loads((_repo_root() / _label_source(split)).read_text(encoding="utf-8"))
+    rows = payload["cases"]
+    if not isinstance(rows, list):
+        raise TypeError("contextual manifest cases must be a list")
+    indexed: dict[str, dict[str, object]] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            raise TypeError("contextual manifest case must be an object")
+        digest = row["test_wav_sha256"]
+        if not isinstance(digest, str):
+            raise TypeError("test_wav_sha256 must be a string")
+        indexed[digest] = row
+    return indexed
+
+
+def _conclusion_from_row(row: dict[str, object]) -> tuple[str, tuple[str, ...]]:
+    outcome = row["expected_outcome"]
+    causal_raw = row["expected_causal_set"]
+    if not isinstance(causal_raw, list) or not all(isinstance(item, str) for item in causal_raw):
+        raise TypeError("expected_causal_set must be a list of strings")
+    causal = tuple(causal_raw)
+    if outcome == "no_supported_fault":
+        return "no_supported_fault", ()
+    if outcome == "inconclusive":
+        return "inconclusive", ()
+    if outcome == "supported_fault" and causal == ("clipping",):
+        return "clipping", causal
+    if outcome == "supported_fault" and causal == ("harmonic_distortion",):
+        return "harmonic_distortion", causal
+    if outcome == "supported_fault" and set(causal) == {"clipping", "harmonic_distortion"}:
+        return "combined", causal
+    raise ValueError(f"unmapped contextual label: {outcome} {causal}")
+
+
+def _labeled_tests(split: str) -> list[tuple[Path, dict[str, object]]]:
+    index = _manifest_rows(split)
+    labeled: list[tuple[Path, dict[str, object]]] = []
+    for path in _contextual_tests(split):
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        row = index.get(digest)
+        if row is None:
+            raise ValueError(f"no contextual label for {path.name}")
+        labeled.append((path, row))
+    return labeled
+
+
+def _pool(split: str, outcome: str) -> list[tuple[Path, dict[str, object]]]:
+    pool = [item for item in _labeled_tests(split) if item[1]["expected_outcome"] == outcome]
+    if not pool:
+        raise ValueError(f"no {split} wavs with expected_outcome={outcome}")
+    return pool
+
+
+def _reference_index(split: str) -> dict[str, Path]:
+    folder = _contextual_tests(split)[0].parent
+    indexed: dict[str, Path] = {}
+    for path in sorted(folder.glob("*_ref.wav")):
+        indexed[hashlib.sha256(path.read_bytes()).hexdigest()] = path
+    return indexed
+
+
+def _reference_for(split: str, row: dict[str, object]) -> Path | None:
+    digest = row.get("reference_wav_sha256")
+    if not isinstance(digest, str) or not digest:
+        return None
+    return _reference_index(split).get(digest)
 
 
 def _rel(path: Path) -> str:
@@ -135,43 +211,54 @@ def _t1_case(
 
 
 def _dev_t1() -> list[IncrementCase]:
-    tests = _contextual_tests("dev")
-    paired = [path for path in tests if _pair(path) is not None]
+    clean = _pool("dev", "no_supported_fault")
+    unsure = _pool("dev", "inconclusive")
+    faulty = [
+        item
+        for item in _pool("dev", "supported_fault")
+        if _reference_for("dev", item[1]) is not None
+    ]
+    if not faulty:
+        raise ValueError("dev supported-fault wavs have no manifest reference")
     cases: list[IncrementCase] = []
     specs = (
-        (True, False, "single_signal", None, None),
-        (True, False, "single_signal", None, None),
-        (True, False, "single_signal", None, None),
-        (True, False, "single_signal", None, None),
-        (False, True, "single_signal", None, None),
-        (False, False, "paired_reference", 1000.0, "single_tone"),
-        (False, False, "paired_reference", 1000.0, "single_tone"),
-        (False, False, "paired_reference", 1000.0, "single_tone"),
-        (False, False, "nominal_single_tone", 1000.0, "single_tone"),
-        (False, False, "nominal_single_tone", 1000.0, "single_tone"),
-        (False, False, "nominal_single_tone", 440.0, "single_tone"),
-        (False, False, "nominal_single_tone", 1000.0, "single_tone"),
+        (True, False, "single_signal", None, None, clean),
+        (True, False, "single_signal", None, None, clean),
+        (True, False, "single_signal", None, None, clean),
+        (True, False, "single_signal", None, None, clean),
+        (False, True, "single_signal", None, None, unsure),
+        (False, False, "paired_reference", 1000.0, "single_tone", faulty),
+        (False, False, "paired_reference", 1000.0, "single_tone", faulty),
+        (False, False, "paired_reference", 1000.0, "single_tone", faulty),
+        (False, False, "nominal_single_tone", 1000.0, "single_tone", faulty),
+        (False, False, "nominal_single_tone", 1000.0, "single_tone", faulty),
+        (False, False, "nominal_single_tone", 440.0, "single_tone", faulty),
+        (False, False, "nominal_single_tone", 1000.0, "single_tone", faulty),
     )
-    pair_cursor = 0
-    for index, (no_fault, insufficient, mode, nominal, stimulus) in enumerate(specs):
-        if mode == "paired_reference":
-            test_path = paired[pair_cursor % len(paired)]
-            pair_cursor += 1
-            ref_path = _pair(test_path)
-        else:
-            test_path = tests[index]
-            ref_path = None
-        assert ref_path is not None or mode != "paired_reference"
+    cursors = {"clean": 0, "unsure": 0, "faulty": 0}
+    for index, (no_fault, insufficient, mode, nominal, stimulus, pool) in enumerate(specs):
+        key = "clean" if no_fault else "unsure" if insufficient else "faulty"
+        test_path, row = pool[cursors[key] % len(pool)]
+        cursors[key] += 1
+        ref_path = _reference_for("dev", row) if mode == "paired_reference" else None
+        if mode == "paired_reference" and ref_path is None:
+            raise ValueError(f"paired dev case has no manifest reference for {test_path.name}")
         ref_name = ref_path.name if ref_path is not None else ""
         text = _DEV_T1_TEXT[index].format(ref=ref_name)
+        conclusion, cause_set = _conclusion_from_row(row)
+        case_id = row["case_id"]
+        if not isinstance(case_id, str):
+            raise TypeError("contextual case_id must be a string")
         truth = CaseTruth(
-            conclusion="no_supported_fault" if no_fault or insufficient else "inconclusive",
-            cause_set=(),
+            conclusion=conclusion,  # type: ignore[arg-type]
+            cause_set=cause_set,
             mode=mode,  # type: ignore[arg-type]
             nominal_fundamental_hz=nominal,
             reference_file=ref_name or None,
             stimulus_kind=stimulus,  # type: ignore[arg-type]
             insufficient=insufficient,
+            label_source=_DEV_LABEL_SOURCE,
+            label_case_id=case_id,
         )
         cases.append(
             _t1_case(
@@ -189,7 +276,22 @@ def _dev_t1() -> list[IncrementCase]:
 
 
 def _held_t1(rng: random.Random) -> list[IncrementCase]:
-    tests = _contextual_tests("heldout")
+    pools = {
+        "no_fault": _pool("heldout", "no_supported_fault"),
+        "insufficient": _pool("heldout", "inconclusive"),
+        "blunt": [
+            item
+            for item in _pool("heldout", "supported_fault")
+            if _reference_for("heldout", item[1]) is not None
+        ],
+        "paraphrase": [
+            item
+            for item in _pool("heldout", "supported_fault")
+            if _reference_for("heldout", item[1]) is not None
+        ],
+    }
+    if not pools["blunt"]:
+        raise ValueError("held-out supported-fault wavs have no manifest reference")
     buckets = (
         ("no_fault", 8, True, False, True),
         ("insufficient", 4, False, True, False),
@@ -199,12 +301,14 @@ def _held_t1(rng: random.Random) -> list[IncrementCase]:
     cases: list[IncrementCase] = []
     cursor = 0
     for bucket, count, no_fault, insufficient, favors in buckets:
-        for _ in range(count):
-            test_path = tests[cursor % len(tests)]
+        for offset in range(count):
+            test_path, row = pools[bucket][(cursor + offset) % len(pools[bucket])]
             cursor += 1
-            ref_path: Path | None = tests[(cursor + 3) % len(tests)]
-            if bucket in {"no_fault", "insufficient"}:
-                ref_path = None
+            ref_path = (
+                _reference_for("heldout", row) if bucket in {"blunt", "paraphrase"} else None
+            )
+            if bucket in {"blunt", "paraphrase"} and ref_path is None:
+                raise ValueError(f"paired held-out case has no manifest reference for {test_path.name}")
             ref_name = ref_path.name if ref_path is not None else "none.wav"
             template = rng.choice(HELD_OUT_TEMPLATES[bucket])
             hz = 1000 if cursor % 2 == 0 else 440
@@ -224,6 +328,10 @@ def _held_t1(rng: random.Random) -> list[IncrementCase]:
                 nominal = float(hz)
                 stimulus = "single_tone"
                 reference = ref_name
+            conclusion, cause_set = _conclusion_from_row(row)
+            case_id = row["case_id"]
+            if not isinstance(case_id, str):
+                raise TypeError("contextual case_id must be a string")
             cases.append(
                 _t1_case(
                     case_id=f"held-t1-{len(cases):02d}",
@@ -232,12 +340,15 @@ def _held_t1(rng: random.Random) -> list[IncrementCase]:
                     test_path=test_path,
                     ref_path=ref_path,
                     truth=CaseTruth(
-                        conclusion="no_supported_fault" if no_fault else "inconclusive",
+                        conclusion=conclusion,  # type: ignore[arg-type]
+                        cause_set=cause_set,
                         mode=mode,  # type: ignore[arg-type]
                         nominal_fundamental_hz=nominal,
                         reference_file=reference,
                         stimulus_kind=stimulus,  # type: ignore[arg-type]
                         insufficient=insufficient,
+                        label_source=_HELD_LABEL_SOURCE,
+                        label_case_id=case_id,
                     ),
                     favors_baseline=favors and bucket == "blunt",
                     no_fault=no_fault,

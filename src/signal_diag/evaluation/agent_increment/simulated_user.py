@@ -28,7 +28,7 @@ def _truth_value(truth: ContextDraft, field: str) -> object:
 def _proposed(draft: ContextDraft, field: str) -> bool:
     if getattr(draft, field) is not None:
         return True
-    return any(field in question for question in draft.questions)
+    return field in draft.asked_fields
 
 
 def confirm_proposed_fields(draft: ContextDraft, truth: ContextDraft) -> FieldConfirmation:

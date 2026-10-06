@@ -16,6 +16,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "04f4068ec91d2621",
+        "label_source": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -38,6 +40,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "eabaecd422b2eeda",
+        "label_source": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -49,17 +53,19 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_2be730b9113701de_test.wav"
+        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_393940e92c58cf0b_test.wav"
       ],
       "no_fault": true,
       "split": "dev",
-      "test_file": "cxdev_2be730b9113701de_test.wav",
+      "test_file": "cxdev_393940e92c58cf0b_test.wav",
       "text": "测试音 1000 Hz，没有旧录音。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "393940e92c58cf0b",
+        "label_source": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -71,17 +77,19 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_35967af7b71c5b75_test.wav"
+        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_825a759a0ea47bb7_test.wav"
       ],
       "no_fault": true,
       "split": "dev",
-      "test_file": "cxdev_35967af7b71c5b75_test.wav",
+      "test_file": "cxdev_825a759a0ea47bb7_test.wav",
       "text": "正弦 880 Hz，作为干净对照。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "eabaecd422b2eeda",
+        "label_source": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -93,17 +101,19 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_393940e92c58cf0b_test.wav"
+        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_3e1ca5f1bc34a5a8_test.wav"
       ],
       "no_fault": false,
       "split": "dev",
-      "test_file": "cxdev_393940e92c58cf0b_test.wav",
+      "test_file": "cxdev_3e1ca5f1bc34a5a8_test.wav",
       "text": "听着有点怪，你帮我看看。",
       "truth": {
         "cause_set": [],
-        "conclusion": "no_supported_fault",
+        "conclusion": "inconclusive",
         "fault_spans": [],
         "insufficient": true,
+        "label_case_id": "3e1ca5f1bc34a5a8",
+        "label_source": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -115,21 +125,26 @@
       "family": "T1",
       "favors_baseline": true,
       "files": [
-        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_04f4068ec91d2621_test.wav",
-        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_04f4068ec91d2621_ref.wav"
+        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_6fb80bbda391c26c_test.wav",
+        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_6fb80bbda391c26c_ref.wav"
       ],
       "no_fault": false,
       "split": "dev",
-      "test_file": "cxdev_04f4068ec91d2621_test.wav",
-      "text": "参考文件是 cxdev_04f4068ec91d2621_ref.wav，标称 1000 Hz 正弦。",
+      "test_file": "cxdev_6fb80bbda391c26c_test.wav",
+      "text": "参考文件是 cxdev_6fb80bbda391c26c_ref.wav，标称 1000 Hz 正弦。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping",
+          "harmonic_distortion"
+        ],
+        "conclusion": "combined",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "6fb80bbda391c26c",
+        "label_source": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 1000.0,
-        "reference_file": "cxdev_04f4068ec91d2621_ref.wav",
+        "reference_file": "cxdev_6fb80bbda391c26c_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -138,21 +153,25 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_163185980dc8f7a4_test.wav",
-        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_163185980dc8f7a4_ref.wav"
+        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_857fac53e4d2e57e_test.wav",
+        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_aa9b4a91b0253c33_ref.wav"
       ],
       "no_fault": false,
       "split": "dev",
-      "test_file": "cxdev_163185980dc8f7a4_test.wav",
-      "text": "先前那份叫 cxdev_163185980dc8f7a4_ref.wav。新的放 1 kHz 测试音发毛，今天还下雨。",
+      "test_file": "cxdev_857fac53e4d2e57e_test.wav",
+      "text": "先前那份叫 cxdev_aa9b4a91b0253c33_ref.wav。新的放 1 kHz 测试音发毛，今天还下雨。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping"
+        ],
+        "conclusion": "clipping",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "857fac53e4d2e57e",
+        "label_source": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 1000.0,
-        "reference_file": "cxdev_163185980dc8f7a4_ref.wav",
+        "reference_file": "cxdev_aa9b4a91b0253c33_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -161,21 +180,25 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_2be730b9113701de_test.wav",
-        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_2be730b9113701de_ref.wav"
+        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_a4a0853be9983f8c_test.wav",
+        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_a4a0853be9983f8c_ref.wav"
       ],
       "no_fault": false,
       "split": "dev",
-      "test_file": "cxdev_2be730b9113701de_test.wav",
-      "text": "旧录音 cxdev_2be730b9113701de_ref.wav 放在一起，现在这份 1000 Hz 听着破。",
+      "test_file": "cxdev_a4a0853be9983f8c_test.wav",
+      "text": "旧录音 cxdev_a4a0853be9983f8c_ref.wav 放在一起，现在这份 1000 Hz 听着破。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "harmonic_distortion"
+        ],
+        "conclusion": "harmonic_distortion",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "a4a0853be9983f8c",
+        "label_source": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 1000.0,
-        "reference_file": "cxdev_2be730b9113701de_ref.wav",
+        "reference_file": "cxdev_a4a0853be9983f8c_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -184,17 +207,22 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_6fb80bbda391c26c_test.wav"
+        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_aa9b4a91b0253c33_test.wav"
       ],
       "no_fault": false,
       "split": "dev",
-      "test_file": "cxdev_6fb80bbda391c26c_test.wav",
+      "test_file": "cxdev_aa9b4a91b0253c33_test.wav",
       "text": "标称 1000 Hz 的测试音发毛。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping",
+          "harmonic_distortion"
+        ],
+        "conclusion": "combined",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "aa9b4a91b0253c33",
+        "label_source": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json",
         "mode": "nominal_single_tone",
         "nominal_fundamental_hz": 1000.0,
         "reference_file": null,
@@ -206,17 +234,21 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_825a759a0ea47bb7_test.wav"
+        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_abd9010438d4ad93_test.wav"
       ],
       "no_fault": false,
       "split": "dev",
-      "test_file": "cxdev_825a759a0ea47bb7_test.wav",
+      "test_file": "cxdev_abd9010438d4ad93_test.wav",
       "text": "单音 1 kHz，没有参考。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping"
+        ],
+        "conclusion": "clipping",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "abd9010438d4ad93",
+        "label_source": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json",
         "mode": "nominal_single_tone",
         "nominal_fundamental_hz": 1000.0,
         "reference_file": null,
@@ -228,17 +260,22 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_857fac53e4d2e57e_test.wav"
+        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_6fb80bbda391c26c_test.wav"
       ],
       "no_fault": false,
       "split": "dev",
-      "test_file": "cxdev_857fac53e4d2e57e_test.wav",
+      "test_file": "cxdev_6fb80bbda391c26c_test.wav",
       "text": "哎这个听着破，频率好像写了 440 Hz。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping",
+          "harmonic_distortion"
+        ],
+        "conclusion": "combined",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "6fb80bbda391c26c",
+        "label_source": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json",
         "mode": "nominal_single_tone",
         "nominal_fundamental_hz": 440.0,
         "reference_file": null,
@@ -250,17 +287,21 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_a4a0853be9983f8c_test.wav"
+        "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/wav/cxdev_857fac53e4d2e57e_test.wav"
       ],
       "no_fault": false,
       "split": "dev",
-      "test_file": "cxdev_a4a0853be9983f8c_test.wav",
+      "test_file": "cxdev_857fac53e4d2e57e_test.wav",
       "text": "会议室很吵，不过这是 1000 Hz 正弦。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping"
+        ],
+        "conclusion": "clipping",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "857fac53e4d2e57e",
+        "label_source": "docs/evaluations/v0_3/contextual/development/study_v0_3_contextual_dev_1/contextual_manifest.json",
         "mode": "nominal_single_tone",
         "nominal_fundamental_hz": 1000.0,
         "reference_file": null,
@@ -283,6 +324,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -305,6 +348,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -327,6 +372,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -349,6 +396,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -371,6 +420,8 @@
         "conclusion": "inconclusive",
         "fault_spans": [],
         "insufficient": true,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -401,6 +452,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -431,6 +484,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -461,6 +516,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -491,6 +548,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -521,6 +580,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -551,6 +612,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -581,6 +644,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -592,17 +657,19 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_41493464c06c67a0_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_6bc03693bd8f0023_test.wav"
       ],
       "no_fault": true,
       "split": "heldout",
-      "test_file": "extwav_validation_41493464c06c67a0_test.wav",
+      "test_file": "extwav_validation_6bc03693bd8f0023_test.wav",
       "text": "单音 440 Hz，我听不出失真。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "c532d055b45329ab",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "nominal_single_tone",
         "nominal_fundamental_hz": 440.0,
         "reference_file": null,
@@ -614,17 +681,19 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_6bc03693bd8f0023_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_9f719b53a909854f_test.wav"
       ],
       "no_fault": true,
       "split": "heldout",
-      "test_file": "extwav_validation_6bc03693bd8f0023_test.wav",
+      "test_file": "extwav_validation_9f719b53a909854f_test.wav",
       "text": "单音 1000 Hz，我听不出失真。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "207890c0f8d99c8b",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "nominal_single_tone",
         "nominal_fundamental_hz": 1000.0,
         "reference_file": null,
@@ -636,17 +705,19 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_6f766252d3187d06_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_6bc03693bd8f0023_test.wav"
       ],
       "no_fault": true,
       "split": "heldout",
-      "test_file": "extwav_validation_6f766252d3187d06_test.wav",
+      "test_file": "extwav_validation_6bc03693bd8f0023_test.wav",
       "text": "单音 440 Hz，我听不出失真。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "c532d055b45329ab",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "nominal_single_tone",
         "nominal_fundamental_hz": 440.0,
         "reference_file": null,
@@ -658,17 +729,19 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_7e5c5689245dfa2d_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_9f719b53a909854f_test.wav"
       ],
       "no_fault": true,
       "split": "heldout",
-      "test_file": "extwav_validation_7e5c5689245dfa2d_test.wav",
+      "test_file": "extwav_validation_9f719b53a909854f_test.wav",
       "text": "单音 1000 Hz，我听不出失真。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "207890c0f8d99c8b",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "nominal_single_tone",
         "nominal_fundamental_hz": 1000.0,
         "reference_file": null,
@@ -680,17 +753,19 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_7f721adc711210ad_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_6bc03693bd8f0023_test.wav"
       ],
       "no_fault": true,
       "split": "heldout",
-      "test_file": "extwav_validation_7f721adc711210ad_test.wav",
+      "test_file": "extwav_validation_6bc03693bd8f0023_test.wav",
       "text": "这段 440 Hz 正弦听着干净，没有参考文件。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "c532d055b45329ab",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "nominal_single_tone",
         "nominal_fundamental_hz": 440.0,
         "reference_file": null,
@@ -702,17 +777,19 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8c6da870c818cf9e_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_9f719b53a909854f_test.wav"
       ],
       "no_fault": true,
       "split": "heldout",
-      "test_file": "extwav_validation_8c6da870c818cf9e_test.wav",
+      "test_file": "extwav_validation_9f719b53a909854f_test.wav",
       "text": "这段 1000 Hz 正弦听着干净，没有参考文件。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "207890c0f8d99c8b",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "nominal_single_tone",
         "nominal_fundamental_hz": 1000.0,
         "reference_file": null,
@@ -724,17 +801,19 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8e8856ea1ad6101d_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_6bc03693bd8f0023_test.wav"
       ],
       "no_fault": true,
       "split": "heldout",
-      "test_file": "extwav_validation_8e8856ea1ad6101d_test.wav",
+      "test_file": "extwav_validation_6bc03693bd8f0023_test.wav",
       "text": "这段 440 Hz 正弦听着干净，没有参考文件。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "c532d055b45329ab",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "nominal_single_tone",
         "nominal_fundamental_hz": 440.0,
         "reference_file": null,
@@ -746,17 +825,19 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8fdb5103064cab4d_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_9f719b53a909854f_test.wav"
       ],
       "no_fault": true,
       "split": "heldout",
-      "test_file": "extwav_validation_8fdb5103064cab4d_test.wav",
+      "test_file": "extwav_validation_9f719b53a909854f_test.wav",
       "text": "这段 1000 Hz 正弦听着干净，没有参考文件。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "207890c0f8d99c8b",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "nominal_single_tone",
         "nominal_fundamental_hz": 1000.0,
         "reference_file": null,
@@ -768,17 +849,19 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_91ac93679e053dd1_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_a70ba0cbb88b2ddc_test.wav"
       ],
       "no_fault": false,
       "split": "heldout",
-      "test_file": "extwav_validation_91ac93679e053dd1_test.wav",
+      "test_file": "extwav_validation_a70ba0cbb88b2ddc_test.wav",
       "text": "两个文件都传了，我说不清哪个是旧的。",
       "truth": {
         "cause_set": [],
         "conclusion": "inconclusive",
         "fault_spans": [],
         "insufficient": true,
+        "label_case_id": "97994d18ab57b7ed",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -790,17 +873,19 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_9ad1a0a113a2cb6b_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_41493464c06c67a0_test.wav"
       ],
       "no_fault": false,
       "split": "heldout",
-      "test_file": "extwav_validation_9ad1a0a113a2cb6b_test.wav",
+      "test_file": "extwav_validation_41493464c06c67a0_test.wav",
       "text": "听着有点怪，你帮我看看。",
       "truth": {
         "cause_set": [],
         "conclusion": "inconclusive",
         "fault_spans": [],
         "insufficient": true,
+        "label_case_id": "0b4fabbb2d7eae08",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -809,28 +894,6 @@
     },
     {
       "case_id": "held-t1-10",
-      "family": "T1",
-      "favors_baseline": false,
-      "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_9f719b53a909854f_test.wav"
-      ],
-      "no_fault": false,
-      "split": "heldout",
-      "test_file": "extwav_validation_9f719b53a909854f_test.wav",
-      "text": "听着有点怪，你帮我看看。",
-      "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
-        "fault_spans": [],
-        "insufficient": true,
-        "mode": "single_signal",
-        "nominal_fundamental_hz": null,
-        "reference_file": null,
-        "stimulus_kind": null
-      }
-    },
-    {
-      "case_id": "held-t1-11",
       "family": "T1",
       "favors_baseline": false,
       "files": [
@@ -845,6 +908,32 @@
         "conclusion": "inconclusive",
         "fault_spans": [],
         "insufficient": true,
+        "label_case_id": "651c196e5385a893",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
+        "mode": "single_signal",
+        "nominal_fundamental_hz": null,
+        "reference_file": null,
+        "stimulus_kind": null
+      }
+    },
+    {
+      "case_id": "held-t1-11",
+      "family": "T1",
+      "favors_baseline": false,
+      "files": [
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_dc08b09993bd8b56_test.wav"
+      ],
+      "no_fault": false,
+      "split": "heldout",
+      "test_file": "extwav_validation_dc08b09993bd8b56_test.wav",
+      "text": "听着有点怪，你帮我看看。",
+      "truth": {
+        "cause_set": [],
+        "conclusion": "inconclusive",
+        "fault_spans": [],
+        "insufficient": true,
+        "label_case_id": "54c6b454b876f8f7",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -856,21 +945,26 @@
       "family": "T1",
       "favors_baseline": true,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_a70ba0cbb88b2ddc_test.wav",
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_d9fc0676036ca0b8_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_7f721adc711210ad_test.wav",
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8d15a36dd636befa_ref.wav"
       ],
       "no_fault": false,
       "split": "heldout",
-      "test_file": "extwav_validation_a70ba0cbb88b2ddc_test.wav",
-      "text": "参考文件是 extwav_validation_d9fc0676036ca0b8_test.wav，标称 440 Hz 正弦。",
+      "test_file": "extwav_validation_7f721adc711210ad_test.wav",
+      "text": "参考文件是 extwav_validation_8d15a36dd636befa_ref.wav，标称 440 Hz 正弦。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping",
+          "harmonic_distortion"
+        ],
+        "conclusion": "combined",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "2ca9870c96ed589d",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 440.0,
-        "reference_file": "extwav_validation_d9fc0676036ca0b8_test.wav",
+        "reference_file": "extwav_validation_8d15a36dd636befa_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -879,21 +973,25 @@
       "family": "T1",
       "favors_baseline": true,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_ab09982d6d52fab9_test.wav",
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_dc08b09993bd8b56_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_91ac93679e053dd1_test.wav",
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_9f719b53a909854f_ref.wav"
       ],
       "no_fault": false,
       "split": "heldout",
-      "test_file": "extwav_validation_ab09982d6d52fab9_test.wav",
-      "text": "旧录音 extwav_validation_dc08b09993bd8b56_test.wav 是参考，测试音 1000 Hz。",
+      "test_file": "extwav_validation_91ac93679e053dd1_test.wav",
+      "text": "旧录音 extwav_validation_9f719b53a909854f_ref.wav 是参考，测试音 1000 Hz。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping"
+        ],
+        "conclusion": "clipping",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "313d7f95b2e95656",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 1000.0,
-        "reference_file": "extwav_validation_dc08b09993bd8b56_test.wav",
+        "reference_file": "extwav_validation_9f719b53a909854f_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -903,20 +1001,24 @@
       "favors_baseline": true,
       "files": [
         "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_b1b0d3acf7e78e3c_test.wav",
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_41493464c06c67a0_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8fdb5103064cab4d_ref.wav"
       ],
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_b1b0d3acf7e78e3c_test.wav",
-      "text": "参考文件是 extwav_validation_41493464c06c67a0_test.wav，标称 440 Hz 正弦。",
+      "text": "参考文件是 extwav_validation_8fdb5103064cab4d_ref.wav，标称 440 Hz 正弦。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "harmonic_distortion"
+        ],
+        "conclusion": "harmonic_distortion",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "6334f80c9b6b30be",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 440.0,
-        "reference_file": "extwav_validation_41493464c06c67a0_test.wav",
+        "reference_file": "extwav_validation_8fdb5103064cab4d_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -925,21 +1027,26 @@
       "family": "T1",
       "favors_baseline": true,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_cb4e6a3b8148a57b_test.wav",
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_6bc03693bd8f0023_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_7f721adc711210ad_test.wav",
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8d15a36dd636befa_ref.wav"
       ],
       "no_fault": false,
       "split": "heldout",
-      "test_file": "extwav_validation_cb4e6a3b8148a57b_test.wav",
-      "text": "参考文件是 extwav_validation_6bc03693bd8f0023_test.wav，标称 1000 Hz 正弦。",
+      "test_file": "extwav_validation_7f721adc711210ad_test.wav",
+      "text": "参考文件是 extwav_validation_8d15a36dd636befa_ref.wav，标称 1000 Hz 正弦。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping",
+          "harmonic_distortion"
+        ],
+        "conclusion": "combined",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "2ca9870c96ed589d",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 1000.0,
-        "reference_file": "extwav_validation_6bc03693bd8f0023_test.wav",
+        "reference_file": "extwav_validation_8d15a36dd636befa_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -948,21 +1055,25 @@
       "family": "T1",
       "favors_baseline": true,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_d9fc0676036ca0b8_test.wav",
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_6f766252d3187d06_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_91ac93679e053dd1_test.wav",
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_9f719b53a909854f_ref.wav"
       ],
       "no_fault": false,
       "split": "heldout",
-      "test_file": "extwav_validation_d9fc0676036ca0b8_test.wav",
-      "text": "参考文件是 extwav_validation_6f766252d3187d06_test.wav，标称 440 Hz 正弦。",
+      "test_file": "extwav_validation_91ac93679e053dd1_test.wav",
+      "text": "参考文件是 extwav_validation_9f719b53a909854f_ref.wav，标称 440 Hz 正弦。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping"
+        ],
+        "conclusion": "clipping",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "313d7f95b2e95656",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 440.0,
-        "reference_file": "extwav_validation_6f766252d3187d06_test.wav",
+        "reference_file": "extwav_validation_9f719b53a909854f_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -971,21 +1082,25 @@
       "family": "T1",
       "favors_baseline": true,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_dc08b09993bd8b56_test.wav",
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_7e5c5689245dfa2d_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_b1b0d3acf7e78e3c_test.wav",
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8fdb5103064cab4d_ref.wav"
       ],
       "no_fault": false,
       "split": "heldout",
-      "test_file": "extwav_validation_dc08b09993bd8b56_test.wav",
-      "text": "旧录音 extwav_validation_7e5c5689245dfa2d_test.wav 是参考，测试音 1000 Hz。",
+      "test_file": "extwav_validation_b1b0d3acf7e78e3c_test.wav",
+      "text": "旧录音 extwav_validation_8fdb5103064cab4d_ref.wav 是参考，测试音 1000 Hz。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "harmonic_distortion"
+        ],
+        "conclusion": "harmonic_distortion",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "6334f80c9b6b30be",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 1000.0,
-        "reference_file": "extwav_validation_7e5c5689245dfa2d_test.wav",
+        "reference_file": "extwav_validation_8fdb5103064cab4d_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -994,21 +1109,26 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_41493464c06c67a0_test.wav",
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_7f721adc711210ad_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_7f721adc711210ad_test.wav",
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8d15a36dd636befa_ref.wav"
       ],
       "no_fault": false,
       "split": "heldout",
-      "test_file": "extwav_validation_41493464c06c67a0_test.wav",
-      "text": "先前那份叫 extwav_validation_7f721adc711210ad_test.wav。人耳觉得发毛。标称写的是 440 Hz，旁边还有一句无关的天气说明。",
+      "test_file": "extwav_validation_7f721adc711210ad_test.wav",
+      "text": "先前那份叫 extwav_validation_8d15a36dd636befa_ref.wav。人耳觉得发毛。标称写的是 440 Hz，旁边还有一句无关的天气说明。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping",
+          "harmonic_distortion"
+        ],
+        "conclusion": "combined",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "2ca9870c96ed589d",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 440.0,
-        "reference_file": "extwav_validation_7f721adc711210ad_test.wav",
+        "reference_file": "extwav_validation_8d15a36dd636befa_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -1017,21 +1137,25 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_6bc03693bd8f0023_test.wav",
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8c6da870c818cf9e_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_91ac93679e053dd1_test.wav",
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_9f719b53a909854f_ref.wav"
       ],
       "no_fault": false,
       "split": "heldout",
-      "test_file": "extwav_validation_6bc03693bd8f0023_test.wav",
-      "text": "先前那份叫 extwav_validation_8c6da870c818cf9e_test.wav。人耳觉得发毛。标称写的是 1000 Hz，旁边还有一句无关的天气说明。",
+      "test_file": "extwav_validation_91ac93679e053dd1_test.wav",
+      "text": "先前那份叫 extwav_validation_9f719b53a909854f_ref.wav。人耳觉得发毛。标称写的是 1000 Hz，旁边还有一句无关的天气说明。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping"
+        ],
+        "conclusion": "clipping",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "313d7f95b2e95656",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 1000.0,
-        "reference_file": "extwav_validation_8c6da870c818cf9e_test.wav",
+        "reference_file": "extwav_validation_9f719b53a909854f_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -1040,21 +1164,25 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_6f766252d3187d06_test.wav",
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8e8856ea1ad6101d_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_b1b0d3acf7e78e3c_test.wav",
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8fdb5103064cab4d_ref.wav"
       ],
       "no_fault": false,
       "split": "heldout",
-      "test_file": "extwav_validation_6f766252d3187d06_test.wav",
-      "text": "同事说先听 extwav_validation_8e8856ea1ad6101d_test.wav 再听现在这份，单音 440 Hz，今天会议室很吵。",
+      "test_file": "extwav_validation_b1b0d3acf7e78e3c_test.wav",
+      "text": "同事说先听 extwav_validation_8fdb5103064cab4d_ref.wav 再听现在这份，单音 440 Hz，今天会议室很吵。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "harmonic_distortion"
+        ],
+        "conclusion": "harmonic_distortion",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "6334f80c9b6b30be",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 440.0,
-        "reference_file": "extwav_validation_8e8856ea1ad6101d_test.wav",
+        "reference_file": "extwav_validation_8fdb5103064cab4d_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -1063,21 +1191,26 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_7e5c5689245dfa2d_test.wav",
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8fdb5103064cab4d_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_7f721adc711210ad_test.wav",
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8d15a36dd636befa_ref.wav"
       ],
       "no_fault": false,
       "split": "heldout",
-      "test_file": "extwav_validation_7e5c5689245dfa2d_test.wav",
-      "text": "先前那份叫 extwav_validation_8fdb5103064cab4d_test.wav。人耳觉得发毛。标称写的是 1000 Hz，旁边还有一句无关的天气说明。",
+      "test_file": "extwav_validation_7f721adc711210ad_test.wav",
+      "text": "先前那份叫 extwav_validation_8d15a36dd636befa_ref.wav。人耳觉得发毛。标称写的是 1000 Hz，旁边还有一句无关的天气说明。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping",
+          "harmonic_distortion"
+        ],
+        "conclusion": "combined",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "2ca9870c96ed589d",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 1000.0,
-        "reference_file": "extwav_validation_8fdb5103064cab4d_test.wav",
+        "reference_file": "extwav_validation_8d15a36dd636befa_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -1086,21 +1219,25 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_7f721adc711210ad_test.wav",
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_91ac93679e053dd1_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_91ac93679e053dd1_test.wav",
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_9f719b53a909854f_ref.wav"
       ],
       "no_fault": false,
       "split": "heldout",
-      "test_file": "extwav_validation_7f721adc711210ad_test.wav",
-      "text": "同事说先听 extwav_validation_91ac93679e053dd1_test.wav 再听现在这份，单音 440 Hz，今天会议室很吵。",
+      "test_file": "extwav_validation_91ac93679e053dd1_test.wav",
+      "text": "同事说先听 extwav_validation_9f719b53a909854f_ref.wav 再听现在这份，单音 440 Hz，今天会议室很吵。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "clipping"
+        ],
+        "conclusion": "clipping",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "313d7f95b2e95656",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 440.0,
-        "reference_file": "extwav_validation_91ac93679e053dd1_test.wav",
+        "reference_file": "extwav_validation_9f719b53a909854f_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -1109,21 +1246,25 @@
       "family": "T1",
       "favors_baseline": false,
       "files": [
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8c6da870c818cf9e_test.wav",
-        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_9ad1a0a113a2cb6b_test.wav"
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_b1b0d3acf7e78e3c_test.wav",
+        "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/wav/extwav_validation_8fdb5103064cab4d_ref.wav"
       ],
       "no_fault": false,
       "split": "heldout",
-      "test_file": "extwav_validation_8c6da870c818cf9e_test.wav",
-      "text": "同事说先听 extwav_validation_9ad1a0a113a2cb6b_test.wav 再听现在这份，单音 1000 Hz，今天会议室很吵。",
+      "test_file": "extwav_validation_b1b0d3acf7e78e3c_test.wav",
+      "text": "同事说先听 extwav_validation_8fdb5103064cab4d_ref.wav 再听现在这份，单音 1000 Hz，今天会议室很吵。",
       "truth": {
-        "cause_set": [],
-        "conclusion": "inconclusive",
+        "cause_set": [
+          "harmonic_distortion"
+        ],
+        "conclusion": "harmonic_distortion",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "6334f80c9b6b30be",
+        "label_source": "docs/evaluations/v0_3/contextual/validation/study_v0_3_contextual_validation_1/contextual_manifest.json",
         "mode": "paired_reference",
         "nominal_fundamental_hz": 1000.0,
-        "reference_file": "extwav_validation_9ad1a0a113a2cb6b_test.wav",
+        "reference_file": "extwav_validation_8fdb5103064cab4d_ref.wav",
         "stimulus_kind": "single_tone"
       }
     },
@@ -1143,6 +1284,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1165,6 +1308,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1187,6 +1332,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1209,6 +1356,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1231,6 +1380,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1253,6 +1404,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1275,6 +1428,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1297,6 +1452,8 @@
         "conclusion": "no_supported_fault",
         "fault_spans": [],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1319,6 +1476,8 @@
         "conclusion": "inconclusive",
         "fault_spans": [],
         "insufficient": true,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1341,6 +1500,8 @@
         "conclusion": "inconclusive",
         "fault_spans": [],
         "insufficient": true,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1363,6 +1524,8 @@
         "conclusion": "inconclusive",
         "fault_spans": [],
         "insufficient": true,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1385,6 +1548,8 @@
         "conclusion": "inconclusive",
         "fault_spans": [],
         "insufficient": true,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1415,6 +1580,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1445,6 +1612,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1475,6 +1644,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1505,6 +1676,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1535,6 +1708,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1565,6 +1740,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1595,6 +1772,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1625,6 +1804,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1655,6 +1836,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1685,6 +1868,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1715,6 +1900,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,
@@ -1745,6 +1932,8 @@
           }
         ],
         "insufficient": false,
+        "label_case_id": "",
+        "label_source": "",
         "mode": "single_signal",
         "nominal_fundamental_hz": null,
         "reference_file": null,

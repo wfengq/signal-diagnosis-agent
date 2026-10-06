@@ -113,6 +113,7 @@ def parse_b1(request: IntakeRequest) -> ContextDraft:
         stimulus_kind=stimulus,
         missing_fields=tuple(missing),
         questions=tuple(questions),
+        asked_fields=tuple(missing),  # type: ignore[arg-type]
     )
     validate_context_draft(draft, request)
     return draft

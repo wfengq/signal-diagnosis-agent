@@ -15,7 +15,7 @@ from signal_diag.evaluation.agent_increment.cases import (
 )
 from signal_diag.evaluation.agent_increment.models import IncrementCase
 
-_MANIFEST_SHA256 = "02590e499a14af67850cb244365042fad1d5b730c03f06901a7a5d44716ff11f"
+_MANIFEST_SHA256 = "2f989e736d2b3d4f28c43cd923eeb89e43dee4d1d2d5dec7e6ac6d489975e95f"
 _STUDY = (
     Path(__file__).resolve().parents[3]
     / "docs/evaluations/v0_3/agent_increment/study_s1_agent_increment_1"
@@ -50,6 +50,32 @@ def test_t_cx397_proportions_and_frozen_held_out_hash() -> None:
     assert sums.startswith(f"{_MANIFEST_SHA256}  manifest.json\n")
     regenerated = manifest_sha256(build_cases(_STUDY / "wav"))
     assert regenerated == _MANIFEST_SHA256
+    repo = Path(__file__).resolve().parents[3]
+    t1_cases = [case for case in committed if case.family == "T1"]
+    assert t1_cases
+    assert any(case.truth.conclusion != "inconclusive" for case in t1_cases)
+    for case in t1_cases:
+        assert case.truth.label_source.endswith("contextual_manifest.json")
+        assert case.truth.label_case_id
+        manifest = json.loads((repo / case.truth.label_source).read_text(encoding="utf-8"))
+        row = next(
+            item for item in manifest["cases"] if item["case_id"] == case.truth.label_case_id
+        )
+        wav_hash = hashlib.sha256((repo / case.files[0]).read_bytes()).hexdigest()
+        assert wav_hash == row["test_wav_sha256"]
+        outcome = row["expected_outcome"]
+        causal = tuple(row["expected_causal_set"])
+        if case.truth.conclusion == "inconclusive":
+            assert outcome == "inconclusive"
+        elif case.truth.conclusion == "no_supported_fault":
+            assert outcome == "no_supported_fault"
+            assert causal == ()
+        elif case.truth.conclusion == "combined":
+            assert outcome == "supported_fault"
+            assert set(causal) == {"clipping", "harmonic_distortion"}
+        else:
+            assert outcome == "supported_fault"
+            assert causal == (case.truth.conclusion,)
     for path in sorted((_STUDY / "wav").glob("*.wav")):
         file_hash = hashlib.sha256(path.read_bytes()).hexdigest()
         assert f"{file_hash}  wav/{path.name}\n" in sums

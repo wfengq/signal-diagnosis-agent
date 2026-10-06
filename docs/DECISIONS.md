@@ -887,3 +887,5 @@ scripted-arm output as a RealLLM quality number.
 
 Related: plan
 `docs/superpowers/plans/2026-10-06-s1-agent-increment.md`.
+
+**Supplement (2026-10-06, design §4.2):** T1 increment counts a case only when the first draft matches all four context fields before the simulated user corrects anything. Correction count stays a separate report. A downstream increment is the paired difference in diagnosis conclusions after confirmation. Offline diagnosis uses a scripted stand-in. The live runner uses the real planners. T1 ground-truth conclusions come from the reused contextual manifest (`expected_outcome`, `expected_causal_set`), including a real `inconclusive` only when that manifest says so. `ContextDraft.asked_fields` is the only list the simulated user treats as asked. A question string that merely contains a field name is not asked.
