@@ -383,8 +383,14 @@ async def _close_client(client: Any) -> None:
         await closed
 
 
-# Harness-side intake errors raised before any request is sent (no cause).
-_INTAKE_HARNESS_ERRORS = ("intake payload keys drifted",)
+# Intake errors without a cause that are not the model's draft: harness faults
+# raised before a send, and empty provider content.
+_INTAKE_HARNESS_ERRORS = (
+    "intake payload keys drifted",
+    # Empty content is not a draft: in D1 round 1 it came from the request
+    # settings, so scoring it would measure the harness, not the model.
+    "intake SDK response content must be non-empty text",
+)
 
 
 
@@ -392,8 +398,8 @@ def _intake_transport_failure(error: IntakePlannerError) -> bool:
     """True when the intake failed outside the model's answer: an outage or a harness fault.
 
     Scored as the model's answer: a draft that does not parse (pydantic or value
-    error), fails validation, or is empty. Everything else stops the stage:
-    a transport or malformed-response cause, or a harness-side error.
+    error) or fails validation. Everything else stops the stage: a transport or
+    malformed-response cause, empty response content, or a harness-side error.
     """
     cause = error.__cause__
     if cause is None:

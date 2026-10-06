@@ -234,6 +234,56 @@ async def test_t_cx388_mock_transport_does_not_retry_on_http_500() -> None:
     await planner.aclose()
 
 
+@pytest.mark.asyncio
+async def test_t_cx405_intake_request_matches_planner_settings() -> None:
+    """The wire body disables reasoning and asks for JSON, like the diagnosis planner.
+
+    D1 round 1: without these, deepseek-v4-flash spent the output budget on
+    reasoning and returned empty content for most intake calls.
+    """
+    bodies: list[dict[str, object]] = []
+    draft = _draft().model_dump(mode="json")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        bodies.append(json.loads(request.content))
+        return httpx.Response(
+            200,
+            json={
+                "id": "x",
+                "object": "chat.completion",
+                "created": 0,
+                "model": "deepseek-v4-flash",
+                "choices": [
+                    {
+                        "index": 0,
+                        "finish_reason": "stop",
+                        "message": {"role": "assistant", "content": json.dumps(draft)},
+                    }
+                ],
+            },
+        )
+
+    http_client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    adapter = build_openai_intake_client(
+        api_key="sk-test",
+        base_url="https://example.test/v1",
+        http_client=http_client,
+    )
+    planner = RealLLMIntakePlanner(
+        client=adapter,
+        model="deepseek-v4-flash",
+        limits=IntakeCallLimits(max_output_tokens=800, timeout_s=2.0),
+    )
+    await planner.propose(_request())
+    await planner.aclose()
+    assert len(bodies) == 1
+    body = bodies[0]
+    assert body["thinking"] == {"type": "disabled"}
+    assert body["response_format"] == {"type": "json_object"}
+    assert body["temperature"] == 0.0
+    assert body["max_tokens"] == 800
+
+
 def test_t_cx389_confirmed_context_is_distinct_from_a_draft() -> None:
     confirmed = ConfirmedContext(
         mode="nominal_single_tone",

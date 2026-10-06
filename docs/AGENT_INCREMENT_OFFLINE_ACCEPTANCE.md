@@ -60,5 +60,6 @@ and does not submit the existing diagnosis form.
 - `--run --split dev` writes to `<study>/runs/dev_<UTC stamp>/` by default: `identity.json`, one `cases/<case_id>.json` per completed case, `ledger.json`, `report.json`, and `stop_record.json` when a stage stops early.
 - `--run --split heldout` refuses without a matching `prompt_freeze_record.json`, outside `<study>/runs/heldout_*`, or when a held-out run already exists.
 - Output never contains audio, the API key, or raw provider requests or responses.
-- Offline verification uses a fake SDK shaped like the real one (`chat.completions.create` only). No live stage has been run.
+- Offline verification uses a fake SDK shaped like the real one (`chat.completions.create` only). D1 round 1 has run (`runs/dev_r1`); see D045.
 - Every live diagnosis run receives one neutral request (`DIAGNOSIS_REQUEST`) instead of the case text, because case texts correlate with the label; only the T1 intake reads the case text. The request's hash is in the prompt freeze record. The report's `notes` record this, the localization rule, and that T1 downstream fixed rows are scripted stand-ins.
+- D1 round 1 fix (T-CX405): the intake request sends the diagnosis planner's settings (reasoning disabled, JSON object, temperature 0), and empty intake content stops the stage. Round 1's T1 numbers measure the missing settings, not the agent.

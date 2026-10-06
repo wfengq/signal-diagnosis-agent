@@ -254,6 +254,11 @@ class OpenAICompatibleIntakeClient:
             ],
             max_tokens=limits.max_output_tokens,
             timeout=limits.timeout_s,
+            # Same settings as the diagnosis planner. With reasoning on,
+            # deepseek-v4-flash can spend max_tokens before writing any draft.
+            response_format={"type": "json_object"},
+            temperature=0.0,
+            extra_body={"thinking": {"type": "disabled"}},
         )
         try:
             content = response.choices[0].message.content
