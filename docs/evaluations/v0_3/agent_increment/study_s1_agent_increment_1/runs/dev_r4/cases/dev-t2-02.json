@@ -1,0 +1,115 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t2-02",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": null,
+      "tool_calls": 4,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t2-02",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": null,
+      "tool_calls": 30,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t2-02",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": null,
+      "tool_calls": 2,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t2-02",
+  "cited_locations": [],
+  "claims": [],
+  "family": "T2",
+  "http_calls": 7,
+  "intake_error_detail": null,
+  "predicted_conclusion": "failed",
+  "run_status": "error",
+  "split": "dev",
+  "termination_reason": "max_planner_retries",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.5,
+          "start_s": 0.0
+        }
+      },
+      "purpose": "单声道单信号请求需要定位失真时间段；先检查第一个等分窗口（0–0.5s）的削波证据。",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000001",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 1.0,
+          "start_s": 0.5
+        }
+      },
+      "purpose": "第一个等分窗口（0–0.5s）未显示削波；继续检查第二个等分窗口（0.5–1.0s）的削波证据以定位失真时间段。",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000002",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 1.5,
+          "start_s": 1.0
+        }
+      },
+      "purpose": "前两个等分窗口（0–0.5s、0.5–1.0s）均未显示削波；继续检查第三个等分窗口（1.0–1.5s）的削波证据以定位失真时间段。",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000003",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 2.0,
+          "start_s": 1.5
+        }
+      },
+      "purpose": "前三个等分窗口（0–0.5s、0.5–1.0s、1.0–1.5s）均未显示削波；继续检查第四个等分窗口（1.5–2.0s）的削波证据以完成全文件定位。",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    }
+  ]
+}

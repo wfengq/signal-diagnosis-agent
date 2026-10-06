@@ -1,0 +1,135 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t1-10",
+      "conclusion_correct": false,
+      "context_fields_correct": 3,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 1,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t1-10",
+      "conclusion_correct": true,
+      "context_fields_correct": 3,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t1-10",
+      "conclusion_correct": false,
+      "context_fields_correct": 1,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t1-10",
+  "cited_locations": [
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_83046cab914ba047",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_019",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_83046cab914ba047",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_017",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_83046cab914ba047",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018",
+      "fault": "clipping",
+      "time_range": null
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_nominal_1",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_019",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_017",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_83046cab914ba047",
+        "ruleval_fb64a6b14e87b930"
+      ],
+      "statement": "Clipping is affirmatively supported in nominal_single_tone mode: test_clipping_mechanism is true and the same-run test clipping rules FAIL (rule_test_clipping_ratio_acceptable observed 0.025625 above the 0.01 threshold; rule_test_flat_top_absent observed true). The contextual harmonic gate is unavailable because the declared fundamental is incompatible with the measurement, so no independent harmonic_distortion cause is asserted."
+    }
+  ],
+  "confirmed": {
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 440.0,
+    "reference_file": null,
+    "stimulus_kind": "single_tone"
+  },
+  "context_downgraded": false,
+  "correction_count": 0,
+  "draft": {
+    "asked_fields": [
+      "reference_file",
+      "stimulus_kind"
+    ],
+    "missing_fields": [
+      "reference_file",
+      "stimulus_kind"
+    ],
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 440.0,
+    "questions": [
+      "Is there a reference file to compare against?",
+      "Is the stimulus a single tone or something else?"
+    ],
+    "reference_file": null,
+    "stimulus_kind": null
+  },
+  "family": "T1",
+  "http_calls": 3,
+  "intake_error_detail": null,
+  "predicted_conclusion": "clipping",
+  "run_status": "success",
+  "split": "dev",
+  "termination_reason": "planner_finished",
+  "tool_history": [
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "purpose": "Nominal single-tone mode requires contextual distortion analysis for causal harmonic closure; obtain that Evidence first.",
+      "status": "invalid",
+      "tool_name": "analyze_contextual_distortion"
+    }
+  ]
+}

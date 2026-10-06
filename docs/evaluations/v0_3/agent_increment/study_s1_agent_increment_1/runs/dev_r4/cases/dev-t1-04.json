@@ -1,0 +1,141 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t1-04",
+      "conclusion_correct": false,
+      "context_fields_correct": 4,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": true,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 4,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t1-04",
+      "conclusion_correct": false,
+      "context_fields_correct": 4,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": true,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t1-04",
+      "conclusion_correct": false,
+      "context_fields_correct": 4,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": true,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t1-04",
+  "cited_locations": [],
+  "claims": [],
+  "confirmed": {
+    "mode": "single_signal",
+    "nominal_fundamental_hz": null,
+    "reference_file": null,
+    "stimulus_kind": null
+  },
+  "context_downgraded": false,
+  "correction_count": 0,
+  "draft": {
+    "asked_fields": [
+      "nominal_fundamental_hz",
+      "stimulus_kind"
+    ],
+    "missing_fields": [
+      "nominal_fundamental_hz",
+      "stimulus_kind"
+    ],
+    "mode": "single_signal",
+    "nominal_fundamental_hz": null,
+    "questions": [
+      "What is the nominal fundamental frequency of the test tone in Hz?",
+      "Is the stimulus a single tone or something else?"
+    ],
+    "reference_file": null,
+    "stimulus_kind": null
+  },
+  "family": "T1",
+  "http_calls": 8,
+  "intake_error_detail": null,
+  "predicted_conclusion": "failed",
+  "run_status": "error",
+  "split": "dev",
+  "termination_reason": "max_planner_retries",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.25,
+          "start_s": 0.0
+        }
+      },
+      "purpose": "First of four equal consecutive windows covering 0 to 1.0 s to localize any clipping in time.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000001",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.5,
+          "start_s": 0.25
+        }
+      },
+      "purpose": "Second of four equal consecutive windows covering 0 to 1.0 s to localize any clipping in time.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000002",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.75,
+          "start_s": 0.5
+        }
+      },
+      "purpose": "Third of four equal consecutive windows covering 0 to 1.0 s to localize any clipping in time.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000003",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 1.0,
+          "start_s": 0.75
+        }
+      },
+      "purpose": "Fourth of four equal consecutive windows covering 0 to 1.0 s to localize any clipping in time.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    }
+  ]
+}

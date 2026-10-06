@@ -1,0 +1,341 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t2-11",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": true,
+      "tool_calls": 4,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t2-11",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": true,
+      "tool_calls": 14,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t2-11",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": false,
+      "tool_calls": 2,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t2-11",
+  "cited_locations": [
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_985fc0e93262f415",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_000",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 0.25,
+        "start_s": 0.0
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_985fc0e93262f415",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_001",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 0.25,
+        "start_s": 0.0
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_985fc0e93262f415",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_006",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 0.25,
+        "start_s": 0.0
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_985fc0e93262f415",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_007",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 0.25,
+        "start_s": 0.0
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_fd4ac66878124d49",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000001_000",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 0.5,
+        "start_s": 0.25
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_fd4ac66878124d49",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000001_001",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 0.5,
+        "start_s": 0.25
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_fd4ac66878124d49",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000001_006",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 0.5,
+        "start_s": 0.25
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_fd4ac66878124d49",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000001_007",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 0.5,
+        "start_s": 0.25
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_93979ae937f95ed5",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000002_000",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 0.75,
+        "start_s": 0.5
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_93979ae937f95ed5",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000002_001",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 0.75,
+        "start_s": 0.5
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_93979ae937f95ed5",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000002_006",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 0.75,
+        "start_s": 0.5
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_93979ae937f95ed5",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000002_007",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 0.75,
+        "start_s": 0.5
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f7286ee39538be0d",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000003_000",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 1.0,
+        "start_s": 0.75
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f7286ee39538be0d",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000003_001",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 1.0,
+        "start_s": 0.75
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f7286ee39538be0d",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000003_006",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 1.0,
+        "start_s": 0.75
+      }
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f7286ee39538be0d",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000003_007",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 1.0,
+        "start_s": 0.75
+      }
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_win_1",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_985fc0e93262f415",
+        "ruleval_2a7ff09ac5dab5fc"
+      ],
+      "statement": "Clipping is affirmatively supported in window 0.0-0.25 s on the mixdown channel: clipping_mechanism=true, flat_top_detected=true, and the substantial clipping-ratio rule FAILs."
+    },
+    {
+      "claim_id": "claim_clip_win_2",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000001_000",
+        "ev_detect_clipping_detect_clipping_000001_001",
+        "ev_detect_clipping_detect_clipping_000001_006",
+        "ev_detect_clipping_detect_clipping_000001_007"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_fd4ac66878124d49",
+        "ruleval_98a230dff3ea939b"
+      ],
+      "statement": "Clipping is affirmatively supported in window 0.25-0.5 s on the mixdown channel: clipping_mechanism=true, flat_top_detected=true, and the substantial clipping-ratio rule FAILs."
+    },
+    {
+      "claim_id": "claim_clip_win_3",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000002_000",
+        "ev_detect_clipping_detect_clipping_000002_001",
+        "ev_detect_clipping_detect_clipping_000002_006",
+        "ev_detect_clipping_detect_clipping_000002_007"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_93979ae937f95ed5",
+        "ruleval_1fb7aaa91405b047"
+      ],
+      "statement": "Clipping is affirmatively supported in window 0.5-0.75 s on the mixdown channel: clipping_mechanism=true, flat_top_detected=true, and the substantial clipping-ratio rule FAILs."
+    },
+    {
+      "claim_id": "claim_clip_win_4",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000003_000",
+        "ev_detect_clipping_detect_clipping_000003_001",
+        "ev_detect_clipping_detect_clipping_000003_006",
+        "ev_detect_clipping_detect_clipping_000003_007"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_f7286ee39538be0d",
+        "ruleval_9a5faf6c68ce0303"
+      ],
+      "statement": "Clipping is affirmatively supported in window 0.75-1.0 s on the mixdown channel: clipping_mechanism=true, flat_top_detected=true, and the substantial clipping-ratio rule FAILs."
+    }
+  ],
+  "family": "T2",
+  "http_calls": 5,
+  "intake_error_detail": null,
+  "predicted_conclusion": "clipping",
+  "run_status": "success",
+  "split": "dev",
+  "termination_reason": "planner_finished",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.25,
+          "start_s": 0.0
+        }
+      },
+      "purpose": "First of four equal consecutive windows covering 0 to 1.0 s to localize any clipping in time.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000001",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.5,
+          "start_s": 0.25
+        }
+      },
+      "purpose": "Second of four equal consecutive windows covering 0 to 1.0 s to localize any clipping in time.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000002",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.75,
+          "start_s": 0.5
+        }
+      },
+      "purpose": "Third of four equal consecutive windows covering 0 to 1.0 s to localize any clipping in time.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000003",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 1.0,
+          "start_s": 0.75
+        }
+      },
+      "purpose": "Fourth of four equal consecutive windows covering 0 to 1.0 s to localize any clipping in time.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    }
+  ]
+}
