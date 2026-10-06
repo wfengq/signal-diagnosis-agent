@@ -1,0 +1,84 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t2-11",
+      "conclusion_correct": false,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": false,
+      "tool_calls": 2,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t2-11",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": true,
+      "tool_calls": 14,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t2-11",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": false,
+      "tool_calls": 2,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t2-11",
+  "cited_locations": [],
+  "claims": [],
+  "family": "T2",
+  "http_calls": 5,
+  "predicted_conclusion": "failed",
+  "run_status": "error",
+  "split": "dev",
+  "termination_reason": "max_planner_retries",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "purpose": "Obtain the most informative clipping observation for this broad distortion request before considering harmonic analysis.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "fmax_hz": 1000.0,
+        "fmin_hz": 50.0,
+        "fundamental_hz": null,
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "purpose": "Clipping is supported by same-run Evidence; harmonic_distortion remains viable and needs its own Evidence before the broad request can close.",
+      "status": "success",
+      "tool_name": "analyze_harmonic_distortion"
+    }
+  ]
+}
