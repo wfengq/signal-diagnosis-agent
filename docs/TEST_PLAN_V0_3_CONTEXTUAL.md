@@ -500,3 +500,19 @@ evaluation or Demo assets, or T-CX001–T-CX386 meanings.
 | T-CX409 | Study planner v9.15: starts with the v9.11 text; the v9.14 hash stays pinned; names `inconclusive` with no claims as the single-file outcome when no window shows clipping; driven through the real runtime by a fake SDK that follows the plan, every prescribed finish (mono clean, mono clipping, stereo clipping) is accepted with no rejection and within the rule-evaluation budget; the study harness uses v9.15 |
 | T-CX410 | Scoring correction: an agent run that ends without a diagnosis is never a correct conclusion, including on clean T2 cases; an `inconclusive` finish with no claims on a clean T2 case is correct; each case file records the runtime's rejection messages (`run_errors`) |
 | T-CX405 | Intake request settings: the request body sent on the wire disables reasoning (`thinking: disabled`), asks for a JSON object and uses temperature 0, the same settings as the diagnosis planner |
+
+T-CX411–T-CX419 are additive definitions for D047
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §25). They do not authorize a real-model run
+or a product prompt switch, and must not alter T-CX001–T-CX410 meanings.
+
+| ID | Definition |
+|----|------------|
+| T-CX411 | Assembly table: every row of `tests/app/fixtures/intake_assembly_cases.json` (each mode, each downgrade, each rejection) gives the expected submission or `invalid_request` |
+| T-CX412 | Unconfirmed draft fields never reach the submission: `--yes` drops fields in `missing_fields` or `asked_fields`, and a mode missing a required field is submitted as `single_signal` with the reason |
+| T-CX413 | Nominal Hz is never backfilled from audio: with no confirmed number the submission carries none whatever the WAV holds; the WAV header reader returns only the sample rate |
+| T-CX414 | API end to end with a scripted intake: draft, confirm, submit with `context_origin=intake_confirmed`; snapshot and reports carry the origin, `assertion_source` is `user_supplied`, the question is the neutral default; form runs omit `context_origin`; any other origin value is rejected |
+| T-CX415 | CLI `intake diagnose`: `--yes`, explicit flags overriding the draft, the downgrade note, and the non-terminal refusal without confirmation; invalid flags exit 2 without opening a run |
+| T-CX416 | CLI interactive confirmation: keep, edit and skip answers through scripted stdin; a skipped required field downgrades |
+| T-CX417 | Missing credentials: `intake diagnose` exits 2 with `planner_not_configured`, prints no report, and no fallback runs |
+| T-CX418 | Browser helpers under Node: the draft request body holds text and file metadata only; the diagnose form carries the confirmed fields, the context origin, the neutral question and the audio; the WAV header reader matches Python; the page loads `intake_flow.js` before `app.js` and the draft request sends no audio |
+| T-CX419 | The browser assembly and downgrade message match the Python implementation on the shared table |
