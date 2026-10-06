@@ -15,6 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import Response as StarletteResponse
 
+from signal_diag.agent.intake import IntakeRequest
 from signal_diag.app.composition import build_product_service
 from signal_diag.app.contextual_models import ContextualAppRunSnapshot
 from signal_diag.app.contextual_reporting import (
@@ -333,6 +334,17 @@ def create_app(
                 "Content-Security-Policy": _CSP,
             },
         )
+
+    @app.post("/api/v1/intake/draft")
+    async def intake_draft(request: Request) -> JSONResponse:
+        try:
+            body = IntakeRequest.model_validate(await request.json())
+        except (ValueError, TypeError) as error:
+            raise ApplicationError(
+                AppErrorDetail(code="invalid_request", message="malformed intake request")
+            ) from error
+        draft = await _service(request).draft_intake(body)
+        return JSONResponse(content=draft.model_dump(mode="json"))
 
     @app.post("/api/v1/contextual-runs/wav")
     async def submit_contextual_wav(request: Request) -> JSONResponse:

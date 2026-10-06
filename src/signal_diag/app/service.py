@@ -10,7 +10,12 @@ from datetime import UTC, datetime
 from typing import Literal, Protocol, runtime_checkable
 
 from signal_diag.agent.diagnosis import CausalPolicyVersion
-from signal_diag.agent.intake import IntakePlanner
+from signal_diag.agent.intake import (
+    ContextDraft,
+    IntakeCredentialsError,
+    IntakePlanner,
+    IntakeRequest,
+)
 from signal_diag.agent.planner import PlannerModel
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.app.contextual_models import (
@@ -252,6 +257,18 @@ class DiagnosisApplicationService:
         if timeout_s is None:
             return await waiter
         return await asyncio.wait_for(waiter, timeout=timeout_s)
+
+    async def draft_intake(self, request: IntakeRequest) -> ContextDraft:
+        if not self._dependencies.planner_configured:
+            raise PlannerNotConfiguredError(_planner_not_configured_detail())
+        factory = self._dependencies.intake_planner_factory
+        if factory is None:
+            raise PlannerNotConfiguredError(_planner_not_configured_detail())
+        try:
+            planner = factory()
+        except IntakeCredentialsError as error:
+            raise PlannerNotConfiguredError(_planner_not_configured_detail()) from error
+        return await planner.propose(request)
 
     async def submit_contextual_wav(
         self,
