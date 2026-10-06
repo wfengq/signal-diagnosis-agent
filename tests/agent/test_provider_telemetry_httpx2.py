@@ -5,8 +5,8 @@ from __future__ import annotations
 import asyncio
 import importlib
 from dataclasses import replace
+from typing import Any
 
-import openai
 import pytest
 
 from signal_diag.agent import provider_telemetry
@@ -21,8 +21,16 @@ from signal_diag.agent.telemetry import HttpSendEvent, SdkAttemptEvent, Telemetr
 _CLOSED_BASE_URL = "http://127.0.0.1:9/v1"
 
 
+def _openai() -> Any:
+    return importlib.import_module("openai")
+
+
+def _client() -> Any:
+    return _openai().AsyncOpenAI(api_key="x", base_url=_CLOSED_BASE_URL, max_retries=0)
+
+
 def _dispatch_module() -> str:
-    client = openai.AsyncOpenAI(api_key="x", base_url=_CLOSED_BASE_URL, max_retries=0)
+    client = _client()
     for cls in type(client._client).__mro__:
         module = cls.__module__.split(".", 1)[0]
         if module in ("httpx", "httpx2"):
@@ -54,7 +62,7 @@ def test_t_cx426_mismatched_dispatch_family_is_rejected() -> None:
     profile = build_audited_sdk_observation_profile()
     wrong = replace(profile, native_http_family="httpx")
     binding = TelemetryBinding(slot_id="slot_family", sink=lambda _event: None)
-    client = openai.AsyncOpenAI(api_key="x", base_url=_CLOSED_BASE_URL, max_retries=0)
+    client = _client()
     descriptor = attach_sdk_observation(client, binding=binding, profile=wrong)
     assert descriptor.profile_supported is False
     assert "native_http_family_mismatch" in descriptor.blockers
@@ -63,14 +71,14 @@ def test_t_cx426_mismatched_dispatch_family_is_rejected() -> None:
 def test_t_cx427_observation_sees_sends_through_httpx2() -> None:
     events: list[object] = []
     binding = TelemetryBinding(slot_id="slot_probe", sink=events.append)
-    client = openai.AsyncOpenAI(api_key="x", base_url=_CLOSED_BASE_URL, max_retries=0)
+    client = _client()
     descriptor = attach_sdk_observation(
         client, binding=binding, profile=build_audited_sdk_observation_profile()
     )
     assert descriptor.origin == "canonical_sdk"
 
     async def call() -> None:
-        with pytest.raises(openai.APIConnectionError):
+        with pytest.raises(_openai().APIConnectionError):
             await client.chat.completions.create(
                 model="m", messages=[{"role": "user", "content": "probe"}]
             )
