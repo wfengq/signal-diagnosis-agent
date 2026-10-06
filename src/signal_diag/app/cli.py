@@ -9,7 +9,6 @@ from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
-from signal_diag.agent.intake import IntakeRequest
 from signal_diag.app.composition import build_product_service
 from signal_diag.app.contextual_models import ContextualDiagnosisReport
 from signal_diag.app.contextual_reporting import (
@@ -459,14 +458,14 @@ async def _intake_draft(
 ) -> int:
     service = service_factory()
     try:
-        rates = tuple(args.sample_rates_hz or ())
-        request = IntakeRequest(
-            text=args.text,
-            filenames=tuple(args.files),
-            test_file=args.test_file,
-            sample_rates_hz=rates,
+        draft = await service.draft_intake_payload(
+            {
+                "text": args.text,
+                "filenames": list(args.files),
+                "test_file": args.test_file,
+                "sample_rates_hz": list(args.sample_rates_hz or ()),
+            }
         )
-        draft = await service.draft_intake(request)
     except ApplicationError as error:
         _print_error(error.detail.code, error.detail.message)
         return _exit_for_application_error(error)

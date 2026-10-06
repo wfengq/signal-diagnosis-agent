@@ -12,13 +12,6 @@ from collections.abc import Mapping
 from importlib.resources import files
 from pathlib import Path
 
-from signal_diag.agent.intake import (
-    IntakeCallLimits,
-    IntakeCredentialsError,
-    IntakePlanner,
-    RealLLMIntakePlanner,
-    build_openai_intake_client,
-)
 from signal_diag.agent.planner import (
     DEFAULT_DEEPSEEK_BASE_URL,
     DEFAULT_DEEPSEEK_MODEL,
@@ -81,19 +74,6 @@ def build_product_service(
             model=model,
         )
 
-    def intake_planner_factory() -> IntakePlanner:
-        if not api_key:
-            raise IntakeCredentialsError(
-                "RealLLMIntakePlanner is not configured: set DEEPSEEK_API_KEY. "
-                "The application does not fall back to a scripted intake stand-in."
-            )
-        client = build_openai_intake_client(api_key=api_key, base_url=base_url)
-        return RealLLMIntakePlanner(
-            client=client,
-            model=model,
-            limits=IntakeCallLimits(max_output_tokens=800, timeout_s=60.0),
-        )
-
     identity = PlannerIdentity(
         provider="deepseek",
         model=model,
@@ -120,6 +100,5 @@ def build_product_service(
         ),
         knowledge_index=KnowledgeIndex(_corpus_path()),
         causal_policy_version="v9_11_mode_aware_no_fault_recovery",
-        intake_planner_factory=intake_planner_factory,
     )
     return DiagnosisApplicationService(dependencies)

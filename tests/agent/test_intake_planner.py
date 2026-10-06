@@ -164,17 +164,24 @@ async def test_t_cx388_planner_sends_text_and_file_metadata_only() -> None:
 
 
 def test_t_cx388_missing_credentials_fail_without_scripted_fallback() -> None:
+    from signal_diag.app.service import (
+        intake_planner_from_diagnosis_planner,
+        product_intake_planner,
+    )
+
     service = build_product_service(environ={})
     assert service._dependencies.planner_configured is False
-    factory = service._dependencies.intake_planner_factory
-    assert factory is not None
+    assert service._dependencies.intake_planner_factory is None
     with pytest.raises(IntakeCredentialsError):
-        factory()
-    source = (
-        __import__("pathlib").Path(__file__).resolve().parents[2]
-        / "src/signal_diag/app/composition.py"
-    ).read_text(encoding="utf-8")
-    assert "ScriptedIntakePlanner" not in source
+        product_intake_planner(api_key=None, base_url=None, model=None)
+    configured = build_product_service(environ={"DEEPSEEK_API_KEY": "sk-test"})
+    intake = intake_planner_from_diagnosis_planner(configured._dependencies.planner_factory())
+    assert type(intake).__name__ == "RealLLMIntakePlanner"
+    root = __import__("pathlib").Path(__file__).resolve().parents[2]
+    composition = (root / "src/signal_diag/app/composition.py").read_text(encoding="utf-8")
+    service_source = (root / "src/signal_diag/app/service.py").read_text(encoding="utf-8")
+    assert "ScriptedIntakePlanner" not in composition
+    assert "ScriptedIntakePlanner" not in service_source
 
 
 def test_t_cx388_scripted_planner_is_not_the_product_factory() -> None:
