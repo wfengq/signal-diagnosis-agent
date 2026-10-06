@@ -1280,6 +1280,7 @@ _V03_ADDITIVE_PATH_PREFIXES: tuple[str, ...] = (
     "src/signal_diag/evaluation/contextual/",
     "src/signal_diag/evaluation/planner_ablation/",
     "src/signal_diag/evaluation/full_scale_characterization/",
+    "src/signal_diag/evaluation/agent_increment/",
 )
 _V03_ADDITIVE_EXACT_PATHS = frozenset(
     {
