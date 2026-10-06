@@ -1,73 +1,74 @@
 # Documentation Index
 
-V0.2 is complete and accepted at `b48790c` as a reproducible, evaluated,
-interactive S1 distortion-diagnosis vertical slice. HEAD may also carry the
-additive V0.3 contextual product path (`v0.3-s1-planner-9.11`, uncertified by
-Phase 4.3.1). This index separates the short reviewer path from implementation
-authority and historical evidence.
+This index is organized by what you are trying to do: review the project, check
+a result, change the code, or trace its history. Files stay where they are,
+because evaluation bundles and tests are bound to their paths.
 
-## Five-minute reviewer path
+## 1. Start here (five-minute reviewer path)
 
-1. [Project README](../README.md) — value, architecture, official 79/80, Demo, and limitations.
-2. [Engineering case study](PROJECT_CASE_STUDY.md) — difficult failures,
-   decisions, corrections, and lessons.
-3. [Phase 5 Demo evidence](demo/phase5/v0_2_acceptance/README.md) — two retained
-   public `RealLLMPlanner` runs and sanitized artifacts.
-4. [Accepted official evaluation](evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/)
-   — immutable 80-slot held-out bundle.
-5. [V0.3 contextual validation acceptance](evaluations/v0_3/contextual/V9_11_CONTEXTUAL_VALIDATION_ACCEPTANCE_REPORT.md)
-   — incremental 20-case/60-slot external-context study with preserved scorer
-   correction history.
+1. [Project README](../README.md): what the agent does, results at a glance,
+   quick start and limitations.
+2. [Agent-increment results report](evaluations/v0_3/agent_increment/STUDY_S1_AGENT_INCREMENT_1_REPORT.md):
+   the latest study. It compares the agent with the strongest fixed pipeline on
+   held-out cases, explains what drove each result, and lists the limits that
+   bound it.
+3. [Engineering case study](PROJECT_CASE_STUDY.md) ([中文](PROJECT_CASE_STUDY.zh-CN.md)):
+   the difficult failures, corrections and lessons.
+4. [Accepted V0.2 official evaluation](evaluations/phase4_3_1/official/bench_official_s1_v12_planner8_1_gate5/):
+   the immutable 80-run held-out bundle behind 79/80.
+5. [Phase 5 Demo evidence](demo/phase5/v0_2_acceptance/README.md): the two
+   retained real-model product runs, with sanitized artifacts.
 
-## Code-review path
+## 2. Evaluations and results
 
-1. `src/signal_diag/app/composition.py` and `app/service.py` — application
-   assembly and request orchestration.
-2. `src/signal_diag/agent/models.py`, `planner.py`, and `runtime.py` — explicit
-   model boundary and deterministic Agent controller.
-3. `src/signal_diag/tools/service.py` and `src/signal_diag/dsp/` — compact Tool
-   results backed by deterministic numerical code.
-4. `src/signal_diag/rules/engine.py` and `src/signal_diag/knowledge/index.py` —
-   profile-owned thresholds and curated retrieval.
-5. `src/signal_diag/evaluation/runner.py` and `scoring.py` — campaign execution,
-   trace assembly, and target scoring.
-6. `tests/agent/test_s1_acceptance.py` and
-   `tests/test_architecture_boundaries.py` — end-to-end and dependency gates.
+Every result belongs to the identity it was measured on, and none replaces
+another. Development misses and failed rounds are kept on purpose: they show
+how calibration and held-out discipline were controlled.
 
-## Active source of truth
+| Line | Where | What it shows |
+|---|---|---|
+| V0.2 Phase 4, first official run | `evaluations/phase4/` | 80 runs, immutable `completed/below_target` |
+| V0.2 Phase 4.1–4.3 | `evaluations/phase4_1/`, `phase4_2/`, `phase4_3/` | v5–v8 development-only misses; held-out stayed sealed |
+| **V0.2 Phase 4.3.1 (accepted)** | `evaluations/phase4_3_1/` | v8.1 development gate, then the official held-out run: `completed/meets_target`, **79/80** |
+| V0.2 external WAV | `evaluations/v0_2_external_wav/` | Incremental external-WAV study, including its retained `below_target` result |
+| V0.3 contextual | `evaluations/v0_3/contextual/` and the [v9.11 acceptance report](evaluations/v0_3/contextual/V9_11_CONTEXTUAL_VALIDATION_ACCEPTANCE_REPORT.md) | Contextual development history, sealed three-arm validation, independent audit, corrected `meets_target` |
+| V0.3 planner-ablation | `evaluations/v0_3/planner_ablation/` | `dev_1` concluded `fixed_pipeline_dominance`. `dev_2` stopped before sealing with no live calls (D046). |
+| V0.3 full-scale regression check | `evaluations/v0_3/full_scale_characterization/` | round_1 characterization, two-stage freeze and validation; method floor registered as D044 |
+| **V0.3 agent increment** | `evaluations/v0_3/agent_increment/` and the [results report](evaluations/v0_3/agent_increment/STUDY_S1_AGENT_INCREMENT_1_REPORT.md) | Five dev rounds and one frozen held-out run. T1 **+5** (measurable increment); T2 **0** with 96 vs 824 tool calls; agent safety met on all 48 cases. |
+| Real-model observations | `reports/` | Phase 2 and Phase 3 observations |
+
+None of the V0.3 numbers changes the V0.2 completion statement or turns a study
+into an official benchmark, an industrial validation, or a production-readiness
+claim.
+
+## 3. Sources of truth
 
 Read these before changing behavior or public interfaces:
 
-1. [ARCHITECTURE_V0_2.md](ARCHITECTURE_V0_2.md) — Scenario S1, Hybrid Agent,
-   phase boundaries, and dependency direction.
-2. [CONTRACTS_V0_2.md](CONTRACTS_V0_2.md) — frozen Phase 1–5 contracts,
-   §§1–§64.
-3. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) — deterministic T001–T285 and
-   separately gated real-model evaluation/Demo requirements.
-4. [DECISIONS.md](DECISIONS.md) — D001–D046 architectural and process choices.
-5. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — OQ-001–OQ-022 (OQ-013–OQ-018
-   hygiene dispositions resolve HEAD vs frozen V0.2 documentation gaps;
-   OQ-019 / D038 freezes the S1 planner-ablation study shape only;
-   OQ-020 is approved as D043: regression full-scale check, V0.3 §23,
-   implemented in PR #41 (`0770514`); OQ-021 and OQ-022 are approved as
-   D044 (Option A / Option B) with T-CX381–T-CX386 for round_1 floor
-   registration; 2026-10-05 designs under `superpowers/specs/` and a
-   roadmap amendment proposal under `superpowers/roadmaps/`).
-6. [CONTRACTS_V0_3_CONTEXTUAL.md](CONTRACTS_V0_3_CONTEXTUAL.md) and
-   [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) — additive
-   HEAD / contextual surfaces including D037 §17–§18, D038 §19–§21, D039, and
-   D042 §22, and D043 §23 (`context_guidance`, preset WAV, held-bytes upgrade, planner-ablation
-   study definitions, regression workbench; do not edit frozen §§1–64).
-   Phase A offline evidence:
-   [REGRESSION_WORKBENCH_OFFLINE_ACCEPTANCE.md](REGRESSION_WORKBENCH_OFFLINE_ACCEPTANCE.md),
-   [REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md](REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md);
-   §23 offline evidence:
-   [REGRESSION_FULL_SCALE_CHECK_OFFLINE_ACCEPTANCE.md](REGRESSION_FULL_SCALE_CHECK_OFFLINE_ACCEPTANCE.md).
+1. [ARCHITECTURE_V0_2.md](ARCHITECTURE_V0_2.md): Scenario S1, the hybrid agent,
+   phase boundaries and dependency direction.
+2. [CONTRACTS_V0_2.md](CONTRACTS_V0_2.md): frozen Phase 1–5 contracts, §§1–64.
+3. [CONTRACTS_V0_3_CONTEXTUAL.md](CONTRACTS_V0_3_CONTEXTUAL.md): additive
+   V0.3 surfaces.
+   - §17–§18: contextual modes, `context_guidance` and the held-bytes upgrade.
+   - §19–§21: planner-ablation study.
+   - §22: regression workbench.
+   - §23: full-scale regression check.
+   - §24: agent-increment study.
+
+   Do not edit frozen §§1–64.
+4. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) (T001–T285) and
+   [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) (T-CX series,
+   through T-CX410).
+5. [DECISIONS.md](DECISIONS.md): D001–D046.
+6. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): OQ-001–OQ-022.
+   - OQ-013–OQ-018 resolve gaps between the current code and the frozen V0.2
+     documents.
+   - OQ-019 is the planner-ablation study; its `dev_2` was stopped by D046.
+   - OQ-020–OQ-022 cover the full-scale check (D043, D044).
 7. [EXTERNAL_VALIDATION_CONTRACTS_V0_2.md](EXTERNAL_VALIDATION_CONTRACTS_V0_2.md)
-   and [EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md](EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md)
-   — external-WAV study contracts.
-8. [Phase 5 design](superpowers/specs/2026-08-31-phase5-presentation-engineering-design.md)
-   and [implementation plan](superpowers/plans/2026-08-31-phase5-presentation-engineering.md).
+   and [EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md](EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md):
+   the external-WAV study.
 
 When active documents disagree, use this priority:
 
@@ -81,77 +82,73 @@ explicit current user instruction
     -> approved implementation plan
 ```
 
-A disagreement is a contract concern; do not resolve it silently.
+A disagreement is a contract concern. Do not resolve it silently.
 
-## Engineering evolution
+## 4. Offline acceptance records and proofs
 
-Formal designs and plans remain under `superpowers/specs/` and
-`superpowers/plans/`. Product-round sequencing (not an implementation grant)
-lives under `superpowers/roadmaps/`. They preserve the complete reasoning trail
-without making the root README read like a task ledger.
+These record what was verified without a live model, and when.
 
-- [S1 product evolution roadmap (2026-10-04)](superpowers/roadmaps/2026-10-04-s1-product-evolution.md)
-  — R1–R4 direction draft for operator review; does not authorize implement,
-  merge, seal, or RealLLM.
+- **Agent increment:**
+  [AGENT_INCREMENT_OFFLINE_ACCEPTANCE.md](AGENT_INCREMENT_OFFLINE_ACCEPTANCE.md)
+- **Regression workbench:**
+  - [offline acceptance](REGRESSION_WORKBENCH_OFFLINE_ACCEPTANCE.md)
+  - [HTTP proof](REGRESSION_WORKBENCH_HTTP_PROOF_2026-10-04.md)
+  - [browser proof](REGRESSION_WORKBENCH_BROWSER_PROOF_2026-10-04.md)
+- **Full-scale check:**
+  - [offline acceptance](REGRESSION_FULL_SCALE_CHECK_OFFLINE_ACCEPTANCE.md)
+  - [layer-1 characterization tool](REGRESSION_LAYER1_CHARACTERIZATION_TOOL_OFFLINE_ACCEPTANCE.md)
+- **OQ-020 full tool-path probe:**
+  [report](OQ020_FULL_TOOLPATH_PROBE_2026-10-05.md) and
+  [data](OQ020_FULL_TOOLPATH_PROBE_2026-10-05.json)
+- **Product walkthrough:**
+  [single-file usability notes, 2026-10-03](PRODUCT_WALKTHROUGH_S1_HEAD_2026-10-03.md).
+  These are usability notes, not a quality certificate.
 
-- Phase 1: deterministic signal foundation, T001–T063.
-- Phase 2: minimal Agent runtime and real/scripted planner boundary, T064–T092.
-- Phase 3: rules and curated knowledge actions, T093–T124.
-- Phase 4: evaluation harness and first honest official `below_target` result,
-  T125–T183.
-- Phase 4.1: v5/v6 prompt behavior development misses, T184–T200.
-- Phase 4.2: dataset 1.2.0, opaque Agent IDs, evaluation-integrity correction,
-  and v7 development miss, T201–T208.
-- Phase 4.3: final prompt-only v8 calibration and honest development miss,
-  T209–T215.
-- Phase 4.3.1: clipping-scope and invalid-Evidence scoring correction; v8.1
-  development and official both `meets_target`, T216–T223.
-- Phase 5: WAV, CLI/API/UI/reporting, packaging, dual Python verification, and
-  real product Demo, T224–T285.
-- V0.3 additive (HEAD): contextual modes, D037 single-file default with
-  `context_guidance` and Web UI held-bytes upgrade (§17–§18 / T-CX264–T-CX275).
-- HEAD product walkthrough (2026-10-03): [single-file usability notes](PRODUCT_WALKTHROUGH_S1_HEAD_2026-10-03.md)
-  after PRs #29–#31 (`observed_facts` surfaces, planner health gate, humanized
-  guidance labels). Not a quality certificate; V0.2 **79/80** stays at
-  `b48790c`.
-- Approved study shape (OQ-019 / D038): [S1 planner-ablation utility study](superpowers/specs/2026-09-30-s1-planner-ablation-utility-study-design.md);
-  plan [Wave 0–2](superpowers/plans/2026-09-30-s1-planner-ablation-utility-study.md);
-  CONTRACTS §19 / T-CX276–T-CX288 and Wave 2 harness landed. Protocol seal and
-  RealLLM still need later grants.
+## 5. Code-review path
 
-The [engineering case study](PROJECT_CASE_STUDY.md) is the concise narrative;
-the specs, plans, Git history, and committed bundles are the detailed evidence.
+1. `src/signal_diag/app/composition.py` and `app/service.py`: application
+   assembly and request orchestration.
+2. `src/signal_diag/agent/models.py`, `planner.py` and `runtime.py`: the model
+   boundary and the deterministic agent controller.
+3. `src/signal_diag/tools/service.py` and `src/signal_diag/dsp/`: compact tool
+   results backed by deterministic numerical code.
+4. `src/signal_diag/rules/engine.py` and `src/signal_diag/knowledge/index.py`:
+   profile-owned thresholds and curated retrieval.
+5. `src/signal_diag/evaluation/`: campaign execution, trace assembly and
+   scoring, including the `agent_increment/` study harness.
+6. `tests/agent/test_s1_acceptance.py` and
+   `tests/test_architecture_boundaries.py`: end-to-end and dependency gates.
 
-## Evaluation and Demo evidence
+## 6. Engineering history
 
-- `evaluations/phase4/` — first 80-slot official run, immutable
-  `completed/below_target`.
-- `evaluations/phase4_1/` — v5 and v6 development-only misses; held-out stayed
-  sealed.
-- `evaluations/phase4_2/` — v7 development-only miss on corrected dataset 1.2.0.
-- `evaluations/phase4_3/` — v8 development-only miss; no official run.
-- `evaluations/phase4_3_1/development/` — v8.1 40-slot `meets_target` gate.
-- `evaluations/phase4_3_1/official/` — v8.1 80-slot held-out
-  `completed/meets_target` bundle.
-- `demo/phase5/v0_2_acceptance/` — retained Web UI and WAV CLI real-model runs,
-  reports, screenshots, and checksums.
-- `reports/` — Phase 2 and Phase 3 real-model observations.
-- `evaluations/v0_2_external_wav/` — incremental V0.2 external-WAV study,
-  including the retained `below_target` result.
-- `evaluations/v0_3/contextual/` — V0.3 contextual development history,
-  sealed three-arm validation, independent audit, and corrected
-  `meets_target` verdict.
+Formal designs and plans live under `superpowers/specs/` and
+`superpowers/plans/`. Product-round sequencing lives under
+`superpowers/roadmaps/`; it is direction, not an implementation grant. Together
+they keep the full reasoning trail without turning the README into a task
+ledger.
 
-Historical misses are intentionally retained. They are evidence of controlled
-calibration and held-out discipline, not active product configurations.
+- **Phase 1:** deterministic signal foundation (T001–T063).
+- **Phase 2:** minimal agent runtime and the real/scripted planner boundary
+  (T064–T092).
+- **Phase 3:** rules and curated knowledge actions (T093–T124).
+- **Phase 4:** evaluation harness and the first honest official `below_target`
+  result (T125–T183).
+- **Phases 4.1–4.3:** v5–v8 prompt development misses; dataset 1.2.0 and the
+  evaluation-integrity correction (T184–T215).
+- **Phase 4.3.1:** clipping-scope and invalid-Evidence scoring correction; v8.1
+  development and official both `meets_target` (T216–T223).
+- **Phase 5:** WAV, CLI/API/UI/reporting, packaging, dual-Python verification
+  and the real product Demo (T224–T285).
+- **V0.3 additive work on the current branch:**
+  - contextual modes and the D037 single-file default (§17–§18);
+  - the planner-ablation study (D038–D041, stopped by D046);
+  - the regression workbench (D042) and full-scale check (D043–D044);
+  - the agent-increment study (D045).
 
-## Historical and background documents
+Historical documents: [archive/v0.1/](archive/v0.1/) holds the original V0.1
+project, contracts and test plan, for reference only.
 
-- [archive/v0.1/](archive/v0.1/) contains the original V0.1 project,
-  contracts, and test plan. They are historical only.
-- Job-search / project-origin background lives in local `private/` (gitignored) and is not part of the public repo.
-
-## Current terminal status
+## 7. Status and identities
 
 ```text
 presentation_harness_accepted
@@ -159,16 +156,17 @@ real_demo_completed
 Phase 5 accepted; V0.2 complete demonstrable vertical slice
 ```
 
-The public product path is `RealLLMPlanner`; required tests do not call a live
-model. The accepted Demo and official bundles must not be rewritten to improve
+- **Accepted V0.2 product:** commit `b48790c`, prompt `v0.2-s1-planner-8.1`.
+  The 79/80 belongs only to this anchor.
+- **Current branch product default:** the additive V0.3 planner
+  `v0.3-s1-planner-9.11`. This is a product-path fact, not a claim that 79/80
+  was re-earned on it (see OQ-013–OQ-018, D032–D036).
+- **Agent-increment study prompts:** `v0.3-s1-planner-9.15` and
+  `v0.3-s1-intake-1.1` were evaluated in that study, but they are not the
+  product default.
+- **Package version:** `pyproject.toml` stays at `0.2.0` to preserve tag and
+  wheel history until a release design chooses `0.3.0`.
+
+The public product path is `RealLLMPlanner`, and required tests never call a
+live model. Accepted Demo and official bundles must not be rewritten to improve
 recorded outcomes.
-
-The V0.3 contextual **validation numbers** are additive evidence only. They do
-not change the V0.2 completion statement or convert either external study into
-an official benchmark, industrial validation, or production-readiness claim.
-
-Separately, HEAD **code wiring** may already default to the V0.3 planner
-identity (`v0.3-s1-planner-9.11`). That is a product-path fact, not a claim that
-79/80 was re-earned on HEAD. See resolved OQ-013–OQ-018 and D032–D036. Package
-`pyproject.toml` version remains `0.2.0` to preserve tag/wheel history until a
-separate release design chooses `0.3.0`.
