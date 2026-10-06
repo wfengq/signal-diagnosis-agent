@@ -1,0 +1,2564 @@
+{
+  "note": "Every F row for the selected (domain, K row) is listed in generation order. The tool does not order or select rows; a reviewer selects one for the freeze record.",
+  "round_id": "round_1",
+  "row_count": 37,
+  "rows": [
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 66,
+          "in_zone": 804,
+          "masked": 786,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 294,
+          "in_zone": 804,
+          "masked": 558,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 675,
+          "in_zone": 804,
+          "masked": 177,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": null,
+        "cut_variable": null,
+        "f3_base": null,
+        "form": "F0",
+        "value": null,
+        "value_at_or_above_cut": null,
+        "value_below_cut": null
+      },
+      "row_id": "F0",
+      "segment_pairs": null
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 339,
+          "in_zone": 804,
+          "masked": 513,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": null,
+        "cut_variable": null,
+        "f3_base": null,
+        "form": "F1",
+        "value": 0.016666666666666666,
+        "value_at_or_above_cut": null,
+        "value_below_cut": null
+      },
+      "row_id": "F1",
+      "segment_pairs": null
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 90,
+          "in_zone": 804,
+          "masked": 762,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 189,
+          "in_zone": 804,
+          "masked": 663,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 189,
+          "in_zone": 804,
+          "masked": 663,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": null,
+        "cut_variable": null,
+        "f3_base": null,
+        "form": "F2",
+        "value": 1280.0,
+        "value_at_or_above_cut": null,
+        "value_below_cut": null
+      },
+      "row_id": "F2",
+      "segment_pairs": null
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 351,
+          "in_zone": 804,
+          "masked": 501,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 6.0,
+        "cut_variable": "N",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.016666666666666666,
+        "value_below_cut": 0.0
+      },
+      "row_id": "F3[N<6.0|F1]",
+      "segment_pairs": [
+        1476,
+        67568
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 111,
+          "in_zone": 804,
+          "masked": 741,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 207,
+          "in_zone": 804,
+          "masked": 645,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 207,
+          "in_zone": 804,
+          "masked": 645,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 6.0,
+        "cut_variable": "N",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 1280.0,
+        "value_below_cut": 0.0
+      },
+      "row_id": "F3[N<6.0|F2]",
+      "segment_pairs": [
+        1476,
+        67568
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 351,
+          "in_zone": 804,
+          "masked": 501,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 11.025,
+        "cut_variable": "N",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.016666666666666666,
+        "value_below_cut": 0.0
+      },
+      "row_id": "F3[N<11.025|F1]",
+      "segment_pairs": [
+        5084,
+        63960
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 111,
+          "in_zone": 804,
+          "masked": 741,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 207,
+          "in_zone": 804,
+          "masked": 645,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 207,
+          "in_zone": 804,
+          "masked": 645,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 11.025,
+        "cut_variable": "N",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 1280.0,
+        "value_below_cut": 0.0
+      },
+      "row_id": "F3[N<11.025|F2]",
+      "segment_pairs": [
+        5084,
+        63960
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 339,
+          "in_zone": 804,
+          "masked": 513,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 12.0,
+        "cut_variable": "N",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.016666666666666666,
+        "value_below_cut": 0.00909090909090909
+      },
+      "row_id": "F3[N<12.0|F1]",
+      "segment_pairs": [
+        8856,
+        60188
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 96,
+          "in_zone": 804,
+          "masked": 756,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 195,
+          "in_zone": 804,
+          "masked": 657,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 201,
+          "in_zone": 804,
+          "masked": 651,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 12.0,
+        "cut_variable": "N",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 1280.0,
+        "value_below_cut": 400.0
+      },
+      "row_id": "F3[N<12.0|F2]",
+      "segment_pairs": [
+        8856,
+        60188
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 339,
+          "in_zone": 804,
+          "masked": 513,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 22.05,
+        "cut_variable": "N",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.016666666666666666,
+        "value_below_cut": 0.00909090909090909
+      },
+      "row_id": "F3[N<22.05|F1]",
+      "segment_pairs": [
+        11152,
+        57892
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 96,
+          "in_zone": 804,
+          "masked": 756,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 195,
+          "in_zone": 804,
+          "masked": 657,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 201,
+          "in_zone": 804,
+          "masked": 651,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 22.05,
+        "cut_variable": "N",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 1280.0,
+        "value_below_cut": 400.0
+      },
+      "row_id": "F3[N<22.05|F2]",
+      "segment_pairs": [
+        11152,
+        57892
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 351,
+          "in_zone": 804,
+          "masked": 501,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 24.0,
+        "cut_variable": "N",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.016666666666666666,
+        "value_below_cut": 0.00909090909090909
+      },
+      "row_id": "F3[N<24.0|F1]",
+      "segment_pairs": [
+        16851,
+        52193
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 9,
+          "in_zone": 804,
+          "masked": 843,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 105,
+          "in_zone": 804,
+          "masked": 747,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 204,
+          "in_zone": 804,
+          "masked": 648,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 216,
+          "in_zone": 804,
+          "masked": 636,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 24.0,
+        "cut_variable": "N",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 1280.0,
+        "value_below_cut": 400.0
+      },
+      "row_id": "F3[N<24.0|F2]",
+      "segment_pairs": [
+        16851,
+        52193
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 351,
+          "in_zone": 804,
+          "masked": 501,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 50.11363636363637,
+        "cut_variable": "N",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.016666666666666666,
+        "value_below_cut": 0.00909090909090909
+      },
+      "row_id": "F3[N<50.11363636363637|F1]",
+      "segment_pairs": [
+        21279,
+        47765
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 9,
+          "in_zone": 804,
+          "masked": 843,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 105,
+          "in_zone": 804,
+          "masked": 747,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 210,
+          "in_zone": 804,
+          "masked": 642,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 222,
+          "in_zone": 804,
+          "masked": 630,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 50.11363636363637,
+        "cut_variable": "N",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 1280.0,
+        "value_below_cut": 400.0
+      },
+      "row_id": "F3[N<50.11363636363637|F2]",
+      "segment_pairs": [
+        21279,
+        47765
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 6,
+          "in_zone": 804,
+          "masked": 846,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 372,
+          "in_zone": 804,
+          "masked": 480,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 54.54545454545455,
+        "cut_variable": "N",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.016666666666666666,
+        "value_below_cut": 0.00909090909090909
+      },
+      "row_id": "F3[N<54.54545454545455|F1]",
+      "segment_pairs": [
+        29930,
+        39114
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 12,
+          "in_zone": 804,
+          "masked": 840,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 117,
+          "in_zone": 804,
+          "masked": 735,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 222,
+          "in_zone": 804,
+          "masked": 630,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 240,
+          "in_zone": 804,
+          "masked": 612,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 54.54545454545455,
+        "cut_variable": "N",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 1280.0,
+        "value_below_cut": 400.0
+      },
+      "row_id": "F3[N<54.54545454545455|F2]",
+      "segment_pairs": [
+        29930,
+        39114
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 9,
+          "in_zone": 804,
+          "masked": 843,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 408,
+          "in_zone": 804,
+          "masked": 444,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 100.22727272727273,
+        "cut_variable": "N",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.008333333333333333,
+        "value_below_cut": 0.016666666666666666
+      },
+      "row_id": "F3[N<100.22727272727273|F1]",
+      "segment_pairs": [
+        38622,
+        30422
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 105,
+          "in_zone": 804,
+          "masked": 747,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 189,
+          "in_zone": 804,
+          "masked": 663,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 231,
+          "in_zone": 804,
+          "masked": 621,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 100.22727272727273,
+        "cut_variable": "N",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 800.0,
+        "value_below_cut": 1280.0
+      },
+      "row_id": "F3[N<100.22727272727273|F2]",
+      "segment_pairs": [
+        38622,
+        30422
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 9,
+          "in_zone": 804,
+          "masked": 843,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 387,
+          "in_zone": 804,
+          "masked": 465,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 109.0909090909091,
+        "cut_variable": "N",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.008333333333333333,
+        "value_below_cut": 0.016666666666666666
+      },
+      "row_id": "F3[N<109.0909090909091|F1]",
+      "segment_pairs": [
+        47314,
+        21730
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 99,
+          "in_zone": 804,
+          "masked": 753,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 189,
+          "in_zone": 804,
+          "masked": 663,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 222,
+          "in_zone": 804,
+          "masked": 630,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 109.0909090909091,
+        "cut_variable": "N",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 800.0,
+        "value_below_cut": 1280.0
+      },
+      "row_id": "F3[N<109.0909090909091|F2]",
+      "segment_pairs": [
+        47314,
+        21730
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 9,
+          "in_zone": 804,
+          "masked": 843,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 366,
+          "in_zone": 804,
+          "masked": 486,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 441.0,
+        "cut_variable": "N",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.008333333333333333,
+        "value_below_cut": 0.016666666666666666
+      },
+      "row_id": "F3[N<441.0|F1]",
+      "segment_pairs": [
+        56006,
+        13038
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 93,
+          "in_zone": 804,
+          "masked": 759,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 189,
+          "in_zone": 804,
+          "masked": 663,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 210,
+          "in_zone": 804,
+          "masked": 642,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 441.0,
+        "cut_variable": "N",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 800.0,
+        "value_below_cut": 1280.0
+      },
+      "row_id": "F3[N<441.0|F2]",
+      "segment_pairs": [
+        56006,
+        13038
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 339,
+          "in_zone": 804,
+          "masked": 513,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 480.0,
+        "cut_variable": "N",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.008333333333333333,
+        "value_below_cut": 0.016666666666666666
+      },
+      "row_id": "F3[N<480.0|F1]",
+      "segment_pairs": [
+        62525,
+        6519
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 90,
+          "in_zone": 804,
+          "masked": 762,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 189,
+          "in_zone": 804,
+          "masked": 663,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 201,
+          "in_zone": 804,
+          "masked": 651,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 480.0,
+        "cut_variable": "N",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 800.0,
+        "value_below_cut": 1280.0
+      },
+      "row_id": "F3[N<480.0|F2]",
+      "segment_pairs": [
+        62525,
+        6519
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 3,
+          "in_zone": 804,
+          "masked": 849,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 348,
+          "in_zone": 804,
+          "masked": 504,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 2.0,
+        "cut_variable": "periods",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.016666666666666666,
+        "value_below_cut": 0.008333333333333333
+      },
+      "row_id": "F3[periods<2.0|F1]",
+      "segment_pairs": [
+        4346,
+        64698
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 117,
+          "in_zone": 804,
+          "masked": 735,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 237,
+          "in_zone": 804,
+          "masked": 615,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 237,
+          "in_zone": 804,
+          "masked": 615,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 2.0,
+        "cut_variable": "periods",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 1280.0,
+        "value_below_cut": 4.0
+      },
+      "row_id": "F3[periods<2.0|F2]",
+      "segment_pairs": [
+        4346,
+        64698
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 339,
+          "in_zone": 804,
+          "masked": 513,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 5.0,
+        "cut_variable": "periods",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.016666666666666666,
+        "value_below_cut": 0.016666666666666666
+      },
+      "row_id": "F3[periods<5.0|F1]",
+      "segment_pairs": [
+        17343,
+        51701
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 195,
+          "in_zone": 804,
+          "masked": 657,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 381,
+          "in_zone": 804,
+          "masked": 471,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 381,
+          "in_zone": 804,
+          "masked": 471,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 5.0,
+        "cut_variable": "periods",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 1280.0,
+        "value_below_cut": 4.0
+      },
+      "row_id": "F3[periods<5.0|F2]",
+      "segment_pairs": [
+        17343,
+        51701
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 354,
+          "in_zone": 804,
+          "masked": 498,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 10.0,
+        "cut_variable": "periods",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.013333333333333334,
+        "value_below_cut": 0.016666666666666666
+      },
+      "row_id": "F3[periods<10.0|F1]",
+      "segment_pairs": [
+        23083,
+        45961
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 183,
+          "in_zone": 804,
+          "masked": 669,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 420,
+          "in_zone": 804,
+          "masked": 432,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 450,
+          "in_zone": 804,
+          "masked": 402,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 10.0,
+        "cut_variable": "periods",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 1280.0,
+        "value_below_cut": 8.0
+      },
+      "row_id": "F3[periods<10.0|F2]",
+      "segment_pairs": [
+        23083,
+        45961
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 351,
+          "in_zone": 804,
+          "masked": 501,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 20.0,
+        "cut_variable": "periods",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.013333333333333334,
+        "value_below_cut": 0.016666666666666666
+      },
+      "row_id": "F3[periods<20.0|F1]",
+      "segment_pairs": [
+        29479,
+        39565
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 117,
+          "in_zone": 804,
+          "masked": 735,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 315,
+          "in_zone": 804,
+          "masked": 537,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 387,
+          "in_zone": 804,
+          "masked": 465,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 20.0,
+        "cut_variable": "periods",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 1280.0,
+        "value_below_cut": 40.0
+      },
+      "row_id": "F3[periods<20.0|F2]",
+      "segment_pairs": [
+        29479,
+        39565
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 348,
+          "in_zone": 804,
+          "masked": 504,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 50.0,
+        "cut_variable": "periods",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.013333333333333334,
+        "value_below_cut": 0.016666666666666666
+      },
+      "row_id": "F3[periods<50.0|F1]",
+      "segment_pairs": [
+        39729,
+        29315
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 153,
+          "in_zone": 804,
+          "masked": 699,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 384,
+          "in_zone": 804,
+          "masked": 468,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 462,
+          "in_zone": 804,
+          "masked": 390,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 50.0,
+        "cut_variable": "periods",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 1280.0,
+        "value_below_cut": 40.0
+      },
+      "row_id": "F3[periods<50.0|F2]",
+      "segment_pairs": [
+        39729,
+        29315
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 348,
+          "in_zone": 804,
+          "masked": 504,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 708,
+          "in_zone": 804,
+          "masked": 144,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 100.0,
+        "cut_variable": "periods",
+        "f3_base": "F1",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 0.013333333333333334,
+        "value_below_cut": 0.016666666666666666
+      },
+      "row_id": "F3[periods<100.0|F1]",
+      "segment_pairs": [
+        45346,
+        23698
+      ]
+    },
+    {
+      "aggravation_by_tier": {
+        "rel_peak=0.0001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.001": {
+          "detected": 0,
+          "in_zone": 804,
+          "masked": 852,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.01": {
+          "detected": 162,
+          "in_zone": 804,
+          "masked": 690,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.05": {
+          "detected": 360,
+          "in_zone": 804,
+          "masked": 492,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        },
+        "rel_peak=0.1": {
+          "detected": 426,
+          "in_zone": 804,
+          "masked": 426,
+          "not_both_yes": 0,
+          "not_measured": 0,
+          "out_of_domain": 72,
+          "total": 1728
+        }
+      },
+      "applicable_pairs": 69044,
+      "excluded_by_reason": {
+        "in_zone": 71576,
+        "not_both_yes": 78156,
+        "out_of_domain": 9512
+      },
+      "floor": {
+        "cut": 100.0,
+        "cut_variable": "periods",
+        "f3_base": "F2",
+        "form": "F3",
+        "value": null,
+        "value_at_or_above_cut": 1280.0,
+        "value_below_cut": 64.0
+      },
+      "row_id": "F3[periods<100.0|F2]",
+      "segment_pairs": [
+        45346,
+        23698
+      ]
+    }
+  ],
+  "stage": 2,
+  "stage1_selection": {
+    "k_row": "K2",
+    "n_min": 5.5125,
+    "p_min": 1,
+    "row_id": "n=5.5125;p=1;K2",
+    "zone": {
+      "form": "K2",
+      "min_counted": null,
+      "zone_above": 0.002004394531250009,
+      "zone_below": 0.0
+    }
+  }
+}
