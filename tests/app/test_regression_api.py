@@ -17,6 +17,7 @@ from signal_diag.app.regression import (
     RegressionWorkbenchService,
     build_regression_service,
 )
+from signal_diag.rules.full_scale_check import PRODUCT_APPROVED_FULL_SCALE_FLOORS
 from signal_diag.app.regression_api import (
     build_regression_router,
     regression_application_error_handler,
@@ -92,7 +93,10 @@ def _comparison_form(
 
 @pytest.fixture
 async def regression_client() -> AsyncIterator[AsyncClient]:
-    service = RegressionWorkbenchService(clock=lambda: NOW)
+    service = RegressionWorkbenchService(
+        clock=lambda: NOW,
+        full_scale_floor=PRODUCT_APPROVED_FULL_SCALE_FLOORS[0],
+    )
     app = FastAPI()
     app.include_router(build_regression_router(service))
     app.add_exception_handler(ApplicationError, regression_application_error_handler)
@@ -296,7 +300,10 @@ async def test_busy_comparison_post_returns_409_without_parsing_body(
     )
 
     wav = _mono_wav_bytes()
-    held_service = RegressionWorkbenchService(clock=lambda: NOW)
+    held_service = RegressionWorkbenchService(
+        clock=lambda: NOW,
+        full_scale_floor=PRODUCT_APPROVED_FULL_SCALE_FLOORS[0],
+    )
     held_service._busy = True
     try:
         app = FastAPI()

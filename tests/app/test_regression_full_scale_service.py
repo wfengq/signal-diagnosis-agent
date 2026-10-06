@@ -16,7 +16,10 @@ from signal_diag.app.regression import (
     _upload_fingerprint,
     build_regression_service,
 )
-from signal_diag.rules.full_scale_check import FullScaleDeclarations
+from signal_diag.rules.full_scale_check import (
+    PRODUCT_APPROVED_FULL_SCALE_FLOORS,
+    FullScaleDeclarations,
+)
 from signal_diag.rules.regression import (
     ComparisonConditions,
     validate_comparison_record,
@@ -70,7 +73,10 @@ def _upload(**overrides: object) -> ComparisonUpload:
 
 @pytest.fixture
 def service() -> RegressionWorkbenchService:
-    return RegressionWorkbenchService(clock=lambda: NOW)
+    return RegressionWorkbenchService(
+        clock=lambda: NOW,
+        full_scale_floor=PRODUCT_APPROVED_FULL_SCALE_FLOORS[0],
+    )
 
 
 def test_9c4_evaluate_before_comparisons_append() -> None:
