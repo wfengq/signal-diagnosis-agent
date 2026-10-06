@@ -106,6 +106,7 @@ class FakeSDK:
         self.fail_after = fail_after
         self.planner_turns: dict[int, int] = {}
         self.planner_users: list[str] = []
+        self.intake_users: list[str] = []
         self.closed = False
 
     async def reply(self, **kwargs: Any) -> _Response:
@@ -114,6 +115,7 @@ class FakeSDK:
             raise ConnectionError("fake transport down")
         system = str(kwargs["messages"][0]["content"])
         if "v0.3-s1-planner" not in system:
+            self.intake_users.append(str(kwargs["messages"][-1]["content"]))
             return _Response(json.dumps(_INTAKE_DRAFT))
         self.planner_users.append(str(kwargs["messages"][-1]["content"]))
         # One tool call, then an inconclusive finish, per diagnosis run.
@@ -319,7 +321,10 @@ async def test_t_cx404_mini_dev_stage_runs_all_arms_and_writes_once(tmp_path: Pa
         assert record["termination_reason"] == "planner_finished"
     t2_case = next(c for c in load_study_cases(study) if c.family == "T2")
     assert not any(_sent(t2_case.text, user) for user in sdk.planner_users)
-    assert any(_sent(live_campaign.T2_NEUTRAL_REQUEST, user) for user in sdk.planner_users)
+    assert any(_sent(live_campaign.DIAGNOSIS_REQUEST, user) for user in sdk.planner_users)
+    t1_case = next(c for c in load_study_cases(study) if c.family == "T1")
+    assert not any(_sent(t1_case.text, user) for user in sdk.planner_users)
+    assert any(_sent(t1_case.text, user) for user in sdk.intake_users)
     report = json.loads((out / "report.json").read_text(encoding="utf-8"))
     assert "scripted stand-in" in report["notes"]["t1_downstream_fixed_arms"]
     identity = json.loads((out / "identity.json").read_text(encoding="utf-8"))
@@ -565,16 +570,16 @@ async def test_t_cx401_abort_still_writes_ledger_and_report(
 ) -> None:
     study = _mini_study(tmp_path)
     out = study / "runs" / "dev_abort"
-    original = live_campaign.fixed_arm_outcomes
+    original = live_campaign.live_outcome
     calls = {"n": 0}
 
-    def flaky(study_dir: Path, case: IncrementCase) -> Any:
+    def flaky(case: IncrementCase, result: Any, **kwargs: Any) -> Any:
         calls["n"] += 1
         if calls["n"] == 2:
             raise OSError("disk went away")
-        return original(study_dir, case)
+        return original(case, result, **kwargs)
 
-    monkeypatch.setattr(live_campaign, "fixed_arm_outcomes", flaky)
+    monkeypatch.setattr(live_campaign, "live_outcome", flaky)
     sdk = FakeSDK()
     with pytest.raises(OSError):
         await run_campaign(
@@ -583,7 +588,7 @@ async def test_t_cx401_abort_still_writes_ledger_and_report(
     ledger = json.loads((out / "ledger.json").read_text(encoding="utf-8"))
     report = json.loads((out / "report.json").read_text(encoding="utf-8"))
     stop = json.loads((out / "stop_record.json").read_text(encoding="utf-8"))
-    assert ledger["total"] == sdk.sends == 3
+    assert ledger["total"] == sdk.sends == 5
     assert report["incomplete"] is True and report["cases_completed"] == 1
     assert stop == {"reason": "aborted", "error_type": "OSError"}
     assert sdk.closed is True
@@ -650,3 +655,88 @@ async def test_t_cx402_dev_run_cannot_take_a_heldout_name(tmp_path: Path) -> Non
             client_factory=FakeSDK,
         )
     assert not (study / "runs").exists()
+
+
+# ---------------------------------------------------------------------------
+# Second review round
+
+
+@pytest.mark.asyncio
+async def test_t_cx402_unreadable_wav_does_not_use_up_the_heldout_run(tmp_path: Path) -> None:
+    study = _mini_study(tmp_path, split="heldout")
+    freeze_prompts(study, approved_by="tester", approved_at="2026-10-06")
+    root = study.parents[4]
+    first = load_study_cases(study)[0]
+    (root / first.files[0]).write_bytes(b"not a wav")
+    with pytest.raises(Exception, match="RIFF"):
+        await run_campaign(
+            split="heldout",
+            study_dir=study,
+            output_dir=study / "runs" / "heldout_a",
+            api_key="sk-test",
+            client_factory=FakeSDK,
+        )
+    assert not (study / "runs").exists()
+
+
+@pytest.mark.asyncio
+async def test_t_cx401_cap_stop_wrapped_in_another_type_is_still_a_cap_stop(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from signal_diag.evaluation.agent_increment import live as live_module
+
+    original = live_module.ReservingChatClient.create
+
+    async def wrapping(self: Any, **kwargs: Any) -> Any:
+        try:
+            return await original(self, **kwargs)
+        except live_campaign.CallCapStop as error:
+            raise LookupError("wrapped") from error
+
+    monkeypatch.setattr(live_module.ReservingChatClient, "create", wrapping)
+    monkeypatch.setattr(live_campaign, "DEV_STAGE_CAP", 2)
+    study = _mini_study(tmp_path)
+    out = study / "runs" / "dev_wrapped"
+    payload = await run_campaign(
+        split="dev", study_dir=study, output_dir=out, api_key="sk-test", client_factory=FakeSDK
+    )
+    assert payload["stop"]["reason"] == "stage_cap"
+    assert sorted(path.name for path in out.iterdir()) == [
+        "identity.json",
+        "ledger.json",
+        "report.json",
+        "stop_record.json",
+    ]
+    assert json.loads((out / "stop_record.json").read_text(encoding="utf-8"))["reason"] == "stage_cap"
+
+
+def test_t_cx402_freeze_covers_the_diagnosis_request(tmp_path: Path) -> None:
+    study = _mini_study(tmp_path, split="heldout")
+    path = freeze_prompts(study, approved_by="tester", approved_at="2026-10-06")
+    record = json.loads(path.read_text(encoding="utf-8"))
+    assert "diagnosis_request_sha256" in record
+    record["diagnosis_request_sha256"] = "0" * 64
+    path.write_text(json.dumps(record), encoding="utf-8")
+    with pytest.raises(CampaignRefused, match="diagnosis_request_sha256"):
+        check_heldout_preconditions(study, study / "runs" / "heldout_a")
+
+
+def test_t_cx400_explicit_whole_file_span_is_not_localized() -> None:
+    case = next(
+        c
+        for c in load_study_cases(STUDY)
+        if c.family == "T2" and c.truth.fault_spans and c.truth.conclusion == "clipping"
+    )
+    span = case.truth.fault_spans[0]
+    evidence = Evidence.model_construct(
+        evidence_id="ev_full",
+        source_tool="detect_clipping",
+        call_id="call_x",
+        metric="clipping_ratio",
+        value=0.2,
+        time_range=TimeRange(start_s=0.0, end_s=2.0),
+        channel=span.channel,
+    )
+    run = _run("supported_fault", [_claim("clipping", ("ev_full",))], [evidence])
+    result = LiveAgentResult.model_construct(family="T2", run=run, correction_count=0)
+    assert live_outcome(case, result, duration_s=2.0).localization_correct is False

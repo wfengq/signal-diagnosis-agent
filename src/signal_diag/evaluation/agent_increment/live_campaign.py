@@ -51,6 +51,7 @@ from signal_diag.evaluation.agent_increment.offline import (
 )
 from signal_diag.evaluation.agent_increment.scoring import FamilyScore, score_family
 from signal_diag.evaluation.agent_increment.segment_support import SegmentSupport
+from signal_diag.signal.models import TimeRange
 from signal_diag.signal.repository import InMemorySignalRepository
 from signal_diag.signal.wav import load_wav_bytes
 
@@ -58,6 +59,14 @@ PROMPT_FREEZE_RECORD = "prompt_freeze_record.json"
 RUNS_DIR = "runs"
 _POSITIVE = ("clipping", "harmonic_distortion")
 _CLEAN = {"no_supported_fault", "inconclusive"}
+
+
+# Every live diagnosis run gets this one request instead of the case text.
+# Case texts correlate with the label (e.g. "整段听着平稳" on every held-out T2
+# no-fault case, "听不出失真" on T1 no-fault cases), and the fixed arms never
+# read text. The T1 intake still reads the case text: that is the T1 task.
+DIAGNOSIS_REQUEST = "请诊断这段测试信号是否存在失真；如有，说明类型，以及出现在哪个时间段和哪个声道。"
+T2_NEUTRAL_REQUEST = DIAGNOSIS_REQUEST  # kept for readers of earlier notes
 
 
 class CampaignRefused(RuntimeError):
@@ -69,12 +78,13 @@ def _sha256_text(text: str) -> str:
 
 
 def frozen_prompt_identity() -> dict[str, str]:
-    """Versions and full-text hashes of the two prompts a live stage uses."""
+    """Versions and full-text hashes of every fixed text a live stage sends."""
     return {
         "planner_prompt_version": _S1_PROMPT_V9_12.version,
         "planner_prompt_sha256": _sha256_text(_S1_PROMPT_V9_12.system_prompt),
         "intake_identity": INTAKE_PLANNER_IDENTITY,
         "intake_prompt_sha256": _sha256_text(intake_module._SYSTEM_PROMPT),
+        "diagnosis_request_sha256": _sha256_text(DIAGNOSIS_REQUEST),
     }
 
 
@@ -118,8 +128,23 @@ def _traceable(run: AgentRunResult) -> bool:
     return True
 
 
-def cited_supports(run: AgentRunResult) -> tuple[SegmentSupport, ...]:
-    """Positive claims located by the Evidence they cite (time range, channel)."""
+def _covers_whole_file(span: TimeRange | None, duration_s: float | None) -> bool:
+    if span is None:
+        return True
+    if duration_s is None:
+        return False
+    end = span.end_s if span.end_s is not None else duration_s
+    return span.start_s <= 1e-9 and end >= duration_s - 1e-6
+
+
+def cited_supports(
+    run: AgentRunResult, *, duration_s: float | None = None
+) -> tuple[SegmentSupport, ...]:
+    """Positive claims located by the Evidence they cite (time range, channel).
+
+    Evidence over the whole file (no range, or a range spanning the file) is
+    kept with ``time_range=None`` so it never counts as localized.
+    """
     if run.diagnosis is None or run.diagnosis.outcome != "supported_fault":
         return ()
     by_id = {item.evidence_id: item for item in run.evidence}
@@ -134,7 +159,11 @@ def cited_supports(run: AgentRunResult) -> tuple[SegmentSupport, ...]:
             found.append(
                 SegmentSupport(
                     fault=claim.fault_type,  # type: ignore[arg-type]
-                    time_range=evidence.time_range,
+                    time_range=(
+                        None
+                        if _covers_whole_file(evidence.time_range, duration_s)
+                        else evidence.time_range
+                    ),
                     channel=evidence.channel,
                     evidence_id=evidence.evidence_id,
                     evaluation_id=claim.rule_refs[0] if claim.rule_refs else "",
@@ -143,7 +172,12 @@ def cited_supports(run: AgentRunResult) -> tuple[SegmentSupport, ...]:
     return tuple(found)
 
 
-def live_outcome(case: IncrementCase, result: LiveAgentResult | None) -> ArmOutcome:
+def live_outcome(
+    case: IncrementCase,
+    result: LiveAgentResult | None,
+    *,
+    duration_s: float | None = None,
+) -> ArmOutcome:
     """Agent-arm row. ``result`` is None when the intake draft failed closed.
 
     Correctness and unsupported-claim rules match the offline rows of the same
@@ -173,7 +207,7 @@ def live_outcome(case: IncrementCase, result: LiveAgentResult | None) -> ArmOutc
             localization_correct=None,
             tool_calls=len(run.tool_history) if run is not None else 0,
         )
-    supports = cited_supports(run) if run is not None else ()
+    supports = cited_supports(run, duration_s=duration_s) if run is not None else ()
     expected = case.truth.conclusion
     if expected in _CLEAN:
         correct_t2 = not supports
@@ -272,6 +306,7 @@ def _case_record(
     *,
     http_calls: int,
     agent_error: str | None,
+    duration_s: float | None = None,
 ) -> dict[str, object]:
     run = result.run if result is not None else None
     record: dict[str, object] = {
@@ -295,7 +330,8 @@ def _case_record(
             else []
         ),
         "cited_locations": [
-            item.model_dump(mode="json") for item in (cited_supports(run) if run else ())
+            item.model_dump(mode="json")
+            for item in (cited_supports(run, duration_s=duration_s) if run else ())
         ],
     }
     if result is not None and case.family == "T1":
@@ -350,10 +386,6 @@ async def _close_client(client: Any) -> None:
 # Harness-side intake errors raised before any request is sent (no cause).
 _INTAKE_HARNESS_ERRORS = ("intake payload keys drifted",)
 
-# T2 measures localization from the signal. Case texts for T2 are correlated
-# with the label (e.g. "整段听着平稳" on every no-fault case), so the agent arm
-# receives one neutral request for every T2 case; fixed arms never read text.
-T2_NEUTRAL_REQUEST = "请检查这段测试信号是否存在失真；如果存在，指出出现在哪个时间段和哪个声道。"
 
 
 def _intake_transport_failure(error: IntakePlannerError) -> bool:
@@ -400,11 +432,21 @@ def _report_payload(
                 "increment mixes intake context with diagnosis engine and is not "
                 "a paired comparison"
             ),
-            "t2_agent_request": T2_NEUTRAL_REQUEST,
+            "diagnosis_request": DIAGNOSIS_REQUEST,
             "localization": "whole-file analysis never counts as localized, for every arm",
         },
         "finished_at": finished_at,
     }
+
+
+class _PreparedCase:
+    """Everything a case needs before any send: fixed rows and decoded signals."""
+
+    def __init__(self, study_dir: Path, case: IncrementCase) -> None:
+        self.case = case
+        self.fixed_rows = fixed_arm_outcomes(study_dir, case)
+        self.repository, self.signal_id, self.by_name = _load_case_signals(study_dir, case)
+        self.duration_s = self.repository.get(self.signal_id).meta.duration_s
 
 
 async def run_campaign(
@@ -420,10 +462,11 @@ async def run_campaign(
 ) -> dict[str, object]:
     """Run one live stage. Fixed arms are deterministic; only the agent arm sends.
 
-    Every precondition, the identity and the client are settled before the
-    output directory is created, so a refusal or setup failure leaves nothing
-    behind (and cannot use up the single held-out run). Once the directory
-    exists, the ledger and a report are always written, even on an abort.
+    Every precondition, every case's decoded audio and fixed-arm rows, the
+    identity and the client are settled before the output directory is
+    created, so a setup failure leaves nothing behind and cannot use up the
+    single held-out run. Once the directory exists, the ledger and a report are
+    always written, and a write problem never replaces the original error.
     """
     key = require_live_credentials(api_key)
     if split == "heldout":
@@ -437,19 +480,24 @@ async def run_campaign(
     missing = [rel for case in cases for rel in case.files if not (root / rel).is_file()]
     if missing:
         raise CampaignRefused(f"case files missing before any send: {missing[:3]}")
+    prepared = [_PreparedCase(study_dir, case) for case in cases]
     identity = _identity(study_dir, split, model, stage_cap)
     identity["started_at"] = now().isoformat()
     client = client_factory()
-    output_dir.mkdir(parents=True, exist_ok=True)
-    ledger = CallLedger(stage_cap=stage_cap, output_dir=output_dir)
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        ledger = CallLedger(stage_cap=stage_cap, output_dir=output_dir)
+    except BaseException:
+        await _close_client(client)
+        raise
     outcomes: list[ArmOutcome] = []
     completed: list[str] = []
     stop: dict[str, object] | None = None
+    failed = False
     try:
         _write_json(output_dir / "identity.json", identity)
-        for case in cases:
-            rows = fixed_arm_outcomes(study_dir, case)
-            repository, signal_id, by_name = _load_case_signals(study_dir, case)
+        for item in prepared:
+            case = item.case
             result: LiveAgentResult | None = None
             agent_error: str | None = None
             try:
@@ -458,16 +506,17 @@ async def run_campaign(
                     case_id=case.case_id,
                     ledger=ledger,
                     api_key=key,
-                    repository=repository,
-                    signal_id=signal_id,
-                    user_text=case.text if case.family == "T1" else T2_NEUTRAL_REQUEST,
+                    repository=item.repository,
+                    signal_id=item.signal_id,
+                    user_text=case.text,
                     truth=_truth_draft(case.truth) if case.family == "T1" else None,
-                    filenames=tuple(by_name),
+                    filenames=tuple(item.by_name),
                     test_file=case.test_file,
                     client=client,
                     base_url=base_url,
                     model=model,
-                    signal_ids_by_filename=by_name,
+                    signal_ids_by_filename=item.by_name,
+                    diagnosis_request=DIAGNOSIS_REQUEST,
                 )
             except CallCapStop:
                 pass
@@ -485,17 +534,19 @@ async def run_campaign(
                 else:
                     agent_error = f"intake_failed: {error}"
             except Exception as error:  # noqa: BLE001 - any other failure is an outage: stop, never score it
-                stop = {
-                    "reason": "infrastructure_error",
-                    "case_id": case.case_id,
-                    "error_type": type(error).__name__,
-                }
-                break
+                if ledger.stop_reason is None:
+                    stop = {
+                        "reason": "infrastructure_error",
+                        "case_id": case.case_id,
+                        "error_type": type(error).__name__,
+                    }
+                    break
+                # otherwise a cap stop arrived wrapped in another type; handled below
             if ledger.stop_reason is not None:
                 stop = {"reason": ledger.stop_reason, "case_id": case.case_id}
                 break
-            agent_row = live_outcome(case, result)
-            case_rows = [agent_row, *rows]
+            agent_row = live_outcome(case, result, duration_s=item.duration_s)
+            case_rows = [agent_row, *item.fixed_rows]
             outcomes.extend(case_rows)
             completed.append(case.case_id)
             _write_json(
@@ -506,20 +557,16 @@ async def run_campaign(
                     result,
                     http_calls=ledger.per_case.get(case.case_id, 0),
                     agent_error=agent_error,
+                    duration_s=item.duration_s,
                 ),
             )
     except BaseException as error:
-        # Setup or harness failure mid-stage (or cancellation): keep the audit trail.
-        stop = {"reason": "aborted", "error_type": type(error).__name__}
+        failed = True
+        if ledger.stop_reason is None:
+            stop = {"reason": "aborted", "error_type": type(error).__name__}
         raise
     finally:
         await _close_client(client)
-        if stop is not None and stop["reason"] in {"infrastructure_error", "aborted"}:
-            _write_json(output_dir / "stop_record.json", stop)
-        _write_json(
-            output_dir / "ledger.json",
-            {"total": ledger.total, "per_case": dict(sorted(ledger.per_case.items()))},
-        )
         payload = _report_payload(
             split=split,
             stop=stop,
@@ -529,7 +576,27 @@ async def run_campaign(
             ledger=ledger,
             finished_at=now().isoformat(),
         )
-        write_report(output_dir, payload)
+        writes: list[tuple[Path, object]] = [
+            (
+                output_dir / "ledger.json",
+                {"total": ledger.total, "per_case": dict(sorted(ledger.per_case.items()))},
+            ),
+        ]
+        stop_path = output_dir / "stop_record.json"
+        if stop is not None and not stop_path.exists():
+            writes.append((stop_path, stop))
+        write_error: Exception | None = None
+        for path, content in writes:
+            try:
+                _write_json(path, content)
+            except Exception as error:  # noqa: BLE001 - keep writing; never mask the original error
+                write_error = write_error or error
+        try:
+            write_report(output_dir, payload)
+        except Exception as error:  # noqa: BLE001 - same as above
+            write_error = write_error or error
+        if write_error is not None and not failed:
+            raise write_error
     return payload
 
 

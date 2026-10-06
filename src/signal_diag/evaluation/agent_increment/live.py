@@ -202,11 +202,14 @@ async def run_live_agent(
     model: str = "deepseek-v4-flash",
     reference_signal_id: str | None = None,
     signal_ids_by_filename: Mapping[str, str] | None = None,
+    diagnosis_request: str | None = None,
 ) -> LiveAgentResult:
     """Run the agent arm. ``client`` is the raw SDK. This function reserves.
 
     With ``signal_ids_by_filename``, a T1 reference is resolved from the
     confirmed ``reference_file`` only; ``reference_signal_id`` is then ignored.
+    ``diagnosis_request`` replaces ``user_text`` for the diagnosis run only (the
+    intake still reads ``user_text``), so the planner need not see the case text.
     """
     key = require_live_credentials(api_key)
     guarded = ReservingChatClient(client, ledger, case_id)
@@ -269,7 +272,7 @@ async def run_live_agent(
     runtime = _runtime(repository=repository, planner=planner)
     run = await runtime.run(
         signal_id=signal_id,
-        user_request=user_text,
+        user_request=diagnosis_request if diagnosis_request is not None else user_text,
         stimulus_context=stimulus,
     )
     return LiveAgentResult(

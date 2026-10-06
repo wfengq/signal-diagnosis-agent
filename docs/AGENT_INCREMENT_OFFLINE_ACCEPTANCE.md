@@ -61,4 +61,4 @@ and does not submit the existing diagnosis form.
 - `--run --split heldout` refuses without a matching `prompt_freeze_record.json`, outside `<study>/runs/heldout_*`, or when a held-out run already exists.
 - Output never contains audio, the API key, or raw provider requests or responses.
 - Offline verification uses a fake SDK shaped like the real one (`chat.completions.create` only). No live stage has been run.
-- The T2 agent arm receives one neutral request (`T2_NEUTRAL_REQUEST`) instead of the case text, because T2 case texts correlate with the label. The report's `notes` record this, the localization rule, and that T1 downstream fixed rows are scripted stand-ins.
+- Every live diagnosis run receives one neutral request (`DIAGNOSIS_REQUEST`) instead of the case text, because case texts correlate with the label; only the T1 intake reads the case text. The request's hash is in the prompt freeze record. The report's `notes` record this, the localization rule, and that T1 downstream fixed rows are scripted stand-ins.
