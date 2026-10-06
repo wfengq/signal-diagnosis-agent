@@ -12,7 +12,7 @@ from signal_diag.agent.intake import (
     ContextDraft,
     IntakeRequest,
 )
-from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_13
+from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_14
 from signal_diag.evaluation.agent_increment.budget import (
     DEV_STAGE_CAP,
     HELD_OUT_STAGE_CAP,
@@ -53,7 +53,7 @@ from signal_diag.tools.contracts import ClippingInput, HarmonicDistortionInput
 from signal_diag.tools.evidence import Evidence
 from signal_diag.tools.service import SignalToolService
 
-_PROMPT_SHA256 = hashlib.sha256(_S1_PROMPT_V9_13.system_prompt.encode("utf-8")).hexdigest()
+_PROMPT_SHA256 = hashlib.sha256(_S1_PROMPT_V9_14.system_prompt.encode("utf-8")).hexdigest()
 
 
 def load_study_cases(study_dir: Path) -> list[IncrementCase]:
@@ -311,7 +311,7 @@ def study_identity() -> dict[str, object]:
     return {
         "study_id": STUDY_ID,
         "model": "deepseek-v4-flash",
-        "prompt_version": _S1_PROMPT_V9_13.version,
+        "prompt_version": _S1_PROMPT_V9_14.version,
         "prompt_sha256": _PROMPT_SHA256,
         "intake_identity": INTAKE_PLANNER_IDENTITY,
         "rule_profile_id": SEGMENT_PROFILE_ID,

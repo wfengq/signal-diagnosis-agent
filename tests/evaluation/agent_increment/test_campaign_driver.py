@@ -328,7 +328,7 @@ async def test_t_cx404_mini_dev_stage_runs_all_arms_and_writes_once(tmp_path: Pa
     report = json.loads((out / "report.json").read_text(encoding="utf-8"))
     assert "scripted stand-in" in report["notes"]["t1_downstream_fixed_arms"]
     identity = json.loads((out / "identity.json").read_text(encoding="utf-8"))
-    assert identity["planner_prompt_version"] == "v0.3-s1-planner-9.13"
+    assert identity["planner_prompt_version"] == "v0.3-s1-planner-9.14"
     assert identity["scripted_stand_in"] is False
     text = _all_text(out)
     assert "sk-test" not in text
