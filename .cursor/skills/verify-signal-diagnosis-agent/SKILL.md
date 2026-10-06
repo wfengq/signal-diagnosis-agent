@@ -21,8 +21,9 @@ Repo on the user's machine:
 C:\Users\wei\Desktop\招聘\signal-diagnosis-agent
 ```
 
-Expect branch `codex/v0.2-real-world-validation`. Confirm HEAD with `git
-rev-parse HEAD` before treating any prior SHA as current.
+Expect branch `main` (renamed from `codex/v0.2-real-world-validation` on
+2026-10-06). Confirm HEAD with `git rev-parse HEAD` before treating any prior
+SHA as current.
 
 V0.2 product contracts are frozen (`AGENTS.md`, `docs/CONTRACTS_V0_2.md`).
 `RealLLMPlanner` is the product path. `ScriptedPlanner` is a test double and
