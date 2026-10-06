@@ -440,7 +440,9 @@ class DiagnosisApplicationService:
             recorder = RecordingPlanner(inner)
             runtime = DistortionDiagnosisRuntime(
                 repository=self._dependencies.repository,
-                tool_service=SignalToolService(self._dependencies.repository),
+                tool_service=SignalToolService(
+                    self._dependencies.repository, subharmonic_guard=True
+                ),
                 planner=recorder,
                 rule_engine=self._dependencies.rule_engine,
                 rule_profile_loader=self._dependencies.rule_profile_loader,
@@ -607,7 +609,9 @@ class DiagnosisApplicationService:
             recorder = RecordingPlanner(inner)
             runtime = DistortionDiagnosisRuntime(
                 repository=self._dependencies.repository,
-                tool_service=SignalToolService(self._dependencies.repository),
+                tool_service=SignalToolService(
+                    self._dependencies.repository, subharmonic_guard=True
+                ),
                 planner=recorder,
                 rule_engine=self._dependencies.rule_engine,
                 rule_profile_loader=self._dependencies.rule_profile_loader,

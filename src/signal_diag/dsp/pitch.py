@@ -13,6 +13,55 @@ from .spectral_reliability import (
     normalized_autocorrelation,
 )
 
+# D049 (opt-in): when the period is not a whole number of samples, a later
+# period-multiple peak can beat the first one by less than this; with the guard
+# on, the shortest peak within this distance of the best one wins.
+DEFAULT_SUBHARMONIC_TOLERANCE = 0.01
+
+
+def _parabolic_peak(autocorrelation: np.ndarray, lag: int) -> tuple[float, float]:
+    """Sub-sample peak position and height from a parabola through three points."""
+    centre = float(autocorrelation[lag])
+    if lag <= 0 or lag >= len(autocorrelation) - 1:
+        return float(lag), centre
+    left = float(autocorrelation[lag - 1])
+    right = float(autocorrelation[lag + 1])
+    curvature = left - 2.0 * centre + right
+    if curvature >= 0.0:
+        return float(lag), centre
+    offset = max(-0.5, min(0.5, 0.5 * (left - right) / curvature))
+    return float(lag) + offset, centre - 0.25 * (left - right) * offset
+
+
+def _guarded_peak(
+    autocorrelation: np.ndarray,
+    *,
+    min_lag: int,
+    max_lag: int,
+    tolerance: float,
+) -> tuple[int, float]:
+    """Shortest local maximum whose interpolated height is near the best one.
+
+    Returns the integer lag and its interpolated position.
+    """
+    last = len(autocorrelation) - 1
+    peaks: list[tuple[int, float, float]] = []
+    for lag in range(min_lag, max_lag + 1):
+        value = autocorrelation[lag]
+        left = autocorrelation[lag - 1] if lag > 0 else -np.inf
+        right = autocorrelation[lag + 1] if lag < last else -np.inf
+        if value >= left and value >= right:
+            position, height = _parabolic_peak(autocorrelation, lag)
+            peaks.append((lag, position, height))
+    if not peaks:
+        lag = min_lag + int(np.argmax(autocorrelation[min_lag : max_lag + 1]))
+        return lag, float(lag)
+    best = max(height for _, _, height in peaks)
+    for lag, position, height in peaks:
+        if height >= best - tolerance:
+            return lag, position
+    raise AssertionError("unreachable: the best peak is within tolerance of itself")
+
 
 def _unvoiced(confidence: float = 0.0) -> F0Estimate:
     return F0Estimate(
@@ -34,6 +83,8 @@ def estimate_f0_autocorrelation(
     voicing_threshold: float = 0.3,
     octave_ambiguity_tolerance: float = DEFAULT_OCTAVE_AMBIGUITY_TOLERANCE,
     min_fundamental_relative_energy: float = DEFAULT_MIN_FUNDAMENTAL_RELATIVE_ENERGY,
+    subharmonic_guard: bool = False,
+    subharmonic_tolerance: float = DEFAULT_SUBHARMONIC_TOLERANCE,
 ) -> F0Estimate:
     """Estimate fundamental frequency using normalized autocorrelation."""
     values = _validated_1d(samples)
@@ -69,6 +120,12 @@ def estimate_f0_autocorrelation(
         raise ValueError(
             "min_fundamental_relative_energy must be finite and in [0, 1]"
         )
+    if (
+        not np.isfinite(subharmonic_tolerance)
+        or subharmonic_tolerance < 0.0
+        or subharmonic_tolerance > 1.0
+    ):
+        raise ValueError("subharmonic_tolerance must be finite and in [0, 1]")
 
     working = remove_dc(values)
     if rms(working) <= np.finfo(np.float64).eps:
@@ -86,12 +143,21 @@ def estimate_f0_autocorrelation(
     autocorrelation = normalized_autocorrelation(values)
 
     search = autocorrelation[min_lag : max_lag + 1]
-    candidate_lag = min_lag + int(np.argmax(search))
+    if subharmonic_guard:
+        candidate_lag, period_lag = _guarded_peak(
+            autocorrelation,
+            min_lag=min_lag,
+            max_lag=max_lag,
+            tolerance=subharmonic_tolerance,
+        )
+    else:
+        candidate_lag = min_lag + int(np.argmax(search))
+        period_lag = float(candidate_lag)
     confidence = max(0.0, float(autocorrelation[candidate_lag]))
     if confidence < voicing_threshold:
         return _unvoiced(confidence)
 
-    f0_hz = float(sample_rate_hz / candidate_lag)
+    f0_hz = float(sample_rate_hz / period_lag)
     octave_ambiguity = detect_octave_ambiguity(
         autocorrelation,
         primary_lag=candidate_lag,

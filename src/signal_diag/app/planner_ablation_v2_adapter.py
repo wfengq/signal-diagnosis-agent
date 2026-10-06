@@ -910,7 +910,10 @@ class FixedArmSession:
         self._rule_engine = rule_engine or RuleEngine()
         # Fresh empty container prepared outside the timer.
         self._repository = repository or InMemorySignalRepository()
-        self._tools = tool_service or SignalToolService(self._repository)
+        # D049: same tool settings as the product arm, so only the planner differs.
+        self._tools = tool_service or SignalToolService(
+            self._repository, subharmonic_guard=True
+        )
         self._clock = clock
         self._phase_advances = phase_advances
         self._offline_session = offline_session

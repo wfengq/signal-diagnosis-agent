@@ -56,9 +56,16 @@ TOutput = TypeVar("TOutput")
 class SignalToolService:
     """Execute Phase 1 Tools against repository-backed signal selections."""
 
-    def __init__(self, repository: SignalRepository) -> None:
+    def __init__(
+        self,
+        repository: SignalRepository,
+        *,
+        subharmonic_guard: bool = False,
+    ) -> None:
         self._repository = repository
         self._call_sequence = 0
+        # D049: opt-in F0 subharmonic guard; the live product turns it on.
+        self._subharmonic_guard = subharmonic_guard
 
     def detect_clipping(
         self,
@@ -459,6 +466,7 @@ class SignalToolService:
             record.meta.sample_rate_hz,
             fmin_hz=args.fmin_hz,
             fmax_hz=args.fmax_hz,
+            subharmonic_guard=self._subharmonic_guard,
         )
         output = FundamentalOutput(
             f0_hz=estimate.f0_hz,
@@ -546,6 +554,7 @@ class SignalToolService:
             fmax_hz=args.fmax_hz,
             max_harmonic_order=args.max_harmonic_order,
             window=args.window,
+            subharmonic_guard=self._subharmonic_guard,
         )
         output = HarmonicDistortionOutput(
             valid=analysis.valid,
