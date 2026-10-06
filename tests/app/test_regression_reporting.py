@@ -32,6 +32,7 @@ from signal_diag.app.regression_reporting import (
     validate_regression_case_report_integrity,
 )
 from signal_diag.rules.full_scale_check import (
+    PRODUCT_APPROVED_FULL_SCALE_FLOORS,
     FullScaleDeclarations,
     FullScaleMethodFloor,
     evaluate_full_scale_check,
@@ -62,7 +63,10 @@ def _mono_wav_bytes() -> bytes:
 
 @pytest.fixture
 def service() -> RegressionWorkbenchService:
-    return RegressionWorkbenchService(clock=lambda: NOW)
+    return RegressionWorkbenchService(
+        clock=lambda: NOW,
+        full_scale_floor=PRODUCT_APPROVED_FULL_SCALE_FLOORS[0],
+    )
 
 
 @pytest.mark.asyncio
@@ -326,7 +330,10 @@ async def test_transplant_foreign_comparison_with_stale_recommendations_rejected
 
 def test_model_validate_rejects_forged_comparison_record() -> None:
     wav = _mono_wav_bytes()
-    service = RegressionWorkbenchService(clock=lambda: NOW)
+    service = RegressionWorkbenchService(
+        clock=lambda: NOW,
+        full_scale_floor=PRODUCT_APPROVED_FULL_SCALE_FLOORS[0],
+    )
     case = service.create_case("goal")
     import asyncio
 

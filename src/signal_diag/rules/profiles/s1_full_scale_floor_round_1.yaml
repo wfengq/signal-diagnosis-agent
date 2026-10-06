@@ -1,0 +1,30 @@
+# D044 approved product full-scale method floor (round_1).
+# Provenance is audit metadata and is not part of the floor digest.
+provenance:
+  freeze_record_digest: "447751cee16da908ec179ab8966b3342ef273fc2a71028fb1ba01d07e585af06"
+  freeze_record_summary: >-
+    round_1 stage1 K2 zone row n=5.5125;p=1;K2 (domain n_min 5.5125, p_min 1;
+    zone_below 0.0; zone_above 0.002004394531250009; min_counted null) and
+    stage2 F2 count floor 1280.0; freeze digest
+    447751cee16da908ec179ab8966b3342ef273fc2a71028fb1ba01d07e585af06;
+    stage1 digest 19b4a5e021ff4cfee6928807984e5d23cdc41e665fac6da7c212ca44109f4a5d;
+    manifest_sha256 93a2f4565cd976b510990394720386c95b241619052db4485da58d3032b7ccf1.
+  manifest_sha256: "93a2f4565cd976b510990394720386c95b241619052db4485da58d3032b7ccf1"
+  validation_conclusion: >-
+    Hard condition 1: 0 violating pairs of 238784 applicable. Hard condition 2:
+    0 violating pairs of 66420 applicable. Hard conditions all met.
+floor:
+  floor_id: s1_full_scale_floor_round_1
+  version: "1.0.0"
+  facts_version: v0.3-full-scale-facts-1
+  full_scale_threshold: 0.99
+  min_consecutive_samples: 2
+  min_samples_per_period: 5.5125
+  min_periods_in_range: 1.0
+  zone_below_threshold: 0.0
+  zone_above_threshold: 0.002004394531250009
+  zone_min_counted_samples: null
+  count_floor_samples: 1280
+  count_floor_ratio: null
+  tolerated_difference: one_step_of_coarser_depth_one_sided_plus_depth_conversion
+  digest: "ca91e4c5e1aa1cc979bf7fb36a330a448ae44f68b9cb78aedd3341b5eb8cbf41"

@@ -1,7 +1,7 @@
 # Open Contract and Architecture Questions
 
 **Status:** Active register
-**Current open questions:** 2 open (OQ-021, OQ-022); 20 resolved (OQ-001–OQ-020)
+**Current open questions:** 0 open; 22 resolved (OQ-001–OQ-022)
 
 Use this file only for concrete issues that may require changing an approved
 contract or architectural boundary.
@@ -380,7 +380,7 @@ Review status: an independent read-only subagent review reproduced the probe (29
 Compatibility impact: None from recording this entry. The product already ships descriptive-only comparison (approved profiles: 0), so no judgment is affected today; descriptive `clipping_ratio` values and differences shown in the workbench may be non-zero on unclipped low-frequency or low-level input.
 Test impact: None for this entry. Implementation needs new T-CX IDs; design-tracking requirements are CS01–CS14 in the design, plus the clean-sine cells above and a sub-full-scale clipped sine as regression cases.
 User decision: approved 2026-10-05 — design (spec §12–§13, characterization §10–§11) and amendment draft revision 2; recorded as D043. Not authorized: implementation plan, implementation, characterization run, any floor value, a judged product status. Revision 2 of the amendment and the last correction sections were not independently re-reviewed before approval.
-Implementation (2026-10-05): the implementation plan (revision 4) and its implementation were later authorized separately and merged as PR #41 (`0770514`) after independent review. The product ships no floor record and has no judged status. The layer-1 characterization run, any floor value and floor approval remain unauthorized. Follow-up: OQ-021.
+Implementation (2026-10-05): the implementation plan (revision 4) and its implementation were later authorized separately and merged as PR #41 (`0770514`) after independent review. The product ships no floor record and has no judged status. The layer-1 characterization run, any floor value and floor approval remain unauthorized. Follow-up: OQ-021. Floor registration and OQ-021/OQ-022 closure are recorded as D044.
 ```
 
 ## OQ-021 — Full-scale check: floor applicability when one side has no facts
@@ -388,7 +388,7 @@ Implementation (2026-10-05): the implementation plan (revision 4) and its implem
 ```text
 ID: OQ-021
 Date: 2026-10-05
-Status: open
+Status: approved — Option A; recorded as D044; T-CX381
 Affected document and section: CONTRACTS_V0_3_CONTEXTUAL.md §23.4 (floor applicability) and §23.5 (eligibility condition 8, validation); src/signal_diag/rules/full_scale_check.py (`_floor_identity_ok`, `_applicable_approved_floors`, `validate_full_scale_check_record`).
 Observed problem: §23.4 says a floor record applies only when `facts_version`, `full_scale_threshold` and `min_consecutive_samples` equal those of both sides' facts. The merged implementation (`0770514`) skips a side whose facts are missing, so a floor counts as applicable when one or both anchor sides have no facts. Such a record then carries the floor, and plan Task 9B-7 validation requires an applicable approved floor to be present on it. Found in the independent review of PR #41 (finding F4, Info).
 Why the current contract cannot represent a correct implementation: The contract can represent it; the question is which reading is intended. Today there is no product impact: the registry is empty, and a missing side already yields `facts_missing:<side>` and `not_comparable`, so no judged status is reachable either way. It matters once a floor record is approved, because the two readings produce different `floor`, `unmet_conditions` and `unevaluated_conditions` contents for the same input.
@@ -396,7 +396,7 @@ Minimal proposed change: Decide before any floor record is approved. Option A: f
 Compatibility impact: None today (no product floor). Option A changes check-record contents only for inputs with missing facts.
 Test impact: Option A needs a rules test (one side without facts plus a matching fixture floor: no floor on the record, `floor_missing` listed) and an adjusted 9B-7 test. Option B needs a contract revision and a test pinning the current behavior.
 Related cleanup (no contract impact): in `src/signal_diag/app/regression_reporting.py` `_validate_full_scale_checks`, a record whose anchor is a repeat is rejected with "anchor_comparison_id is missing from comparisons", and the in-loop "not an anchor" check is unreachable. Fix the message or remove the dead check in the same change.
-User decision: pending.
+User decision: approved 2026-10-06 — Option A (both sides must have facts for a floor to apply). Recorded as D044. Implementation changes only `_floor_identity_ok` (T-CX381). The reporting-layer cleanup named above remains unauthorized by this decision.
 ```
 
 ## OQ-022 — Full-scale check: fixed-minimum critical zone under the cumulative tolerance reading
@@ -404,12 +404,12 @@ User decision: pending.
 ```text
 ID: OQ-022
 Date: 2026-10-05
-Status: open
+Status: approved — Option B; recorded as D044; T-CX382
 Affected document and section: CONTRACTS_V0_3_CONTEXTUAL.md §23.4 (tolerance decision; fixed minimum of the critical zone); src/signal_diag/rules/full_scale_check.py (`_in_critical_zone`, `_quantization_step`).
 Observed problem: The operator decided on 2026-10-05 that §23.4 "at most one quantization step of the coarser of the two bit depths … plus bit-depth conversion" means both can occur together (layer-1 characterization plan, decision A.10). Under that reading the fixed minimum ("a `no` side with `peak_abs >= full_scale_threshold - step` is inside the critical zone") does not contain every tolerated difference. Full tool path, measured in the independent review of the characterization plan and reproduced: 100 Hz, 48 kHz, amplitude 0.989993, phase π/480. The 16-bit rounded file has peak 0.98995972 and counts 0, below 0.99 − 2^-15 = 0.98996948, so it is outside the fixed minimum. The same waveform as 32-bit, rounded and then moved one 16-bit step away from zero, counts 800. With the fixed minimum alone this pair would be judged `regression_detected`.
 Why the current contract cannot represent a correct implementation: It can, as long as a floor record exists. The product uses `max(zone_below_threshold, step)` for a `no` side, and the layer-1 characterization now includes this composite in its tolerated null pairs, so under full coverage the fitted `zone_below_threshold` covers it. Without a floor record no judged status is reachable. What is lost is the property that the fixed minimum alone, independent of sampling, contains every tolerated difference.
 Minimal proposed change: Decide before any floor record is approved, together with OQ-021. Option A: widen the fixed minimum to `full_scale_threshold - 2 * step` (one step plus a bit-depth conversion error of up to one step when conversion truncates), as a contract revision to §23.4 and a one-line change to `_in_critical_zone`. Option B: keep one step and state in §23.4 that the fixed minimum covers single-depth differences only and that the reviewed floor record must cover the composite. The characterization report gives flip counts outside the one-step and the two-step bounds as evidence. Option A is recommended because it restores a guarantee that does not depend on the characterization grid.
 Compatibility impact: None today (no product floor; no judged status). Option A moves some `no` sides into the critical zone once a floor exists, reducing coverage slightly.
 Test impact: Option A needs an update to the T-CX357 fixed-minimum tests and a regression case built from the pair above. Option B needs a contract revision and a test that pins the one-step bound.
-User decision: pending.
+User decision: approved 2026-10-06 — Option B (no code change to `_in_critical_zone`; append a §23.4 requirement that any approved floor record has `zone_above` of at least one 16-bit step). Recorded as D044. Contract append is T-CX382; critical-zone and judgment logic stay unchanged.
 ```

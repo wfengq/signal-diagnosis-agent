@@ -16,7 +16,10 @@ from signal_diag.app.regression import (
     _upload_fingerprint,
     build_regression_service,
 )
-from signal_diag.rules.full_scale_check import FullScaleDeclarations
+from signal_diag.rules.full_scale_check import (
+    PRODUCT_APPROVED_FULL_SCALE_FLOORS,
+    FullScaleDeclarations,
+)
 from signal_diag.rules.regression import (
     ComparisonConditions,
     validate_comparison_record,
@@ -70,7 +73,10 @@ def _upload(**overrides: object) -> ComparisonUpload:
 
 @pytest.fixture
 def service() -> RegressionWorkbenchService:
-    return RegressionWorkbenchService(clock=lambda: NOW)
+    return RegressionWorkbenchService(
+        clock=lambda: NOW,
+        full_scale_floor=PRODUCT_APPROVED_FULL_SCALE_FLOORS[0],
+    )
 
 
 def test_9c4_evaluate_before_comparisons_append() -> None:
@@ -126,13 +132,22 @@ async def test_t_cx364_records_do_not_consume_submit_quota(service) -> None:
 
 
 @pytest.mark.asyncio
-async def test_t_cx363_product_builder_has_no_floor_and_no_judged_status() -> None:
+async def test_t_cx363_product_builder_wires_d044_floor() -> None:
+    from signal_diag.rules.full_scale_check import PRODUCT_APPROVED_FULL_SCALE_FLOORS
+
     service = build_regression_service()
+    assert service._full_scale_floor == PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]
     case = service.create_case("goal")
     snap = await service.submit_comparison(case.case_id, _upload(), request_id="r1")
     check = snap.full_scale_checks[0]
-    assert check.floor is None and "floor_missing" in check.unmet_conditions
-    assert check.status in ("descriptive_only", "not_comparable")
+    assert check.floor == PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]
+    assert check.status == "descriptive_only"
+    assert check.unmet_conditions == (
+        "repeat_missing:baseline",
+        "repeat_missing:candidate",
+        "periodic_not_declared",
+    )
+    assert check.unevaluated_conditions == ()
 
 
 def test_t_cx363_client_cannot_supply_floor_or_approval() -> None:

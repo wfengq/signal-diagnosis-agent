@@ -1615,7 +1615,9 @@ upload it or assert approval. A record applies only when `facts_version`,
 `full_scale_threshold` and `min_consecutive_samples` equal those of both
 sides' facts. With no applicable record, no check reaches a judged status
 (it is `descriptive_only` or `not_comparable`). The product ships with none
-until a characterization package is reviewed and approved.
+until a characterization package is reviewed and approved. D044 registers the
+reviewed round_1 floor under `rules/profiles/s1_full_scale_floor_round_1.yaml`
+as that approved record.
 
 Tolerance decision. A floor record tolerates sample-wise differences of at
 most one quantization step of the coarser of the two bit depths, taken in
@@ -1631,6 +1633,16 @@ side in state `no` is inside the critical zone when
 step of the coarser of the two files' bit depths. (For a `no` side,
 "peak at or above threshold" and "has over-threshold uncounted samples" are
 the same condition; both are covered by this minimum.)
+
+Fixed-minimum scope (OQ-022 Option B / D044). The fixed minimum above covers
+single-depth differences of at most one coarser-depth step. It does not by
+itself cover the composite of one coarser-depth step plus bit-depth
+conversion. Any approved floor record must therefore cover that composite in
+its reviewed critical zone, and must have `zone_above` of at least one
+16-bit quantization step (`2^-15`). Characterization evidence for flip counts
+outside the one-step and two-step fixed-minimum bounds is recorded with the
+floor approval (D044); this clause does not change `_in_critical_zone` or
+judgment logic.
 
 ### 23.5 Check record
 
@@ -1768,6 +1780,7 @@ causal gate.
 3. Layer-1 characterization run under a separate grant, through the full tool
    path, after step 2.
 4. Review and approval of a floor record under a separate grant. Only then
-   can a product check reach a judged status.
+   can a product check reach a judged status. D044 is that approval for the
+   round_1 freeze values (see `rules/profiles/s1_full_scale_floor_round_1.yaml`).
 5. Sub-full-scale flat-top judgment, any change to the `observed_variable`
    block, THD judgment, RealLLM, seal and merge remain external gates.

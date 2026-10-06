@@ -261,6 +261,24 @@ def test_critical_zone_covers_counted_repeats() -> None:
     assert status == "descriptive_only" and "critical_zone:baseline" in unmet
 
 
+@pytest.mark.parametrize("drop_facts", ["baseline", "candidate"])
+def test_t_cx381_floor_inapplicable_when_anchor_side_has_no_facts(drop_facts: str) -> None:
+    anchor, repeats = eligible(
+        baseline=(0, 0.5),
+        candidate=(20000, 1.0),
+        drop_facts=drop_facts,
+    )
+    record = evaluate_full_scale_check(
+        check_id="chk_1",
+        anchor=anchor,
+        repeats=repeats,
+        floor=FIXTURE_FLOOR,
+        supersedes=None,
+    )
+    assert record.floor is None
+    assert "floor_missing" in record.unmet_conditions
+
+
 def test_t_cx363_no_floor_means_no_judged_status() -> None:
     anchor, repeats = eligible(baseline=(0, 0.5), candidate=(20000, 1.0))
     status, _, unmet, unevaluated = _status(anchor, repeats, floor=None)
