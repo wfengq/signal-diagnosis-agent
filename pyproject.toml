@@ -20,6 +20,8 @@ app = [
 ]
 llm = [
   "openai==3.6.0",
+  # D048: openai 3.6.0 dispatches through httpx2; the telemetry audit pins this version.
+  "httpx2==2.12.0",
 ]
 dev = [
   "build>=1.2",

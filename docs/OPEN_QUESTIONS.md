@@ -419,12 +419,12 @@ User decision: approved 2026-10-06 — Option B (no code change to `_in_critical
 ```text
 ID: OQ-023
 Date: 2026-10-06
-Status: open
+Status: approved — Option A; recorded as D048; T-CX425–T-CX427
 Affected document and section: src/signal_diag/agent/provider_telemetry.py (`_NATIVE_HOOK`, `_AUDITED_HTTPX_VERSION`, `build_audited_sdk_observation_profile`, `reviewed_openai_capability_identity`); CONTRACTS_V0_3_CONTEXTUAL.md §21 (planner-ablation token and transport telemetry).
 Observed problem: The locked `openai==3.6.0` dispatches through its vendored `httpx2` (2.12.0): `AsyncOpenAI(...)._client` is an `httpx2.AsyncClient`. The audited SDK observation profile still records `native_http_family="httpx"`, `native_http_version` from `httpx.__version__` (0.28.1), and `native_dispatch_hook="httpx.AsyncClient.send"`, and its version audit pins `httpx`, not `httpx2`. Found while diagnosing why the D047 acceptance script counted zero sends (its class-level `httpx.AsyncClient.send` patch never fired; see `evaluations/v0_3/intake_product/acceptance_1/ACCEPTANCE_NOTE.md`).
 Why the current contract cannot represent a correct implementation: It can for counting. Probed on 2026-10-06 against a closed local port with no model call: `attach_sdk_observation` wraps the client instance's own transport and emitted SdkAttemptEvent start/end and HttpSendEvent start/end for the single send, so send telemetry is not blind. What is wrong is the identity metadata, and an `httpx2` upgrade would pass the audit unnoticed.
 Minimal proposed change: Option A: add an `httpx2` version pin to the audit and record `native_http_family="httpx2"` with its version and a corrected hook label in new profiles, leaving every recorded artifact unchanged. Option B: document the label as historical and add only the `httpx2` pin as an extra blocker. No change is proposed to the stopped `dev_2` records (D046).
 Compatibility impact: Option A changes the identity fields of profiles built after the change; recorded planner-ablation artifacts keep their old values. Option B changes nothing recorded.
 Test impact: A test that builds the audited profile and asserts the dispatch family matches `type(AsyncOpenAI(...)._client)`'s module, plus an `httpx2` version-drift blocker test.
-User decision: pending.
+User decision: approved 2026-10-06 — Option A. Recorded as D048; design `docs/superpowers/specs/2026-10-06-oq023-sdk-dispatch-identity-design.md`. Implementation confirmed that no existing test fixture needed changing.
 ```

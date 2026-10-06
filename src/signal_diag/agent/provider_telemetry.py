@@ -39,10 +39,13 @@ _AUDITED_OPENAI_AGGREGATE_DIGEST = (
     "a4a2193775e68b1497d61c84ad851e785597db0f0a2a443856d3b890fa412e47"
 )
 _AUDITED_HTTPX_VERSION = "0.28.1"
+# D048: openai 3.6.0 dispatches through its vendored httpx2, not httpx.
+_AUDITED_HTTPX2_VERSION = "2.12.0"
 _AUDITED_HTTPCORE_VERSION = "1.0.9"
+_NATIVE_HTTP_FAMILY = "httpx2"
 _PREPARE_HOOK = "AsyncAPIClient._prepare_options"
 _SEND_HOOK = "AsyncAPIClient._send_request"
-_NATIVE_HOOK = "httpx.AsyncClient.send"
+_NATIVE_HOOK = "httpx2.AsyncClient.send"
 
 
 def _sha256_file(path: Path) -> str:
@@ -79,8 +82,8 @@ def reviewed_openai_capability_identity() -> dict[str, str]:
     return {
         "openai_version": _AUDITED_OPENAI_VERSION,
         "openai_source_digest": _AUDITED_OPENAI_AGGREGATE_DIGEST,
-        "native_http_family": "httpx",
-        "native_http_version": _AUDITED_HTTPX_VERSION,
+        "native_http_family": _NATIVE_HTTP_FAMILY,
+        "native_http_version": _AUDITED_HTTPX2_VERSION,
         "httpcore_version": _AUDITED_HTTPCORE_VERSION,
         "prepare_options_hook": _PREPARE_HOOK,
         "send_request_hook": _SEND_HOOK,
@@ -95,6 +98,7 @@ def _installed_matches_reviewed(
     digests: dict[str, str],
     aggregate: str,
     httpx_version: str,
+    httpx2_version: str,
     httpcore_version: str,
 ) -> tuple[bool, tuple[str, ...]]:
     blockers: list[str] = []
@@ -114,6 +118,11 @@ def _installed_matches_reviewed(
             f"httpx_version_drift:installed_{httpx_version}"
             f"_audited_{_AUDITED_HTTPX_VERSION}"
         )
+    if httpx2_version != _AUDITED_HTTPX2_VERSION:
+        blockers.append(
+            f"httpx2_version_drift:installed_{httpx2_version}"
+            f"_audited_{_AUDITED_HTTPX2_VERSION}"
+        )
     if httpcore_version != _AUDITED_HTTPCORE_VERSION:
         blockers.append(
             f"httpcore_version_drift:installed_{httpcore_version}"
@@ -126,23 +135,26 @@ def build_audited_sdk_observation_profile() -> SdkObservationProfile:
     """Build profile for installed SDK; supported only if it matches reviewed identity."""
     version = importlib.metadata.version("openai")
     import httpx
+    import httpx2
 
     digests = installed_openai_source_digests()
     aggregate = aggregate_openai_source_digest(digests)
     httpx_version = httpx.__version__
+    httpx2_version = httpx2.__version__
     httpcore_version = importlib.metadata.version("httpcore")
     matches, blockers = _installed_matches_reviewed(
         version=version,
         digests=digests,
         aggregate=aggregate,
         httpx_version=httpx_version,
+        httpx2_version=httpx2_version,
         httpcore_version=httpcore_version,
     )
     return SdkObservationProfile(
         openai_version=version,
         openai_source_digest=aggregate,
-        native_http_family="httpx",
-        native_http_version=httpx_version,
+        native_http_family=_NATIVE_HTTP_FAMILY,
+        native_http_version=httpx2_version,
         httpcore_version=httpcore_version,
         source_file_digests=tuple(sorted(digests.items())),
         max_retries_default=2,
@@ -162,15 +174,15 @@ def build_fixture_sdk_observation_profile() -> SdkObservationProfile:
     wiring when the installed tuple differs from the RESOURCE_BOUNDS audit.
     """
     version = importlib.metadata.version("openai")
-    import httpx
+    import httpx2
 
     digests = installed_openai_source_digests()
     aggregate = aggregate_openai_source_digest(digests)
     return SdkObservationProfile(
         openai_version=version,
         openai_source_digest=aggregate,
-        native_http_family="httpx",
-        native_http_version=httpx.__version__,
+        native_http_family=_NATIVE_HTTP_FAMILY,
+        native_http_version=httpx2.__version__,
         httpcore_version=importlib.metadata.version("httpcore"),
         source_file_digests=tuple(sorted(digests.items())),
         max_retries_default=2,

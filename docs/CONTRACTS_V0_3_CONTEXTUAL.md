@@ -1302,6 +1302,20 @@ installed SDK digest clears nothing until the installed tuple yields a
 supported profile, required hook coverage, and capability/proof identity
 agreement under the same checks used by `assess_resource_budget`.
 
+### 21.10 Dispatch-client identity (D048)
+
+The observation profile names the HTTP client that actually dispatches SDK
+requests. For the locked `openai==3.6.0` this is its vendored `httpx2`:
+`native_http_family="httpx2"`, `native_http_version` from `httpx2.__version__`,
+and `native_dispatch_hook="httpx2.AsyncClient.send"`. The audit pins `httpx2`
+(reviewed 2.12.0) in addition to the existing `openai`, `httpx` and `httpcore`
+pins, and an `httpx2` mismatch blocks support with
+`httpx2_version_drift:installed_<v>_audited_<v>`. Observation keeps wrapping
+the client instance's own transport, so it counts the same sends as before.
+Records written before D048, including the stopped `dev_2` study files, keep
+their recorded `httpx` labels.
+The `llm` extra pins `httpx2==2.12.0` alongside `openai==3.6.0`.
+
 ## 22. Regression troubleshooting workbench (D042)
 
 Additive product surface for periodic-test-signal version comparison and

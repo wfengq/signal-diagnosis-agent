@@ -14,7 +14,7 @@ from signal_diag.evaluation.planner_ablation.v2.resource_models import (
 # Reviewed hook names from RESOURCE_BOUNDS / provider telemetry audit (identity only).
 _PREPARE_OPTIONS_HOOK = "AsyncAPIClient._prepare_options"
 _SEND_REQUEST_HOOK = "AsyncAPIClient._send_request"
-_NATIVE_DISPATCH_HOOK = "httpx.AsyncClient.send"
+_NATIVE_DISPATCH_HOOK = "httpx2.AsyncClient.send"
 _AUDITED_MAX_RETRIES_DEFAULT = 2
 _AUDITED_SDK_ATTEMPTS_PER_CALL = 3
 _ADMITTED_HTTP_SEND_FACTOR = 21
