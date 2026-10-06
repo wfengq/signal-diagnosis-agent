@@ -1280,9 +1280,11 @@ _V03_ADDITIVE_PATH_PREFIXES: tuple[str, ...] = (
     "src/signal_diag/evaluation/contextual/",
     "src/signal_diag/evaluation/planner_ablation/",
     "src/signal_diag/evaluation/full_scale_characterization/",
+    "src/signal_diag/evaluation/agent_increment/",
 )
 _V03_ADDITIVE_EXACT_PATHS = frozenset(
     {
+        "src/signal_diag/agent/intake.py",
         "src/signal_diag/agent/prompts_v03.py",
         "src/signal_diag/agent/planner.py",
         "src/signal_diag/agent/models.py",
@@ -1320,6 +1322,7 @@ _V03_ADDITIVE_EXACT_PATHS = frozenset(
         "src/signal_diag/rules/profiles/s1_contextual_comparison_v1.yaml",
         "src/signal_diag/rules/profiles/s1_contextual_comparison_v9_10.yaml",
         "src/signal_diag/rules/profiles/s1_full_scale_floor_round_1.yaml",
+        "src/signal_diag/rules/profiles/s1_segment_evidence_v1.yaml",
         "src/signal_diag/signal/context.py",
     }
 )

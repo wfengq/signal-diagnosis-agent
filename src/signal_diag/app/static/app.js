@@ -807,4 +807,42 @@ function bindUi() {
   });
 }
 
+async function requestIntakeDraft() {
+  const text = document.getElementById("intake-text").value.trim();
+  const picker = document.getElementById("intake-files");
+  const files = Array.from(picker.files || []);
+  if (!text || files.length === 0) {
+    throw new Error("intake needs a description and at least one file name");
+  }
+  const response = await fetch("/api/v1/intake/draft", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      text,
+      filenames: files.map((file) => file.name),
+      test_file: files[0].name,
+      sample_rates_hz: [],
+    }),
+  });
+  const payload = await response.json();
+  if (!response.ok) {
+    const message = payload.error && payload.error.message
+      ? payload.error.message
+      : "intake draft failed";
+    throw new Error(message);
+  }
+  document.getElementById("intake-result").textContent = JSON.stringify(payload, null, 2);
+}
+
+function bindIntake() {
+  const button = document.getElementById("intake-draft");
+  if (!button) return;
+  button.addEventListener("click", () => {
+    requestIntakeDraft().catch((error) => {
+      showError(error instanceof Error ? error.message : String(error));
+    });
+  });
+}
+
 bindUi();
+bindIntake();

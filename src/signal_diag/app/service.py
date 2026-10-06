@@ -10,6 +10,15 @@ from datetime import UTC, datetime
 from typing import Literal, Protocol, runtime_checkable
 
 from signal_diag.agent.diagnosis import CausalPolicyVersion
+from signal_diag.agent.intake import (
+    ContextDraft,
+    IntakeCallLimits,
+    IntakeCredentialsError,
+    IntakePlanner,
+    IntakeRequest,
+    RealLLMIntakePlanner,
+    build_openai_intake_client,
+)
 from signal_diag.agent.planner import PlannerModel
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.app.contextual_models import (
@@ -89,6 +98,7 @@ class ApplicationDependencies:
     rule_profile_loader: RuleProfileLoader
     knowledge_index: KnowledgeIndex
     causal_policy_version: CausalPolicyVersion = "v9_4_legacy"
+    intake_planner_factory: Callable[[], IntakePlanner] | None = None
 
 
 def _utc_now() -> datetime:
@@ -108,6 +118,38 @@ def _planner_not_configured_detail() -> AppErrorDetail:
 
 def _invalid_request(message: str) -> InvalidRequestError:
     return InvalidRequestError(AppErrorDetail(code="invalid_request", message=message))
+
+
+def product_intake_planner(
+    *,
+    api_key: str | None,
+    base_url: str | None,
+    model: str | None,
+) -> IntakePlanner:
+    """Product intake planner. Missing credentials raise; no scripted stand-in."""
+    if not api_key or not model:
+        raise IntakeCredentialsError(
+            "RealLLMIntakePlanner is not configured: set DEEPSEEK_API_KEY. "
+            "The application does not fall back to a scripted intake stand-in."
+        )
+    client = build_openai_intake_client(api_key=api_key, base_url=base_url)
+    return RealLLMIntakePlanner(
+        client=client,
+        model=model,
+        limits=IntakeCallLimits(max_output_tokens=800, timeout_s=60.0),
+    )
+
+
+def intake_planner_from_diagnosis_planner(diagnosis: PlannerModel) -> IntakePlanner:
+    """Reuse the product diagnosis planner's closed-over credentials."""
+    api_key = getattr(diagnosis, "_api_key", None)
+    base_url = getattr(diagnosis, "_base_url", None)
+    model = getattr(diagnosis, "model_id", None)
+    return product_intake_planner(
+        api_key=api_key if isinstance(api_key, str) else None,
+        base_url=base_url if isinstance(base_url, str) else None,
+        model=model if isinstance(model, str) else None,
+    )
 
 
 def _normalize_question(user_request: str) -> str:
@@ -250,6 +292,30 @@ class DiagnosisApplicationService:
         if timeout_s is None:
             return await waiter
         return await asyncio.wait_for(waiter, timeout=timeout_s)
+
+    async def draft_intake_payload(self, payload: object) -> ContextDraft:
+        if not isinstance(payload, dict):
+            raise _invalid_request("malformed intake request")
+        try:
+            request = IntakeRequest.model_validate(payload)
+        except (ValueError, TypeError) as error:
+            raise _invalid_request("malformed intake request") from error
+        return await self.draft_intake(request)
+
+    async def draft_intake(self, request: IntakeRequest) -> ContextDraft:
+        if not self._dependencies.planner_configured:
+            raise PlannerNotConfiguredError(_planner_not_configured_detail())
+        factory = self._dependencies.intake_planner_factory
+        try:
+            if factory is None:
+                planner = intake_planner_from_diagnosis_planner(
+                    self._dependencies.planner_factory()
+                )
+            else:
+                planner = factory()
+        except IntakeCredentialsError as error:
+            raise PlannerNotConfiguredError(_planner_not_configured_detail()) from error
+        return await planner.propose(request)
 
     async def submit_contextual_wav(
         self,

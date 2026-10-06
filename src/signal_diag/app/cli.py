@@ -54,6 +54,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers.add_parser("presets")
 
+    intake = subparsers.add_parser("intake")
+    intake_commands = intake.add_subparsers(dest="intake_command", required=True)
+    intake_draft = intake_commands.add_parser("draft")
+    intake_draft.add_argument("--text", required=True)
+    intake_draft.add_argument("--file", dest="files", action="append", required=True)
+    intake_draft.add_argument("--test-file", required=True)
+    intake_draft.add_argument("--sample-rate-hz", dest="sample_rates_hz", action="append", type=float)
+
     diagnose_options = argparse.ArgumentParser(add_help=False)
     diagnose_options.add_argument("--question", default=_DEFAULT_QUESTION)
     diagnose_options.add_argument(
@@ -444,6 +452,30 @@ async def _diagnose(
         await service.aclose()
 
 
+async def _intake_draft(
+    args: argparse.Namespace,
+    service_factory: Callable[[], DiagnosisApplicationService],
+) -> int:
+    service = service_factory()
+    try:
+        draft = await service.draft_intake_payload(
+            {
+                "text": args.text,
+                "filenames": list(args.files),
+                "test_file": args.test_file,
+                "sample_rates_hz": list(args.sample_rates_hz or ()),
+            }
+        )
+    except ApplicationError as error:
+        _print_error(error.detail.code, error.detail.message)
+        return _exit_for_application_error(error)
+    else:
+        sys.stdout.write(draft.model_dump_json() + "\n")
+        return 0
+    finally:
+        await service.aclose()
+
+
 def main(
     argv: Sequence[str] | None = None,
     *,
@@ -462,6 +494,8 @@ def main(
         return asyncio.run(_presets(service_factory))
     if args.command == "diagnose":
         return asyncio.run(_diagnose(args, service_factory))
+    if args.command == "intake" and args.intake_command == "draft":
+        return asyncio.run(_intake_draft(args, service_factory))
     return 2
 
 

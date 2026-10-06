@@ -531,6 +531,50 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert d044_ruff["current_implementation_sha256"] == (
         contextual_implementation_sha256()
     )
-    assert d044_ruff["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert d044_ruff["product_tree_sha256"] == (
+        "38400c7ddbede4e6504a8cb5a8c809cd80ffc5b05265f79cbb487df7f3e1a316"
+    )
     assert d044_ruff["prompt_sha256"] == oq014["prompt_sha256"]
     assert d044_ruff["model_calls"] == 0
+    d045 = next(
+        row for row in rows if row["amendment_id"] == "d045_s1_agent_increment_offline"
+    )
+    assert d045["amendment_kind"] == "append_only_code_identity"
+    assert d045["prior_bridge_current_implementation_sha256"] == (
+        d044_ruff["current_implementation_sha256"]
+    )
+    assert d045["current_implementation_sha256"] == contextual_implementation_sha256()
+    assert d045["product_tree_sha256"] == (
+        "fe8541422fd5f4728995c8854069bb8c0646a7d26e22401bae70fe2a257a80f0"
+    )
+    assert d045["prompt_sha256"] == oq014["prompt_sha256"]
+    assert d045["prompt_version"] == "v0.3-s1-planner-9.11"
+    assert d045["model_calls"] == 0
+    merged = next(
+        row for row in rows if row["amendment_id"] == "d045_merge_d044_product_tree"
+    )
+    assert merged["amendment_kind"] == "append_only_code_identity"
+    assert merged["prior_bridge_current_implementation_sha256"] == (
+        d045["current_implementation_sha256"]
+    )
+    assert merged["current_implementation_sha256"] == contextual_implementation_sha256()
+    assert merged["product_tree_sha256"] == (
+        "e3e25904b41ca09e5387db121ba97d79f3492ee123c4d5d041c661ee3ec317ab"
+    )
+    assert merged["prompt_sha256"] == oq014["prompt_sha256"]
+    assert merged["prompt_version"] == "v0.3-s1-planner-9.11"
+    assert merged["model_calls"] == 0
+    draft_metric = next(
+        row for row in rows if row["amendment_id"] == "d045_t1_draft_metric"
+    )
+    assert draft_metric["amendment_kind"] == "append_only_code_identity"
+    assert draft_metric["prior_bridge_current_implementation_sha256"] == (
+        merged["current_implementation_sha256"]
+    )
+    assert draft_metric["current_implementation_sha256"] == (
+        contextual_implementation_sha256()
+    )
+    assert draft_metric["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert draft_metric["prompt_sha256"] == oq014["prompt_sha256"]
+    assert draft_metric["prompt_version"] == "v0.3-s1-planner-9.11"
+    assert draft_metric["model_calls"] == 0

@@ -334,6 +334,17 @@ def create_app(
             },
         )
 
+    @app.post("/api/v1/intake/draft")
+    async def intake_draft(request: Request) -> JSONResponse:
+        try:
+            payload = await request.json()
+        except (ValueError, TypeError) as error:
+            raise ApplicationError(
+                AppErrorDetail(code="invalid_request", message="malformed intake request")
+            ) from error
+        draft = await _service(request).draft_intake_payload(payload)
+        return JSONResponse(content=draft.model_dump(mode="json"))
+
     @app.post("/api/v1/contextual-runs/wav")
     async def submit_contextual_wav(request: Request) -> JSONResponse:
         parsed = await parse_contextual_wav_upload(

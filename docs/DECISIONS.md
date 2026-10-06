@@ -859,3 +859,33 @@ Related: OQ-021; OQ-022; freeze
 `docs/evaluations/v0_3/full_scale_characterization/round_1/freeze_record.json`;
 validation
 `docs/evaluations/v0_3/full_scale_characterization/round_1/validation_report.md`.
+
+## D045 — S1 agent-increment slice (definitions and offline implementation)
+
+**Decision (operator 2026-10-06):** Approve the T1 free-text intake and T2
+localized-fault slice, the three-arm increment as the primary metric, and the
+§4.2 pass line from
+`docs/superpowers/specs/2026-10-06-s1-agent-increment-design.md`. Budget control
+is a call cap instead of a per-token proof. Caps are 1,500 HTTP calls for the
+development stage, 1,008 for the held-out stage, and 21 per case (D041 `H`).
+Crossing a cap stops the run and writes a stop record.
+
+**Registered with this decision:** V0.3 §24 and T-CX387–T-CX398. Prompt
+`v0.3-s1-planner-9.12` is the current v9.11 text plus segment and channel
+drill-down guidance. Intake planner identity is `v0.3-s1-intake-1.0`. The
+product default prompt stays `v0.3-s1-planner-9.11`. This slice does not switch
+it.
+
+**Constraints preserved:** frozen V0.2 §§1–64; v9.11 prompt text and its
+existing code-identity rows; `DiagnosisClaim`, `PlannerContext`, and
+`FullScaleMethodFloor` fields; Scripted non-fallback on every product planner;
+nominal Hz only from verbatim user text, never from measured F0.
+
+**Not authorized by this decision:** real-model development or held-out runs
+(D1, H1); sealing the study; merging the implementation PR; treating offline
+scripted-arm output as a RealLLM quality number.
+
+Related: plan
+`docs/superpowers/plans/2026-10-06-s1-agent-increment.md`.
+
+**Supplement (2026-10-06, design §4.2):** T1 increment counts a case only when the first draft matches all four context fields before the simulated user corrects anything. Correction count stays a separate report. A downstream increment is the paired difference in diagnosis conclusions after confirmation. Offline diagnosis uses a scripted stand-in. The live runner uses the real planners. T1 ground-truth conclusions come from the reused contextual manifest (`expected_outcome`, `expected_causal_set`), including a real `inconclusive` only when that manifest says so. `ContextDraft.asked_fields` is the only list the simulated user treats as asked. A question string that merely contains a field name is not asked.
