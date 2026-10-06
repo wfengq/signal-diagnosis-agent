@@ -1,0 +1,112 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t2-04",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": null,
+      "tool_calls": 4,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t2-04",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": null,
+      "tool_calls": 30,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t2-04",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": null,
+      "tool_calls": 2,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t2-04",
+  "cited_locations": [],
+  "claims": [],
+  "family": "T2",
+  "http_calls": 5,
+  "intake_error_detail": null,
+  "predicted_conclusion": "failed",
+  "run_status": "error",
+  "split": "dev",
+  "termination_reason": "max_rule_evaluations",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "purpose": "Whole-file clipping scan with mixdown as the first localization step for this broad distortion request.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000001",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.5,
+          "start_s": 0.0
+        }
+      },
+      "purpose": "Whole-file mixdown scan found no clipping; per the localization policy, scan the first of four equal consecutive windows covering the 2 s file to detect a short clipping event that whole-file analysis could dilute.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000002",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 1.0,
+          "start_s": 0.5
+        }
+      },
+      "purpose": "Whole-file and first-window mixdown scans found no clipping; per the localization policy, scan the second of four equal consecutive windows covering the 2 s file to detect a short clipping event that whole-file analysis could dilute.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000003",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 1.5,
+          "start_s": 1.0
+        }
+      },
+      "purpose": "Whole-file and first two window mixdown scans found no clipping; per the localization policy, scan the third of four equal consecutive windows covering the 2 s file to detect a short clipping event that whole-file analysis could dilute.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    }
+  ]
+}
