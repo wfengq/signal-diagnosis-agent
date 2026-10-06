@@ -1,6 +1,6 @@
 """Live agent arm. Every HTTP send reserves a ledger slot first.
 
-The product default planner stays on v9.11. This runner constructs a v9.13
+The product default planner stays on v9.11. This runner constructs a v9.14
 subclass and never substitutes a scripted planner.
 """
 
@@ -25,7 +25,7 @@ from signal_diag.agent.intake import (
 )
 from signal_diag.agent.models import AgentRunResult
 from signal_diag.agent.planner import PlannerOutputError, RealLLMPlanner
-from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_13
+from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_14
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.evaluation.agent_increment.budget import CallLedger
 from signal_diag.evaluation.agent_increment.models import Family
@@ -61,10 +61,10 @@ class LiveAgentResult(BaseModel):
     http_calls: int
 
 
-class AgentIncrementV913Planner(RealLLMPlanner):
+class AgentIncrementV914Planner(RealLLMPlanner):
     """Study planner. The product class remains on v9.11."""
 
-    _prompt_spec = _S1_PROMPT_V9_13
+    _prompt_spec = _S1_PROMPT_V9_14
 
 
 class ReservingChatClient:
@@ -258,15 +258,15 @@ async def run_live_agent(
             test_signal_id=signal_id,
             assertion_source="evaluation_manifest",
         )
-    planner = AgentIncrementV913Planner(
+    planner = AgentIncrementV914Planner(
         provider="deepseek",
         api_key=key,
         base_url=base_url,
         model=model,
         client=guarded,
     )
-    if planner.prompt_version != "v0.3-s1-planner-9.13":
-        raise PlannerOutputError("live diagnosis planner must be v9.13")
+    if planner.prompt_version != "v0.3-s1-planner-9.14":
+        raise PlannerOutputError("live diagnosis planner must be v9.14")
     if RealLLMPlanner._prompt_spec.version != "v0.3-s1-planner-9.11":
         raise PlannerOutputError("product default prompt drifted")
     runtime = _runtime(repository=repository, planner=planner)

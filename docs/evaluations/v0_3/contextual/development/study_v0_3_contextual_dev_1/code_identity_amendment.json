@@ -686,5 +686,22 @@
     "qualification_recompute_unchanged": true,
     "scope": "D045 before D1 round 3: intake prompt v0.3-s1-intake-1.1 names every allowed value; study planner prompt v0.3-s1-planner-9.13 adds a channel and window call plan; v9.11 and v9.12 texts unchanged; product default prompt remains v9.11; model_calls=0",
     "selected_threshold_percent_unchanged": 5.0
+  },
+  {
+    "amendment_id": "d045_d1_r4_planner_9_14",
+    "amendment_kind": "append_only_code_identity",
+    "calibration_recompute_unchanged": true,
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "created_at_utc": "2026-10-06T09:51:00+00:00",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "model_calls": 0,
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "product_tree_sha256": "d3f4ba5fc993febbdda2fe2297ac2f81a8e41aa314be20386d250e79316db04f",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "qualification_recompute_unchanged": true,
+    "scope": "D045 before D1 round 4: study planner prompt v0.3-s1-planner-9.14 sizes every call plan to AgentLimits.max_rule_evaluations; v9.11, v9.12 and v9.13 texts unchanged; product default prompt remains v9.11; model_calls=0",
+    "selected_threshold_percent_unchanged": 5.0
   }
 ]

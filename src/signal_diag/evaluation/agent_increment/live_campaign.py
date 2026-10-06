@@ -21,7 +21,7 @@ from pydantic import ValidationError
 from signal_diag.agent import intake as intake_module
 from signal_diag.agent.intake import INTAKE_PLANNER_IDENTITY, IntakePlannerError
 from signal_diag.agent.models import AgentRunResult
-from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_13
+from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_14
 from signal_diag.evaluation.agent_increment.budget import (
     DEV_STAGE_CAP,
     HELD_OUT_STAGE_CAP,
@@ -80,8 +80,8 @@ def _sha256_text(text: str) -> str:
 def frozen_prompt_identity() -> dict[str, str]:
     """Versions and full-text hashes of every fixed text a live stage sends."""
     return {
-        "planner_prompt_version": _S1_PROMPT_V9_13.version,
-        "planner_prompt_sha256": _sha256_text(_S1_PROMPT_V9_13.system_prompt),
+        "planner_prompt_version": _S1_PROMPT_V9_14.version,
+        "planner_prompt_sha256": _sha256_text(_S1_PROMPT_V9_14.system_prompt),
         "intake_identity": INTAKE_PLANNER_IDENTITY,
         "intake_prompt_sha256": _sha256_text(intake_module._SYSTEM_PROMPT),
         "diagnosis_request_sha256": _sha256_text(DIAGNOSIS_REQUEST),

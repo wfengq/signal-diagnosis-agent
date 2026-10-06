@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from signal_diag.agent.policies import AgentLimits
 from signal_diag.agent.prompts import (
     _S1_SYSTEM_PROMPT_V8_1,
     _PlannerPromptSpec,
@@ -824,4 +825,44 @@ _S1_SYSTEM_PROMPT_V9_13 = _S1_SYSTEM_PROMPT_V9_11 + _S1_V9_13_SEGMENT_GUIDANCE
 _S1_PROMPT_V9_13 = _PlannerPromptSpec(
     version="v0.3-s1-planner-9.13",
     system_prompt=_S1_SYSTEM_PROMPT_V9_13,
+)
+
+# D1 round 3 (v9.13): every rule-backed tool call spends one automatic rule
+# evaluation, and a call past AgentLimits.max_rule_evaluations ends the run
+# with no diagnosis. v9.13 planned 5-7 such calls. v9.14 sizes each path to
+# the runtime budget; the numbers below are pinned against AgentLimits.
+_V9_14_RULE_BUDGET = AgentLimits().max_rule_evaluations
+_V9_14_MONO_WINDOWS = 4
+_V9_14_STEREO_HALVES = 2
+_S1_V9_14_SEGMENT_GUIDANCE = (
+    "\nCall budget and localization (v0.3-s1-planner-9.14). Every "
+    "detect_clipping, analyze_harmonic_distortion or analyze_contextual_distortion "
+    "call can spend one "
+    f"rule evaluation, and a run may spend at most {_V9_14_RULE_BUDGET} rule "
+    f"evaluations: a call after the {_V9_14_RULE_BUDGET}th ends the run with no "
+    "diagnosis. Finish as soon as the calls below are done. "
+    "When stimulus_context.mode is paired_reference or nominal_single_tone, "
+    "follow the contextual procedure above and do not scan windows. "
+    "When stimulus_context.mode is single_signal, the request asks where a "
+    "fault occurs, and whole-file Evidence never gives a location, so: "
+    f"if signal_meta.channels is 1, call detect_clipping with channel mixdown on "
+    f"{_V9_14_MONO_WINDOWS} equal consecutive windows that cover 0 to "
+    "signal_meta.duration_s, each with an explicit time_range, then finish; "
+    "if signal_meta.channels is 2, call detect_clipping on the whole file with "
+    "channel left, then with channel right, then on the channel that showed "
+    "clipping (mixdown if neither did) call it on the first half and on the "
+    "second half of the file, then finish. "
+    "Do not call analyze_harmonic_distortion when stimulus_context.mode is "
+    "single_signal. "
+    "A clipping conclusion cites the window Evidence that shows clipping, which "
+    "carries its time_range and channel. If no window shows clipping, finish "
+    "without a positive fault claim. Do not extrapolate a window result to the "
+    "whole file. Do not invent thresholds, percentages, standards, or a "
+    "fundamental frequency.\n"
+)
+
+_S1_SYSTEM_PROMPT_V9_14 = _S1_SYSTEM_PROMPT_V9_11 + _S1_V9_14_SEGMENT_GUIDANCE
+_S1_PROMPT_V9_14 = _PlannerPromptSpec(
+    version="v0.3-s1-planner-9.14",
+    system_prompt=_S1_SYSTEM_PROMPT_V9_14,
 )

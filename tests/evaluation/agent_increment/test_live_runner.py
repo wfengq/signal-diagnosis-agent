@@ -115,7 +115,7 @@ async def test_t_cx399_reserve_precedes_each_http_send(tmp_path: Path) -> None:
     )
     assert events[:4] == ["reserve", "send", "reserve", "send"]
     assert ledger.total == sdk.sends
-    assert "v0.3-s1-planner-9.13" in sdk.systems[1]
+    assert "v0.3-s1-planner-9.14" in sdk.systems[1]
     assert RealLLMPlanner._prompt_spec.version == "v0.3-s1-planner-9.11"
     assert PROMPT_VERSION == "v0.3-s1-planner-9.11"
 
