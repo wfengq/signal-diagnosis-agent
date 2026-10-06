@@ -1,0 +1,24 @@
+{
+  "approved_at": "2026-10-06",
+  "approved_by": "wfengq",
+  "calibration_measurements_sha256": "4eae3e2a49da5d9f8c9c0e59127c1e7b9ea19b78ee528004e8e0bf5b4f5f2453",
+  "calibration_pairs_sha256": "901b2def1c4f261795df5dfbfaa68a3adf9e6c372e35b5a463cb0b742b379487",
+  "digest": "19b4a5e021ff4cfee6928807984e5d23cdc41e665fac6da7c212ca44109f4a5d",
+  "domain": {
+    "n_min": 5.5125,
+    "p_min": 1
+  },
+  "identity_sha256": "d8db237970c71646068fdb625d0ce5ec3a3a7168d30592d1eb5844378e5b8819",
+  "manifest_sha256": "93a2f4565cd976b510990394720386c95b241619052db4485da58d3032b7ccf1",
+  "rationale": "Operator wfengq approved 2026-10-06 on Claude Code's proposal. K2 is expressible by the current FullScaleMethodFloor fields (K4 would need a model and contract 23.4 revision); K1 is dominated by K2; K3c2 equals K2 and larger c only lowers judgeability and onset detection. Widest domain (n_min 5.5125, p_min 1): domain share 0.96, judgeable share 0.67, no undetected onset pairs, not K0, zero flips outside the k=1 and k=2 fixed minimum. zone_above 0.002004 equals the sampling bound (0.99+2*step)/cos(pi/N)-0.99 at N=50.11; shrinking it to 0.00054 needs n_min 54.55 and drops the domain share to 0.38. Chosen on stage-1 outputs only; no stage-2 output for any alternative row and no validation-side data was examined.",
+  "round_id": "round_1",
+  "stage1_report_sha256": "2dd721d60b300dc7f8cf3a8d91dce6dacd868ec2c073d77b924a5ed70d88bc21",
+  "zone_form": "K2",
+  "zone_params": {
+    "form": "K2",
+    "min_counted": null,
+    "zone_above": 0.002004394531250009,
+    "zone_below": 0.0
+  },
+  "zone_row_id": "n=5.5125;p=1;K2"
+}
