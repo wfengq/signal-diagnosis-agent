@@ -22,6 +22,7 @@ class CallLedger:
         self.output_dir = output_dir
         self.total = 0
         self.per_case: dict[str, int] = {}
+        self.stop_reason: str | None = None
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def reserve(self, case_id: str) -> None:
@@ -34,6 +35,9 @@ class CallLedger:
         self.total += 1
 
     def _stop(self, reason: str, case_id: str) -> None:
+        # Recorded on the ledger as well: wrappers may re-raise CallCapStop as
+        # another exception type, so callers check ``stop_reason`` too.
+        self.stop_reason = reason
         payload = {
             "reason": reason,
             "case_id": case_id,

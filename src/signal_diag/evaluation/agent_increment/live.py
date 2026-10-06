@@ -7,18 +7,23 @@ subclass and never substitutes a scripted planner.
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
+from pydantic import BaseModel, ConfigDict
+
 from signal_diag.agent.intake import (
     INTAKE_PLANNER_IDENTITY,
+    ConfirmedContext,
     ContextDraft,
     IntakeCallLimits,
     IntakeRequest,
     OpenAICompatibleIntakeClient,
     RealLLMIntakePlanner,
 )
+from signal_diag.agent.models import AgentRunResult
 from signal_diag.agent.planner import PlannerOutputError, RealLLMPlanner
 from signal_diag.agent.prompts_v03 import _S1_PROMPT_V9_12
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
@@ -39,6 +44,21 @@ _MISSING_CREDENTIALS = (
     "environment before running real-model evaluation. "
     "This command does not fall back to ScriptedPlanner."
 )
+
+
+class LiveAgentResult(BaseModel):
+    """One agent-arm case: intake draft (T1), confirmation, and the diagnosis run."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", arbitrary_types_allowed=True)
+
+    family: Family
+    case_id: str
+    draft: ContextDraft | None = None
+    confirmed: ConfirmedContext | None = None
+    correction_count: int = 0
+    context_downgraded: bool = False
+    run: AgentRunResult
+    http_calls: int
 
 
 class AgentIncrementV912Planner(RealLLMPlanner):
@@ -63,7 +83,8 @@ class ReservingChatClient:
 
     async def create(self, **kwargs: Any) -> Any:
         self._ledger.reserve(self._case_id)
-        return await self._inner.create(**kwargs)
+        # Real SDK clients expose create at chat.completions, not at the root.
+        return await self._inner.chat.completions.create(**kwargs)
 
     async def aclose(self) -> None:
         close = getattr(self._inner, "close", None)
@@ -132,6 +153,38 @@ def _stimulus(
     )
 
 
+def confirmed_stimulus(
+    *,
+    signal_id: str,
+    confirmed: ConfirmedContext,
+    signal_ids_by_filename: Mapping[str, str],
+) -> tuple[StimulusContext, bool]:
+    """Stimulus from user-confirmed fields only. Returns (context, downgraded).
+
+    A mode whose required fields were not confirmed falls back to single_signal:
+    the reference must be a confirmed upload, and the nominal Hz a confirmed value.
+    """
+    mode = confirmed.mode
+    reference_id: str | None = None
+    if mode == "paired_reference":
+        name = confirmed.reference_file
+        reference_id = signal_ids_by_filename.get(name) if name is not None else None
+        if reference_id is None or reference_id == signal_id:
+            mode = "single_signal"
+    if mode == "nominal_single_tone" and (
+        confirmed.nominal_fundamental_hz is None or confirmed.stimulus_kind is None
+    ):
+        mode = "single_signal"
+    stimulus = _stimulus(
+        signal_id=signal_id,
+        reference_signal_id=reference_id,
+        confirmed_mode=mode,
+        nominal_fundamental_hz=confirmed.nominal_fundamental_hz,
+        stimulus_kind=confirmed.stimulus_kind,
+    )
+    return stimulus, mode != confirmed.mode
+
+
 async def run_live_agent(
     *,
     family: Family,
@@ -148,8 +201,16 @@ async def run_live_agent(
     base_url: str | None = "https://api.deepseek.com",
     model: str = "deepseek-v4-flash",
     reference_signal_id: str | None = None,
-) -> object:
-    """Run the agent arm. ``client`` is the raw SDK. This function reserves."""
+    signal_ids_by_filename: Mapping[str, str] | None = None,
+    diagnosis_request: str | None = None,
+) -> LiveAgentResult:
+    """Run the agent arm. ``client`` is the raw SDK. This function reserves.
+
+    With ``signal_ids_by_filename``, a T1 reference is resolved from the
+    confirmed ``reference_file`` only; ``reference_signal_id`` is then ignored.
+    ``diagnosis_request`` replaces ``user_text`` for the diagnosis run only (the
+    intake still reads ``user_text``), so the planner need not see the case text.
+    """
     key = require_live_credentials(api_key)
     guarded = ReservingChatClient(client, ledger, case_id)
     if family == "T1":
@@ -170,15 +231,28 @@ async def run_live_agent(
             )
         )
         confirmation = confirm_proposed_fields(draft, truth)
-        confirmed = confirmation.confirmed
-        stimulus = _stimulus(
-            signal_id=signal_id,
-            reference_signal_id=reference_signal_id,
-            confirmed_mode=confirmed.mode,
-            nominal_fundamental_hz=confirmed.nominal_fundamental_hz,
-            stimulus_kind=confirmed.stimulus_kind,
-        )
+        confirmed: ConfirmedContext | None = confirmation.confirmed
+        corrections = confirmation.correction_count
+        if signal_ids_by_filename is not None:
+            stimulus, downgraded = confirmed_stimulus(
+                signal_id=signal_id,
+                confirmed=confirmation.confirmed,
+                signal_ids_by_filename=signal_ids_by_filename,
+            )
+        else:
+            downgraded = False
+            stimulus = _stimulus(
+                signal_id=signal_id,
+                reference_signal_id=reference_signal_id,
+                confirmed_mode=confirmation.confirmed.mode,
+                nominal_fundamental_hz=confirmation.confirmed.nominal_fundamental_hz,
+                stimulus_kind=confirmation.confirmed.stimulus_kind,
+            )
     else:
+        draft = None
+        confirmed = None
+        corrections = 0
+        downgraded = False
         stimulus = StimulusContext(
             mode="single_signal",
             test_signal_id=signal_id,
@@ -196,8 +270,18 @@ async def run_live_agent(
     if RealLLMPlanner._prompt_spec.version != "v0.3-s1-planner-9.11":
         raise PlannerOutputError("product default prompt drifted")
     runtime = _runtime(repository=repository, planner=planner)
-    return await runtime.run(
+    run = await runtime.run(
         signal_id=signal_id,
-        user_request=user_text,
+        user_request=diagnosis_request if diagnosis_request is not None else user_text,
         stimulus_context=stimulus,
+    )
+    return LiveAgentResult(
+        family=family,
+        case_id=case_id,
+        draft=draft,
+        confirmed=confirmed,
+        correction_count=corrections,
+        context_downgraded=downgraded,
+        run=run,
+        http_calls=ledger.per_case.get(case_id, 0),
     )
