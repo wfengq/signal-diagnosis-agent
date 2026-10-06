@@ -1314,6 +1314,7 @@ pins, and an `httpx2` mismatch blocks support with
 the client instance's own transport, so it counts the same sends as before.
 Records written before D048, including the stopped `dev_2` study files, keep
 their recorded `httpx` labels.
+The `llm` extra pins `httpx2==2.12.0` alongside `openai==3.6.0`.
 
 ## 22. Regression troubleshooting workbench (D042)
 

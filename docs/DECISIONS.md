@@ -971,6 +971,9 @@ locked `openai==3.6.0`, its vendored `httpx2`, and the audit pins `httpx2`
 `docs/superpowers/specs/2026-10-06-oq023-sdk-dispatch-identity-design.md`.
 Contract: `CONTRACTS_V0_3_CONTEXTUAL.md` §21.10. Tests: T-CX425–T-CX427.
 
+The `llm` extra pins `httpx2==2.12.0` next to `openai==3.6.0`, so installs
+without the lock file get the audited dispatch client; CI found 2.13.1 otherwise.
+
 **Why:** the profile said `httpx` 0.28.1 and `httpx.AsyncClient.send`, so an
 `httpx2` upgrade would have passed the audit unnoticed. Send counting was never
 affected: observation wraps the client instance's own transport, verified
