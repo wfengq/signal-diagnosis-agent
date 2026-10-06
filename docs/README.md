@@ -44,15 +44,14 @@ Read these before changing behavior or public interfaces:
    §§1–§64.
 3. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) — deterministic T001–T285 and
    separately gated real-model evaluation/Demo requirements.
-4. [DECISIONS.md](DECISIONS.md) — D001–D043 architectural and process choices.
+4. [DECISIONS.md](DECISIONS.md) — D001–D044 architectural and process choices.
 5. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) — OQ-001–OQ-022 (OQ-013–OQ-018
    hygiene dispositions resolve HEAD vs frozen V0.2 documentation gaps;
    OQ-019 / D038 freezes the S1 planner-ablation study shape only;
    OQ-020 is approved as D043: regression full-scale check, V0.3 §23,
-   implemented in PR #41 (`0770514`) with no product floor; OQ-021 is open on
-   floor applicability when a side has no facts; OQ-022 is open on the
-   fixed-minimum critical zone under the cumulative tolerance reading;
-   2026-10-05 designs under `superpowers/specs/` and a
+   implemented in PR #41 (`0770514`); OQ-021 and OQ-022 are approved as
+   D044 (Option A / Option B) with T-CX381–T-CX386 for round_1 floor
+   registration; 2026-10-05 designs under `superpowers/specs/` and a
    roadmap amendment proposal under `superpowers/roadmaps/`).
 6. [CONTRACTS_V0_3_CONTEXTUAL.md](CONTRACTS_V0_3_CONTEXTUAL.md) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) — additive
