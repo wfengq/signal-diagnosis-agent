@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from typing import Literal, Protocol, runtime_checkable
 
 from signal_diag.agent.diagnosis import CausalPolicyVersion
+from signal_diag.agent.intake import IntakePlanner
 from signal_diag.agent.planner import PlannerModel
 from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.app.contextual_models import (
@@ -89,6 +90,7 @@ class ApplicationDependencies:
     rule_profile_loader: RuleProfileLoader
     knowledge_index: KnowledgeIndex
     causal_policy_version: CausalPolicyVersion = "v9_4_legacy"
+    intake_planner_factory: Callable[[], IntakePlanner] | None = None
 
 
 def _utc_now() -> datetime:

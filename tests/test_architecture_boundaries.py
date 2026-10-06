@@ -1283,6 +1283,7 @@ _V03_ADDITIVE_PATH_PREFIXES: tuple[str, ...] = (
 )
 _V03_ADDITIVE_EXACT_PATHS = frozenset(
     {
+        "src/signal_diag/agent/intake.py",
         "src/signal_diag/agent/prompts_v03.py",
         "src/signal_diag/agent/planner.py",
         "src/signal_diag/agent/models.py",
