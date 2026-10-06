@@ -329,6 +329,7 @@ class DiagnosisApplicationService:
         stimulus_kind: Literal["single_tone"] | None,
         user_request: str,
         channel: ChannelMode = "mixdown",
+        context_origin: Literal["intake_confirmed"] | None = None,
     ) -> ContextualRunSubmission:
         if not self._dependencies.planner_configured:
             raise PlannerNotConfiguredError(_planner_not_configured_detail())
@@ -431,6 +432,7 @@ class DiagnosisApplicationService:
             effective_capabilities=queued_caps,
             test_preview=test_preview,
             planner_identity=self._dependencies.planner_identity,
+            context_origin=context_origin,
         )
 
         async def execute() -> ContextualRunExecutionResult:

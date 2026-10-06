@@ -90,23 +90,82 @@
       </p>
     </section>
     <section id="intake-panel" aria-labelledby="intake-heading">
-      <h2 id="intake-heading">Free-text intake</h2>
+      <h2 id="intake-heading">Describe the problem</h2>
       <p class="muted">
-        Draft only. Nothing here starts a diagnosis. Copy confirmed fields into
-        the form above and submit that form yourself.
+        Describe what you hear and choose one or two WAV files. A model drafts
+        the diagnostic context from your text and the file names only; audio is
+        not sent to it. Nothing is diagnosed until you confirm the fields below.
       </p>
       <p>
         <label for="intake-text">Description</label>
         <textarea id="intake-text" rows="3"></textarea>
       </p>
       <p>
-        <label for="intake-files">WAV filenames</label>
+        <label for="intake-files">WAV files (one or two)</label>
         <input id="intake-files" type="file" accept=".wav,audio/wav" multiple>
+      </p>
+      <p>
+        <label for="intake-test-file">Test file</label>
+        <select id="intake-test-file"></select>
       </p>
       <p>
         <button type="button" id="intake-draft">Draft context</button>
       </p>
-      <pre id="intake-result"></pre>
+      <form id="intake-confirm" hidden>
+        <fieldset>
+          <legend>Confirm context</legend>
+          <p class="muted">
+            Only checked fields are used. A mode whose fields are not all
+            confirmed runs as an unknown one-WAV signal. Measured F0 is never
+            auto-filled.
+          </p>
+          <ul id="intake-questions"></ul>
+          <p>
+            <label for="intake-mode">Mode</label>
+            <select id="intake-mode">
+              <option value="single_signal">Unknown one-WAV signal</option>
+              <option value="nominal_single_tone">Declared single tone</option>
+              <option value="paired_reference">Compare with clean reference</option>
+            </select>
+            <input id="intake-mode-confirmed" type="checkbox">
+            <label for="intake-mode-confirmed">Confirmed</label>
+          </p>
+          <p id="intake-reference-fields" class="conditional-fields" hidden>
+            <label for="intake-reference">Reference WAV</label>
+            <select id="intake-reference"></select>
+            <input id="intake-reference-confirmed" type="checkbox">
+            <label for="intake-reference-confirmed">Confirmed</label>
+          </p>
+          <p id="intake-nominal-fields" class="conditional-fields" hidden>
+            <label for="intake-nominal-hz">Nominal fundamental (Hz)</label>
+            <input
+              id="intake-nominal-hz"
+              type="text"
+              inputmode="decimal"
+              autocomplete="off"
+            >
+            <input id="intake-nominal-confirmed" type="checkbox">
+            <label for="intake-nominal-confirmed">Confirmed</label>
+          </p>
+          <p id="intake-stimulus-fields" class="conditional-fields" hidden>
+            <label for="intake-stimulus-kind">Stimulus</label>
+            <select id="intake-stimulus-kind">
+              <option value="">Not sure</option>
+              <option value="single_tone">Single tone</option>
+            </select>
+            <input id="intake-stimulus-confirmed" type="checkbox">
+            <label for="intake-stimulus-confirmed">Confirmed</label>
+          </p>
+        </fieldset>
+        <p id="intake-plan" aria-live="polite"></p>
+        <p>
+          <button type="submit" id="intake-diagnose">Diagnose with confirmed context</button>
+        </p>
+      </form>
+      <details id="intake-raw" hidden>
+        <summary>Draft as returned</summary>
+        <pre id="intake-result"></pre>
+      </details>
     </section>
     <section id="lifecycle-panel" aria-live="polite">
       <h2>Lifecycle</h2>
@@ -174,6 +233,7 @@
       <h2>Accepted evaluation</h2>
     </section>
   </main>
+  <script src="/static/intake_flow.js" defer></script>
   <script src="/static/app.js" defer></script>
 </body>
 </html>

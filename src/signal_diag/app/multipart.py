@@ -199,8 +199,10 @@ _CONTEXTUAL_ALLOWED_FIELDS = frozenset(
         "stimulus_kind",
         "user_request",
         "channel",
+        "context_origin",
     }
 )
+_CONTEXTUAL_ORIGINS = frozenset({"intake_confirmed"})
 _CONTEXTUAL_REQUIRED_FIELDS = frozenset(
     {"test_file", "mode", "user_request", "channel"}
 )
@@ -224,6 +226,7 @@ class _ContextualParseState:
     stimulus_kind: bytes | None = None
     user_request: bytes | None = None
     channel: bytes | None = None
+    context_origin: bytes | None = None
     seen: set[str] = field(default_factory=set)
     current_name: str | None = None
     header_field: bytearray = field(default_factory=bytearray)
@@ -243,6 +246,7 @@ class ParsedContextualWavUpload:
     stimulus_kind: str | None
     user_request: str
     channel: ChannelMode
+    context_origin: str | None = None
 
 
 def _parse_nominal_hz(raw: bytes) -> float:
@@ -357,6 +361,8 @@ async def parse_contextual_wav_upload(
             state.user_request = payload
         elif name == "channel":
             state.channel = payload
+        elif name == "context_origin":
+            state.context_origin = payload
 
     def on_end() -> None:
         state.ended = True
@@ -426,6 +432,12 @@ async def parse_contextual_wav_upload(
     if state.nominal_fundamental_hz is not None:
         nominal_fundamental_hz = _parse_nominal_hz(state.nominal_fundamental_hz)
 
+    context_origin: str | None = None
+    if state.context_origin is not None:
+        context_origin = _decode_utf8(state.context_origin, what="context_origin").strip()
+        if context_origin not in _CONTEXTUAL_ORIGINS:
+            raise _invalid("context_origin must be intake_confirmed when provided")
+
     reference_data: bytes | None = None
     if "reference_file" in state.seen:
         reference_data = bytes(state.reference_bytes)
@@ -440,6 +452,7 @@ async def parse_contextual_wav_upload(
         stimulus_kind=stimulus_kind,
         user_request=user_request,
         channel=channel_text,  # type: ignore[arg-type]
+        context_origin=context_origin,
     )
 
 
