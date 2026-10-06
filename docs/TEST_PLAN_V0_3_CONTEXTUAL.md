@@ -487,3 +487,4 @@ evaluation or Demo assets, or T-CX001–T-CX386 meanings.
 | T-CX396 | Call caps are 21 per case and the stage total; crossing a cap stops the run and writes a stop record; output is write-once |
 | T-CX397 | Case sets meet design §4.1 proportions; the held-out set is generated from the frozen template and seed; SHA256SUMS and the manifest hash stay fixed |
 | T-CX398 | Offline end to end: scripted stand-ins run all three arms, the report is complete, and identity fields are present |
+| T-CX399 | Live runner: T1 intake then v9.12 contextual diagnosis, T2 v9.12 runtime; every HTTP send reserves a call first; caps stop before the next send; missing credentials do not fall back; dry-run does not call a model |
