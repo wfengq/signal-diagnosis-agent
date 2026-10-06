@@ -100,46 +100,58 @@ function setSubmitRunEnabled() {
 function renderPlannerReadiness(health) {
   const panel = document.getElementById("lifecycle-panel");
   panel.replaceChildren();
-  appendText(panel, "h2", "Lifecycle");
+  appendText(panel, "h2", "运行状态");
   const identity = health && health.planner_identity ? health.planner_identity : {};
   if (health && health.planner_configured) {
     appendText(
       panel,
       "p",
-      `Planner ready (${identity.provider} / ${identity.model} / ${identity.prompt_version}).`,
+      `诊断模型已就绪（${identity.provider} / ${identity.model} / ${identity.prompt_version}）。`,
       "planner-readiness",
     );
   } else {
     appendText(
       panel,
       "p",
-      `Diagnosis requires RealLLMPlanner configured (set ${"DEEPSEEK_" + "API" + "_KEY"}). The application does not fall back to ScriptedPlanner.`,
+      `诊断需要配置 RealLLMPlanner（设置环境变量 ${"DEEPSEEK_" + "API" + "_KEY"}）。应用不会回退到 ScriptedPlanner。`,
       "planner-readiness",
     );
   }
-  appendText(panel, "p", "No run yet.", "muted");
+  appendText(panel, "p", "还没有运行。", "muted");
 }
 
 function renderPlannerHealthFailure() {
   const panel = document.getElementById("lifecycle-panel");
   panel.replaceChildren();
-  appendText(panel, "h2", "Lifecycle");
+  appendText(panel, "h2", "运行状态");
   appendText(
     panel,
     "p",
-    "Could not load planner readiness from /api/v1/health.",
+    "无法从 /api/v1/health 读取诊断模型状态。",
     "planner-readiness",
   );
-  appendText(panel, "p", "No run yet.", "muted");
+  appendText(panel, "p", "还没有运行。", "muted");
 }
+
+const LIFECYCLE_LABELS = {
+  queued: "排队中",
+  running: "运行中",
+  completed: "已完成",
+  failed: "失败",
+};
 
 function renderLifecycle(status) {
   const panel = document.getElementById("lifecycle-panel");
   panel.replaceChildren();
-  appendText(panel, "h2", "Lifecycle");
-  appendText(panel, "p", status, "lifecycle-status");
+  appendText(panel, "h2", "运行状态");
+  appendText(
+    panel,
+    "p",
+    `${LIFECYCLE_LABELS[status] || status}（${status}）`,
+    `lifecycle-status status-${status}`,
+  );
   if (status === "queued" || status === "running") {
-    appendText(panel, "p", "elapsed", "lifecycle-elapsed");
+    appendText(panel, "p", "请稍候，计时中（elapsed）", "lifecycle-elapsed");
   }
 }
 
@@ -179,23 +191,23 @@ function renderDiagnosis(panel, snapshot) {
     return;
   }
   if (!result) {
-    appendText(panel, "p", "No diagnosis result.");
+    appendText(panel, "p", "没有诊断结果。");
     return;
   }
   const diagnosis = result.diagnosis;
-  appendText(panel, "p", `Agent status: ${result.status}`);
-  appendText(panel, "p", `Termination: ${result.termination_reason}`);
+  appendText(panel, "p", `Agent 状态：${result.status}`);
+  appendText(panel, "p", `结束原因：${result.termination_reason}`);
   if (diagnosis) {
-    appendText(panel, "p", `Outcome: ${diagnosis.outcome}`);
-    appendText(panel, "p", `Confidence: ${diagnosis.confidence_label}`);
+    appendText(panel, "p", `结论：${outcomeLabel(diagnosis.outcome)}`);
+    appendText(panel, "p", `置信度：${confidenceLabel(diagnosis.confidence_label)}`);
     for (const claim of diagnosis.claims || []) {
       const article = appendText(panel, "article", "");
       appendText(article, "h3", claim.claim_id);
       appendText(article, "p", claim.statement);
-      appendText(article, "p", `fault: ${claim.fault_type}`);
-      appendText(article, "p", `evidence: ${refsText(claim.evidence_refs)}`);
-      appendText(article, "p", `rules: ${refsText(claim.rule_refs)}`);
-      appendText(article, "p", `knowledge: ${refsText(claim.knowledge_refs)}`);
+      appendText(article, "p", `故障类型（fault）：${claim.fault_type}`);
+      appendText(article, "p", `证据（evidence）：${refsText(claim.evidence_refs)}`);
+      appendText(article, "p", `规则（rules）：${refsText(claim.rule_refs)}`);
+      appendText(article, "p", `知识（knowledge）：${refsText(claim.knowledge_refs)}`);
     }
   }
   for (const warning of result.warnings || []) {
@@ -209,7 +221,7 @@ function renderDiagnosis(panel, snapshot) {
 function renderDeclaration(panel, snapshot) {
   const context = snapshot.stimulus_context;
   if (!context) {
-    appendText(panel, "p", "No declared stimulus context for this run.");
+    appendText(panel, "p", "本次运行没有声明的激励上下文。");
     return;
   }
   appendText(panel, "p", `mode: ${context.mode}`);
@@ -225,7 +237,7 @@ function renderDeclaration(panel, snapshot) {
     appendText(panel, "p", `stimulus_kind: ${context.stimulus_kind}`);
   }
   if (snapshot.context_origin === "intake_confirmed") {
-    appendText(panel, "p", "context source: free-text draft, confirmed by the user");
+    appendText(panel, "p", "上下文来源：文字草稿，经用户确认（free-text draft, confirmed by the user）");
   }
   appendText(
     panel,
@@ -240,7 +252,7 @@ function renderQualification(panel, evidence) {
     QUALIFICATION_METRICS.has(item.metric),
   );
   if (!items.length) {
-    appendText(panel, "p", "No comparison qualification evidence.");
+    appendText(panel, "p", "没有比较资格证据。");
     return;
   }
   for (const item of items) {
@@ -257,10 +269,26 @@ function renderQualification(panel, evidence) {
 }
 
 const DIAGNOSTIC_MODE_LABELS = {
-  single_signal: "Unknown one-WAV signal",
-  nominal_single_tone: "Declared single tone",
-  paired_reference: "Compare with clean reference",
+  single_signal: "未知单文件信号（Unknown one-WAV signal）",
+  nominal_single_tone: "声明单音（Declared single tone）",
+  paired_reference: "与干净参考对比（Compare with clean reference）",
 };
+
+const OUTCOME_LABELS = {
+  supported_fault: "发现有证据支持的故障",
+  no_supported_fault: "未发现有证据支持的故障",
+  inconclusive: "无法下结论",
+};
+
+const CONFIDENCE_LABELS = { low: "低", medium: "中", high: "高" };
+
+function outcomeLabel(outcome) {
+  return OUTCOME_LABELS[outcome] ? `${OUTCOME_LABELS[outcome]}（${outcome}）` : outcome;
+}
+
+function confidenceLabel(label) {
+  return CONFIDENCE_LABELS[label] ? `${CONFIDENCE_LABELS[label]}（${label}）` : label;
+}
 
 function diagnosticModeLabel(modeName) {
   return DIAGNOSTIC_MODE_LABELS[modeName] || modeName;
@@ -289,7 +317,7 @@ function renderGuidance(panel, snapshot) {
   const guidance = snapshot.context_guidance;
   const controls = document.getElementById("upgrade-controls");
   if (!guidance) {
-    appendText(panel, "p", "No context upgrade guidance for this run.");
+    appendText(panel, "p", "本次运行没有上下文升级建议。");
     setUpgradeControlsVisible(false);
     if (controls) panel.appendChild(controls);
     return;
@@ -299,7 +327,7 @@ function renderGuidance(panel, snapshot) {
     .map(diagnosticModeLabel)
     .join(", ");
   if (unlockable) {
-    appendText(panel, "p", `Optional upgrades: ${unlockable}`);
+    appendText(panel, "p", `可选升级（Optional upgrades: ${unlockable}）`);
   }
   const required = guidance.required_inputs || {};
   for (const modeName of Object.keys(required)) {
@@ -313,7 +341,7 @@ function renderGuidance(panel, snapshot) {
   }
   const facts = guidance.observed_facts || [];
   if (facts.length) {
-    appendText(panel, "p", "observed_facts:");
+    appendText(panel, "p", "已观测到的事实（observed_facts）：");
     const list = document.createElement("ul");
     list.id = "observed-facts";
     panel.appendChild(list);
@@ -328,7 +356,7 @@ function renderGuidance(panel, snapshot) {
   appendText(
     panel,
     "p",
-    "Upgrade requires a user-supplied reference WAV or declared nominal_fundamental_hz; measured F0 is never auto-filled.",
+    "升级需要你提供参考 WAV 或声明 nominal_fundamental_hz；不会用测得的基频自动填写。",
     "muted",
   );
   setUpgradeControlsVisible(Boolean(heldTestSignal.blob));
@@ -341,7 +369,7 @@ function renderLimitations(panel, snapshot) {
   const diagnosis = snapshot.result && snapshot.result.diagnosis;
   const limitations = (diagnosis && diagnosis.limitations) || [];
   if (!limitations.length) {
-    appendText(panel, "p", "No causal limitations recorded.");
+    appendText(panel, "p", "没有记录因果限制。");
     return;
   }
   for (const item of limitations) {
@@ -351,7 +379,7 @@ function renderLimitations(panel, snapshot) {
 
 function renderTrace(panel, events) {
   if (!events.length) {
-    appendText(panel, "p", "No trace events.");
+    appendText(panel, "p", "没有轨迹事件。");
     return;
   }
   for (const event of events) {
@@ -364,13 +392,13 @@ function renderTrace(panel, events) {
     if (event.purpose) {
       appendText(article, "p", event.purpose);
     }
-    appendText(article, "p", `refs: ${refsText(event.reference_ids)}`);
+    appendText(article, "p", `引用（refs）：${refsText(event.reference_ids)}`);
   }
 }
 
 function renderObservations(panel, observations) {
   if (!observations.length) {
-    appendText(panel, "p", "No observations.");
+    appendText(panel, "p", "没有观测记录。");
     return;
   }
   for (const item of observations) {
@@ -393,7 +421,7 @@ function renderEvidence(panel, evidence) {
     (item) => !QUALIFICATION_METRICS.has(item.metric),
   );
   if (!items.length) {
-    appendText(panel, "p", "No evidence.");
+    appendText(panel, "p", "没有证据。");
     return;
   }
   for (const item of items) {
@@ -411,7 +439,7 @@ function renderEvidence(panel, evidence) {
 
 function renderRules(panel, batches) {
   if (!batches.length) {
-    appendText(panel, "p", "No rule evaluations.");
+    appendText(panel, "p", "没有规则判定。");
     return;
   }
   for (const batch of batches) {
@@ -431,7 +459,7 @@ function renderRules(panel, batches) {
 
 function renderKnowledge(panel, retrievals) {
   if (!retrievals.length) {
-    appendText(panel, "p", "No knowledge retrievals.");
+    appendText(panel, "p", "没有知识引用。");
     return;
   }
   for (const retrieval of retrievals) {
@@ -446,6 +474,60 @@ function renderKnowledge(panel, retrievals) {
 
 function isContextualSnapshot(snapshot) {
   return Boolean(snapshot && snapshot.stimulus_context);
+}
+
+function setTechPanelVisible(panelId, visible) {
+  const wrapper = document.getElementById(panelId).closest("details");
+  if (wrapper) wrapper.hidden = !visible;
+}
+
+function renderSummary(snapshot) {
+  const card = document.getElementById("summary-card");
+  const body = document.getElementById("summary-body");
+  body.replaceChildren();
+  card.hidden = false;
+  if (snapshot.status === "failed" && snapshot.application_error) {
+    appendText(body, "p", "诊断没有完成", "summary-outcome outcome-error");
+    appendText(body, "p", `${snapshot.application_error.code}: ${snapshot.application_error.message}`);
+    return;
+  }
+  const result = snapshot.result || {};
+  const diagnosis = result.diagnosis;
+  const list = document.createElement("dl");
+  list.className = "summary-facts";
+  body.appendChild(list);
+  const fact = (term, value) => {
+    appendText(list, "dt", term);
+    appendText(list, "dd", value);
+  };
+  if (diagnosis) {
+    appendText(
+      body,
+      "p",
+      outcomeLabel(diagnosis.outcome),
+      `summary-outcome outcome-${diagnosis.outcome}`,
+    );
+    body.insertBefore(body.lastChild, list);
+    fact("置信度", confidenceLabel(diagnosis.confidence_label));
+  } else {
+    appendText(body, "p", `Agent 没有给出诊断（${result.status || "error"}）`, "summary-outcome outcome-error");
+    body.insertBefore(body.lastChild, list);
+    fact("结束原因", String(result.termination_reason || ""));
+  }
+  const context = snapshot.stimulus_context;
+  if (context) {
+    fact("诊断模式", diagnosticModeLabel(context.mode));
+    if (context.nominal_fundamental_hz != null) {
+      fact("标称基频", `${context.nominal_fundamental_hz} Hz`);
+    }
+  }
+  if (snapshot.context_origin === "intake_confirmed") {
+    fact("上下文来源", "文字草稿，经用户确认");
+  }
+  const claims = (diagnosis && diagnosis.claims) || [];
+  if (claims.length) {
+    appendText(body, "p", claims[0].statement, "summary-claim");
+  }
 }
 
 function renderTerminal(snapshot) {
@@ -463,38 +545,41 @@ function renderTerminal(snapshot) {
   if (upgradeControls) {
     upgradeControls.remove();
   }
-  clearPanel(diagnosisPanel, "Diagnosis");
-  clearPanel(guidancePanel, "Context guidance");
-  clearPanel(declarationPanel, "Declared context");
-  clearPanel(qualificationPanel, "Comparison qualification");
-  clearPanel(limitationPanel, "Causal limitations");
-  clearPanel(waveformPanel, "Waveform preview");
-  clearPanel(tracePanel, "Trace");
-  clearPanel(evidencePanel, "Evidence");
-  clearPanel(rulesPanel, "Rules");
-  clearPanel(knowledgePanel, "Knowledge");
+  clearPanel(diagnosisPanel, "诊断详情");
+  clearPanel(guidancePanel, "上下文升级建议");
+  clearPanel(declarationPanel, "声明的上下文");
+  clearPanel(qualificationPanel, "比较资格");
+  clearPanel(limitationPanel, "因果限制");
+  clearPanel(waveformPanel, "波形预览");
+  clearPanel(tracePanel, "运行轨迹");
+  clearPanel(evidencePanel, "证据");
+  clearPanel(rulesPanel, "规则判定");
+  clearPanel(knowledgePanel, "知识引用");
   if (upgradeControls) {
     guidancePanel.appendChild(upgradeControls);
   }
 
+  renderSummary(snapshot);
   renderDiagnosis(diagnosisPanel, snapshot);
   renderGuidance(guidancePanel, snapshot);
-  if (isContextualSnapshot(snapshot)) {
+  const result = snapshot.result || {};
+  const evidence = result.evidence || [];
+  const diagnosis = result.diagnosis;
+  const limitations = (diagnosis && diagnosis.limitations) || [];
+  const contextual = isContextualSnapshot(snapshot);
+  if (contextual) {
     renderDeclaration(declarationPanel, snapshot);
-    const result = snapshot.result || {};
-    renderQualification(qualificationPanel, result.evidence || []);
+    renderQualification(qualificationPanel, evidence);
     renderLimitations(limitationPanel, snapshot);
   } else {
-    appendText(declarationPanel, "p", "Not applicable for legacy V0.2 one-WAV runs.");
-    appendText(qualificationPanel, "p", "Not applicable for legacy V0.2 one-WAV runs.");
-    const diagnosis = snapshot.result && snapshot.result.diagnosis;
-    const limitations = (diagnosis && diagnosis.limitations) || [];
+    appendText(declarationPanel, "p", "旧版 V0.2 单文件运行不适用。");
+    appendText(qualificationPanel, "p", "旧版 V0.2 单文件运行不适用。");
     if (limitations.length) {
       for (const item of limitations) {
         appendText(limitationPanel, "p", item);
       }
     } else {
-      appendText(limitationPanel, "p", "No causal limitations recorded.");
+      appendText(limitationPanel, "p", "没有记录因果限制。");
     }
   }
 
@@ -502,13 +587,36 @@ function renderTerminal(snapshot) {
   if (preview) {
     renderPreview(waveformPanel, preview);
   }
-  const result = snapshot.result || {};
-  renderTrace(tracePanel, snapshot.trace_events || []);
-  appendText(tracePanel, "h3", "Observations");
-  renderObservations(tracePanel, result.observations || []);
-  renderEvidence(evidencePanel, result.evidence || []);
-  renderRules(rulesPanel, result.rule_evaluation_batches || []);
-  renderKnowledge(knowledgePanel, result.knowledge_retrievals || []);
+  const traceEvents = snapshot.trace_events || [];
+  const observations = result.observations || [];
+  const batches = result.rule_evaluation_batches || [];
+  const retrievals = result.knowledge_retrievals || [];
+  renderTrace(tracePanel, traceEvents);
+  appendText(tracePanel, "h3", "观测记录（Observations）");
+  renderObservations(tracePanel, observations);
+  renderEvidence(evidencePanel, evidence);
+  renderRules(rulesPanel, batches);
+  renderKnowledge(knowledgePanel, retrievals);
+
+  // Technical panels with nothing to show for this run stay hidden.
+  setTechPanelVisible("declaration-panel", contextual);
+  setTechPanelVisible(
+    "qualification-panel",
+    contextual && evidence.some((item) => QUALIFICATION_METRICS.has(item.metric)),
+  );
+  setTechPanelVisible("limitation-panel", limitations.length > 0);
+  setTechPanelVisible("waveform-panel", Boolean(preview));
+  setTechPanelVisible("trace-panel", traceEvents.length + observations.length > 0);
+  setTechPanelVisible(
+    "evidence-panel",
+    evidence.some((item) => !QUALIFICATION_METRICS.has(item.metric)),
+  );
+  setTechPanelVisible(
+    "rules-panel",
+    batches.some((batch) => (batch.evaluations || []).length > 0),
+  );
+  setTechPanelVisible("knowledge-panel", retrievals.length > 0);
+  document.getElementById("tech-panels").hidden = false;
 
   const jsonLink = document.getElementById("report-json");
   const htmlLink = document.getElementById("report-html");
@@ -630,8 +738,8 @@ function updateContextualFields() {
 function showError(message) {
   const panel = document.getElementById("lifecycle-panel");
   panel.replaceChildren();
-  appendText(panel, "h2", "Lifecycle");
-  appendText(panel, "p", message);
+  appendText(panel, "h2", "运行状态");
+  appendText(panel, "p", message, "lifecycle-error");
 }
 
 async function parseJsonResponse(response) {
@@ -691,7 +799,7 @@ async function submitDiagnose(event) {
     } else {
       const fileInput = document.getElementById("wav-file");
       if (!fileInput.files || !fileInput.files[0]) {
-        throw new Error("Choose a WAV file before submitting.");
+        throw new Error("请先选择一个 WAV 文件。");
       }
       testBlob = fileInput.files[0];
       testFilename = fileInput.files[0].name || "input.wav";
@@ -717,7 +825,7 @@ async function submitDiagnose(event) {
     } else if (diagnosticMode === "paired_reference") {
       const referenceInput = document.getElementById("reference-file");
       if (!referenceInput.files || !referenceInput.files[0]) {
-        throw new Error("Choose a reference WAV before submitting.");
+        throw new Error("请先选择参考 WAV。");
       }
       body.append("reference_file", referenceInput.files[0]);
     }
@@ -733,11 +841,11 @@ async function submitDiagnose(event) {
 
 async function submitUpgradePaired() {
   if (!heldTestSignal.blob) {
-    throw new Error("No held test WAV to upgrade.");
+    throw new Error("没有可重新提交的待测 WAV。");
   }
   const referenceInput = document.getElementById("upgrade-reference-file");
   if (!referenceInput.files || !referenceInput.files[0]) {
-    throw new Error("Choose a reference WAV before upgrading.");
+    throw new Error("请先选择参考 WAV。");
   }
   const body = new FormData();
   body.append("test_file", heldTestSignal.blob, heldTestSignal.filename || "input.wav");
@@ -752,11 +860,11 @@ async function submitUpgradePaired() {
 
 async function submitUpgradeNominal() {
   if (!heldTestSignal.blob) {
-    throw new Error("No held test WAV to upgrade.");
+    throw new Error("没有可重新提交的待测 WAV。");
   }
   const hz = document.getElementById("upgrade-nominal-hz").value;
   if (!hz || !String(hz).trim()) {
-    throw new Error("Enter a nominal fundamental in Hz before upgrading.");
+    throw new Error("请先填写标称基频（Hz）。");
   }
   const body = new FormData();
   body.append("test_file", heldTestSignal.blob, heldTestSignal.filename || "input.wav");
@@ -867,10 +975,10 @@ async function requestIntakeDraft() {
   const text = document.getElementById("intake-text").value.trim();
   const filenames = intakeState.filenames;
   if (!text || filenames.length === 0) {
-    throw new Error("Describe the problem and choose at least one WAV file.");
+    throw new Error("请先写问题描述，并至少选择一个 WAV 文件。");
   }
   if (filenames.length > INTAKE_MAX_FILES) {
-    throw new Error(`Choose at most ${INTAKE_MAX_FILES} WAV files.`);
+    throw new Error(`最多选择 ${INTAKE_MAX_FILES} 个 WAV 文件。`);
   }
   const testFile = intakeTestFile();
   const sampleRates = await readIntakeSampleRates(filenames);
@@ -936,6 +1044,23 @@ function intakeSelection() {
   };
 }
 
+const INTAKE_FIELD_NAMES_ZH = {
+  mode: "诊断模式",
+  reference_file: "参考文件",
+  nominal_fundamental_hz: "标称基频",
+  stimulus_kind: "激励类型",
+};
+
+function intakeDowngradeNoteZh(assembly) {
+  const fields = assembly.unconfirmed_fields
+    .map((field) => INTAKE_FIELD_NAMES_ZH[field] || field)
+    .join("、");
+  if (assembly.downgraded_from === null) {
+    return `${fields}未确认，按单文件信号诊断。`;
+  }
+  return `${diagnosticModeLabel(assembly.downgraded_from)}还需要确认${fields}，现按单文件信号诊断。`;
+}
+
 function updateIntakePlan() {
   const mode = document.getElementById("intake-mode").value;
   document.getElementById("intake-reference-fields").hidden = mode !== "paired_reference";
@@ -951,7 +1076,8 @@ function updateIntakePlan() {
     );
     const note = intakeDowngradeMessage(assembly);
     plan.textContent =
-      `Will diagnose as: ${diagnosticModeLabel(assembly.mode)}.` + (note ? ` Note: ${note}.` : "");
+      `将按此模式诊断：${diagnosticModeLabel(assembly.mode)}。` +
+      (note ? ` ${intakeDowngradeNoteZh(assembly)}` : "");
     button.disabled = !plannerHealthAllowsSubmit;
   } catch (error) {
     plan.textContent = error instanceof Error ? error.message : String(error);

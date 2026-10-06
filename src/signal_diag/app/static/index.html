@@ -1,238 +1,266 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Signal Diagnosis Agent</title>
+  <title>信号失真诊断 · Signal Diagnosis Agent</title>
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <header>
-    <p>
-      <a href="/regression">Regression troubleshooting workbench</a>
+    <div class="header-row">
+      <h1 class="page-title">信号失真诊断 <span class="muted">Signal Diagnosis Agent</span></h1>
+      <a href="/regression">回归排查工作台（Regression troubleshooting workbench）</a>
+    </div>
+    <p class="banner">
+      注意：本服务仅供本机单人使用，没有登录保护，请勿暴露到不受信任的网络。
+      <span class="banner-en">Warning: local single-user/no-auth service. Do not expose this
+      server to an untrusted network.</span>
     </p>
     <p class="banner">
-      Warning: local single-user/no-auth service. Do not expose this server
-      to an untrusted network.
-    </p>
-    <p class="banner">
-      Rule thresholds are profile_s1_distortion 1.0.0-demo demonstration
-      settings (1% clipping, 5% THD), not industry standards or SLAs.
+      规则阈值是演示设置，不是行业标准或服务承诺。
+      <span class="banner-en">Rule thresholds are profile_s1_distortion 1.0.0-demo demonstration
+      settings (1% clipping, 5% THD), not industry standards or SLAs.</span>
     </p>
   </header>
   <main>
-    <section id="input-panel" aria-labelledby="input-heading">
-      <h1 id="input-heading">Diagnose a signal</h1>
-      <form id="diagnose-form">
-        <fieldset>
-          <legend>Source</legend>
-          <p>
-            <input id="source-mode-wav" name="source-mode" type="radio" value="wav" checked>
-            <label for="source-mode-wav">WAV file</label>
-          </p>
-          <p>
-            <label for="wav-file">WAV upload</label>
-            <input id="wav-file" name="file" type="file" accept=".wav,audio/wav">
-          </p>
-          <p>
-            <input id="source-mode-preset" name="source-mode" type="radio" value="preset">
-            <label for="source-mode-preset">Demo preset</label>
-          </p>
-          <p>
-            <label for="preset-id">Preset</label>
-            <select id="preset-id" name="preset_id"></select>
-          </p>
-        </fieldset>
-        <fieldset id="context-fieldset">
-          <legend>Diagnostic context</legend>
-          <p>
-            <label for="diagnostic-mode">Mode</label>
-            <select id="diagnostic-mode" name="diagnostic_mode">
-              <option value="single_signal" selected>Unknown one-WAV signal</option>
-              <option value="nominal_single_tone">Declared single tone</option>
-              <option value="paired_reference">Compare with clean reference</option>
-            </select>
-          </p>
-          <p id="nominal-fields" class="conditional-fields" hidden>
-            <label for="nominal-fundamental-hz">Nominal fundamental (Hz)</label>
-            <input
-              id="nominal-fundamental-hz"
-              name="nominal_fundamental_hz"
-              type="text"
-              inputmode="decimal"
-              autocomplete="off"
-            >
-          </p>
-          <p id="reference-fields" class="conditional-fields" hidden>
-            <label for="reference-file">Reference WAV</label>
-            <input id="reference-file" name="reference_file" type="file" accept=".wav,audio/wav">
-          </p>
-        </fieldset>
-        <p>
-          <label for="question">Question</label>
-          <textarea id="question" name="user_request" rows="3">Why does this signal sound distorted?</textarea>
+  <div class="layout">
+    <div class="col-input">
+      <section id="intake-panel" aria-labelledby="intake-heading">
+        <h2 id="intake-heading">描述问题</h2>
+        <p class="muted">
+          说说你听到了什么，并选择一到两个 WAV 文件。模型只根据你的文字和文件名起草诊断上下文，
+          不会收到音频。确认下面的字段之前，不会开始诊断。
         </p>
         <p>
-          <label for="channel">Channel</label>
-          <select id="channel" name="channel">
-            <option value="left">left</option>
-            <option value="right">right</option>
-            <option value="mixdown" selected>mixdown</option>
-          </select>
+          <label for="intake-text">问题描述</label>
+          <textarea id="intake-text" rows="3" placeholder="例如：新功放放 1 kHz 测试音，听着发毛；旧功放的录音也附上了"></textarea>
         </p>
         <p>
-          <button type="submit" id="submit-run">Run diagnosis</button>
+          <label for="intake-files">WAV 文件（一到两个）</label>
+          <input id="intake-files" type="file" accept=".wav,audio/wav" multiple>
         </p>
-      </form>
-      <p>
-        <a id="report-json" hidden>Download JSON report</a>
-        <a id="report-html" hidden>Download HTML report</a>
-      </p>
-    </section>
-    <section id="intake-panel" aria-labelledby="intake-heading">
-      <h2 id="intake-heading">Describe the problem</h2>
-      <p class="muted">
-        Describe what you hear and choose one or two WAV files. A model drafts
-        the diagnostic context from your text and the file names only; audio is
-        not sent to it. Nothing is diagnosed until you confirm the fields below.
-      </p>
-      <p>
-        <label for="intake-text">Description</label>
-        <textarea id="intake-text" rows="3"></textarea>
-      </p>
-      <p>
-        <label for="intake-files">WAV files (one or two)</label>
-        <input id="intake-files" type="file" accept=".wav,audio/wav" multiple>
-      </p>
-      <p>
-        <label for="intake-test-file">Test file</label>
-        <select id="intake-test-file"></select>
-      </p>
-      <p>
-        <button type="button" id="intake-draft">Draft context</button>
-      </p>
-      <form id="intake-confirm" hidden>
-        <fieldset>
-          <legend>Confirm context</legend>
-          <p class="muted">
-            Only checked fields are used. A mode whose fields are not all
-            confirmed runs as an unknown one-WAV signal. Measured F0 is never
-            auto-filled.
-          </p>
-          <ul id="intake-questions"></ul>
+        <p>
+          <label for="intake-test-file">待测文件</label>
+          <select id="intake-test-file"></select>
+        </p>
+        <p>
+          <button type="button" id="intake-draft">起草上下文</button>
+        </p>
+        <form id="intake-confirm" hidden>
+          <fieldset>
+            <legend>确认上下文</legend>
+            <p class="muted">
+              只使用已勾选的字段。某个模式需要的字段没有全部确认时，按单文件信号诊断。
+              不会用测得的基频自动填写。
+            </p>
+            <ul id="intake-questions"></ul>
+            <p>
+              <label for="intake-mode">诊断模式</label>
+              <select id="intake-mode">
+                <option value="single_signal">未知单文件信号（Unknown one-WAV signal）</option>
+                <option value="nominal_single_tone">声明单音（Declared single tone）</option>
+                <option value="paired_reference">与干净参考对比（Compare with clean reference）</option>
+              </select>
+              <input id="intake-mode-confirmed" type="checkbox">
+              <label for="intake-mode-confirmed">已确认</label>
+            </p>
+            <p id="intake-reference-fields" class="conditional-fields" hidden>
+              <label for="intake-reference">参考 WAV</label>
+              <select id="intake-reference"></select>
+              <input id="intake-reference-confirmed" type="checkbox">
+              <label for="intake-reference-confirmed">已确认</label>
+            </p>
+            <p id="intake-nominal-fields" class="conditional-fields" hidden>
+              <label for="intake-nominal-hz">标称基频（Hz）</label>
+              <input
+                id="intake-nominal-hz"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+              >
+              <input id="intake-nominal-confirmed" type="checkbox">
+              <label for="intake-nominal-confirmed">已确认</label>
+            </p>
+            <p id="intake-stimulus-fields" class="conditional-fields" hidden>
+              <label for="intake-stimulus-kind">激励类型</label>
+              <select id="intake-stimulus-kind">
+                <option value="">不确定</option>
+                <option value="single_tone">单音</option>
+              </select>
+              <input id="intake-stimulus-confirmed" type="checkbox">
+              <label for="intake-stimulus-confirmed">已确认</label>
+            </p>
+          </fieldset>
+          <p id="intake-plan" aria-live="polite"></p>
           <p>
-            <label for="intake-mode">Mode</label>
-            <select id="intake-mode">
-              <option value="single_signal">Unknown one-WAV signal</option>
-              <option value="nominal_single_tone">Declared single tone</option>
-              <option value="paired_reference">Compare with clean reference</option>
-            </select>
-            <input id="intake-mode-confirmed" type="checkbox">
-            <label for="intake-mode-confirmed">Confirmed</label>
+            <button type="submit" id="intake-diagnose">按已确认的上下文诊断</button>
           </p>
-          <p id="intake-reference-fields" class="conditional-fields" hidden>
-            <label for="intake-reference">Reference WAV</label>
-            <select id="intake-reference"></select>
-            <input id="intake-reference-confirmed" type="checkbox">
-            <label for="intake-reference-confirmed">Confirmed</label>
-          </p>
-          <p id="intake-nominal-fields" class="conditional-fields" hidden>
-            <label for="intake-nominal-hz">Nominal fundamental (Hz)</label>
-            <input
-              id="intake-nominal-hz"
-              type="text"
-              inputmode="decimal"
-              autocomplete="off"
-            >
-            <input id="intake-nominal-confirmed" type="checkbox">
-            <label for="intake-nominal-confirmed">Confirmed</label>
-          </p>
-          <p id="intake-stimulus-fields" class="conditional-fields" hidden>
-            <label for="intake-stimulus-kind">Stimulus</label>
-            <select id="intake-stimulus-kind">
-              <option value="">Not sure</option>
-              <option value="single_tone">Single tone</option>
-            </select>
-            <input id="intake-stimulus-confirmed" type="checkbox">
-            <label for="intake-stimulus-confirmed">Confirmed</label>
-          </p>
-        </fieldset>
-        <p id="intake-plan" aria-live="polite"></p>
-        <p>
-          <button type="submit" id="intake-diagnose">Diagnose with confirmed context</button>
-        </p>
-      </form>
-      <details id="intake-raw" hidden>
-        <summary>Draft as returned</summary>
-        <pre id="intake-result"></pre>
+        </form>
+        <details id="intake-raw" hidden>
+          <summary>查看模型返回的草稿原文</summary>
+          <pre id="intake-result"></pre>
+        </details>
+      </section>
+      <details id="manual-panel">
+        <summary>高级：手动设置上下文</summary>
+        <section id="input-panel" aria-labelledby="input-heading">
+          <h2 id="input-heading">手动诊断</h2>
+          <form id="diagnose-form">
+            <fieldset>
+              <legend>信号来源</legend>
+              <p>
+                <input id="source-mode-wav" name="source-mode" type="radio" value="wav" checked>
+                <label for="source-mode-wav">WAV 文件</label>
+              </p>
+              <p>
+                <label for="wav-file">上传 WAV</label>
+                <input id="wav-file" name="file" type="file" accept=".wav,audio/wav">
+              </p>
+              <p>
+                <input id="source-mode-preset" name="source-mode" type="radio" value="preset">
+                <label for="source-mode-preset">示例信号</label>
+              </p>
+              <p>
+                <label for="preset-id">示例</label>
+                <select id="preset-id" name="preset_id"></select>
+              </p>
+            </fieldset>
+            <fieldset id="context-fieldset">
+              <legend>诊断上下文</legend>
+              <p>
+                <label for="diagnostic-mode">诊断模式</label>
+                <select id="diagnostic-mode" name="diagnostic_mode">
+                  <option value="single_signal" selected>未知单文件信号（Unknown one-WAV signal）</option>
+                  <option value="nominal_single_tone">声明单音（Declared single tone）</option>
+                  <option value="paired_reference">与干净参考对比（Compare with clean reference）</option>
+                </select>
+              </p>
+              <p id="nominal-fields" class="conditional-fields" hidden>
+                <label for="nominal-fundamental-hz">标称基频（Hz）</label>
+                <input
+                  id="nominal-fundamental-hz"
+                  name="nominal_fundamental_hz"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                >
+              </p>
+              <p id="reference-fields" class="conditional-fields" hidden>
+                <label for="reference-file">参考 WAV</label>
+                <input id="reference-file" name="reference_file" type="file" accept=".wav,audio/wav">
+              </p>
+            </fieldset>
+            <p>
+              <label for="question">提问（发送给诊断模型，保持英文）</label>
+              <textarea id="question" name="user_request" rows="3">Why does this signal sound distorted?</textarea>
+            </p>
+            <p>
+              <label for="channel">声道</label>
+              <select id="channel" name="channel">
+                <option value="left">left（左）</option>
+                <option value="right">right（右）</option>
+                <option value="mixdown" selected>mixdown（混合）</option>
+              </select>
+            </p>
+            <p>
+              <button type="submit" id="submit-run">开始诊断</button>
+            </p>
+          </form>
+        </section>
       </details>
-    </section>
-    <section id="lifecycle-panel" aria-live="polite">
-      <h2>Lifecycle</h2>
-      <p>No run yet.</p>
-    </section>
-    <section id="diagnosis-panel">
-      <h2>Diagnosis</h2>
-    </section>
-    <section id="guidance-panel">
-      <h2>Context guidance</h2>
-      <div id="upgrade-controls" hidden>
-        <p id="upgrade-help" class="muted">
-          Re-submit the held test WAV with a user-supplied reference or typed
-          nominal fundamental. Measured F0 is never auto-filled.
+    </div>
+    <div class="col-results">
+      <section id="lifecycle-panel" aria-live="polite">
+        <h2>运行状态</h2>
+        <p>还没有运行。</p>
+      </section>
+      <section id="summary-card" hidden>
+        <h2>诊断摘要</h2>
+        <div id="summary-body"></div>
+        <p class="report-links">
+          <a id="report-json" hidden>下载 JSON 报告</a>
+          <a id="report-html" hidden>下载 HTML 报告</a>
         </p>
-        <p>
-          <label for="upgrade-reference-file">Upgrade reference WAV</label>
-          <input
-            id="upgrade-reference-file"
-            name="upgrade_reference_file"
-            type="file"
-            accept=".wav,audio/wav"
-          >
-          <button type="button" id="upgrade-paired">Upgrade as paired reference</button>
-        </p>
-        <p>
-          <label for="upgrade-nominal-hz">Upgrade nominal fundamental (Hz)</label>
-          <input
-            id="upgrade-nominal-hz"
-            name="upgrade_nominal_hz"
-            type="text"
-            inputmode="decimal"
-            autocomplete="off"
-            value=""
-          >
-          <button type="button" id="upgrade-nominal">Upgrade as nominal single tone</button>
-        </p>
+      </section>
+      <section id="guidance-panel">
+        <h2>上下文升级建议</h2>
+        <div id="upgrade-controls" hidden>
+          <p id="upgrade-help" class="muted">
+            用你提供的参考 WAV 或手动填写的标称基频，重新提交刚才的待测文件。
+            不会用测得的基频自动填写。
+          </p>
+          <p>
+            <label for="upgrade-reference-file">参考 WAV</label>
+            <input
+              id="upgrade-reference-file"
+              name="upgrade_reference_file"
+              type="file"
+              accept=".wav,audio/wav"
+            >
+            <button type="button" id="upgrade-paired">按参考对比重新诊断</button>
+          </p>
+          <p>
+            <label for="upgrade-nominal-hz">标称基频（Hz）</label>
+            <input
+              id="upgrade-nominal-hz"
+              name="upgrade_nominal_hz"
+              type="text"
+              inputmode="decimal"
+              autocomplete="off"
+              value=""
+            >
+            <button type="button" id="upgrade-nominal">按声明单音重新诊断</button>
+          </p>
+        </div>
+      </section>
+      <section id="diagnosis-panel">
+        <h2>诊断详情</h2>
+      </section>
+      <div id="tech-panels" hidden>
+        <h2 class="group-title">技术细节</h2>
+        <details class="tech-panel">
+          <summary>声明的上下文（Declared context）</summary>
+          <section id="declaration-panel"></section>
+        </details>
+        <details class="tech-panel">
+          <summary>比较资格（Comparison qualification）</summary>
+          <section id="qualification-panel"></section>
+        </details>
+        <details class="tech-panel">
+          <summary>因果限制（Causal limitations）</summary>
+          <section id="limitation-panel"></section>
+        </details>
+        <details class="tech-panel">
+          <summary>波形预览（Waveform preview）</summary>
+          <section id="waveform-panel"></section>
+        </details>
+        <details class="tech-panel">
+          <summary>运行轨迹（Trace）</summary>
+          <section id="trace-panel"></section>
+        </details>
+        <details class="tech-panel">
+          <summary>证据（Evidence）</summary>
+          <section id="evidence-panel"></section>
+        </details>
+        <details class="tech-panel">
+          <summary>规则判定（Rules）</summary>
+          <section id="rules-panel"></section>
+        </details>
+        <details class="tech-panel">
+          <summary>知识引用（Knowledge）</summary>
+          <section id="knowledge-panel"></section>
+        </details>
       </div>
-    </section>
-    <section id="declaration-panel">
-      <h2>Declared context</h2>
-    </section>
-    <section id="qualification-panel">
-      <h2>Comparison qualification</h2>
-    </section>
-    <section id="limitation-panel">
-      <h2>Causal limitations</h2>
-    </section>
-    <section id="waveform-panel">
-      <h2>Waveform preview</h2>
-    </section>
-    <section id="trace-panel">
-      <h2>Trace</h2>
-    </section>
-    <section id="evidence-panel">
-      <h2>Evidence</h2>
-    </section>
-    <section id="rules-panel">
-      <h2>Rules</h2>
-    </section>
-    <section id="knowledge-panel">
-      <h2>Knowledge</h2>
-    </section>
+    </div>
+  </div>
+  </main>
+  <details id="evaluation-details" class="page-footer">
+    <summary>V0.2 已验收评测（历史数据，不是本次运行的结果）</summary>
     <section id="evaluation-panel">
       <h2>Accepted evaluation</h2>
     </section>
-  </main>
+  </details>
   <script src="/static/intake_flow.js" defer></script>
   <script src="/static/app.js" defer></script>
 </body>
