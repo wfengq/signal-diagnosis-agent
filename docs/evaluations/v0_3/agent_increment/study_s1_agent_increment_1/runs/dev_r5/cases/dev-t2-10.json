@@ -1,0 +1,213 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t2-10",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": true,
+      "tool_calls": 4,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t2-10",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": true,
+      "tool_calls": 90,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t2-10",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": false,
+      "tool_calls": 6,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t2-10",
+  "cited_locations": [
+    {
+      "channel": "left",
+      "evaluation_id": "ruleval_88a2a0baf7b7f803",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000002_000",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 1.0,
+        "start_s": 0.0
+      }
+    },
+    {
+      "channel": "left",
+      "evaluation_id": "ruleval_88a2a0baf7b7f803",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000002_001",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 1.0,
+        "start_s": 0.0
+      }
+    },
+    {
+      "channel": "left",
+      "evaluation_id": "ruleval_88a2a0baf7b7f803",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000002_002",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 1.0,
+        "start_s": 0.0
+      }
+    },
+    {
+      "channel": "left",
+      "evaluation_id": "ruleval_88a2a0baf7b7f803",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000002_003",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 1.0,
+        "start_s": 0.0
+      }
+    },
+    {
+      "channel": "left",
+      "evaluation_id": "ruleval_88a2a0baf7b7f803",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000002_004",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 1.0,
+        "start_s": 0.0
+      }
+    },
+    {
+      "channel": "left",
+      "evaluation_id": "ruleval_88a2a0baf7b7f803",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000002_005",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 1.0,
+        "start_s": 0.0
+      }
+    },
+    {
+      "channel": "left",
+      "evaluation_id": "ruleval_88a2a0baf7b7f803",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000002_006",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 1.0,
+        "start_s": 0.0
+      }
+    },
+    {
+      "channel": "left",
+      "evaluation_id": "ruleval_88a2a0baf7b7f803",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000002_007",
+      "fault": "clipping",
+      "time_range": {
+        "end_s": 1.0,
+        "start_s": 0.0
+      }
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_window_1",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000002_000",
+        "ev_detect_clipping_detect_clipping_000002_001",
+        "ev_detect_clipping_detect_clipping_000002_002",
+        "ev_detect_clipping_detect_clipping_000002_003",
+        "ev_detect_clipping_detect_clipping_000002_004",
+        "ev_detect_clipping_detect_clipping_000002_005",
+        "ev_detect_clipping_detect_clipping_000002_006",
+        "ev_detect_clipping_detect_clipping_000002_007"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_88a2a0baf7b7f803",
+        "ruleval_1973312e788be8a5",
+        "ruleval_1fb7aaa91405b047"
+      ],
+      "statement": "Clipping is affirmatively supported on the left channel within the 0.0-1.0 s window: clipping_mechanism=true, flat_top_detected=true, full_scale_detected=true, with a substantial clipping ratio of 0.2 (1600 clipped samples, 1 event). The right channel and the 1.0-2.0 s left-channel window show no clipping."
+    }
+  ],
+  "family": "T2",
+  "http_calls": 5,
+  "intake_error_detail": null,
+  "predicted_conclusion": "clipping",
+  "run_errors": [],
+  "run_status": "success",
+  "split": "dev",
+  "termination_reason": "planner_finished",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "left",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "purpose": "Whole-file left-channel clipping check as the first step of the stereo localization plan.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000001",
+      "normalized_arguments": {
+        "channel": "right",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "purpose": "Left channel shows clipping; check the right channel to complete the stereo localization plan before narrowing to a time window.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000002",
+      "normalized_arguments": {
+        "channel": "left",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 1.0,
+          "start_s": 0.0
+        }
+      },
+      "purpose": "Left channel showed clipping on the whole file; scan the first half of the left channel to localize the clipping event in time.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000003",
+      "normalized_arguments": {
+        "channel": "left",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 2.0,
+          "start_s": 1.0
+        }
+      },
+      "purpose": "Left channel showed clipping in the first half; scan the second half of the left channel to complete time localization.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    }
+  ]
+}

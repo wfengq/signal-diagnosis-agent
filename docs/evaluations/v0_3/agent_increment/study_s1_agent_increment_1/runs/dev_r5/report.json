@@ -1,0 +1,48 @@
+{
+  "cases_completed": 24,
+  "cases_planned": 24,
+  "families": [
+    {
+      "case_count": 12,
+      "evidence_traceability": 1.0,
+      "family": "T1",
+      "increment": 1,
+      "increment_label": "not_held_out_line",
+      "safety_hard_pass": true,
+      "t1_correction_count": 12,
+      "t1_downstream_increment": -5,
+      "t1_field_accuracy": 0.7083333333333334,
+      "t2_agent_tool_calls": null,
+      "t2_localization_accuracy": null,
+      "t2_strong_tool_calls": null,
+      "unsupported_positive_count": 0
+    },
+    {
+      "case_count": 12,
+      "evidence_traceability": 1.0,
+      "family": "T2",
+      "increment": 0,
+      "increment_label": "not_held_out_line",
+      "safety_hard_pass": true,
+      "t1_correction_count": null,
+      "t1_downstream_increment": null,
+      "t1_field_accuracy": null,
+      "t2_agent_tool_calls": 47,
+      "t2_localization_accuracy": 0.7142857142857143,
+      "t2_strong_tool_calls": 464,
+      "unsupported_positive_count": 0
+    }
+  ],
+  "finished_at": "2026-10-06T12:31:21.930384+00:00",
+  "http_calls": 112,
+  "incomplete": false,
+  "notes": {
+    "diagnosis_request": "请诊断这段测试信号是否存在失真；如有，说明类型，以及出现在哪个时间段和哪个声道。",
+    "localization": "whole-file analysis never counts as localized, for every arm",
+    "t1_downstream_fixed_arms": "scripted stand-in judge, not the live planner; the downstream increment mixes intake context with diagnosis engine and is not a paired comparison",
+    "t1_primary_metric": "first-draft context fields, before any correction"
+  },
+  "split": "dev",
+  "stop": null,
+  "study_id": "study_s1_agent_increment_1"
+}
