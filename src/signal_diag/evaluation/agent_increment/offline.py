@@ -227,7 +227,8 @@ def _agent_spans(record: SignalRecord) -> tuple[TimeRange, ...]:
     return tuple(spans)
 
 
-def _localized(supports: tuple[SegmentSupport, ...], case: IncrementCase) -> bool | None:
+def fault_localized(supports: tuple[SegmentSupport, ...], case: IncrementCase) -> bool | None:
+    """Shared by the offline and live paths: a located FAIL overlaps a truth span."""
     if not case.truth.fault_spans:
         return None
     for span in case.truth.fault_spans:
@@ -271,7 +272,7 @@ def _t2_outcome(
         context_fields_correct=0,
         context_fields_graded=0,
         correction_count=0,
-        localization_correct=_localized(positive, case),
+        localization_correct=fault_localized(positive, case),
         tool_calls=tool_calls,
     )
 
@@ -286,6 +287,12 @@ def _run_t2(study_dir: Path, case: IncrementCase) -> list[ArmOutcome]:
         _t2_outcome(case, "strong_fixed", strong.supports, strong.tool_calls),
         _t2_outcome(case, "weak_fixed", weak_supports, weak_calls),
     ]
+
+
+def fixed_arm_outcomes(study_dir: Path, case: IncrementCase) -> list[ArmOutcome]:
+    """strong_fixed and weak_fixed rows for one case. Neither arm calls a model."""
+    rows = _run_t1(study_dir, case) if case.family == "T1" else _run_t2(study_dir, case)
+    return [row for row in rows if row.arm != "agent"]
 
 
 def study_identity() -> dict[str, object]:

@@ -46,3 +46,18 @@ report whose identity fields are populated, and records zero HTTP calls.
 
 The Web UI adds a draft-only intake box. It posts to `/api/v1/intake/draft`
 and does not submit the existing diagnosis form.
+
+## Batch driver (T-CX400–T-CX404)
+
+`python -m signal_diag.evaluation.agent_increment` now has three mutually exclusive actions:
+
+```text
+--dry-run --split {dev,heldout} --cases N          # estimate only, no model
+--freeze-prompts --approved-by NAME --approved-at DATE   # stage F record, write-once
+--run --split {dev,heldout} [--out DIR]            # live stage; needs DEEPSEEK_API_KEY
+```
+
+- `--run --split dev` writes to `<study>/runs/dev_<UTC stamp>/` by default: `identity.json`, one `cases/<case_id>.json` per completed case, `ledger.json`, `report.json`, and `stop_record.json` when a stage stops early.
+- `--run --split heldout` refuses without a matching `prompt_freeze_record.json`, outside `<study>/runs/heldout_*`, or when a held-out run already exists.
+- Output never contains audio, the API key, or raw provider requests or responses.
+- Offline verification uses a fake SDK shaped like the real one (`chat.completions.create` only). No live stage has been run.
