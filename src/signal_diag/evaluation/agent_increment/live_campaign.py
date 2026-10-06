@@ -566,16 +566,32 @@ async def run_campaign(
             stop = {"reason": "aborted", "error_type": type(error).__name__}
         raise
     finally:
-        await _close_client(client)
-        payload = _report_payload(
-            split=split,
-            stop=stop,
-            cases=cases,
-            completed=completed,
-            outcomes=outcomes,
-            ledger=ledger,
-            finished_at=now().isoformat(),
-        )
+        write_error: Exception | None = None
+        try:
+            await _close_client(client)
+        except Exception as error:  # noqa: BLE001 - keep the audit trail; never mask the original error
+            write_error = error
+        try:
+            payload = _report_payload(
+                split=split,
+                stop=stop,
+                cases=cases,
+                completed=completed,
+                outcomes=outcomes,
+                ledger=ledger,
+                finished_at=now().isoformat(),
+            )
+        except Exception as error:  # noqa: BLE001 - fall back to a minimal report
+            write_error = write_error or error
+            payload = {
+                "study_id": STUDY_ID,
+                "split": split,
+                "incomplete": True,
+                "stop": stop,
+                "cases_completed": len(completed),
+                "http_calls": ledger.total,
+                "report_error": type(error).__name__,
+            }
         writes: list[tuple[Path, object]] = [
             (
                 output_dir / "ledger.json",
@@ -585,7 +601,6 @@ async def run_campaign(
         stop_path = output_dir / "stop_record.json"
         if stop is not None and not stop_path.exists():
             writes.append((stop_path, stop))
-        write_error: Exception | None = None
         for path, content in writes:
             try:
                 _write_json(path, content)

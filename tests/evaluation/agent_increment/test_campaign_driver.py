@@ -740,3 +740,31 @@ def test_t_cx400_explicit_whole_file_span_is_not_localized() -> None:
     run = _run("supported_fault", [_claim("clipping", ("ev_full",))], [evidence])
     result = LiveAgentResult.model_construct(family="T2", run=run, correction_count=0)
     assert live_outcome(case, result, duration_s=2.0).localization_correct is False
+
+
+@pytest.mark.asyncio
+async def test_t_cx401_failing_close_or_report_never_masks_the_original_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    study = _mini_study(tmp_path)
+
+    class BadClose(FakeSDK):
+        async def close(self) -> None:
+            raise RuntimeError("close failed")
+
+    def explode(case: IncrementCase, result: Any, **kwargs: Any) -> Any:
+        raise OSError("original")
+
+    def bad_report(**kwargs: Any) -> Any:
+        raise ValueError("report failed")
+
+    monkeypatch.setattr(live_campaign, "live_outcome", explode)
+    monkeypatch.setattr(live_campaign, "_report_payload", bad_report)
+    out = study / "runs" / "dev_mask"
+    with pytest.raises(OSError, match="original"):
+        await run_campaign(
+            split="dev", study_dir=study, output_dir=out, api_key="sk-test", client_factory=BadClose
+        )
+    report = json.loads((out / "report.json").read_text(encoding="utf-8"))
+    assert report["incomplete"] is True and report["report_error"] == "ValueError"
+    assert (out / "ledger.json").exists()
