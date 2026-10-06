@@ -527,11 +527,11 @@ def _floor_identity_ok(
 ) -> bool:
     if floor is None:
         return False
+    if baseline is None or candidate is None:
+        return False
     if full_scale_floor_digest(floor) != floor.digest:
         return False
     for facts in (baseline, candidate):
-        if facts is None:
-            continue
         if (
             floor.facts_version != facts.facts_version
             or floor.full_scale_threshold != facts.full_scale_threshold
