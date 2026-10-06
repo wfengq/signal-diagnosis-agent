@@ -961,3 +961,21 @@ validation. T2 localization and the study planner v9.15 stay out of the
 product. The live acceptance run uses development T1 cases only, needs its own
 handoff with a call cap, and produces no quality number; it is not compared
 with H1 and does not replace the V0.2 79/80.
+
+## D048 — SDK observation identity names the dispatching client (OQ-023 A)
+
+**Decision (operator 2026-10-06):** adopt OQ-023 Option A. The SDK observation
+profile records the HTTP client that actually dispatches requests for the
+locked `openai==3.6.0`, its vendored `httpx2`, and the audit pins `httpx2`
+2.12.0 alongside the existing pins. Design:
+`docs/superpowers/specs/2026-10-06-oq023-sdk-dispatch-identity-design.md`.
+Contract: `CONTRACTS_V0_3_CONTEXTUAL.md` §21.10. Tests: T-CX425–T-CX427.
+
+**Why:** the profile said `httpx` 0.28.1 and `httpx.AsyncClient.send`, so an
+`httpx2` upgrade would have passed the audit unnoticed. Send counting was never
+affected: observation wraps the client instance's own transport, verified
+against a closed local port with no model call.
+
+**Unchanged:** every recorded artifact, including the stopped `dev_2` study's
+files and the D041 send-factor identity string, which keep the old labels as
+history; product prompts and diagnosis behavior.

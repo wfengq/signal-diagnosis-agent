@@ -528,3 +528,13 @@ API, report, prompt or frozen test, and must not alter T-CX001–T-CX419 meaning
 | T-CX422 | The two-column layout is a CSS grid above 1100 px with a sticky results column, single column below; no framework or CDN |
 | T-CX423 | `lang="zh-CN"`; every English string pinned by frozen tests stays on the page or in the script; the default diagnosis question is not translated |
 | T-CX424 | Browser proof (manual, not in CI): with a scripted intake and stub planner, the intake → confirm → diagnose flow completes at 1440 px and 390 px widths with no page errors and no horizontal scroll |
+
+T-CX425–T-CX427 are additive definitions for D048
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §21.10). They make no model call and must not
+alter T-CX001–T-CX424 meanings.
+
+| ID | Definition |
+|----|------------|
+| T-CX425 | The audited SDK observation profile names the HTTP client the SDK dispatches through (`httpx2` for `openai==3.6.0`): family, version from that module, and `httpx2.AsyncClient.send`; the reviewed identity matches and the installed profile is supported |
+| T-CX426 | An `httpx2` version that differs from the reviewed one makes the profile unsupported with `httpx2_version_drift:…`; a profile naming a different dispatch family is rejected at attach with `native_http_family_mismatch` |
+| T-CX427 | Against a closed local port, an attached observation records paired SDK-attempt and HTTP-send start/end events for one SDK call |
