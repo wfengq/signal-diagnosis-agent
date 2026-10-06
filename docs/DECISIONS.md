@@ -850,7 +850,8 @@ tests fail, stop and report without updating sealed hashes or allowlists.
 
 **Tests:** T-CX381 (OQ-021 A), T-CX382 (OQ-022 B contract pin), T-CX383 (YAML
 load + digest check), T-CX384 (YAML equals freeze values at full precision),
-T-CX385 (product builder wires the floor), T-CX386 (registry equals loaded
+T-CX385 (product builder wires the floor; eligible checks judged with the
+registered product floor), T-CX386 (registry equals loaded
 YAML; supersedes empty-registry assertions of T-CX363/T-CX371 where they
 conflict).
 

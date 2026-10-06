@@ -11,9 +11,11 @@ import yaml
 from signal_diag.rules.full_scale_check import (
     PRODUCT_APPROVED_FULL_SCALE_FLOORS,
     FullScaleMethodFloor,
+    evaluate_full_scale_check,
     full_scale_floor_digest,
     load_approved_full_scale_floor_yaml,
 )
+from tests.rules.full_scale_fixtures import eligible
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FLOOR_YAML = (
@@ -90,8 +92,64 @@ def test_t_cx386_product_registry_equals_loaded_yaml_floor() -> None:
     assert isinstance(PRODUCT_APPROVED_FULL_SCALE_FLOORS[0], FullScaleMethodFloor)
 
 
-def test_t_cx385_product_builder_wires_approved_floor() -> None:
+def test_t_cx385_builder_wires_floor_approved_product_floor() -> None:
     from signal_diag.app.regression import build_regression_service
 
     service = build_regression_service()
     assert service._full_scale_floor == PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]
+
+
+def _evaluate_product_floor(anchor, repeats):
+    return evaluate_full_scale_check(
+        check_id="chk_t_cx385",
+        anchor=anchor,
+        repeats=repeats,
+        floor=PRODUCT_APPROVED_FULL_SCALE_FLOORS[0],
+        supersedes=None,
+    )
+
+
+def test_t_cx385_no_to_yes_large_onset_regression_detected() -> None:
+    anchor, repeats = eligible(baseline=(0, 0.5), candidate=(20000, 1.0))
+    record = _evaluate_product_floor(anchor, repeats)
+    assert record.status == "regression_detected"
+    assert record.floor == PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]
+    assert record.unmet_conditions == ()
+    assert record.unevaluated_conditions == ()
+
+
+def test_t_cx385_yes_to_yes_increase_below_floor_no_regression() -> None:
+    anchor, repeats = eligible(baseline=(20000, 1.0), candidate=(20500, 1.0))
+    record = _evaluate_product_floor(anchor, repeats)
+    assert record.status == "no_regression_detected"
+    assert record.floor == PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]
+    assert record.unmet_conditions == ()
+    assert record.unevaluated_conditions == ()
+
+
+def test_t_cx385_yes_to_yes_increase_above_floor_regression_detected() -> None:
+    anchor, repeats = eligible(baseline=(20000, 1.0), candidate=(22000, 1.0))
+    record = _evaluate_product_floor(anchor, repeats)
+    assert record.status == "regression_detected"
+    assert record.floor == PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]
+    assert record.unmet_conditions == ()
+    assert record.unevaluated_conditions == ()
+
+
+def test_t_cx385_critical_zone_both_sides_descriptive_only() -> None:
+    anchor, repeats = eligible(baseline=(20000, 0.991), candidate=(22000, 0.991))
+    record = _evaluate_product_floor(anchor, repeats)
+    assert record.status == "descriptive_only"
+    assert record.floor == PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]
+    assert "critical_zone:baseline" in record.unmet_conditions
+    assert "critical_zone:candidate" in record.unmet_conditions
+    assert record.unevaluated_conditions == ()
+
+
+def test_t_cx385_count_floor_boundary_strict_greater_than_no_regression() -> None:
+    anchor, repeats = eligible(baseline=(20000, 1.0), candidate=(21280, 1.0))
+    record = _evaluate_product_floor(anchor, repeats)
+    assert record.status == "no_regression_detected"
+    assert record.floor == PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]
+    assert record.unmet_conditions == ()
+    assert record.unevaluated_conditions == ()

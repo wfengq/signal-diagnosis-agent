@@ -458,5 +458,5 @@ updating sealed hashes or allowlists.
 | T-CX382 | OQ-022 Option B: §23.4 requires any approved floor `zone_above` ≥ one 16-bit step; registered floor satisfies it; `_in_critical_zone` unchanged |
 | T-CX383 | Versioned floor YAML under `rules/profiles/` loads; digest self-check rejects tampering |
 | T-CX384 | YAML numeric fields equal freeze_record.json at full precision (no rounding) |
-| T-CX385 | `build_regression_service` wires the approved floor (no longer `full_scale_floor=None`) |
+| T-CX385 | `build_regression_service` wires the approved floor (no longer `full_scale_floor=None`); eligible submissions judged with `PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]` follow the product count floor (1280 samples) and transition table (regression / no regression / critical-zone descriptive_only) |
 | T-CX386 | `PRODUCT_APPROVED_FULL_SCALE_FLOORS` equals the loaded YAML floor; supersedes empty-registry assertions where they conflict |
