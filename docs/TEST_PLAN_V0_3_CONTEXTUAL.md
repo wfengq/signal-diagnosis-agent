@@ -516,3 +516,15 @@ or a product prompt switch, and must not alter T-CX001–T-CX410 meanings.
 | T-CX417 | Missing credentials: `intake diagnose` exits 2 with `planner_not_configured`, prints no report, and no fallback runs |
 | T-CX418 | Browser helpers under Node: the draft request body holds text and file metadata only; the diagnose form carries the confirmed fields, the context origin, the neutral question and the audio; the WAV header reader matches Python; the page loads `intake_flow.js` before `app.js` and the draft request sends no audio |
 | T-CX419 | The browser assembly and downgrade message match the Python implementation on the shared table |
+
+T-CX420–T-CX424 are additive definitions for the Web UI layout design
+(`docs/superpowers/specs/2026-10-06-web-ui-layout-design.md`). They change no
+API, report, prompt or frozen test, and must not alter T-CX001–T-CX419 meanings.
+
+| ID | Definition |
+|----|------------|
+| T-CX420 | The intake panel comes before the manual form; the manual form sits in a collapsed `<details id="manual-panel">` and keeps every original element id |
+| T-CX421 | The summary card reads only existing snapshot fields (outcome, confidence, mode, context origin, claims) and holds the report links; technical panels are collapsed `<details class="tech-panel">` with unchanged ids, shown only after a run and hidden when empty; the V0.2 evaluation summary sits collapsed after the results |
+| T-CX422 | The two-column layout is a CSS grid above 1100 px with a sticky results column, single column below; no framework or CDN |
+| T-CX423 | `lang="zh-CN"`; every English string pinned by frozen tests stays on the page or in the script; the default diagnosis question is not translated |
+| T-CX424 | Browser proof (manual, not in CI): with a scripted intake and stub planner, the intake → confirm → diagnose flow completes at 1440 px and 390 px widths with no page errors and no horizontal scroll |

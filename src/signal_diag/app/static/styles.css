@@ -134,6 +134,158 @@ a {
   background: #fff;
 }
 
+.header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.page-title {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.page-title .muted {
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+.banner-en {
+  display: block;
+  font-size: 0.85rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0 1rem;
+}
+
+.col-input,
+.col-results {
+  min-width: 0;
+}
+
+details {
+  margin-bottom: 0.9rem;
+}
+
+details > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#manual-panel,
+.tech-panel,
+.page-footer {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.15rem;
+}
+
+#manual-panel > section,
+.tech-panel > section,
+.page-footer > section {
+  border: 0;
+  padding: 0.5rem 0 0;
+  margin: 0;
+}
+
+.tech-panel > section > h2 {
+  display: none;
+}
+
+.tech-panel {
+  margin-bottom: 0.5rem;
+}
+
+.group-title {
+  font-size: 1.05rem;
+  margin: 0.5rem 0 0.6rem;
+}
+
+#summary-card {
+  border-left: 0.35rem solid var(--accent);
+}
+
+.summary-outcome {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.outcome-supported_fault {
+  color: #9a3412;
+}
+
+.outcome-no_supported_fault {
+  color: #166534;
+}
+
+.outcome-inconclusive,
+.outcome-error {
+  color: var(--warn);
+}
+
+.summary-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.2rem 1rem;
+  margin: 0 0 0.6rem;
+}
+
+.summary-facts dt {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.summary-facts dd {
+  margin: 0;
+}
+
+.summary-claim {
+  border-top: 1px solid var(--line);
+  padding-top: 0.5rem;
+}
+
+.report-links {
+  margin: 0.4rem 0 0;
+}
+
+#lifecycle-panel {
+  padding: 0.6rem 1.15rem;
+}
+
+#lifecycle-panel h2 {
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+}
+
+#lifecycle-panel p {
+  margin: 0.2rem 0;
+}
+
+@media (min-width: 1100px) {
+  body {
+    max-width: 90rem;
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    align-items: start;
+  }
+
+  .col-results {
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+}
+
 article {
   border-top: 1px solid var(--line);
   padding-top: 0.6rem;
