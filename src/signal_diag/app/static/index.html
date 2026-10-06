@@ -89,6 +89,25 @@
         <a id="report-html" hidden>Download HTML report</a>
       </p>
     </section>
+    <section id="intake-panel" aria-labelledby="intake-heading">
+      <h2 id="intake-heading">Free-text intake</h2>
+      <p class="muted">
+        Draft only. Nothing here starts a diagnosis. Copy confirmed fields into
+        the form above and submit that form yourself.
+      </p>
+      <p>
+        <label for="intake-text">Description</label>
+        <textarea id="intake-text" rows="3"></textarea>
+      </p>
+      <p>
+        <label for="intake-files">WAV filenames</label>
+        <input id="intake-files" type="file" accept=".wav,audio/wav" multiple>
+      </p>
+      <p>
+        <button type="button" id="intake-draft">Draft context</button>
+      </p>
+      <pre id="intake-result"></pre>
+    </section>
     <section id="lifecycle-panel" aria-live="polite">
       <h2>Lifecycle</h2>
       <p>No run yet.</p>

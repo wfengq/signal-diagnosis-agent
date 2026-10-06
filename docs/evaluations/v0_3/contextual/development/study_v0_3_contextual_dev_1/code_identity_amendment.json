@@ -550,5 +550,22 @@
     "calibration_recompute_unchanged": true,
     "selected_threshold_percent_unchanged": 5.0,
     "model_calls": 0
+  },
+  {
+    "amendment_id": "d045_s1_agent_increment_offline",
+    "amendment_kind": "append_only_code_identity",
+    "created_at_utc": "2026-10-06T06:30:00+00:00",
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "product_tree_sha256": "56f54c9272abeae314262aea214474aa93b67ae2d4949ee95a36e7cde6610364",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "scope": "D045 S1 agent increment offline (T-CX398): intake draft, v9.12 prompt, segment evidence profile, scripted three-arm study; product default prompt remains v9.11; model_calls=0",
+    "qualification_recompute_unchanged": true,
+    "calibration_recompute_unchanged": true,
+    "selected_threshold_percent_unchanged": 5.0,
+    "model_calls": 0
   }
 ]
