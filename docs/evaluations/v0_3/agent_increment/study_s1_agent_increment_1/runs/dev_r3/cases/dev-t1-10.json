@@ -1,0 +1,138 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t1-10",
+      "conclusion_correct": false,
+      "context_fields_correct": 3,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 4,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t1-10",
+      "conclusion_correct": true,
+      "context_fields_correct": 3,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t1-10",
+      "conclusion_correct": false,
+      "context_fields_correct": 1,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t1-10",
+  "cited_locations": [],
+  "claims": [],
+  "confirmed": {
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 440.0,
+    "reference_file": null,
+    "stimulus_kind": "single_tone"
+  },
+  "context_downgraded": false,
+  "correction_count": 0,
+  "draft": {
+    "asked_fields": [
+      "reference_file",
+      "stimulus_kind"
+    ],
+    "missing_fields": [
+      "reference_file",
+      "stimulus_kind"
+    ],
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 440.0,
+    "questions": [
+      "Is there a reference file to compare against?",
+      "Is the stimulus a single tone or something else?"
+    ],
+    "reference_file": null,
+    "stimulus_kind": null
+  },
+  "family": "T1",
+  "http_calls": 6,
+  "intake_error_detail": null,
+  "predicted_conclusion": "failed",
+  "run_status": "error",
+  "split": "dev",
+  "termination_reason": "max_rule_evaluations",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "purpose": "Whole-file clipping check with channel mixdown as the first localization step for this 0.5 s single-channel signal.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000001",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.125,
+          "start_s": 0.0
+        }
+      },
+      "purpose": "Whole-file mixdown clipping is supported; the request asks where the fault occurs, so scan the first of four consecutive windows covering the 0.5 s file.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000002",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.25,
+          "start_s": 0.125
+        }
+      },
+      "purpose": "Continue the window scan on the second of four consecutive windows covering the 0.5 s file to localize where clipping occurs.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000003",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.375,
+          "start_s": 0.25
+        }
+      },
+      "purpose": "Continue the window scan on the third of four consecutive windows covering the 0.5 s file to localize where clipping occurs.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    }
+  ]
+}

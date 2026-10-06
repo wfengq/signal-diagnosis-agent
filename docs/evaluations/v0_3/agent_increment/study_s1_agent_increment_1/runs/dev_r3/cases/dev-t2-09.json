@@ -1,0 +1,109 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t2-09",
+      "conclusion_correct": false,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": false,
+      "tool_calls": 4,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t2-09",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": true,
+      "tool_calls": 90,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t2-09",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": false,
+      "tool_calls": 6,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t2-09",
+  "cited_locations": [],
+  "claims": [],
+  "family": "T2",
+  "http_calls": 5,
+  "intake_error_detail": null,
+  "predicted_conclusion": "failed",
+  "run_status": "error",
+  "split": "dev",
+  "termination_reason": "max_rule_evaluations",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "purpose": "Whole-file mixdown clipping check as the first localization step for this broad distortion request.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000001",
+      "normalized_arguments": {
+        "channel": "left",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "purpose": "Whole-file mixdown clipping was absent; a fault in one channel can vanish in the mixdown, so check the left channel separately.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000002",
+      "normalized_arguments": {
+        "channel": "left",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.5,
+          "start_s": 0.0
+        }
+      },
+      "purpose": "Whole-file left channel shows clipping; window the left channel to localize the clipping in time.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000003",
+      "normalized_arguments": {
+        "channel": "left",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 1.0,
+          "start_s": 0.5
+        }
+      },
+      "purpose": "The first left-channel window (0.0-0.5 s) shows no clipping; continue windowing the left channel to localize the clipping event.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    }
+  ]
+}

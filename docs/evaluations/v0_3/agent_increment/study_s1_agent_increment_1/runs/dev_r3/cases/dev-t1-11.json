@@ -1,0 +1,129 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t1-11",
+      "conclusion_correct": false,
+      "context_fields_correct": 4,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": true,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 4,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t1-11",
+      "conclusion_correct": true,
+      "context_fields_correct": 4,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": true,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t1-11",
+      "conclusion_correct": true,
+      "context_fields_correct": 1,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t1-11",
+  "cited_locations": [],
+  "claims": [],
+  "confirmed": {
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 1000.0,
+    "reference_file": null,
+    "stimulus_kind": "single_tone"
+  },
+  "context_downgraded": false,
+  "correction_count": 0,
+  "draft": {
+    "asked_fields": [],
+    "missing_fields": [],
+    "mode": "nominal_single_tone",
+    "nominal_fundamental_hz": 1000.0,
+    "questions": [],
+    "reference_file": null,
+    "stimulus_kind": "single_tone"
+  },
+  "family": "T1",
+  "http_calls": 6,
+  "intake_error_detail": null,
+  "predicted_conclusion": "failed",
+  "run_status": "error",
+  "split": "dev",
+  "termination_reason": "max_rule_evaluations",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "purpose": "Whole-file clipping observation with channel mixdown as the first localization step for this single-channel 0.5 s signal.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000001",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.125,
+          "start_s": 0.0
+        }
+      },
+      "purpose": "Whole-file mixdown clipping is supported; scan the first of four consecutive windows covering the 0.5 s file to localize the time segment where clipping occurs.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000002",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.25,
+          "start_s": 0.125
+        }
+      },
+      "purpose": "Continue the consecutive-window localization scan on the second of four equal-length windows covering the 0.5 s file.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_detect_clipping_000003",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": {
+          "end_s": 0.375,
+          "start_s": 0.25
+        }
+      },
+      "purpose": "Continue the consecutive-window localization scan on the third of four equal-length windows covering the 0.5 s file.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    }
+  ]
+}
