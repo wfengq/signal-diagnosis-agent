@@ -662,7 +662,7 @@
       "no_fault": true,
       "split": "heldout",
       "test_file": "extwav_validation_6bc03693bd8f0023_test.wav",
-      "text": "单音 440 Hz，我听不出失真。",
+      "text": "这段 440 Hz 正弦听着干净，没有参考文件。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
@@ -710,7 +710,7 @@
       "no_fault": true,
       "split": "heldout",
       "test_file": "extwav_validation_6bc03693bd8f0023_test.wav",
-      "text": "单音 440 Hz，我听不出失真。",
+      "text": "听着干净的是这段 440 Hz 正弦，别的没带。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
@@ -734,7 +734,7 @@
       "no_fault": true,
       "split": "heldout",
       "test_file": "extwav_validation_9f719b53a909854f_test.wav",
-      "text": "单音 1000 Hz，我听不出失真。",
+      "text": "哎我就觉得挺正常的，1000 Hz 那个单音。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
@@ -758,7 +758,7 @@
       "no_fault": true,
       "split": "heldout",
       "test_file": "extwav_validation_6bc03693bd8f0023_test.wav",
-      "text": "这段 440 Hz 正弦听着干净，没有参考文件。",
+      "text": "今天风挺大的，不过这段 440 Hz 正弦我听着没事。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
@@ -782,7 +782,7 @@
       "no_fault": true,
       "split": "heldout",
       "test_file": "extwav_validation_9f719b53a909854f_test.wav",
-      "text": "这段 1000 Hz 正弦听着干净，没有参考文件。",
+      "text": "正弦 1000 Ｈｚ，听上去没失针。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
@@ -806,7 +806,7 @@
       "no_fault": true,
       "split": "heldout",
       "test_file": "extwav_validation_6bc03693bd8f0023_test.wav",
-      "text": "这段 440 Hz 正弦听着干净，没有参考文件。",
+      "text": "没参考。干净的正弦在后头，频率写的是 440 Hz。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
@@ -830,7 +830,7 @@
       "no_fault": true,
       "split": "heldout",
       "test_file": "extwav_validation_9f719b53a909854f_test.wav",
-      "text": "这段 1000 Hz 正弦听着干净，没有参考文件。",
+      "text": "同事随口说了一句天气，我还是觉得这 1000 Hz 单音没问题。",
       "truth": {
         "cause_set": [],
         "conclusion": "no_supported_fault",
@@ -854,7 +854,7 @@
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_a70ba0cbb88b2ddc_test.wav",
-      "text": "两个文件都传了，我说不清哪个是旧的。",
+      "text": "听着有点怪，你帮我看看。",
       "truth": {
         "cause_set": [],
         "conclusion": "inconclusive",
@@ -878,7 +878,7 @@
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_41493464c06c67a0_test.wav",
-      "text": "听着有点怪，你帮我看看。",
+      "text": "两个文件都传了，我说不清哪个是旧的。",
       "truth": {
         "cause_set": [],
         "conclusion": "inconclusive",
@@ -902,7 +902,7 @@
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_a5b7574e85e8d5a5_test.wav",
-      "text": "听着有点怪，你帮我看看。",
+      "text": "你帮我听听呗，反正我就觉得不对劲，今天还迟到了。",
       "truth": {
         "cause_set": [],
         "conclusion": "inconclusive",
@@ -926,7 +926,7 @@
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_dc08b09993bd8b56_test.wav",
-      "text": "听着有点怪，你帮我看看。",
+      "text": "怪的是这声音，哪儿不对我说不上来。",
       "truth": {
         "cause_set": [],
         "conclusion": "inconclusive",
@@ -1006,7 +1006,7 @@
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_b1b0d3acf7e78e3c_test.wav",
-      "text": "参考文件是 extwav_validation_8fdb5103064cab4d_ref.wav，标称 440 Hz 正弦。",
+      "text": "参考就是 extwav_validation_8fdb5103064cab4d_ref.wav，正弦 440 Hz。",
       "truth": {
         "cause_set": [
           "harmonic_distortion"
@@ -1033,7 +1033,7 @@
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_7f721adc711210ad_test.wav",
-      "text": "参考文件是 extwav_validation_8d15a36dd636befa_ref.wav，标称 1000 Hz 正弦。",
+      "text": "标称 1000 Hz 正弦，参考文件 extwav_validation_8d15a36dd636befa_ref.wav。",
       "truth": {
         "cause_set": [
           "clipping",
@@ -1061,7 +1061,7 @@
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_91ac93679e053dd1_test.wav",
-      "text": "参考文件是 extwav_validation_9f719b53a909854f_ref.wav，标称 440 Hz 正弦。",
+      "text": "旧的那份 extwav_validation_9f719b53a909854f_ref.wav 拿来对照，测试音 440 Hz 正弦。",
       "truth": {
         "cause_set": [
           "clipping"
@@ -1088,7 +1088,7 @@
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_b1b0d3acf7e78e3c_test.wav",
-      "text": "旧录音 extwav_validation_8fdb5103064cab4d_ref.wav 是参考，测试音 1000 Hz。",
+      "text": "参考文件 extwav_validation_8fdb5103064cab4d_ref.wav，单音 1000 Hz。",
       "truth": {
         "cause_set": [
           "harmonic_distortion"
@@ -1143,7 +1143,7 @@
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_91ac93679e053dd1_test.wav",
-      "text": "先前那份叫 extwav_validation_9f719b53a909854f_ref.wav。人耳觉得发毛。标称写的是 1000 Hz，旁边还有一句无关的天气说明。",
+      "text": "同事说先听 extwav_validation_9f719b53a909854f_ref.wav 再听现在这份，单音 1000 Hz，今天会议室很吵。",
       "truth": {
         "cause_set": [
           "clipping"
@@ -1170,7 +1170,7 @@
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_b1b0d3acf7e78e3c_test.wav",
-      "text": "同事说先听 extwav_validation_8fdb5103064cab4d_ref.wav 再听现在这份，单音 440 Hz，今天会议室很吵。",
+      "text": "发毛的是现在这份，extwav_validation_8fdb5103064cab4d_ref.wav 只是旧的对照，标称好像 440 Hz，窗外有人敲桌子。",
       "truth": {
         "cause_set": [
           "harmonic_distortion"
@@ -1197,7 +1197,7 @@
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_7f721adc711210ad_test.wav",
-      "text": "先前那份叫 extwav_validation_8d15a36dd636befa_ref.wav。人耳觉得发毛。标称写的是 1000 Hz，旁边还有一句无关的天气说明。",
+      "text": "你先听 extwav_validation_8d15a36dd636befa_ref.wav 呗，这新的听着毛毛的，写着 1000 Hz 正弦，我还没吃午饭。",
       "truth": {
         "cause_set": [
           "clipping",
@@ -1225,7 +1225,7 @@
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_91ac93679e053dd1_test.wav",
-      "text": "同事说先听 extwav_validation_9f719b53a909854f_ref.wav 再听现在这份，单音 440 Hz，今天会议室很吵。",
+      "text": "参靠文件写的是 extwav_validation_9f719b53a909854f_ref.wav，正玄 440 Ｈｚ，听着发毛，顺便说一句空调有点响。",
       "truth": {
         "cause_set": [
           "clipping"
@@ -1252,7 +1252,7 @@
       "no_fault": false,
       "split": "heldout",
       "test_file": "extwav_validation_b1b0d3acf7e78e3c_test.wav",
-      "text": "同事说先听 extwav_validation_8fdb5103064cab4d_ref.wav 再听现在这份，单音 1000 Hz，今天会议室很吵。",
+      "text": "倒过来听也一样，先是现在这份发毛，旧录音 extwav_validation_8fdb5103064cab4d_ref.wav，频率 1000 Hz，茶水间有人聊天。",
       "truth": {
         "cause_set": [
           "harmonic_distortion"

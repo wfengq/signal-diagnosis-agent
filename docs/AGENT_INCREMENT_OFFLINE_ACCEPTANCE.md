@@ -8,8 +8,14 @@ Held-out manifest hash (frozen with seed `20261006` and template id
 `heldout-templates-1.0`):
 
 ```text
-2f989e736d2b3d4f28c43cd923eeb89e43dee4d1d2d5dec7e6ac6d489975e95f
+eeccb3d83996955a9d925343acf1fac992820dc589f98db15597736d78aa5f61
 ```
+
+The 24 held-out T1 lines are distinct. The template grammar includes
+paraphrase, colloquial wording, inversion, irrelevant detail, typos, and
+full-width characters. Some blunt sentences that favor B1 remain,
+including `参考文件是 {ref}，标称 {hz} Hz 正弦。` and the clean
+`这段 {hz} Hz 正弦听着干净，没有参考文件。` Seed `20261006` is unchanged.
 
 T1 ground-truth conclusions are the labels already stored on the reused
 WAV, not a placeholder. Development rows come from

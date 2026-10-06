@@ -1,7 +1,8 @@
 """Dev and held-out cases for study_s1_agent_increment_1.
 
-Held-out wording is expanded from HELD_OUT_TEMPLATES and HELD_OUT_SEED.
-Those two constants are frozen once this module is committed.
+Held-out T1 wording is one rendering of each template in its bucket.
+HELD_OUT_SEED stays 20261006. Each held-out T1 case still draws one
+two-way choice so later T2 draws keep the same random stream.
 """
 
 from __future__ import annotations
@@ -30,18 +31,34 @@ HELD_OUT_TEMPLATES: dict[str, tuple[str, ...]] = {
     "no_fault": (
         "这段 {hz} Hz 正弦听着干净，没有参考文件。",
         "单音 {hz} Hz，我听不出失真。",
+        "听着干净的是这段 {hz} Hz 正弦，别的没带。",
+        "哎我就觉得挺正常的，{hz} Hz 那个单音。",
+        "今天风挺大的，不过这段 {hz} Hz 正弦我听着没事。",
+        "正弦 {hz} Ｈｚ，听上去没失针。",
+        "没参考。干净的正弦在后头，频率写的是 {hz} Hz。",
+        "同事随口说了一句天气，我还是觉得这 {hz} Hz 单音没问题。",
     ),
     "insufficient": (
         "听着有点怪，你帮我看看。",
         "两个文件都传了，我说不清哪个是旧的。",
+        "你帮我听听呗，反正我就觉得不对劲，今天还迟到了。",
+        "怪的是这声音，哪儿不对我说不上来。",
     ),
     "blunt": (
         "参考文件是 {ref}，标称 {hz} Hz 正弦。",
         "旧录音 {ref} 是参考，测试音 {hz} Hz。",
+        "参考就是 {ref}，正弦 {hz} Hz。",
+        "标称 {hz} Hz 正弦，参考文件 {ref}。",
+        "旧的那份 {ref} 拿来对照，测试音 {hz} Hz 正弦。",
+        "参考文件 {ref}，单音 {hz} Hz。",
     ),
     "paraphrase": (
         "先前那份叫 {ref}。人耳觉得发毛。标称写的是 {hz} Hz，旁边还有一句无关的天气说明。",
         "同事说先听 {ref} 再听现在这份，单音 {hz} Hz，今天会议室很吵。",
+        "发毛的是现在这份，{ref} 只是旧的对照，标称好像 {hz} Hz，窗外有人敲桌子。",
+        "你先听 {ref} 呗，这新的听着毛毛的，写着 {hz} Hz 正弦，我还没吃午饭。",
+        "参靠文件写的是 {ref}，正玄 {hz} Ｈｚ，听着发毛，顺便说一句空调有点响。",
+        "倒过来听也一样，先是现在这份发毛，旧录音 {ref}，频率 {hz} Hz，茶水间有人聊天。",
     ),
     "clean_t2": (
         "整段听着平稳。",
@@ -310,7 +327,8 @@ def _held_t1(rng: random.Random) -> list[IncrementCase]:
             if bucket in {"blunt", "paraphrase"} and ref_path is None:
                 raise ValueError(f"paired held-out case has no manifest reference for {test_path.name}")
             ref_name = ref_path.name if ref_path is not None else "none.wav"
-            template = rng.choice(HELD_OUT_TEMPLATES[bucket])
+            rng.choice((0, 1))
+            template = HELD_OUT_TEMPLATES[bucket][offset]
             hz = 1000 if cursor % 2 == 0 else 440
             text = _render(template, hz=hz, ref=ref_name)
             if bucket == "no_fault":

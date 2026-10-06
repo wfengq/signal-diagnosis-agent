@@ -15,7 +15,7 @@ from signal_diag.evaluation.agent_increment.cases import (
 )
 from signal_diag.evaluation.agent_increment.models import IncrementCase
 
-_MANIFEST_SHA256 = "2f989e736d2b3d4f28c43cd923eeb89e43dee4d1d2d5dec7e6ac6d489975e95f"
+_MANIFEST_SHA256 = "eeccb3d83996955a9d925343acf1fac992820dc589f98db15597736d78aa5f61"
 _STUDY = (
     Path(__file__).resolve().parents[3]
     / "docs/evaluations/v0_3/agent_increment/study_s1_agent_increment_1"
@@ -50,6 +50,13 @@ def test_t_cx397_proportions_and_frozen_held_out_hash() -> None:
     assert sums.startswith(f"{_MANIFEST_SHA256}  manifest.json\n")
     regenerated = manifest_sha256(build_cases(_STUDY / "wav"))
     assert regenerated == _MANIFEST_SHA256
+    held_t1 = [case.text for case in committed if case.family == "T1" and case.split == "heldout"]
+    assert len(held_t1) == 24
+    assert len(set(held_t1)) == 24
+    assert any(text.startswith("参考文件是") for text in held_t1)
+    assert any("听着干净" in text for text in held_t1)
+    assert any("Ｈｚ" in text for text in held_t1)
+    assert any("参靠" in text or "失针" in text for text in held_t1)
     repo = Path(__file__).resolve().parents[3]
     t1_cases = [case for case in committed if case.family == "T1"]
     assert t1_cases
