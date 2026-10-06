@@ -1,0 +1,145 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "held-t1-22",
+      "conclusion_correct": true,
+      "context_fields_correct": 4,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": true,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 1,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "held-t1-22",
+      "conclusion_correct": false,
+      "context_fields_correct": 0,
+      "context_fields_graded": 4,
+      "correction_count": 1,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "held-t1-22",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "held-t1-22",
+  "cited_locations": [
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_0cc3751f236fbf88",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_0cc3751f236fbf88",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_016",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_0cc3751f236fbf88",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_017",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_0cc3751f236fbf88",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_014",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_0cc3751f236fbf88",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_015",
+      "fault": "clipping",
+      "time_range": null
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_paired_1",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_016",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_017",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_015"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_0cc3751f236fbf88",
+        "ruleval_04e8c1f3758fc93f",
+        "ruleval_8b96ccc97e3898b3",
+        "ruleval_000e243c0ce1783e"
+      ],
+      "statement": "Clipping is affirmatively supported in the test signal: test_clipping_mechanism is true and the same-run test clipping-ratio rule FAILs (0.53825 vs 0.01) with flat-top detected. The reference shows no clipping."
+    }
+  ],
+  "confirmed": {
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": 440.0,
+    "reference_file": "extwav_validation_9f719b53a909854f_ref.wav",
+    "stimulus_kind": "single_tone"
+  },
+  "context_downgraded": false,
+  "correction_count": 0,
+  "draft": {
+    "asked_fields": [],
+    "missing_fields": [],
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": 440.0,
+    "questions": [],
+    "reference_file": "extwav_validation_9f719b53a909854f_ref.wav",
+    "stimulus_kind": "single_tone"
+  },
+  "family": "T1",
+  "http_calls": 3,
+  "intake_error_detail": null,
+  "predicted_conclusion": "clipping",
+  "run_errors": [],
+  "run_status": "success",
+  "split": "heldout",
+  "termination_reason": "planner_finished",
+  "tool_history": [
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "purpose": "Paired_reference mode requires contextual comparison for causal harmonic closure; obtain the contextual distortion evidence and its automatic rule batch.",
+      "status": "success",
+      "tool_name": "analyze_contextual_distortion"
+    }
+  ]
+}

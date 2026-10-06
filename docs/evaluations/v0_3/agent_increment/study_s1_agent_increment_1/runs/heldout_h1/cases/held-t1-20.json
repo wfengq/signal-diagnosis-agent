@@ -1,0 +1,168 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "held-t1-20",
+      "conclusion_correct": true,
+      "context_fields_correct": 3,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 1,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "held-t1-20",
+      "conclusion_correct": true,
+      "context_fields_correct": 3,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "held-t1-20",
+      "conclusion_correct": false,
+      "context_fields_correct": 0,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "held-t1-20",
+  "cited_locations": [
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f2cece788c67624a",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000",
+      "fault": "harmonic_distortion",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f2cece788c67624a",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_005",
+      "fault": "harmonic_distortion",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f2cece788c67624a",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_012",
+      "fault": "harmonic_distortion",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f2cece788c67624a",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_013",
+      "fault": "harmonic_distortion",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f2cece788c67624a",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_014",
+      "fault": "harmonic_distortion",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f2cece788c67624a",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_015",
+      "fault": "harmonic_distortion",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_f2cece788c67624a",
+      "evidence_id": "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018",
+      "fault": "harmonic_distortion",
+      "time_range": null
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_harm_paired_1",
+      "evidence_refs": [
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_000",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_005",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_012",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_013",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_014",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_015",
+        "ev_analyze_contextual_distortion_analyze_contextual_distortion_000000_018"
+      ],
+      "fault_type": "harmonic_distortion",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_f2cece788c67624a",
+        "ruleval_ff4fb99021a80996",
+        "ruleval_8b96ccc97e3898b3",
+        "ruleval_000e243c0ce1783e",
+        "ruleval_e689421ae1a15705"
+      ],
+      "statement": "Contextual comparison against the trusted reference is valid with compatible F0 and no reference clipping; the test signal shows reportable even-order (order-2) growth and the even-harmonic-growth rule is FAIL, supporting causal harmonic distortion relative to the reference."
+    }
+  ],
+  "confirmed": {
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": 440.0,
+    "reference_file": "extwav_validation_8fdb5103064cab4d_ref.wav",
+    "stimulus_kind": "single_tone"
+  },
+  "context_downgraded": false,
+  "correction_count": 0,
+  "draft": {
+    "asked_fields": [
+      "stimulus_kind"
+    ],
+    "missing_fields": [
+      "stimulus_kind"
+    ],
+    "mode": "paired_reference",
+    "nominal_fundamental_hz": 440.0,
+    "questions": [
+      "Is the test signal a single tone or sine?"
+    ],
+    "reference_file": "extwav_validation_8fdb5103064cab4d_ref.wav",
+    "stimulus_kind": null
+  },
+  "family": "T1",
+  "http_calls": 3,
+  "intake_error_detail": null,
+  "predicted_conclusion": "harmonic_distortion",
+  "run_errors": [],
+  "run_status": "success",
+  "split": "heldout",
+  "termination_reason": "planner_finished",
+  "tool_history": [
+    {
+      "call_id": "call_analyze_contextual_distortion_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "purpose": "In paired_reference mode, contextual comparison against the trusted reference is required for causal harmonic closure; this is the shortest informative first step.",
+      "status": "success",
+      "tool_name": "analyze_contextual_distortion"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "diagnosis_request_sha256": "243fdcb04d0cf556e36d820f4d88233dd397c8731f27bcc459834ead0ee0b71d",
+  "intake_identity": "v0.3-s1-intake-1.1",
+  "intake_prompt_sha256": "a41827a6e2684a14b21f737b185fbb5327e73e5c251645c8db37c9c4d2afa3c9",
+  "manifest_sha256": "eeccb3d83996955a9d925343acf1fac992820dc589f98db15597736d78aa5f61",
+  "model": "deepseek-v4-flash",
+  "per_case_cap": 21,
+  "planner_prompt_sha256": "ad3d27ed324265dda8e7049f7f71c3d0cd1f651d7c658f616de2aa63c810455c",
+  "planner_prompt_version": "v0.3-s1-planner-9.15",
+  "product_tree_sha256": "99719634ec30a2495fc613b8edfa5d65f34b0f4c932430065dab8d311314b1e6",
+  "python_version": "3.12.3",
+  "scripted_stand_in": false,
+  "split": "heldout",
+  "stage_cap": 1008,
+  "started_at": "2026-10-06T12:52:20.464959+00:00",
+  "study_id": "study_s1_agent_increment_1"
+}
