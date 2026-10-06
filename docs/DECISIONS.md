@@ -782,11 +782,11 @@ SHAs cited in the acceptance record). Plan:
 (revision 4); offline record:
 `docs/REGRESSION_FULL_SCALE_CHECK_OFFLINE_ACCEPTANCE.md`. The product ships no
 floor record (`PRODUCT_APPROVED_FULL_SCALE_FLOORS` is empty), so product checks
-are `descriptive_only` or `not_comparable` only. Still not authorized: the
-layer-1 characterization run, any floor, critical-zone or approved-domain
-value, floor approval, a judged product status, and every item listed above as
-not authorized. Open follow-up: OQ-021. Superseded for product floor status by
-D044 once that decision's registration commit lands.
+are `descriptive_only` or `not_comparable` only. Still not authorized at the
+time of that merge: the layer-1 characterization run, any floor, critical-zone
+or approved-domain value, floor approval, a judged product status, and every
+item listed above as not authorized. Open follow-up at that time: OQ-021.
+Product floor status is superseded by D044 (round_1 YAML registration).
 
 ## D044 — Approve round_1 full-scale method floor (OQ-021 A, OQ-022 B)
 

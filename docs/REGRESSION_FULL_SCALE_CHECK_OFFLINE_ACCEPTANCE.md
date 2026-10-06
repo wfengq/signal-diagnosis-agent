@@ -80,7 +80,7 @@ Wheel smoke **blocked** in this cloud image (no ensurepip/venv). **CI wheel job 
 
 ## Product and fixture semantics
 
-- **No approved method floor on the product path:** `PRODUCT_APPROVED_FULL_SCALE_FLOORS` is empty; `build_regression_service()` passes `full_scale_floor=None`. Checks surface `floor_missing` and **`descriptive_only` / `not_comparable` only** — no judged regression status on the product path.
+- **No approved method floor on the product path:** `PRODUCT_APPROVED_FULL_SCALE_FLOORS` is empty; `build_regression_service()` passes `full_scale_floor=None`. Checks surface `floor_missing` and **`descriptive_only` / `not_comparable` only** — no judged regression status on the product path. Later superseded for the live product path by D044 (round_1 floor YAML registration; T-CX381–T-CX386).
 - **Fixture numeric values** in `tests/rules/full_scale_fixtures.py` (including `FIXTURE_FLOOR`) exercise logic only; they are **not** product tolerances or characterization results.
 - **No layer-1 characterization, no RealLLM, no seal** were run for this offline record.
 - This document is **not** product benefit evidence.

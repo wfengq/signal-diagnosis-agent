@@ -431,7 +431,7 @@ separately gated.
 
 | ID | Definition |
 |----|------------|
-| T-CX371 | Characterization package imports only lower layers; product code does not import the package; product floor registry stays empty |
+| T-CX371 | Characterization package imports only lower layers; product code does not import the package; product floor registry stays empty (empty-registry clause superseded by D044 / T-CX386) |
 | T-CX372 | Integer PCM codes match the loader (32-bit vs float32 decode); one-step perturbations stay within one step and keep direction; seed fixes bytes |
 | T-CX373 | Manifest is deterministic and hashable; sensitivity pairs carry one perturbation; tolerance codes are only those listed; seed sets do not overlap |
 | T-CX374 | Split by source group; no leakage by effective params/codes per channel; near-duplicate sensitivity pairs are excluded and listed; validation subgrid is complete and scale-bounded |
