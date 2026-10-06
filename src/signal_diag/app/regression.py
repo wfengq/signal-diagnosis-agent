@@ -30,6 +30,7 @@ from signal_diag.app.errors import (
 )
 from signal_diag.app.models import AppErrorDetail
 from signal_diag.rules.full_scale_check import (
+    PRODUCT_APPROVED_FULL_SCALE_FLOORS,
     FullScaleCheckRecord,
     FullScaleDeclarations,
     FullScaleMethodFloor,
@@ -986,7 +987,14 @@ class RegressionWorkbenchService:
 
 
 def build_regression_service() -> RegressionWorkbenchService:
-    """Product builder: descriptive-only comparisons, no fixture profiles."""
+    """Product builder: descriptive-only comparisons, D044 approved floor."""
     profile = None
     assert_product_profile_allowed(profile)
-    return RegressionWorkbenchService(comparison_profile=profile, full_scale_floor=None)
+    floor = (
+        PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]
+        if PRODUCT_APPROVED_FULL_SCALE_FLOORS
+        else None
+    )
+    return RegressionWorkbenchService(
+        comparison_profile=profile, full_scale_floor=floor
+    )

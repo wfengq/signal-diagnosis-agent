@@ -5,8 +5,10 @@ from __future__ import annotations
 import hashlib
 import math
 from collections.abc import Mapping, Sequence
-from typing import Literal
+from pathlib import Path
+from typing import Any, Literal
 
+import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from signal_diag.rules.regression import (
@@ -124,7 +126,35 @@ class FullScaleCheckRecord(BaseModel):
     digest: str = Field(pattern=r"^[0-9a-f]{64}$")
 
 
-PRODUCT_APPROVED_FULL_SCALE_FLOORS: tuple[FullScaleMethodFloor, ...] = ()
+def load_approved_full_scale_floor_yaml(
+    path: Path,
+) -> tuple[FullScaleMethodFloor, dict[str, Any]]:
+    """Load one approved floor YAML; validate digest; return floor and provenance."""
+    payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict) or "floor" not in payload:
+        raise ValueError("approved full-scale floor YAML must contain a floor mapping")
+    provenance = payload.get("provenance")
+    if not isinstance(provenance, dict):
+        raise ValueError("approved full-scale floor YAML must contain provenance")
+    floor = FullScaleMethodFloor.model_validate(payload["floor"])
+    if full_scale_floor_digest(floor) != floor.digest:
+        raise ValueError("approved full-scale floor digest mismatch")
+    return floor, provenance
+
+
+def _load_product_approved_full_scale_floors() -> tuple[FullScaleMethodFloor, ...]:
+    path = (
+        Path(__file__).resolve().parent
+        / "profiles"
+        / "s1_full_scale_floor_round_1.yaml"
+    )
+    floor, _provenance = load_approved_full_scale_floor_yaml(path)
+    return (floor,)
+
+
+PRODUCT_APPROVED_FULL_SCALE_FLOORS: tuple[FullScaleMethodFloor, ...] = (
+    _load_product_approved_full_scale_floors()
+)
 
 _BOTH_SIDES: tuple[ComparisonSide, ComparisonSide] = ("baseline", "candidate")
 

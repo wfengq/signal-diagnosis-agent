@@ -1751,10 +1751,11 @@ def test_t_cx351_frozen_surfaces_untouched_by_full_scale() -> None:
     }
 
 
-def test_t_cx363_no_floor_values_under_src() -> None:
+def test_t_cx363_no_floor_constructor_calls_under_src() -> None:
+    """Floor values live in versioned YAML (D044); src must not construct them."""
     from signal_diag.rules.full_scale_check import PRODUCT_APPROVED_FULL_SCALE_FLOORS
 
-    assert PRODUCT_APPROVED_FULL_SCALE_FLOORS == ()
+    assert len(PRODUCT_APPROVED_FULL_SCALE_FLOORS) == 1
     hits: list[str] = []
     for path in SRC_ROOT.rglob("*.py"):
         for node in ast.walk(ast.parse(path.read_text("utf-8"))):

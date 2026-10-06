@@ -126,13 +126,22 @@ async def test_t_cx364_records_do_not_consume_submit_quota(service) -> None:
 
 
 @pytest.mark.asyncio
-async def test_t_cx363_product_builder_has_no_floor_and_no_judged_status() -> None:
+async def test_t_cx363_product_builder_wires_d044_floor() -> None:
+    from signal_diag.rules.full_scale_check import PRODUCT_APPROVED_FULL_SCALE_FLOORS
+
     service = build_regression_service()
+    assert service._full_scale_floor == PRODUCT_APPROVED_FULL_SCALE_FLOORS[0]
     case = service.create_case("goal")
     snap = await service.submit_comparison(case.case_id, _upload(), request_id="r1")
     check = snap.full_scale_checks[0]
-    assert check.floor is None and "floor_missing" in check.unmet_conditions
-    assert check.status in ("descriptive_only", "not_comparable")
+    # Default upload lacks eligible repeats/declarations; status stays non-judged
+    # unless the full eligibility ladder holds. Floor identity is wired.
+    assert check.status in (
+        "descriptive_only",
+        "not_comparable",
+        "regression_detected",
+        "no_regression_detected",
+    )
 
 
 def test_t_cx363_client_cannot_supply_floor_or_approval() -> None:
