@@ -1,7 +1,7 @@
-# S1 自由文本接诊产品化设计（草案）
+# S1 自由文本接诊产品化设计
 
 日期：2026-10-06
-状态：草案，待操作员审批。本文件不授权任何实现、真实模型运行或合同修改。
+状态：操作员 2026-10-06 批准；§9 四项均选推荐项（1A、2A、3A、第 4 项做）。批准实现本设计；§8 第 3 步真实小样本仍须在实现合并后另行交接 Cursor，且仅限开发集。
 上位依据：AGENTS.md（Scope gates）、`docs/CONTRACTS_V0_3_CONTEXTUAL.md` §17–§18、§24.1，D037、D045。
 结果依据：`docs/evaluations/v0_3/agent_increment/STUDY_S1_AGENT_INCREMENT_1_REPORT.md`。
 
