@@ -1771,3 +1771,67 @@ causal gate.
    can a product check reach a judged status.
 5. Sub-full-scale flat-top judgment, any change to the `observed_variable`
    block, THD judgment, RealLLM, seal and merge remain external gates.
+
+## 24. S1 agent-increment slice (D045)
+
+Additive study surface for two task families. It does not change the product
+default prompt, causal policy, DSP, or frozen V0.2 §§1–64. Design:
+`docs/superpowers/specs/2026-10-06-s1-agent-increment-design.md`. Plan:
+`docs/superpowers/plans/2026-10-06-s1-agent-increment.md`.
+
+### 24.1 Free-text intake
+
+```text
+IntakeRequest =
+  text: str
+  filenames: tuple[str, ...]
+  test_file: str
+  sample_rates_hz: tuple[float, ...]
+
+ContextDraft =
+  mode: single_signal | paired_reference | nominal_single_tone
+  nominal_fundamental_hz: float | None
+  reference_file: str | None
+  stimulus_kind: single_tone | unknown | None
+  missing_fields: tuple[str, ...]
+  questions: tuple[str, ...]
+
+ConfirmedContext =
+  mode
+  nominal_fundamental_hz
+  reference_file
+  stimulus_kind
+```
+
+`IntakeRequest` carries the user text, the uploaded filenames, which filename
+is the test file, and sample-rate metadata. A draft number is admissible only
+when it equals a number written in the text, or that number converted from
+kHz. `reference_file` must be one of the uploaded names and must not be the
+test file. `paired_reference` requires two uploaded files. The draft model
+forbids extra fields, so thresholds, percentages, and standards cannot ride
+along. Unconfirmed draft fields do not enter diagnosis. After the user
+confirms, the client submits `ConfirmedContext` through the existing
+contextual endpoint, which keeps its current validation. The model sees text
+and file metadata only.
+
+### 24.2 Localized fault evidence
+
+A conclusion may cite Evidence from a segment or channel tool call. Location
+is the cited Evidence `time_range` and `channel`. Whether a segment rule FAIL
+supports a conclusion is a versioned rule profile. Thresholds are the existing
+`profile_s1_distortion` demonstration values. The profile does not introduce
+new numeric limits.
+
+### 24.3 Study `study_s1_agent_increment_1`
+
+Three arms per case: `agent`, `strong_fixed` (T1 uses B1, T2 uses B2), and
+`weak_fixed` (B0). The primary metric is the paired difference in correct
+conclusions. Safety hard conditions are zero unsupported positive conclusions
+and evidence traceability of 1.0. T1 also records context-field accuracy and
+correction count. T2 also records localization accuracy and tool-call count.
+An increment of at least +3 on a 24-case family is a measurable increment. An
+increment of 0, 1, or 2 is no significant increment. A negative increment is
+reported as measured. HTTP calls stop at 21 per case and at the stage cap
+(development 1,500, held-out 1,008). The campaign directory is write-once.
+Offline tests use scripted stand-ins. The product builder never assembles
+those stand-ins.

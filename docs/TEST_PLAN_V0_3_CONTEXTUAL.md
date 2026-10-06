@@ -440,3 +440,25 @@ separately gated.
 | T-CX378 | Two-step freeze is select-only; artifacts are write-once; incomplete freeze blocks validation side; identity compare set covers measurement path and scoring code |
 | T-CX379 | Validation counts only; both hard conditions and all mandatory disclosures are present; abort has a record; no product-judgment wording |
 | T-CX380 | End-to-end six steps on a mini manifest are reproducible byte-for-byte |
+
+T-CX387–T-CX398 are additive definitions for D045
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §24; plan
+`docs/superpowers/plans/2026-10-06-s1-agent-increment.md`). Registering these
+IDs does not authorize a real-model run, a product prompt switch, seal, or
+merge. They must not alter frozen V0.2 §§1–64, the v9.11 prompt text, sealed
+evaluation or Demo assets, or T-CX001–T-CX386 meanings.
+
+| ID | Definition |
+|----|------------|
+| T-CX387 | Intake draft validation: nominal Hz must come from a number written in the text, including kHz conversion; the reference file must be an upload and not the test file; mode must match the file count; extra fields are rejected |
+| T-CX388 | The intake planner sends only text and file metadata; missing credentials fail and do not fall back to a scripted stand-in |
+| T-CX389 | Intake entry: unconfirmed fields do not enter diagnosis; after confirmation the existing contextual endpoint submits and validates as usual |
+| T-CX390 | B1 regex baseline is deterministic, its rule table is frozen, and it shares the simulated user and the validator with the agent |
+| T-CX391 | v9.12 starts with the current v9.11 text and registers its hash; the product default remains v9.11 |
+| T-CX392 | Segment evidence rules: a segment FAIL can support a conclusion; thresholds come from the existing profile; location comes from the cited Evidence |
+| T-CX393 | B2 segment scan is deterministic, its parameters are frozen, and it records call counts |
+| T-CX394 | The simulated user only confirms or corrects fields already proposed, and does not fill the rest |
+| T-CX395 | Scoring matches design §4.2 for increment, safety hard conditions, and T1/T2 metrics |
+| T-CX396 | Call caps are 21 per case and the stage total; crossing a cap stops the run and writes a stop record; output is write-once |
+| T-CX397 | Case sets meet design §4.1 proportions; the held-out set is generated from the frozen template and seed; SHA256SUMS and the manifest hash stay fixed |
+| T-CX398 | Offline end to end: scripted stand-ins run all three arms, the report is complete, and identity fields are present |
