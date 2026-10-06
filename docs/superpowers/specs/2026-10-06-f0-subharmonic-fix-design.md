@@ -1,7 +1,7 @@
 # 基频估计修复：次谐波锁定与整数延迟分辨率（设计草案）
 
 日期：2026-10-06
-状态：操作员 2026-10-06 批准（范围 A；八度歧义检测本次不修，记为 OQ-024）。**实现在 §7 所述冲突处暂停，等待操作员决定。**
+状态：操作员 2026-10-06 批准（范围 A；八度歧义检测本次不修，记为 OQ-024）。§7 的冲突由操作员选 B 解决（2026-10-06），实现见 §8。
 上位依据：AGENTS.md（Scope gates、Preserved evidence）、`docs/ARCHITECTURE_V0_2.md`（`dsp/` 只放确定性算法）、`docs/CONTRACTS_V0_2.md`（冻结 §§1–64）、`CONTRACTS_V0_3_CONTEXTUAL.md`、D045 与增量研究报告。
 
 ## 1. 问题
@@ -99,7 +99,7 @@
 - 有 5 个已失真的 V0.2 用例，THD 读数变化较大，但判定都仍是 FAIL。新读数与“在真实基频处精确取谐波”的真值完全一致；旧读数偏低，最多低了一半：
   - `case_v11_held_combined_01`：9.29% → 18.65%；
   - `case_v12_held_clipping_04`：5.60% → 11.63%。
-  
+
   原因是旧估计偏了约 0.4 Hz，第 5 次谐波因此偏离约 4 个频率格。
 - 探针 WAV 和 T2 谐波用例都估对了。
 
@@ -126,3 +126,17 @@
 - **B（推荐）. 新行为改为调用方显式开启。** `estimate_f0_autocorrelation` 和 `analyze_harmonic_distortion` 增加关键字参数 `subharmonic_guard`，默认关闭，保持旧行为；产品的工具层（`tools/service.py`）显式开启。
   - 好处：既有测试和 Workstream A 规格一字不动，产品照样得到修复，T-CX428–T-CX432 改为测开启后的路径。
   - 代价：`dsp` 默认行为仍保留旧缺陷，直接调用者要自己开启。
+
+## 8. 按方案 B 的实现（2026-10-06）
+
+- **`dsp/pitch.py`：**
+  - `estimate_f0_autocorrelation` 新增 `subharmonic_guard`（默认 `None`，即关闭；关闭时与旧估计逐字节一致）和 `subharmonic_tolerance`（0.01）。
+  - 开启后，在所有局部峰中，按抛物线插值后的峰高，取不低于最高峰减容差的最短延迟，再用插值位置算频率。
+  - 比较插值后的峰高，才能修好 8 kHz、700 Hz：整数延迟处的峰高会被低估。
+- **`dsp/harmonics.py`：** 把开关透传给基频估计。
+- **开关的作用范围：** 用 `subharmonic_guard_enabled()` 设定，嵌套的调用也生效，例如 `dsp/contextual.py` 内部的谐波分析。
+- **`tools/guarded_service.py`（新文件）：** `GuardedSignalToolService` 在开关打开的范围内运行三个依赖基频的工具。
+  - 原 `tools/service.py` 是 D043 起冻结的文件（T-CX351），因此不改它。
+- **产品接线：** `app/service.py` 的两条运行路径改用 `GuardedSignalToolService`。规划器消融适配器中的固定流程组也改用它，否则产品组与固定流程组的工具不一致，T-CX293 的对齐断言会失败。
+- **保持旧估计的地方：** 评测运行器、已记录的研究、回归工作台、数据集校验，继续用旧估计，以保证已记录结果可复现。
+- **测试：** 新增 T-CX433，固定上述接线范围。T-A-002、T-A-004、T-B-001、T-B-004 与 Workstream A 规格不改，全部通过。

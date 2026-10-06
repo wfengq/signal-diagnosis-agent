@@ -651,8 +651,22 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert dispatch["prior_bridge_current_implementation_sha256"] == (
         intake_flow["current_implementation_sha256"]
     )
-    assert dispatch["current_implementation_sha256"] == contextual_implementation_sha256()
-    assert dispatch["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert dispatch["current_implementation_sha256"] == (
+        "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3"
+    )
+    assert dispatch["product_tree_sha256"] == (
+        "3b2939961f2d1dab12a1b24ca8facc950fdacd43f2c09d43f4cf115560f5e16a"
+    )
     assert dispatch["prompt_sha256"] == oq014["prompt_sha256"]
     assert dispatch["prompt_version"] == "v0.3-s1-planner-9.11"
     assert dispatch["model_calls"] == 0
+    f0_guard = next(row for row in rows if row["amendment_id"] == "d049_f0_subharmonic_guard")
+    assert f0_guard["amendment_kind"] == "append_only_code_identity"
+    assert f0_guard["prior_bridge_current_implementation_sha256"] == (
+        dispatch["current_implementation_sha256"]
+    )
+    assert f0_guard["current_implementation_sha256"] == contextual_implementation_sha256()
+    assert f0_guard["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert f0_guard["prompt_sha256"] == oq014["prompt_sha256"]
+    assert f0_guard["prompt_version"] == "v0.3-s1-planner-9.11"
+    assert f0_guard["model_calls"] == 0

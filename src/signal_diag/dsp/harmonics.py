@@ -107,7 +107,7 @@ def analyze_harmonic_distortion(
     window: str = "hann",
     min_fundamental_relative_energy: float = DEFAULT_MIN_FUNDAMENTAL_RELATIVE_ENERGY,
     octave_ambiguity_tolerance: float = DEFAULT_OCTAVE_AMBIGUITY_TOLERANCE,
-    subharmonic_guard: bool = False,
+    subharmonic_guard: bool | None = None,
 ) -> HarmonicAnalysis:
     """Measure harmonic components and THD from a one-dimensional waveform."""
     values = _validated_1d(samples)

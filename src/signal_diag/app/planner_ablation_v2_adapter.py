@@ -61,6 +61,7 @@ from signal_diag.signal import (
 )
 from signal_diag.signal.context import StimulusContext
 from signal_diag.signal.repository import SignalRepository
+from signal_diag.tools.guarded_service import GuardedSignalToolService
 from signal_diag.tools.service import SignalToolService
 
 _APPROVED_PRODUCT_PLANNER_CLASS = "RealLLMPlanner"
@@ -911,9 +912,7 @@ class FixedArmSession:
         # Fresh empty container prepared outside the timer.
         self._repository = repository or InMemorySignalRepository()
         # D049: same tool settings as the product arm, so only the planner differs.
-        self._tools = tool_service or SignalToolService(
-            self._repository, subharmonic_guard=True
-        )
+        self._tools = tool_service or GuardedSignalToolService(self._repository)
         self._clock = clock
         self._phase_advances = phase_advances
         self._offline_session = offline_session

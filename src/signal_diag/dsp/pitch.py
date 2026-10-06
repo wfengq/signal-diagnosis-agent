@@ -1,5 +1,9 @@
 """Deterministic autocorrelation fundamental-frequency estimation."""
 
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
+
 import numpy as np
 
 from .models import F0Estimate
@@ -17,6 +21,18 @@ from .spectral_reliability import (
 # period-multiple peak can beat the first one by less than this; with the guard
 # on, the shortest peak within this distance of the best one wins.
 DEFAULT_SUBHARMONIC_TOLERANCE = 0.01
+
+_SUBHARMONIC_GUARD: ContextVar[bool] = ContextVar("subharmonic_guard", default=False)
+
+
+@contextmanager
+def subharmonic_guard_enabled() -> Iterator[None]:
+    """Turn the D049 guard on for estimates made inside this block (and nested calls)."""
+    token = _SUBHARMONIC_GUARD.set(True)
+    try:
+        yield
+    finally:
+        _SUBHARMONIC_GUARD.reset(token)
 
 
 def _parabolic_peak(autocorrelation: np.ndarray, lag: int) -> tuple[float, float]:
@@ -83,10 +99,14 @@ def estimate_f0_autocorrelation(
     voicing_threshold: float = 0.3,
     octave_ambiguity_tolerance: float = DEFAULT_OCTAVE_AMBIGUITY_TOLERANCE,
     min_fundamental_relative_energy: float = DEFAULT_MIN_FUNDAMENTAL_RELATIVE_ENERGY,
-    subharmonic_guard: bool = False,
+    subharmonic_guard: bool | None = None,
     subharmonic_tolerance: float = DEFAULT_SUBHARMONIC_TOLERANCE,
 ) -> F0Estimate:
-    """Estimate fundamental frequency using normalized autocorrelation."""
+    """Estimate fundamental frequency using normalized autocorrelation.
+
+    ``subharmonic_guard=None`` follows :func:`subharmonic_guard_enabled` (off by
+    default, which is the pre-D049 estimator).
+    """
     values = _validated_1d(samples)
     if (
         not isinstance(sample_rate_hz, (int, np.integer))
@@ -143,6 +163,8 @@ def estimate_f0_autocorrelation(
     autocorrelation = normalized_autocorrelation(values)
 
     search = autocorrelation[min_lag : max_lag + 1]
+    if subharmonic_guard is None:
+        subharmonic_guard = _SUBHARMONIC_GUARD.get()
     if subharmonic_guard:
         candidate_lag, period_lag = _guarded_peak(
             autocorrelation,

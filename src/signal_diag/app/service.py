@@ -76,7 +76,7 @@ from signal_diag.signal import (
 )
 from signal_diag.signal.context import EffectiveCapabilities, StimulusContext
 from signal_diag.tools.evidence import Evidence
-from signal_diag.tools.service import SignalToolService
+from signal_diag.tools.guarded_service import GuardedSignalToolService
 
 _MAX_USER_REQUEST_CHARS = 2_000
 _DEFAULT_WAV_DISPLAY_NAME = "input.wav"
@@ -440,9 +440,7 @@ class DiagnosisApplicationService:
             recorder = RecordingPlanner(inner)
             runtime = DistortionDiagnosisRuntime(
                 repository=self._dependencies.repository,
-                tool_service=SignalToolService(
-                    self._dependencies.repository, subharmonic_guard=True
-                ),
+                tool_service=GuardedSignalToolService(self._dependencies.repository),
                 planner=recorder,
                 rule_engine=self._dependencies.rule_engine,
                 rule_profile_loader=self._dependencies.rule_profile_loader,
@@ -609,9 +607,7 @@ class DiagnosisApplicationService:
             recorder = RecordingPlanner(inner)
             runtime = DistortionDiagnosisRuntime(
                 repository=self._dependencies.repository,
-                tool_service=SignalToolService(
-                    self._dependencies.repository, subharmonic_guard=True
-                ),
+                tool_service=GuardedSignalToolService(self._dependencies.repository),
                 planner=recorder,
                 rule_engine=self._dependencies.rule_engine,
                 rule_profile_loader=self._dependencies.rule_profile_loader,

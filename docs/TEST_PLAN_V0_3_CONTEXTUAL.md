@@ -538,3 +538,16 @@ alter T-CX001–T-CX424 meanings.
 | T-CX425 | The audited SDK observation profile names the HTTP client the SDK dispatches through (`httpx2` for `openai==3.6.0`): family, version from that module, and `httpx2.AsyncClient.send`; the reviewed identity matches and the installed profile is supported |
 | T-CX426 | An `httpx2` version that differs from the reviewed one makes the profile unsupported with `httpx2_version_drift:…`; a profile naming a different dispatch family is rejected at attach with `native_http_family_mismatch` |
 | T-CX427 | Against a closed local port, an attached observation records paired SDK-attempt and HTTP-send start/end events for one SDK call |
+
+T-CX428–T-CX433 are additive definitions for D049
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §26). They make no model call and must not
+alter T-CX001–T-CX427 meanings or the Workstream A/B tests.
+
+| ID | Definition |
+|----|------------|
+| T-CX428 | With the guard on, pure tones at 8/16/44.1/48 kHz and 110–997 Hz estimate within 0.1 % and never at a subharmonic; `method` stays `autocorrelation` |
+| T-CX429 | With the guard on, the repository's 700 Hz subharmonic-lock probe and the 440 Hz T2 harmonic WAVs estimate within 0.5 % |
+| T-CX430 | With the guard on, every V0.2 synthetic case keeps voicing, harmonic validity, series kind and THD judgment against the recorded pre-D049 baseline, with F0 within 0.2 %, and auto-F0 THD equals THD at the true fundamental; with the guard off, F0 and THD equal the baseline exactly |
+| T-CX431 | The independent external reference analyzer still reproduces its sealed F0 and does not import `dsp.pitch` |
+| T-CX432 | With the guard on, noise stays unvoiced and an aperiodic recording stays unreliable with invalid harmonic analysis |
+| T-CX433 | `GuardedSignalToolService` estimates with the guard and the base `SignalToolService` without it; only `app/service.py` (both run paths) and the planner-ablation adapter's fixed arm use the guarded service; evaluation runners, the agent-increment harness, the regression workbench and `tools/service.py` do not |

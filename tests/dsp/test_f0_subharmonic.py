@@ -176,6 +176,7 @@ def test_t_cx433_only_the_live_product_turns_the_guard_on() -> None:
     from signal_diag.signal import InMemorySignalRepository, build_signal_record
     from signal_diag.tools import SignalToolService
     from signal_diag.tools.contracts import FundamentalInput
+    from signal_diag.tools.guarded_service import GuardedSignalToolService
 
     repository = InMemorySignalRepository()
     record = build_signal_record(
@@ -183,7 +184,7 @@ def test_t_cx433_only_the_live_product_turns_the_guard_on() -> None:
     )
     repository.put(record)
     args = FundamentalInput()
-    guarded = SignalToolService(repository, subharmonic_guard=True).estimate_fundamental(
+    guarded = GuardedSignalToolService(repository).estimate_fundamental(
         record.meta.signal_id, args
     )
     legacy = SignalToolService(repository).estimate_fundamental(record.meta.signal_id, args)
@@ -192,10 +193,10 @@ def test_t_cx433_only_the_live_product_turns_the_guard_on() -> None:
     assert legacy.result.f0_hz == pytest.approx(87.91, abs=0.01)
 
     app_service = (ROOT / "src/signal_diag/app/service.py").read_text(encoding="utf-8")
-    assert app_service.count("subharmonic_guard=True") == 2
+    assert app_service.count("GuardedSignalToolService(") == 2
     adapter = ROOT / "src/signal_diag/app/planner_ablation_v2_adapter.py"
     # The study's fixed arm mirrors the product arm's tools.
-    assert adapter.read_text(encoding="utf-8").count("subharmonic_guard=True") == 1
+    assert adapter.read_text(encoding="utf-8").count("GuardedSignalToolService(") == 1
     for relative in (
         "src/signal_diag/evaluation/runner.py",
         "src/signal_diag/evaluation/contextual/campaign.py",
@@ -204,5 +205,8 @@ def test_t_cx433_only_the_live_product_turns_the_guard_on() -> None:
         "src/signal_diag/evaluation/agent_increment/offline.py",
         "src/signal_diag/evaluation/agent_increment/segment_baseline.py",
         "src/signal_diag/tools/regression_measurement.py",
+        "src/signal_diag/tools/service.py",
     ):
-        assert "subharmonic_guard" not in (ROOT / relative).read_text(encoding="utf-8"), relative
+        text = (ROOT / relative).read_text(encoding="utf-8")
+        assert "subharmonic_guard" not in text, relative
+        assert "GuardedSignalToolService" not in text, relative

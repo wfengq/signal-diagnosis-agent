@@ -1943,3 +1943,22 @@ draft; `--reference` names an uploaded file. With neither, a terminal prompts
 keep/edit/skip for the mode and then for the fields that mode uses; without a
 terminal the command exits 2 with `invalid_request`. Missing credentials exit
 2 with `planner_not_configured` and do not fall back.
+
+## 26. Opt-in F0 subharmonic guard (D049)
+
+`estimate_f0_autocorrelation` and `analyze_harmonic_distortion` accept
+`subharmonic_guard`. When it is off (the default, `None` resolving to off) the
+estimator is the pre-D049 one, byte for byte. When it is on, the estimator takes
+the shortest local autocorrelation peak whose parabola-interpolated height is
+within `subharmonic_tolerance` (default 0.01, a versioned DSP parameter, not a
+rule threshold) of the best peak, and reports `f0 = sample_rate / interpolated
+lag`. `method` stays `autocorrelation`. `subharmonic_guard_enabled()` turns the
+guard on for a scope, including nested calls such as those in
+`dsp/contextual.py`.
+
+Only the live product turns the guard on, through `GuardedSignalToolService`
+(`tools/guarded_service.py`) in `app/service.py`, and the planner-ablation
+adapter's fixed arm, which mirrors the product arm's tools. Evaluation runners,
+recorded studies, the regression workbench and dataset validation keep the
+default. The V0.3 Workstream A rule "no F0 re-selection" continues to hold for
+the default path.
