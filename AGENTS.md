@@ -26,8 +26,11 @@ conservative without reference/nominal context (D037). Optional upgrades:
 `paired_reference` and `nominal_single_tone`. HEAD Web UI materializes Demo
 presets as PCM WAV, submits them through contextual `single_signal`, and after
 `context_guidance` can re-submit held test bytes with a user reference or typed
-nominal Hz (CONTRACTS_V0_3_CONTEXTUAL §17–§18). Do not cite HEAD quality
-numbers in place of the V0.2 **79/80**. To demonstrate the accepted V0.2
+nominal Hz (CONTRACTS_V0_3_CONTEXTUAL §17–§18). Free-text intake
+(D047, §25) drafts context from user text and file names with intake prompt
+`v0.3-s1-intake-1.1`; only user-confirmed fields reach diagnosis, and the Web UI
+(Chinese, intake first) and CLI `intake diagnose` share that rule. Do not
+cite HEAD quality numbers in place of the V0.2 **79/80**. To demonstrate the accepted V0.2
 product, check out `ff16e2a` / `b48790c` rather than assuming HEAD matches
 those artifacts.
 
@@ -53,7 +56,7 @@ Before modifying product code, read:
 - `docs/ARCHITECTURE_V0_2.md` (especially §§12–18)
 - `docs/CONTRACTS_V0_2.md` (frozen §§1–64)
 - `docs/TEST_PLAN_V0_2.md` (required T001–T285)
-- `docs/DECISIONS.md` (D001–D037)
+- `docs/DECISIONS.md` (D001–D047)
 - `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and `docs/TEST_PLAN_V0_3_CONTEXTUAL.md`
   when touching contextual / HEAD live product paths
 - the relevant specification and plan under `docs/superpowers/`

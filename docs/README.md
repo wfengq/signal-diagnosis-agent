@@ -35,6 +35,7 @@ how calibration and held-out discipline were controlled.
 | V0.3 planner-ablation | `evaluations/v0_3/planner_ablation/` | `dev_1` concluded `fixed_pipeline_dominance`. `dev_2` stopped before sealing with no live calls (D046). |
 | V0.3 full-scale regression check | `evaluations/v0_3/full_scale_characterization/` | round_1 characterization, two-stage freeze and validation; method floor registered as D044 |
 | **V0.3 agent increment** | `evaluations/v0_3/agent_increment/` and the [results report](evaluations/v0_3/agent_increment/STUDY_S1_AGENT_INCREMENT_1_REPORT.md) | Five dev rounds and one frozen held-out run. T1 **+5** (measurable increment); T2 **0** with 96 vs 824 tool calls; agent safety met on all 48 cases. |
+| V0.3 intake product acceptance | `evaluations/v0_3/intake_product/acceptance_1/` and its [note](evaluations/v0_3/intake_product/acceptance_1/ACCEPTANCE_NOTE.md) | Six development T1 cases through `intake diagnose --yes`: the flow passed. Not a quality metric; its recorded `http_calls` are not real counts. |
 | Real-model observations | `reports/` | Phase 2 and Phase 3 observations |
 
 None of the V0.3 numbers changes the V0.2 completion statement or turns a study
@@ -60,13 +61,14 @@ Read these before changing behavior or public interfaces:
    Do not edit frozen §§1–64.
 4. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) (T001–T285) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) (T-CX series,
-   through T-CX419).
+   through T-CX424).
 5. [DECISIONS.md](DECISIONS.md): D001–D047.
-6. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): OQ-001–OQ-022.
+6. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): OQ-001–OQ-023.
    - OQ-013–OQ-018 resolve gaps between the current code and the frozen V0.2
      documents.
    - OQ-019 is the planner-ablation study; its `dev_2` was stopped by D046.
    - OQ-020–OQ-022 cover the full-scale check (D043, D044).
+   - OQ-023 is the provider-telemetry SDK identity label (`httpx` vs `httpx2`); open.
 7. [EXTERNAL_VALIDATION_CONTRACTS_V0_2.md](EXTERNAL_VALIDATION_CONTRACTS_V0_2.md)
    and [EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md](EXTERNAL_VALIDATION_TEST_PLAN_V0_2.md):
    the external-WAV study.
