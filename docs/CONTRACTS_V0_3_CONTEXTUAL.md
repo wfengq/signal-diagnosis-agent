@@ -1632,6 +1632,16 @@ step of the coarser of the two files' bit depths. (For a `no` side,
 "peak at or above threshold" and "has over-threshold uncounted samples" are
 the same condition; both are covered by this minimum.)
 
+Fixed-minimum scope (OQ-022 Option B / D044). The fixed minimum above covers
+single-depth differences of at most one coarser-depth step. It does not by
+itself cover the composite of one coarser-depth step plus bit-depth
+conversion. Any approved floor record must therefore cover that composite in
+its reviewed critical zone, and must have `zone_above` of at least one
+16-bit quantization step (`2^-15`). Characterization evidence for flip counts
+outside the one-step and two-step fixed-minimum bounds is recorded with the
+floor approval (D044); this clause does not change `_in_critical_zone` or
+judgment logic.
+
 ### 23.5 Check record
 
 ```text
