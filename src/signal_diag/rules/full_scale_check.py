@@ -135,7 +135,9 @@ def load_approved_full_scale_floor_yaml(
         raise ValueError("approved full-scale floor YAML must contain a floor mapping")
     provenance = payload.get("provenance")
     if not isinstance(provenance, dict):
-        raise ValueError("approved full-scale floor YAML must contain provenance")
+        raise ValueError(  # noqa: TRY004
+            "approved full-scale floor YAML must contain provenance"
+        )
     floor = FullScaleMethodFloor.model_validate(payload["floor"])
     if full_scale_floor_digest(floor) != floor.digest:
         raise ValueError("approved full-scale floor digest mismatch")
