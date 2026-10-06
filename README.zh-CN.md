@@ -52,13 +52,18 @@ signal-diag serve --host 127.0.0.1 --port 8765
 signal-diag presets
 signal-diag diagnose synthetic clipping
 signal-diag diagnose wav path/to/file.wav --channel mixdown --output json --html-output report.html
+signal-diag intake diagnose --text "新功放放 1 kHz 测试音，听着发毛" --test-file new.wav --file old.wav
 ```
 
 退出码 0 表示 agent 正常给出了结果，包括“不确定”和“没有可支持的故障”。退出码 1 表示 agent、运行时或应用出错。退出码 2 表示用法、输入或配置有误。
 
 ### 默认路径会下什么结论、不会下什么结论
 
+网页打开后首先是“描述问题”：写下你听到的情况，选一到两个 WAV 文件，逐项确认模型起草的上下文，然后诊断。界面是中文，关键英文术语并列保留；手动表单和示例信号收在“高级”区域里。命令行的 `intake diagnose` 会逐项询问保留、修改或跳过；脚本里用 `--yes` 或直接写字段参数（`--mode`、`--reference`、`--nominal-fundamental-hz`、`--stimulus-kind`）。
+
 默认只处理单个文件，结论偏保守：可以确认削波，但在缺少上下文时不会把丰富的谐波说成“新增的失真”。如果能提供干净的参考 WAV，或声明单音的标称频率，就可以进一步认定谐波失真。这一步是可选的，并不假定每个用户都有未失真的原始录音。
+
+自由文本接诊只负责起草这些上下文：模型只看到你的文字和文件名，看不到音频。起草的字段要经你确认才会使用；某个模式需要的字段没有全部确认时，按单文件诊断并说明原因。标称频率只来自你的文字或输入，绝不来自测量。上下文来自已确认草稿时，报告里会注明。
 
 ## 架构
 
@@ -106,7 +111,8 @@ StructuredDiagnosis -> JSON / HTML / UI
 
 - **已验收的 V0.2 产品：** commit `b48790c`，prompt `v0.2-s1-planner-8.1`。上面的 79/80 和保留的 [Phase 5 演示](docs/demo/phase5/v0_2_acceptance/README.md)都属于这个版本。要重现那次演示，请检出 `b48790c`（有 tag 时也可以用 `v0.2.0`）。
 - **当前默认分支：** 产品以情境模式运行附加的 V0.3 planner `v0.3-s1-planner-9.11`，它的报告没有经过 V0.2 评测认证。包元数据里的版本号仍是 `0.2.0`，这是为了保留 tag 和 wheel 的历史。
-- **Agent 增量研究用的 prompt**（`v0.3-s1-planner-9.15`、`v0.3-s1-intake-1.1`）：在研究里评测过，但不是产品默认。
+- **自由文本接诊：** 产品使用接诊 prompt `v0.3-s1-intake-1.1`（即增量研究里评测过的那一版），诊断仍用产品 planner `v0.3-s1-planner-9.11`。
+- **Agent 增量研究用的 planner**（`v0.3-s1-planner-9.15`）：在研究里评测过，但不是产品默认。
 
 ## 输入与安装细节
 

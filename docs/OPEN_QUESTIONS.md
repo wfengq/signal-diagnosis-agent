@@ -413,3 +413,18 @@ Compatibility impact: None today (no product floor; no judged status). Option A 
 Test impact: Option A needs an update to the T-CX357 fixed-minimum tests and a regression case built from the pair above. Option B needs a contract revision and a test that pins the one-step bound.
 User decision: approved 2026-10-06 — Option B (no code change to `_in_critical_zone`; append a §23.4 requirement that any approved floor record has `zone_above` of at least one 16-bit step). Recorded as D044. Contract append is T-CX382; critical-zone and judgment logic stay unchanged.
 ```
+
+## OQ-023 — Provider telemetry: SDK profile names `httpx`, but openai 3.6.0 sends through `httpx2`
+
+```text
+ID: OQ-023
+Date: 2026-10-06
+Status: open
+Affected document and section: src/signal_diag/agent/provider_telemetry.py (`_NATIVE_HOOK`, `_AUDITED_HTTPX_VERSION`, `build_audited_sdk_observation_profile`, `reviewed_openai_capability_identity`); CONTRACTS_V0_3_CONTEXTUAL.md §21 (planner-ablation token and transport telemetry).
+Observed problem: The locked `openai==3.6.0` dispatches through its vendored `httpx2` (2.12.0): `AsyncOpenAI(...)._client` is an `httpx2.AsyncClient`. The audited SDK observation profile still records `native_http_family="httpx"`, `native_http_version` from `httpx.__version__` (0.28.1), and `native_dispatch_hook="httpx.AsyncClient.send"`, and its version audit pins `httpx`, not `httpx2`. Found while diagnosing why the D047 acceptance script counted zero sends (its class-level `httpx.AsyncClient.send` patch never fired; see `evaluations/v0_3/intake_product/acceptance_1/ACCEPTANCE_NOTE.md`).
+Why the current contract cannot represent a correct implementation: It can for counting. Probed on 2026-10-06 against a closed local port with no model call: `attach_sdk_observation` wraps the client instance's own transport and emitted SdkAttemptEvent start/end and HttpSendEvent start/end for the single send, so send telemetry is not blind. What is wrong is the identity metadata, and an `httpx2` upgrade would pass the audit unnoticed.
+Minimal proposed change: Option A: add an `httpx2` version pin to the audit and record `native_http_family="httpx2"` with its version and a corrected hook label in new profiles, leaving every recorded artifact unchanged. Option B: document the label as historical and add only the `httpx2` pin as an extra blocker. No change is proposed to the stopped `dev_2` records (D046).
+Compatibility impact: Option A changes the identity fields of profiles built after the change; recorded planner-ablation artifacts keep their old values. Option B changes nothing recorded.
+Test impact: A test that builds the audited profile and asserts the dispatch family matches `type(AsyncOpenAI(...)._client)`'s module, plus an `httpx2` version-drift blocker test.
+User decision: pending.
+```

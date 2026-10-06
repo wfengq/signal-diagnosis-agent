@@ -76,6 +76,11 @@ Open `http://127.0.0.1:8765`. The health endpoint, presets and static UI load
 without credentials. Submitting a diagnosis without them returns a
 configuration error rather than a scripted answer.
 
+The page opens on **describe the problem**: write what you hear, choose one or
+two WAV files, review the drafted context field by field, then diagnose. The
+interface is in Chinese, with the key English terms kept alongside. The manual
+form and the demo presets sit under an "advanced" section.
+
 **This is a local, single-user, no-auth service. Do not expose it to an
 untrusted network.**
 
@@ -85,7 +90,12 @@ From the command line:
 signal-diag presets
 signal-diag diagnose synthetic clipping
 signal-diag diagnose wav path/to/file.wav --channel mixdown --output json --html-output report.html
+signal-diag intake diagnose --text "the 1 kHz test tone sounds harsh" --test-file new.wav --file old.wav
 ```
+
+`intake diagnose` prompts you to keep, edit or skip each drafted field. Use
+`--yes` or explicit field flags (`--mode`, `--reference`,
+`--nominal-fundamental-hz`, `--stimulus-kind`) in scripts.
 
 Exit 0 means the agent completed a valid result, including `inconclusive` or
 `no_supported_fault`. Exit 1 is an agent, runtime or application failure. Exit 2
@@ -98,6 +108,13 @@ clipping. It does not call rich harmonics "added distortion" without context.
 Supplying a clean reference WAV or a declared single-tone frequency is an
 optional upgrade that lets it attribute harmonic distortion. It does not assume
 that every user has an undistorted original.
+
+Free-text intake only drafts that context. The model sees your text and the
+file names, never the audio. A drafted field is used only after you confirm
+it. If a mode's required fields are not all confirmed, the run falls back to
+the single-file path and says why. A nominal frequency comes only from your
+text or your input, never from measurement. Reports note when the context came
+from a confirmed draft.
 
 ## Architecture
 
@@ -166,8 +183,11 @@ To read the code, follow one request vertically:
   `v0.3-s1-planner-9.11` in contextual mode. Its reports are not certified by
   the V0.2 evaluation. Package metadata still says `0.2.0`, which preserves
   tag and wheel history.
-- **Agent-increment study prompts** (`v0.3-s1-planner-9.15`,
-  `v0.3-s1-intake-1.1`): evaluated in the study, but not the product default.
+- **Free-text intake:** the product uses intake prompt `v0.3-s1-intake-1.1`,
+  the one evaluated in the agent-increment study, but diagnoses with the
+  product planner `v0.3-s1-planner-9.11`.
+- **Agent-increment study planner** (`v0.3-s1-planner-9.15`): evaluated in the
+  study, but not the product default.
 
 ## Input and install details
 
