@@ -1,0 +1,76 @@
+{
+  "cases": [
+    {
+      "case_id": "dev-t1-00",
+      "exit_code": 0,
+      "http_calls": 0,
+      "submitted_mode": "nominal_single_tone",
+      "context_origin": "intake_confirmed",
+      "assertion_source": "user_supplied",
+      "outcome": "inconclusive",
+      "study_dev_r5_confirmed_mode": "single_signal",
+      "manifest_truth_mode": "single_signal"
+    },
+    {
+      "case_id": "dev-t1-04",
+      "exit_code": 0,
+      "http_calls": 0,
+      "submitted_mode": "single_signal",
+      "context_origin": "intake_confirmed",
+      "assertion_source": "user_supplied",
+      "outcome": "inconclusive",
+      "study_dev_r5_confirmed_mode": "single_signal",
+      "manifest_truth_mode": "single_signal"
+    },
+    {
+      "case_id": "dev-t1-05",
+      "exit_code": 0,
+      "http_calls": 0,
+      "submitted_mode": "paired_reference",
+      "context_origin": "intake_confirmed",
+      "assertion_source": "user_supplied",
+      "outcome": "supported_fault",
+      "study_dev_r5_confirmed_mode": "paired_reference",
+      "manifest_truth_mode": "paired_reference"
+    },
+    {
+      "case_id": "dev-t1-06",
+      "exit_code": 0,
+      "http_calls": 0,
+      "submitted_mode": "paired_reference",
+      "context_origin": "intake_confirmed",
+      "assertion_source": "user_supplied",
+      "outcome": "supported_fault",
+      "study_dev_r5_confirmed_mode": "paired_reference",
+      "manifest_truth_mode": "paired_reference"
+    },
+    {
+      "case_id": "dev-t1-08",
+      "exit_code": 0,
+      "http_calls": 0,
+      "submitted_mode": "nominal_single_tone",
+      "context_origin": "intake_confirmed",
+      "assertion_source": "user_supplied",
+      "outcome": "supported_fault",
+      "study_dev_r5_confirmed_mode": "nominal_single_tone",
+      "manifest_truth_mode": "nominal_single_tone"
+    },
+    {
+      "case_id": "dev-t1-10",
+      "exit_code": 0,
+      "http_calls": 0,
+      "submitted_mode": "single_signal",
+      "context_origin": "intake_confirmed",
+      "assertion_source": "user_supplied",
+      "outcome": "supported_fault",
+      "study_dev_r5_confirmed_mode": "nominal_single_tone",
+      "manifest_truth_mode": "nominal_single_tone"
+    }
+  ],
+  "http_calls_total": 0,
+  "incomplete": false,
+  "per_case_cap": 15,
+  "total_cap": 90,
+  "product_prompt": "v0.3-s1-planner-9.11",
+  "note": "acceptance of the flow only; not a quality metric"
+}
