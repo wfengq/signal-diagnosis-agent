@@ -19,6 +19,7 @@ from signal_diag.app.composition import build_product_service
 from signal_diag.app.contextual_models import ContextualAppRunSnapshot
 from signal_diag.app.contextual_reporting import (
     build_contextual_diagnosis_report,
+    dump_contextual_snapshot,
     render_contextual_report_html,
     render_contextual_report_json,
 )
@@ -28,6 +29,7 @@ from signal_diag.app.errors import (
     RunNotTerminalError,
     sanitize_application_error,
 )
+from signal_diag.app.intake_flow import ContextOrigin
 from signal_diag.app.models import (
     AppErrorDetail,
     AppErrorEnvelope,
@@ -55,6 +57,7 @@ _MAX_FILE_BYTES = WavLoadLimits().max_upload_bytes
 _STATIC_MEDIA_TYPES = {
     "styles.css": "text/css; charset=utf-8",
     "app.js": "text/javascript; charset=utf-8",
+    "intake_flow.js": "text/javascript; charset=utf-8",
     "regression.js": "text/javascript; charset=utf-8",
 }
 _STATUS_BY_CODE = {
@@ -366,13 +369,14 @@ def create_app(
             ),
             user_request=parsed.user_request,
             channel=parsed.channel,
+            context_origin=cast(ContextOrigin | None, parsed.context_origin),
         )
         return JSONResponse(status_code=202, content=submission.model_dump(mode="json"))
 
     @app.get("/api/v1/contextual-runs/{run_id}")
     async def get_contextual_run(request: Request, run_id: str) -> JSONResponse:
         snapshot = _service(request).get_contextual_run(run_id)
-        return JSONResponse(content=snapshot.model_dump(mode="json"))
+        return JSONResponse(content=dump_contextual_snapshot(snapshot))
 
     @app.get("/api/v1/contextual-runs/{run_id}/report.json")
     async def contextual_report_json(request: Request, run_id: str) -> Response:

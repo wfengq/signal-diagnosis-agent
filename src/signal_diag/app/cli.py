@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import math
 import sys
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
@@ -17,6 +18,16 @@ from signal_diag.app.contextual_reporting import (
     render_contextual_report_json,
 )
 from signal_diag.app.errors import ApplicationError, sanitize_application_error
+from signal_diag.app.intake_flow import (
+    CONTEXT_ORIGIN_INTAKE,
+    INTAKE_DIAGNOSIS_QUESTION,
+    MAX_INTAKE_FILES,
+    ContextDraft,
+    assemble_intake_submission,
+    downgrade_message,
+    draft_confirmed_by_yes,
+    wav_header_sample_rate,
+)
 from signal_diag.app.models import AppErrorDetail, DiagnosisReport
 from signal_diag.app.reporting import (
     build_diagnosis_report,
@@ -61,6 +72,26 @@ def build_parser() -> argparse.ArgumentParser:
     intake_draft.add_argument("--file", dest="files", action="append", required=True)
     intake_draft.add_argument("--test-file", required=True)
     intake_draft.add_argument("--sample-rate-hz", dest="sample_rates_hz", action="append", type=float)
+    intake_diagnose = intake_commands.add_parser("diagnose")
+    intake_diagnose.add_argument("--text", required=True)
+    intake_diagnose.add_argument("--test-file", type=Path, required=True)
+    intake_diagnose.add_argument("--file", dest="files", type=Path, action="append", default=[])
+    intake_diagnose.add_argument("--yes", action="store_true")
+    intake_diagnose.add_argument(
+        "--mode",
+        choices=("single_signal", "nominal_single_tone", "paired_reference"),
+        default=None,
+    )
+    intake_diagnose.add_argument("--reference", default=None)
+    intake_diagnose.add_argument("--nominal-fundamental-hz", type=float, default=None)
+    intake_diagnose.add_argument("--stimulus-kind", choices=("single_tone",), default=None)
+    intake_diagnose.add_argument(
+        "--channel",
+        choices=("left", "right", "mixdown"),
+        default="mixdown",
+    )
+    intake_diagnose.add_argument("--output", choices=("text", "json"), default="text")
+    intake_diagnose.add_argument("--html-output", type=Path, default=None)
 
     diagnose_options = argparse.ArgumentParser(add_help=False)
     diagnose_options.add_argument("--question", default=_DEFAULT_QUESTION)
@@ -232,6 +263,8 @@ def _print_contextual_text_report(report: ContextualDiagnosisReport) -> None:
         print(f"nominal_fundamental_hz: {context.nominal_fundamental_hz}")
     if context.stimulus_kind is not None:
         print(f"stimulus_kind: {context.stimulus_kind}")
+    if report.context_origin is not None:
+        print(f"context_source: {report.context_origin}")
     result = report.result
     diagnosis = result.diagnosis
     if diagnosis is None:
@@ -315,6 +348,33 @@ async def _presets(
         await service.aclose()
 
 
+async def _finish_contextual(
+    args: argparse.Namespace,
+    service: DiagnosisApplicationService,
+    run_id: str,
+) -> int:
+    contextual_snapshot = await service.wait_for_contextual_terminal(run_id)
+    if contextual_snapshot.status == "completed":
+        contextual_report = build_contextual_diagnosis_report(
+            contextual_snapshot, generated_at=datetime.now(UTC)
+        )
+        _emit_contextual_outputs(args, contextual_report)
+        if (
+            contextual_snapshot.result is not None
+            and contextual_snapshot.result.status == "error"
+        ):
+            return 1
+        return 0
+    if contextual_snapshot.application_error is not None:
+        _print_error(
+            contextual_snapshot.application_error.code,
+            contextual_snapshot.application_error.message,
+        )
+    else:
+        _print_error("internal_error", "diagnosis execution failed")
+    return 1
+
+
 async def _diagnose(
     args: argparse.Namespace,
     service_factory: Callable[[], DiagnosisApplicationService],
@@ -396,28 +456,7 @@ async def _diagnose(
                 user_request=args.question,
                 channel=args.channel,
             )
-            contextual_snapshot = await service.wait_for_contextual_terminal(
-                contextual_submission.run_id
-            )
-            if contextual_snapshot.status == "completed":
-                contextual_report = build_contextual_diagnosis_report(
-                    contextual_snapshot, generated_at=datetime.now(UTC)
-                )
-                _emit_contextual_outputs(args, contextual_report)
-                if (
-                    contextual_snapshot.result is not None
-                    and contextual_snapshot.result.status == "error"
-                ):
-                    return 1
-                return 0
-            if contextual_snapshot.application_error is not None:
-                _print_error(
-                    contextual_snapshot.application_error.code,
-                    contextual_snapshot.application_error.message,
-                )
-            else:
-                _print_error("internal_error", "diagnosis execution failed")
-            return 1
+            return await _finish_contextual(args, service, contextual_submission.run_id)
 
         submission = await service.submit_synthetic(
             args.preset_id,
@@ -476,6 +515,204 @@ async def _intake_draft(
         await service.aclose()
 
 
+_INTAKE_FIELD_FLAGS = ("mode", "reference", "nominal_fundamental_hz", "stimulus_kind")
+
+
+def _print_draft(draft: ContextDraft) -> None:
+    print(f"draft mode: {draft.mode}", file=sys.stderr)
+    print(f"draft reference_file: {draft.reference_file}", file=sys.stderr)
+    print(
+        f"draft nominal_fundamental_hz: {draft.nominal_fundamental_hz}", file=sys.stderr
+    )
+    print(f"draft stimulus_kind: {draft.stimulus_kind}", file=sys.stderr)
+    if draft.missing_fields:
+        print(f"draft missing: {', '.join(draft.missing_fields)}", file=sys.stderr)
+    aligned = len(draft.asked_fields) == len(draft.questions)
+    for index, question in enumerate(draft.questions):
+        label = f"question ({draft.asked_fields[index]})" if aligned else "question"
+        print(f"{label}: {question}", file=sys.stderr)
+
+
+def _ask_field(
+    name: str,
+    current: object,
+    parse: Callable[[str], object],
+) -> object:
+    while True:
+        if current is None:
+            sys.stderr.write(f"{name} [not set] edit/skip (e/s): ")
+        else:
+            sys.stderr.write(f"{name} [{current}] keep/edit/skip (k/e/s): ")
+        sys.stderr.flush()
+        answer = input().strip().lower()
+        if answer in ("k", "keep") and current is not None:
+            return current
+        if answer in ("s", "skip"):
+            return None
+        if answer in ("e", "edit"):
+            sys.stderr.write(f"{name} value: ")
+            sys.stderr.flush()
+            raw = input().strip()
+            try:
+                return parse(raw)
+            except ValueError as error:
+                print(f"invalid {name}: {error}", file=sys.stderr)
+
+
+def _parse_mode(raw: str) -> str:
+    if raw not in ("single_signal", "nominal_single_tone", "paired_reference"):
+        raise ValueError("expected single_signal, nominal_single_tone or paired_reference")
+    return raw
+
+
+def _parse_hz(raw: str) -> float:
+    value = float(raw)
+    if not math.isfinite(value) or value <= 0.0:
+        raise ValueError("expected a finite positive number")
+    return value
+
+
+def _parse_stimulus_kind(raw: str) -> str:
+    if raw != "single_tone":
+        raise ValueError("expected single_tone")
+    return raw
+
+
+def _confirm_interactively(
+    draft: ContextDraft, *, filenames: tuple[str, ...], test_file: str
+) -> dict[str, object]:
+    def parse_reference(raw: str) -> str:
+        if raw not in filenames or raw == test_file:
+            raise ValueError("expected one of the other uploaded files")
+        return raw
+
+    values: dict[str, object] = {
+        "mode": _ask_field("mode", draft.mode, _parse_mode),
+        "reference_file": None,
+        "nominal_fundamental_hz": None,
+        "stimulus_kind": None,
+    }
+    if values["mode"] == "paired_reference":
+        values["reference_file"] = _ask_field(
+            "reference_file", draft.reference_file, parse_reference
+        )
+    elif values["mode"] == "nominal_single_tone":
+        values["nominal_fundamental_hz"] = _ask_field(
+            "nominal_fundamental_hz", draft.nominal_fundamental_hz, _parse_hz
+        )
+        values["stimulus_kind"] = _ask_field(
+            "stimulus_kind",
+            draft.stimulus_kind if draft.stimulus_kind == "single_tone" else None,
+            _parse_stimulus_kind,
+        )
+    return values
+
+
+async def _intake_diagnose(
+    args: argparse.Namespace,
+    service_factory: Callable[[], DiagnosisApplicationService],
+) -> int:
+    explicit = any(getattr(args, name) is not None for name in _INTAKE_FIELD_FLAGS)
+    if not args.yes and not explicit and not sys.stdin.isatty():
+        _print_error(
+            "invalid_request",
+            "non-interactive intake diagnose needs --yes or explicit context flags",
+        )
+        return 2
+    paths = (Path(args.test_file), *(Path(item) for item in args.files))
+    filenames = tuple(path.name for path in paths)
+    test_file = filenames[0]
+    max_bytes = WavLoadLimits().max_upload_bytes
+    try:
+        if len(paths) > MAX_INTAKE_FILES or len(set(filenames)) != len(filenames):
+            raise ApplicationError(
+                AppErrorDetail(
+                    code="invalid_request",
+                    message=(
+                        f"intake accepts 1 to {MAX_INTAKE_FILES} WAV files "
+                        "with distinct names"
+                    ),
+                )
+            )
+        data = {path.name: _read_wav_path(path, max_bytes) for path in paths}
+    except ApplicationError as error:
+        _print_error(error.detail.code, error.detail.message)
+        return _exit_for_application_error(error)
+    except OSError as error:
+        _print_error("invalid_request", str(error))
+        return 2
+    rates = tuple(wav_header_sample_rate(data[name]) for name in filenames)
+
+    service = service_factory()
+    try:
+        draft = await service.draft_intake_payload(
+            {
+                "text": args.text,
+                "filenames": list(filenames),
+                "test_file": test_file,
+                "sample_rates_hz": (
+                    [] if any(rate is None for rate in rates) else list(rates)
+                ),
+            }
+        )
+        _print_draft(draft)
+        if args.yes:
+            values = draft_confirmed_by_yes(draft)
+        elif explicit:
+            values = dict.fromkeys(
+                ("mode", "reference_file", "nominal_fundamental_hz", "stimulus_kind")
+            )
+        else:
+            try:
+                values = _confirm_interactively(
+                    draft, filenames=filenames, test_file=test_file
+                )
+            except EOFError as error:
+                raise ApplicationError(
+                    AppErrorDetail(
+                        code="invalid_request", message="confirmation aborted"
+                    )
+                ) from error
+        overrides = {
+            "mode": args.mode,
+            "reference_file": args.reference,
+            "nominal_fundamental_hz": args.nominal_fundamental_hz,
+            "stimulus_kind": args.stimulus_kind,
+        }
+        values.update({key: value for key, value in overrides.items() if value is not None})
+        assembly = assemble_intake_submission(
+            **values, filenames=filenames, test_file=test_file
+        )
+        note = downgrade_message(assembly)
+        if note is not None:
+            print(f"note: {note}", file=sys.stderr)
+        confirmed = assembly.confirmed
+        print(f"submitting mode: {confirmed.mode}", file=sys.stderr)
+        reference_name = confirmed.reference_file
+        submission = await service.submit_contextual_wav(
+            data[test_file],
+            test_filename=test_file,
+            mode=confirmed.mode,
+            reference_data=None if reference_name is None else data[reference_name],
+            reference_filename=reference_name,
+            nominal_fundamental_hz=confirmed.nominal_fundamental_hz,
+            stimulus_kind=confirmed.stimulus_kind,
+            user_request=INTAKE_DIAGNOSIS_QUESTION,
+            channel=args.channel,
+            context_origin=CONTEXT_ORIGIN_INTAKE,
+        )
+        return await _finish_contextual(args, service, submission.run_id)
+    except ApplicationError as error:
+        _print_error(error.detail.code, error.detail.message)
+        return _exit_for_application_error(error)
+    except Exception as error:  # noqa: BLE001
+        detail = sanitize_application_error(error)
+        _print_error(detail.code, detail.message)
+        return 1
+    finally:
+        await service.aclose()
+
+
 def main(
     argv: Sequence[str] | None = None,
     *,
@@ -496,6 +733,8 @@ def main(
         return asyncio.run(_diagnose(args, service_factory))
     if args.command == "intake" and args.intake_command == "draft":
         return asyncio.run(_intake_draft(args, service_factory))
+    if args.command == "intake" and args.intake_command == "diagnose":
+        return asyncio.run(_intake_diagnose(args, service_factory))
     return 2
 
 

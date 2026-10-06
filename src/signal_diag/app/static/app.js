@@ -224,6 +224,9 @@ function renderDeclaration(panel, snapshot) {
   if (context.stimulus_kind) {
     appendText(panel, "p", `stimulus_kind: ${context.stimulus_kind}`);
   }
+  if (snapshot.context_origin === "intake_confirmed") {
+    appendText(panel, "p", "context source: free-text draft, confirmed by the user");
+  }
   appendText(
     panel,
     "p",
@@ -807,40 +810,215 @@ function bindUi() {
   });
 }
 
-async function requestIntakeDraft() {
-  const text = document.getElementById("intake-text").value.trim();
+/** Files chosen for intake, held in page memory until the user confirms (§25). */
+const intakeState = {
+  filesByName: {},
+  filenames: [],
+  draft: null,
+};
+
+const INTAKE_FIELD_LABELS = {
+  mode: "intake-mode",
+  reference_file: "intake-reference",
+  nominal_fundamental_hz: "intake-nominal-hz",
+  stimulus_kind: "intake-stimulus-kind",
+};
+
+function setOptions(select, values, labels) {
+  select.replaceChildren();
+  for (const value of values) {
+    const option = appendText(select, "option", labels ? labels[value] : value);
+    option.value = value;
+  }
+}
+
+function refreshIntakeFiles() {
   const picker = document.getElementById("intake-files");
   const files = Array.from(picker.files || []);
-  if (!text || files.length === 0) {
-    throw new Error("intake needs a description and at least one file name");
+  intakeState.filesByName = {};
+  for (const file of files) {
+    intakeState.filesByName[file.name] = file;
   }
+  intakeState.filenames = files.map((file) => file.name);
+  setOptions(document.getElementById("intake-test-file"), intakeState.filenames);
+  intakeState.draft = null;
+  document.getElementById("intake-confirm").hidden = true;
+  document.getElementById("intake-raw").hidden = true;
+}
+
+function intakeTestFile() {
+  return document.getElementById("intake-test-file").value;
+}
+
+async function readIntakeSampleRates(filenames) {
+  const rates = [];
+  for (const name of filenames) {
+    try {
+      const header = await intakeState.filesByName[name].slice(0, 4096).arrayBuffer();
+      rates.push(wavHeaderSampleRate(header));
+    } catch (_error) {
+      rates.push(null);
+    }
+  }
+  return rates;
+}
+
+async function requestIntakeDraft() {
+  const text = document.getElementById("intake-text").value.trim();
+  const filenames = intakeState.filenames;
+  if (!text || filenames.length === 0) {
+    throw new Error("Describe the problem and choose at least one WAV file.");
+  }
+  if (filenames.length > INTAKE_MAX_FILES) {
+    throw new Error(`Choose at most ${INTAKE_MAX_FILES} WAV files.`);
+  }
+  const testFile = intakeTestFile();
+  const sampleRates = await readIntakeSampleRates(filenames);
   const response = await fetch("/api/v1/intake/draft", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      text,
-      filenames: files.map((file) => file.name),
-      test_file: files[0].name,
-      sample_rates_hz: [],
-    }),
+    body: JSON.stringify(buildDraftRequestBody(text, filenames, testFile, sampleRates)),
   });
-  const payload = await response.json();
-  if (!response.ok) {
-    const message = payload.error && payload.error.message
-      ? payload.error.message
-      : "intake draft failed";
-    throw new Error(message);
+  const draft = await parseJsonResponse(response);
+  intakeState.draft = draft;
+  document.getElementById("intake-result").textContent = JSON.stringify(draft, null, 2);
+  document.getElementById("intake-raw").hidden = false;
+  showIntakeDraft(draft, testFile);
+}
+
+function showIntakeDraft(draft, testFile) {
+  const doubtful = new Set([...(draft.missing_fields || []), ...(draft.asked_fields || [])]);
+  const others = intakeState.filenames.filter((name) => name !== testFile);
+  setOptions(document.getElementById("intake-reference"), others);
+  document.getElementById("intake-mode").value = draft.mode;
+  if (draft.reference_file && others.includes(draft.reference_file)) {
+    document.getElementById("intake-reference").value = draft.reference_file;
   }
-  document.getElementById("intake-result").textContent = JSON.stringify(payload, null, 2);
+  document.getElementById("intake-nominal-hz").value =
+    draft.nominal_fundamental_hz == null ? "" : String(draft.nominal_fundamental_hz);
+  document.getElementById("intake-stimulus-kind").value =
+    draft.stimulus_kind === "single_tone" ? "single_tone" : "";
+  for (const id of [
+    "intake-mode-confirmed",
+    "intake-reference-confirmed",
+    "intake-nominal-confirmed",
+    "intake-stimulus-confirmed",
+  ]) {
+    document.getElementById(id).checked = false;
+  }
+  for (const [field, id] of Object.entries(INTAKE_FIELD_LABELS)) {
+    document.getElementById(id).classList.toggle("needs-confirmation", doubtful.has(field));
+  }
+  const list = document.getElementById("intake-questions");
+  list.replaceChildren();
+  const questions = draft.questions || [];
+  const asked = draft.asked_fields || [];
+  questions.forEach((question, index) => {
+    const prefix = asked.length === questions.length ? `${asked[index]}: ` : "";
+    appendText(list, "li", `${prefix}${question}`);
+  });
+  document.getElementById("intake-confirm").hidden = false;
+  updateIntakePlan();
+}
+
+function intakeSelection() {
+  const checked = (id) => document.getElementById(id).checked;
+  const hzText = document.getElementById("intake-nominal-hz").value.trim();
+  const kind = document.getElementById("intake-stimulus-kind").value;
+  return {
+    mode: checked("intake-mode-confirmed") ? document.getElementById("intake-mode").value : null,
+    reference_file: checked("intake-reference-confirmed")
+      ? document.getElementById("intake-reference").value || null
+      : null,
+    nominal_fundamental_hz:
+      checked("intake-nominal-confirmed") && hzText !== "" ? Number(hzText) : null,
+    stimulus_kind: checked("intake-stimulus-confirmed") && kind ? kind : null,
+  };
+}
+
+function updateIntakePlan() {
+  const mode = document.getElementById("intake-mode").value;
+  document.getElementById("intake-reference-fields").hidden = mode !== "paired_reference";
+  document.getElementById("intake-nominal-fields").hidden = mode !== "nominal_single_tone";
+  document.getElementById("intake-stimulus-fields").hidden = mode !== "nominal_single_tone";
+  const plan = document.getElementById("intake-plan");
+  const button = document.getElementById("intake-diagnose");
+  try {
+    const assembly = assembleIntakeSubmission(
+      intakeSelection(),
+      intakeState.filenames,
+      intakeTestFile(),
+    );
+    const note = intakeDowngradeMessage(assembly);
+    plan.textContent =
+      `Will diagnose as: ${diagnosticModeLabel(assembly.mode)}.` + (note ? ` Note: ${note}.` : "");
+    button.disabled = !plannerHealthAllowsSubmit;
+  } catch (error) {
+    plan.textContent = error instanceof Error ? error.message : String(error);
+    button.disabled = true;
+  }
+}
+
+function confirmOnEdit(inputId, checkboxId) {
+  const input = document.getElementById(inputId);
+  const markConfirmed = () => {
+    document.getElementById(checkboxId).checked = true;
+    updateIntakePlan();
+  };
+  input.addEventListener("change", markConfirmed);
+  input.addEventListener("input", markConfirmed);
+}
+
+async function submitIntakeDiagnosis(event) {
+  event.preventDefault();
+  const testFile = intakeTestFile();
+  const assembly = assembleIntakeSubmission(intakeSelection(), intakeState.filenames, testFile);
+  const channel = document.getElementById("channel").value;
+  const button = document.getElementById("intake-diagnose");
+  button.disabled = true;
+  document.getElementById("report-json").hidden = true;
+  document.getElementById("report-html").hidden = true;
+  try {
+    rememberHeldTestSignal({
+      blob: intakeState.filesByName[testFile],
+      filename: testFile,
+      channel,
+      userRequest: INTAKE_DIAGNOSIS_QUESTION,
+    });
+    const body = buildIntakeDiagnoseForm(assembly, intakeState.filesByName, testFile, channel);
+    const submission = await postContextualWav(body);
+    renderLifecycle(submission.status);
+    await pollRun(submission.run_id, { contextual: true });
+  } finally {
+    updateIntakePlan();
+  }
 }
 
 function bindIntake() {
   const button = document.getElementById("intake-draft");
   if (!button) return;
+  const report = (error) => showError(error instanceof Error ? error.message : String(error));
+  document.getElementById("intake-files").addEventListener("change", refreshIntakeFiles);
+  document.getElementById("intake-test-file").addEventListener("change", () => {
+    if (intakeState.draft) showIntakeDraft(intakeState.draft, intakeTestFile());
+  });
   button.addEventListener("click", () => {
-    requestIntakeDraft().catch((error) => {
-      showError(error instanceof Error ? error.message : String(error));
-    });
+    requestIntakeDraft().catch(report);
+  });
+  confirmOnEdit("intake-mode", "intake-mode-confirmed");
+  confirmOnEdit("intake-reference", "intake-reference-confirmed");
+  confirmOnEdit("intake-nominal-hz", "intake-nominal-confirmed");
+  confirmOnEdit("intake-stimulus-kind", "intake-stimulus-confirmed");
+  for (const id of [
+    "intake-mode-confirmed",
+    "intake-reference-confirmed",
+    "intake-nominal-confirmed",
+    "intake-stimulus-confirmed",
+  ]) {
+    document.getElementById(id).addEventListener("change", updateIntakePlan);
+  }
+  document.getElementById("intake-confirm").addEventListener("submit", (event) => {
+    submitIntakeDiagnosis(event).catch(report);
   });
 }
 

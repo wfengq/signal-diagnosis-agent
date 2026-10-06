@@ -69,13 +69,27 @@ def build_contextual_diagnosis_report(
         trace_events=snapshot.trace_events,
         result=result,
         context_guidance=snapshot.context_guidance,
+        context_origin=snapshot.context_origin,
+    )
+
+
+def _origin_exclude(context_origin: object) -> set[str] | None:
+    # §25: runs without intake provenance keep their pre-§25 serialized shape.
+    return {"context_origin"} if context_origin is None else None
+
+
+def dump_contextual_snapshot(snapshot: ContextualAppRunSnapshot) -> dict[str, object]:
+    return snapshot.model_dump(
+        mode="json", exclude=_origin_exclude(snapshot.context_origin)
     )
 
 
 def render_contextual_report_json(report: ContextualDiagnosisReport) -> str:
     return (
         json.dumps(
-            report.model_dump(mode="json"),
+            report.model_dump(
+                mode="json", exclude=_origin_exclude(report.context_origin)
+            ),
             ensure_ascii=False,
             allow_nan=False,
             sort_keys=True,
@@ -83,6 +97,11 @@ def render_contextual_report_json(report: ContextualDiagnosisReport) -> str:
         )
         + "\n"
     )
+
+
+_CONTEXT_ORIGIN_LABELS = {
+    "intake_confirmed": "free-text draft, confirmed by the user",
+}
 
 
 def _esc(value: object) -> str:
@@ -146,6 +165,16 @@ def render_contextual_report_html(report: ContextualDiagnosisReport) -> str:
             f"<dd>{_esc(context.get('nominal_fundamental_hz'))}</dd>"
         ),
         f"<dt>stimulus_kind</dt><dd>{_esc(context.get('stimulus_kind'))}</dd>",
+        *(
+            (
+                (
+                    "<dt>context_source</dt>"
+                    f"<dd>{_esc(_CONTEXT_ORIGIN_LABELS[data['context_origin']])}</dd>"
+                ),
+            )
+            if data.get("context_origin") is not None
+            else ()
+        ),
         "</dl>",
         "<p>StimulusContext is declared provenance, not measured Evidence.</p>",
         "</section>",

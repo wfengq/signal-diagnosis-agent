@@ -937,3 +937,27 @@ design and authorization.
 
 **Housekeeping:** PR #28 (D041 proof-binding revision) and PR #20 (telemetry
 design docs, already on trunk byte-identical) were closed without merge.
+
+## D047 — Free-text intake product flow (confirm, then diagnose)
+
+**Decision (operator 2026-10-06):** productize the T1 intake as a
+confirm-then-diagnose flow in the Web UI and CLI, per
+`docs/superpowers/specs/2026-10-06-s1-free-text-intake-product-design.md`
+(approved with options 1A, 2A, 3A, and a small live acceptance run).
+Contract: `CONTRACTS_V0_3_CONTEXTUAL.md` §25. Tests: T-CX411–T-CX419.
+
+**Why:** the agent-increment held-out run measured T1 at +5 (22 vs 17 of 24),
+above the pre-registered +3 line, but the product stopped at a raw draft that
+the user had to copy into the form by hand.
+
+**Choices:** the diagnosis planner gets the neutral question, not the user's
+description (1A); reports show the context came from a confirmed draft, while
+`assertion_source` stays `user_supplied` (2A); the CLI prompts on a terminal
+and accepts `--yes` or explicit flags for scripts (3A).
+
+**Unchanged:** product default prompt `v0.3-s1-planner-9.11`, intake prompt
+`v0.3-s1-intake-1.1`, causal policy, rules, DSP, and the contextual endpoint's
+validation. T2 localization and the study planner v9.15 stay out of the
+product. The live acceptance run uses development T1 cases only, needs its own
+handoff with a call cap, and produces no quality number; it is not compared
+with H1 and does not replace the V0.2 79/80.

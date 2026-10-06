@@ -31,6 +31,7 @@ REQUIRED_WHEEL_ASSETS = (
     "signal_diag/app/static/index.html",
     "signal_diag/app/static/styles.css",
     "signal_diag/app/static/app.js",
+    "signal_diag/app/static/intake_flow.js",
     "signal_diag/rules/profiles/s1_distortion_v1.yaml",
     "signal_diag/knowledge/corpus/clipping.md",
     "signal_diag/knowledge/corpus/harmonic_distortion.md",

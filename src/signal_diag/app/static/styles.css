@@ -116,6 +116,15 @@ a {
   margin-top: 0.75rem;
 }
 
+.needs-confirmation {
+  outline: 2px solid #b45309;
+  outline-offset: 1px;
+}
+
+#intake-plan {
+  font-weight: 600;
+}
+
 #waveform-panel svg {
   display: block;
   width: 100%;

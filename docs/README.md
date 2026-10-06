@@ -55,12 +55,13 @@ Read these before changing behavior or public interfaces:
    - §22: regression workbench.
    - §23: full-scale regression check.
    - §24: agent-increment study.
+   - §25: free-text intake product flow.
 
    Do not edit frozen §§1–64.
 4. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) (T001–T285) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) (T-CX series,
-   through T-CX410).
-5. [DECISIONS.md](DECISIONS.md): D001–D046.
+   through T-CX419).
+5. [DECISIONS.md](DECISIONS.md): D001–D047.
 6. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): OQ-001–OQ-022.
    - OQ-013–OQ-018 resolve gaps between the current code and the frozen V0.2
      documents.

@@ -1858,3 +1858,74 @@ reported as measured. HTTP calls stop at 21 per case and at the stage cap
 (development 1,500, held-out 1,008). The campaign directory is write-once.
 Offline tests use scripted stand-ins. The product builder never assembles
 those stand-ins.
+
+## 25. Free-text intake product flow (D047)
+
+Additive product surface over §24.1. It does not change the product default
+prompt, causal policy, intake prompt, DSP, rules, or frozen V0.2 §§1–64.
+Design: `docs/superpowers/specs/2026-10-06-s1-free-text-intake-product-design.md`.
+
+### 25.1 Assembly from confirmed fields
+
+`assemble_intake_submission` (Python, `app/intake_flow.py`) and
+`assembleIntakeSubmission` (browser, `static/intake_flow.js`) take the four
+context fields, the uploaded filenames and the test file. A `None`/`null` field
+is unconfirmed. Draft values never count as confirmed by themselves.
+
+| Confirmed mode | Required confirmed fields | Submitted | When a required field is unconfirmed |
+|---|---|---|---|
+| none | — | `single_signal`; `unconfirmed_fields = (mode)` | — |
+| `single_signal` | — | `single_signal`, no other fields | — |
+| `paired_reference` | `reference_file` | `paired_reference` and the reference; nominal Hz and `stimulus_kind` only when both are confirmed | `single_signal`, `downgraded_from = paired_reference` |
+| `nominal_single_tone` | `nominal_fundamental_hz`, `stimulus_kind = single_tone` | `nominal_single_tone` with both | `single_signal`, `downgraded_from = nominal_single_tone` |
+
+Fields the submitted mode does not use are dropped. Invalid values are
+`invalid_request` and never downgrade: one or more than two files, duplicate
+names, a test file not among the uploads, an unknown mode, a reference that is
+not an upload or is the test file, a `stimulus_kind` other than `single_tone`,
+and a nominal Hz that is not a finite positive number (booleans and strings
+included). Every downgrade is stated to the user before submission
+(`downgrade_message`). Nominal Hz comes only from the draft or user input,
+never from measurement. Both implementations run the shared table
+`tests/app/fixtures/intake_assembly_cases.json`.
+
+### 25.2 Submission and provenance
+
+The confirmed context is submitted through the existing
+`POST /api/v1/contextual-runs/wav` (or `submit_contextual_wav`), whose
+validation is unchanged. The question sent to the diagnosis planner is the
+neutral default `Why does this signal sound distorted?`; the user's
+description is not sent to it. `assertion_source` stays `user_supplied`.
+
+The contextual upload accepts an optional field `context_origin`, whose only
+legal value is `intake_confirmed`. The run snapshot and
+`ContextualDiagnosisReport` carry `context_origin`. When it is unset the field
+is omitted from the snapshot JSON and the report JSON, so form-submitted runs
+keep their previous serialized shape. The HTML report adds a `context_source`
+row "free-text draft, confirmed by the user"; the CLI text report adds
+`context_source: intake_confirmed`.
+
+### 25.3 Web UI
+
+The intake panel has three steps: description and one or two WAV files (the
+test file is selectable), a confirmation form, and a diagnose button. The
+browser reads only each WAV header for `sample_rates_hz`; audio bytes stay in
+page memory and are sent only in the diagnosis submission. The draft request
+carries text and file metadata only. Every field starts unconfirmed; editing a
+field or ticking its box confirms it. Fields in `missing_fields` or
+`asked_fields` are highlighted, and draft questions are shown next to their
+fields. The planned mode and any downgrade are shown before submission.
+
+### 25.4 CLI
+
+`signal-diag intake diagnose --text T --test-file PATH [--file PATH]
+[--yes] [--mode M] [--reference NAME] [--nominal-fundamental-hz F]
+[--stimulus-kind single_tone] [--channel C] [--output text|json]
+[--html-output PATH]`. The draft, questions, any downgrade and the submitted
+mode go to stderr; the report goes to stdout as in `diagnose contextual`.
+`--yes` confirms draft fields that are neither in `missing_fields` nor in
+`asked_fields`. Explicit field flags confirm those fields and override the
+draft; `--reference` names an uploaded file. With neither, a terminal prompts
+keep/edit/skip for the mode and then for the fields that mode uses; without a
+terminal the command exits 2 with `invalid_request`. Missing credentials exit
+2 with `planner_not_configured` and do not fall back.

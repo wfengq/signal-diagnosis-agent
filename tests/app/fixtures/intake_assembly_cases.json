@@ -1,0 +1,466 @@
+{
+  "schema": "intake_assembly_cases/1",
+  "cases": [
+    {
+      "id": "single_signal_confirmed",
+      "selection": {
+        "mode": "single_signal",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null
+      },
+      "filenames": [
+        "new.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "mode": "single_signal",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null,
+        "downgraded_from": null,
+        "unconfirmed_fields": []
+      }
+    },
+    {
+      "id": "mode_unconfirmed_defaults_to_single_signal",
+      "selection": {
+        "mode": null,
+        "reference_file": "old.wav",
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "mode": "single_signal",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null,
+        "downgraded_from": null,
+        "unconfirmed_fields": [
+          "mode"
+        ]
+      }
+    },
+    {
+      "id": "single_signal_drops_fields_other_modes_use",
+      "selection": {
+        "mode": "single_signal",
+        "reference_file": null,
+        "nominal_fundamental_hz": 1000.0,
+        "stimulus_kind": "single_tone"
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "mode": "single_signal",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null,
+        "downgraded_from": null,
+        "unconfirmed_fields": []
+      }
+    },
+    {
+      "id": "paired_reference_confirmed",
+      "selection": {
+        "mode": "paired_reference",
+        "reference_file": "old.wav",
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "mode": "paired_reference",
+        "reference_file": "old.wav",
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null,
+        "downgraded_from": null,
+        "unconfirmed_fields": []
+      }
+    },
+    {
+      "id": "paired_reference_with_both_nominal_fields",
+      "selection": {
+        "mode": "paired_reference",
+        "reference_file": "old.wav",
+        "nominal_fundamental_hz": 1000.0,
+        "stimulus_kind": "single_tone"
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "mode": "paired_reference",
+        "reference_file": "old.wav",
+        "nominal_fundamental_hz": 1000.0,
+        "stimulus_kind": "single_tone",
+        "downgraded_from": null,
+        "unconfirmed_fields": []
+      }
+    },
+    {
+      "id": "paired_reference_drops_half_of_nominal_pair",
+      "selection": {
+        "mode": "paired_reference",
+        "reference_file": "old.wav",
+        "nominal_fundamental_hz": 1000.0,
+        "stimulus_kind": null
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "mode": "paired_reference",
+        "reference_file": "old.wav",
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null,
+        "downgraded_from": null,
+        "unconfirmed_fields": []
+      }
+    },
+    {
+      "id": "paired_reference_downgrades_without_reference",
+      "selection": {
+        "mode": "paired_reference",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "mode": "single_signal",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null,
+        "downgraded_from": "paired_reference",
+        "unconfirmed_fields": [
+          "reference_file"
+        ]
+      }
+    },
+    {
+      "id": "paired_reference_rejects_test_file_as_reference",
+      "selection": {
+        "mode": "paired_reference",
+        "reference_file": "new.wav",
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "error": "invalid_request"
+      }
+    },
+    {
+      "id": "paired_reference_rejects_unknown_reference",
+      "selection": {
+        "mode": "paired_reference",
+        "reference_file": "other.wav",
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "error": "invalid_request"
+      }
+    },
+    {
+      "id": "nominal_single_tone_confirmed",
+      "selection": {
+        "mode": "nominal_single_tone",
+        "reference_file": null,
+        "nominal_fundamental_hz": 440.0,
+        "stimulus_kind": "single_tone"
+      },
+      "filenames": [
+        "new.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "mode": "nominal_single_tone",
+        "reference_file": null,
+        "nominal_fundamental_hz": 440.0,
+        "stimulus_kind": "single_tone",
+        "downgraded_from": null,
+        "unconfirmed_fields": []
+      }
+    },
+    {
+      "id": "nominal_single_tone_downgrades_without_hz",
+      "selection": {
+        "mode": "nominal_single_tone",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": "single_tone"
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "mode": "single_signal",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null,
+        "downgraded_from": "nominal_single_tone",
+        "unconfirmed_fields": [
+          "nominal_fundamental_hz"
+        ]
+      }
+    },
+    {
+      "id": "nominal_single_tone_downgrades_without_stimulus_kind",
+      "selection": {
+        "mode": "nominal_single_tone",
+        "reference_file": null,
+        "nominal_fundamental_hz": 440.0,
+        "stimulus_kind": null
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "mode": "single_signal",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null,
+        "downgraded_from": "nominal_single_tone",
+        "unconfirmed_fields": [
+          "stimulus_kind"
+        ]
+      }
+    },
+    {
+      "id": "nominal_single_tone_downgrades_without_both",
+      "selection": {
+        "mode": "nominal_single_tone",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "mode": "single_signal",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null,
+        "downgraded_from": "nominal_single_tone",
+        "unconfirmed_fields": [
+          "nominal_fundamental_hz",
+          "stimulus_kind"
+        ]
+      }
+    },
+    {
+      "id": "nominal_single_tone_drops_reference",
+      "selection": {
+        "mode": "nominal_single_tone",
+        "reference_file": "old.wav",
+        "nominal_fundamental_hz": 440.0,
+        "stimulus_kind": "single_tone"
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "mode": "nominal_single_tone",
+        "reference_file": null,
+        "nominal_fundamental_hz": 440.0,
+        "stimulus_kind": "single_tone",
+        "downgraded_from": null,
+        "unconfirmed_fields": []
+      }
+    },
+    {
+      "id": "rejects_unknown_stimulus_kind",
+      "selection": {
+        "mode": "nominal_single_tone",
+        "reference_file": null,
+        "nominal_fundamental_hz": 440.0,
+        "stimulus_kind": "unknown"
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "error": "invalid_request"
+      }
+    },
+    {
+      "id": "rejects_zero_hz",
+      "selection": {
+        "mode": "nominal_single_tone",
+        "reference_file": null,
+        "nominal_fundamental_hz": 0.0,
+        "stimulus_kind": "single_tone"
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "error": "invalid_request"
+      }
+    },
+    {
+      "id": "rejects_negative_hz",
+      "selection": {
+        "mode": "nominal_single_tone",
+        "reference_file": null,
+        "nominal_fundamental_hz": -50.0,
+        "stimulus_kind": "single_tone"
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "error": "invalid_request"
+      }
+    },
+    {
+      "id": "rejects_boolean_hz",
+      "selection": {
+        "mode": "nominal_single_tone",
+        "reference_file": null,
+        "nominal_fundamental_hz": true,
+        "stimulus_kind": "single_tone"
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "error": "invalid_request"
+      }
+    },
+    {
+      "id": "rejects_string_hz",
+      "selection": {
+        "mode": "nominal_single_tone",
+        "reference_file": null,
+        "nominal_fundamental_hz": "440",
+        "stimulus_kind": "single_tone"
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "error": "invalid_request"
+      }
+    },
+    {
+      "id": "rejects_unknown_mode",
+      "selection": {
+        "mode": "auto",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "error": "invalid_request"
+      }
+    },
+    {
+      "id": "rejects_test_file_not_uploaded",
+      "selection": {
+        "mode": "single_signal",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav"
+      ],
+      "test_file": "missing.wav",
+      "expected": {
+        "error": "invalid_request"
+      }
+    },
+    {
+      "id": "rejects_duplicate_filenames",
+      "selection": {
+        "mode": "single_signal",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null
+      },
+      "filenames": [
+        "new.wav",
+        "new.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "error": "invalid_request"
+      }
+    },
+    {
+      "id": "rejects_more_than_two_files",
+      "selection": {
+        "mode": "single_signal",
+        "reference_file": null,
+        "nominal_fundamental_hz": null,
+        "stimulus_kind": null
+      },
+      "filenames": [
+        "new.wav",
+        "old.wav",
+        "x.wav"
+      ],
+      "test_file": "new.wav",
+      "expected": {
+        "error": "invalid_request"
+      }
+    }
+  ]
+}
