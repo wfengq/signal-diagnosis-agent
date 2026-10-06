@@ -1,0 +1,138 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t2-08",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": false,
+      "tool_calls": 2,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t2-08",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": true,
+      "tool_calls": 30,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t2-08",
+      "conclusion_correct": true,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": false,
+      "tool_calls": 2,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t2-08",
+  "cited_locations": [
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_ea7f13f32f2eee09",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_000",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_ea7f13f32f2eee09",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_001",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_ea7f13f32f2eee09",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_005",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_ea7f13f32f2eee09",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_006",
+      "fault": "clipping",
+      "time_range": null
+    },
+    {
+      "channel": "mixdown",
+      "evaluation_id": "ruleval_ea7f13f32f2eee09",
+      "evidence_id": "ev_detect_clipping_detect_clipping_000000_007",
+      "fault": "clipping",
+      "time_range": null
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "claim_clip_1",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_000",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_005",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_detect_clipping_detect_clipping_000000_007"
+      ],
+      "fault_type": "clipping",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_ea7f13f32f2eee09",
+        "ruleval_2a7ff09ac5dab5fc"
+      ],
+      "statement": "Clipping is affirmatively supported: clipping_mechanism=true, flat_top_detected=true, full_scale_detected=true, with a same-run substantial clipping-ratio rule FAIL (0.025 > 0.01) and flat-top rule FAIL."
+    }
+  ],
+  "family": "T2",
+  "http_calls": 3,
+  "predicted_conclusion": "clipping",
+  "run_status": "success",
+  "split": "dev",
+  "termination_reason": "planner_finished",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "purpose": "Obtain the most informative clipping observation for this broad distortion request before considering harmonic analysis.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "fmax_hz": 1000.0,
+        "fmin_hz": 50.0,
+        "fundamental_hz": null,
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "purpose": "Clipping is supported by same-run Evidence; harmonic_distortion remains viable and needs separate harmonic Evidence before finishing.",
+      "status": "invalid",
+      "tool_name": "analyze_harmonic_distortion"
+    }
+  ]
+}

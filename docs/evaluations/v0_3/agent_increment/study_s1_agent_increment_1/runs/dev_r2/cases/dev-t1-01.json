@@ -1,0 +1,57 @@
+{
+  "agent_error": "intake_failed: intake planner returned an illegal draft",
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t1-01",
+      "conclusion_correct": false,
+      "context_fields_correct": 0,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t1-01",
+      "conclusion_correct": true,
+      "context_fields_correct": 1,
+      "context_fields_graded": 4,
+      "correction_count": 3,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t1-01",
+      "conclusion_correct": true,
+      "context_fields_correct": 4,
+      "context_fields_graded": 4,
+      "correction_count": 0,
+      "draft_all_correct": true,
+      "evidence_traceable": true,
+      "family": "T1",
+      "localization_correct": null,
+      "tool_calls": 0,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t1-01",
+  "cited_locations": [],
+  "claims": [],
+  "family": "T1",
+  "http_calls": 1,
+  "predicted_conclusion": "failed",
+  "run_status": null,
+  "split": "dev",
+  "termination_reason": null,
+  "tool_history": []
+}
