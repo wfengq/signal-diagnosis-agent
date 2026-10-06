@@ -1,0 +1,105 @@
+{
+  "agent_error": null,
+  "arms": [
+    {
+      "arm": "agent",
+      "case_id": "dev-t2-05",
+      "conclusion_correct": false,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": false,
+      "tool_calls": 2,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "strong_fixed",
+      "case_id": "dev-t2-05",
+      "conclusion_correct": false,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": false,
+      "tool_calls": 30,
+      "unsupported_positive": false
+    },
+    {
+      "arm": "weak_fixed",
+      "case_id": "dev-t2-05",
+      "conclusion_correct": false,
+      "context_fields_correct": 0,
+      "context_fields_graded": 0,
+      "correction_count": 0,
+      "draft_all_correct": false,
+      "evidence_traceable": true,
+      "family": "T2",
+      "localization_correct": false,
+      "tool_calls": 2,
+      "unsupported_positive": false
+    }
+  ],
+  "case_id": "dev-t2-05",
+  "cited_locations": [],
+  "claims": [
+    {
+      "claim_id": "claim_inc_harm_invalid_1",
+      "evidence_refs": [
+        "ev_detect_clipping_detect_clipping_000000_007",
+        "ev_detect_clipping_detect_clipping_000000_001",
+        "ev_detect_clipping_detect_clipping_000000_006",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_000",
+        "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_001"
+      ],
+      "fault_type": "inconclusive",
+      "knowledge_refs": [],
+      "rule_refs": [
+        "ruleval_237883d67b741c3e",
+        "ruleval_cd9664555eb15b8d",
+        "ruleval_a670d5d62d79c436",
+        "ruleval_3218b9baf7883009",
+        "ruleval_26d0fc73df26e5ec"
+      ],
+      "statement": "Clipping is ruled out by same-run Evidence (clipping_mechanism=false, clipping_ratio=0.0, flat_top_detected=false). Harmonic analysis returned valid=false with series_kind=not_applicable because the fundamental bin energy is below the reliability threshold, so causal S1 harmonic distortion attribution cannot be established."
+    }
+  ],
+  "family": "T2",
+  "http_calls": 3,
+  "predicted_conclusion": "inconclusive",
+  "run_status": "inconclusive",
+  "split": "dev",
+  "termination_reason": "planner_finished",
+  "tool_history": [
+    {
+      "call_id": "call_detect_clipping_000000",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "full_scale_threshold": 0.99,
+        "time_range": null
+      },
+      "purpose": "Obtain the most informative first observation for this broad distortion request; clipping detection is a direct probe for amplitude limiting or waveform flattening.",
+      "status": "success",
+      "tool_name": "detect_clipping"
+    },
+    {
+      "call_id": "call_analyze_harmonic_distortion_000001",
+      "normalized_arguments": {
+        "channel": "mixdown",
+        "fmax_hz": 1000.0,
+        "fmin_hz": 50.0,
+        "fundamental_hz": null,
+        "max_harmonic_order": 5,
+        "time_range": null,
+        "window": "hann"
+      },
+      "purpose": "Clipping is ruled out by same-run Evidence (clipping_mechanism=false, clipping_ratio=0.0, flat_top_detected=false); harmonic_distortion remains viable and needs its own Evidence.",
+      "status": "invalid",
+      "tool_name": "analyze_harmonic_distortion"
+    }
+  ]
+}
