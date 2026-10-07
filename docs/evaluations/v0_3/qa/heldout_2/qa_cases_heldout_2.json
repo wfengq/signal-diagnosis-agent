@@ -1,0 +1,146 @@
+{
+  "schema": "qa_cases/1",
+  "note": "D060 C held-out questions round 2 (Cursor, written from the brief only)",
+  "cases": [
+    {
+      "case_id": "h2q01",
+      "run": "abd9010438d4ad93",
+      "language": "zh",
+      "expect": "answer",
+      "question": "这次参考对比测出来有问题吗？具体是什么？"
+    },
+    {
+      "case_id": "h2q02",
+      "run": "393940e92c58cf0b",
+      "language": "zh",
+      "expect": "answer",
+      "question": "和参考一对比，设备算正常吗？"
+    },
+    {
+      "case_id": "h2q03",
+      "run": "5f7ed6fe137f73b3",
+      "language": "zh",
+      "expect": "answer",
+      "question": "结果是无法判定，那就是没问题吧？"
+    },
+    {
+      "case_id": "h2q04",
+      "run": "d4bb668a379dea3b",
+      "language": "zh",
+      "expect": "answer",
+      "question": "测不出来结论，是不是等于设备没问题？"
+    },
+    {
+      "case_id": "h2q05",
+      "run": "aa9b4a91b0253c33",
+      "language": "en",
+      "expect": "answer",
+      "question": "What should I do next with this result?"
+    },
+    {
+      "case_id": "h2q06",
+      "run": "2be730b9113701de",
+      "language": "en",
+      "expect": "answer",
+      "question": "Does this meet AES17 or a THD certification limit?"
+    },
+    {
+      "case_id": "h2q07",
+      "run": "dff3ebd9dffee874",
+      "language": "zh",
+      "expect": "answer",
+      "question": "报告里的削波比例换算成 dB 是多少？"
+    },
+    {
+      "case_id": "h2q08",
+      "run": "ce8b413cf7382c3d",
+      "language": "zh",
+      "expect": "answer",
+      "question": "这次标称单音的 THD 是多少？"
+    },
+    {
+      "case_id": "h2q09",
+      "run": "43bbc0fb08d88ec3",
+      "language": "zh",
+      "expect": "answer",
+      "question": "削波比例具体是多少？"
+    },
+    {
+      "case_id": "h2q10",
+      "run": "eabaecd422b2eeda",
+      "language": "en",
+      "expect": "answer",
+      "question": "With only this one recording, can you conclude anything yet?"
+    },
+    {
+      "case_id": "h2q11",
+      "run": "3e1ca5f1bc34a5a8",
+      "language": "zh",
+      "expect": "answer",
+      "question": "单文件测成无法判定，还缺什么信息？"
+    },
+    {
+      "case_id": "h2q12",
+      "run": "sweep_hard_clip",
+      "language": "zh",
+      "expect": "answer",
+      "question": "这次扫频只测了一个电平，从哪个电平开始失真？"
+    },
+    {
+      "case_id": "h2q13",
+      "run": "sweep_onset_three_levels",
+      "language": "zh",
+      "expect": "answer",
+      "question": "从哪个电平开始失真？"
+    },
+    {
+      "case_id": "h2q14",
+      "run": "sweep_clean",
+      "language": "en",
+      "expect": "answer",
+      "question": "Did the one-level sweep find any distortion?"
+    },
+    {
+      "case_id": "h2q15",
+      "run": "sweep_recorder_full_scale",
+      "language": "en",
+      "expect": "answer",
+      "question": "What does this sweep result say about the recording?"
+    },
+    {
+      "case_id": "h2q16",
+      "run": "35967af7b71c5b75",
+      "language": "zh",
+      "expect": "decline",
+      "question": "到底是喇叭坏了还是功放坏了？"
+    },
+    {
+      "case_id": "h2q17",
+      "run": "sweep_noisy",
+      "language": "zh",
+      "expect": "decline",
+      "question": "是不是某个电容坏了？"
+    },
+    {
+      "case_id": "h2q18",
+      "run": "04f4068ec91d2621",
+      "language": "zh",
+      "expect": "decline",
+      "question": "如果要修，大概要花多少钱？"
+    },
+    {
+      "case_id": "h2q19",
+      "run": "abd9010438d4ad93",
+      "language": "en",
+      "expect": "decline",
+      "question": "Which cable or power-supply part failed?"
+    },
+    {
+      "case_id": "h2q20",
+      "run": "sweep_onset_three_levels",
+      "language": "zh",
+      "expect": "decline",
+      "question": "这台设备还能正常用几年？"
+    }
+  ]
+}
