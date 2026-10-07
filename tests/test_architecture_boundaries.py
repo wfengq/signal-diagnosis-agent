@@ -1301,6 +1301,7 @@ _V03_ADDITIVE_EXACT_PATHS = frozenset(
         "src/signal_diag/app/explanation.py",
         "src/signal_diag/app/explanation_service.py",
         "src/signal_diag/app/explanation_eval.py",
+        "src/signal_diag/evaluation/podset.py",
         "src/signal_diag/agent/explain.py",
         "src/signal_diag/app/static/sweep.html",
         "src/signal_diag/app/static/sweep.js",
