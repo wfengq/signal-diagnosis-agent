@@ -43,7 +43,7 @@ async def test_t_cx490_api_draft_confirm_link_and_report() -> None:
         assert health["guide"] == {
             "questionnaire_available": True,
             "model_available": False,
-            "prompt_version": "v0.3-s1-guide-1.0",
+            "prompt_version": "v0.3-s1-guide-1.1",
         }
         draft = (await client.post("/api/v1/test-plans/draft", json={"text": "音箱破音"})).json()
         assert draft["source"] == "questionnaire" and draft["questionnaire"][0]["question_id"] == "can_replay"

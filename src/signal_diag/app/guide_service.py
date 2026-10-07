@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import html
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, ValidationError
@@ -60,6 +60,19 @@ class GuideResult(BaseModel):
     model_calls: int = 0
 
 
+class GuideRejection(BaseModel):
+    """A model draft that was not used: why, and the model's text (evaluation only)."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    check: str
+    detail: str
+    raw: str
+
+
+GuideRejectionSink = Callable[[GuideRejection], None]
+
+
 class GuideStatus(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -75,11 +88,26 @@ def guide_payload(request: GuideRequest) -> str:
 
 
 class GuideService:
-    def __init__(self, guide: Guide | None = None, *, identity: GuideIdentity | None = None) -> None:
+    def __init__(
+        self,
+        guide: Guide | None = None,
+        *,
+        identity: GuideIdentity | None = None,
+        rejection_sink: GuideRejectionSink | None = None,
+    ) -> None:
         if (guide is None) != (identity is None):
             raise ValueError("guide and identity go together")
         self._guide = guide
         self._identity = identity
+        self._rejection_sink = rejection_sink
+
+    def with_rejection_sink(self, sink: GuideRejectionSink) -> GuideService:
+        """The same guide, reporting each rejected draft to ``sink`` (evaluation only)."""
+        return GuideService(self._guide, identity=self._identity, rejection_sink=sink)
+
+    def _reject(self, check: str, detail: str, raw: str) -> None:
+        if self._rejection_sink is not None:
+            self._rejection_sink(GuideRejection(check=check, detail=detail, raw=raw))
 
     def status(self) -> GuideStatus:
         return GuideStatus(model_available=self._guide is not None)
@@ -101,13 +129,15 @@ class GuideService:
         else:
             try:
                 draft = PlanDraft.model_validate_json(raw)
-            except (ValidationError, ValueError):
+            except (ValidationError, ValueError) as error:
                 reason = "illegal_output"
+                self._reject(reason, _first_error(error), raw)
             else:
                 try:
                     validate_plan_draft(draft, request)
                 except PlanRejected as rejected:
                     reason = f"validation_failed:{rejected.check}"
+                    self._reject(rejected.check, rejected.detail, raw)
                 else:
                     return GuideResult(
                         source="model", draft=draft, guide=self._identity, model_calls=1
@@ -119,6 +149,15 @@ class GuideService:
     async def aclose(self) -> None:
         if self._guide is not None:
             await self._guide.aclose()
+
+
+def _first_error(error: Exception) -> str:
+    """A short, location-bearing summary of why the model output did not parse."""
+    if isinstance(error, ValidationError):
+        first = error.errors()[0]
+        location = ".".join(str(part) for part in first["loc"]) or "<root>"
+        return f"{location}: {first['msg']}"
+    return str(error).splitlines()[0] if str(error) else type(error).__name__
 
 
 def render_plan_html(record: PlanRecord) -> str:
@@ -154,6 +193,8 @@ def build_guide_service(environ: Mapping[str, str]) -> GuideService:
 __all__ = [
     "ENABLE_FLAG",
     "GuideIdentity",
+    "GuideRejection",
+    "GuideRejectionSink",
     "GuideResult",
     "GuideService",
     "GuideStatus",

@@ -672,3 +672,15 @@ alter T-CX001–T-CX493 meanings.
 | T-CX495 | A negated "standard/标准" disclaimer passes only with 演示/demo in the sentence; "meets the standard", "not meeting the standard", 符合标准, 不符合标准, 未达标, a leading 行业标准, a disclaimer without demo, other banned words beside a disclaimer, and a second unnegated 标准 are rejected |
 | T-CX496 | The rejection sink receives the check, detail and model text for validation failures and illegal output, nothing for a template request or an accepted draft; the result carries `validator_version` and no rejection data |
 | T-CX497 | The acceptance harness writes `validator_version`, `rejection_detail` and `rejected_draft` per row and `rejection_details` in the summary; offline rows have none; no credential text is written; `review.md` has no trailing whitespace |
+
+T-CX498–T-CX501 are additive definitions for D059
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §31.1). They make no model call and must not
+alter T-CX001–T-CX497 meanings; T-CX488 and T-CX490 now expect prompt
+`v0.3-s1-guide-1.1`.
+
+| ID | Definition |
+|----|------------|
+| T-CX498 | The guide prompt is `v0.3-s1-guide-1.1` and states each D059 rule: the sweep generates its own signal and never asks for a test file, the sample rate is only for the sweep, the three connections and no default connection, the paired reference definition, the fields each plan uses, exact keys and no other text; the adapter still sends only text, file names and sample rates |
+| T-CX499 | The rejection sink receives the check, detail and model text for invalid JSON, an extra parameter key (with its location) and a validation failure; nothing for an accepted draft or a questionnaire request; the result carries no rejection data |
+| T-CX500 | The held-out scenarios match the frozen SHA-256 in both copies, number 20 with the D059 distribution, repeat no development text, quote their own text, and each expected plan passes the validator |
+| T-CX501 | `guide_eval` runs the held-out set offline with no model call and full accuracy; rows and summary carry the case set, prompt version and rejection fields; a scripted live run records every rejection; no credential text or trailing whitespace is written |

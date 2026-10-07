@@ -958,5 +958,22 @@
     "qualification_recompute_unchanged": true,
     "scope": "D058 follow-up: explanation_eval review.md written without trailing whitespace so committed acceptance runs pass git diff --check; validator, prompts, verdicts, engine, rules and frozen modules unchanged; model_calls=0",
     "selected_threshold_percent_unchanged": 5.0
+  },
+  {
+    "amendment_id": "d059_guide_prompt_1_1",
+    "amendment_kind": "append_only_code_identity",
+    "calibration_recompute_unchanged": true,
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "created_at_utc": "2026-10-08T07:00:00+00:00",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "model_calls": 0,
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "product_tree_sha256": "a27de110719e2ca24f8588980779eb5dd63df05be332a56ac810879b6b844f37",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "qualification_recompute_unchanged": true,
+    "scope": "D059: test guide prompt v0.3-s1-guide-1.1 (off by default), evaluation-only guide rejection_sink, guide_eval --cases dev|heldout with rejection fields, frozen held-out scenarios asset (sha256 0d12418f); catalog, validator, questionnaire, verdicts, engine, sweep test, explanation layer, planner and intake prompts, rules and frozen modules unchanged; model_calls=0",
+    "selected_threshold_percent_unchanged": 5.0
   }
 ]

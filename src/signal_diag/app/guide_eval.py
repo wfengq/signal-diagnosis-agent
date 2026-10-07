@@ -8,6 +8,10 @@ key-parameter accuracy, invented numbers and unnecessary questions.
 
 The model draft may become visible by default only with plan accuracy ≥ 90 %,
 key-parameter accuracy ≥ 90 % and zero number rejections.
+
+``--cases heldout`` scores the 20 held-out scenarios frozen before prompt 1.1
+(D059); that set decides acceptance. Rejected model drafts are kept in their
+rows (``rejection_detail``, ``rejected_draft``).
 """
 
 from __future__ import annotations
@@ -21,7 +25,13 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
-from signal_diag.app.guide_service import ENABLE_FLAG, GuideService, build_guide_service
+from signal_diag.agent.guide import GUIDE_PROMPT_VERSION
+from signal_diag.app.guide_service import (
+    ENABLE_FLAG,
+    GuideRejection,
+    GuideService,
+    build_guide_service,
+)
 from signal_diag.app.test_plan import (
     DEFAULT_LEVEL_LABELS,
     DEFAULT_RATE,
@@ -34,10 +44,11 @@ from signal_diag.app.test_plan import (
 EVAL_SCHEMA = "guide_eval/1"
 PLAN_BAR = 0.9
 PARAMETER_BAR = 0.9
+CASE_SETS = {"dev": "guide_cases.json", "heldout": "guide_cases_heldout.json"}
 
 
-def load_cases() -> list[dict[str, Any]]:
-    path = files("signal_diag").joinpath("evaluation", "assets", "guide_cases.json")
+def load_cases(case_set: str = "dev") -> list[dict[str, Any]]:
+    path = files("signal_diag").joinpath("evaluation", "assets", CASE_SETS[case_set])
     return list(json.loads(path.read_text(encoding="utf-8"))["cases"])
 
 
@@ -98,7 +109,13 @@ def _parameters_correct(case: dict[str, Any], draft: PlanDraft) -> bool:
     return all(checks)
 
 
-def score(case: dict[str, Any], source: str, draft: PlanDraft | None, reason: str | None) -> dict[str, Any]:
+def score(
+    case: dict[str, Any],
+    source: str,
+    draft: PlanDraft | None,
+    reason: str | None,
+    rejection: GuideRejection | None = None,
+) -> dict[str, Any]:
     plan_ok = draft is not None and draft.plan_id == case["expected"]["plan_id"]
     return {
         "case_id": case["case_id"],
@@ -111,10 +128,13 @@ def score(case: dict[str, Any], source: str, draft: PlanDraft | None, reason: st
         "parameters_correct": plan_ok and draft is not None and _parameters_correct(case, draft),
         "unnecessary_questions": bool(case["complete"] and draft is not None and draft.questions),
         "draft": draft.model_dump(mode="json") if draft else None,
+        "prompt_version": GUIDE_PROMPT_VERSION,
+        "rejection_detail": rejection.detail if rejection else None,
+        "rejected_draft": rejection.raw if rejection else None,
     }
 
 
-def summarize(rows: list[dict[str, Any]], *, live: bool) -> dict[str, Any]:
+def summarize(rows: list[dict[str, Any]], *, live: bool, case_set: str = "dev") -> dict[str, Any]:
     total = len(rows)
     plan = sum(row["plan_correct"] for row in rows) / total
     parameters = sum(row["parameters_correct"] for row in rows) / total
@@ -123,12 +143,17 @@ def summarize(rows: list[dict[str, Any]], *, live: bool) -> dict[str, Any]:
     return {
         "schema": EVAL_SCHEMA,
         "live": live,
+        "case_set": case_set,
+        "prompt_version": GUIDE_PROMPT_VERSION,
         "cases": total,
         "model_calls": total if live else 0,
         "plan_accuracy": round(plan, 4),
         "parameter_accuracy": round(parameters, 4),
         "fallback_reasons": dict(reasons),
         "number_rejections": reasons.get("validation_failed:number", 0),
+        "rejection_details": dict(
+            Counter(row["rejection_detail"] for row in rows if row.get("rejection_detail"))
+        ),
         "unnecessary_question_cases": sum(row["unnecessary_questions"] for row in complete),
         "by_expected_plan": {
             plan_id: f"{sum(r['plan_correct'] for r in rows if r['expected_plan'] == plan_id)}/"
@@ -143,8 +168,10 @@ def summarize(rows: list[dict[str, Any]], *, live: bool) -> dict[str, Any]:
     }
 
 
-async def run(out: Path, *, live: bool, service: GuideService | None = None) -> dict[str, Any]:
-    cases = load_cases()
+async def run(
+    out: Path, *, live: bool, service: GuideService | None = None, case_set: str = "dev"
+) -> dict[str, Any]:
+    cases = load_cases(case_set)
     rows: list[dict[str, Any]] = []
     if not live:
         for case in cases:
@@ -156,13 +183,17 @@ async def run(out: Path, *, live: bool, service: GuideService | None = None) -> 
             if not os.environ.get("DEEPSEEK_API_KEY", "").strip():
                 raise SystemExit("--live needs DEEPSEEK_API_KEY")
             service = build_guide_service({**os.environ, ENABLE_FLAG: "enabled"})
+        rejections: list[GuideRejection] = []
+        service = service.with_rejection_sink(rejections.append)
         try:
             for case in cases:
+                rejections.clear()
                 result = await service.draft(request_for(case), use_model=True)
-                rows.append(score(case, result.source, result.draft, result.fallback_reason))
+                rejection = rejections[-1] if rejections else None
+                rows.append(score(case, result.source, result.draft, result.fallback_reason, rejection))
         finally:
             await service.aclose()
-    summary = summarize(rows, live=live)
+    summary = summarize(rows, live=live, case_set=case_set)
     out.mkdir(parents=True, exist_ok=True)
     (out / "results.jsonl").write_text(
         "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows),
@@ -178,8 +209,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m signal_diag.app.guide_eval")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--live", action="store_true")
+    parser.add_argument("--cases", choices=sorted(CASE_SETS), default="dev")
     args = parser.parse_args(argv)
-    summary = asyncio.run(run(args.out, live=args.live))
+    summary = asyncio.run(run(args.out, live=args.live, case_set=args.cases))
     keys = ("cases", "model_calls", "plan_accuracy", "parameter_accuracy", "number_rejections", "meets_bar")
     print(json.dumps({key: summary[key] for key in keys}))
     return 0
