@@ -530,6 +530,43 @@ function renderSummary(snapshot) {
   }
 }
 
+const FAULT_LABELS = {
+  clipping: "削波（clipping）",
+  harmonic_distortion: "谐波失真（harmonic distortion）",
+};
+
+function renderLocalization(snapshot) {
+  const panel = document.getElementById("localization-panel");
+  const list = document.getElementById("localization-list");
+  list.replaceChildren();
+  const localization = snapshot.fault_localization;
+  if (!localization) {
+    panel.hidden = true;
+    return;
+  }
+  panel.hidden = false;
+  document.getElementById("localization-scope").textContent = localization.harmonic_scanned
+    ? "已用声明的基频逐窗口扫描谐波失真和削波。"
+    : "没有声明单音基频，只定位削波，不扫描谐波失真。";
+  const intervals = localization.intervals || [];
+  if (!intervals.length) {
+    appendText(list, "li", "扫描没有发现任何分段规则失败，没有需要定位的故障。");
+    return;
+  }
+  for (const interval of intervals) {
+    const status = interval.agrees_with_diagnosis
+      ? "与诊断一致"
+      : "扫描另外发现，诊断未采纳，需要复核";
+    appendText(
+      list,
+      "li",
+      `${FAULT_LABELS[interval.fault] || interval.fault}：${interval.channel}，` +
+        `${Number(interval.start_s).toFixed(2)}–${Number(interval.end_s).toFixed(2)} 秒（${status}）`,
+      interval.agrees_with_diagnosis ? "localization-agrees" : "localization-review",
+    );
+  }
+}
+
 function renderTerminal(snapshot) {
   const diagnosisPanel = document.getElementById("diagnosis-panel");
   const guidancePanel = document.getElementById("guidance-panel");
@@ -560,6 +597,7 @@ function renderTerminal(snapshot) {
   }
 
   renderSummary(snapshot);
+  renderLocalization(snapshot);
   renderDiagnosis(diagnosisPanel, snapshot);
   renderGuidance(guidancePanel, snapshot);
   const result = snapshot.result || {};

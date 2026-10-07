@@ -70,26 +70,28 @@ def build_contextual_diagnosis_report(
         result=result,
         context_guidance=snapshot.context_guidance,
         context_origin=snapshot.context_origin,
+        fault_localization=snapshot.fault_localization,
     )
 
 
-def _origin_exclude(context_origin: object) -> set[str] | None:
-    # §25: runs without intake provenance keep their pre-§25 serialized shape.
-    return {"context_origin"} if context_origin is None else None
+def _unset_optional_fields(model: ContextualAppRunSnapshot | ContextualDiagnosisReport) -> set[str] | None:
+    # §25/§27: unset optional additions are omitted, so older runs keep their shape.
+    unset = {
+        name
+        for name in ("context_origin", "fault_localization")
+        if getattr(model, name) is None
+    }
+    return unset or None
 
 
 def dump_contextual_snapshot(snapshot: ContextualAppRunSnapshot) -> dict[str, object]:
-    return snapshot.model_dump(
-        mode="json", exclude=_origin_exclude(snapshot.context_origin)
-    )
+    return snapshot.model_dump(mode="json", exclude=_unset_optional_fields(snapshot))
 
 
 def render_contextual_report_json(report: ContextualDiagnosisReport) -> str:
     return (
         json.dumps(
-            report.model_dump(
-                mode="json", exclude=_origin_exclude(report.context_origin)
-            ),
+            report.model_dump(mode="json", exclude=_unset_optional_fields(report)),
             ensure_ascii=False,
             allow_nan=False,
             sort_keys=True,
@@ -110,6 +112,48 @@ def _esc(value: object) -> str:
 
 def _ref_link(kind: str, reference_id: str) -> str:
     return f'<a href="#{kind}-{_esc(reference_id)}">{_esc(reference_id)}</a>'
+
+
+_FAULT_LABELS = {"clipping": "clipping", "harmonic_distortion": "harmonic distortion"}
+
+
+def _fault_localization_html(localization: dict[str, object] | None) -> list[str]:
+    """§27: fault time locations from the deterministic segment scan."""
+    if not localization:
+        return []
+    parts = [
+        '<section id="fault-localization">',
+        "<h2>Fault locations (deterministic segment scan)</h2>",
+        (
+            f"<p>{_esc(localization['scan_version'])}: "
+            f"{_esc(localization['window_s'])} s windows, "
+            f"{_esc(localization['overlap'])} overlap, channels "
+            f"{_esc(', '.join(localization['channels']))}; "  # type: ignore[arg-type]
+            "harmonic windows "
+            f"{'scanned' if localization['harmonic_scanned'] else 'not scanned'}.</p>"
+        ),
+    ]
+    intervals = localization.get("intervals") or ()
+    if not intervals:
+        parts.append("<p>No segment rule failed; no fault location to report.</p>")
+    for interval in intervals:  # type: ignore[attr-defined]
+        status = (
+            "matches the diagnosis"
+            if interval["agrees_with_diagnosis"]
+            else "found by the scan, not adopted by the diagnosis; review needed"
+        )
+        parts.append(
+            "<p>"
+            f"{_esc(_FAULT_LABELS.get(interval['fault'], interval['fault']))}, "
+            f"{_esc(interval['channel'])}, "
+            f"{float(interval['start_s']):.3f}–{float(interval['end_s']):.3f} s "
+            f"({_esc(status)}); evidence "
+            f"{_esc(', '.join(interval['evidence_refs']))}; rules "
+            f"{_esc(', '.join(interval['evaluation_refs']))}"
+            "</p>"
+        )
+    parts.append("</section>")
+    return parts
 
 
 def render_contextual_report_html(report: ContextualDiagnosisReport) -> str:
@@ -359,6 +403,7 @@ def render_contextual_report_html(report: ContextualDiagnosisReport) -> str:
                 )
             parts.append("</ul>")
         parts.append("</section>")
+    parts.extend(_fault_localization_html(data.get("fault_localization")))
     parts.extend(
         [
             '<section id="measured-evidence">',

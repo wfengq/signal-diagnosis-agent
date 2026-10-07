@@ -58,12 +58,13 @@ Read these before changing behavior or public interfaces:
    - §24: agent-increment study.
    - §25: free-text intake product flow.
    - §26: opt-in F0 subharmonic guard (live product).
+   - §27: product fault time localization.
 
    Do not edit frozen §§1–64.
 4. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) (T001–T285) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) (T-CX series,
-   through T-CX433).
-5. [DECISIONS.md](DECISIONS.md): D001–D049.
+   through T-CX440).
+5. [DECISIONS.md](DECISIONS.md): D001–D050.
 6. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): OQ-001–OQ-024.
    - OQ-013–OQ-018 resolve gaps between the current code and the frozen V0.2
      documents.

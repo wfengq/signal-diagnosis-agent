@@ -265,6 +265,17 @@ def _print_contextual_text_report(report: ContextualDiagnosisReport) -> None:
         print(f"stimulus_kind: {context.stimulus_kind}")
     if report.context_origin is not None:
         print(f"context_source: {report.context_origin}")
+    localization = report.fault_localization
+    if localization is not None:
+        print(f"fault_localization: {localization.scan_version}")
+        if not localization.intervals:
+            print("  no segment rule failed")
+        for interval in localization.intervals:
+            status = "matches diagnosis" if interval.agrees_with_diagnosis else "review needed"
+            print(
+                f"  {interval.fault} {interval.channel} "
+                f"{interval.start_s:.3f}-{interval.end_s:.3f} s ({status})"
+            )
     result = report.result
     diagnosis = result.diagnosis
     if diagnosis is None:

@@ -665,8 +665,22 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert f0_guard["prior_bridge_current_implementation_sha256"] == (
         dispatch["current_implementation_sha256"]
     )
-    assert f0_guard["current_implementation_sha256"] == contextual_implementation_sha256()
-    assert f0_guard["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert f0_guard["current_implementation_sha256"] == (
+        "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3"
+    )
+    assert f0_guard["product_tree_sha256"] == (
+        "2d95a585786880f99e212547883e899018df52a395899888f816ee0c5601fd19"
+    )
     assert f0_guard["prompt_sha256"] == oq014["prompt_sha256"]
     assert f0_guard["prompt_version"] == "v0.3-s1-planner-9.11"
     assert f0_guard["model_calls"] == 0
+    localization = next(row for row in rows if row["amendment_id"] == "d050_fault_localization")
+    assert localization["amendment_kind"] == "append_only_code_identity"
+    assert localization["prior_bridge_current_implementation_sha256"] == (
+        f0_guard["current_implementation_sha256"]
+    )
+    assert localization["current_implementation_sha256"] == contextual_implementation_sha256()
+    assert localization["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert localization["prompt_sha256"] == oq014["prompt_sha256"]
+    assert localization["prompt_version"] == "v0.3-s1-planner-9.11"
+    assert localization["model_calls"] == 0

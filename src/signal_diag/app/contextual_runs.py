@@ -16,6 +16,7 @@ from signal_diag.app.errors import (
     RunNotFoundError,
     sanitize_application_error,
 )
+from signal_diag.app.fault_localization import FaultLocalization
 from signal_diag.app.models import (
     AppErrorDetail,
     PlannerIdentity,
@@ -38,6 +39,7 @@ class ContextualRunExecutionResult:
     result: AgentRunResult
     trace_events: tuple[TraceEventView, ...]
     effective_capabilities: EffectiveCapabilities
+    fault_localization: FaultLocalization | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -182,6 +184,7 @@ class InMemoryContextualRunStore:
         result: AgentRunResult,
         trace_events: tuple[TraceEventView, ...],
         effective_capabilities: EffectiveCapabilities,
+        fault_localization: FaultLocalization | None = None,
     ) -> ContextualAppRunSnapshot:
         async with self._condition:
             current = self._require_locked(run_id)
@@ -199,6 +202,7 @@ class InMemoryContextualRunStore:
                         mode=current.stimulus_context.mode,
                         result=result,
                     ),
+                    "fault_localization": fault_localization,
                 }
             )
             self._snapshots[run_id] = updated
@@ -409,6 +413,7 @@ class BoundedContextualRunExecutor:
                         result=completed.result,
                         trace_events=completed.trace_events,
                         effective_capabilities=completed.effective_capabilities,
+                        fault_localization=completed.fault_localization,
                     )
             finally:
                 self._queue.task_done()
