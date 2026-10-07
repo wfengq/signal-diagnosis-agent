@@ -27,6 +27,7 @@ from signal_diag.knowledge.models import KnowledgeChunk
 
 PACKET_VERSION = "explain-packet-1.0"
 TEMPLATE_VERSION = "explain-template-1.0"
+VALIDATOR_VERSION = "explain-validator-1.1"
 Language = Literal["zh", "en"]
 RunKind = Literal["contextual", "sweep"]
 FaultType = Literal["clipping", "harmonic_distortion", "no_supported_fault", "inconclusive"]
@@ -123,6 +124,7 @@ class ExplanationRejected(ValueError):
     def __init__(self, check: str, detail: str) -> None:
         super().__init__(f"{check}: {detail}")
         self.check = check
+        self.detail = detail
 
 
 # --- display values ---------------------------------------------------------
@@ -494,9 +496,25 @@ _NUMBER = re.compile(
     r"(?<![A-Za-z0-9_.])([-−]?\d+(?:\.\d+)?)\s*(kHz|Hz|dBFS|dB|ppm|ms|s|%)?",
 )
 _ID_IN_TEXT = re.compile(r"\b(?:claim|ev|ruleval|swr|swf|swc|swm|swrun|chunk|know|loc|lvl|run)_[0-9a-z]")
-_BANNED = ("标准", "合格", "达标", "认证", "IEC", "AES", "standard", "SLA", "compliant", "certified")
-_THRESHOLD_WORDS = ("阈值", "限值", "门限", "threshold", "limit")
+_BANNED_ZH = ("标准", "合格", "达标", "认证")
+# English words match whole words (validator 1.1): "limitation" or "slightly"
+# are ordinary words, not threshold or compliance language. Boundaries are
+# ASCII letters only, so "达到SLA要求" and "IEC60268" still match.
+_A, _Z = r"(?<![A-Za-z])", r"(?![A-Za-z])"
+_BANNED_EN = tuple(
+    (word, re.compile(rf"{_A}{word}s?{_Z}", re.IGNORECASE))
+    for word in ("IEC", "AES", "standard", "SLA", "compliant", "certified")
+)
+_THRESHOLD_ZH = ("阈值", "限值", "门限")
+_THRESHOLD_EN = re.compile(rf"{_A}(?:thresholds?|limits?){_Z}", re.IGNORECASE)
 _DEMO_WORDS = ("演示", "demo")
+# The only allowed use of "standard": a negated disclaimer next to a
+# demonstration qualifier ("demonstration thresholds, not universal standards").
+_STANDARD_DISCLAIMER = re.compile(
+    rf"(?:{_A}(?:not|rather than)\s+(?:(?:a|an|any|universal|industry|official|general)\s+){{0,2}}standards?{_Z}"
+    r"|(?:不是|并非|而非)(?:任何|通用|行业|官方|的){0,2}标准)",
+    re.IGNORECASE,
+)
 _FAULT_TERMS: dict[str, tuple[str, ...]] = {
     "clipping": ("削波", "截幅", "clipping", "clipped"),
     "harmonic_distortion": ("谐波失真", "harmonic distortion"),
@@ -552,6 +570,19 @@ def _affirmed(text: str, term: str) -> bool:
     return False
 
 
+def _check_wording(lowered: str) -> None:
+    demo = any(word in lowered for word in _DEMO_WORDS)
+    scrubbed = _STANDARD_DISCLAIMER.sub(" ", lowered) if demo else lowered
+    for word in _BANNED_ZH:
+        if word in scrubbed:
+            raise ExplanationRejected("wording", f"forbidden wording {word!r}")
+    for word, pattern in _BANNED_EN:
+        if pattern.search(scrubbed):
+            raise ExplanationRejected("wording", f"forbidden wording {word!r}")
+    if not demo and (any(word in lowered for word in _THRESHOLD_ZH) or _THRESHOLD_EN.search(lowered)):
+        raise ExplanationRejected("wording", "thresholds must be called demonstration values")
+
+
 def _check_sentence(
     text: str, refs: Sequence[str], packet: ExplanationPacket, section: SectionKind
 ) -> None:
@@ -568,13 +599,7 @@ def _check_sentence(
     if _ID_IN_TEXT.search(text):
         raise ExplanationRejected("ids_in_text", "identifiers belong in refs, not in text")
     lowered = text.lower()
-    for word in _BANNED:
-        if word.lower() in lowered:
-            raise ExplanationRejected("wording", f"forbidden wording {word!r}")
-    if any(word in lowered for word in _THRESHOLD_WORDS) and not any(
-        word in lowered for word in _DEMO_WORDS
-    ):
-        raise ExplanationRejected("wording", "thresholds must be called demonstration values")
+    _check_wording(lowered)
     allowed = [number for item in items for value in item.values for number in _parse_numbers(value)]
     for number in _parse_numbers(text):
         if not _number_allowed(number, allowed):
@@ -891,6 +916,7 @@ __all__ = [
     "SECTION_ORDER",
     "STEP_TEXT",
     "TEMPLATE_VERSION",
+    "VALIDATOR_VERSION",
     "ExplanationDraft",
     "ExplanationPacket",
     "ExplanationRejected",

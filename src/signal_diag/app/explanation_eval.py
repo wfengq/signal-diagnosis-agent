@@ -5,7 +5,9 @@ recorded contextual engine runs and 10 synthetic sweep runs), explains each
 and writes ``results.jsonl``, ``summary.json`` and ``review.md`` (20 seeded
 samples for the operator's review). Without ``--live`` it uses the template
 only and makes no model call; ``--live`` calls the real model once per case and
-needs ``DEEPSEEK_API_KEY`` (never written to any output).
+needs ``DEEPSEEK_API_KEY`` (never written to any output). A rejected model
+draft is kept in its row (``rejection_detail``, ``rejected_draft``) so the
+reason can be read (D058).
 
 The model path is accepted only when the validation pass rate is at least 90 %
 and the operator finds no wrong statement in the 20 reviewed explanations.
@@ -26,11 +28,16 @@ from typing import Any
 import numpy as np
 
 from signal_diag.app.engine_comparison import engine_cases, run_engine
-from signal_diag.app.explanation import ExplanationPacket, contextual_packet
+from signal_diag.app.explanation import (
+    VALIDATOR_VERSION,
+    ExplanationPacket,
+    contextual_packet,
+)
 from signal_diag.app.explanation_service import (
     ENABLE_FLAG,
     ExplanationResult,
     ExplanationService,
+    Rejection,
     build_explanation_service,
     explanation_lines,
     sweep_explanation_packet,
@@ -102,7 +109,13 @@ async def eval_packets(root: Path) -> AsyncIterator[tuple[str, str, ExplanationP
         yield name, "sweep", sweep_explanation_packet(diagnose_sweep(recordings))
 
 
-def _row(case_id: str, group: str, packet: ExplanationPacket, result: ExplanationResult) -> dict[str, Any]:
+def _row(
+    case_id: str,
+    group: str,
+    packet: ExplanationPacket,
+    result: ExplanationResult,
+    rejection: Rejection | None = None,
+) -> dict[str, Any]:
     conclusion = result.draft.sections[0]
     steps = result.draft.sections[3].steps
     menu = {option.step_id for option in packet.next_steps}
@@ -118,6 +131,9 @@ def _row(case_id: str, group: str, packet: ExplanationPacket, result: Explanatio
         <= {ref for sentence in conclusion.sentences for ref in sentence.refs},
         "steps_on_menu": all(step.step_id in menu for step in steps),
         "draft": result.draft.model_dump(mode="json"),
+        "validator_version": result.validator_version,
+        "rejection_detail": rejection.detail if rejection else None,
+        "rejected_draft": rejection.raw if rejection else None,
     }
 
 
@@ -135,6 +151,10 @@ def summarize(rows: list[dict[str, Any]], *, live: bool) -> dict[str, Any]:
         "model_explanations": passed,
         "validation_pass_rate": rate,
         "fallback_reasons": dict(Counter(row["fallback_reason"] for row in rows if row["fallback_reason"])),
+        "rejection_details": dict(
+            Counter(row["rejection_detail"] for row in rows if row["rejection_detail"])
+        ),
+        "validator_version": VALIDATOR_VERSION,
         "claims_covered": sum(row["claims_covered"] for row in rows),
         "steps_on_menu": sum(row["steps_on_menu"] for row in rows),
         "pass_rate_bar": PASS_RATE_BAR,
@@ -176,14 +196,16 @@ async def _run(
         if not os.environ.get("DEEPSEEK_API_KEY", "").strip():
             raise SystemExit("--live needs DEEPSEEK_API_KEY")
         service = build_explanation_service({**os.environ, ENABLE_FLAG: "enabled"})
-    service = service or ExplanationService()
+    rejections: list[Rejection] = []
+    service = (service or ExplanationService()).with_rejection_sink(rejections.append)
     rows: list[dict[str, Any]] = []
     results: dict[str, ExplanationResult] = {}
     try:
         async for case_id, group, packet in eval_packets(root):
+            rejections.clear()
             result = await service.explain(packet, language="zh", use_model=live)
             results[case_id] = result
-            rows.append(_row(case_id, group, packet, result))
+            rows.append(_row(case_id, group, packet, result, rejections[-1] if rejections else None))
     finally:
         await service.aclose()
     out.mkdir(parents=True, exist_ok=True)

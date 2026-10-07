@@ -2353,6 +2353,44 @@ without credentials and replaces any rejected model output.
 - **Bar for enabling the model path:** a validation pass rate of at least
   90 %, and 0 wrong statements in the 20 reviewed samples.
 
+### 30.1 Wording check 1.1 and rejection records (D058)
+
+`VALIDATOR_VERSION = "explain-validator-1.1"`; `explain-validator-1.0` is the
+version used by the first live run (`live_1`). The other §30 checks are
+unchanged.
+
+**Wording check 1.1:**
+
+- English banned words (`IEC`, `AES`, `standard`, `SLA`, `compliant`,
+  `certified`) and threshold words (`threshold`, `limit`) match whole words,
+  with an optional plural `s`. Word boundaries are ASCII letters only, so
+  "达到SLA要求" and "IEC60268" still match, while "limitation", "limited",
+  "slightly" and "pieces" do not.
+- Chinese banned words (标准, 合格, 达标, 认证) and threshold words (阈值,
+  限值, 门限) still match as substrings. No word was removed from either list.
+- One exception: a negated disclaimer about "standard" is allowed when the
+  same sentence contains 演示 or demo. The disclaimer is `not` or
+  `rather than`, then 0–2 of `a`, `an`, `any`, `universal`, `industry`,
+  `official`, `general`, then `standard(s)`; or 不是, 并非 or 而非, then 0–2 of
+  任何, 通用, 行业, 官方, 的, then 标准. Only that phrase is exempt; any other
+  banned word in the sentence is still rejected.
+- A threshold word still requires 演示 or demo in the same sentence.
+
+**Result field:** `ExplanationResult.validator_version` (additive).
+
+**Rejection records (evaluation only):** `ExplanationService` takes an optional
+`rejection_sink` (also `with_rejection_sink(sink)`). For each rejected model
+output it receives `Rejection(check, detail, raw)`: the check name
+(`illegal_output` or the §30 check), the reason, and the model's text. The
+API, CLI, Web UI and reports never set it, and their output does not change.
+The acceptance harness adds `validator_version`, `rejection_detail` and
+`rejected_draft` to each row of `results.jsonl`, and `validator_version` and
+`rejection_details` (counts by reason) to `summary.json`.
+
+**Acceptance:** `live_1` stays as recorded (0.82, below the bar). A new full
+run of the 50 cases (`live_2`) with the same prompt, model, 0.9 bar and
+20-sample review decides whether the model path may be enabled.
+
 ### 29.1 Appendix: offline validation with a known external sweep (D056)
 
 `dsp/sweep.py` adds two functions:

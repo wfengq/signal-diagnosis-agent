@@ -1321,3 +1321,39 @@ No model was called.
 - the D047 intake prompt and its confirmation rules;
 - the frozen modules;
 - V0.2 79/80.
+
+## D058 — Explanation wording check 1.1 and rejection records (D055 amendment)
+
+**Context:** the first real-model acceptance run of the explanation layer
+(`docs/evaluations/v0_3/explanation/live_1/`) passed validation in 41 of 50
+cases (0.82, below the 0.9 bar): 8 rejections by `wording` and 1 by
+`fault_mismatch`. The run kept only the check name, not the rejected text.
+Offline, all 8 wording rejections fell in the 22 cases whose packet carries
+the knowledge disclaimer "…demonstration thresholds, not universal standards";
+none fell in the other 28. English words were also matched as substrings
+("limitation" matched `limit`).
+
+**Decision (operator 2026-10-07):** approve
+`docs/superpowers/specs/2026-10-07-explanation-wording-check-design.md` with
+options 1A, 2A, 3A and 4A:
+
+- 1A: allow only a negated "standard/标准" disclaimer, and only with 演示/demo
+  in the same sentence; English words match whole words;
+- 2A: the acceptance harness keeps each rejected model text;
+- 3A: results and summaries carry `validator_version`
+  (`explain-validator-1.1`);
+- 4A: a full 50-case `live_2` run with the same prompt, model, 0.9 bar and
+  20-sample review decides whether the model path may be enabled.
+
+**What landed** (§30.1, offline): validator 1.1, the evaluation-only
+`rejection_sink`, and the new harness fields. No model was called.
+
+**Unchanged:**
+
+- the prompt `v0.3-s1-explain-1.0`, `explain-packet-1.0`,
+  `explain-template-1.0` and the next-step menu;
+- the knowledge corpus;
+- every other §30 check, the 0.9 bar and the human review;
+- `live_1`, which stays recorded as below the bar;
+- `SIGNAL_DIAG_EXPLAIN_MODEL` stays off until `live_2` passes;
+- V0.2 79/80.

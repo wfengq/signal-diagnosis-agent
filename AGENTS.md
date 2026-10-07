@@ -50,7 +50,7 @@ D054 as a separate entry with demo thresholds (`profile_s1_sweep`
 1.0.0-demo); phase 3, the explanation layer (§30), landed with D055: a
 deterministic template by default, and an optional model rewrite (prompt
 `v0.3-s1-explain-1.0`) that is off unless `SIGNAL_DIAG_EXPLAIN_MODEL=enabled`
-and passes fail-closed validation; phase 4, the test guide (§31), landed with
+and passes fail-closed validation (wording check 1.1, D058); phase 4, the test guide (§31), landed with
 D057: a deterministic questionnaire by default and an optional model draft
 (prompt `v0.3-s1-guide-1.0`, off unless `SIGNAL_DIAG_GUIDE_MODEL=enabled`)
 that may only choose from a fixed plan catalog.
@@ -79,7 +79,7 @@ Before modifying product code, read:
 - `docs/ARCHITECTURE_V0_2.md` (especially §§12–18)
 - `docs/CONTRACTS_V0_2.md` (frozen §§1–64)
 - `docs/TEST_PLAN_V0_2.md` (required T001–T285)
-- `docs/DECISIONS.md` (D001–D057; D052 sets the current route)
+- `docs/DECISIONS.md` (D001–D058; D052 sets the current route)
 - `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and `docs/TEST_PLAN_V0_3_CONTEXTUAL.md`
   when touching contextual / HEAD live product paths
 - the relevant specification and plan under `docs/superpowers/`
