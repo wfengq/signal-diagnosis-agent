@@ -140,6 +140,7 @@ def _claim(
 
 
 def _clipping_support(facts: _Facts, mode: str) -> tuple[list[Evidence], list[RuleEvaluation]] | None:
+    rules: tuple[str, ...]
     if mode == "single_signal":
         mechanism = facts.metric_is("clipping_mechanism", True) or facts.metric_is(
             "flat_top_detected", True
@@ -172,6 +173,7 @@ def _harmonic_support(facts: _Facts, mode: str) -> tuple[list[Evidence], list[Ru
 
 
 def _no_fault_support(facts: _Facts, mode: str) -> tuple[list[Evidence], list[RuleEvaluation]] | None:
+    rules: tuple[str, ...]
     if mode == "single_signal":
         mechanism = facts.metric_is("clipping_mechanism", False)
         rules = _SINGLE_NO_FAULT_RULES
