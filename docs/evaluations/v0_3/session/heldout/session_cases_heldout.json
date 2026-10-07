@@ -1,0 +1,436 @@
+{
+  "schema": "session_cases/1",
+  "version": "session-cases-heldout-1.0",
+  "authored": "2026-10-07",
+  "note": "Held-out session scenarios written without the rule policy; frozen before the phase A acceptance run (D060).",
+  "cases": [
+    {
+      "case_id": "h01",
+      "tags": [
+        "bracket"
+      ],
+      "device": {
+        "kind": "hard_clip",
+        "ceiling": 0.04
+      },
+      "conditions": {},
+      "user": {},
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": -18.0,
+        "fixes": [],
+        "min_rounds": 2
+      }
+    },
+    {
+      "case_id": "h02",
+      "tags": [
+        "bracket",
+        "max_level"
+      ],
+      "device": {
+        "kind": "hard_clip",
+        "ceiling": 0.08
+      },
+      "conditions": {},
+      "user": {
+        "max_level_db": 3.0
+      },
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": -12.0,
+        "fixes": [],
+        "min_rounds": 2
+      }
+    },
+    {
+      "case_id": "h03",
+      "tags": [
+        "bracket"
+      ],
+      "device": {
+        "kind": "hard_clip",
+        "ceiling": 0.15
+      },
+      "conditions": {},
+      "user": {},
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": -9.0,
+        "fixes": [],
+        "min_rounds": 2
+      }
+    },
+    {
+      "case_id": "h04",
+      "tags": [
+        "bracket"
+      ],
+      "device": {
+        "kind": "hard_clip",
+        "ceiling": 0.22
+      },
+      "conditions": {},
+      "user": {},
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": -6.0,
+        "fixes": [],
+        "min_rounds": 2
+      }
+    },
+    {
+      "case_id": "h05",
+      "tags": [
+        "bracket"
+      ],
+      "device": {
+        "kind": "soft",
+        "drive": 5.0
+      },
+      "conditions": {},
+      "user": {},
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": -9.0,
+        "fixes": [],
+        "min_rounds": 2
+      }
+    },
+    {
+      "case_id": "h06",
+      "tags": [
+        "bracket"
+      ],
+      "device": {
+        "kind": "soft",
+        "drive": 9.0
+      },
+      "conditions": {},
+      "user": {},
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": -12.0,
+        "fixes": [],
+        "min_rounds": 2
+      }
+    },
+    {
+      "case_id": "h07",
+      "tags": [
+        "clean",
+        "max_level"
+      ],
+      "device": {
+        "kind": "clean"
+      },
+      "conditions": {},
+      "user": {
+        "max_level_db": 9.0
+      },
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": 6.0,
+        "fixes": [],
+        "min_rounds": 2
+      }
+    },
+    {
+      "case_id": "h08",
+      "tags": [
+        "clean",
+        "max_level"
+      ],
+      "device": {
+        "kind": "clean"
+      },
+      "conditions": {},
+      "user": {
+        "max_level_db": -3.0
+      },
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": null,
+        "fixes": [],
+        "min_rounds": 1
+      }
+    },
+    {
+      "case_id": "h09",
+      "tags": [
+        "clean"
+      ],
+      "device": {
+        "kind": "poly",
+        "a2": 0.02,
+        "a3": 0.05
+      },
+      "conditions": {},
+      "user": {},
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": null,
+        "fixes": [],
+        "min_rounds": 1
+      }
+    },
+    {
+      "case_id": "h10",
+      "tags": [
+        "noise",
+        "budget"
+      ],
+      "device": {
+        "kind": "hard_clip",
+        "ceiling": 0.12
+      },
+      "conditions": {
+        "noise": 0.03
+      },
+      "user": {},
+      "max_rounds": 2,
+      "expected": {
+        "status": "budget_exhausted",
+        "onset_db": -9.0,
+        "fixes": [
+          "rerecord_quieter"
+        ],
+        "min_rounds": 2
+      }
+    },
+    {
+      "case_id": "h11",
+      "tags": [
+        "noise"
+      ],
+      "device": {
+        "kind": "soft",
+        "drive": 6.0
+      },
+      "conditions": {
+        "noise": 0.015
+      },
+      "user": {},
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": -9.0,
+        "fixes": [
+          "rerecord_quieter"
+        ],
+        "min_rounds": 3
+      }
+    },
+    {
+      "case_id": "h12",
+      "tags": [
+        "drift"
+      ],
+      "device": {
+        "kind": "hard_clip",
+        "ceiling": 0.18
+      },
+      "conditions": {
+        "drift_ppm": 400
+      },
+      "user": {},
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": -6.0,
+        "fixes": [
+          "use_one_clock"
+        ],
+        "min_rounds": 3
+      }
+    },
+    {
+      "case_id": "h13",
+      "tags": [
+        "drift"
+      ],
+      "device": {
+        "kind": "hard_clip",
+        "ceiling": 0.25
+      },
+      "conditions": {
+        "drift_ppm": 900
+      },
+      "user": {},
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": -3.0,
+        "fixes": [
+          "use_one_clock"
+        ],
+        "min_rounds": 3
+      }
+    },
+    {
+      "case_id": "h14",
+      "tags": [
+        "recorder"
+      ],
+      "device": {
+        "kind": "clean"
+      },
+      "conditions": {
+        "recorder_gain": 5.0
+      },
+      "user": {},
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": null,
+        "fixes": [
+          "check_recorder_gain"
+        ],
+        "min_rounds": 2
+      }
+    },
+    {
+      "case_id": "h15",
+      "tags": [
+        "recorder"
+      ],
+      "device": {
+        "kind": "hard_clip",
+        "ceiling": 0.28
+      },
+      "conditions": {
+        "recorder_gain": 6.0
+      },
+      "user": {},
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": -3.0,
+        "fixes": [
+          "check_recorder_gain"
+        ],
+        "min_rounds": 3
+      }
+    },
+    {
+      "case_id": "h16",
+      "tags": [
+        "truncate"
+      ],
+      "device": {
+        "kind": "hard_clip",
+        "ceiling": 0.06
+      },
+      "conditions": {
+        "truncate": true
+      },
+      "user": {},
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": -15.0,
+        "fixes": [
+          "record_whole_stimulus"
+        ],
+        "min_rounds": 3
+      }
+    },
+    {
+      "case_id": "h17",
+      "tags": [
+        "wrong_stimulus"
+      ],
+      "device": {
+        "kind": "soft",
+        "drive": 3.0
+      },
+      "conditions": {
+        "wrong_stimulus": true
+      },
+      "user": {},
+      "max_rounds": 4,
+      "expected": {
+        "status": "resolved",
+        "onset_db": -3.0,
+        "fixes": [
+          "check_stimulus_file"
+        ],
+        "min_rounds": 3
+      }
+    },
+    {
+      "case_id": "h18",
+      "tags": [
+        "start"
+      ],
+      "device": {
+        "kind": "hard_clip",
+        "ceiling": 0.32
+      },
+      "conditions": {},
+      "user": {},
+      "max_rounds": 4,
+      "start_outcome": "supported_fault",
+      "expected": {
+        "status": "resolved",
+        "onset_db": null,
+        "fixes": [],
+        "min_rounds": 0
+      }
+    },
+    {
+      "case_id": "h19",
+      "tags": [
+        "start"
+      ],
+      "device": {
+        "kind": "hard_clip",
+        "ceiling": 0.35
+      },
+      "conditions": {},
+      "user": {
+        "can_retest": true
+      },
+      "max_rounds": 4,
+      "start_outcome": "inconclusive",
+      "expected": {
+        "status": "resolved",
+        "onset_db": 0.0,
+        "fixes": [],
+        "min_rounds": 2
+      }
+    },
+    {
+      "case_id": "h20",
+      "tags": [
+        "start",
+        "blocked"
+      ],
+      "device": {
+        "kind": "soft",
+        "drive": 2.5
+      },
+      "conditions": {},
+      "user": {
+        "can_retest": false
+      },
+      "max_rounds": 4,
+      "start_outcome": "inconclusive",
+      "expected": {
+        "status": "blocked_by_user",
+        "onset_db": null,
+        "fixes": [],
+        "min_rounds": 0
+      }
+    }
+  ]
+}
