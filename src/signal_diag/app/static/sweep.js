@@ -107,7 +107,18 @@
     byId("sweep-report-json").href = `${base}/report.json`;
     byId("sweep-report-html").href = `${base}/report.html`;
     byId("sweep-result").hidden = false;
+    window.SignalExplanation.show(
+      {
+        panel: "sweep-explanation-panel",
+        body: "sweep-explanation-body",
+        button: "sweep-explanation-model",
+        status: "sweep-explanation-status",
+      },
+      `${base}/explanation`,
+    );
   }
+
+  window.SignalExplanation.loadAvailability();
 
   byId("sweep-rate").addEventListener("change", (event) => {
     byId("stimulus-link").href = `/api/v1/sweep/stimulus?rate=${event.target.value}`;

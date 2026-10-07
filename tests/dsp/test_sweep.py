@@ -193,3 +193,46 @@ def test_t_cx462_analysis_is_deterministic() -> None:
     first = _record(_polynomial)
     second = _record(_polynomial)
     assert first == second
+
+
+def _butter_low_pass(samples: np.ndarray, rate: int = 48_000, cutoff: float = 1_500.0) -> np.ndarray:
+    w0 = 2 * np.pi * cutoff / rate
+    alpha = np.sin(w0) / (2 * 0.7071)
+    cos = np.cos(w0)
+    a0 = 1 + alpha
+    b = np.array([(1 - cos) / 2, 1 - cos, (1 - cos) / 2]) / a0
+    a1, a2 = -2 * cos / a0, (1 - alpha) / a0
+    out = np.zeros_like(samples)
+    x1 = x2 = y1 = y2 = 0.0
+    for index, value in enumerate(samples):
+        y = b[0] * value + b[1] * x1 + b[2] * x2 - a1 * y1 - a2 * y2
+        x2, x1, y2, y1 = x1, value, y1, y
+        out[index] = y
+    return out
+
+
+def _steady_tone_thd_percent(device: Device, frequency: float, rate: int = 48_000) -> float:
+    t = np.arange(rate) / rate
+    settled = device(0.5 * np.sin(2 * np.pi * frequency * t))[rate // 2 :]
+    spectrum = np.abs(np.fft.rfft(settled * np.hanning(len(settled))))
+    freqs = np.fft.rfftfreq(len(settled), 1 / rate)
+
+    def amplitude(target: float) -> float:
+        return float(spectrum[np.argmin(np.abs(freqs - target))])
+
+    harmonics = sum(amplitude(n * frequency) ** 2 for n in range(2, 6))
+    return 100 * float(np.sqrt(harmonics)) / amplitude(frequency)
+
+
+def test_t_cx458_harmonics_are_read_at_their_own_frequency() -> None:
+    """A filter after the nonlinearity changes THD with frequency (Hammerstein)."""
+
+    def device(samples: np.ndarray) -> np.ndarray:
+        return _butter_low_pass(_polynomial(samples))
+
+    bands = _bands(_record(device))
+    for center in (250.0, 500.0, 1_000.0, 2_000.0):
+        expected = _steady_tone_thd_percent(device, center)
+        assert bands[center] == pytest.approx(expected, rel=0.15, abs=0.05), center
+    assert bands[2_000.0] is not None and bands[250.0] is not None
+    assert bands[2_000.0] < 0.5 * bands[250.0]

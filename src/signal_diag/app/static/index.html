@@ -184,6 +184,14 @@
           <a id="report-html" hidden>下载 HTML 报告</a>
         </p>
       </section>
+      <section id="explanation-panel" hidden>
+        <h2>解释</h2>
+        <div id="explanation-body"></div>
+        <p>
+          <button id="explanation-model" type="button" hidden>用 AI 改写成更易读的说明</button>
+          <span id="explanation-status" class="muted" role="status" aria-live="polite"></span>
+        </p>
+      </section>
       <section id="localization-panel" hidden>
         <h2>故障位置</h2>
         <p class="muted">
@@ -271,6 +279,7 @@
     </section>
   </details>
   <script src="/static/intake_flow.js" defer></script>
+  <script src="/static/explanation.js" defer></script>
   <script src="/static/app.js" defer></script>
 </body>
 </html>

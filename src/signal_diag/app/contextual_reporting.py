@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import json
+from collections.abc import Mapping
 from datetime import datetime
 from typing import Any
 
@@ -112,10 +113,16 @@ def dump_contextual_snapshot(snapshot: ContextualAppRunSnapshot) -> dict[str, ob
     return snapshot.model_dump(mode="json", exclude=_unset_optional_fields(snapshot))
 
 
-def render_contextual_report_json(report: ContextualDiagnosisReport) -> str:
+def render_contextual_report_json(
+    report: ContextualDiagnosisReport, *, explanation: Mapping[str, object] | None = None
+) -> str:
+    """``explanation`` (§30) is added only when one was produced for the run."""
+    payload = report.model_dump(mode="json", exclude=_unset_optional_fields(report))
+    if explanation is not None:
+        payload["explanation"] = dict(explanation)
     return (
         json.dumps(
-            report.model_dump(mode="json", exclude=_unset_optional_fields(report)),
+            payload,
             ensure_ascii=False,
             allow_nan=False,
             sort_keys=True,
@@ -206,7 +213,9 @@ def _fault_localization_html(localization: dict[str, object] | None) -> list[str
     return parts
 
 
-def render_contextual_report_html(report: ContextualDiagnosisReport) -> str:
+def render_contextual_report_html(
+    report: ContextualDiagnosisReport, *, explanation_html: str | None = None
+) -> str:
     data = report.model_dump(mode="json")
     test_source = data["test_source"]
     reference_source = data.get("reference_source")
@@ -534,6 +543,7 @@ def render_contextual_report_html(report: ContextualDiagnosisReport) -> str:
             "<h2>Limits</h2>",
             f"<p>{_esc(_DEMO_PROFILE_LABEL)}</p>",
             "</section>",
+            *((explanation_html,) if explanation_html else ()),
             "</body>",
             "</html>",
             "",

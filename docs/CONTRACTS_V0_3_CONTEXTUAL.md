@@ -2110,7 +2110,7 @@ mono 24-bit PCM, with a LIST/INFO `ICMT` chunk after the samples reading
 `sweep-stimulus-1.0 sha256:<digest>`. Readers that skip unknown chunks,
 including `load_wav_bytes`, ignore it.
 
-**Analysis `sweep-analysis-1.0`** (numpy only). One recording is converted to
+**Analysis `sweep-analysis-1.1`** (numpy only; 1.1 corrects 1.0, see D054). One recording is converted to
 mono and analysed in these steps:
 
 - **Alignment:** cross-correlation with the stimulus gives the lag and a
@@ -2118,13 +2118,17 @@ mono and analysed in these steps:
 - **Clock drift:** estimated from two 10 % segments at 55 % and 80 % of the
   sweep.
 - **SNR:** sweep energy over the leading-silence noise.
-- **Linear and harmonic responses:** deconvolution by the analytic inverse
-  spectrum gives the linear response and orders 2–5. Each harmonic response
-  sits at `-L·ln(n)` and is cut with a 50 ms Hann window.
-- **Band THD:** computed for octave bands 63 Hz–16 kHz from the orders whose
-  frequency stays below Nyquist.
+- **Linear and harmonic responses:** deconvolution by the analytic sweep
+  spectrum (Novak 2015 eq. 42, magnitude ½·√(L/f)) gives the linear response
+  and orders 2–5. Each harmonic response sits at `-L·ln(n)` and is cut with a
+  50 ms Hann window.
+- **Band THD:** computed for octave bands 63 Hz–16 kHz. Order n of a band
+  centred at f is read at n·f in its response and compared with the linear
+  response at f. Only orders whose n·f band stays within f2 and below Nyquist
+  are used.
 - **Measurability:** a band is measurable when its noise-floor THD, taken from
-  a noise window, is at most 0.5 %. Unmeasurable bands are never judged.
+  a noise window at the same n·f bands, is at most 0.5 %. Unmeasurable bands
+  are never judged.
 - **Recorder clipping:** reported as `full_scale_ratio`, the share of sweep
   samples in runs of at least 2 consecutive samples with |y| ≥ 0.99. Clipped
   samples map to a sweep frequency span through the instantaneous frequency.
@@ -2210,3 +2214,141 @@ sample rate, which is the first recording's rate unless one is given.
   the main page. It offers stimulus download, recording guidance, 1–3 level
   uploads, the chart with a legend, the band table, claims and report links.
   Dynamic text is set with `textContent`.
+
+## 30. Explanation layer (D055)
+
+The explanation layer rewrites a finished contextual run (§28) or sweep run
+(§29) in plain language. **It reads verdicts and never writes them.** Verdicts,
+claims, Evidence, facts and rule evaluations are unchanged.
+
+**Packet `explain-packet-1.0`** (`app/explanation.py`) is built
+deterministically from the run and carries no waveform, spectrum or file
+content. Its items are:
+
+- the run;
+- each claim;
+- the rule evaluations the claims cite, with display strings for the observed
+  value and the demonstration threshold;
+- the Evidence or facts they cite;
+- for an inconclusive contextual run, the `invalid_reason`;
+- localization intervals (§27);
+- knowledge chunks: retrieved by the engine for contextual runs, and by fault
+  tag for sweep runs;
+- the levels of a sweep run.
+
+Each item has a `ref_id`, `display` values and the fault types it supports.
+The packet has a SHA-256 digest. Numbers are shown only in one display form
+per unit:
+
+| Unit | Display form |
+|---|---|
+| `%` | two decimals |
+| `Hz` | one decimal, or none for whole numbers and values from 1 kHz up |
+| `dB`, `ppm` | one decimal |
+| `s` | two decimals |
+| none (ratio) | four significant digits, or six decimals below 0.01 |
+
+**Next-step menu.** The menu is computed from the verdict and the failing
+rules. A model may choose only from it.
+
+| Step | When it is on the menu |
+|---|---|
+| `lower_playback_level` | Clipping is supported, or a sweep fault is supported. |
+| `check_recorder_gain` | Sweep clipping is supported. |
+| `add_sweep_levels` | A one-level sweep run supports a fault. |
+| `add_reference_recording` | The mode is `single_signal`. |
+| `state_nominal_tone` | The mode is `single_signal`. |
+| `run_sweep_test` | The run is inconclusive, or the mode is `single_signal`. |
+| `check_reference_match` | A `paired_reference` run is inconclusive because comparison validity failed. |
+| `record_whole_stimulus` | The sweep analysis validity rule fails. |
+| `check_stimulus_file` | The sweep alignment rule fails. |
+| `use_one_clock` | The sweep drift rule fails. |
+| `rerecord_quieter` | The sweep SNR rule fails. |
+
+**Output.** An explanation has four sections, in this order:
+
+1. `conclusion`, `evidence` and `meaning`: at most 4 sentences each, as
+   `{text, refs}`;
+2. `next_steps`: at most 4 entries, as `{step_id, text, refs}`.
+
+**Validation** (deterministic, fail-closed). A draft is rejected when any of
+these checks fails:
+
+- **structure:** the sections are in the order above and within the limits;
+- **length:** a sentence is longer than 200 characters;
+- **citation:** a sentence has no reference, or cites an id that is not in the
+  packet;
+- **ids_in_text:** an identifier appears inside the text;
+- **wording:** the text says "standard", 合格, IEC, AES, SLA, certified or
+  similar, or names a threshold without calling it a demonstration value;
+- **number:** every number, with an optional unit (% / dB / dBFS / Hz / kHz /
+  ppm / s / ms), must equal a display value of an item the same sentence cites.
+  It may be rounded, and kHz and ms are converted;
+- **fault_mismatch:** in `conclusion` and `meaning`, a sentence asserts
+  clipping or harmonic distortion that its cited items do not support
+  (negated mentions are allowed). In every section, a sentence states "no
+  fault" or "inconclusive" wording its cited items do not support;
+- **conclusion:** a conclusion sentence cites no claim, or the conclusion does
+  not cite every claim;
+- **next_step:** a step is not on the menu, is repeated, or does not cite one
+  of its trigger refs.
+
+**Template `explain-template-1.0`.** The template is generated from the packet
+in Chinese or English and passes validation by construction. It is shown
+without credentials and replaces any rejected model output.
+
+**Model path** (`agent/explain.py`, prompt `v0.3-s1-explain-1.0`):
+
+- One call per explanation, through the intake client adapter: `max_retries`
+  0, JSON mode, temperature 0 and a 60 s timeout.
+- The model receives only the packet and the template as a baseline to
+  rewrite.
+- The path is available only with `DEEPSEEK_API_KEY` and
+  `SIGNAL_DIAG_EXPLAIN_MODEL=enabled`. It stays off by default until the 4A
+  acceptance passes.
+- Asking for it while it is unavailable is an error (`planner_not_configured`,
+  HTTP 503, CLI exit 2), never a silent template.
+- After a call, a provider error, illegal JSON or a validation failure returns
+  the template with `fallback_reason` set to `provider_error`,
+  `illegal_output` or `validation_failed:<check>`. `ScriptedExplainer` is a
+  test double only.
+
+**Result.** Each explanation records:
+
+- `source` (`model` or `template`) and `fallback_reason`;
+- `language`, `packet_version`, `packet_digest` and `template_version`;
+- the explainer identity (provider, model and prompt version);
+- `model_calls` and the draft.
+
+**Surfaces:**
+
+- **API:**
+  - `POST /api/v1/contextual-runs/{run_id}/explanation`, for completed runs
+    only;
+  - `POST /api/v1/sweep-runs/{run_id}/explanation`;
+  - both take the body `{"language": "zh"|"en", "use_model": false}`, with
+    no other keys.
+  - The health response adds `explanation` (`template_available`,
+    `model_available`, `prompt_version`).
+- **Reports:** the JSON and HTML reports of a run carry the latest explanation
+  for that run (an `explanation` key, or `<section id="explanation">`), but
+  only after one was produced.
+- **CLI:** `--explain {template,model}` and `--explain-language {zh,en}` on
+  `diagnose contextual` and `sweep diagnose`.
+- **Web UI:** an explanation area under the contextual summary and the sweep
+  result. It shows the template, and the AI rewrite button appears only when
+  `model_available` is true. Text is set with `textContent`, and an AI
+  explanation is labelled as written from this run's evidence, with the
+  verdict from the deterministic engine.
+
+**Acceptance harness:** `python -m signal_diag.app.explanation_eval --out DIR
+[--live]`.
+
+- **Case set:** 50 cases, the 40 recorded contextual engine runs plus 10
+  synthetic sweep runs.
+- **Outputs:** `results.jsonl`, `summary.json` and `review.md` with 20 seeded
+  samples.
+- **Live run:** the real model is called by the operator's tooling, outside
+  CI.
+- **Bar for enabling the model path:** a validation pass rate of at least
+  90 %, and 0 wrong statements in the 20 reviewed samples.

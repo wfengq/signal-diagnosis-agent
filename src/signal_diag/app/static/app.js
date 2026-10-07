@@ -716,7 +716,21 @@ function renderTerminal(snapshot) {
     htmlLink.setAttribute("href", `${base}/report.html`);
     jsonLink.hidden = false;
     htmlLink.hidden = false;
+    if (isContextualSnapshot(snapshot) && snapshot.result && snapshot.result.diagnosis) {
+      window.SignalExplanation.show(
+        {
+          panel: "explanation-panel",
+          body: "explanation-body",
+          button: "explanation-model",
+          status: "explanation-status",
+        },
+        `${base}/explanation`,
+      );
+    } else {
+      window.SignalExplanation.hide("explanation-panel");
+    }
   } else {
+    window.SignalExplanation.hide("explanation-panel");
     jsonLink.removeAttribute("href");
     htmlLink.removeAttribute("href");
     jsonLink.hidden = true;
@@ -791,6 +805,7 @@ async function loadPlannerHealth() {
     const draftButton = document.getElementById("intake-draft");
     if (draftButton) draftButton.disabled = !intakeDraftAvailable;
     renderPlannerReadiness(health);
+    await window.SignalExplanation.loadAvailability();
   } catch (_error) {
     plannerHealthAllowsSubmit = false;
     renderPlannerHealthFailure();

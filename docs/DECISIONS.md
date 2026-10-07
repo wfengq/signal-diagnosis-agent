@@ -1132,6 +1132,8 @@ to the engine) and 4A (explain any shortfall and let the operator decide).
 
 **Result (offline, no model call, `phase1_comparison/report.json`):**
 - No errors and no validation rejections across 174 recorded cases.
+  *(Correction 2026-10-07: the committed report has 152 rows — 20 + 20
+  contextual, 20 + 20 increment held-out and 3 × 24 V0.2 — not 174.)*
 - Contextual validation: 17/17 against the recorded v9.11's 16/17.
 - Contextual development: 16/17 against 17/17; the gap is the accepted
   limitation.
@@ -1197,3 +1199,51 @@ thresholds are demonstration values, not standards.
 - the frozen T-CX351 modules, `app/composition.py` (T-CX301), T213, T251, T264,
   T269, T282 and T283;
 - the V0.2 path, V0.2 79/80 and every recorded study.
+
+**Correction (2026-10-07, `sweep-analysis-1.1`):** while preparing the
+public-data check, a device with a low-pass filter after its nonlinearity
+showed that 1.0 read order n at the input frequency f instead of at n·f. The
+analytic sweep spectrum also had its magnitude inverted (√(f/L) instead of
+√(L/f)). Together the two errors cancelled for frequency-flat devices, which
+is why the 1.0 tests passed, but the band THD of any device whose response
+changes with frequency was wrong. With a 1.5 kHz low-pass after the polynomial,
+for example, 1.0 reported 2.50 % at every band against steady-tone values of
+2.48 %, 2.29 %, 1.33 % and 0.68 % at 250 Hz, 500 Hz, 1 kHz and 2 kHz. Version
+1.1 reads order n at n·f, measures the noise floor at the same bands, uses
+only orders whose n·f stays within f2, and corrects the magnitude. It reports
+2.48 %, 2.23 %, 1.36 % and 0.73 % there. T-CX458 adds this case. The synthetic
+flat-device results above are unchanged.
+
+## D055 — Explanation layer (D052 phase 3)
+
+**Decision (operator 2026-10-07):** approve
+`docs/superpowers/specs/2026-10-07-explanation-phase3-design.md` with options:
+
+- 1A: the template by default, and the model only on a button press;
+- 2A: next steps only from a deterministic menu;
+- 3A: contextual and sweep runs together;
+- 4A: the model button becomes visible by default only after a real-model run
+  passes with a validation pass rate of at least 90 % and 0 wrong statements
+  in 20 reviewed explanations.
+
+**What landed** (§30, offline):
+
+- a deterministic packet, menu, validator and template;
+- the model adapter `v0.3-s1-explain-1.0`, off unless
+  `SIGNAL_DIAG_EXPLAIN_MODEL=enabled` and credentials are set;
+- the service with recorded fallback reasons;
+- the API, CLI, reports and Web UI;
+- the 50-case acceptance harness.
+
+The template passes validation on all 152 recorded engine cases and on the
+synthetic sweep cases, in both languages. The validator has a negative test
+for each check. No model was called; the live acceptance run is for the
+operator's tooling.
+
+**Unchanged:**
+
+- verdicts, claims, Evidence, rules and thresholds;
+- the contextual engine and the sweep test;
+- planner prompt v9.11 and intake prompt 1.1;
+- the frozen modules;
+- V0.2 79/80 and every recorded study.

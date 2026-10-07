@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import math
+import os
 import sys
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
@@ -18,6 +19,15 @@ from signal_diag.app.contextual_reporting import (
 )
 from signal_diag.app.engine_service import build_engine_service
 from signal_diag.app.errors import ApplicationError, sanitize_application_error
+from signal_diag.app.explanation import ExplanationPacket
+from signal_diag.app.explanation_service import (
+    ExplanationResult,
+    build_explanation_service,
+    contextual_explanation_packet,
+    explanation_lines,
+    render_explanation_html,
+    sweep_explanation_packet,
+)
 from signal_diag.app.intake_flow import (
     CONTEXT_ORIGIN_INTAKE,
     INTAKE_DIAGNOSIS_QUESTION,
@@ -60,6 +70,31 @@ _USAGE_OR_CONFIG_CODES = frozenset(
         "planner_not_configured",
     }
 )
+
+
+def _add_explain_options(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--explain",
+        choices=("template", "model"),
+        default=None,
+        help="add a plain-language explanation (§30): template, or model if enabled",
+    )
+    parser.add_argument("--explain-language", choices=("zh", "en"), default="zh")
+
+
+async def _explanation(
+    args: argparse.Namespace, packet: ExplanationPacket
+) -> ExplanationResult | None:
+    mode = getattr(args, "explain", None)
+    if mode is None:
+        return None
+    service = build_explanation_service(os.environ)
+    try:
+        return await service.explain(
+            packet, language=args.explain_language, use_model=mode == "model"
+        )
+    finally:
+        await service.aclose()
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -135,6 +170,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="engine (default, deterministic) or planner (RealLLMPlanner, needs credentials)",
     )
     contextual.add_argument("--nominal-fundamental-hz", type=float, default=None)
+    _add_explain_options(contextual)
     contextual.add_argument(
         "--stimulus-kind",
         choices=("single_tone",),
@@ -160,6 +196,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sweep_diagnose.add_argument("--output", choices=("text", "json"), default="text")
     sweep_diagnose.add_argument("--html-output", type=Path, default=None)
+    _add_explain_options(sweep_diagnose)
     return parser
 
 
@@ -368,15 +405,21 @@ def _emit_outputs(args: argparse.Namespace, report: DiagnosisReport) -> None:
 
 
 def _emit_contextual_outputs(
-    args: argparse.Namespace, report: ContextualDiagnosisReport
+    args: argparse.Namespace,
+    report: ContextualDiagnosisReport,
+    explanation: ExplanationResult | None = None,
 ) -> None:
+    payload = explanation.model_dump(mode="json") if explanation is not None else None
     if args.output == "json":
-        sys.stdout.write(render_contextual_report_json(report))
+        sys.stdout.write(render_contextual_report_json(report, explanation=payload))
     else:
         _print_contextual_text_report(report)
+        if explanation is not None:
+            print("\n".join(explanation_lines(explanation)))
     if args.html_output is not None:
+        html_part = render_explanation_html(explanation) if explanation is not None else None
         Path(args.html_output).write_bytes(
-            render_contextual_report_html(report).encode("utf-8")
+            render_contextual_report_html(report, explanation_html=html_part).encode("utf-8")
         )
 
 
@@ -417,7 +460,12 @@ async def _finish_contextual(
         contextual_report = build_contextual_diagnosis_report(
             contextual_snapshot, generated_at=datetime.now(UTC)
         )
-        _emit_contextual_outputs(args, contextual_report)
+        explanation = None
+        if getattr(args, "explain", None) is not None:
+            explanation = await _explanation(
+                args, contextual_explanation_packet(contextual_snapshot)
+            )
+        _emit_contextual_outputs(args, contextual_report, explanation)
         if (
             contextual_snapshot.result is not None
             and contextual_snapshot.result.status == "error"
@@ -826,12 +874,27 @@ def _sweep(args: argparse.Namespace) -> int:
         _print_error("invalid_request", str(error))
         return 2
     report = build_sweep_report(diagnosis, generated_at=datetime.now(UTC))
+    try:
+        explanation = (
+            asyncio.run(_explanation(args, sweep_explanation_packet(diagnosis)))
+            if args.explain is not None
+            else None
+        )
+    except ApplicationError as error:
+        _print_error(error.detail.code, error.detail.message)
+        return _exit_for_application_error(error)
+    payload = explanation.model_dump(mode="json") if explanation is not None else None
     if args.output == "json":
-        sys.stdout.write(render_sweep_json(report))
+        sys.stdout.write(render_sweep_json(report, explanation=payload))
     else:
         _print_sweep_text(diagnosis)
+        if explanation is not None:
+            print("\n".join(explanation_lines(explanation)))
     if args.html_output is not None:
-        args.html_output.write_text(render_sweep_html(report), encoding="utf-8")
+        html_part = render_explanation_html(explanation) if explanation is not None else None
+        args.html_output.write_text(
+            render_sweep_html(report, explanation_html=html_part), encoding="utf-8"
+        )
     return 0
 
 

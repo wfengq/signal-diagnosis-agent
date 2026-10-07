@@ -61,12 +61,13 @@ Read these before changing behavior or public interfaces:
    - §27: product fault time localization (§27.1: paired reference).
    - §28: deterministic diagnosis engine (product default).
    - §29: sweep stimulus test (separate entry, D054).
+   - §30: explanation layer (D055).
 
    Do not edit frozen §§1–64.
 4. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) (T001–T285) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) (T-CX series,
-   through T-CX465).
-5. [DECISIONS.md](DECISIONS.md): D001–D054.
+   through T-CX476).
+5. [DECISIONS.md](DECISIONS.md): D001–D055.
 6. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): OQ-001–OQ-026.
    - OQ-013–OQ-018 resolve gaps between the current code and the frozen V0.2
      documents.
