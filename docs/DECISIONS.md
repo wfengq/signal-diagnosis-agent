@@ -1073,3 +1073,41 @@ because left/right selection exists only for stereo.
 the version), the diagnosis prompt v9.11 and the agent's conclusions, rule
 thresholds, the frozen `tools/`, `dsp/harmonics.py` and `dsp/contextual.py`, the
 contextual calibration identity, recorded studies, and the accepted V0.2 79/80.
+
+## D052 — Route adjustment: deterministic engine and LLM test guide for device testing
+
+**Decision (operator 2026-10-07):** approve the route design
+(`docs/superpowers/specs/2026-10-07-route-adjustment-device-testing-design.md`)
+with options 1A, 2A and 3A, and authorize drafting the AGENTS.md revision as a
+separate PR (4).
+
+- **Positioning:** engineers testing audio devices, who can play a test signal
+  through the device and record it back.
+- **D004 is rewritten:** the product's dynamic selection happens at the level
+  of the test plan (which test to run, what to ask, how to explain), not at the
+  level of DSP function calls. The diagnosis core becomes a deterministic engine
+  that runs every detector the test plan requires and reaches verdicts only
+  through versioned rules.
+- **LLM roles:** intake and test guidance before the run, and plain-language
+  explanation after it. An LLM never decides a verdict, creates a metric or
+  threshold, or replaces Evidence.
+- **The `RealLLMPlanner` diagnosis path (2A)** leaves the product default when
+  phase 1 lands. Its code and identities stay available as an explicit
+  non-default path for comparison and reproduction.
+- **Phase order (3A):** engine, then exponential-sweep stimulus, then the
+  explanation layer, then the test guide. Each phase needs its own design,
+  contract additions, test IDs and authorization.
+
+**Why:** the planner did not add diagnostic accuracy over a fixed pipeline
+(dev_1 machine result `fixed_pipeline_dominance`; D045 T2 increment 0; fixed
+arms 24/24 after D049), while free-text intake did add value (D045 T1, +5).
+External measurement and QC tools use controlled stimuli or exhaustive
+detectors, not planners. On real recordings (`egfxset_live_1`, 26 pairs, prompt
+v9.11), 9 of 26 live runs ended in `max_planner_retries` errors because the
+planner repeatedly proposed clipping claims the runtime rejected; only 1 of 26
+adopted harmonic distortion.
+
+**Unchanged:** V0.2 79/80 and every recorded study, the frozen
+`CONTRACTS_V0_2.md` §§1–64, the `signal`, `dsp`, `tools`, `rules` and
+`knowledge` layers, Evidence and rule-evaluation models, and D037. Until phase 1
+lands, HEAD keeps running the v9.11 planner path as before.
