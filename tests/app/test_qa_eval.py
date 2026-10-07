@@ -66,3 +66,19 @@ def test_t_cx517_live_mode_counts_fallbacks(tmp_path: Path) -> None:
         for line in (tmp_path / "results.jsonl").read_text().splitlines()
     ]
     assert all(row["rejected_answer"] == "not json" for row in rows)
+
+
+def test_t_cx518_heldout_questions_are_frozen(tmp_path: Path) -> None:
+    import hashlib
+
+    digest = "c323c5ae60b69a0de0b582eb971f296f2159c9a66d94935613a50fddb57d781d"
+    frozen = ROOT / "docs" / "evaluations" / "v0_3" / "qa" / "heldout" / "qa_cases_heldout.json"
+    asset = ROOT / "src" / "signal_diag" / "evaluation" / "assets" / "qa_cases_heldout.json"
+    assert hashlib.sha256(frozen.read_bytes()).hexdigest() == digest
+    assert hashlib.sha256(asset.read_bytes()).hexdigest() == digest
+    cases = load_cases("heldout")
+    assert len(cases) == 20
+    assert not {case["case_id"] for case in cases} & {case["case_id"] for case in load_cases("dev")}
+    summary = asyncio.run(_run(ROOT, tmp_path, live=False, case_set="heldout"))
+    assert summary["case_set"] == "heldout" and summary["model_calls"] == 0
+    assert summary["expect"] == {"answer": 15, "decline": 5}

@@ -2699,3 +2699,9 @@ questions written by Cursor, the validation pass rate is ≥ 0.9, the model
 declines ≥ 0.9 of the questions the evidence cannot answer, and the operator
 finds no wrong statement in 20 reviewed answers. 40 development questions (10
 to decline) live in `evaluation/assets/qa_cases.json`.
+
+**Held-out questions.** Cursor wrote the 20 held-out questions from a brief
+only (#101; SHA-256
+`c323c5ae60b69a0de0b582eb971f296f2159c9a66d94935613a50fddb57d781d`, frozen
+under `docs/evaluations/v0_3/qa/heldout/` and copied to
+`evaluation/assets/qa_cases_heldout.json`): 15 to answer, 5 to decline.

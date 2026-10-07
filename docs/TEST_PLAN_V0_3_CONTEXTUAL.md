@@ -702,7 +702,7 @@ alter T-CX001–T-CX501 meanings. T-CX502 (a conditional D059 slot) is unused.
 | T-CX511 | The sweep page has the session panel and loads `session.js`, which sets text without `innerHTML` and links analysed runs; the script is served as JavaScript |
 | T-CX512 | The 20 held-out session scenarios match the frozen SHA-256 in both copies and share no id with the development set; the recorded rule-policy acceptance (`rule_heldout/summary.json`) names the current policy and meets the 0.9 bar with no model call; sample held-out sessions still end correctly |
 
-T-CX513–T-CX517 are additive definitions for D060 phase C
+T-CX513–T-CX518 are additive definitions for D060 phase C
 (`CONTRACTS_V0_3_CONTEXTUAL.md` §33). They make no network call.
 
 | ID | Requirement |
@@ -712,3 +712,4 @@ T-CX513–T-CX517 are additive definitions for D060 phase C
 | T-CX515 | The adapter sends only language, question and packet; the template is the default; the model path needs credentials and `SIGNAL_DIAG_QA_MODEL`; illegal, rejected and failed model answers fall back with the reason recorded |
 | T-CX516 | The question endpoints answer finished contextual and sweep runs, reject bad bodies (422), unknown runs (404) and an unavailable model (503); health reports `qa`; the Web UI loads `qa.js` after `explanation.js`, uses `textContent` and shows the box only when the model is available |
 | T-CX517 | The 40 development questions are well formed (10 to decline); the offline harness writes results, summary and a 20-sample review without model calls or trailing whitespace; live mode counts fallbacks |
+| T-CX518 | The 20 held-out questions match the frozen SHA-256 in both copies, share no id with the development set, and run through the offline harness with no model call |
