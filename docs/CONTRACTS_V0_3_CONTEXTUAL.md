@@ -2521,3 +2521,50 @@ runs the 40 authored scenarios in `evaluation/assets/guide_cases.json`.
 - The model draft becomes visible by default only when plan accuracy and
   key-parameter accuracy are each at least 90 % and no draft is rejected for
   numbers.
+
+### 31.1 Guide prompt 1.1, rejection records and held-out scenarios (D059)
+
+**Prompt:** `GUIDE_PROMPT_VERSION = "v0.3-s1-guide-1.1"` replaces 1.0 on the
+model path; the output structure, catalog and validator are unchanged. The
+prompt adds these rules:
+
+- for `sweep_levels` the tool generates the test signal: `test_file` and
+  `reference_file` are null and a test file is never asked for;
+- `sample_rate_hz` is only for `sweep_levels`; for every other plan it is null
+  and never asked for, because a recording's own rate is read from the file;
+- connection (sweep only): `line_loopback` for a cabled sound card or audio
+  interface, `acoustic_mic` for a microphone in the air, `digital_capture` for
+  a device recording its own output over USB or a digital interface; unknown is
+  null and asked, never a default;
+- for `existing_recording` and `nominal_tone`, `test_file` is the uploaded file;
+  for `paired_reference`, `reference_file` is the normal, original or
+  unprocessed recording and `test_file` the problem or processed one;
+- `missing_fields` lists only parameters the chosen plan uses (sweep:
+  `sample_rate_hz`, `level_labels`, `connection`; existing: `test_file`;
+  paired: `test_file`, `reference_file`; nominal: `test_file`,
+  `nominal_fundamental_hz`), with one question each and nothing else;
+- the output is one JSON object with exactly the defined keys and no other
+  text.
+
+**Rejection records (evaluation only):** `GuideService` takes an optional
+`rejection_sink` (also `with_rejection_sink(sink)`). For each rejected model
+output it receives `GuideRejection(check, detail, raw)`: `illegal_output` with
+the first parse error and its location, or the §31 check with its reason, and
+the model's text. The API, CLI, Web UI and reports never set it, and their
+output does not change. `PlanRejected` exposes `detail`.
+
+**Held-out scenarios:** 20 scenarios written by a separate author without the
+prompt, frozen at
+`docs/evaluations/v0_3/guide/heldout/guide_cases_heldout.json` (SHA-256
+`0d12418f9acd2398dc8a2c6b3b287d0c96959b0a078bbe658f3750a019cb9507`) before
+prompt 1.1, and copied byte for byte to
+`evaluation/assets/guide_cases_heldout.json`.
+
+**Harness:** `guide_eval --cases dev|heldout` (default `dev`). Each row adds
+`prompt_version`, `rejection_detail` and `rejected_draft`; the summary adds
+`case_set`, `prompt_version` and `rejection_details`.
+
+**Acceptance:** the held-out set decides whether the model draft may be
+enabled, with the §31 bars (plan and key-parameter accuracy each ≥ 90 %, no
+number rejection). The development set is reported for comparison with
+`live_1`.

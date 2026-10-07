@@ -52,7 +52,7 @@ deterministic template by default, and an optional model rewrite (prompt
 `v0.3-s1-explain-1.0`) that is off unless `SIGNAL_DIAG_EXPLAIN_MODEL=enabled`
 and passes fail-closed validation (wording check 1.1, D058); phase 4, the test guide (§31), landed with
 D057: a deterministic questionnaire by default and an optional model draft
-(prompt `v0.3-s1-guide-1.0`, off unless `SIGNAL_DIAG_GUIDE_MODEL=enabled`)
+(prompt `v0.3-s1-guide-1.1` since D059, off unless `SIGNAL_DIAG_GUIDE_MODEL=enabled`)
 that may only choose from a fixed plan catalog.
 No further planner prompt iterations are planned. See
 `docs/superpowers/specs/2026-10-07-route-adjustment-device-testing-design.md`.

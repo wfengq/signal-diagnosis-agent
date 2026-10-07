@@ -64,6 +64,7 @@ class PlanRejected(ValueError):
     def __init__(self, check: str, detail: str) -> None:
         super().__init__(f"{check}: {detail}")
         self.check = check
+        self.detail = detail
 
 
 class GuideRequest(BaseModel):

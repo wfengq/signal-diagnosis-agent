@@ -64,7 +64,7 @@ class _FakeClient:
 def test_t_cx488_adapter_sends_only_the_description() -> None:
     client = _FakeClient(json.dumps(GOOD, ensure_ascii=False))
     guide = RealLLMGuide(client=client, model="deepseek-test")
-    assert guide.identity == GUIDE_PROMPT_VERSION == "v0.3-s1-guide-1.0"
+    assert guide.identity == GUIDE_PROMPT_VERSION == "v0.3-s1-guide-1.1"
     asyncio.run(guide.draft(guide_payload(REQUEST)))
     (call,) = client.calls
     assert call["system_prompt"] == SYSTEM_PROMPT
