@@ -58,6 +58,7 @@ from signal_diag.app.multipart import (
     parse_sweep_upload,
     parse_wav_upload,
 )
+from signal_diag.app.qa_service import QAService, build_qa_service
 from signal_diag.app.regression import build_regression_service
 from signal_diag.app.regression_api import (
     _http_status_for_error,
@@ -69,6 +70,7 @@ from signal_diag.app.reporting import (
     render_report_html,
     render_report_json,
 )
+from signal_diag.app.result_qa import MAX_QUESTION_CHARS
 from signal_diag.app.service import DiagnosisApplicationService
 from signal_diag.app.sweep import (
     SUPPORTED_RATES,
@@ -113,6 +115,7 @@ _STATIC_MEDIA_TYPES = {
     "explanation.js": "text/javascript; charset=utf-8",
     "guide.js": "text/javascript; charset=utf-8",
     "session.js": "text/javascript; charset=utf-8",
+    "qa.js": "text/javascript; charset=utf-8",
 }
 _STATUS_BY_CODE = {
     "invalid_request": 422,
@@ -234,6 +237,16 @@ class _ExplainBody(BaseModel):
     use_model: bool = False
 
 
+class _QuestionBody(BaseModel):
+    """§33: one question about a finished run; ``use_model`` asks the AI."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    question: str = Field(min_length=1, max_length=MAX_QUESTION_CHARS)
+    language: Literal["zh", "en"] = "zh"
+    use_model: bool = False
+
+
 def _explanation_parts(
     result: ExplanationResult | None,
 ) -> tuple[dict[str, object] | None, str | None]:
@@ -300,6 +313,7 @@ def create_app(
     service: DiagnosisApplicationService | None = None,
     explanation_service: ExplanationService | None = None,
     guide_service: GuideService | None = None,
+    qa_service: QAService | None = None,
 ) -> FastAPI:
     owned = service is None
     bound = service if service is not None else build_engine_service()
@@ -310,6 +324,7 @@ def create_app(
     )
 
     guide = guide_service if guide_service is not None else build_guide_service(os.environ)
+    qa = qa_service if qa_service is not None else build_qa_service(os.environ)
     plans = PlanStore()
     sessions = SessionStore()
     regression_service = build_regression_service()
@@ -329,6 +344,8 @@ def create_app(
                 await explainer.aclose()
             if guide_service is None:
                 await guide.aclose()
+            if qa_service is None:
+                await qa.aclose()
 
     app = FastAPI(lifespan=lifespan, title="Signal Diagnosis Agent")
     app.state.service = bound
@@ -398,6 +415,8 @@ def create_app(
             "explanation": explainer.status().model_dump(mode="json"),
             # §31 (D057): additive.
             "guide": guide.status().model_dump(mode="json"),
+            # §33 (D060 C): additive.
+            "qa": qa.status().model_dump(mode="json"),
         }
         return JSONResponse(content=payload)
 
@@ -653,6 +672,23 @@ def create_app(
         packet = await run_in_threadpool(sweep_explanation_packet, sweep_runs.get(run_id))
         result = await explainer.explain(
             packet, language=body.language, use_model=body.use_model
+        )
+        return JSONResponse(content=result.model_dump(mode="json"))
+
+    @app.post("/api/v1/contextual-runs/{run_id}/questions")
+    async def ask_contextual_run(request: Request, run_id: str, body: _QuestionBody) -> JSONResponse:
+        snapshot = _completed_contextual_snapshot(request, run_id)
+        packet = contextual_explanation_packet(snapshot)
+        result = await qa.answer(
+            packet, body.question, language=body.language, use_model=body.use_model
+        )
+        return JSONResponse(content=result.model_dump(mode="json"))
+
+    @app.post("/api/v1/sweep-runs/{run_id}/questions")
+    async def ask_sweep_run(run_id: str, body: _QuestionBody) -> JSONResponse:
+        packet = await run_in_threadpool(sweep_explanation_packet, sweep_runs.get(run_id))
+        result = await qa.answer(
+            packet, body.question, language=body.language, use_model=body.use_model
         )
         return JSONResponse(content=result.model_dump(mode="json"))
 

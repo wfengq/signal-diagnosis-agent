@@ -75,6 +75,8 @@
     } catch (error) {
       body.replaceChildren(el("p", `无法生成解释：${error.message}`, "muted"));
     }
+    // §33: questions about the same run, when the Q&A model is available.
+    if (window.SignalQA) window.SignalQA.attach(panel, url.replace(/\/explanation$/, "/questions"));
   }
 
   function hide(panelId) {

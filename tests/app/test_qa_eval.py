@@ -1,0 +1,68 @@
+"""T-CX517: result Q&A acceptance harness (D060 C), offline and scripted."""
+
+from __future__ import annotations
+
+import asyncio
+import json
+from pathlib import Path
+
+from signal_diag.agent.qa import ScriptedAnswerer
+from signal_diag.app.qa_eval import _run, load_cases
+from signal_diag.app.qa_service import AnswererIdentity, QAService
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def test_t_cx517_dev_questions_are_well_formed() -> None:
+    cases = load_cases("dev")
+    assert len(cases) == 40 and len({case["case_id"] for case in cases}) == 40
+    assert sum(case["expect"] == "decline" for case in cases) == 10
+    assert {case["language"] for case in cases} == {"zh", "en"}
+    assert all(0 < len(case["question"]) <= 500 for case in cases)
+
+
+def test_t_cx517_offline_harness_writes_the_acceptance_files(tmp_path: Path) -> None:
+    summary = asyncio.run(_run(ROOT, tmp_path, live=False))
+    assert summary["cases"] == 40 and summary["model_calls"] == 0
+    assert summary["expect"] == {"answer": 30, "decline": 10}
+    assert summary["groups"] == {"contextual_dev": 20, "sweep": 20}
+    # The deterministic answer declines every hardware question and no other.
+    assert summary["final_declined_when_expected"] == 10
+    assert summary["declined_when_answerable"] == 0
+    assert (
+        summary["validation_pass_rate"] is None
+        and summary["model_decline_rate"] is None
+    )
+    assert not summary["meets_validation_bar"] and not summary["meets_decline_bar"]
+    rows = [
+        json.loads(line)
+        for line in (tmp_path / "results.jsonl").read_text().splitlines()
+    ]
+    assert len(rows) == 40 and {row["source"] for row in rows} == {"template"}
+    review = (tmp_path / "review.md").read_text(encoding="utf-8")
+    assert review.count("- wrong statement:") == 20
+    assert all(line == line.rstrip() for line in review.splitlines())
+    for name in ("results.jsonl", "summary.json", "review.md"):
+        assert "DEEPSEEK_API_KEY" not in (tmp_path / name).read_text(encoding="utf-8")
+
+
+def test_t_cx517_live_mode_counts_fallbacks(tmp_path: Path) -> None:
+    service = QAService(
+        ScriptedAnswerer("not json"),
+        identity=AnswererIdentity(provider="scripted", model="s"),
+    )
+    summary = asyncio.run(_run(ROOT, tmp_path, live=True, service=service))
+    assert summary["model_calls"] == 40 and summary["model_answers"] == 0
+    assert (
+        summary["validation_pass_rate"] == 0.0 and summary["model_decline_rate"] == 0.0
+    )
+    assert summary["fallback_reasons"] == {"illegal_output": 40}
+    assert (
+        summary["meets_validation_bar"] is False
+        and summary["meets_decline_bar"] is False
+    )
+    rows = [
+        json.loads(line)
+        for line in (tmp_path / "results.jsonl").read_text().splitlines()
+    ]
+    assert all(row["rejected_answer"] == "not json" for row in rows)

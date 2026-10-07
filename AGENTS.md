@@ -55,8 +55,11 @@ D057: a deterministic questionnaire by default and an optional model draft
 (prompt `v0.3-s1-guide-1.1` since D059, off unless `SIGNAL_DIAG_GUIDE_MODEL=enabled`; the operator approved enabling it in deployment after `live_2`)
 that may only choose from a fixed plan catalog. D060 adds multi-round test
 sessions (§32): phase A is a deterministic rule policy with an offline
-sandbox; a model policy (phase B) may ship only if it beats the rule policy on
-frozen held-out scenarios.
+sandbox (accepted 20/20 on frozen held-out scenarios; phase B, a model policy,
+is deferred). Phase C adds result Q&A (§33): a deterministic answer by default
+and an optional model answer (prompt `v0.3-s1-qa-1.0`, off unless
+`SIGNAL_DIAG_QA_MODEL=enabled`) that must cite the run's evidence and decline
+what it cannot answer.
 No further planner prompt iterations are planned. See
 `docs/superpowers/specs/2026-10-07-route-adjustment-device-testing-design.md`.
 

@@ -992,5 +992,22 @@
     "qualification_recompute_unchanged": true,
     "scope": "D060 phase A: multi-round test sessions (app/test_session.py test-session-1.0, rule policy session-rules-1.0), offline sandbox app/session_eval.py with 30 development scenarios, session API/CLI/sweep-page panel; no model path; engine, sweep analysis, rules, thresholds, verdicts, guide, explanation layer, planner and intake prompts and frozen modules unchanged; model_calls=0",
     "selected_threshold_percent_unchanged": 5.0
+  },
+  {
+    "amendment_id": "d060_result_qa_phase_c",
+    "amendment_kind": "append_only_code_identity",
+    "calibration_recompute_unchanged": true,
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "created_at_utc": "2026-10-08T12:00:00+00:00",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "model_calls": 0,
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "product_tree_sha256": "8933ea3b53a6bb34f4ce1370b4cb8de6358ed1674c41d1bfec826fdba1f1ec10",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "qualification_recompute_unchanged": true,
+    "scope": "D060 phase C: result Q&A (app/result_qa.py result-qa-1.0 validator and deterministic answer, agent/qa.py prompt v0.3-s1-qa-1.0 behind SIGNAL_DIAG_QA_MODEL (off by default), app/qa_service.py, question endpoints for contextual and sweep runs, Web UI qa.js, offline harness app/qa_eval.py with 40 development questions); explanation.py gains a public check_sentence wrapper only; engine, sweep analysis, rules, thresholds, verdicts, session policy, guide, explanation checks, planner and intake prompts and frozen modules unchanged; model_calls=0",
+    "selected_threshold_percent_unchanged": 5.0
   }
 ]

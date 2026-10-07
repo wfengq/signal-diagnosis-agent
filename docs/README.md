@@ -63,12 +63,13 @@ Read these before changing behavior or public interfaces:
    - §29: sweep stimulus test (separate entry, D054); §29.1: pOD-set validation (D056).
    - §30: explanation layer (D055); §30.1: wording check 1.1 (D058).
    - §31: test guide (D057); §31.1: guide prompt 1.1 and held-out scenarios (D059).
-   - §32: multi-round test sessions (D060 phase A).
+   - §32: multi-round test sessions (D060 phase A; phase B deferred).
+   - §33: result Q&A (D060 phase C).
 
    Do not edit frozen §§1–64.
 4. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) (T001–T285) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) (T-CX series,
-   through T-CX512).
+   through T-CX517).
 5. [DECISIONS.md](DECISIONS.md): D001–D060.
 6. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): OQ-001–OQ-026.
    - OQ-013–OQ-018 resolve gaps between the current code and the frozen V0.2

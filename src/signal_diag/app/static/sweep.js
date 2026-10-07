@@ -121,6 +121,7 @@
   }
 
   window.SignalExplanation.loadAvailability();
+  window.SignalQA.loadAvailability();
   let plan = null;
   window.SignalGuide.loadPlanFromUrl().then((record) => {
     plan = record;

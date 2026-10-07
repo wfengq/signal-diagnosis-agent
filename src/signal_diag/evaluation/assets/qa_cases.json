@@ -1,0 +1,286 @@
+{
+  "schema": "qa_cases/1",
+  "note": "D060 C development questions; runs are explanation_eval case ids. expect=decline: the run's evidence cannot answer (hardware or out-of-scope).",
+  "cases": [
+    {
+      "case_id": "q01",
+      "run": "857fac53e4d2e57e",
+      "language": "zh",
+      "expect": "answer",
+      "question": "为什么判定为削波？"
+    },
+    {
+      "case_id": "q02",
+      "run": "857fac53e4d2e57e",
+      "language": "zh",
+      "expect": "answer",
+      "question": "削波比例是多少，演示阈值是多少？"
+    },
+    {
+      "case_id": "q03",
+      "run": "857fac53e4d2e57e",
+      "language": "zh",
+      "expect": "decline",
+      "question": "是喇叭坏了还是功放坏了？"
+    },
+    {
+      "case_id": "q04",
+      "run": "857fac53e4d2e57e",
+      "language": "en",
+      "expect": "answer",
+      "question": "What should I try next?"
+    },
+    {
+      "case_id": "q05",
+      "run": "a4a0853be9983f8c",
+      "language": "zh",
+      "expect": "answer",
+      "question": "谐波失真有多严重？"
+    },
+    {
+      "case_id": "q06",
+      "run": "a4a0853be9983f8c",
+      "language": "zh",
+      "expect": "answer",
+      "question": "有没有削波？"
+    },
+    {
+      "case_id": "q07",
+      "run": "a4a0853be9983f8c",
+      "language": "en",
+      "expect": "decline",
+      "question": "Which capacitor in the amplifier is causing this?"
+    },
+    {
+      "case_id": "q08",
+      "run": "a4a0853be9983f8c",
+      "language": "zh",
+      "expect": "answer",
+      "question": "这个结论是怎么得出的？"
+    },
+    {
+      "case_id": "q09",
+      "run": "6fb80bbda391c26c",
+      "language": "zh",
+      "expect": "answer",
+      "question": "削波和谐波失真都有吗？"
+    },
+    {
+      "case_id": "q10",
+      "run": "6fb80bbda391c26c",
+      "language": "en",
+      "expect": "answer",
+      "question": "Explain the THD result in simple terms."
+    },
+    {
+      "case_id": "q11",
+      "run": "6fb80bbda391c26c",
+      "language": "zh",
+      "expect": "decline",
+      "question": "换一根线缆能解决吗？"
+    },
+    {
+      "case_id": "q12",
+      "run": "6fb80bbda391c26c",
+      "language": "zh",
+      "expect": "answer",
+      "question": "下一步应该做什么？"
+    },
+    {
+      "case_id": "q13",
+      "run": "163185980dc8f7a4",
+      "language": "zh",
+      "expect": "answer",
+      "question": "为什么没有结论？"
+    },
+    {
+      "case_id": "q14",
+      "run": "163185980dc8f7a4",
+      "language": "zh",
+      "expect": "answer",
+      "question": "这是不是说明设备没问题？"
+    },
+    {
+      "case_id": "q15",
+      "run": "163185980dc8f7a4",
+      "language": "en",
+      "expect": "answer",
+      "question": "What would make this test conclusive?"
+    },
+    {
+      "case_id": "q16",
+      "run": "163185980dc8f7a4",
+      "language": "zh",
+      "expect": "decline",
+      "question": "电源纹波会不会导致这个？"
+    },
+    {
+      "case_id": "q17",
+      "run": "825a759a0ea47bb7",
+      "language": "zh",
+      "expect": "answer",
+      "question": "这台设备有失真吗？"
+    },
+    {
+      "case_id": "q18",
+      "run": "825a759a0ea47bb7",
+      "language": "en",
+      "expect": "answer",
+      "question": "Is there any clipping?"
+    },
+    {
+      "case_id": "q19",
+      "run": "825a759a0ea47bb7",
+      "language": "zh",
+      "expect": "decline",
+      "question": "我的扬声器还能用几年？"
+    },
+    {
+      "case_id": "q20",
+      "run": "825a759a0ea47bb7",
+      "language": "zh",
+      "expect": "answer",
+      "question": "测到的削波比例是多少？"
+    },
+    {
+      "case_id": "q21",
+      "run": "sweep_onset_three_levels",
+      "language": "zh",
+      "expect": "answer",
+      "question": "从哪个电平开始失真？"
+    },
+    {
+      "case_id": "q22",
+      "run": "sweep_onset_three_levels",
+      "language": "zh",
+      "expect": "answer",
+      "question": "-20 dB 时的情况怎么样？"
+    },
+    {
+      "case_id": "q23",
+      "run": "sweep_onset_three_levels",
+      "language": "en",
+      "expect": "decline",
+      "question": "Is the tweeter or the woofer distorting?"
+    },
+    {
+      "case_id": "q24",
+      "run": "sweep_onset_three_levels",
+      "language": "zh",
+      "expect": "answer",
+      "question": "应该把播放电平调到多少？"
+    },
+    {
+      "case_id": "q25",
+      "run": "sweep_clean",
+      "language": "zh",
+      "expect": "answer",
+      "question": "扫频结果说明了什么？"
+    },
+    {
+      "case_id": "q26",
+      "run": "sweep_clean",
+      "language": "en",
+      "expect": "answer",
+      "question": "Did any band fail?"
+    },
+    {
+      "case_id": "q27",
+      "run": "sweep_clean",
+      "language": "zh",
+      "expect": "decline",
+      "question": "这个功放值得买吗？"
+    },
+    {
+      "case_id": "q28",
+      "run": "sweep_clean",
+      "language": "zh",
+      "expect": "answer",
+      "question": "哪些频带测过了？"
+    },
+    {
+      "case_id": "q29",
+      "run": "sweep_recorder_full_scale",
+      "language": "zh",
+      "expect": "answer",
+      "question": "为什么说录音满幅？"
+    },
+    {
+      "case_id": "q30",
+      "run": "sweep_recorder_full_scale",
+      "language": "zh",
+      "expect": "answer",
+      "question": "满幅会影响结论吗？"
+    },
+    {
+      "case_id": "q31",
+      "run": "sweep_recorder_full_scale",
+      "language": "en",
+      "expect": "answer",
+      "question": "How do I fix the recording?"
+    },
+    {
+      "case_id": "q32",
+      "run": "sweep_recorder_full_scale",
+      "language": "zh",
+      "expect": "decline",
+      "question": "是声卡的放大器坏了吗？"
+    },
+    {
+      "case_id": "q33",
+      "run": "sweep_noisy",
+      "language": "zh",
+      "expect": "answer",
+      "question": "噪声大对结果有什么影响？"
+    },
+    {
+      "case_id": "q34",
+      "run": "sweep_noisy",
+      "language": "en",
+      "expect": "answer",
+      "question": "Why are some bands not measurable?"
+    },
+    {
+      "case_id": "q35",
+      "run": "sweep_noisy",
+      "language": "zh",
+      "expect": "answer",
+      "question": "要怎么重新测？"
+    },
+    {
+      "case_id": "q36",
+      "run": "sweep_noisy",
+      "language": "zh",
+      "expect": "decline",
+      "question": "是不是插头接触不良？"
+    },
+    {
+      "case_id": "q37",
+      "run": "sweep_hard_clip",
+      "language": "zh",
+      "expect": "answer",
+      "question": "削波发生在哪个电平？"
+    },
+    {
+      "case_id": "q38",
+      "run": "sweep_hard_clip",
+      "language": "en",
+      "expect": "answer",
+      "question": "How strong is the clipping?"
+    },
+    {
+      "case_id": "q39",
+      "run": "sweep_hard_clip",
+      "language": "zh",
+      "expect": "decline",
+      "question": "运放是不是饱和了？"
+    },
+    {
+      "case_id": "q40",
+      "run": "sweep_hard_clip",
+      "language": "zh",
+      "expect": "answer",
+      "question": "这个结果可信吗？"
+    }
+  ]
+}

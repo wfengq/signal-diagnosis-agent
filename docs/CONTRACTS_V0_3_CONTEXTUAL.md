@@ -2651,3 +2651,51 @@ final correctness ≥ 0.9 on 20 frozen held-out scenarios. A model policy
 `evaluation/assets/session_cases_heldout.json`) the rule policy scored 20/20
 with 2.1 mean rounds and 2 extra rounds
 (`docs/evaluations/v0_3/session/rule_heldout/`). It is the default policy.
+
+**Phase B (operator, 2026-10-07): deferred.** The rule policy stays the
+default; no model session policy is built now (D060).
+
+## 33. Result Q&A (D060, phase C)
+
+A user asks a question about one finished contextual or sweep run. The answer
+comes from the run's explanation packet (§30) only; the verdict never changes.
+
+**Answer** (`app/result_qa.py`, `result-qa-1.0`): `declined` (bool),
+`sentences` (each `text` and `refs`, as in §30) and `suggested_step` (null or a
+`step_id` from the packet's next-step menu). An answer has 1–4 sentences; a
+declined answer has at most 2. Every sentence passes the §30 sentence checks
+in the `meaning` section (length, citation, no identifiers in text, wording,
+numbers that are cited display values, no fault the cited items do not
+support) and may not name hardware components (speaker, driver, amplifier,
+capacitor, cable, power supply and their Chinese terms): the evidence cannot
+identify a faulty part, so such questions are declined.
+
+**Deterministic answer** (the default): a question that names a hardware
+component is declined with the first menu step suggested (if any); any other
+question gets the conclusion sentences of the template explanation. Display
+lines add a decline notice and the suggested step's menu text.
+
+**Model answer** (`agent/qa.py`, prompt `v0.3-s1-qa-1.0`): one call per
+question; the model receives only the language, the question and the packet,
+never waveforms, spectra or files. It is available only with
+`DEEPSEEK_API_KEY` and `SIGNAL_DIAG_QA_MODEL=enabled` (off by default).
+Asking for it while unavailable returns `planner_not_configured` (503). A
+provider error, illegal output or failed check returns the deterministic
+answer with `fallback_reason` (`provider_error`, `illegal_output`,
+`validation_failed:<check>`).
+
+**Surfaces.** API: `POST /api/v1/contextual-runs/{run_id}/questions` and
+`POST /api/v1/sweep-runs/{run_id}/questions` with `question` (1–500
+characters), `language` (`zh`/`en`) and `use_model`; the result carries
+`source`, `fallback_reason`, `answer`, `lines`, `packet_digest`, `qa_version`,
+`answerer` and `model_calls`. Health gains `qa` (`model_available`,
+`prompt_version`). Web: a question box under the explanation panel, shown only
+when the Q&A model is available.
+
+**Acceptance (D060).** `python -m signal_diag.app.qa_eval --out DIR [--cases
+dev|heldout] [--live]` writes `results.jsonl`, `summary.json` and
+`review.md`. The model path may be enabled only when, on 20 frozen held-out
+questions written by Cursor, the validation pass rate is ≥ 0.9, the model
+declines ≥ 0.9 of the questions the evidence cannot answer, and the operator
+finds no wrong statement in 20 reviewed answers. 40 development questions (10
+to decline) live in `evaluation/assets/qa_cases.json`.
