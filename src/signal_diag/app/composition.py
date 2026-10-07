@@ -9,11 +9,9 @@ from __future__ import annotations
 
 import os
 from collections.abc import Mapping
-from dataclasses import replace
 from importlib.resources import files
 from pathlib import Path
 
-from signal_diag.agent.engine import DeterministicDiagnosisEngine
 from signal_diag.agent.planner import (
     DEFAULT_DEEPSEEK_BASE_URL,
     DEFAULT_DEEPSEEK_MODEL,
@@ -58,31 +56,10 @@ def _corpus_path() -> Path:
     return _packaged_path("knowledge", "corpus")
 
 
-def build_engine_service(
-    *,
-    environ: Mapping[str, str] | None = None,
-) -> DiagnosisApplicationService:
-    """Product default (D053): the deterministic engine decides contextual verdicts.
-
-    The LLM planner stays available as an explicit ``diagnosis_path="planner"``
-    and free-text intake still needs DeepSeek credentials; neither falls back.
-    """
-    dependencies = replace(
-        _product_dependencies(environ),
-        engine_factory=DeterministicDiagnosisEngine,
-        default_diagnosis_path="engine",
-    )
-    return DiagnosisApplicationService(dependencies)
-
-
 def build_product_service(
     *,
     environ: Mapping[str, str] | None = None,
 ) -> DiagnosisApplicationService:
-    return DiagnosisApplicationService(_product_dependencies(environ))
-
-
-def _product_dependencies(environ: Mapping[str, str] | None) -> ApplicationDependencies:
     env = dict(os.environ) if environ is None else dict(environ)
     api_key = env.get("DEEPSEEK_API_KEY")
     base_url = env.get("DEEPSEEK_BASE_URL") or DEFAULT_DEEPSEEK_BASE_URL
@@ -124,4 +101,4 @@ def _product_dependencies(environ: Mapping[str, str] | None) -> ApplicationDepen
         knowledge_index=KnowledgeIndex(_corpus_path()),
         causal_policy_version="v9_11_mode_aware_no_fault_recovery",
     )
-    return dependencies
+    return DiagnosisApplicationService(dependencies)

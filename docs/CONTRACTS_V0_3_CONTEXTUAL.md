@@ -2068,7 +2068,8 @@ fault the engine retrieves knowledge by tag before finishing. Every claim cites
 same-run Evidence and rule evaluations and passes the unchanged finish
 validation.
 
-`build_engine_service` is the CLI and API default. A contextual submission
+`build_engine_service` (`app/engine_service.py`, reusing the unchanged
+`app/composition.py`) is the CLI and API default. A contextual submission
 takes an optional `diagnosis_path` (`engine` or `planner`). Its default is the
 service's `default_diagnosis_path`: `engine` for `build_engine_service`, and
 `planner` for the unchanged `build_product_service`. The planner path still

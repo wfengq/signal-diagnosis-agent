@@ -1291,6 +1291,7 @@ _V03_ADDITIVE_EXACT_PATHS = frozenset(
         "src/signal_diag/agent/state.py",
         "src/signal_diag/agent/telemetry.py",
         "src/signal_diag/agent/provider_telemetry.py",
+        "src/signal_diag/agent/engine.py",
         "src/signal_diag/app/composition.py",
         "src/signal_diag/dsp/__init__.py",
         "src/signal_diag/dsp/contextual.py",

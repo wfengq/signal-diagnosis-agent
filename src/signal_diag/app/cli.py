@@ -10,13 +10,13 @@ from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
-from signal_diag.app.composition import build_engine_service
 from signal_diag.app.contextual_models import ContextualDiagnosisReport
 from signal_diag.app.contextual_reporting import (
     build_contextual_diagnosis_report,
     render_contextual_report_html,
     render_contextual_report_json,
 )
+from signal_diag.app.engine_service import build_engine_service
 from signal_diag.app.errors import ApplicationError, sanitize_application_error
 from signal_diag.app.intake_flow import (
     CONTEXT_ORIGIN_INTAKE,

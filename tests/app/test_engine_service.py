@@ -13,13 +13,14 @@ from signal_diag.agent.engine import ENGINE_VERSION
 from signal_diag.agent.planner import RealLLMPlanner
 from signal_diag.app.api import create_app
 from signal_diag.app.cli import main
-from signal_diag.app.composition import build_engine_service, build_product_service
+from signal_diag.app.composition import build_product_service
 from signal_diag.app.contextual_reporting import (
     build_contextual_diagnosis_report,
     dump_contextual_snapshot,
     render_contextual_report_html,
     render_contextual_report_json,
 )
+from signal_diag.app.engine_service import build_engine_service
 from signal_diag.app.errors import InvalidRequestError, PlannerNotConfiguredError
 from signal_diag.app.pcm_wav import encode_pcm32_wav
 from tests.app.test_api import _client

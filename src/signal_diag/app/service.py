@@ -556,6 +556,14 @@ class DiagnosisApplicationService:
             return await waiter
         return await asyncio.wait_for(waiter, timeout=timeout_s)
 
+    def diagnosis_engine_status(self) -> dict[str, object]:
+        """§28 health fields for the diagnosis engine."""
+        return {
+            "available": self._dependencies.engine_factory is not None,
+            "engine_version": ENGINE_VERSION,
+            "default_path": self._dependencies.default_diagnosis_path,
+        }
+
     async def aclose(self) -> None:
         await self._executor.aclose()
         await self._contextual_executor.aclose()

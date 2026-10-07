@@ -15,8 +15,6 @@ from pydantic import BaseModel, ConfigDict, Field
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import Response as StarletteResponse
 
-from signal_diag.agent.engine import ENGINE_VERSION
-from signal_diag.app.composition import build_engine_service
 from signal_diag.app.contextual_models import ContextualAppRunSnapshot, DiagnosisPath
 from signal_diag.app.contextual_reporting import (
     build_contextual_diagnosis_report,
@@ -24,6 +22,7 @@ from signal_diag.app.contextual_reporting import (
     render_contextual_report_html,
     render_contextual_report_json,
 )
+from signal_diag.app.engine_service import build_engine_service
 from signal_diag.app.errors import (
     ApplicationError,
     ReportUnavailableError,
@@ -254,11 +253,7 @@ def create_app(
             "planner_configured": deps.planner_configured,
             "planner_identity": deps.planner_identity.model_dump(mode="json"),
             # §28 (D053): additive; the T264 fields above keep their meaning.
-            "diagnosis_engine": {
-                "available": deps.engine_factory is not None,
-                "engine_version": ENGINE_VERSION,
-                "default_path": deps.default_diagnosis_path,
-            },
+            "diagnosis_engine": _service(request).diagnosis_engine_status(),
         }
         return JSONResponse(content=payload)
 

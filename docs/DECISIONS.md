@@ -1144,6 +1144,7 @@ to the engine) and 4A (explain any shortfall and let the operator decide).
 on every channel is checked. In the product, the runtime analyses the one
 selected channel, which is a third of that.
 
-**Unchanged:** `build_product_service` and the frozen T213, T251, T264 and
-T282; the runtime and finish validation; rule thresholds; the V0.2 path; V0.2
+**Unchanged:** `app/composition.py` and `build_product_service` (the new
+builder lives in `app/engine_service.py`), and the frozen T213, T251, T264,
+T282 and T-CX301; the runtime and finish validation; rule thresholds; the V0.2 path; V0.2
 79/80 and every recorded study.
