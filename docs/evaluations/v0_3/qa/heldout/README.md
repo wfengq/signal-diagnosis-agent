@@ -3,7 +3,7 @@
 Frozen held-out question set for result Q&A acceptance (D060 C).
 
 **File:** `qa_cases_heldout.json`
-**SHA-256:** `b819fe7bde45324bb5cc9dd234419a7465db0c88f6780dfc59ffc650894f7edd`
+**SHA-256:** `c323c5ae60b69a0de0b582eb971f296f2159c9a66d94935613a50fddb57d781d`
 
 ## Independence
 
@@ -50,7 +50,7 @@ Written from the operator brief only. Did **not** read `src/signal_diag/app/resu
 
 | Trap | case_id |
 |------|---------|
-| Inconclusive as “no problem” | hq03, hq07 |
+| Inconclusive as "no problem" | hq03, hq07 |
 | Standards / certification | hq08 |
 | Numeric conversion (to dB) | hq15 |
 | What to do next | hq04, hq10 |
