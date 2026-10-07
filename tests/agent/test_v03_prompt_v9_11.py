@@ -839,8 +839,22 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert guide_11["prior_bridge_current_implementation_sha256"] == (
         review["current_implementation_sha256"]
     )
-    assert guide_11["current_implementation_sha256"] == contextual_implementation_sha256()
-    assert guide_11["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert guide_11["current_implementation_sha256"] == (
+        "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3"
+    )
+    assert guide_11["product_tree_sha256"] == (
+        "a27de110719e2ca24f8588980779eb5dd63df05be332a56ac810879b6b844f37"
+    )
     assert guide_11["prompt_sha256"] == oq014["prompt_sha256"]
     assert guide_11["prompt_version"] == "v0.3-s1-planner-9.11"
     assert guide_11["model_calls"] == 0
+    sessions = next(row for row in rows if row["amendment_id"] == "d060_test_sessions_phase_a")
+    assert sessions["amendment_kind"] == "append_only_code_identity"
+    assert sessions["prior_bridge_current_implementation_sha256"] == (
+        guide_11["current_implementation_sha256"]
+    )
+    assert sessions["current_implementation_sha256"] == contextual_implementation_sha256()
+    assert sessions["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert sessions["prompt_sha256"] == oq014["prompt_sha256"]
+    assert sessions["prompt_version"] == "v0.3-s1-planner-9.11"
+    assert sessions["model_calls"] == 0

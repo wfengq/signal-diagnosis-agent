@@ -684,3 +684,19 @@ alter T-CX001–T-CX497 meanings; T-CX488 and T-CX490 now expect prompt
 | T-CX499 | The rejection sink receives the check, detail and model text for invalid JSON, an extra parameter key (with its location) and a validation failure; nothing for an accepted draft or a questionnaire request; the result carries no rejection data |
 | T-CX500 | The held-out scenarios match the frozen SHA-256 in both copies, number 20 with the D059 distribution, repeat no development text, quote their own text, and each expected plan passes the validator |
 | T-CX501 | `guide_eval` runs the held-out set offline with no model call and full accuracy; rows and summary carry the case set, prompt version and rejection fields; a scripted live run records every rejection; no credential text or trailing whitespace is written |
+
+T-CX503–T-CX511 are additive definitions for D060 phase A
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §32). They make no model call and must not
+alter T-CX001–T-CX501 meanings. T-CX502 (a conditional D059 slot) is unused.
+
+| ID | Definition |
+|----|------------|
+| T-CX503 | Level labels round-trip; sessions start with checked answers and parameters and deterministic ids; invalid answers, rates and round limits are rejected |
+| T-CX504 | The validator rejects off-grid, unordered, too many, above-maximum and out-of-reach levels, uncited reasons, uncalled-for fixes, repeated tests, a second ask, actions while a test or question is open, actions after finishing, proposals with no rounds left or when the user cannot re-test, and each finish status whose condition does not hold |
+| T-CX505 | Resolution needs a clean level within 3 dB below the onset (or the −36 dB floor), clean levels up to the stated maximum, a settled recorder for full-scale results, valid judged levels, or a verdict from a starting contextual run |
+| T-CX506 | The rule policy starts with the default levels (capped), asks to re-test after an inconclusive start, tries fixes in order, asks about the recorder and then checks it, brackets onsets between, below and above tested levels, asks the maximum when all is clean, finishes on budget, and every step it takes passes the validator |
+| T-CX507 | The sandbox's oracle onset matches the engine, and whole sessions with bracketing, noise, recorder gain and a blocked user end correctly with a summary |
+| T-CX508 | The 30 development scenarios cover every tag and expected status; the harness runs selected scenarios offline with no model call and writes results and a summary without trailing whitespace |
+| T-CX509 | The API starts sessions, returns the next step, accepts matching sweep runs and answers, rejects mismatched runs, bad answers, bad parameters and non-sweep plans, and returns 404 for unknown sessions |
+| T-CX510 | CLI `session simulate` prints the steps, summary and correctness, emits JSON on request, and exits 2 for an unknown scenario |
+| T-CX511 | The sweep page has the session panel and loads `session.js`, which sets text without `innerHTML` and links analysed runs; the script is served as JavaScript |
