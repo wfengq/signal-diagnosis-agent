@@ -1434,3 +1434,12 @@ distribution only, without reading the rule policy; they are frozen under
 **Unchanged:** the engine, sweep analysis, rules, thresholds and verdicts; the
 explanation layer, test guide, questionnaire and plan catalog; V0.2 79/80 and
 every recorded run. New model paths stay off by default.
+
+**Phase A acceptance (2026-10-07):** on the 20 frozen held-out scenarios
+(#97) the rule policy `session-rules-1.0` scored final correctness 1.0
+(20/20), 2.1 mean rounds, 2 extra rounds, no model call
+(`docs/evaluations/v0_3/session/rule_heldout/`). It is the default session
+policy. With correctness already at 1.0 and 0.1 rounds above the minimum, a
+model policy cannot meet the 3A "clearly better" bar on scenarios of this
+kind; phase B is only worth pursuing if it targets what the sandbox does not
+model (free-text replies and constraints), which needs an operator decision.
