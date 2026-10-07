@@ -107,6 +107,7 @@
     byId("sweep-report-json").href = `${base}/report.json`;
     byId("sweep-report-html").href = `${base}/report.html`;
     byId("sweep-result").hidden = false;
+    window.SignalGuide.linkRun(plan, payload.run_id);
     window.SignalExplanation.show(
       {
         panel: "sweep-explanation-panel",
@@ -119,6 +120,18 @@
   }
 
   window.SignalExplanation.loadAvailability();
+  let plan = null;
+  window.SignalGuide.loadPlanFromUrl().then((record) => {
+    plan = record;
+    if (!record || record.plan_id !== "sweep_levels") return;
+    const rate = String(record.parameters.sample_rate_hz);
+    byId("sweep-rate").value = rate;
+    byId("stimulus-link").href = `/api/v1/sweep/stimulus?rate=${rate}`;
+    (record.parameters.level_labels || []).forEach((label, index) => {
+      const input = byId(`level-label-${index + 1}`);
+      if (input) input.value = label;
+    });
+  });
 
   byId("sweep-rate").addEventListener("change", (event) => {
     byId("stimulus-link").href = `/api/v1/sweep/stimulus?rate=${event.target.value}`;

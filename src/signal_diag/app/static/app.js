@@ -716,6 +716,9 @@ function renderTerminal(snapshot) {
     htmlLink.setAttribute("href", `${base}/report.html`);
     jsonLink.hidden = false;
     htmlLink.hidden = false;
+    if (isContextualSnapshot(snapshot) && activePlan) {
+      window.SignalGuide.linkRun(activePlan, snapshot.run_id);
+    }
     if (isContextualSnapshot(snapshot) && snapshot.result && snapshot.result.diagnosis) {
       window.SignalExplanation.show(
         {
@@ -791,6 +794,24 @@ function renderEvaluation(summary) {
 async function loadEvaluation() {
   const summary = await apiJson("/api/v1/evaluation-summary");
   renderEvaluation(summary);
+}
+
+/** §31: a confirmed test plan opened this page (?plan=...). */
+let activePlan = null;
+
+async function loadActivePlan() {
+  activePlan = await window.SignalGuide.loadPlanFromUrl();
+  if (!activePlan) return;
+  const mode = { paired_reference: "paired_reference", nominal_tone: "nominal_single_tone" }[activePlan.plan_id];
+  const panel = document.getElementById("manual-panel");
+  if (mode && panel) {
+    panel.open = true;
+    document.getElementById("diagnostic-mode").value = mode;
+    if (activePlan.parameters.nominal_fundamental_hz) {
+      document.getElementById("nominal-fundamental-hz").value = String(activePlan.parameters.nominal_fundamental_hz);
+    }
+    updateContextualFields();
+  }
 }
 
 async function loadPlannerHealth() {
@@ -1025,6 +1046,7 @@ function bindUi() {
   loadEvaluation().catch((error) => {
     showError(error instanceof Error ? error.message : String(error));
   });
+  loadActivePlan().catch(() => {});
 }
 
 /** Files chosen for intake, held in page memory until the user confirms (§25). */

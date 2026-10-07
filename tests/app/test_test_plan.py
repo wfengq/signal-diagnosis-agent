@@ -137,6 +137,8 @@ def test_t_cx485_validator_rejects_each_violation() -> None:
         plan_id="paired_reference", missing_fields=("reference_file",), rationale_quotes=("正弦波",)
     )
     _bad(one_file, TONE, "precondition")
+    no_files_yet = PlanDraft(plan_id="paired_reference", rationale_quotes=("发糊",))
+    validate_plan_draft(no_files_yet, GuideRequest(text="新版本听起来比旧版本发糊"))
     foreign = PlanDraft(
         plan_id="paired_reference",
         parameters=PlanParameters(test_file="new.wav", reference_file="other.wav"),
@@ -177,7 +179,10 @@ def test_t_cx487_only_sent_values_are_confirmed_and_plans_link_to_runs() -> None
     with pytest.raises(PlanRejected):
         confirm_plan(ConfirmRequest(plan_id="sweep_levels", source="model", sample_rate_hz=48_000, level_labels=("a",)))
     with pytest.raises(PlanRejected):
-        confirm_plan(ConfirmRequest(plan_id="paired_reference", source="model", test_file="a.wav"))
+        confirm_plan(
+            ConfirmRequest(plan_id="paired_reference", source="model", test_file="a.wav", reference_file="a.wav")
+        )
+    assert confirm_plan(ConfirmRequest(plan_id="paired_reference", source="model")).next_page.startswith("/?plan=")
     with pytest.raises(PlanRejected):
         confirm_plan(ConfirmRequest(plan_id="nominal_tone", source="model", nominal_fundamental_hz=-5.0))
     with pytest.raises(PlanRejected):

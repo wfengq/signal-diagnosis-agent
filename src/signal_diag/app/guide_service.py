@@ -8,6 +8,7 @@ with the reason recorded.
 
 from __future__ import annotations
 
+import html
 import json
 from collections.abc import Mapping
 from typing import Literal
@@ -31,6 +32,7 @@ from signal_diag.app.test_plan import (
     QUESTIONNAIRE,
     GuideRequest,
     PlanDraft,
+    PlanRecord,
     PlanRejected,
     Question,
     validate_plan_draft,
@@ -119,6 +121,21 @@ class GuideService:
             await self._guide.aclose()
 
 
+def render_plan_html(record: PlanRecord) -> str:
+    """Report section for a run started from a confirmed test plan."""
+    zh = record.language == "zh"
+    title = "测试方案" if zh else "Test plan"
+    lines = "".join(f"<li>{html.escape(step)}</li>" for step in record.steps)
+    note = (
+        f"按测试方案 {record.plan_key}（{record.plan_id}，{record.version}，来源：{record.source}）执行。"
+        if zh
+        else f"Run from test plan {record.plan_key} ({record.plan_id}, {record.version}, source: {record.source})."
+    )
+    return (
+        f'<section id="test-plan"><h2>{title}</h2><p>{html.escape(note)}</p><ol>{lines}</ol></section>'
+    )
+
+
 def build_guide_service(environ: Mapping[str, str]) -> GuideService:
     """Questionnaire only unless credentials exist and the model path is enabled."""
     api_key = environ.get("DEEPSEEK_API_KEY", "").strip()
@@ -142,4 +159,5 @@ __all__ = [
     "GuideStatus",
     "build_guide_service",
     "guide_payload",
+    "render_plan_html",
 ]

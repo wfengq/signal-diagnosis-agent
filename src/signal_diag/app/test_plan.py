@@ -156,7 +156,9 @@ def validate_plan_draft(draft: PlanDraft, request: GuideRequest) -> None:
         if not quote.strip() or quote not in request.text:
             raise PlanRejected("quote", "quotes must be exact substrings of the user's text")
     missing = set(draft.missing_fields)
-    if draft.plan_id == "paired_reference":
+    # Files are usually chosen after the plan; when some are already uploaded,
+    # a paired plan needs two of them and must choose or ask for the reference.
+    if draft.plan_id == "paired_reference" and files:
         if len(files) < 2:
             raise PlanRejected("precondition", "paired reference needs two uploaded files")
         if p.reference_file is None and "reference_file" not in missing:
@@ -386,8 +388,6 @@ def confirm_plan(confirmed: ConfirmRequest) -> PlanRecord:
             raise PlanRejected("parameters", "confirm a connection")
     elif confirmed.sample_rate_hz is not None or confirmed.level_labels or confirmed.connection:
         raise PlanRejected("parameters", "sweep parameters on a non-sweep plan")
-    if plan == "paired_reference" and not (confirmed.test_file and confirmed.reference_file):
-        raise PlanRejected("parameters", "confirm the test and reference files")
     if confirmed.reference_file is not None and confirmed.reference_file == confirmed.test_file:
         raise PlanRejected("parameters", "reference is the test file")
     hz = confirmed.nominal_fundamental_hz
