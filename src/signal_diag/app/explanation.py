@@ -775,7 +775,7 @@ def _conclusion(packet: ExplanationPacket, language: Language) -> list[Explanati
         text = _FAULT_TEXT[language][claim.label]
         sentences.append(
             ExplanationSentence(
-                text=("结论：" + text + "。") if language == "zh" else ("Conclusion: " + text + "."),
+                text=(text + "。") if language == "zh" else (text[:1].upper() + text[1:] + "."),
                 refs=(claim.ref_id,),
             )
         )

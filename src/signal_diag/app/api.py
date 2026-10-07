@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
@@ -31,6 +32,14 @@ from signal_diag.app.errors import (
     RunNotFoundError,
     RunNotTerminalError,
     sanitize_application_error,
+)
+from signal_diag.app.explanation_service import (
+    ExplanationResult,
+    ExplanationService,
+    build_explanation_service,
+    contextual_explanation_packet,
+    render_explanation_html,
+    sweep_explanation_packet,
 )
 from signal_diag.app.intake_flow import ContextOrigin
 from signal_diag.app.models import (
@@ -79,6 +88,7 @@ _STATIC_MEDIA_TYPES = {
     "intake_flow.js": "text/javascript; charset=utf-8",
     "regression.js": "text/javascript; charset=utf-8",
     "sweep.js": "text/javascript; charset=utf-8",
+    "explanation.js": "text/javascript; charset=utf-8",
 }
 _STATUS_BY_CODE = {
     "invalid_request": 422,
@@ -191,11 +201,34 @@ def _completed_contextual_snapshot(
     return snapshot
 
 
+class _ExplainBody(BaseModel):
+    """§30: template by default; ``use_model`` asks for the AI rewrite."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    language: Literal["zh", "en"] = "zh"
+    use_model: bool = False
+
+
+def _explanation_parts(
+    result: ExplanationResult | None,
+) -> tuple[dict[str, object] | None, str | None]:
+    if result is None:
+        return None, None
+    return result.model_dump(mode="json"), render_explanation_html(result)
+
+
 def create_app(
     service: DiagnosisApplicationService | None = None,
+    explanation_service: ExplanationService | None = None,
 ) -> FastAPI:
     owned = service is None
     bound = service if service is not None else build_engine_service()
+    explainer = (
+        explanation_service
+        if explanation_service is not None
+        else build_explanation_service(os.environ)
+    )
 
     regression_service = build_regression_service()
 
@@ -210,6 +243,8 @@ def create_app(
             if owned:
                 await bound.aclose()
             await regression_service.aclose()
+            if explanation_service is None:
+                await explainer.aclose()
 
     app = FastAPI(lifespan=lifespan, title="Signal Diagnosis Agent")
     app.state.service = bound
@@ -275,6 +310,8 @@ def create_app(
             "planner_identity": deps.planner_identity.model_dump(mode="json"),
             # §28 (D053): additive; the T264 fields above keep their meaning.
             "diagnosis_engine": _service(request).diagnosis_engine_status(),
+            # §30 (D055): additive.
+            "explanation": explainer.status().model_dump(mode="json"),
         }
         return JSONResponse(content=payload)
 
@@ -408,8 +445,9 @@ def create_app(
         report = build_contextual_diagnosis_report(
             snapshot, generated_at=datetime.now(UTC)
         )
+        explanation, _ = _explanation_parts(explainer.latest(snapshot.run_id))
         return Response(
-            content=render_contextual_report_json(report),
+            content=render_contextual_report_json(report, explanation=explanation),
             media_type="application/json",
             headers={
                 "Content-Disposition": (
@@ -425,8 +463,9 @@ def create_app(
         report = build_contextual_diagnosis_report(
             snapshot, generated_at=datetime.now(UTC)
         )
+        _, explanation_html = _explanation_parts(explainer.latest(snapshot.run_id))
         return Response(
-            content=render_contextual_report_html(report),
+            content=render_contextual_report_html(report, explanation_html=explanation_html),
             media_type="text/html; charset=utf-8",
             headers={
                 "Content-Disposition": (
@@ -483,8 +522,11 @@ def create_app(
         built = build_sweep_report(
             sweep_runs.get(run_id), generated_at=datetime.now(UTC)
         )
+        explanation, explanation_html = _explanation_parts(explainer.latest(run_id))
         content = (
-            render_sweep_json(built) if kind == "json" else render_sweep_html(built)
+            render_sweep_json(built, explanation=explanation)
+            if kind == "json"
+            else render_sweep_html(built, explanation_html=explanation_html)
         )
         media = "application/json" if kind == "json" else "text/html; charset=utf-8"
         return Response(
@@ -495,6 +537,25 @@ def create_app(
                 "Content-Security-Policy": _CSP,
             },
         )
+
+    @app.post("/api/v1/contextual-runs/{run_id}/explanation")
+    async def explain_contextual_run(
+        request: Request, run_id: str, body: _ExplainBody
+    ) -> JSONResponse:
+        snapshot = _completed_contextual_snapshot(request, run_id)
+        packet = contextual_explanation_packet(snapshot)
+        result = await explainer.explain(
+            packet, language=body.language, use_model=body.use_model
+        )
+        return JSONResponse(content=result.model_dump(mode="json"))
+
+    @app.post("/api/v1/sweep-runs/{run_id}/explanation")
+    async def explain_sweep_run(run_id: str, body: _ExplainBody) -> JSONResponse:
+        packet = await run_in_threadpool(sweep_explanation_packet, sweep_runs.get(run_id))
+        result = await explainer.explain(
+            packet, language=body.language, use_model=body.use_model
+        )
+        return JSONResponse(content=result.model_dump(mode="json"))
 
     @app.get("/")
     async def root() -> Response:

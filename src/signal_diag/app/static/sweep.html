@@ -89,6 +89,14 @@
         <tbody id="sweep-table-body"></tbody>
       </table>
       <p class="muted">“不可测”：该频带噪声底过高，或谐波超出奈奎斯特频率，不参与判定。</p>
+      <section id="sweep-explanation-panel" hidden>
+        <h3>解释</h3>
+        <div id="sweep-explanation-body"></div>
+        <p>
+          <button id="sweep-explanation-model" type="button" hidden>用 AI 改写成更易读的说明</button>
+          <span id="sweep-explanation-status" class="muted" role="status" aria-live="polite"></span>
+        </p>
+      </section>
       <h3>诊断依据（Claims）</h3>
       <div id="sweep-claims"></div>
       <p>
@@ -97,6 +105,7 @@
       </p>
     </section>
   </main>
+  <script src="/static/explanation.js"></script>
   <script src="/static/sweep.js"></script>
 </body>
 </html>

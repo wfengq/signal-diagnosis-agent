@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import json
+from collections.abc import Mapping
 from datetime import datetime
 from typing import Any
 
@@ -55,8 +56,13 @@ def build_sweep_report(
     return SweepReport(generated_at=generated_at, diagnosis=diagnosis)
 
 
-def render_sweep_json(report: SweepReport) -> str:
-    return json.dumps(report.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+def render_sweep_json(
+    report: SweepReport, *, explanation: Mapping[str, object] | None = None
+) -> str:
+    payload = report.model_dump(mode="json")
+    if explanation is not None:
+        payload["explanation"] = dict(explanation)
+    return json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
 
 
 def sweep_payload(diagnosis: SweepDiagnosis) -> dict[str, Any]:
@@ -256,7 +262,7 @@ def _level_section(level: SweepLevelResult) -> str:
     )
 
 
-def render_sweep_html(report: SweepReport) -> str:
+def render_sweep_html(report: SweepReport, *, explanation_html: str | None = None) -> str:
     diagnosis = report.diagnosis
     return "".join(
         [
@@ -291,6 +297,7 @@ def render_sweep_html(report: SweepReport) -> str:
             _band_table(diagnosis),
             "</section>",
             *(_level_section(level) for level in diagnosis.levels),
+            explanation_html or "",
             "</body></html>",
         ]
     )
