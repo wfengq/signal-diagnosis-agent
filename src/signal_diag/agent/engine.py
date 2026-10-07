@@ -310,8 +310,10 @@ _STATEMENTS = {
 def _mode_limitations(mode: str) -> tuple[str, ...]:
     if mode == "single_signal":
         return (
-            "Single-file mode: harmonic distortion is not attributed without a reference "
-            "or declared fundamental (D037).",
+            (
+                "Single-file mode: harmonic distortion is not attributed without a "
+                "reference or declared fundamental (D037)."
+            ),
         )
     return ()
 
