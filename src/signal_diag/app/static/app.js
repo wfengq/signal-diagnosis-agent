@@ -535,6 +535,12 @@ const FAULT_LABELS = {
   harmonic_distortion: "谐波失真（harmonic distortion）",
 };
 
+const LOCALIZATION_SCOPE = {
+  none: "没有声明单音基频或参考文件，只定位削波，不扫描谐波失真。",
+  nominal_thd: "已用声明的基频逐窗口扫描谐波失真和削波。",
+  reference_growth: "谐波失真按不重叠的 0.25 秒窗口与参考文件的同一时间段比较增长；削波仍按上述窗口扫描。",
+};
+
 function renderLocalization(snapshot) {
   const panel = document.getElementById("localization-panel");
   const list = document.getElementById("localization-list");
@@ -545,9 +551,15 @@ function renderLocalization(snapshot) {
     return;
   }
   panel.hidden = false;
-  document.getElementById("localization-scope").textContent = localization.harmonic_scanned
-    ? "已用声明的基频逐窗口扫描谐波失真和削波。"
-    : "没有声明单音基频，只定位削波，不扫描谐波失真。";
+  document.getElementById("localization-scope").textContent =
+    LOCALIZATION_SCOPE[localization.harmonic_basis] || LOCALIZATION_SCOPE.none;
+  if (localization.windows_not_comparable) {
+    appendText(
+      document.getElementById("localization-scope"),
+      "span",
+      ` 有 ${localization.windows_not_comparable} 个窗口无法与参考比较（对齐、基频或参考削波不满足）。`,
+    );
+  }
   const intervals = localization.intervals || [];
   if (!intervals.length) {
     appendText(list, "li", "扫描没有发现任何分段规则失败，没有需要定位的故障。");

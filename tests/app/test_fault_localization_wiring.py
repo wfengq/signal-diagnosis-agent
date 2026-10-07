@@ -129,7 +129,7 @@ async def test_t_cx439_reports_show_the_locations() -> None:
     assert 0.8 <= clipping[0].start_s <= 1.0 and 1.5 <= clipping[0].end_s <= 1.7
 
     dumped = dump_contextual_snapshot(snapshot)
-    assert dumped["fault_localization"]["scan_version"] == "product-segment-scan-1.0"
+    assert dumped["fault_localization"]["scan_version"] == "product-segment-scan-1.1"
     report = build_contextual_diagnosis_report(
         snapshot, generated_at=snapshot.finished_at  # type: ignore[arg-type]
     )
@@ -160,7 +160,7 @@ def test_t_cx439_cli_prints_the_locations(
     )
     out = capsys.readouterr().out
     assert code == 0
-    assert "fault_localization: product-segment-scan-1.0" in out
+    assert "fault_localization: product-segment-scan-1.1" in out
     assert "clipping mixdown" in out and "(review needed)" in out
 
 
@@ -174,6 +174,108 @@ def test_t_cx439_page_renders_the_panel() -> None:
     assert "fault_localization" in script
     assert "需要复核" in script
     assert 'id="localization-scope"' in html
-    assert "localization.harmonic_scanned" in script
+    assert "localization.harmonic_basis" in script
     for sink in ("innerHTML", "outerHTML", "insertAdjacentHTML", "document.write"):
         assert sink not in script
+
+
+def _paired_wavs() -> tuple[bytes, bytes]:
+    rate = 8_000
+    t = np.arange(2 * rate) / rate
+    reference = 0.4 * np.sin(2 * np.pi * 220.0 * t) + 0.1 * np.sin(2 * np.pi * 440.0 * t)
+    test = reference.copy()
+    span = slice(rate, rate + rate // 2)
+    burst = test[span]
+    test[span] = burst + 0.6 * burst**2 / np.max(np.abs(burst))
+
+    def encode(samples: np.ndarray) -> bytes:
+        return encode_pcm32_wav(samples.astype(np.float32).reshape(-1, 1), sample_rate_hz=rate)
+
+    return encode(test), encode(reference)
+
+
+async def _run_paired(service: DiagnosisApplicationService) -> Any:
+    test, reference = _paired_wavs()
+    submission = await service.submit_contextual_wav(
+        test,
+        test_filename="burst.wav",
+        mode="paired_reference",
+        reference_data=reference,
+        reference_filename="clean.wav",
+        nominal_fundamental_hz=None,
+        stimulus_kind=None,
+        user_request=QUESTION,
+    )
+    return await service.wait_for_contextual_terminal(submission.run_id)
+
+
+@pytest.mark.asyncio
+async def test_t_cx445_paired_runs_localize_harmonics_and_report_the_basis() -> None:
+    service = _service()
+    snapshot = await _run_paired(service)
+    await service.aclose()
+    localization = snapshot.fault_localization
+    assert localization is not None
+    assert localization.harmonic_basis == "reference_growth"
+    assert localization.comparison_overlap == 0.0
+    assert localization.windows_not_comparable is not None
+    harmonic = [i for i in localization.intervals if i.fault == "harmonic_distortion"]
+    assert harmonic and all(i.start_s < 1.5 and i.end_s > 1.0 for i in harmonic)
+
+    dumped = dump_contextual_snapshot(snapshot)["fault_localization"]
+    assert dumped["harmonic_basis"] == "reference_growth"
+    assert dumped["windows_not_comparable"] == localization.windows_not_comparable
+    report = build_contextual_diagnosis_report(
+        snapshot, generated_at=snapshot.finished_at  # type: ignore[arg-type]
+    )
+    html = render_contextual_report_html(report)
+    assert "compared with the same span of the reference" in html
+    assert "could not be compared" in html
+
+
+@pytest.mark.asyncio
+async def test_t_cx445_single_file_output_omits_the_paired_fields() -> None:
+    service = _service()
+    snapshot = await _run(service)
+    await service.aclose()
+    dumped = dump_contextual_snapshot(snapshot)["fault_localization"]
+    for name in ("harmonic_basis", "comparison_overlap", "windows_not_comparable"):
+        assert name not in dumped
+    report = build_contextual_diagnosis_report(
+        snapshot, generated_at=snapshot.finished_at  # type: ignore[arg-type]
+    )
+    payload = json.loads(render_contextual_report_json(report))["fault_localization"]
+    assert "harmonic_basis" not in payload
+    assert "harmonic windows not scanned" in render_contextual_report_html(report)
+
+
+def test_t_cx445_page_and_cli_follow_the_basis(
+    capsys: pytest.CaptureFixture[str], tmp_path: Path
+) -> None:
+    script = (
+        Path(__file__).resolve().parents[2] / "src/signal_diag/app/static/app.js"
+    ).read_text(encoding="utf-8")
+    assert "LOCALIZATION_SCOPE[localization.harmonic_basis]" in script
+    assert "reference_growth:" in script and "nominal_thd:" in script
+    assert "windows_not_comparable" in script
+
+    test, reference = _paired_wavs()
+    (tmp_path / "burst.wav").write_bytes(test)
+    (tmp_path / "clean.wav").write_bytes(reference)
+    code = main(
+        [
+            "diagnose",
+            "contextual",
+            str(tmp_path / "burst.wav"),
+            "--mode",
+            "paired_reference",
+            "--reference",
+            str(tmp_path / "clean.wav"),
+        ],
+        service_factory=_service,
+    )
+    out = capsys.readouterr().out
+    assert code == 0
+    assert "harmonic_basis: reference_growth" in out
+    assert "windows_not_comparable:" in out
+    assert "harmonic_distortion mixdown" in out

@@ -268,6 +268,10 @@ def _print_contextual_text_report(report: ContextualDiagnosisReport) -> None:
     localization = report.fault_localization
     if localization is not None:
         print(f"fault_localization: {localization.scan_version}")
+        if localization.harmonic_basis is not None:
+            print(f"  harmonic_basis: {localization.harmonic_basis}")
+        if localization.windows_not_comparable is not None:
+            print(f"  windows_not_comparable: {localization.windows_not_comparable}")
         if not localization.intervals:
             print("  no segment rule failed")
         for interval in localization.intervals:

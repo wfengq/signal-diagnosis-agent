@@ -1999,3 +1999,33 @@ snapshot and report JSON omit it, so earlier report shapes are unchanged. The
 HTML report adds a `fault-localization` section, the CLI text output adds
 `fault_localization:` lines, and the Web UI shows a 故障位置 panel. The V0.2
 single-file run path is not scanned.
+
+### 27.1 Paired-reference harmonic localization (D051)
+
+The scan version is `product-segment-scan-1.1`. In `single_signal` and
+`nominal_single_tone` its intervals, Evidence and rule evaluations equal those of
+1.0; only `scan_version` changes. Only stereo files are scanned on `left` and
+`right`; files with more than two channels are scanned on `mixdown` only.
+
+In `paired_reference`, after the clipping scan, each channel is also compared
+with the reference over non-overlapping 0.25 s windows (`comparison_overlap =
+0.0`). Each window calls `analyze_contextual_distortion` through
+`GuardedSignalToolService` with the same time range on both files; the tool's
+own in-window alignment applies, and positions are on the test file's
+timeline. A mono reference serves both channels of a stereo test file. The
+window's Evidence is judged by `profile_s1_contextual_comparison_v9_10`
+(unchanged demonstration thresholds). The window supports harmonic distortion
+when `rule_contextual_analysis_valid`, `rule_contextual_f0_compatible`,
+`rule_reference_clipping_ratio_acceptable` and `rule_reference_flat_top_absent`
+PASS and `rule_even_harmonic_growth_acceptable` FAILs, which is the product's
+whole-file paired gate. Such an interval cites all five evaluations, so
+`rule_evaluations` may contain PASS gate evaluations. A window where a gate rule
+does not PASS, or the tool returns no Evidence (for example the window extends
+past the reference), counts as not comparable and supports no fault.
+
+`fault_localization` adds optional fields, omitted when unset:
+`harmonic_basis` (`nominal_thd` in `nominal_single_tone` with a declared
+fundamental, `reference_growth` in `paired_reference`), and, in
+`paired_reference` only, `comparison_overlap` and `windows_not_comparable`. The
+HTML report, CLI text and Web UI describe the basis and the not-comparable
+count.

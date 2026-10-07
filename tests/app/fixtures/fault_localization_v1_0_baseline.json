@@ -1,0 +1,4245 @@
+{
+ "held-t2-00|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": true,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-00|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-01|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": true,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-01|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-02|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": true,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-02|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-03|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": true,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-03|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-04|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": true,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-04|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-05|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": true,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-05|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-06|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": true,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-06|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-07|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": true,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-07|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-08|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": true,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-08|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-09|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": true,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-09|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-10|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": true,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-10|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-11|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": true,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-11|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-12|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_analyze_harmonic_distortion_000015",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 43.70684651307179
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000017",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 87.50041746661668
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000019",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.375,
+     "start_s": 1.125
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 43.79439198869534
+   }
+  ],
+  "harmonic_scanned": true,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": false,
+    "channel": "mixdown",
+    "end_s": 1.375,
+    "evaluation_refs": [
+     "ruleval_3e25ef2906e5d06c",
+     "ruleval_773f435476bca0a1",
+     "ruleval_28e23cc1efed576a"
+    ],
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002"
+    ],
+    "fault": "harmonic_distortion",
+    "start_s": 0.875
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_3e25ef2906e5d06c",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 43.70684651307179,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_773f435476bca0a1",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 87.50041746661668,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_28e23cc1efed576a",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 43.79439198869534,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   }
+  ],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-12|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-13|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_analyze_harmonic_distortion_000015",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 43.70684651307179
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000017",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 87.50041746661668
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000019",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.375,
+     "start_s": 1.125
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 43.79439198869534
+   }
+  ],
+  "harmonic_scanned": true,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": false,
+    "channel": "mixdown",
+    "end_s": 1.375,
+    "evaluation_refs": [
+     "ruleval_3e25ef2906e5d06c",
+     "ruleval_773f435476bca0a1",
+     "ruleval_28e23cc1efed576a"
+    ],
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002"
+    ],
+    "fault": "harmonic_distortion",
+    "start_s": 0.875
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_3e25ef2906e5d06c",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 43.70684651307179,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_773f435476bca0a1",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 87.50041746661668,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_28e23cc1efed576a",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 43.79439198869534,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   }
+  ],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-13|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-14|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_analyze_harmonic_distortion_000015",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 43.70684651307179
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000017",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 87.50041746661668
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000019",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.375,
+     "start_s": 1.125
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 43.79439198869534
+   }
+  ],
+  "harmonic_scanned": true,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": false,
+    "channel": "mixdown",
+    "end_s": 1.375,
+    "evaluation_refs": [
+     "ruleval_3e25ef2906e5d06c",
+     "ruleval_773f435476bca0a1",
+     "ruleval_28e23cc1efed576a"
+    ],
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002"
+    ],
+    "fault": "harmonic_distortion",
+    "start_s": 0.875
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_3e25ef2906e5d06c",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 43.70684651307179,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_773f435476bca0a1",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 87.50041746661668,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_28e23cc1efed576a",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 43.79439198869534,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   }
+  ],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-14|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-15|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_analyze_harmonic_distortion_000015",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 43.70684651307179
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000017",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 87.50041746661668
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000019",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.375,
+     "start_s": 1.125
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 43.79439198869534
+   }
+  ],
+  "harmonic_scanned": true,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": false,
+    "channel": "mixdown",
+    "end_s": 1.375,
+    "evaluation_refs": [
+     "ruleval_3e25ef2906e5d06c",
+     "ruleval_773f435476bca0a1",
+     "ruleval_28e23cc1efed576a"
+    ],
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002"
+    ],
+    "fault": "harmonic_distortion",
+    "start_s": 0.875
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_3e25ef2906e5d06c",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 43.70684651307179,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_773f435476bca0a1",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 87.50041746661668,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_28e23cc1efed576a",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 43.79439198869534,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   }
+  ],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-15|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-16|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_analyze_harmonic_distortion_000015",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 43.70684651307179
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000017",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 87.50041746661668
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000019",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.375,
+     "start_s": 1.125
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 43.79439198869534
+   }
+  ],
+  "harmonic_scanned": true,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": false,
+    "channel": "mixdown",
+    "end_s": 1.375,
+    "evaluation_refs": [
+     "ruleval_3e25ef2906e5d06c",
+     "ruleval_773f435476bca0a1",
+     "ruleval_28e23cc1efed576a"
+    ],
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002"
+    ],
+    "fault": "harmonic_distortion",
+    "start_s": 0.875
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_3e25ef2906e5d06c",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 43.70684651307179,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_773f435476bca0a1",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 87.50041746661668,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_28e23cc1efed576a",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 43.79439198869534,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   }
+  ],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-16|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-17|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_analyze_harmonic_distortion_000015",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 43.70684651307179
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000017",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 87.50041746661668
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000019",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.375,
+     "start_s": 1.125
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 43.79439198869534
+   }
+  ],
+  "harmonic_scanned": true,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": false,
+    "channel": "mixdown",
+    "end_s": 1.375,
+    "evaluation_refs": [
+     "ruleval_3e25ef2906e5d06c",
+     "ruleval_773f435476bca0a1",
+     "ruleval_28e23cc1efed576a"
+    ],
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002"
+    ],
+    "fault": "harmonic_distortion",
+    "start_s": 0.875
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_3e25ef2906e5d06c",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000015_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 43.70684651307179,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_773f435476bca0a1",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000017_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 87.50041746661668,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_28e23cc1efed576a",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000019_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 43.79439198869534,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   }
+  ],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-17|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [],
+  "harmonic_scanned": false,
+  "intervals": [],
+  "overlap": 0.5,
+  "rule_evaluations": [],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-18|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_detect_clipping_000014",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000014_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000014",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000014_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000014",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000014_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000016",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000016_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000016",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000016_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000016",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000016_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   }
+  ],
+  "harmonic_scanned": true,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": true,
+    "channel": "mixdown",
+    "end_s": 1.25,
+    "evaluation_refs": [
+     "ruleval_a2d4abdeeb2b728a",
+     "ruleval_171adf025b9a5f32",
+     "ruleval_d1bb48ae6e0e53e6",
+     "ruleval_019781557adad53b",
+     "ruleval_3ba2e6a4e7b4ed58",
+     "ruleval_6344aaecc2311b0a"
+    ],
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000014_000",
+     "ev_detect_clipping_detect_clipping_000014_001",
+     "ev_detect_clipping_detect_clipping_000014_006",
+     "ev_detect_clipping_detect_clipping_000016_000",
+     "ev_detect_clipping_detect_clipping_000016_001",
+     "ev_detect_clipping_detect_clipping_000016_006"
+    ],
+    "fault": "clipping",
+    "start_s": 0.875
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_a2d4abdeeb2b728a",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000014_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_019781557adad53b",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000016_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_171adf025b9a5f32",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000014_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_3ba2e6a4e7b4ed58",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000016_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_d1bb48ae6e0e53e6",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000014_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_6344aaecc2311b0a",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000016_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   }
+  ],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-18|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_detect_clipping_000007",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000007_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000007",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000007_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000007",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000007_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   }
+  ],
+  "harmonic_scanned": false,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": true,
+    "channel": "mixdown",
+    "end_s": 1.25,
+    "evaluation_refs": [
+     "ruleval_267fcb6ee585a1e5",
+     "ruleval_400dc0aef1806d53",
+     "ruleval_532b476bbdfb4609",
+     "ruleval_993e173d4b2331fa",
+     "ruleval_ac78175804ea9e54",
+     "ruleval_cb1947a1107fd498"
+    ],
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000007_000",
+     "ev_detect_clipping_detect_clipping_000007_001",
+     "ev_detect_clipping_detect_clipping_000007_006",
+     "ev_detect_clipping_detect_clipping_000008_000",
+     "ev_detect_clipping_detect_clipping_000008_001",
+     "ev_detect_clipping_detect_clipping_000008_006"
+    ],
+    "fault": "clipping",
+    "start_s": 0.875
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_267fcb6ee585a1e5",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000007_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_993e173d4b2331fa",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_400dc0aef1806d53",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000007_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_ac78175804ea9e54",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_532b476bbdfb4609",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000007_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_cb1947a1107fd498",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   }
+  ],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-19|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_detect_clipping_000014",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000014_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000014",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000014_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000014",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000014_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000016",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000016_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000016",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000016_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000016",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000016_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   }
+  ],
+  "harmonic_scanned": true,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": true,
+    "channel": "mixdown",
+    "end_s": 1.25,
+    "evaluation_refs": [
+     "ruleval_a2d4abdeeb2b728a",
+     "ruleval_171adf025b9a5f32",
+     "ruleval_d1bb48ae6e0e53e6",
+     "ruleval_019781557adad53b",
+     "ruleval_3ba2e6a4e7b4ed58",
+     "ruleval_6344aaecc2311b0a"
+    ],
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000014_000",
+     "ev_detect_clipping_detect_clipping_000014_001",
+     "ev_detect_clipping_detect_clipping_000014_006",
+     "ev_detect_clipping_detect_clipping_000016_000",
+     "ev_detect_clipping_detect_clipping_000016_001",
+     "ev_detect_clipping_detect_clipping_000016_006"
+    ],
+    "fault": "clipping",
+    "start_s": 0.875
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_a2d4abdeeb2b728a",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000014_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_019781557adad53b",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000016_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_171adf025b9a5f32",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000014_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_3ba2e6a4e7b4ed58",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000016_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_d1bb48ae6e0e53e6",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000014_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_6344aaecc2311b0a",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000016_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   }
+  ],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-19|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_detect_clipping_000007",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000007_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000007",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000007_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000007",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000007_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   }
+  ],
+  "harmonic_scanned": false,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": true,
+    "channel": "mixdown",
+    "end_s": 1.25,
+    "evaluation_refs": [
+     "ruleval_267fcb6ee585a1e5",
+     "ruleval_400dc0aef1806d53",
+     "ruleval_532b476bbdfb4609",
+     "ruleval_993e173d4b2331fa",
+     "ruleval_ac78175804ea9e54",
+     "ruleval_cb1947a1107fd498"
+    ],
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000007_000",
+     "ev_detect_clipping_detect_clipping_000007_001",
+     "ev_detect_clipping_detect_clipping_000007_006",
+     "ev_detect_clipping_detect_clipping_000008_000",
+     "ev_detect_clipping_detect_clipping_000008_001",
+     "ev_detect_clipping_detect_clipping_000008_006"
+    ],
+    "fault": "clipping",
+    "start_s": 0.875
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_267fcb6ee585a1e5",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000007_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_993e173d4b2331fa",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_400dc0aef1806d53",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000007_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_ac78175804ea9e54",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_532b476bbdfb4609",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000007_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_cb1947a1107fd498",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   }
+  ],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-20|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_detect_clipping_000014",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000014_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000014",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000014_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000014",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000014_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000016",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000016_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000016",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000016_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000016",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000016_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   }
+  ],
+  "harmonic_scanned": true,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": true,
+    "channel": "mixdown",
+    "end_s": 1.25,
+    "evaluation_refs": [
+     "ruleval_a2d4abdeeb2b728a",
+     "ruleval_171adf025b9a5f32",
+     "ruleval_d1bb48ae6e0e53e6",
+     "ruleval_019781557adad53b",
+     "ruleval_3ba2e6a4e7b4ed58",
+     "ruleval_6344aaecc2311b0a"
+    ],
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000014_000",
+     "ev_detect_clipping_detect_clipping_000014_001",
+     "ev_detect_clipping_detect_clipping_000014_006",
+     "ev_detect_clipping_detect_clipping_000016_000",
+     "ev_detect_clipping_detect_clipping_000016_001",
+     "ev_detect_clipping_detect_clipping_000016_006"
+    ],
+    "fault": "clipping",
+    "start_s": 0.875
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_a2d4abdeeb2b728a",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000014_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_019781557adad53b",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000016_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_171adf025b9a5f32",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000014_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_3ba2e6a4e7b4ed58",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000016_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_d1bb48ae6e0e53e6",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000014_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_6344aaecc2311b0a",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000016_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   }
+  ],
+  "tool_calls": 30,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-20|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_detect_clipping_000007",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000007_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000007",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000007_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000007",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000007_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.125,
+     "start_s": 0.875
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 1.25,
+     "start_s": 1.0
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   }
+  ],
+  "harmonic_scanned": false,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": true,
+    "channel": "mixdown",
+    "end_s": 1.25,
+    "evaluation_refs": [
+     "ruleval_267fcb6ee585a1e5",
+     "ruleval_400dc0aef1806d53",
+     "ruleval_532b476bbdfb4609",
+     "ruleval_993e173d4b2331fa",
+     "ruleval_ac78175804ea9e54",
+     "ruleval_cb1947a1107fd498"
+    ],
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000007_000",
+     "ev_detect_clipping_detect_clipping_000007_001",
+     "ev_detect_clipping_detect_clipping_000007_006",
+     "ev_detect_clipping_detect_clipping_000008_000",
+     "ev_detect_clipping_detect_clipping_000008_001",
+     "ev_detect_clipping_detect_clipping_000008_006"
+    ],
+    "fault": "clipping",
+    "start_s": 0.875
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_267fcb6ee585a1e5",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000007_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_993e173d4b2331fa",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_400dc0aef1806d53",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000007_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_ac78175804ea9e54",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_532b476bbdfb4609",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000007_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_cb1947a1107fd498",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   }
+  ],
+  "tool_calls": 15,
+  "window_s": 0.25,
+  "windows_scanned": 15
+ },
+ "held-t2-21|nominal_single_tone": {
+  "channels": [
+   "left",
+   "right",
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_detect_clipping_000006",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000006_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000006",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000006_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.5
+   },
+   {
+    "call_id": "call_detect_clipping_000006",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000006_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.8
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000010",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000010_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.875,
+     "start_s": 0.625
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000010",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000010_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.875,
+     "start_s": 0.625
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.3
+   },
+   {
+    "call_id": "call_detect_clipping_000010",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000010_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.875,
+     "start_s": 0.625
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   }
+  ],
+  "harmonic_scanned": true,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": true,
+    "channel": "left",
+    "end_s": 0.875,
+    "evaluation_refs": [
+     "ruleval_2f44e9d3b4aea450",
+     "ruleval_b0af764707b3d418",
+     "ruleval_68d382aab821a2c5",
+     "ruleval_8ebbea20054da8ba",
+     "ruleval_3010d62491cb14f1",
+     "ruleval_0116f95fc3d2714f",
+     "ruleval_e4e080594969bbda",
+     "ruleval_9ca0e454d7ea8f2d",
+     "ruleval_d90b98478b1248e8"
+    ],
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000006_000",
+     "ev_detect_clipping_detect_clipping_000006_001",
+     "ev_detect_clipping_detect_clipping_000006_006",
+     "ev_detect_clipping_detect_clipping_000008_000",
+     "ev_detect_clipping_detect_clipping_000008_001",
+     "ev_detect_clipping_detect_clipping_000008_006",
+     "ev_detect_clipping_detect_clipping_000010_000",
+     "ev_detect_clipping_detect_clipping_000010_001",
+     "ev_detect_clipping_detect_clipping_000010_006"
+    ],
+    "fault": "clipping",
+    "start_s": 0.375
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_2f44e9d3b4aea450",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000006_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_8ebbea20054da8ba",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_e4e080594969bbda",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000010_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_b0af764707b3d418",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000006_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.5,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_3010d62491cb14f1",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.8,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_9ca0e454d7ea8f2d",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000010_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.3,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_68d382aab821a2c5",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000006_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_0116f95fc3d2714f",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_d90b98478b1248e8",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000010_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   }
+  ],
+  "tool_calls": 90,
+  "window_s": 0.25,
+  "windows_scanned": 45
+ },
+ "held-t2-21|single_signal": {
+  "channels": [
+   "left",
+   "right",
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_detect_clipping_000003",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000003_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000003",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000003_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.5
+   },
+   {
+    "call_id": "call_detect_clipping_000003",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000003_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000004",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000004_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000004",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000004_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.8
+   },
+   {
+    "call_id": "call_detect_clipping_000004",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000004_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000005",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000005_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.875,
+     "start_s": 0.625
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000005",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000005_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.875,
+     "start_s": 0.625
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.3
+   },
+   {
+    "call_id": "call_detect_clipping_000005",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000005_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.875,
+     "start_s": 0.625
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   }
+  ],
+  "harmonic_scanned": false,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": true,
+    "channel": "left",
+    "end_s": 0.875,
+    "evaluation_refs": [
+     "ruleval_ebf2a12e6abdb6c1",
+     "ruleval_e9358e247b2d28e2",
+     "ruleval_d24081bd92c68f83",
+     "ruleval_8bf3efa7e7548c61",
+     "ruleval_f5df62ea9ddecc14",
+     "ruleval_83cdc946fad1aa76",
+     "ruleval_8ee50c9676fe88af",
+     "ruleval_8907a46da5feb208",
+     "ruleval_bcbb3a253ccdb002"
+    ],
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000003_000",
+     "ev_detect_clipping_detect_clipping_000003_001",
+     "ev_detect_clipping_detect_clipping_000003_006",
+     "ev_detect_clipping_detect_clipping_000004_000",
+     "ev_detect_clipping_detect_clipping_000004_001",
+     "ev_detect_clipping_detect_clipping_000004_006",
+     "ev_detect_clipping_detect_clipping_000005_000",
+     "ev_detect_clipping_detect_clipping_000005_001",
+     "ev_detect_clipping_detect_clipping_000005_006"
+    ],
+    "fault": "clipping",
+    "start_s": 0.375
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_ebf2a12e6abdb6c1",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000003_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_8bf3efa7e7548c61",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000004_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_8ee50c9676fe88af",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000005_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_e9358e247b2d28e2",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000003_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.5,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_f5df62ea9ddecc14",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000004_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.8,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_8907a46da5feb208",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000005_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.3,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_d24081bd92c68f83",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000003_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_83cdc946fad1aa76",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000004_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_bcbb3a253ccdb002",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000005_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   }
+  ],
+  "tool_calls": 45,
+  "window_s": 0.25,
+  "windows_scanned": 45
+ },
+ "held-t2-22|nominal_single_tone": {
+  "channels": [
+   "left",
+   "right",
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_detect_clipping_000006",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000006_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000006",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000006_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.5
+   },
+   {
+    "call_id": "call_detect_clipping_000006",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000006_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.8
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000010",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000010_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.875,
+     "start_s": 0.625
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000010",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000010_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.875,
+     "start_s": 0.625
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.3
+   },
+   {
+    "call_id": "call_detect_clipping_000010",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000010_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.875,
+     "start_s": 0.625
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   }
+  ],
+  "harmonic_scanned": true,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": true,
+    "channel": "left",
+    "end_s": 0.875,
+    "evaluation_refs": [
+     "ruleval_2f44e9d3b4aea450",
+     "ruleval_b0af764707b3d418",
+     "ruleval_68d382aab821a2c5",
+     "ruleval_8ebbea20054da8ba",
+     "ruleval_3010d62491cb14f1",
+     "ruleval_0116f95fc3d2714f",
+     "ruleval_e4e080594969bbda",
+     "ruleval_9ca0e454d7ea8f2d",
+     "ruleval_d90b98478b1248e8"
+    ],
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000006_000",
+     "ev_detect_clipping_detect_clipping_000006_001",
+     "ev_detect_clipping_detect_clipping_000006_006",
+     "ev_detect_clipping_detect_clipping_000008_000",
+     "ev_detect_clipping_detect_clipping_000008_001",
+     "ev_detect_clipping_detect_clipping_000008_006",
+     "ev_detect_clipping_detect_clipping_000010_000",
+     "ev_detect_clipping_detect_clipping_000010_001",
+     "ev_detect_clipping_detect_clipping_000010_006"
+    ],
+    "fault": "clipping",
+    "start_s": 0.375
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_2f44e9d3b4aea450",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000006_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_8ebbea20054da8ba",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_e4e080594969bbda",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000010_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_b0af764707b3d418",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000006_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.5,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_3010d62491cb14f1",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.8,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_9ca0e454d7ea8f2d",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000010_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.3,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_68d382aab821a2c5",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000006_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_0116f95fc3d2714f",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_d90b98478b1248e8",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000010_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   }
+  ],
+  "tool_calls": 90,
+  "window_s": 0.25,
+  "windows_scanned": 45
+ },
+ "held-t2-22|single_signal": {
+  "channels": [
+   "left",
+   "right",
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_detect_clipping_000003",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000003_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000003",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000003_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.5
+   },
+   {
+    "call_id": "call_detect_clipping_000003",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000003_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000004",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000004_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000004",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000004_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.8
+   },
+   {
+    "call_id": "call_detect_clipping_000004",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000004_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000005",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000005_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.875,
+     "start_s": 0.625
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000005",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000005_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.875,
+     "start_s": 0.625
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.3
+   },
+   {
+    "call_id": "call_detect_clipping_000005",
+    "channel": "left",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000005_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.875,
+     "start_s": 0.625
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   }
+  ],
+  "harmonic_scanned": false,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": true,
+    "channel": "left",
+    "end_s": 0.875,
+    "evaluation_refs": [
+     "ruleval_ebf2a12e6abdb6c1",
+     "ruleval_e9358e247b2d28e2",
+     "ruleval_d24081bd92c68f83",
+     "ruleval_8bf3efa7e7548c61",
+     "ruleval_f5df62ea9ddecc14",
+     "ruleval_83cdc946fad1aa76",
+     "ruleval_8ee50c9676fe88af",
+     "ruleval_8907a46da5feb208",
+     "ruleval_bcbb3a253ccdb002"
+    ],
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000003_000",
+     "ev_detect_clipping_detect_clipping_000003_001",
+     "ev_detect_clipping_detect_clipping_000003_006",
+     "ev_detect_clipping_detect_clipping_000004_000",
+     "ev_detect_clipping_detect_clipping_000004_001",
+     "ev_detect_clipping_detect_clipping_000004_006",
+     "ev_detect_clipping_detect_clipping_000005_000",
+     "ev_detect_clipping_detect_clipping_000005_001",
+     "ev_detect_clipping_detect_clipping_000005_006"
+    ],
+    "fault": "clipping",
+    "start_s": 0.375
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_ebf2a12e6abdb6c1",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000003_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_8bf3efa7e7548c61",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000004_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_8ee50c9676fe88af",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000005_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_e9358e247b2d28e2",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000003_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.5,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_f5df62ea9ddecc14",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000004_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.8,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_8907a46da5feb208",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000005_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.3,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_d24081bd92c68f83",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000003_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_83cdc946fad1aa76",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000004_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_bcbb3a253ccdb002",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000005_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   }
+  ],
+  "tool_calls": 45,
+  "window_s": 0.25,
+  "windows_scanned": 45
+ },
+ "held-t2-23|nominal_single_tone": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_analyze_harmonic_distortion_000001",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 0.25,
+     "start_s": 0.0
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 12.500024892046932
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000003",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000003_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 0.375,
+     "start_s": 0.125
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 12.500024892046932
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000005",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000005_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 0.5,
+     "start_s": 0.25
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 12.500024892046932
+   },
+   {
+    "call_id": "call_detect_clipping_000006",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000006_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000006",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000006_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000006",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000006_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000008",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000008_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000009",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000009_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 12.654971703276043
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000011",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000011_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 0.875,
+     "start_s": 0.625
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 12.500024892046932
+   },
+   {
+    "call_id": "call_analyze_harmonic_distortion_000013",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000013_002",
+    "metric": "thd_percent",
+    "source_tool": "analyze_harmonic_distortion",
+    "time_range": {
+     "end_s": 1.0,
+     "start_s": 0.75
+    },
+    "unit": "%",
+    "validity": "valid",
+    "value": 12.500024892046932
+   }
+  ],
+  "harmonic_scanned": true,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": true,
+    "channel": "mixdown",
+    "end_s": 0.75,
+    "evaluation_refs": [
+     "ruleval_2f44e9d3b4aea450",
+     "ruleval_1f8c12ebf997a1ca",
+     "ruleval_68d382aab821a2c5",
+     "ruleval_8ebbea20054da8ba",
+     "ruleval_9a23d9cff5ff6670",
+     "ruleval_0116f95fc3d2714f"
+    ],
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000006_000",
+     "ev_detect_clipping_detect_clipping_000006_001",
+     "ev_detect_clipping_detect_clipping_000006_006",
+     "ev_detect_clipping_detect_clipping_000008_000",
+     "ev_detect_clipping_detect_clipping_000008_001",
+     "ev_detect_clipping_detect_clipping_000008_006"
+    ],
+    "fault": "clipping",
+    "start_s": 0.375
+   },
+   {
+    "agrees_with_diagnosis": false,
+    "channel": "mixdown",
+    "end_s": 1.0,
+    "evaluation_refs": [
+     "ruleval_139c9b9a83147ccd",
+     "ruleval_1d0ee521354fe70d",
+     "ruleval_ae7149291dda805c",
+     "ruleval_57e46636dc72304b",
+     "ruleval_7ccb26f67b6ee7cf",
+     "ruleval_6351f2293e107693"
+    ],
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000003_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000005_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000009_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000011_002",
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000013_002"
+    ],
+    "fault": "harmonic_distortion",
+    "start_s": 0.0
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_2f44e9d3b4aea450",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000006_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_8ebbea20054da8ba",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_1f8c12ebf997a1ca",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000006_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_9a23d9cff5ff6670",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_68d382aab821a2c5",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000006_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_0116f95fc3d2714f",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000008_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_139c9b9a83147ccd",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000001_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 12.500024892046932,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_1d0ee521354fe70d",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000003_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 12.500024892046932,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_ae7149291dda805c",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000005_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 12.500024892046932,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_57e46636dc72304b",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000009_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 12.654971703276043,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_7ccb26f67b6ee7cf",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000011_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 12.500024892046932,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_6351f2293e107693",
+    "evidence_refs": [
+     "ev_analyze_harmonic_distortion_analyze_harmonic_distortion_000013_002"
+    ],
+    "judgment": "fail",
+    "observed_value": 12.500024892046932,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_thd_acceptable",
+    "threshold": 5.0
+   }
+  ],
+  "tool_calls": 14,
+  "window_s": 0.25,
+  "windows_scanned": 7
+ },
+ "held-t2-23|single_signal": {
+  "channels": [
+   "mixdown"
+  ],
+  "evidence": [
+   {
+    "call_id": "call_detect_clipping_000003",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000003_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000003",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000003_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000003",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000003_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.625,
+     "start_s": 0.375
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000004",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000004_000",
+    "metric": "clipping_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   },
+   {
+    "call_id": "call_detect_clipping_000004",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000004_001",
+    "metric": "clipping_ratio",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": 0.2
+   },
+   {
+    "call_id": "call_detect_clipping_000004",
+    "channel": "mixdown",
+    "confidence": null,
+    "evidence_id": "ev_detect_clipping_detect_clipping_000004_006",
+    "metric": "flat_top_detected",
+    "source_tool": "detect_clipping",
+    "time_range": {
+     "end_s": 0.75,
+     "start_s": 0.5
+    },
+    "unit": null,
+    "validity": "valid",
+    "value": true
+   }
+  ],
+  "harmonic_scanned": false,
+  "intervals": [
+   {
+    "agrees_with_diagnosis": true,
+    "channel": "mixdown",
+    "end_s": 0.75,
+    "evaluation_refs": [
+     "ruleval_ebf2a12e6abdb6c1",
+     "ruleval_8cc2cefcef935c66",
+     "ruleval_d24081bd92c68f83",
+     "ruleval_8bf3efa7e7548c61",
+     "ruleval_b0fdee994fefa2da",
+     "ruleval_83cdc946fad1aa76"
+    ],
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000003_000",
+     "ev_detect_clipping_detect_clipping_000003_001",
+     "ev_detect_clipping_detect_clipping_000003_006",
+     "ev_detect_clipping_detect_clipping_000004_000",
+     "ev_detect_clipping_detect_clipping_000004_001",
+     "ev_detect_clipping_detect_clipping_000004_006"
+    ],
+    "fault": "clipping",
+    "start_s": 0.375
+   }
+  ],
+  "overlap": 0.5,
+  "rule_evaluations": [
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_ebf2a12e6abdb6c1",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000003_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_8bf3efa7e7548c61",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000004_000"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_detected_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_8cc2cefcef935c66",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000003_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "lte",
+    "evaluation_id": "ruleval_b0fdee994fefa2da",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000004_001"
+    ],
+    "judgment": "fail",
+    "observed_value": 0.2,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_clipping_ratio_acceptable",
+    "threshold": 0.01
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_d24081bd92c68f83",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000003_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   },
+   {
+    "comparator": "eq",
+    "evaluation_id": "ruleval_83cdc946fad1aa76",
+    "evidence_refs": [
+     "ev_detect_clipping_detect_clipping_000004_006"
+    ],
+    "judgment": "fail",
+    "observed_value": true,
+    "profile_id": "profile_s1_segment_evidence",
+    "profile_version": "1.0.0-demo",
+    "reason": null,
+    "rule_id": "rule_flat_top_absent",
+    "threshold": false
+   }
+  ],
+  "tool_calls": 7,
+  "window_s": 0.25,
+  "windows_scanned": 7
+ }
+}
