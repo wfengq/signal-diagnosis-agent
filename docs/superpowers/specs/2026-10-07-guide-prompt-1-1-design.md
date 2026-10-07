@@ -1,7 +1,7 @@
 # D057 修订：测试向导提示词 1.1、拒绝记录与留出场景（设计，D059）
 
 日期：2026-10-07
-状态：草案，等待操作员批准（§9）。
+状态：已批准（操作员 2026-10-07，§9 四项均选 A；D059）。
 上位依据：D057（第 4 阶段测试向导，§31）、D058（解释层拒绝记录的做法）、D052、AGENTS.md。
 起因：真实模型验收 `docs/evaluations/v0_3/guide/live_1/`（wfengq/signal-diagnosis-agent#91）未达门槛。
 
@@ -97,7 +97,7 @@ g31 里，模型把干声和压缩后的录音弄反了：参考录音应该是 
 
 40 个开发场景已经用来定位问题，提示词又是照着它们改的。如果 `live_2` 还只用这 40 个打分，结果会偏高。
 
-因此新增 20 个**留出场景** `evaluation/assets/guide_cases_heldout.json`：
+因此新增 20 个**留出场景**。先由 Cursor 写入 `docs/evaluations/v0_3/guide/heldout/guide_cases_heldout.json`，单独开 PR 并合并，作为冻结版本；这个 PR 只改文档目录，不影响产品代码身份。之后实现时，再把它逐字节复制到 `evaluation/assets/guide_cases_heldout.json`，并用测试保证两份文件的 SHA-256 相同。格式与 `guide_cases.json` 相同（`guide_cases/1`）。
 
 - **分布：** `sweep_levels` 8 个（线路 3、麦克风 2、数字 2、冲突 1），`existing_recording` 4 个，`paired_reference` 4 个，`nominal_tone` 4 个。
 - **语言：** 约三分之一是英文。
