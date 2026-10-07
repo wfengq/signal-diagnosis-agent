@@ -15,8 +15,9 @@ from pydantic import BaseModel, ConfigDict, Field
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import Response as StarletteResponse
 
-from signal_diag.app.composition import build_product_service
-from signal_diag.app.contextual_models import ContextualAppRunSnapshot
+from signal_diag.agent.engine import ENGINE_VERSION
+from signal_diag.app.composition import build_engine_service
+from signal_diag.app.contextual_models import ContextualAppRunSnapshot, DiagnosisPath
 from signal_diag.app.contextual_reporting import (
     build_contextual_diagnosis_report,
     dump_contextual_snapshot,
@@ -175,7 +176,7 @@ def create_app(
     service: DiagnosisApplicationService | None = None,
 ) -> FastAPI:
     owned = service is None
-    bound = service if service is not None else build_product_service()
+    bound = service if service is not None else build_engine_service()
 
     regression_service = build_regression_service()
 
@@ -252,6 +253,12 @@ def create_app(
             "status": "ok",
             "planner_configured": deps.planner_configured,
             "planner_identity": deps.planner_identity.model_dump(mode="json"),
+            # §28 (D053): additive; the T264 fields above keep their meaning.
+            "diagnosis_engine": {
+                "available": deps.engine_factory is not None,
+                "engine_version": ENGINE_VERSION,
+                "default_path": deps.default_diagnosis_path,
+            },
         }
         return JSONResponse(content=payload)
 
@@ -370,6 +377,7 @@ def create_app(
             user_request=parsed.user_request,
             channel=parsed.channel,
             context_origin=cast(ContextOrigin | None, parsed.context_origin),
+            diagnosis_path=cast(DiagnosisPath | None, parsed.diagnosis_path),
         )
         return JSONResponse(status_code=202, content=submission.model_dump(mode="json"))
 

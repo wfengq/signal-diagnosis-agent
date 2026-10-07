@@ -10,7 +10,7 @@ from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
-from signal_diag.app.composition import build_product_service
+from signal_diag.app.composition import build_engine_service
 from signal_diag.app.contextual_models import ContextualDiagnosisReport
 from signal_diag.app.contextual_reporting import (
     build_contextual_diagnosis_report,
@@ -121,6 +121,12 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("single_signal", "nominal_single_tone", "paired_reference"),
     )
     contextual.add_argument("--reference", type=Path, default=None)
+    contextual.add_argument(
+        "--diagnosis-path",
+        choices=("engine", "planner"),
+        default=None,
+        help="engine (default, deterministic) or planner (RealLLMPlanner, needs credentials)",
+    )
     contextual.add_argument("--nominal-fundamental-hz", type=float, default=None)
     contextual.add_argument(
         "--stimulus-kind",
@@ -265,6 +271,11 @@ def _print_contextual_text_report(report: ContextualDiagnosisReport) -> None:
         print(f"stimulus_kind: {context.stimulus_kind}")
     if report.context_origin is not None:
         print(f"context_source: {report.context_origin}")
+    identity = report.diagnosis_identity
+    if identity is not None and identity.kind == "deterministic_engine":
+        print(f"diagnosis: deterministic engine {identity.engine_version}")
+    elif report.planner_identity is not None:
+        print(f"diagnosis: planner {report.planner_identity.prompt_version}")
     localization = report.fault_localization
     if localization is not None:
         print(f"fault_localization: {localization.scan_version}")
@@ -476,6 +487,11 @@ async def _diagnose(
                 stimulus_kind=args.stimulus_kind,
                 user_request=args.question,
                 channel=args.channel,
+                **(
+                    {"diagnosis_path": args.diagnosis_path}
+                    if args.diagnosis_path is not None
+                    else {}
+                ),
             )
             return await _finish_contextual(args, service, contextual_submission.run_id)
 
@@ -737,7 +753,7 @@ async def _intake_diagnose(
 def main(
     argv: Sequence[str] | None = None,
     *,
-    service_factory: Callable[[], DiagnosisApplicationService] = build_product_service,
+    service_factory: Callable[[], DiagnosisApplicationService] = build_engine_service,
 ) -> int:
     parser = build_parser()
     try:

@@ -66,6 +66,7 @@ def build_contextual_diagnosis_report(
         analyzed_channel=snapshot.analyzed_channel,
         user_request=snapshot.user_request,
         planner_identity=snapshot.planner_identity,
+        diagnosis_identity=snapshot.diagnosis_identity,
         test_preview=snapshot.test_preview,
         trace_events=snapshot.trace_events,
         result=result,
@@ -89,7 +90,12 @@ def _unset_optional_fields(
     # §25/§27: unset optional additions are omitted, so older runs keep their shape.
     unset: dict[str, Any] = {
         name: True
-        for name in ("context_origin", "fault_localization")
+        for name in (
+            "context_origin",
+            "fault_localization",
+            "planner_identity",
+            "diagnosis_identity",
+        )
         if getattr(model, name) is None
     }
     localization = model.fault_localization
@@ -206,7 +212,8 @@ def render_contextual_report_html(report: ContextualDiagnosisReport) -> str:
     reference_source = data.get("reference_source")
     context = data["stimulus_context"]
     capabilities = data["effective_capabilities"]
-    planner = data["planner_identity"]
+    planner = data.get("planner_identity")
+    identity = data.get("diagnosis_identity")
     preview = data["test_preview"]
     result = data["result"]
     diagnosis = result.get("diagnosis")
@@ -319,17 +326,35 @@ def render_contextual_report_html(report: ContextualDiagnosisReport) -> str:
     parts.extend(
         [
             "</section>",
-            '<section id="planner">',
-            "<h2>Planner identity</h2>",
-            "<dl>",
-            f"<dt>provider</dt><dd>{_esc(planner['provider'])}</dd>",
-            f"<dt>model</dt><dd>{_esc(planner['model'])}</dd>",
-            f"<dt>prompt</dt><dd>{_esc(planner['prompt_version'])}</dd>",
-            "</dl>",
         ]
     )
-    if not planner.get("phase4_certified_default"):
-        parts.append(f"<p>{_esc(_UNCERTIFIED_LABEL)}</p>")
+    if identity is not None and identity["kind"] == "deterministic_engine":
+        parts.extend(
+            [
+                '<section id="diagnosis-engine">',
+                "<h2>Diagnosis engine</h2>",
+                (
+                    "<p>The verdict was reached by the deterministic engine "
+                    f"{_esc(identity['engine_version'])} from versioned rules "
+                    f"({_esc(', '.join(identity['rule_profiles']))}); "
+                    "no model decided it.</p>"
+                ),
+            ]
+        )
+    if planner is not None:
+        parts.extend(
+            [
+                '<section id="planner">',
+                "<h2>Planner identity</h2>",
+                "<dl>",
+                f"<dt>provider</dt><dd>{_esc(planner['provider'])}</dd>",
+                f"<dt>model</dt><dd>{_esc(planner['model'])}</dd>",
+                f"<dt>prompt</dt><dd>{_esc(planner['prompt_version'])}</dd>",
+                "</dl>",
+            ]
+        )
+        if not planner.get("phase4_certified_default"):
+            parts.append(f"<p>{_esc(_UNCERTIFIED_LABEL)}</p>")
     parts.extend(
         [
             "</section>",

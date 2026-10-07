@@ -200,9 +200,11 @@ _CONTEXTUAL_ALLOWED_FIELDS = frozenset(
         "user_request",
         "channel",
         "context_origin",
+        "diagnosis_path",
     }
 )
 _CONTEXTUAL_ORIGINS = frozenset({"intake_confirmed"})
+_DIAGNOSIS_PATHS = frozenset({"engine", "planner"})
 _CONTEXTUAL_REQUIRED_FIELDS = frozenset(
     {"test_file", "mode", "user_request", "channel"}
 )
@@ -227,6 +229,7 @@ class _ContextualParseState:
     user_request: bytes | None = None
     channel: bytes | None = None
     context_origin: bytes | None = None
+    diagnosis_path: bytes | None = None
     seen: set[str] = field(default_factory=set)
     current_name: str | None = None
     header_field: bytearray = field(default_factory=bytearray)
@@ -247,6 +250,7 @@ class ParsedContextualWavUpload:
     user_request: str
     channel: ChannelMode
     context_origin: str | None = None
+    diagnosis_path: str | None = None
 
 
 def _parse_nominal_hz(raw: bytes) -> float:
@@ -363,6 +367,8 @@ async def parse_contextual_wav_upload(
             state.channel = payload
         elif name == "context_origin":
             state.context_origin = payload
+        elif name == "diagnosis_path":
+            state.diagnosis_path = payload
 
     def on_end() -> None:
         state.ended = True
@@ -438,6 +444,12 @@ async def parse_contextual_wav_upload(
         if context_origin not in _CONTEXTUAL_ORIGINS:
             raise _invalid("context_origin must be intake_confirmed when provided")
 
+    diagnosis_path: str | None = None
+    if state.diagnosis_path is not None:
+        diagnosis_path = _decode_utf8(state.diagnosis_path, what="diagnosis_path").strip()
+        if diagnosis_path not in _DIAGNOSIS_PATHS:
+            raise _invalid("diagnosis_path must be engine or planner when provided")
+
     reference_data: bytes | None = None
     if "reference_file" in state.seen:
         reference_data = bytes(state.reference_bytes)
@@ -453,6 +465,7 @@ async def parse_contextual_wav_upload(
         user_request=user_request,
         channel=channel_text,  # type: ignore[arg-type]
         context_origin=context_origin,
+        diagnosis_path=diagnosis_path,
     )
 
 
