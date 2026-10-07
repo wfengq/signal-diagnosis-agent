@@ -157,3 +157,27 @@ def test_t_cx482_end_to_end_on_a_simulated_cache(tmp_path: Path) -> None:
     (cache / files[3]["path"]).write_bytes(b"tampered")
     with pytest.raises(ValueError, match="hash mismatch"):
         run(cache, tmp_path / "again")
+
+
+def test_t_cx480_transient_network_errors_are_retried() -> None:
+    import urllib.error
+
+    from signal_diag.evaluation.podset import with_retries
+
+    attempts: list[int] = []
+    waits: list[float] = []
+
+    def flaky() -> bytes:
+        attempts.append(1)
+        if len(attempts) < 3:
+            raise urllib.error.URLError("EOF occurred in violation of protocol")
+        return b"ok"
+
+    assert with_retries(flaky, sleep=waits.append) == b"ok"
+    assert waits == [2.0, 4.0]
+
+    def broken() -> bytes:
+        raise ConnectionError("down")
+
+    with pytest.raises(ConnectionError):
+        with_retries(broken, attempts=2, sleep=waits.append)

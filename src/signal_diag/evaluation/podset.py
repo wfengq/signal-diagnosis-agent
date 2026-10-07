@@ -20,6 +20,8 @@ import hashlib
 import io
 import json
 import statistics
+import time
+import urllib.error
 import urllib.request
 import zipfile
 from collections.abc import Callable, Iterable
@@ -98,14 +100,36 @@ class RangeReader(io.RawIOBase):
         return len(data)
 
 
+def with_retries(call: Callable[[], bytes], attempts: int = 5, sleep: Callable[[float], None] = time.sleep) -> bytes:
+    """Retry transient network errors with exponential backoff (2, 4, 8, 16 s)."""
+    for attempt in range(attempts):
+        try:
+            return call()
+        except (urllib.error.URLError, ConnectionError, TimeoutError):
+            if attempt == attempts - 1:
+                raise
+            sleep(2.0 * 2**attempt)
+    raise AssertionError("unreachable")
+
+
 def http_range_reader(url: str) -> RangeReader:
-    with urllib.request.urlopen(urllib.request.Request(url, method="HEAD")) as response:
-        size = int(response.headers["Content-Length"])
+    def head() -> bytes:
+        request = urllib.request.Request(url, method="HEAD")
+        with urllib.request.urlopen(request, timeout=60) as response:
+            return str(response.headers["Content-Length"]).encode()
+
+    size = int(with_retries(head))
 
     def read_range(start: int, end: int) -> bytes:
-        request = urllib.request.Request(url, headers={"Range": f"bytes={start}-{end}"})
-        with urllib.request.urlopen(request) as response:
-            return bytes(response.read())
+        def get() -> bytes:
+            request = urllib.request.Request(url, headers={"Range": f"bytes={start}-{end}"})
+            with urllib.request.urlopen(request, timeout=60) as response:
+                data = bytes(response.read())
+            if len(data) != end - start + 1:
+                raise ConnectionError("short range read")
+            return data
+
+        return with_retries(get)
 
     return RangeReader(size, read_range)
 
