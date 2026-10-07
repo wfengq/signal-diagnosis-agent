@@ -12,6 +12,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 
 from signal_diag.rules.models import RuleEvaluation
+from signal_diag.signal.models import SignalMeta, TimeRange
 from signal_diag.tools.contracts import (
     ClippingInput,
     ContextualDistortionInput,
@@ -27,13 +28,24 @@ from .models import (
     DetectClippingCall,
     DiagnosisClaim,
     FinishDecision,
+    Observation,
     PlannerContext,
     RetrieveKnowledgeDecision,
     TaskAssessment,
     ToolInvocation,
 )
+from .policies import AgentLimits
 
 ENGINE_VERSION = "s1-engine-1.0"
+# Single-file clipping windows, matching the D050 product segment scan.
+WINDOW_S = 0.25
+OVERLAP = 0.5
+# The engine runs every planned call; the windowed clipping scan needs room.
+ENGINE_LIMITS = AgentLimits(
+    max_tool_calls=10_000,
+    max_rule_evaluations=10_000,
+    max_knowledge_retrievals=4,
+)
 
 _ASSESSMENT = TaskAssessment(
     task_type="distortion_analysis",
@@ -65,6 +77,23 @@ _PAIRED_NO_FAULT_RULES = (
 _NOMINAL_NO_FAULT_RULES = (*_TEST_CLIPPING_RULES, *_NOMINAL_GATE, "rule_nominal_thd_acceptable")
 
 
+def clipping_windows(meta: SignalMeta) -> tuple[TimeRange, ...]:
+    """Windows of ``WINDOW_S`` with ``OVERLAP``; the last one ends at the file end."""
+    rate = meta.sample_rate_hz
+    total = meta.num_samples
+    window = max(1, round(WINDOW_S * rate))
+    hop = max(1, round(WINDOW_S * (1.0 - OVERLAP) * rate))
+    spans: list[TimeRange] = []
+    start = 0
+    while start < total:
+        end = min(start + window, total)
+        spans.append(TimeRange(start_s=start / rate, end_s=end / rate))
+        if end == total:
+            break
+        start += hop
+    return tuple(spans)
+
+
 def _tool_plan(mode: str) -> tuple[ToolInvocation, ...]:
     if mode == "single_signal":
         return (
@@ -78,14 +107,24 @@ class _Facts:
     """Latest Evidence by metric and rule evaluation by rule ID for one run."""
 
     def __init__(self, context: PlannerContext) -> None:
+        # Whole-file facts only; windowed clipping Evidence is judged per window.
+        windowed = {
+            ref
+            for observation in context.observations
+            if _is_window_clipping(observation)
+            for ref in observation.evidence_refs
+        }
         self.evidence: dict[str, Evidence] = {}
         for item in context.evidence:
-            self.evidence[item.metric] = item
+            if item.evidence_id not in windowed:
+                self.evidence[item.metric] = item
         # A later batch of the same profile re-evaluates every rule; rules without
         # matching Evidence there must not hide an earlier pass or fail.
         self.rules: dict[str, RuleEvaluation] = {}
         for batch in context.rule_evaluation_batches:
             for evaluation in batch.evaluations:
+                if windowed & set(evaluation.evidence_refs):
+                    continue
                 if evaluation.judgment in ("pass", "fail") or evaluation.rule_id not in self.rules:
                     self.rules[evaluation.rule_id] = evaluation
 
@@ -155,6 +194,55 @@ def _clipping_support(facts: _Facts, mode: str) -> tuple[list[Evidence], list[Ru
     return [mechanism], failing
 
 
+def _window_clipping_support(
+    context: PlannerContext,
+) -> tuple[list[Evidence], list[RuleEvaluation]] | None:
+    """Windows whose own clipping Evidence and rules support clipping (D053 §3.1)."""
+    evaluations = [
+        evaluation
+        for batch in context.rule_evaluation_batches
+        for evaluation in batch.evaluations
+    ]
+    cited_evidence: list[Evidence] = []
+    cited_rules: list[RuleEvaluation] = []
+    for observation in context.observations:
+        if not _is_window_clipping(observation):
+            continue
+        own = set(observation.evidence_refs)
+        evidence = [item for item in context.evidence if item.evidence_id in own]
+        mechanism = next(
+            (
+                item
+                for item in evidence
+                if item.metric in ("clipping_mechanism", "flat_top_detected")
+                and item.value is True
+                and item.validity == "valid"
+            ),
+            None,
+        )
+        failing = [
+            evaluation
+            for evaluation in evaluations
+            if evaluation.rule_id in _SINGLE_CLIPPING_RULES
+            and evaluation.judgment == "fail"
+            and evaluation.evidence_refs
+            and set(evaluation.evidence_refs) <= own
+        ]
+        if mechanism is not None and failing:
+            cited_evidence.append(mechanism)
+            cited_rules.extend(failing)
+    if not cited_rules:
+        return None
+    return cited_evidence, cited_rules
+
+
+def _is_window_clipping(observation: Observation) -> bool:
+    return (
+        observation.tool_name == "detect_clipping"
+        and observation.normalized_arguments.get("time_range") is not None
+    )
+
+
 def _harmonic_support(facts: _Facts, mode: str) -> tuple[list[Evidence], list[RuleEvaluation]] | None:
     if mode == "paired_reference":
         gate = facts.all_judged(_PAIRED_GATE, "pass")
@@ -203,8 +291,20 @@ class DeterministicDiagnosisEngine:
                 purpose=f"{ENGINE_VERSION} fixed {mode} plan step {done + 1}/{len(plan)}",
             )
         facts = _Facts(context)
+        clipping = _clipping_support(facts, mode)
+        if mode == "single_signal" and clipping is None:
+            windows = clipping_windows(context.signal_meta)
+            scanned = len(context.tool_history) - len(plan)
+            if scanned < len(windows):
+                return CallToolDecision(
+                    call=DetectClippingCall(args=ClippingInput(time_range=windows[scanned])),
+                    purpose=(
+                        f"{ENGINE_VERSION} clipping window {scanned + 1}/{len(windows)}"
+                    ),
+                )
+            clipping = _window_clipping_support(context)
         supports = {
-            "clipping": _clipping_support(facts, mode),
+            "clipping": clipping,
             "harmonic_distortion": _harmonic_support(facts, mode),
         }
         supported = [fault for fault, support in supports.items() if support is not None]
@@ -320,4 +420,11 @@ def _mode_limitations(mode: str) -> tuple[str, ...]:
     return ()
 
 
-__all__ = ["ENGINE_VERSION", "DeterministicDiagnosisEngine"]
+__all__ = [
+    "ENGINE_LIMITS",
+    "ENGINE_VERSION",
+    "OVERLAP",
+    "WINDOW_S",
+    "DeterministicDiagnosisEngine",
+    "clipping_windows",
+]
