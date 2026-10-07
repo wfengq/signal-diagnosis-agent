@@ -643,3 +643,21 @@ call and must not alter T-CX001–T-CX476 meanings.
 | T-CX480 | The range reader extracts only the named zip members, and the manifest records their sizes and SHA-256; 18 sweep files per pedal |
 | T-CX481 | The synthetic check passes on the dataset-format dry sweep; the short-time-spectrum cross-check agrees at 1, 2 and 4 kHz; the criteria count level and gain monotonicity and cross-check agreement, including the tolerance |
 | T-CX482 | An end-to-end run on a simulated cache verifies hashes, writes only `manifest.json`, `results.json` and `summary.json` (no audio), reports the design pedal separately and the onset at the demo limit, and refuses a tampered file |
+
+T-CX483–T-CX493 are additive definitions for D057
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §31). They make no model call and must not
+alter T-CX001–T-CX482 meanings.
+
+| ID | Definition |
+|----|------------|
+| T-CX483 | The catalog has four plans and three connections; sweep steps for every connection and language name the confirmed rate and promise only the first level above the demo threshold (no monotonic claim); a nominal plan names its frequency |
+| T-CX484 | Valid drafts pass: stated and default rates, default labels, a nominal frequency written as kHz, paired files, and an asked missing frequency |
+| T-CX485 | The validator rejects each violation with its check name: unknown plan, connection or field, too many questions, an unsupported rate, an unstated rate, invented label numbers, duplicate labels, quotes not in the text or missing, a sweep when the text rules out a re-test, banned question wording, an unwritten frequency, a missing frequency, one uploaded file for a paired plan, foreign or identical files, and sweep parameters on another plan |
+| T-CX486 | The questionnaire reaches every plan and connection with marked defaults, localizes default labels, and rejects missing or unknown answers |
+| T-CX487 | Confirmation accepts only complete user-sent values; plan keys are deterministic; the plan store links runs and forgets them with their plan |
+| T-CX488 | The guide adapter sends the fixed prompt and only text, file names and sample rates, wraps transport failures, and rejects an empty model name |
+| T-CX489 | The service returns the questionnaire by default; asking for an unavailable model is `planner_not_configured`; a valid draft is returned as `model`; illegal JSON, validation failures and provider errors fall back to the questionnaire with the reason; the builder needs credentials and the enable flag |
+| T-CX490 | The API serves health `guide`, drafts, questionnaire drafts, confirmation, plan lookup and run linking with the defined errors, and reports carry `test_plan` only for linked sweep and contextual runs |
+| T-CX491 | CLI `guide draft`, `questionnaire` and `confirm` print the questionnaire, drafts and steps, and exit 2 for an unavailable model or incomplete confirmation |
+| T-CX492 | The home page has the guide panel with the AI button hidden until health allows it; sweep and diagnosis pages load `guide.js`, show the plan banner and link runs; text is set without `innerHTML`; browser proof (manual, not in CI) with a scripted guide: AI draft and questionnaire paths, a prefilled sweep page, a linked report, no page error and no overflow at 390 px |
+| T-CX493 | The 40 authored scenarios cover every plan, connection and the tagged edge cases, and each expected plan passes the validator; the harness scores offline with no model call and, in live mode, counts plan and parameter accuracy, number rejections and fallbacks |

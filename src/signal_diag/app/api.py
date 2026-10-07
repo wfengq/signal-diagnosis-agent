@@ -41,6 +41,11 @@ from signal_diag.app.explanation_service import (
     render_explanation_html,
     sweep_explanation_packet,
 )
+from signal_diag.app.guide_service import (
+    GuideService,
+    build_guide_service,
+    render_plan_html,
+)
 from signal_diag.app.intake_flow import ContextOrigin
 from signal_diag.app.models import (
     AppErrorDetail,
@@ -77,6 +82,14 @@ from signal_diag.app.sweep_reporting import (
     render_sweep_json,
     sweep_payload,
 )
+from signal_diag.app.test_plan import (
+    ConfirmRequest,
+    GuideRequest,
+    PlanRejected,
+    PlanStore,
+    confirm_plan,
+    questionnaire_draft,
+)
 from signal_diag.signal import WavLoadLimits
 from signal_diag.signal.models import ChannelMode
 
@@ -89,6 +102,7 @@ _STATIC_MEDIA_TYPES = {
     "regression.js": "text/javascript; charset=utf-8",
     "sweep.js": "text/javascript; charset=utf-8",
     "explanation.js": "text/javascript; charset=utf-8",
+    "guide.js": "text/javascript; charset=utf-8",
 }
 _STATUS_BY_CODE = {
     "invalid_request": 422,
@@ -218,9 +232,38 @@ def _explanation_parts(
     return result.model_dump(mode="json"), render_explanation_html(result)
 
 
+class _GuideDraftBody(BaseModel):
+    """§31: questionnaire by default; ``use_model`` asks for an AI draft."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    text: str = Field(min_length=1, max_length=2_000)
+    filenames: tuple[str, ...] = Field(default=(), max_length=3)
+    sample_rates_hz: tuple[float, ...] = ()
+    use_model: bool = False
+
+
+class _QuestionnaireBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    answers: dict[str, str]
+    language: Literal["zh", "en"] = "zh"
+
+
+class _LinkBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(min_length=1, max_length=80)
+
+
+def _plan_error(rejected: PlanRejected) -> InvalidRequestError:
+    return InvalidRequestError(AppErrorDetail(code="invalid_request", message=str(rejected)))
+
+
 def create_app(
     service: DiagnosisApplicationService | None = None,
     explanation_service: ExplanationService | None = None,
+    guide_service: GuideService | None = None,
 ) -> FastAPI:
     owned = service is None
     bound = service if service is not None else build_engine_service()
@@ -230,6 +273,8 @@ def create_app(
         else build_explanation_service(os.environ)
     )
 
+    guide = guide_service if guide_service is not None else build_guide_service(os.environ)
+    plans = PlanStore()
     regression_service = build_regression_service()
 
     @asynccontextmanager
@@ -245,6 +290,8 @@ def create_app(
             await regression_service.aclose()
             if explanation_service is None:
                 await explainer.aclose()
+            if guide_service is None:
+                await guide.aclose()
 
     app = FastAPI(lifespan=lifespan, title="Signal Diagnosis Agent")
     app.state.service = bound
@@ -312,6 +359,8 @@ def create_app(
             "diagnosis_engine": _service(request).diagnosis_engine_status(),
             # §30 (D055): additive.
             "explanation": explainer.status().model_dump(mode="json"),
+            # §31 (D057): additive.
+            "guide": guide.status().model_dump(mode="json"),
         }
         return JSONResponse(content=payload)
 
@@ -446,8 +495,13 @@ def create_app(
             snapshot, generated_at=datetime.now(UTC)
         )
         explanation, _ = _explanation_parts(explainer.latest(snapshot.run_id))
+        plan = plans.plan_for_run(snapshot.run_id)
         return Response(
-            content=render_contextual_report_json(report, explanation=explanation),
+            content=render_contextual_report_json(
+                report,
+                explanation=explanation,
+                test_plan=plan.model_dump(mode="json") if plan else None,
+            ),
             media_type="application/json",
             headers={
                 "Content-Disposition": (
@@ -464,8 +518,10 @@ def create_app(
             snapshot, generated_at=datetime.now(UTC)
         )
         _, explanation_html = _explanation_parts(explainer.latest(snapshot.run_id))
+        plan = plans.plan_for_run(snapshot.run_id)
+        extra = (explanation_html or "") + (render_plan_html(plan) if plan else "")
         return Response(
-            content=render_contextual_report_html(report, explanation_html=explanation_html),
+            content=render_contextual_report_html(report, explanation_html=extra or None),
             media_type="text/html; charset=utf-8",
             headers={
                 "Content-Disposition": (
@@ -523,10 +579,16 @@ def create_app(
             sweep_runs.get(run_id), generated_at=datetime.now(UTC)
         )
         explanation, explanation_html = _explanation_parts(explainer.latest(run_id))
+        plan = plans.plan_for_run(run_id)
+        extra = (explanation_html or "") + (render_plan_html(plan) if plan else "")
         content = (
-            render_sweep_json(built, explanation=explanation)
+            render_sweep_json(
+                built,
+                explanation=explanation,
+                test_plan=plan.model_dump(mode="json") if plan else None,
+            )
             if kind == "json"
-            else render_sweep_html(built, explanation_html=explanation_html)
+            else render_sweep_html(built, explanation_html=extra or None)
         )
         media = "application/json" if kind == "json" else "text/html; charset=utf-8"
         return Response(
@@ -556,6 +618,52 @@ def create_app(
             packet, language=body.language, use_model=body.use_model
         )
         return JSONResponse(content=result.model_dump(mode="json"))
+
+    @app.post("/api/v1/test-plans/draft")
+    async def draft_test_plan(body: _GuideDraftBody) -> JSONResponse:
+        guide_request = GuideRequest(
+            text=body.text, filenames=body.filenames, sample_rates_hz=body.sample_rates_hz
+        )
+        result = await guide.draft(guide_request, use_model=body.use_model)
+        return JSONResponse(content=result.model_dump(mode="json"))
+
+    @app.post("/api/v1/test-plans/questionnaire")
+    async def questionnaire_test_plan(body: _QuestionnaireBody) -> JSONResponse:
+        try:
+            draft = questionnaire_draft(body.answers, language=body.language)
+        except PlanRejected as rejected:
+            raise _plan_error(rejected) from rejected
+        return JSONResponse(content=draft.model_dump(mode="json"))
+
+    @app.post("/api/v1/test-plans/confirm")
+    async def confirm_test_plan(body: ConfirmRequest) -> JSONResponse:
+        try:
+            record = plans.put(confirm_plan(body))
+        except PlanRejected as rejected:
+            raise _plan_error(rejected) from rejected
+        return JSONResponse(content=record.model_dump(mode="json"))
+
+    def _plan(plan_key: str) -> Any:
+        record = plans.get(plan_key)
+        if record is None:
+            raise RunNotFoundError(
+                AppErrorDetail(code="run_not_found", message="unknown test plan")
+            )
+        return record
+
+    @app.get("/api/v1/test-plans/{plan_key}")
+    async def get_test_plan(plan_key: str) -> JSONResponse:
+        return JSONResponse(content=_plan(plan_key).model_dump(mode="json"))
+
+    @app.post("/api/v1/test-plans/{plan_key}/runs")
+    async def link_test_plan(request: Request, plan_key: str, body: _LinkBody) -> JSONResponse:
+        _plan(plan_key)
+        if body.run_id.startswith("swrun_"):
+            sweep_runs.get(body.run_id)
+        else:
+            _service(request).get_contextual_run(body.run_id)
+        plans.link(plan_key, body.run_id)
+        return JSONResponse(content={"plan_key": plan_key, "run_id": body.run_id})
 
     @app.get("/")
     async def root() -> Response:

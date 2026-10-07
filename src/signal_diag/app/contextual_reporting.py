@@ -114,12 +114,17 @@ def dump_contextual_snapshot(snapshot: ContextualAppRunSnapshot) -> dict[str, ob
 
 
 def render_contextual_report_json(
-    report: ContextualDiagnosisReport, *, explanation: Mapping[str, object] | None = None
+    report: ContextualDiagnosisReport,
+    *,
+    explanation: Mapping[str, object] | None = None,
+    test_plan: Mapping[str, object] | None = None,
 ) -> str:
-    """``explanation`` (§30) is added only when one was produced for the run."""
+    """``explanation`` (§30) and ``test_plan`` (§31) are added only when present."""
     payload = report.model_dump(mode="json", exclude=_unset_optional_fields(report))
     if explanation is not None:
         payload["explanation"] = dict(explanation)
+    if test_plan is not None:
+        payload["test_plan"] = dict(test_plan)
     return (
         json.dumps(
             payload,

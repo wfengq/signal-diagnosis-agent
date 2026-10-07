@@ -57,11 +57,16 @@ def build_sweep_report(
 
 
 def render_sweep_json(
-    report: SweepReport, *, explanation: Mapping[str, object] | None = None
+    report: SweepReport,
+    *,
+    explanation: Mapping[str, object] | None = None,
+    test_plan: Mapping[str, object] | None = None,
 ) -> str:
     payload = report.model_dump(mode="json")
     if explanation is not None:
         payload["explanation"] = dict(explanation)
+    if test_plan is not None:
+        payload["test_plan"] = dict(test_plan)
     return json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
 
 

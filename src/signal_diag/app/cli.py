@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import math
 import os
 import sys
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
+
+from pydantic import ValidationError
 
 from signal_diag.app.contextual_models import ContextualDiagnosisReport
 from signal_diag.app.contextual_reporting import (
@@ -28,6 +31,7 @@ from signal_diag.app.explanation_service import (
     render_explanation_html,
     sweep_explanation_packet,
 )
+from signal_diag.app.guide_service import GuideResult, build_guide_service
 from signal_diag.app.intake_flow import (
     CONTEXT_ORIGIN_INTAKE,
     INTAKE_DIAGNOSIS_QUESTION,
@@ -51,6 +55,13 @@ from signal_diag.app.sweep_reporting import (
     build_sweep_report,
     render_sweep_html,
     render_sweep_json,
+)
+from signal_diag.app.test_plan import (
+    ConfirmRequest,
+    GuideRequest,
+    PlanRejected,
+    confirm_plan,
+    questionnaire_draft,
 )
 from signal_diag.signal import WavLoadLimits
 
@@ -197,6 +208,26 @@ def build_parser() -> argparse.ArgumentParser:
     sweep_diagnose.add_argument("--output", choices=("text", "json"), default="text")
     sweep_diagnose.add_argument("--html-output", type=Path, default=None)
     _add_explain_options(sweep_diagnose)
+
+    guide = subparsers.add_parser("guide", help="test guide (D057): choose a test plan")
+    guide_commands = guide.add_subparsers(dest="guide_command", required=True)
+    guide_draft = guide_commands.add_parser("draft")
+    guide_draft.add_argument("text")
+    guide_draft.add_argument("--file", dest="files", action="append", default=[])
+    guide_draft.add_argument("--model", action="store_true", help="ask for an AI draft")
+    guide_questionnaire = guide_commands.add_parser("questionnaire")
+    guide_questionnaire.add_argument("--answer", action="append", default=[], help="question=answer")
+    guide_questionnaire.add_argument("--language", choices=("zh", "en"), default="zh")
+    guide_confirm = guide_commands.add_parser("confirm")
+    guide_confirm.add_argument("--plan", required=True)
+    guide_confirm.add_argument("--source", choices=("model", "questionnaire"), default="questionnaire")
+    guide_confirm.add_argument("--language", choices=("zh", "en"), default="zh")
+    guide_confirm.add_argument("--rate", type=int, default=None)
+    guide_confirm.add_argument("--level", action="append", default=[])
+    guide_confirm.add_argument("--connection", default=None)
+    guide_confirm.add_argument("--test-file", default=None)
+    guide_confirm.add_argument("--reference-file", default=None)
+    guide_confirm.add_argument("--nominal-hz", type=float, default=None)
     return parser
 
 
@@ -898,6 +929,73 @@ def _sweep(args: argparse.Namespace) -> int:
     return 0
 
 
+def _print_draft_or_questionnaire(result: GuideResult) -> None:
+    if result.draft is not None:
+        draft = result.draft
+        print(f"plan: {draft.plan_id} (AI draft; confirm every value before use)")
+        print("parameters: " + json.dumps(draft.parameters.model_dump(mode="json"), ensure_ascii=False))
+        for quote in draft.rationale_quotes:
+            print(f"  because you wrote: {quote}")
+        for question in draft.questions:
+            print(f"  question: {question}")
+        return
+    if result.fallback_reason:
+        print(f"AI draft not used: {result.fallback_reason}")
+    print("questionnaire (answer with: signal-diag guide questionnaire --answer id=answer ...):")
+    for item in result.questionnaire:
+        options = ", ".join(f"{o.answer} ({o.label_zh})" for o in item.options)
+        print(f"  {item.question_id}: {item.text_zh} [{options}]")
+
+
+def _guide(args: argparse.Namespace) -> int:
+    try:
+        if args.guide_command == "draft":
+            service = build_guide_service(os.environ)
+            try:
+                result = asyncio.run(
+                    service.draft(
+                        GuideRequest(text=args.text, filenames=tuple(args.files)),
+                        use_model=args.model,
+                    )
+                )
+            finally:
+                asyncio.run(service.aclose())
+            _print_draft_or_questionnaire(result)
+            return 0
+        if args.guide_command == "questionnaire":
+            answers = dict(item.split("=", 1) for item in args.answer if "=" in item)
+            draft = questionnaire_draft(answers, language=args.language)
+            print(json.dumps(draft.model_dump(mode="json"), ensure_ascii=False, indent=2))
+            return 0
+        record = confirm_plan(
+            ConfirmRequest(
+                plan_id=args.plan,
+                source=args.source,
+                language=args.language,
+                sample_rate_hz=args.rate,
+                level_labels=tuple(args.level),
+                connection=args.connection,
+                test_file=args.test_file,
+                reference_file=args.reference_file,
+                nominal_fundamental_hz=args.nominal_hz,
+            )
+        )
+    except PlanRejected as rejected:
+        _print_error("invalid_request", str(rejected))
+        return 2
+    except ApplicationError as error:
+        _print_error(error.detail.code, error.detail.message)
+        return _exit_for_application_error(error)
+    except ValidationError as error:
+        _print_error("invalid_request", str(error.errors()[0]["msg"]))
+        return 2
+    print(f"plan {record.plan_key} ({record.plan_id}, {record.version})")
+    for index, step in enumerate(record.steps, 1):
+        print(f"  {index}. {step}")
+    print(f"next page: {record.next_page}")
+    return 0
+
+
 def main(
     argv: Sequence[str] | None = None,
     *,
@@ -922,6 +1020,8 @@ def main(
         return asyncio.run(_intake_diagnose(args, service_factory))
     if args.command == "sweep":
         return _sweep(args)
+    if args.command == "guide":
+        return _guide(args)
     return 2
 
 

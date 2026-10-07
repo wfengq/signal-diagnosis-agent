@@ -2392,3 +2392,94 @@ are used by the offline pOD-set validation (`evaluation/podset.py`).
      THD ≥ 0.5 %.
 - **Reporting:** the design pedal (King of Tone) is also reported excluded. A
   criterion that fails is reported as is.
+
+## 31. Test guide (D057)
+
+The test guide turns a user's description into a confirmable test plan. It
+decides only which test to run; verdicts still come from the engine (§28) and
+the sweep rules (§29). Its module is `app/test_plan.py`, version
+`test-plan-1.0`.
+
+**Catalog.** The guide chooses only among these plans:
+
+| Plan | Use | Opens |
+|---|---|---|
+| `sweep_levels` | The user can play a test file through the device and record it. | `/sweep?plan=…` |
+| `existing_recording` | Only an existing recording is available. | `/?plan=…` (D047 confirmation) |
+| `paired_reference` | Good and bad recordings of the same signal. | `/?plan=…` (paired mode) |
+| `nominal_tone` | A single tone of a known frequency. | `/?plan=…` (nominal mode) |
+
+Connections are `line_loopback`, `acoustic_mic` and `digital_capture`, each
+with fixed step text. A sweep plan defaults to 48 kHz and three levels (below
+normal, normal, problem level). Its steps promise only the first level above
+the demonstration threshold, never a monotonic rise (D056).
+
+**Draft.** The model (or the questionnaire) proposes `plan_id`, `parameters`
+(sample rate, level labels, connection, test and reference file, nominal Hz,
+`defaults`), `missing_fields`, `questions` and `rationale_quotes`.
+
+**Validation** (fail-closed). The draft is rejected when any of these checks
+fails:
+
+| Check | Rejected when |
+|---|---|
+| structure | A plan, connection or field name is not in the catalog, or there are more than 4 questions. |
+| parameters | The sample rate is not 44.1 or 48 kHz; the level labels are not 1–3 unique labels of 1–64 characters; a file is not an upload; the reference is the test file; or a non-sweep plan carries sweep parameters. |
+| number | A number is not written in the user text or file metadata (D047 rule) and is not a marked catalog default. Level labels may not invent numbers. |
+| quote | There is no quote, or a quote is not an exact substring of the user text. |
+| precondition | A paired plan has uploads but fewer than two of them, or has two without choosing or asking for the reference; a nominal plan neither states nor asks for the frequency; or a sweep plan is chosen although the text says the device cannot be re-tested. |
+| wording | A question mentions standards, thresholds or percentages. |
+
+**Questionnaire.** A deterministic tree (`can_replay` → `connection` |
+`has_reference` → `known_tone`) reaches every plan and connection. It is the
+default and replaces any rejected draft (a questionnaire, never a stub
+planner).
+
+**Confirmation.** Only values the user sends to the confirm call count (D047).
+Confirmation returns a deterministic `plan_…` key, the steps and the next
+page:
+
+- a sweep plan needs a sample rate, 1–3 labels and a connection;
+- a nominal plan needs a positive frequency;
+- file names are optional, but the reference may not equal the test file.
+
+Confirmed plans are kept in memory, the most recent 64. A run started from a
+plan is linked to it, and its JSON and HTML reports then carry `test_plan`.
+
+**Model path** (`agent/guide.py`, prompt `v0.3-s1-guide-1.0`):
+
+- one call through the intake client; the model receives only the
+  description, file names and sample rates;
+- available only with `DEEPSEEK_API_KEY` and `SIGNAL_DIAG_GUIDE_MODEL=enabled`;
+- asking for it while it is unavailable is `planner_not_configured` (HTTP
+  503, CLI exit 2);
+- after a call, provider errors, illegal JSON and validation failures return
+  the questionnaire with `fallback_reason` set.
+
+**Surfaces:**
+
+- **API:**
+  - `POST /api/v1/test-plans/draft` takes `{text, filenames, sample_rates_hz,
+    use_model}` and returns the draft or the questionnaire;
+  - `POST /api/v1/test-plans/questionnaire`;
+  - `POST /api/v1/test-plans/confirm`;
+  - `GET /api/v1/test-plans/{key}`;
+  - `POST /api/v1/test-plans/{key}/runs` takes `{run_id}` for an existing
+    sweep or contextual run;
+  - health adds `guide` (`questionnaire_available`, `model_available`,
+    `prompt_version`).
+- **CLI:** `signal-diag guide draft TEXT [--file] [--model]`,
+  `guide questionnaire --answer id=answer…` and
+  `guide confirm --plan … [--rate --level --connection --nominal-hz …]`.
+- **Web UI:** the "我要测试一台设备" panel on the home page. The AI button appears
+  only when `model_available` is true. Pages opened with `?plan=` show the
+  steps, prefill their fields and link their run.
+
+**Acceptance:** `python -m signal_diag.app.guide_eval --out DIR [--live]`
+runs the 40 authored scenarios in `evaluation/assets/guide_cases.json`.
+
+- Offline (CI), each expected plan, written as a draft, passes the validator.
+- `--live` asks the real model and runs outside CI.
+- The model draft becomes visible by default only when plan accuracy and
+  key-parameter accuracy are each at least 90 % and no draft is rejected for
+  numbers.
