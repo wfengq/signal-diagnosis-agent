@@ -881,8 +881,22 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert qa_11["prior_bridge_current_implementation_sha256"] == (
         qa["current_implementation_sha256"]
     )
-    assert qa_11["current_implementation_sha256"] == contextual_implementation_sha256()
-    assert qa_11["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert qa_11["current_implementation_sha256"] == (
+        "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3"
+    )
+    assert qa_11["product_tree_sha256"] == (
+        "bcf4d3e556cf85bb3f8b125d7d56972b836eac87a61da48640acd76603353a24"
+    )
     assert qa_11["prompt_sha256"] == oq014["prompt_sha256"]
     assert qa_11["prompt_version"] == "v0.3-s1-planner-9.11"
     assert qa_11["model_calls"] == 0
+    qa_12 = next(row for row in rows if row["amendment_id"] == "d060_result_qa_1_2")
+    assert qa_12["amendment_kind"] == "append_only_code_identity"
+    assert qa_12["prior_bridge_current_implementation_sha256"] == (
+        qa_11["current_implementation_sha256"]
+    )
+    assert qa_12["current_implementation_sha256"] == contextual_implementation_sha256()
+    assert qa_12["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert qa_12["prompt_sha256"] == oq014["prompt_sha256"]
+    assert qa_12["prompt_version"] == "v0.3-s1-planner-9.11"
+    assert qa_12["model_calls"] == 0

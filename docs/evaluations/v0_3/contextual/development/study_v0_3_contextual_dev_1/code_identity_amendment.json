@@ -1026,5 +1026,22 @@
     "qualification_recompute_unchanged": true,
     "scope": "D060 phase C result Q&A 1.1 (§33.1): app/result_qa.py check result-qa-1.1 (Q&A fault check accepts metric/rule names, negations and run-verdict citations; unsupported fault assertions still rejected), agent/qa.py prompt v0.3-s1-qa-1.1 (two added rules), qa_eval heldout_2 case set and review newline fix; explanation.py check_sentence gains a check_faults flag only (explanation checks unchanged); engine, sweep analysis, rules, thresholds, verdicts, session policy, guide, planner and intake prompts and frozen modules unchanged; model_calls=0",
     "selected_threshold_percent_unchanged": 5.0
+  },
+  {
+    "amendment_id": "d060_result_qa_1_2",
+    "amendment_kind": "append_only_code_identity",
+    "calibration_recompute_unchanged": true,
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "created_at_utc": "2026-10-08T18:00:00+00:00",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "model_calls": 0,
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "product_tree_sha256": "471ea6a229c9570f7a717a6710f4464e741b77a767737954efd2d4063f264164",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "qualification_recompute_unchanged": true,
+    "scope": "D060 phase C result Q&A 1.2 (§33.2): app/result_qa.py check result-qa-1.2 (analysis/detection names after a fault word are not fault assertions), agent/qa.py prompt v0.3-s1-qa-1.2 (refs hold only packet ref_ids; banned wording forbidden even when denied), qa_eval heldout_3 case set; explanation layer, engine, sweep analysis, rules, thresholds, verdicts, session policy, guide, planner and intake prompts and frozen modules unchanged; model_calls=0",
+    "selected_threshold_percent_unchanged": 5.0
   }
 ]
