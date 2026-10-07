@@ -34,6 +34,18 @@ cite HEAD quality numbers in place of the V0.2 **79/80**. To demonstrate the acc
 product, check out `ff16e2a` / `b48790c` rather than assuming HEAD matches
 those artifacts.
 
+**Route adjustment (D052, approved 2026-10-07):** the product is repositioned
+for engineers testing audio devices. The diagnosis core will become a
+deterministic engine that runs every detector a test plan requires and reaches
+verdicts only through versioned rules. LLMs move to the two ends: intake and
+test guidance before a run, plain-language explanation after it. They never
+decide a verdict. The work proceeds in phases (engine, exponential-sweep
+stimulus, explanation, test guide), and each phase needs its own design,
+contract additions, test IDs and authorization. **Until phase 1 lands, HEAD
+still runs the v9.11 planner path described above.** No further planner prompt
+iterations are planned. See
+`docs/superpowers/specs/2026-10-07-route-adjustment-device-testing-design.md`.
+
 Phase 1–5 contracts (`CONTRACTS_V0_2.md` §§1–64) remain frozen byte-stable.
 Additive V0.3 surfaces live in `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and
 `docs/TEST_PLAN_V0_3_CONTEXTUAL.md`. Do not rewrite accepted evaluation/Demo
@@ -56,7 +68,7 @@ Before modifying product code, read:
 - `docs/ARCHITECTURE_V0_2.md` (especially §§12–18)
 - `docs/CONTRACTS_V0_2.md` (frozen §§1–64)
 - `docs/TEST_PLAN_V0_2.md` (required T001–T285)
-- `docs/DECISIONS.md` (D001–D047)
+- `docs/DECISIONS.md` (D001–D052; D052 sets the current route)
 - `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and `docs/TEST_PLAN_V0_3_CONTEXTUAL.md`
   when touching contextual / HEAD live product paths
 - the relevant specification and plan under `docs/superpowers/`
@@ -125,8 +137,13 @@ The following rules remain mandatory:
 - supported claims cite valid same-run Evidence;
 - rule conclusions cite valid same-run rule-evaluation IDs;
 - knowledge explains claims but never substitutes for signal Evidence;
-- `RealLLMPlanner` is the product path;
-- `ScriptedPlanner` is a deterministic test double and never a silent fallback.
+- until D052 phase 1 lands, `RealLLMPlanner` is the product diagnosis path;
+  afterwards the deterministic engine is the default and `RealLLMPlanner`
+  remains only an explicit, non-default path for comparison and reproduction;
+- LLM components (intake, test guide, explanation) never decide verdicts,
+  create metrics or thresholds, or replace Evidence;
+- `ScriptedPlanner` is a deterministic test double and never a silent fallback;
+  a missing or failing LLM never silently falls back to a stub.
 
 ## Preserved evidence
 
