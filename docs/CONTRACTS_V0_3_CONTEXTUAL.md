@@ -2730,3 +2730,9 @@ the level where distortion starts only when at least two levels were tested.
 Acceptance of 1.1 runs on 20 new held-out questions written by Cursor
 (`--cases heldout_2`), with the same three bars as §33. live_1 is kept as a
 below-bar record.
+
+**Round-2 held-out questions.** Written by an independent subagent from the
+round-2 brief (`docs/evaluations/v0_3/qa/heldout_2/`, SHA-256
+`25eb24e0af6f7c94f4624594ecd3d7d078a474931823c6d18aa4f7f58bfe661d`, copied to
+`evaluation/assets/qa_cases_heldout_2.json`); they replace #104, whose set
+repeated 13 earlier questions verbatim.

@@ -69,7 +69,7 @@ Read these before changing behavior or public interfaces:
    Do not edit frozen §§1–64.
 4. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) (T001–T285) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) (T-CX series,
-   through T-CX520).
+   through T-CX521).
 5. [DECISIONS.md](DECISIONS.md): D001–D060.
 6. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): OQ-001–OQ-026.
    - OQ-013–OQ-018 resolve gaps between the current code and the frozen V0.2

@@ -714,9 +714,10 @@ T-CX513–T-CX518 are additive definitions for D060 phase C
 | T-CX517 | The 40 development questions are well formed (10 to decline); the offline harness writes results, summary and a 20-sample review without model calls or trailing whitespace; live mode counts fallbacks |
 | T-CX518 | The 20 held-out questions match the frozen SHA-256 in both copies, share no id with the development set, and run through the offline harness with no model call |
 
-T-CX519–T-CX520 are additive definitions for result-qa 1.1 (§33.1).
+T-CX519–T-CX521 are additive definitions for result-qa 1.1 (§33.1).
 
 | ID | Requirement |
 | --- | --- |
 | T-CX519 | Q&A sentences that name a metric or rule, negate a fault, or cite the run for its verdict pass; sentences that assert a fault the cited items do not support are still rejected |
 | T-CX520 | The offline review ends with a single newline; `heldout_2` is a registered case set; the check and prompt report versions 1.1 and the prompt carries the two new rules |
+| T-CX521 | The 20 round-2 held-out questions match the frozen SHA-256 in both copies, share no id or question text with the development and first held-out sets, and run through the offline harness with no model call |
