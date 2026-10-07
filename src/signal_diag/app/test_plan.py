@@ -45,7 +45,6 @@ MAX_QUESTIONS = 4
 MAX_LABEL_CHARS = 64
 _NO_RERECORD = (
     "只有这一段",
-    "只有一段录音",
     "不能重新录",
     "没法重新录",
     "无法重新录",

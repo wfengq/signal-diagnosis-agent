@@ -1280,3 +1280,44 @@ The dataset's sweep levels are −4, −10 and −16 dBFS (measured), not the st
 
 **Unchanged:** the product sweep test (stimulus, analysis 1.1, rules), the
 explanation layer, the engine and planner prompts, and the frozen modules.
+
+## D057 — Test guide (D052 phase 4)
+
+**Decision (operator 2026-10-07):** approve
+`docs/superpowers/specs/2026-10-07-test-guide-phase4-design.md` with options:
+
+- 1A: four plans and three connections;
+- 2A: the model chooses only from the catalog; step text comes from the
+  catalog; a failed draft falls back to the questionnaire;
+- 3A: the questionnaire is the default, and the model draft stays hidden
+  until acceptance;
+- 4A: acceptance needs plan and key-parameter accuracy of at least 90 % each,
+  and 0 number rejections.
+
+**What landed** (§31, offline):
+
+- the catalog, validator, questionnaire, confirmation and plan store;
+- the model adapter `v0.3-s1-guide-1.0`, off unless
+  `SIGNAL_DIAG_GUIDE_MODEL=enabled`;
+- the API, CLI, Web UI and the `test_plan` sections in reports;
+- 40 authored scenarios with an acceptance harness.
+
+No model was called.
+
+**Refinements made during implementation:**
+
+- A paired plan may be confirmed before its files are chosen. Validation
+  rejects it only when uploads exist and there are fewer than two of them,
+  since the home page has no files yet.
+- The CLI works in two steps (draft or questionnaire, then confirm) rather
+  than with interactive prompts.
+- The phrase "只有一段录音" was removed from the no-re-test list. Having one
+  recording does not mean the device cannot be tested again (scenario g38).
+
+**Unchanged:**
+
+- verdicts, rules and thresholds;
+- the engine, the sweep test and the explanation layer;
+- the D047 intake prompt and its confirmation rules;
+- the frozen modules;
+- V0.2 79/80.
