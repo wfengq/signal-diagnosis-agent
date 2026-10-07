@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import struct
 from collections import OrderedDict
 from typing import Literal
 
@@ -22,7 +23,6 @@ from signal_diag.app.errors import (
     RunNotFoundError,
 )
 from signal_diag.app.models import AppErrorCode, AppErrorDetail
-from signal_diag.app.pcm_wav import encode_pcm32_wav
 from signal_diag.dsp.sweep import SUPPORTED_RATES, generate_stimulus
 from signal_diag.rules.sweep import (
     SweepRuleEvaluation,
@@ -84,12 +84,25 @@ class SweepDiagnosis(BaseModel):
     model_calls: int = 0
 
 
+def _chunk(chunk_id: bytes, payload: bytes) -> bytes:
+    pad = b"\x00" if len(payload) % 2 else b""
+    return chunk_id + struct.pack("<I", len(payload)) + payload + pad
+
+
 def stimulus_wav(sample_rate_hz: int) -> bytes:
-    """The versioned stimulus as 32-bit PCM WAV."""
-    samples, _ = generate_stimulus(sample_rate_hz)
-    return encode_pcm32_wav(
-        samples.astype(np.float32).reshape(-1, 1), sample_rate_hz=sample_rate_hz
-    )
+    """The versioned stimulus as 24-bit mono PCM WAV.
+
+    A LIST/INFO ``ICMT`` chunk after the samples names the stimulus version and
+    the parameter digest; WAV readers that skip unknown chunks ignore it.
+    """
+    samples, spec = generate_stimulus(sample_rate_hz)
+    scaled = np.clip(np.rint(samples * float(2**23)), -(2**23), 2**23 - 1).astype("<i4")
+    pcm = scaled.view(np.uint8).reshape(-1, 4)[:, :3].tobytes()
+    fmt = struct.pack("<HHIIHH", 1, 1, sample_rate_hz, sample_rate_hz * 3, 3, 24)
+    comment = f"{spec.version} sha256:{spec.digest()}".encode("ascii") + b"\x00"
+    info = b"INFO" + _chunk(b"ICMT", comment)
+    body = b"WAVE" + _chunk(b"fmt ", fmt) + _chunk(b"data", pcm) + _chunk(b"LIST", info)
+    return b"RIFF" + struct.pack("<I", len(body)) + body
 
 
 def _claim_id(level: str, fault: str, refs: tuple[str, ...]) -> str:

@@ -55,10 +55,15 @@ def test_t_cx461_profile_is_versioned_demo() -> None:
 
 
 def test_t_cx461_stimulus_wav_round_trips() -> None:
-    loaded = load_wav_bytes(stimulus_wav(RATE))
-    stimulus, _ = generate_stimulus(RATE)
+    data = stimulus_wav(RATE)
+    assert data == stimulus_wav(RATE)
+    loaded = load_wav_bytes(data)
+    stimulus, spec = generate_stimulus(RATE)
+    assert loaded.source_info.bits_per_sample == 24
     assert loaded.record.meta.sample_rate_hz == RATE
     assert np.max(np.abs(loaded.record.samples[:, 0] - stimulus)) < 1e-6
+    assert f"sweep-stimulus-1.0 sha256:{spec.digest()}".encode() in data
+    assert diagnose_sweep([(data, "loopback")]).outcome == "no_supported_fault"
 
 
 def test_t_cx461_clean_device_has_no_supported_fault() -> None:
@@ -169,3 +174,22 @@ def test_t_cx461_ids_are_deterministic() -> None:
     profile = load_sweep_profile()
     assert evaluate_sweep(profile, first) == evaluate_sweep(profile, second)
     assert len({fact.fact_id for fact in first.facts}) == len(first.facts)
+
+
+def test_t_cx461_noise_is_inconclusive_and_device_clipping_is_harmonic() -> None:
+    rng = np.random.default_rng(20261008)
+    noisy = diagnose_sweep(
+        [(_wav(lambda s: s + 0.05 * rng.standard_normal(len(s))), "noisy")]
+    )
+    assert noisy.outcome == "inconclusive"
+    assert "rule_sweep_snr_acceptable" in noisy.levels[0].claims[0].statement
+
+    clipped = diagnose_sweep([(_wav(lambda s: np.clip(s, -0.4, 0.4)), "device clip")])
+    (claim,) = clipped.levels[0].claims
+    assert claim.fault_type == "harmonic_distortion"
+    orders = {
+        band.dominant_order
+        for band in clipped.levels[0].measurement.bands
+        if band.center_hz in claim.bands_hz
+    }
+    assert orders <= {3, 5}

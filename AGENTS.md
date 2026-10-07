@@ -44,7 +44,10 @@ verdicts only through versioned rules. LLMs move to the two ends: intake and
 test guidance before a run, plain-language explanation after it. They never
 decide a verdict. The work proceeds in phases (engine, exponential-sweep
 stimulus, explanation, test guide), and each phase needs its own design,
-contract additions, test IDs and authorization. Phase 1 landed with D053.
+contract additions, test IDs and authorization. Phase 1 landed with D053;
+phase 2, the sweep stimulus test (§29, `/sweep`, CLI `sweep`), landed with
+D054 as a separate entry with demo thresholds (`profile_s1_sweep`
+1.0.0-demo).
 No further planner prompt iterations are planned. See
 `docs/superpowers/specs/2026-10-07-route-adjustment-device-testing-design.md`.
 
@@ -70,7 +73,7 @@ Before modifying product code, read:
 - `docs/ARCHITECTURE_V0_2.md` (especially §§12–18)
 - `docs/CONTRACTS_V0_2.md` (frozen §§1–64)
 - `docs/TEST_PLAN_V0_2.md` (required T001–T285)
-- `docs/DECISIONS.md` (D001–D053; D052 sets the current route)
+- `docs/DECISIONS.md` (D001–D054; D052 sets the current route)
 - `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and `docs/TEST_PLAN_V0_3_CONTEXTUAL.md`
   when touching contextual / HEAD live product paths
 - the relevant specification and plan under `docs/superpowers/`
