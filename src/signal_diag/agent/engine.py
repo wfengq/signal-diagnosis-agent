@@ -12,7 +12,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 
 from signal_diag.rules.models import RuleEvaluation
-from signal_diag.signal.models import SignalMeta, TimeRange
+from signal_diag.signal.models import ChannelMode, SignalMeta, TimeRange
 from signal_diag.tools.contracts import (
     ClippingInput,
     ContextualDistortionInput,
@@ -92,6 +92,15 @@ def clipping_windows(meta: SignalMeta) -> tuple[TimeRange, ...]:
             break
         start += hop
     return tuple(spans)
+
+
+def _window_steps(meta: SignalMeta) -> tuple[tuple[ChannelMode, TimeRange], ...]:
+    """Every window on every channel; stereo adds left and right (as in D050)."""
+    channels: tuple[ChannelMode, ...] = (
+        ("left", "right", "mixdown") if meta.channels == 2 else ("mixdown",)
+    )
+    windows = clipping_windows(meta)
+    return tuple((channel, span) for channel in channels for span in windows)
 
 
 def _tool_plan(mode: str) -> tuple[ToolInvocation, ...]:
@@ -293,13 +302,17 @@ class DeterministicDiagnosisEngine:
         facts = _Facts(context)
         clipping = _clipping_support(facts, mode)
         if mode == "single_signal" and clipping is None:
-            windows = clipping_windows(context.signal_meta)
+            steps = _window_steps(context.signal_meta)
             scanned = len(context.tool_history) - len(plan)
-            if scanned < len(windows):
+            if scanned < len(steps):
+                channel, span = steps[scanned]
                 return CallToolDecision(
-                    call=DetectClippingCall(args=ClippingInput(time_range=windows[scanned])),
+                    call=DetectClippingCall(
+                        args=ClippingInput(time_range=span, channel=channel)
+                    ),
                     purpose=(
-                        f"{ENGINE_VERSION} clipping window {scanned + 1}/{len(windows)}"
+                        f"{ENGINE_VERSION} clipping window {scanned + 1}/{len(steps)} "
+                        f"({channel})"
                     ),
                 )
             clipping = _window_clipping_support(context)
