@@ -52,7 +52,7 @@ deterministic template by default, and an optional model rewrite (prompt
 `v0.3-s1-explain-1.0`) that is off unless `SIGNAL_DIAG_EXPLAIN_MODEL=enabled`
 and passes fail-closed validation (wording check 1.1, D058); phase 4, the test guide (§31), landed with
 D057: a deterministic questionnaire by default and an optional model draft
-(prompt `v0.3-s1-guide-1.1` since D059, off unless `SIGNAL_DIAG_GUIDE_MODEL=enabled`)
+(prompt `v0.3-s1-guide-1.1` since D059, off unless `SIGNAL_DIAG_GUIDE_MODEL=enabled`; the operator approved enabling it in deployment after `live_2`)
 that may only choose from a fixed plan catalog.
 No further planner prompt iterations are planned. See
 `docs/superpowers/specs/2026-10-07-route-adjustment-device-testing-design.md`.
@@ -79,7 +79,7 @@ Before modifying product code, read:
 - `docs/ARCHITECTURE_V0_2.md` (especially §§12–18)
 - `docs/CONTRACTS_V0_2.md` (frozen §§1–64)
 - `docs/TEST_PLAN_V0_2.md` (required T001–T285)
-- `docs/DECISIONS.md` (D001–D059; D052 sets the current route)
+- `docs/DECISIONS.md` (D001–D060; D052 sets the current route)
 - `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and `docs/TEST_PLAN_V0_3_CONTEXTUAL.md`
   when touching contextual / HEAD live product paths
 - the relevant specification and plan under `docs/superpowers/`
