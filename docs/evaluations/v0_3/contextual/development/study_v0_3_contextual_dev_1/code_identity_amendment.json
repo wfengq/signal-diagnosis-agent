@@ -924,5 +924,22 @@
     "qualification_recompute_unchanged": true,
     "scope": "D057: test guide (app/test_plan.py, app/guide_service.py, app/guide_eval.py, agent/guide.py prompt v0.3-s1-guide-1.0 off by default, API/CLI/UI/report surfaces); verdicts, engine, sweep test, explanation layer, planner and intake prompts, rules and frozen modules unchanged; model_calls=0",
     "selected_threshold_percent_unchanged": 5.0
+  },
+  {
+    "amendment_id": "d058_explain_wording_check",
+    "amendment_kind": "append_only_code_identity",
+    "calibration_recompute_unchanged": true,
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "created_at_utc": "2026-10-08T05:00:00+00:00",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "model_calls": 0,
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "product_tree_sha256": "8b7a297666111d8147d04ccdbf8f2e24b331e20cb83cb36c3751b39159a49c23",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "qualification_recompute_unchanged": true,
+    "scope": "D058: explanation wording check explain-validator-1.1 (whole-word English matching, negated standard disclaimer with demo qualifier), evaluation-only rejection_sink and harness rejection fields; explain prompt, packet, template, knowledge corpus, verdicts, engine, sweep test, test guide, planner and intake prompts, rules and frozen modules unchanged; model_calls=0",
+    "selected_threshold_percent_unchanged": 5.0
   }
 ]

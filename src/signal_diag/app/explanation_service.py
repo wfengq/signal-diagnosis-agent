@@ -12,7 +12,7 @@ from __future__ import annotations
 import html
 import json
 from collections import OrderedDict
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from functools import cache
 from importlib.resources import files
 from pathlib import Path
@@ -36,6 +36,7 @@ from signal_diag.app.errors import ApplicationError
 from signal_diag.app.explanation import (
     PACKET_VERSION,
     TEMPLATE_VERSION,
+    VALIDATOR_VERSION,
     ExplanationDraft,
     ExplanationPacket,
     ExplanationRejected,
@@ -79,9 +80,23 @@ class ExplanationResult(BaseModel):
     packet_version: str = PACKET_VERSION
     packet_digest: str
     template_version: str = TEMPLATE_VERSION
+    validator_version: str = VALIDATOR_VERSION
     explainer: ExplainerIdentity | None = None
     model_calls: int = 0
     draft: ExplanationDraft
+
+
+class Rejection(BaseModel):
+    """A model draft that was not used: why, and the model's text (evaluation only)."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    check: str
+    detail: str
+    raw: str
+
+
+RejectionSink = Callable[[Rejection], None]
 
 
 class ExplanationStatus(BaseModel):
@@ -112,11 +127,13 @@ class ExplanationService:
         explainer: Explainer | None = None,
         *,
         identity: ExplainerIdentity | None = None,
+        rejection_sink: RejectionSink | None = None,
     ) -> None:
         if (explainer is None) != (identity is None):
             raise ValueError("explainer and identity go together")
         self._explainer = explainer
         self._identity = identity
+        self._rejection_sink = rejection_sink
         self._latest: OrderedDict[str, ExplanationResult] = OrderedDict()
 
     def latest(self, run_id: str) -> ExplanationResult | None:
@@ -164,13 +181,15 @@ class ExplanationService:
         else:
             try:
                 draft = ExplanationDraft.model_validate_json(raw)
-            except (ValidationError, ValueError):
+            except (ValidationError, ValueError) as error:
                 reason = "illegal_output"
+                self._reject(reason, str(error).splitlines()[0], raw)
             else:
                 try:
                     validate_explanation(draft, packet)
                 except ExplanationRejected as rejected:
                     reason = f"validation_failed:{rejected.check}"
+                    self._reject(rejected.check, rejected.detail, raw)
                 else:
                     return ExplanationResult(
                         source="model",
@@ -189,6 +208,14 @@ class ExplanationService:
             language=language,
             packet_digest=digest,
         )
+
+    def with_rejection_sink(self, sink: RejectionSink) -> ExplanationService:
+        """The same explainer, reporting each rejected draft to ``sink`` (evaluation only)."""
+        return ExplanationService(self._explainer, identity=self._identity, rejection_sink=sink)
+
+    def _reject(self, check: str, detail: str, raw: str) -> None:
+        if self._rejection_sink is not None:
+            self._rejection_sink(Rejection(check=check, detail=detail, raw=raw))
 
     async def aclose(self) -> None:
         if self._explainer is not None:
@@ -286,6 +313,8 @@ __all__ = [
     "ExplanationResult",
     "ExplanationService",
     "ExplanationStatus",
+    "Rejection",
+    "RejectionSink",
     "build_explanation_service",
     "contextual_explanation_packet",
     "explanation_lines",

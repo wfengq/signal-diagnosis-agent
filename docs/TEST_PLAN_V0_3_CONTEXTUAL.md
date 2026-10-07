@@ -661,3 +661,14 @@ alter T-CX001–T-CX482 meanings.
 | T-CX491 | CLI `guide draft`, `questionnaire` and `confirm` print the questionnaire, drafts and steps, and exit 2 for an unavailable model or incomplete confirmation |
 | T-CX492 | The home page has the guide panel with the AI button hidden until health allows it; sweep and diagnosis pages load `guide.js`, show the plan banner and link runs; text is set without `innerHTML`; browser proof (manual, not in CI) with a scripted guide: AI draft and questionnaire paths, a prefilled sweep page, a linked report, no page error and no overflow at 390 px |
 | T-CX493 | The 40 authored scenarios cover every plan, connection and the tagged edge cases, and each expected plan passes the validator; the harness scores offline with no model call and, in live mode, counts plan and parameter accuracy, number rejections and fallbacks |
+
+T-CX494–T-CX497 are additive definitions for D058
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §30.1). They make no model call and must not
+alter T-CX001–T-CX493 meanings.
+
+| ID | Definition |
+|----|------------|
+| T-CX494 | Wording check 1.1 is `explain-validator-1.1`; ordinary English words (slightly, pieces, limitation, limited) pass, while whole banned and threshold words, plurals, and words next to Chinese characters or digits are rejected |
+| T-CX495 | A negated "standard/标准" disclaimer passes only with 演示/demo in the sentence; "meets the standard", "not meeting the standard", 符合标准, 不符合标准, 未达标, a leading 行业标准, a disclaimer without demo, other banned words beside a disclaimer, and a second unnegated 标准 are rejected |
+| T-CX496 | The rejection sink receives the check, detail and model text for validation failures and illegal output, nothing for a template request or an accepted draft; the result carries `validator_version` and no rejection data |
+| T-CX497 | The acceptance harness writes `validator_version`, `rejection_detail` and `rejected_draft` per row and `rejection_details` in the summary; offline rows have none; no credential text is written |
