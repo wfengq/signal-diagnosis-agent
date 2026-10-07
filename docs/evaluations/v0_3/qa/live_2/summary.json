@@ -1,0 +1,38 @@
+{
+  "case_set": "heldout_2",
+  "cases": 20,
+  "decline_bar": 0.9,
+  "declined_when_answerable": 3,
+  "expect": {
+    "answer": 15,
+    "decline": 5
+  },
+  "fallback_reasons": {
+    "validation_failed:citation": 1,
+    "validation_failed:fault_mismatch": 1,
+    "validation_failed:wording": 1
+  },
+  "final_declined_when_expected": 5,
+  "groups": {
+    "contextual_dev": 15,
+    "sweep": 5
+  },
+  "human_review": "pending: operator scores review.md (no wrong statement in 20 samples)",
+  "live": true,
+  "meets_decline_bar": true,
+  "meets_validation_bar": false,
+  "model_answers": 17,
+  "model_calls": 20,
+  "model_decline_rate": 1.0,
+  "model_declined_when_expected": 5,
+  "pass_rate_bar": 0.9,
+  "qa_version": "result-qa-1.1",
+  "rejection_details": {
+    "forbidden wording '合格'": 1,
+    "mentions harmonic_distortion without citing it": 1,
+    "unknown reference rerecord_quieter": 1
+  },
+  "schema": "qa_eval/1",
+  "validation_pass_rate": 0.85,
+  "validator_version": "explain-validator-1.1"
+}
