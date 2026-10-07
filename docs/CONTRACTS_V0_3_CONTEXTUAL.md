@@ -2574,3 +2574,74 @@ number rejection). The development set is reported for comparison with
 setting `SIGNAL_DIAG_GUIDE_MODEL=enabled` in deployment; the code default is
 unchanged (off), and the questionnaire, validation, fallback and confirmation
 rules above still apply.
+
+## 32. Multi-round test sessions (D060, phase A)
+
+A session strings sweep tests (§29) together until the result is clear. Each
+round's result comes from the sweep engine; the next step is chosen by a policy
+and checked by a deterministic validator. Phase A ships the rule policy only;
+no model is called.
+
+**Levels.** Session levels are playback levels in dB on a 3 dB grid from
+−36 dB to the user's maximum (default 0 dB, at most +12 dB), labelled `-12 dB`,
+`0 dB`, `+3 dB`. A new level may lie at most 9 dB (three grid steps) outside
+the levels already tested.
+
+**Actions** (`app/test_session.py`, `test-session-1.0`):
+
+- `propose_test`: 1–3 increasing grid levels, an optional fix
+  (`record_whole_stimulus`, `check_stimulus_file`, `use_one_clock`,
+  `rerecord_quieter`, `check_recorder_gain`) and reasons citing this session's
+  results (`session_start` before the first round). A fix must be called for by
+  the last round; the exact same test (levels and fix) is never repeated.
+- `ask_user`: one of `max_level_db`, `recorder_gain_adjustable`, `can_retest`,
+  `connection`, each at most once; nothing else happens until it is answered.
+- `finish`: `resolved` only when §32 resolution holds; `budget_exhausted` only
+  when no rounds remain; `blocked_by_user` only when the user cannot re-test;
+  `measurement_failed` only when rounds were run and nothing is resolved.
+
+**Resolution** (deterministic, from engine results only): a level counts when
+it is valid (no failed validity rule), judged, and, if it reached full scale,
+the recorder's gain was checked or cannot be changed. Resolved when the lowest
+distorted level has a clean level within 3 dB below it (or is at −36 dB); when
+every counted level is clean up to the user's stated maximum; or when a
+contextual run that started the session already reached a verdict.
+
+**Rule policy** (`session-rules-1.0`, the default):
+
+1. start with −12, −6 and 0 dB (capped at the maximum); after an inconclusive
+   recording, first ask whether the device can be re-tested;
+2. finish when resolved, or when rounds run out;
+3. repeat the last levels with the first untried fix the last round calls for
+   (whole stimulus, stimulus file, one clock, quieter room);
+4. after a full-scale result, ask whether the recorder's gain can be lowered,
+   then repeat with `check_recorder_gain`;
+5. bracket the onset: grid levels between the highest clean and the lowest
+   distorted level, or up to three steps below a distorted lowest level; when
+   all is clean, ask the maximum level and test above it;
+6. otherwise finish with `measurement_failed`.
+
+**Sandbox** (`app/session_eval.py`): simulated devices (clean, hard clip,
+soft saturation, polynomial) and conditions (noise, clock drift, recorder
+gain, truncated recording, wrong stimulus) render recordings of the versioned
+sweep at each proposed level; the real sweep engine judges them; a condition
+lasts until its fix is applied. Simulated users answer from the scenario. 30
+development scenarios live in `evaluation/assets/session_cases.json`; their
+expected onsets are the engine's own first distorted grid level under clean
+conditions. `python -m signal_diag.app.session_eval --out DIR [--cases dev]`
+writes `results.jsonl` and `summary.json` (final correctness, mean and extra
+rounds, statuses).
+
+**Surfaces.** API: `POST /api/v1/test-sessions` (optional `plan_key` of a
+confirmed sweep plan, `sample_rate_hz`, `connection`, `max_rounds` 1–6,
+`start_outcome`, `answers`), `GET /api/v1/test-sessions/{id}`,
+`POST .../answers` (`field`, `value`), `POST .../runs` (`run_id` of a sweep run
+whose level labels match the pending proposal). Each returns the session, the
+next step, the resolution, rounds left and the summary; `model_calls` is 0.
+CLI: `session simulate CASE_ID [--cases dev|heldout] [--output text|json]`.
+Web: a session panel on `/sweep` that fills the level labels and links each
+analysed sweep run.
+
+**Acceptance (D060).** The rule policy ships as the default when it reaches
+final correctness ≥ 0.9 on 20 frozen held-out scenarios. A model policy
+(phase B) must beat it under D060 3A.

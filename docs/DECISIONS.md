@@ -1426,8 +1426,10 @@ and every step returns a verifiable engine result.
   otherwise the rule policy alone ships;
 - 4A: the sandbox uses synthetic devices only for now.
 
-Item 5 (who writes the held-out session scenarios) is decided before the
-phase A acceptance run.
+Item 5 (operator, 2026-10-07): **A**. Cursor writes the 20 held-out session
+scenarios from the scenario format, device and condition types and the
+distribution only, without reading the rule policy; they are frozen under
+`docs/evaluations/v0_3/session/heldout/` before the phase A acceptance run.
 
 **Unchanged:** the engine, sweep analysis, rules, thresholds and verdicts; the
 explanation layer, test guide, questionnaire and plan catalog; V0.2 79/80 and
