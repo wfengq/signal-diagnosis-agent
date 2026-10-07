@@ -148,6 +148,8 @@ def test_t_cx497_eval_rows_record_rejections(tmp_path: Path) -> None:
         assert row["rejected_draft"] == "not json" and row["rejection_detail"]
     for name in ("results.jsonl", "summary.json", "review.md"):
         assert "DEEPSEEK_API_KEY" not in (tmp_path / name).read_text(encoding="utf-8")
+    review = (tmp_path / "review.md").read_text(encoding="utf-8").splitlines()
+    assert all(line == line.rstrip() for line in review)
 
     offline = tmp_path / "offline"
     summary = asyncio.run(_run(ROOT, offline, live=False))

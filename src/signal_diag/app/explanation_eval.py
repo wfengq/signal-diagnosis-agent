@@ -180,13 +180,14 @@ def review_markdown(rows: list[dict[str, Any]], results: dict[str, ExplanationRe
                 "",
                 *(f"    {line}" for line in explanation_lines(results[row["case_id"]])),
                 "",
-                "- readable: ",
-                "- wrong statement: ",
-                "- next steps useful: ",
+                "- readable:",
+                "- wrong statement:",
+                "- next steps useful:",
                 "",
             ]
         )
-    return "\n".join(lines)
+    # No trailing whitespace, so the committed review passes `git diff --check`.
+    return "\n".join(line.rstrip() for line in lines)
 
 
 async def _run(
