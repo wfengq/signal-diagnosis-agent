@@ -811,8 +811,22 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert wording["prior_bridge_current_implementation_sha256"] == (
         guide["current_implementation_sha256"]
     )
-    assert wording["current_implementation_sha256"] == contextual_implementation_sha256()
-    assert wording["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert wording["current_implementation_sha256"] == (
+        "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3"
+    )
+    assert wording["product_tree_sha256"] == (
+        "8b7a297666111d8147d04ccdbf8f2e24b331e20cb83cb36c3751b39159a49c23"
+    )
     assert wording["prompt_sha256"] == oq014["prompt_sha256"]
     assert wording["prompt_version"] == "v0.3-s1-planner-9.11"
     assert wording["model_calls"] == 0
+    review = next(row for row in rows if row["amendment_id"] == "d058_review_whitespace")
+    assert review["amendment_kind"] == "append_only_code_identity"
+    assert review["prior_bridge_current_implementation_sha256"] == (
+        wording["current_implementation_sha256"]
+    )
+    assert review["current_implementation_sha256"] == contextual_implementation_sha256()
+    assert review["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert review["prompt_sha256"] == oq014["prompt_sha256"]
+    assert review["prompt_version"] == "v0.3-s1-planner-9.11"
+    assert review["model_calls"] == 0
