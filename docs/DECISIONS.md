@@ -1357,3 +1357,30 @@ options 1A, 2A, 3A and 4A:
 - `live_1`, which stays recorded as below the bar;
 - `SIGNAL_DIAG_EXPLAIN_MODEL` stays off until `live_2` passes;
 - V0.2 79/80.
+
+## D059 — Test guide prompt 1.1, rejection records and held-out scenarios (D057 amendment)
+
+**Context:** the first real-model acceptance run of the test guide
+(`docs/evaluations/v0_3/guide/live_1/`) missed the bars: plan accuracy 0.775
+and parameter accuracy 0.65 (bars 0.9), 0 number rejections, 11 cases with
+unnecessary questions and 9 `illegal_output`. Row by row, most failures came
+from facts the prompt never stated (the sweep plays its own signal; the sample
+rate matters only for the sweep; how to tell the connection), the
+`illegal_output` cases could not be diagnosed because the model text was not
+kept, and one draft swapped the reference and test files.
+
+**Decision (operator 2026-10-07):** approve
+`docs/superpowers/specs/2026-10-07-guide-prompt-1-1-design.md` with options
+1A, 2A, 3A and 4A:
+
+- 1A: Cursor writes 20 held-out scenarios from the distribution and plan
+  catalog only, without the prompt changes; they are merged and frozen before
+  prompt 1.1 is committed;
+- 2A: unnecessary questions are reported, not rejected or removed;
+- 3A: the held-out set decides whether the model draft may be enabled, with
+  the D057 bars; the 40 development scenarios are reported for comparison;
+- 4A: the acceptance harness keeps each rejected model text.
+
+**Unchanged:** the plan catalog, questionnaire, confirmation, §31 checks,
+bars, the 40 development scenarios and `live_1`;
+`SIGNAL_DIAG_GUIDE_MODEL` stays off until the held-out set passes.
