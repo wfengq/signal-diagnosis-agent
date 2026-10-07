@@ -163,4 +163,3 @@ Acceptance needs 0 wrong statements across all samples.
 - answers the question:
 - wrong statement:
 - declined correctly:
-
