@@ -1,0 +1,1237 @@
+[
+ {
+  "effect": "Clean",
+  "note": "1-0",
+  "rejected": "data size is not a multiple of block_align"
+ },
+ {
+  "effect": "Clean",
+  "note": "1-12",
+  "peak_abs": 0.9937,
+  "comparison_windows": 20,
+  "windows_not_comparable": 10,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Clean",
+  "note": "2-0",
+  "peak_abs": 0.997,
+  "comparison_windows": 20,
+  "windows_not_comparable": 5,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Clean",
+  "note": "2-12",
+  "peak_abs": 0.9917,
+  "comparison_windows": 20,
+  "windows_not_comparable": 5,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 2,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Clean",
+  "note": "3-0",
+  "peak_abs": 0.9967,
+  "comparison_windows": 20,
+  "windows_not_comparable": 4,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 4,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Clean",
+  "note": "3-12",
+  "peak_abs": 0.999,
+  "comparison_windows": 20,
+  "windows_not_comparable": 2,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 2,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Clean",
+  "note": "4-0",
+  "peak_abs": 0.9998,
+  "comparison_windows": 20,
+  "windows_not_comparable": 15,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Clean",
+  "note": "4-12",
+  "peak_abs": 0.9909,
+  "comparison_windows": 20,
+  "windows_not_comparable": 3,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Clean",
+  "note": "5-0",
+  "peak_abs": 0.9983,
+  "comparison_windows": 20,
+  "windows_not_comparable": 12,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 5,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Clean",
+  "note": "5-12",
+  "peak_abs": 0.9927,
+  "comparison_windows": 20,
+  "windows_not_comparable": 7,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Clean",
+  "note": "6-0",
+  "peak_abs": 0.9953,
+  "comparison_windows": 20,
+  "windows_not_comparable": 9,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Clean",
+  "note": "6-12",
+  "peak_abs": 0.9957,
+  "comparison_windows": 20,
+  "windows_not_comparable": 8,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 5,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "TubeScreamer",
+  "note": "1-0",
+  "rejected": "data size is not a multiple of block_align"
+ },
+ {
+  "effect": "TubeScreamer",
+  "note": "1-12",
+  "peak_abs": 0.8904,
+  "comparison_windows": 20,
+  "windows_not_comparable": 11,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 0,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "TubeScreamer",
+  "note": "2-0",
+  "peak_abs": 0.8856,
+  "comparison_windows": 20,
+  "windows_not_comparable": 14,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    0.75,
+    2.25
+   ]
+  ],
+  "scan_harmonic_seconds": 1.5,
+  "withheld_without_harmonic_diagnosis": 6,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 0,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "TubeScreamer",
+  "note": "2-12",
+  "peak_abs": 0.8859,
+  "comparison_windows": 20,
+  "windows_not_comparable": 5,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 0,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "TubeScreamer",
+  "note": "3-0",
+  "peak_abs": 0.8895,
+  "comparison_windows": 20,
+  "windows_not_comparable": 4,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    0.25,
+    3.0
+   ],
+   [
+    "mixdown",
+    3.5,
+    4.0
+   ],
+   [
+    "mixdown",
+    4.25,
+    5.0
+   ]
+  ],
+  "scan_harmonic_seconds": 4.0,
+  "withheld_without_harmonic_diagnosis": 16,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "TubeScreamer",
+  "note": "3-12",
+  "peak_abs": 0.8867,
+  "comparison_windows": 20,
+  "windows_not_comparable": 2,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "TubeScreamer",
+  "note": "4-0",
+  "peak_abs": 0.8862,
+  "comparison_windows": 20,
+  "windows_not_comparable": 20,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "TubeScreamer",
+  "note": "4-12",
+  "peak_abs": 0.8816,
+  "comparison_windows": 20,
+  "windows_not_comparable": 3,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "TubeScreamer",
+  "note": "5-0",
+  "peak_abs": 0.8867,
+  "comparison_windows": 20,
+  "windows_not_comparable": 14,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    2.25,
+    3.5
+   ]
+  ],
+  "scan_harmonic_seconds": 1.25,
+  "withheld_without_harmonic_diagnosis": 5,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "TubeScreamer",
+  "note": "5-12",
+  "peak_abs": 0.8911,
+  "comparison_windows": 20,
+  "windows_not_comparable": 7,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "TubeScreamer",
+  "note": "6-0",
+  "peak_abs": 0.8859,
+  "comparison_windows": 20,
+  "windows_not_comparable": 16,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    2.75,
+    3.75
+   ]
+  ],
+  "scan_harmonic_seconds": 1.0,
+  "withheld_without_harmonic_diagnosis": 4,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 4,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "TubeScreamer",
+  "note": "6-12",
+  "peak_abs": 0.891,
+  "comparison_windows": 20,
+  "windows_not_comparable": 10,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 2,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "RAT",
+  "note": "1-0",
+  "rejected": "data size is not a multiple of block_align"
+ },
+ {
+  "effect": "RAT",
+  "note": "1-12",
+  "peak_abs": 0.9901,
+  "comparison_windows": 20,
+  "windows_not_comparable": 11,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    0.25,
+    2.25
+   ]
+  ],
+  "scan_harmonic_seconds": 2.0,
+  "withheld_without_harmonic_diagnosis": 8,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 0,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "RAT",
+  "note": "2-0",
+  "peak_abs": 0.9943,
+  "comparison_windows": 20,
+  "windows_not_comparable": 14,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    1.0,
+    2.0
+   ]
+  ],
+  "scan_harmonic_seconds": 1.0,
+  "withheld_without_harmonic_diagnosis": 4,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "RAT",
+  "note": "2-12",
+  "peak_abs": 0.9993,
+  "comparison_windows": 20,
+  "windows_not_comparable": 5,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    0.25,
+    3.75
+   ]
+  ],
+  "scan_harmonic_seconds": 3.5,
+  "withheld_without_harmonic_diagnosis": 14,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "RAT",
+  "note": "3-0",
+  "peak_abs": 0.9905,
+  "comparison_windows": 20,
+  "windows_not_comparable": 6,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    1.0,
+    3.0
+   ],
+   [
+    "mixdown",
+    3.5,
+    4.0
+   ],
+   [
+    "mixdown",
+    4.75,
+    5.0
+   ]
+  ],
+  "scan_harmonic_seconds": 2.75,
+  "withheld_without_harmonic_diagnosis": 11,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 0,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "RAT",
+  "note": "3-12",
+  "peak_abs": 0.9988,
+  "comparison_windows": 20,
+  "windows_not_comparable": 2,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    0.25,
+    3.5
+   ],
+   [
+    "mixdown",
+    3.75,
+    4.5
+   ]
+  ],
+  "scan_harmonic_seconds": 4.0,
+  "withheld_without_harmonic_diagnosis": 16,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "harmonic_growth",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "RAT",
+  "note": "4-0",
+  "peak_abs": 0.9967,
+  "comparison_windows": 20,
+  "windows_not_comparable": 20,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "RAT",
+  "note": "4-12",
+  "peak_abs": 0.9966,
+  "comparison_windows": 20,
+  "windows_not_comparable": 3,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    0.0,
+    3.5
+   ],
+   [
+    "mixdown",
+    3.75,
+    4.5
+   ]
+  ],
+  "scan_harmonic_seconds": 4.25,
+  "withheld_without_harmonic_diagnosis": 17,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "harmonic_growth",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "RAT",
+  "note": "5-0",
+  "peak_abs": 0.9941,
+  "comparison_windows": 20,
+  "windows_not_comparable": 14,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    2.0,
+    3.5
+   ]
+  ],
+  "scan_harmonic_seconds": 1.5,
+  "withheld_without_harmonic_diagnosis": 6,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "RAT",
+  "note": "5-12",
+  "peak_abs": 0.9923,
+  "comparison_windows": 20,
+  "windows_not_comparable": 8,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    0.5,
+    1.75
+   ],
+   [
+    "mixdown",
+    2.0,
+    3.25
+   ]
+  ],
+  "scan_harmonic_seconds": 2.5,
+  "withheld_without_harmonic_diagnosis": 10,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "RAT",
+  "note": "6-0",
+  "peak_abs": 0.9888,
+  "comparison_windows": 20,
+  "windows_not_comparable": 13,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    2.25,
+    3.25
+   ],
+   [
+    "mixdown",
+    3.5,
+    4.0
+   ]
+  ],
+  "scan_harmonic_seconds": 1.5,
+  "withheld_without_harmonic_diagnosis": 6,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 0,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "RAT",
+  "note": "6-12",
+  "peak_abs": 0.9945,
+  "comparison_windows": 20,
+  "windows_not_comparable": 10,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    0.25,
+    1.0
+   ],
+   [
+    "mixdown",
+    1.25,
+    2.75
+   ]
+  ],
+  "scan_harmonic_seconds": 2.25,
+  "withheld_without_harmonic_diagnosis": 9,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "BluesDriver",
+  "note": "1-0",
+  "rejected": "data size is not a multiple of block_align"
+ },
+ {
+  "effect": "BluesDriver",
+  "note": "1-12",
+  "peak_abs": 0.887,
+  "comparison_windows": 20,
+  "windows_not_comparable": 11,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "BluesDriver",
+  "note": "2-0",
+  "peak_abs": 0.8884,
+  "comparison_windows": 20,
+  "windows_not_comparable": 10,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    0.75,
+    1.5
+   ],
+   [
+    "mixdown",
+    2.0,
+    2.75
+   ]
+  ],
+  "scan_harmonic_seconds": 1.5,
+  "withheld_without_harmonic_diagnosis": 6,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 2,
+  "whole_file_paired": "harmonic_growth",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "BluesDriver",
+  "note": "2-12",
+  "peak_abs": 0.8819,
+  "comparison_windows": 20,
+  "windows_not_comparable": 5,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 2,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "BluesDriver",
+  "note": "3-0",
+  "peak_abs": 0.887,
+  "comparison_windows": 20,
+  "windows_not_comparable": 4,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    0.25,
+    0.5
+   ],
+   [
+    "mixdown",
+    1.25,
+    2.0
+   ],
+   [
+    "mixdown",
+    2.25,
+    3.0
+   ],
+   [
+    "mixdown",
+    3.5,
+    4.0
+   ],
+   [
+    "mixdown",
+    4.25,
+    5.0
+   ]
+  ],
+  "scan_harmonic_seconds": 3.0,
+  "withheld_without_harmonic_diagnosis": 12,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 5,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "BluesDriver",
+  "note": "3-12",
+  "peak_abs": 0.883,
+  "comparison_windows": 20,
+  "windows_not_comparable": 2,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "BluesDriver",
+  "note": "4-0",
+  "peak_abs": 0.8874,
+  "comparison_windows": 20,
+  "windows_not_comparable": 20,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "BluesDriver",
+  "note": "4-12",
+  "peak_abs": 0.8907,
+  "comparison_windows": 20,
+  "windows_not_comparable": 3,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 4,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "BluesDriver",
+  "note": "5-0",
+  "peak_abs": 0.8863,
+  "comparison_windows": 20,
+  "windows_not_comparable": 14,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    2.0,
+    2.25
+   ]
+  ],
+  "scan_harmonic_seconds": 0.25,
+  "withheld_without_harmonic_diagnosis": 1,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 2,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "BluesDriver",
+  "note": "5-12",
+  "peak_abs": 0.8832,
+  "comparison_windows": 20,
+  "windows_not_comparable": 7,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 5,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "BluesDriver",
+  "note": "6-0",
+  "peak_abs": 0.8893,
+  "comparison_windows": 20,
+  "windows_not_comparable": 19,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    3.0,
+    3.25
+   ]
+  ],
+  "scan_harmonic_seconds": 0.25,
+  "withheld_without_harmonic_diagnosis": 1,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 4,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "BluesDriver",
+  "note": "6-12",
+  "peak_abs": 0.8853,
+  "comparison_windows": 20,
+  "windows_not_comparable": 10,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 4,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Chorus",
+  "note": "1-0",
+  "rejected": "data size is not a multiple of block_align"
+ },
+ {
+  "effect": "Chorus",
+  "note": "1-12",
+  "peak_abs": 0.9969,
+  "comparison_windows": 20,
+  "windows_not_comparable": 13,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 4,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Chorus",
+  "note": "2-0",
+  "peak_abs": 0.9914,
+  "comparison_windows": 20,
+  "windows_not_comparable": 11,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    2.0,
+    2.25
+   ]
+  ],
+  "scan_harmonic_seconds": 0.25,
+  "withheld_without_harmonic_diagnosis": 1,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Chorus",
+  "note": "2-12",
+  "peak_abs": 0.9945,
+  "comparison_windows": 20,
+  "windows_not_comparable": 9,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 5,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Chorus",
+  "note": "3-0",
+  "peak_abs": 1.0,
+  "comparison_windows": 20,
+  "windows_not_comparable": 4,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 2,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Chorus",
+  "note": "3-12",
+  "peak_abs": 1.0,
+  "comparison_windows": 20,
+  "windows_not_comparable": 6,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 4,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Chorus",
+  "note": "4-0",
+  "peak_abs": 1.0,
+  "comparison_windows": 20,
+  "windows_not_comparable": 20,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Chorus",
+  "note": "4-12",
+  "peak_abs": 1.0,
+  "comparison_windows": 20,
+  "windows_not_comparable": 5,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    0.0,
+    0.25
+   ]
+  ],
+  "scan_harmonic_seconds": 0.25,
+  "withheld_without_harmonic_diagnosis": 1,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 5,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Chorus",
+  "note": "5-0",
+  "peak_abs": 1.0,
+  "comparison_windows": 20,
+  "windows_not_comparable": 20,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Chorus",
+  "note": "5-12",
+  "peak_abs": 1.0,
+  "comparison_windows": 20,
+  "windows_not_comparable": 7,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Chorus",
+  "note": "6-0",
+  "peak_abs": 1.0,
+  "comparison_windows": 20,
+  "windows_not_comparable": 12,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    2.25,
+    2.75
+   ],
+   [
+    "mixdown",
+    3.0,
+    3.25
+   ],
+   [
+    "mixdown",
+    3.5,
+    3.75
+   ]
+  ],
+  "scan_harmonic_seconds": 1.0,
+  "withheld_without_harmonic_diagnosis": 4,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Chorus",
+  "note": "6-12",
+  "peak_abs": 1.0,
+  "comparison_windows": 20,
+  "windows_not_comparable": 9,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 7,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Phaser",
+  "note": "1-0",
+  "rejected": "data size is not a multiple of block_align"
+ },
+ {
+  "effect": "Phaser",
+  "note": "1-12",
+  "peak_abs": 0.9936,
+  "comparison_windows": 20,
+  "windows_not_comparable": 15,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 0,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Phaser",
+  "note": "2-0",
+  "peak_abs": 0.9903,
+  "comparison_windows": 20,
+  "windows_not_comparable": 8,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    0.0,
+    0.25
+   ],
+   [
+    "mixdown",
+    0.5,
+    0.75
+   ],
+   [
+    "mixdown",
+    1.0,
+    1.25
+   ],
+   [
+    "mixdown",
+    1.75,
+    2.0
+   ],
+   [
+    "mixdown",
+    4.5,
+    4.75
+   ]
+  ],
+  "scan_harmonic_seconds": 1.25,
+  "withheld_without_harmonic_diagnosis": 5,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 2,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Phaser",
+  "note": "2-12",
+  "peak_abs": 0.9893,
+  "comparison_windows": 20,
+  "windows_not_comparable": 10,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Phaser",
+  "note": "3-0",
+  "peak_abs": 0.9935,
+  "comparison_windows": 20,
+  "windows_not_comparable": 4,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    0.25,
+    0.5
+   ],
+   [
+    "mixdown",
+    1.75,
+    2.25
+   ],
+   [
+    "mixdown",
+    2.5,
+    3.0
+   ],
+   [
+    "mixdown",
+    3.5,
+    3.75
+   ],
+   [
+    "mixdown",
+    4.5,
+    4.75
+   ]
+  ],
+  "scan_harmonic_seconds": 1.75,
+  "withheld_without_harmonic_diagnosis": 7,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Phaser",
+  "note": "3-12",
+  "peak_abs": 0.9958,
+  "comparison_windows": 20,
+  "windows_not_comparable": 6,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 5,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Phaser",
+  "note": "4-0",
+  "peak_abs": 0.9959,
+  "comparison_windows": 20,
+  "windows_not_comparable": 19,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Phaser",
+  "note": "4-12",
+  "peak_abs": 0.9935,
+  "comparison_windows": 20,
+  "windows_not_comparable": 4,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    3.0,
+    3.25
+   ]
+  ],
+  "scan_harmonic_seconds": 0.25,
+  "withheld_without_harmonic_diagnosis": 1,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Phaser",
+  "note": "5-0",
+  "peak_abs": 0.9894,
+  "comparison_windows": 20,
+  "windows_not_comparable": 15,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    2.5,
+    3.5
+   ]
+  ],
+  "scan_harmonic_seconds": 1.0,
+  "withheld_without_harmonic_diagnosis": 4,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 2,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Phaser",
+  "note": "5-12",
+  "peak_abs": 0.9978,
+  "comparison_windows": 20,
+  "windows_not_comparable": 7,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 3,
+  "whole_file_paired": "no_growth",
+  "whole_file_clipping_fail": true
+ },
+ {
+  "effect": "Phaser",
+  "note": "6-0",
+  "peak_abs": 0.9912,
+  "comparison_windows": 20,
+  "windows_not_comparable": 16,
+  "scan_harmonic_intervals": [
+   [
+    "mixdown",
+    2.5,
+    2.75
+   ],
+   [
+    "mixdown",
+    3.0,
+    3.75
+   ]
+  ],
+  "scan_harmonic_seconds": 1.0,
+  "withheld_without_harmonic_diagnosis": 4,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 1,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ },
+ {
+  "effect": "Phaser",
+  "note": "6-12",
+  "peak_abs": 0.9887,
+  "comparison_windows": 20,
+  "windows_not_comparable": 10,
+  "scan_harmonic_intervals": [],
+  "scan_harmonic_seconds": 0,
+  "withheld_without_harmonic_diagnosis": 0,
+  "shown_without_harmonic_diagnosis": 0,
+  "single_signal_clipping_intervals": 2,
+  "whole_file_paired": "not_comparable",
+  "whole_file_clipping_fail": false
+ }
+]

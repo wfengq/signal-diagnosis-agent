@@ -695,8 +695,24 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert paired["prior_bridge_current_implementation_sha256"] == (
         localization["current_implementation_sha256"]
     )
-    assert paired["current_implementation_sha256"] == contextual_implementation_sha256()
-    assert paired["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert paired["current_implementation_sha256"] == (
+        "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3"
+    )
+    assert paired["product_tree_sha256"] == (
+        "ba59f0c17cd72c9e0c3d49a8887c73ad1f33755d60b62bd77b0f12f8fdd9fde9"
+    )
     assert paired["prompt_sha256"] == oq014["prompt_sha256"]
     assert paired["prompt_version"] == "v0.3-s1-planner-9.11"
     assert paired["model_calls"] == 0
+    withholding = next(
+        row for row in rows if row["amendment_id"] == "d051_paired_harmonic_withholding"
+    )
+    assert withholding["amendment_kind"] == "append_only_code_identity"
+    assert withholding["prior_bridge_current_implementation_sha256"] == (
+        paired["current_implementation_sha256"]
+    )
+    assert withholding["current_implementation_sha256"] == contextual_implementation_sha256()
+    assert withholding["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert withholding["prompt_sha256"] == oq014["prompt_sha256"]
+    assert withholding["prompt_version"] == "v0.3-s1-planner-9.11"
+    assert withholding["model_calls"] == 0

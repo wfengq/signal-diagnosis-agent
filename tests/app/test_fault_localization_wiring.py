@@ -210,7 +210,7 @@ async def _run_paired(service: DiagnosisApplicationService) -> Any:
 
 
 @pytest.mark.asyncio
-async def test_t_cx445_paired_runs_localize_harmonics_and_report_the_basis() -> None:
+async def test_t_cx445_paired_runs_report_the_basis_and_withhold_undiagnosed_harmonics() -> None:
     service = _service()
     snapshot = await _run_paired(service)
     await service.aclose()
@@ -219,8 +219,10 @@ async def test_t_cx445_paired_runs_localize_harmonics_and_report_the_basis() -> 
     assert localization.harmonic_basis == "reference_growth"
     assert localization.comparison_overlap == 0.0
     assert localization.windows_not_comparable is not None
-    harmonic = [i for i in localization.intervals if i.fault == "harmonic_distortion"]
-    assert harmonic and all(i.start_s < 1.5 and i.end_s > 1.0 for i in harmonic)
+    # The scripted planner finishes inconclusive, so reference growth is withheld (§27.1).
+    assert [i for i in localization.intervals if i.fault == "harmonic_distortion"] == []
+    assert localization.harmonic_windows_withheld is not None
+    assert localization.harmonic_windows_withheld >= 1
 
     dumped = dump_contextual_snapshot(snapshot)["fault_localization"]
     assert dumped["harmonic_basis"] == "reference_growth"
@@ -231,6 +233,8 @@ async def test_t_cx445_paired_runs_localize_harmonics_and_report_the_basis() -> 
     html = render_contextual_report_html(report)
     assert "compared with the same span of the reference" in html
     assert "could not be compared" in html
+    assert "not shown because the diagnosis did not support harmonic distortion" in html
+    assert "No segment rule failed" not in html
 
 
 @pytest.mark.asyncio
@@ -258,6 +262,7 @@ def test_t_cx445_page_and_cli_follow_the_basis(
     assert "LOCALIZATION_SCOPE[localization.harmonic_basis]" in script
     assert "reference_growth:" in script and "nominal_thd:" in script
     assert "windows_not_comparable" in script
+    assert "harmonic_windows_withheld" in script
 
     test, reference = _paired_wavs()
     (tmp_path / "burst.wav").write_bytes(test)
@@ -278,4 +283,6 @@ def test_t_cx445_page_and_cli_follow_the_basis(
     assert code == 0
     assert "harmonic_basis: reference_growth" in out
     assert "windows_not_comparable:" in out
-    assert "harmonic_distortion mixdown" in out
+    assert "harmonic_windows_withheld:" in out
+    assert "no segment rule failed" not in out
+    assert "harmonic_distortion mixdown" not in out

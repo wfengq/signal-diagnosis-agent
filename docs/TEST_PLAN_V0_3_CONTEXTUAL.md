@@ -566,16 +566,17 @@ alter T-CX001–T-CX433 meanings.
 | T-CX439 | With localization set, the snapshot, report JSON, HTML report, CLI text and Web UI show it; unset, the snapshot and report JSON omit `fault_localization` and the HTML has no section |
 | T-CX440 | Browser proof with a stub planner (manual, not in CI): the 故障位置 panel shows the intervals with the right scope note, with no page error and no horizontal overflow at 1440 px and 390 px |
 
-T-CX441–T-CX446 are additive definitions for D051
+T-CX441–T-CX447 are additive definitions for D051
 (`CONTRACTS_V0_3_CONTEXTUAL.md` §27.1). They make no model call and must not
 alter T-CX001–T-CX440 meanings; T-CX434 and T-CX439 now expect scan version
 `product-segment-scan-1.1`.
 
 | ID | Definition |
 |----|------------|
-| T-CX441 | A synthetic harmonic burst at 1.0–1.5 s against a clean reference (steady and decaying, offsets 0, 30 and 200 ms) yields harmonic intervals that overlap the burst on the test timeline and stay within one window of it, each citing the four PASS gate evaluations and the growth FAIL; identical files yield none; with a stereo test and a mono reference only the distorted channel is localized |
+| T-CX441 | With a diagnosis that supports harmonic distortion, a synthetic harmonic burst at 1.0–1.5 s against a clean reference (steady and decaying, offsets 0, 30 and 200 ms) yields harmonic intervals that overlap the burst on the test timeline and stay within one window of it, each citing the four PASS gate evaluations and the growth FAIL; identical files yield none; with a stereo test and a mono reference only the distorted channel is localized |
 | T-CX442 | Windows with a clipped reference span, past the reference end, or with an incompatible fundamental count as not comparable and yield no harmonic interval; `paired_reference` without a reference record is rejected |
-| T-CX443 | Every paired case of the contextual development and validation studies: cases whose causal set contains harmonic distortion yield a harmonic interval, all others yield none, and inconclusive cases have every comparison window not comparable |
+| T-CX443 | Every paired case of the contextual development and validation studies, with a diagnosis that supports harmonic distortion: cases whose causal set contains harmonic distortion yield a harmonic interval, all others yield none, and inconclusive cases have every comparison window not comparable |
 | T-CX444 | For every H1 held-out T2 case, `single_signal` and `nominal_single_tone` results equal the recorded 1.0 baseline except `scan_version`, with `harmonic_basis` set only for the declared tone and no paired fields |
-| T-CX445 | A paired run's snapshot, report JSON, HTML report, CLI text and Web UI show `harmonic_basis`, the comparison windows and the not-comparable count; single-file output omits the paired fields |
-| T-CX446 | Browser proof with a stub planner (manual, not in CI): a paired manual run shows the harmonic interval and the reference-comparison note, with no page error and no horizontal overflow at 1440 px and 390 px |
+| T-CX445 | A paired run's snapshot, report JSON, HTML report, CLI text and Web UI show `harmonic_basis`, the comparison windows, the not-comparable count and, when the diagnosis does not support harmonic distortion, the withheld count with no harmonic interval; single-file output omits the paired fields |
+| T-CX446 | Browser proof with a stub planner (manual, not in CI): a paired manual run shows the reference-comparison note and the withheld count, with no page error and no horizontal overflow at 1440 px and 390 px |
+| T-CX447 | Without a harmonic diagnosis (none, or clipping only), paired harmonic windows yield no interval, no contextual Evidence and no growth evaluation, and `harmonic_windows_withheld` counts them; with one, it is 0; other modes omit it |

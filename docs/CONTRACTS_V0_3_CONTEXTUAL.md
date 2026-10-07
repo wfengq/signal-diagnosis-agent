@@ -2023,9 +2023,19 @@ whole-file paired gate. Such an interval cites all five evaluations, so
 does not PASS, or the tool returns no Evidence (for example the window extends
 past the reference), counts as not comparable and supports no fault.
 
+Paired harmonic intervals are shown only when the diagnosis supports harmonic
+distortion (outcome `supported_fault` with a `harmonic_distortion` claim).
+Otherwise the supporting windows are not merged into intervals, their Evidence
+and evaluations are not kept, and only their number is reported as
+`harmonic_windows_withheld`. Per-window reference growth is fooled by
+time-varying filtering such as chorus and phaser, which the whole-file judgment
+is not (validation appendix
+`docs/evaluations/v0_3/fault_localization/egfxset_check_1/`). Clipping intervals
+in `paired_reference` keep the D050 behavior.
+
 `fault_localization` adds optional fields, omitted when unset:
 `harmonic_basis` (`nominal_thd` in `nominal_single_tone` with a declared
 fundamental, `reference_growth` in `paired_reference`), and, in
-`paired_reference` only, `comparison_overlap` and `windows_not_comparable`. The
-HTML report, CLI text and Web UI describe the basis and the not-comparable
-count.
+`paired_reference` only, `comparison_overlap`, `windows_not_comparable` and
+`harmonic_windows_withheld`. The HTML report, CLI text and Web UI describe the
+basis, the not-comparable count and the withheld count.

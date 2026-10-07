@@ -272,8 +272,14 @@ def _print_contextual_text_report(report: ContextualDiagnosisReport) -> None:
             print(f"  harmonic_basis: {localization.harmonic_basis}")
         if localization.windows_not_comparable is not None:
             print(f"  windows_not_comparable: {localization.windows_not_comparable}")
+        if localization.harmonic_windows_withheld is not None:
+            print(f"  harmonic_windows_withheld: {localization.harmonic_windows_withheld}")
         if not localization.intervals:
-            print("  no segment rule failed")
+            print(
+                "  no fault location to list"
+                if localization.harmonic_windows_withheld
+                else "  no segment rule failed"
+            )
         for interval in localization.intervals:
             status = "matches diagnosis" if interval.agrees_with_diagnosis else "review needed"
             print(

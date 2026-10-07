@@ -560,9 +560,22 @@ function renderLocalization(snapshot) {
       ` 有 ${localization.windows_not_comparable} 个窗口无法与参考比较（对齐、基频或参考削波不满足）。`,
     );
   }
+  if (localization.harmonic_windows_withheld) {
+    appendText(
+      document.getElementById("localization-scope"),
+      "span",
+      ` 另有 ${localization.harmonic_windows_withheld} 个窗口相对参考出现谐波增长，但诊断没有认定谐波失真，所以不列出位置。`,
+    );
+  }
   const intervals = localization.intervals || [];
   if (!intervals.length) {
-    appendText(list, "li", "扫描没有发现任何分段规则失败，没有需要定位的故障。");
+    appendText(
+      list,
+      "li",
+      localization.harmonic_windows_withheld
+        ? "没有可以列出的故障位置。"
+        : "扫描没有发现任何分段规则失败，没有需要定位的故障。",
+    );
     return;
   }
   for (const interval of intervals) {

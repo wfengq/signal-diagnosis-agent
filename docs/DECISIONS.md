@@ -1041,7 +1041,18 @@ with the recommended options: 1A (non-overlapping 0.25 s comparison windows in
 `paired_reference`), 2A (report only the number of windows that cannot be
 compared), 3A (a real-data check on EGFxSet as a separate validation appendix,
 once `zenodo.org` is allowed in the environment; no audio committed). Contract:
-`CONTRACTS_V0_3_CONTEXTUAL.md` §27.1. Tests: T-CX441–T-CX446.
+`CONTRACTS_V0_3_CONTEXTUAL.md` §27.1. Tests: T-CX441–T-CX447.
+
+**Amendment (operator 2026-10-07, after the EGFxSet check):** in
+`paired_reference`, harmonic intervals are shown only when the diagnosis
+supports harmonic distortion; otherwise only the number of supporting windows
+is reported. This narrows 1A for paired harmonic intervals only. On the
+EGFxSet sample, chorus and phaser controls produced per-window harmonic
+intervals on 3 and 5 of 11 notes, while the whole-file judgment flagged none
+(`docs/evaluations/v0_3/fault_localization/egfxset_check_1/README.md`). The
+same check recorded two existing limitations as OQ-025 (peak-normalized
+recordings trip the full-scale clipping check) and OQ-026 (a trailing partial
+WAV frame rejects the file).
 
 **Why:** with a reference file, D050 localized only clipping. The existing
 contextual comparison tool already compares the same time range of both files,

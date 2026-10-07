@@ -91,6 +91,7 @@ class FaultLocalization(BaseModel):
     harmonic_basis: HarmonicBasis | None = None
     comparison_overlap: float | None = None
     windows_not_comparable: int | None = Field(default=None, ge=0)
+    harmonic_windows_withheld: int | None = Field(default=None, ge=0)
 
 
 def _packaged_profile(profile_id: str, filename: str) -> RuleProfile:
@@ -292,6 +293,7 @@ def localize_faults(
         )
         cited_evaluations.append(evaluation)
     not_comparable: int | None = None
+    withheld: int | None = None
     if mode == "paired_reference" and reference is not None:
         paired_reference = _broadcast_reference(reference, record)
         repository.put(paired_reference)
@@ -306,10 +308,16 @@ def localize_faults(
                 tools, context, channels, scan_windows(record, overlap=COMPARISON_OVERLAP)
             )
         )
-        supports.extend(paired)
-        evidence.extend(paired_evidence)
-        cited_evaluations.extend(paired_evaluations)
         calls += paired_calls
+        # §27.1: per-window reference growth is shown only when the diagnosis
+        # supports harmonic distortion; otherwise only the window count is kept.
+        if "harmonic_distortion" in diagnosed_faults:
+            supports.extend(paired)
+            evidence.extend(paired_evidence)
+            cited_evaluations.extend(paired_evaluations)
+            withheld = 0
+        else:
+            withheld = len(paired)
     intervals = _merge(supports, diagnosed_faults)
     cited = {ref for interval in intervals for ref in interval.evidence_refs}
     basis: HarmonicBasis | None = None
@@ -331,6 +339,7 @@ def localize_faults(
         harmonic_basis=basis,
         comparison_overlap=COMPARISON_OVERLAP if mode == "paired_reference" else None,
         windows_not_comparable=not_comparable,
+        harmonic_windows_withheld=withheld,
     )
 
 

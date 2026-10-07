@@ -61,7 +61,14 @@ def _mono(samples: np.ndarray) -> SignalRecord:
     )
 
 
-def _paired(test: SignalRecord, reference: SignalRecord, diagnosed: frozenset[str] = frozenset()) -> FaultLocalization:
+HARMONIC = frozenset({"harmonic_distortion"})
+
+
+def _paired(
+    test: SignalRecord, reference: SignalRecord, diagnosed: frozenset[str] = HARMONIC
+) -> FaultLocalization:
+    # Scan-quality tests use a diagnosis that supports harmonic distortion, so
+    # the reference-growth intervals are shown (§27.1); T-CX447 covers withholding.
     return localize_faults(
         test,
         mode="paired_reference",
@@ -80,7 +87,7 @@ def _harmonic(result: FaultLocalization) -> list[Any]:
 def test_t_cx441_synthetic_burst_is_localized_on_the_test_timeline(decay: float, offset_s: float) -> None:
     reference = _note(decay=decay)
     test = _delayed(_with_burst(reference), offset_s)
-    result = _paired(_mono(test), _mono(reference), frozenset({"harmonic_distortion"}))
+    result = _paired(_mono(test), _mono(reference))
     assert result.scan_version == SCAN_VERSION == "product-segment-scan-1.1"
     assert result.harmonic_scanned is True
     assert result.harmonic_basis == "reference_growth"
@@ -219,6 +226,35 @@ def test_t_cx444_single_and_nominal_modes_match_the_1_0_baseline() -> None:
             assert dumped.pop("harmonic_basis") == expected_basis
             assert dumped.pop("windows_not_comparable") is None
             assert dumped.pop("comparison_overlap") is None
+            assert dumped.pop("harmonic_windows_withheld") is None
             assert dumped == baseline[f"{case['case_id']}|{mode}"], (case["case_id"], mode)
             checked += 1
     assert checked == len(baseline)
+
+
+def test_t_cx447_paired_harmonic_windows_are_withheld_without_a_harmonic_diagnosis() -> None:
+    reference = _note()
+    test = _mono(_with_burst(reference))
+    shown = _paired(test, _mono(reference))
+    assert shown.harmonic_windows_withheld == 0
+    windows = len(_harmonic(shown))
+    assert windows
+
+    for diagnosed in (frozenset(), frozenset({"clipping"})):
+        withheld = _paired(test, _mono(reference), diagnosed)
+        assert _harmonic(withheld) == []
+        assert withheld.harmonic_windows_withheld is not None
+        assert withheld.harmonic_windows_withheld >= windows
+        assert withheld.windows_not_comparable == shown.windows_not_comparable
+        assert all(
+            item.source_tool != "analyze_contextual_distortion" for item in withheld.evidence
+        )
+        assert all(
+            evaluation.rule_id != "rule_even_harmonic_growth_acceptable"
+            for evaluation in withheld.rule_evaluations
+        )
+
+    single = localize_faults(
+        test, mode="single_signal", nominal_fundamental_hz=None, diagnosed_faults=frozenset()
+    )
+    assert single.harmonic_windows_withheld is None

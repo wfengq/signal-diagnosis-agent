@@ -75,7 +75,12 @@ def build_contextual_diagnosis_report(
     )
 
 
-_LOCALIZATION_OPTIONAL = ("harmonic_basis", "comparison_overlap", "windows_not_comparable")
+_LOCALIZATION_OPTIONAL = (
+    "harmonic_basis",
+    "comparison_overlap",
+    "windows_not_comparable",
+    "harmonic_windows_withheld",
+)
 
 
 def _unset_optional_fields(
@@ -161,9 +166,20 @@ def _fault_localization_html(localization: dict[str, object] | None) -> list[str
             f"<p>Reference comparison windows that could not be compared: "
             f"{_esc(not_comparable)}.</p>"
         )
+    withheld = localization.get("harmonic_windows_withheld")
+    if withheld:
+        parts.append(
+            f"<p>{_esc(withheld)} reference comparison windows showed harmonic growth; "
+            "their locations are not shown because the diagnosis did not support "
+            "harmonic distortion.</p>"
+        )
     intervals = localization.get("intervals") or ()
     if not intervals:
-        parts.append("<p>No segment rule failed; no fault location to report.</p>")
+        parts.append(
+            "<p>No fault location to list.</p>"
+            if localization.get("harmonic_windows_withheld")
+            else "<p>No segment rule failed; no fault location to report.</p>"
+        )
     for interval in intervals:  # type: ignore[attr-defined]
         status = (
             "matches the diagnosis"

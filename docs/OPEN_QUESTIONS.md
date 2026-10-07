@@ -443,3 +443,33 @@ Compatibility impact: Option A changes `octave_ambiguity_detected` in Evidence f
 Test impact: A table of tones at 8/16/44.1/48 kHz asserting the flag for any deliberately forced subharmonic lag.
 User decision: pending; deferred 2026-10-06.
 ```
+
+## OQ-025 — Clipping: peak-normalized recordings trip the full-scale check
+
+```text
+ID: OQ-025
+Date: 2026-10-07
+Status: open (recorded from the D051 EGFxSet check; no change made)
+Affected document and section: src/signal_diag/dsp/clipping.py (full-scale threshold 0.99); rules profile_s1_segment_evidence and profile_s1_contextual_comparison_v9_10 clipping rules; CONTRACTS_V0_3_CONTEXTUAL.md §27.
+Observed problem: EGFxSet recordings are normalized so that the peak is 0.88–1.00 of full scale. Single-file clipping intervals appear on all 11 clean notes in the sample, and a clean reference judged as clipping makes the whole-file paired gate fail (7 of 11 clean-versus-clean pairs not comparable). See docs/evaluations/v0_3/fault_localization/egfxset_check_1/README.md.
+Why the current contract cannot represent a correct implementation: It can; a sample at or near full scale is treated as clipping evidence by design. The detector cannot tell a normalized peak from a clipped one using level alone.
+Minimal proposed change: Measure whether the existing flat-top and ratio evidence separate normalized peaks from true clipping on this sample before proposing any change; any threshold or rule change needs its own design and versioned profile.
+Compatibility impact: None until a design is approved; recorded runs are not rewritten.
+Test impact: A fixed set of normalized clean recordings and clipped counterparts.
+User decision: pending.
+```
+
+## OQ-026 — WAV decoding: a trailing partial frame rejects the whole file
+
+```text
+ID: OQ-026
+Date: 2026-10-07
+Status: open (recorded from the D051 EGFxSet check; no change made)
+Affected document and section: src/signal_diag/signal/wav.py (`load_wav_bytes`, "data size is not a multiple of block_align").
+Observed problem: EGFxSet `Clean/Neck/1-0.wav` (24-bit mono) has a `data` chunk of 709,396 bytes, one byte more than a whole number of 3-byte frames. The decoder rejects the file, so 1 of 72 files in the sample cannot be analyzed.
+Why the current contract cannot represent a correct implementation: It can; rejecting a malformed chunk is the current bounded-decoding behavior. Tolerating it would be a behavior change.
+Minimal proposed change: Either (A) keep rejecting and show the user a clearer message, or (B) drop the trailing partial frame and record a warning in the source summary.
+Compatibility impact: Option B lets files that are rejected today decode; accepted files decode byte-identically.
+Test impact: A WAV with a one- and two-byte trailing partial frame for each supported sample width.
+User decision: pending.
+```
