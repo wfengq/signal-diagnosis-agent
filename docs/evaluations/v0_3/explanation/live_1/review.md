@@ -19,9 +19,9 @@ Acceptance needs 0 wrong statements across all samples.
       - 如果测试信号是单音，请注明它的频率，以便按标称单音分析。
       - 用扫频测试复测，按频段和电平定位失真。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 2. 2ca9870c96ed589d (contextual_validation, supported_fault)
 
@@ -39,9 +39,9 @@ Acceptance needs 0 wrong statements across all samples.
     下一步:
       - 降低播放电平后重新测试，确认失真是否随电平减小。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 3. 6fb80bbda391c26c (contextual_dev, supported_fault)
 
@@ -59,9 +59,9 @@ Acceptance needs 0 wrong statements across all samples.
     下一步:
       - 降低播放电平后重新测试，确认失真是否随电平减小。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 4. f159f483605aed01 (contextual_validation, no_supported_fault)
 
@@ -76,9 +76,9 @@ Acceptance needs 0 wrong statements across all samples.
     含义:
       - 在本次测得的范围内，各项演示规则都通过；其他电平或信号下仍可能出现失真。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 5. sweep_all_clean_two_levels (sweep, no_supported_fault)
 
@@ -94,9 +94,9 @@ Acceptance needs 0 wrong statements across all samples.
     含义:
       - 在本次测得的范围内，各项演示规则都通过；其他电平或信号下仍可能出现失真。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 6. 393940e92c58cf0b (contextual_dev, no_supported_fault)
 
@@ -111,9 +111,9 @@ Acceptance needs 0 wrong statements across all samples.
     含义:
       - 在本次测得的范围内，各项演示规则都通过；其他电平或信号下仍可能出现失真。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 7. eb8d416412ce3c22 (contextual_dev, inconclusive)
 
@@ -131,9 +131,9 @@ Acceptance needs 0 wrong statements across all samples.
       - 如果测试信号是单音，请注明它的频率，以便按标称单音分析。
       - 用扫频测试复测，按频段和电平定位失真。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 8. 163185980dc8f7a4 (contextual_dev, inconclusive)
 
@@ -149,9 +149,9 @@ Acceptance needs 0 wrong statements across all samples.
       - 用扫频测试复测，按频段和电平定位失真。
       - 确认参考录音与测试录音使用的是同一个测试信号。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 9. 97994d18ab57b7ed (contextual_validation, inconclusive)
 
@@ -167,9 +167,9 @@ Acceptance needs 0 wrong statements across all samples.
       - 如果测试信号是单音，请注明它的频率，以便按标称单音分析。
       - 用扫频测试复测，按频段和电平定位失真。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 10. sweep_onset_three_levels (sweep, supported_fault)
 
@@ -187,9 +187,9 @@ Acceptance needs 0 wrong statements across all samples.
     下一步:
       - 降低播放电平后重新测试，确认失真是否随电平减小。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 11. 91280fa05c6dfd2a (contextual_validation, inconclusive)
 
@@ -205,9 +205,9 @@ Acceptance needs 0 wrong statements across all samples.
       - 用扫频测试复测，按频段和电平定位失真。
       - 确认参考录音与测试录音使用的是同一个测试信号。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 12. 2be730b9113701de (contextual_dev, supported_fault)
 
@@ -221,9 +221,9 @@ Acceptance needs 0 wrong statements across all samples.
       - 谐波能量升高和可测的 THD 百分比表明相对基波的谐波失真。
       - THD 衡量谐波能量相对基波的大小；规则限值是演示阈值，不是通用规范。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 13. e3c036eb778237c8 (contextual_dev, inconclusive)
 
@@ -241,9 +241,9 @@ Acceptance needs 0 wrong statements across all samples.
       - 如果测试信号是单音，请注明它的频率，以便按标称单音分析。
       - 用扫频测试复测，按频段和电平定位失真。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 14. 825a759a0ea47bb7 (contextual_dev, no_supported_fault)
 
@@ -258,9 +258,9 @@ Acceptance needs 0 wrong statements across all samples.
     含义:
       - 在本次测得的范围内，各项演示规则都通过；其他电平或信号下仍可能出现失真。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 15. 6334f80c9b6b30be (contextual_validation, supported_fault)
 
@@ -272,9 +272,9 @@ Acceptance needs 0 wrong statements across all samples.
     含义:
       - THD 衡量谐波能量相对基波的大小；规则限值是演示设置，不是通用规范。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 16. 651c196e5385a893 (contextual_validation, inconclusive)
 
@@ -292,9 +292,9 @@ Acceptance needs 0 wrong statements across all samples.
       - 如果测试信号是单音，请注明它的频率，以便按标称单音分析。
       - 用扫频测试复测，按频段和电平定位失真。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 17. b1584e9fd6bf5c1d (contextual_validation, supported_fault)
 
@@ -312,9 +312,9 @@ Acceptance needs 0 wrong statements across all samples.
     下一步:
       - 降低播放电平后重新测试，确认失真是否随电平减小。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 18. 76054f40e6aeec75 (contextual_validation, inconclusive)
 
@@ -329,9 +329,9 @@ Acceptance needs 0 wrong statements across all samples.
     下一步:
       - 用扫频测试复测，按频段和电平定位失真。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 19. sweep_clean (sweep, no_supported_fault)
 
@@ -346,9 +346,9 @@ Acceptance needs 0 wrong statements across all samples.
     含义:
       - 在本次测得的范围内，各项演示规则都通过；其他电平或信号下仍可能出现失真。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:
 
 ## 20. aa9b4a91b0253c33 (contextual_dev, supported_fault)
 
@@ -366,6 +366,6 @@ Acceptance needs 0 wrong statements across all samples.
     下一步:
       - 降低播放电平后重新测试，确认失真是否随电平减小。
 
-- readable: 
-- wrong statement: 
-- next steps useful: 
+- readable:
+- wrong statement:
+- next steps useful:

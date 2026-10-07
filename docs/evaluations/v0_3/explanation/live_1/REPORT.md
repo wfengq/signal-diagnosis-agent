@@ -41,10 +41,10 @@ Only two reason classes appeared (9 fallbacks total = 50 − 41). There is no th
 
 Rejected model drafts are not retained in the eval artifact; each row stores the template fallback plus `fallback_reason`. The failing §30 check is the suffix of that reason.
 
-1. **`validation_failed:wording` (8)** — case `857fac53e4d2e57e` (group `contextual_dev`, outcome `supported_fault`).  
+1. **`validation_failed:wording` (8)** — case `857fac53e4d2e57e` (group `contextual_dev`, outcome `supported_fault`).
    Check: `wording` in `validate_explanation` / `_check_sentence`. Fails when the draft uses banned compliance language (`标准` / `合格` / `standard` / `SLA` / …) or mentions threshold language (`阈值` / `threshold` / …) without a demonstration qualifier (`演示` / `demo`). Source fell back to `template`.
 
-2. **`validation_failed:fault_mismatch` (1)** — case `0b4fabbb2d7eae08` (group `contextual_validation`, outcome `inconclusive`).  
+2. **`validation_failed:fault_mismatch` (1)** — case `0b4fabbb2d7eae08` (group `contextual_validation`, outcome `inconclusive`).
    Check: `fault_mismatch` in `_check_sentence`. Fails when conclusion/meaning affirms a fault term (e.g. clipping / harmonic distortion / no-fault / inconclusive phrasing) whose supporting fault is not among the cited packet items’ `supports`. Source fell back to `template`.
 
 ## Gate status
