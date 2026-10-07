@@ -21,6 +21,7 @@ from signal_diag.agent.planner import (
 from signal_diag.agent.telemetry import TelemetryBinding, TelemetryEvent
 from signal_diag.app.context_guidance import ContextGuidance, build_context_guidance
 from signal_diag.app.contextual_models import ContextualAppRunSnapshot
+from signal_diag.app.guarded_tools import GuardedSignalToolService
 from signal_diag.app.service import (
     ApplicationDependencies,
     DiagnosisApplicationService,
@@ -910,7 +911,8 @@ class FixedArmSession:
         self._rule_engine = rule_engine or RuleEngine()
         # Fresh empty container prepared outside the timer.
         self._repository = repository or InMemorySignalRepository()
-        self._tools = tool_service or SignalToolService(self._repository)
+        # D049: same tool settings as the product arm, so only the planner differs.
+        self._tools = tool_service or GuardedSignalToolService(self._repository)
         self._clock = clock
         self._phase_advances = phase_advances
         self._offline_session = offline_session

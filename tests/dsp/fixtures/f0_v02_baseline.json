@@ -1,0 +1,654 @@
+{
+ "schema": "f0_v02_baseline/1",
+ "note": "Pre-D049 estimator outputs for every V0.2 synthetic case; generated 2026-10-06 from main before the F0 fix.",
+ "rows": [
+  {
+   "key": "s1_distortion_v1:case_dev_clean_01",
+   "f0_hz": 200.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 3.272025661733023e-07,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1:case_dev_clean_02",
+   "f0_hz": 400.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 6.338335206619674e-07,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1:case_dev_clipping_01",
+   "f0_hz": 200.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 12.525226279012143,
+   "thd_pass": false,
+   "series_kind": "native_odd_series"
+  },
+  {
+   "key": "s1_distortion_v1:case_dev_clipping_boundary",
+   "f0_hz": 80.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 1.0733414506071577e-05,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1:case_dev_harmonic_boundary",
+   "f0_hz": 200.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 4.999999352284799,
+   "thd_pass": true,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1:case_dev_harmonic_01",
+   "f0_hz": 250.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 8.000000030548799,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1:case_dev_combined_01",
+   "f0_hz": 200.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 18.261748839305813,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1:case_dev_invalid_noise_01",
+   "f0_hz": null,
+   "voiced": false,
+   "harmonic_valid": false,
+   "thd_percent": null,
+   "thd_pass": null,
+   "series_kind": "not_applicable"
+  },
+  {
+   "key": "s1_distortion_v1:case_held_clean_01",
+   "f0_hz": 220.1834862385321,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 2.9547671233700676e-07,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1:case_held_clean_02",
+   "f0_hz": 300.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 1.9862923350422299e-07,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1:case_held_clean_03",
+   "f0_hz": 500.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 2.811888397956832e-07,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1:case_held_clipping_01",
+   "f0_hz": 65.04065040650407,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 6.2676715875229925e-06,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1:case_held_clipping_02",
+   "f0_hz": 80.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 1.3101776058592422e-06,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1:case_held_clipping_03",
+   "f0_hz": 69.97084548104957,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 6.322519154343701e-06,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1:case_held_clipping_04",
+   "f0_hz": 300.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 9.939092039669566,
+   "thd_pass": false,
+   "series_kind": "native_odd_series"
+  },
+  {
+   "key": "s1_distortion_v1:case_held_harmonic_01",
+   "f0_hz": 300.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 3.9999998706062536,
+   "thd_pass": true,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1:case_held_harmonic_02",
+   "f0_hz": 400.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 4.999999317694928,
+   "thd_pass": true,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1:case_held_harmonic_03",
+   "f0_hz": 500.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 8.000000070101114,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1:case_held_harmonic_04",
+   "f0_hz": 250.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 8.944272019840044,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1:case_held_combined_01",
+   "f0_hz": 250.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 19.514431180455958,
+   "thd_pass": false,
+   "series_kind": "native_odd_series"
+  },
+  {
+   "key": "s1_distortion_v1:case_held_combined_02",
+   "f0_hz": 300.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 16.45784788971819,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1:case_held_combined_03",
+   "f0_hz": 400.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 14.251268596643978,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1:case_held_invalid_noise_01",
+   "f0_hz": null,
+   "voiced": false,
+   "harmonic_valid": false,
+   "thd_percent": null,
+   "thd_pass": null,
+   "series_kind": "not_applicable"
+  },
+  {
+   "key": "s1_distortion_v1:case_held_invalid_noise_02",
+   "f0_hz": null,
+   "voiced": false,
+   "harmonic_valid": false,
+   "thd_percent": null,
+   "thd_pass": null,
+   "series_kind": "not_applicable"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_dev_clean_01",
+   "f0_hz": 150.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 2.7266221888489384e-07,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_dev_clean_02",
+   "f0_hz": 350.3649635036496,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 5.1959519287073196e-08,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_dev_clipping_boundary",
+   "f0_hz": 62.99212598425197,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 5.744086518441455e-06,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_dev_clipping_strong",
+   "f0_hz": 150.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 12.290050094519902,
+   "thd_pass": false,
+   "series_kind": "native_odd_series"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_dev_harmonic_boundary",
+   "f0_hz": 200.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 4.999999104271065,
+   "thd_pass": true,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_dev_harmonic_strong",
+   "f0_hz": 424.7787610619469,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 8.49999994189078,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_dev_combined_01",
+   "f0_hz": 150.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 18.60993227769439,
+   "thd_pass": false,
+   "series_kind": "native_odd_series"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_dev_invalid_noise_01",
+   "f0_hz": null,
+   "voiced": false,
+   "harmonic_valid": false,
+   "thd_percent": null,
+   "thd_pass": null,
+   "series_kind": "not_applicable"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_clean_01",
+   "f0_hz": 175.1824817518248,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 3.51169006272974e-08,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_clean_02",
+   "f0_hz": 375.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 4.773789988341365e-07,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_clean_03",
+   "f0_hz": 475.2475247524753,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 1.9121153302175607e-07,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_clipping_01",
+   "f0_hz": 65.04065040650407,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 6.488607489384429e-06,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_clipping_02",
+   "f0_hz": 80.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 1.0246178633369374e-05,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_clipping_03",
+   "f0_hz": 60.99110546378653,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 6.56344326418156e-06,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_clipping_04",
+   "f0_hz": 424.7787610619469,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 9.486650246763183,
+   "thd_pass": false,
+   "series_kind": "native_odd_series"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_harmonic_01",
+   "f0_hz": 225.35211267605635,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 3.999999981527285,
+   "thd_pass": true,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_harmonic_02",
+   "f0_hz": 350.3649635036496,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 4.9999989885436005,
+   "thd_pass": true,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_harmonic_03",
+   "f0_hz": 475.2475247524753,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 7.500000088515701,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_harmonic_04",
+   "f0_hz": 300.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 7.615773734855786,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_combined_01",
+   "f0_hz": 225.35211267605635,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 9.29049350383324,
+   "thd_pass": false,
+   "series_kind": "native_odd_series"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_combined_02",
+   "f0_hz": 350.3649635036496,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 9.601876257529819,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_combined_03",
+   "f0_hz": 400.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 13.553459995023392,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_invalid_noise_01",
+   "f0_hz": null,
+   "voiced": false,
+   "harmonic_valid": false,
+   "thd_percent": null,
+   "thd_pass": null,
+   "series_kind": "not_applicable"
+  },
+  {
+   "key": "s1_distortion_v1_1:case_v11_held_invalid_noise_02",
+   "f0_hz": null,
+   "voiced": false,
+   "harmonic_valid": false,
+   "thd_percent": null,
+   "thd_pass": null,
+   "series_kind": "not_applicable"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_dev_clean_01",
+   "f0_hz": 172.04301075268816,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 6.886820119719375e-08,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_dev_clean_02",
+   "f0_hz": 205.12820512820514,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 9.091732541114752e-08,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_dev_clipping_01",
+   "f0_hz": 67.0391061452514,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 6.283368854121495e-06,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_dev_clipping_02",
+   "f0_hz": 108.10810810810811,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 10.732632787985132,
+   "thd_pass": false,
+   "series_kind": "native_odd_series"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_dev_harmonic_01",
+   "f0_hz": 164.94845360824743,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 4.999999044612357,
+   "thd_pass": true,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_dev_harmonic_02",
+   "f0_hz": 215.24663677130044,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 8.600000076996459,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_dev_combo_01",
+   "f0_hz": 167.83216783216784,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 16.707323968586344,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_dev_noise_01",
+   "f0_hz": null,
+   "voiced": false,
+   "harmonic_valid": false,
+   "thd_percent": null,
+   "thd_pass": null,
+   "series_kind": "not_applicable"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_clean_01",
+   "f0_hz": 177.77777777777777,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 2.6350446739054392e-08,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_clean_02",
+   "f0_hz": 189.72332015810278,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 7.225094864289909e-08,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_clean_03",
+   "f0_hz": 231.8840579710145,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 2.5483869714381063e-08,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_clipping_01",
+   "f0_hz": 82.05128205128206,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 6.287045564352231e-06,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_clipping_02",
+   "f0_hz": 57.971014492753625,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 6.29152539524695e-06,
+   "thd_pass": true,
+   "series_kind": null
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_clipping_03",
+   "f0_hz": 142.01183431952663,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 12.436155678066138,
+   "thd_pass": false,
+   "series_kind": "native_odd_series"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_clipping_04",
+   "f0_hz": 198.34710743801654,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 5.599598846544161,
+   "thd_pass": false,
+   "series_kind": "native_odd_series"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_harmonic_01",
+   "f0_hz": 244.89795918367346,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 3.7999999581801847,
+   "thd_pass": true,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_harmonic_02",
+   "f0_hz": 175.1824817518248,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 4.999999067874402,
+   "thd_pass": true,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_harmonic_03",
+   "f0_hz": 125.0,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 8.200000084276851,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_harmonic_04",
+   "f0_hz": 205.12820512820514,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 7.169379380413771,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_combo_01",
+   "f0_hz": 142.01183431952663,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 15.130330536464326,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_combo_02",
+   "f0_hz": 198.34710743801654,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 15.025434720798291,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_combo_03",
+   "f0_hz": 253.96825396825398,
+   "voiced": true,
+   "harmonic_valid": true,
+   "thd_percent": 15.966632144941885,
+   "thd_pass": false,
+   "series_kind": "even_order_present"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_noise_01",
+   "f0_hz": null,
+   "voiced": false,
+   "harmonic_valid": false,
+   "thd_percent": null,
+   "thd_pass": null,
+   "series_kind": "not_applicable"
+  },
+  {
+   "key": "s1_distortion_v1_2:case_v12_held_noise_02",
+   "f0_hz": null,
+   "voiced": false,
+   "harmonic_valid": false,
+   "thd_percent": null,
+   "thd_pass": null,
+   "series_kind": "not_applicable"
+  }
+ ]
+}

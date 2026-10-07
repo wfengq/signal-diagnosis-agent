@@ -754,5 +754,22 @@
     "qualification_recompute_unchanged": true,
     "scope": "D048 (OQ-023 A): agent/provider_telemetry.py SDK observation profile names the dispatching client httpx2 and pins its version; telemetry hooks, prompts and diagnosis behavior unchanged; product default prompt remains v9.11; model_calls=0",
     "selected_threshold_percent_unchanged": 5.0
+  },
+  {
+    "amendment_id": "d049_f0_subharmonic_guard",
+    "amendment_kind": "append_only_code_identity",
+    "calibration_recompute_unchanged": true,
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "created_at_utc": "2026-10-06T19:00:00+00:00",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "model_calls": 0,
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "product_tree_sha256": "2d95a585786880f99e212547883e899018df52a395899888f816ee0c5601fd19",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "qualification_recompute_unchanged": true,
+    "scope": "D049: opt-in F0 subharmonic guard and sub-sample peak interpolation in dsp/pitch.py; dsp/harmonics.py and dsp/contextual.py unchanged; default estimator unchanged; only the live product (app/guarded_tools.py GuardedSignalToolService) turns it on; product default prompt remains v9.11; model_calls=0",
+    "selected_threshold_percent_unchanged": 5.0
   }
 ]

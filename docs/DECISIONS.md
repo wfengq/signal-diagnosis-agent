@@ -982,3 +982,30 @@ against a closed local port with no model call.
 **Unchanged:** every recorded artifact, including the stopped `dev_2` study's
 files and the D041 send-factor identity string, which keep the old labels as
 history; product prompts and diagnosis behavior.
+
+## D049 — Opt-in F0 subharmonic guard for the live product
+
+**Decision (operator 2026-10-06):** approve the F0 fix design
+(`docs/superpowers/specs/2026-10-06-f0-subharmonic-fix-design.md`, scope A) and,
+after implementation hit the V0.3 Workstream A rule "no F0 re-selection", choose
+option B: the guard is an explicit opt-in that only the live product turns on.
+Octave-ambiguity detection is deferred (OQ-024). Contract:
+`CONTRACTS_V0_3_CONTEXTUAL.md` §26. Tests: T-CX428–T-CX433.
+
+**Why:** the default autocorrelation estimator locks onto a subharmonic when the
+period is not a whole number of samples (8 kHz/440 Hz → 87.91 Hz,
+16 kHz/440 Hz → 146.79 Hz), so harmonic analysis without a stated fundamental
+measured the wrong bins. Integer lags also cost up to about 0.2 % in frequency.
+
+**Measured effect of the guard (offline):** all 72 V0.2 synthetic cases keep
+their rule judgments and move by at most 0.175 % in F0. Five already-distorted
+cases change THD substantially and stay FAIL; the guarded readings equal THD
+measured at exact bins of the true fundamental, and the default readings
+under-report it (for example 9.29 % against 18.65 %, 5.60 % against 11.63 %).
+The accepted V0.2 79/80 is unchanged and was produced by the default path.
+
+**Unchanged:** the default estimator and everything that uses it (evaluation
+runners, recorded studies, the regression workbench, dataset validation, the
+independent external reference analyzer), the frozen `tools/service.py`, `dsp/harmonics.py` and `dsp/contextual.py`,
+Workstream A tests T-A-* and T-B-*, rule thresholds and prompts. Whether to run
+a new T2 study on the guarded product is a separate decision.
