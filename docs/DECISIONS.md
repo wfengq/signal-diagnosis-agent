@@ -1443,3 +1443,16 @@ policy. With correctness already at 1.0 and 0.1 rounds above the minimum, a
 model policy cannot meet the 3A "clearly better" bar on scenarios of this
 kind; phase B is only worth pursuing if it targets what the sandbox does not
 model (free-text replies and constraints), which needs an operator decision.
+
+**Phase B (operator, 2026-10-07): A, deferred.** No model session policy is
+built now; the rule policy `session-rules-1.0` stays the default and work
+proceeds to phase C.
+
+**Phase C (2026-10-07):** result Q&A (§33). One question about a finished
+run is answered from its explanation packet; answers pass the §30 sentence
+checks plus a hardware-speculation check, and questions the evidence cannot
+answer are declined with an optional menu step. The deterministic answer is
+the default; the model answer (prompt `v0.3-s1-qa-1.0`) stays off until, on
+20 frozen held-out questions written by Cursor, it reaches validation pass
+rate ≥ 0.9, model decline rate ≥ 0.9 on unanswerable questions, and 0 wrong
+statements in the operator's review of 20 answers.
