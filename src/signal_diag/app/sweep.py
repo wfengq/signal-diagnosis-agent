@@ -10,11 +10,18 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections import OrderedDict
 from typing import Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
+from signal_diag.app.errors import (
+    ApplicationError,
+    InvalidRequestError,
+    RunNotFoundError,
+)
+from signal_diag.app.models import AppErrorCode, AppErrorDetail
 from signal_diag.app.pcm_wav import encode_pcm32_wav
 from signal_diag.dsp.sweep import SUPPORTED_RATES, generate_stimulus
 from signal_diag.rules.sweep import (
@@ -22,11 +29,19 @@ from signal_diag.rules.sweep import (
     evaluate_sweep,
     load_sweep_profile,
 )
-from signal_diag.signal import load_wav_bytes
+from signal_diag.signal import (
+    InvalidWavError,
+    LoadedWav,
+    SignalLimitExceededError,
+    UnsupportedWavError,
+    load_wav_bytes,
+)
 from signal_diag.tools.sweep import SweepMeasurement, measure_sweep_recording
 
 SWEEP_ENGINE_VERSION = "sweep-engine-1.0"
 MAX_LEVELS = 3
+MAX_LABEL_CHARS = 64
+STORE_LIMIT = 16
 SweepOutcome = Literal["supported_fault", "no_supported_fault", "inconclusive"]
 SweepFaultType = Literal[
     "clipping", "harmonic_distortion", "no_supported_fault", "inconclusive"
@@ -189,28 +204,53 @@ def _judge(
     )
 
 
+def _invalid(message: str) -> InvalidRequestError:
+    return InvalidRequestError(AppErrorDetail(code="invalid_request", message=message))
+
+
+def _load(data: bytes, label: str) -> LoadedWav:
+    try:
+        return load_wav_bytes(data, filename=f"{label}.wav")
+    except UnsupportedWavError as error:
+        code: AppErrorCode = "unsupported_wav"
+        raise ApplicationError(AppErrorDetail(code=code, message=str(error))) from error
+    except InvalidWavError as error:
+        code = "invalid_wav"
+        raise ApplicationError(AppErrorDetail(code=code, message=str(error))) from error
+    except SignalLimitExceededError as error:
+        code = "signal_limit_exceeded"
+        raise ApplicationError(AppErrorDetail(code=code, message=str(error))) from error
+
+
 def diagnose_sweep(
-    recordings: list[tuple[bytes, str]], *, sample_rate_hz: int
+    recordings: list[tuple[bytes, str]], *, sample_rate_hz: int | None = None
 ) -> SweepDiagnosis:
-    """Judge 1–3 recordings, given in increasing level order."""
-    if sample_rate_hz not in SUPPORTED_RATES:
-        raise ValueError(f"sample rate must be one of {SUPPORTED_RATES}")
+    """Judge 1-3 recordings, given in increasing level order.
+
+    The stimulus rate is the first recording's rate unless ``sample_rate_hz``
+    is given; every recording must match it.
+    """
     if not 1 <= len(recordings) <= MAX_LEVELS:
-        raise ValueError(f"upload 1 to {MAX_LEVELS} recordings")
+        raise _invalid(f"upload 1 to {MAX_LEVELS} recordings")
     labels = [label for _, label in recordings]
+    if any(not label.strip() or len(label) > MAX_LABEL_CHARS for label in labels):
+        raise _invalid(f"level labels must be 1 to {MAX_LABEL_CHARS} characters")
     if len(set(labels)) != len(labels):
-        raise ValueError("level labels must be unique")
+        raise _invalid("level labels must be unique")
+    loaded_all = [(_load(data, label), label) for data, label in recordings]
+    rate = sample_rate_hz or loaded_all[0][0].record.meta.sample_rate_hz
+    if rate not in SUPPORTED_RATES:
+        raise _invalid(f"sample rate must be one of {SUPPORTED_RATES} Hz")
     profile = load_sweep_profile()
     levels: list[SweepLevelResult] = []
-    for data, label in recordings:
-        loaded = load_wav_bytes(data, filename=f"{label}.wav")
-        if loaded.record.meta.sample_rate_hz != sample_rate_hz:
-            raise ValueError(
+    for loaded, label in loaded_all:
+        if loaded.record.meta.sample_rate_hz != rate:
+            raise _invalid(
                 f"recording {label!r} is {loaded.record.meta.sample_rate_hz} Hz; "
-                f"the stimulus is {sample_rate_hz} Hz"
+                f"the stimulus is {rate} Hz"
             )
         mono = np.mean(loaded.record.samples, axis=1)
-        measurement = measure_sweep_recording(mono, sample_rate_hz, level_label=label)
+        measurement = measure_sweep_recording(mono, rate, level_label=label)
         evaluations = evaluate_sweep(profile, measurement)
         outcome, claims = _judge(measurement, evaluations)
         levels.append(
@@ -249,7 +289,7 @@ def diagnose_sweep(
         run_id=run_id,
         profile_id=profile.profile_id,
         profile_version=profile.version,
-        sample_rate_hz=sample_rate_hz,
+        sample_rate_hz=rate,
         outcome=overall,
         onset_level=onset,
         summary=summary,
@@ -257,12 +297,36 @@ def diagnose_sweep(
     )
 
 
+class SweepRunStore:
+    """Most recent sweep runs, in memory, for report downloads."""
+
+    def __init__(self, limit: int = STORE_LIMIT) -> None:
+        self._limit = limit
+        self._runs: OrderedDict[str, SweepDiagnosis] = OrderedDict()
+
+    def put(self, diagnosis: SweepDiagnosis) -> None:
+        self._runs[diagnosis.run_id] = diagnosis
+        self._runs.move_to_end(diagnosis.run_id)
+        while len(self._runs) > self._limit:
+            self._runs.popitem(last=False)
+
+    def get(self, run_id: str) -> SweepDiagnosis:
+        try:
+            return self._runs[run_id]
+        except KeyError:
+            raise RunNotFoundError(
+                AppErrorDetail(code="run_not_found", message="unknown sweep run")
+            ) from None
+
+
 __all__ = [
     "MAX_LEVELS",
+    "SUPPORTED_RATES",
     "SWEEP_ENGINE_VERSION",
     "SweepClaim",
     "SweepDiagnosis",
     "SweepLevelResult",
+    "SweepRunStore",
     "diagnose_sweep",
     "stimulus_wav",
 ]

@@ -7,6 +7,7 @@ from collections.abc import Callable
 import numpy as np
 import pytest
 
+from signal_diag.app.errors import ApplicationError
 from signal_diag.app.pcm_wav import encode_pcm32_wav
 from signal_diag.app.sweep import SweepDiagnosis, diagnose_sweep, stimulus_wav
 from signal_diag.dsp.sweep import generate_stimulus
@@ -143,16 +144,21 @@ def test_t_cx461_multi_level_reports_onset() -> None:
 
 def test_t_cx461_input_checks() -> None:
     clean = _wav(_clean)
-    with pytest.raises(ValueError):
-        diagnose_sweep([], sample_rate_hz=RATE)
-    with pytest.raises(ValueError):
-        diagnose_sweep([(clean, str(i)) for i in range(4)], sample_rate_hz=RATE)
-    with pytest.raises(ValueError):
-        diagnose_sweep([(clean, "a"), (clean, "a")], sample_rate_hz=RATE)
-    with pytest.raises(ValueError):
-        diagnose_sweep([(clean, "a")], sample_rate_hz=44_100)
-    with pytest.raises(ValueError):
-        diagnose_sweep([(clean, "a")], sample_rate_hz=32_000)
+    bad: list[tuple[list[tuple[bytes, str]], int | None, str]] = [
+        ([], None, "invalid_request"),
+        ([(clean, str(i)) for i in range(4)], None, "invalid_request"),
+        ([(clean, "a"), (clean, "a")], None, "invalid_request"),
+        ([(clean, " ")], None, "invalid_request"),
+        ([(clean, "x" * 65)], None, "invalid_request"),
+        ([(clean, "a")], 44_100, "invalid_request"),
+        ([(clean, "a")], 32_000, "invalid_request"),
+        ([(b"not a wav", "a")], None, "invalid_wav"),
+    ]
+    for recordings, rate, code in bad:
+        with pytest.raises(ApplicationError) as caught:
+            diagnose_sweep(recordings, sample_rate_hz=rate)
+        assert caught.value.detail.code == code
+    assert diagnose_sweep([(clean, "a")]).sample_rate_hz == RATE
 
 
 def test_t_cx461_ids_are_deterministic() -> None:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import math
 from dataclasses import dataclass, field
 
@@ -16,6 +17,7 @@ from signal_diag.app.errors import (
     PayloadTooLargeError,
 )
 from signal_diag.app.models import AppErrorDetail
+from signal_diag.app.sweep import MAX_LEVELS
 from signal_diag.signal.models import ChannelMode
 
 _ALLOWED_FIELDS = frozenset({"file", "user_request", "channel"})
@@ -662,3 +664,128 @@ async def parse_regression_comparison_upload(
         original_filename=state.original_filename,
         metadata_json=state.metadata,
     )
+
+
+# Sweep test upload (D054, §29): metadata JSON plus recording_1..recording_N.
+_SWEEP_METADATA_MAX_BYTES = 8 * 1024
+_SWEEP_FILE_FIELDS = tuple(f"recording_{index}" for index in range(1, MAX_LEVELS + 1))
+_SWEEP_ALLOWED_FIELDS = frozenset({"metadata", *_SWEEP_FILE_FIELDS})
+
+
+@dataclass
+class _SweepParseState:
+    current: str | None = None
+    headers: dict[bytes, bytes] = field(default_factory=dict)
+    header_field: bytearray = field(default_factory=bytearray)
+    header_value: bytearray = field(default_factory=bytearray)
+    parts: dict[str, bytearray] = field(default_factory=dict)
+    ended: bool = False
+
+
+async def parse_sweep_upload(
+    request: Request, *, max_file_bytes: int
+) -> tuple[list[bytes], list[str]]:
+    """Bounded multipart: ``metadata`` JSON ``{"levels": [...]}`` and recording_N files."""
+    content_type = request.headers.get("content-type")
+    if not content_type:
+        raise _invalid("multipart Content-Type is required")
+    value, options = parse_options_header(content_type)
+    if value != b"multipart/form-data" or not options.get(b"boundary"):
+        raise _invalid("sweep upload requires multipart/form-data with a boundary")
+    state = _SweepParseState()
+    max_total = MAX_LEVELS * max_file_bytes + _TOTAL_OVERHEAD_BYTES
+
+    def on_part_begin() -> None:
+        state.current = None
+        state.headers = {}
+
+    def on_header_field(data: bytes, start: int, end: int) -> None:
+        state.header_field.extend(data[start:end])
+
+    def on_header_value(data: bytes, start: int, end: int) -> None:
+        state.header_value.extend(data[start:end])
+
+    def on_header_end() -> None:
+        state.headers[bytes(state.header_field).strip().lower()] = bytes(
+            state.header_value
+        ).strip()
+        state.header_field = bytearray()
+        state.header_value = bytearray()
+
+    def on_headers_finished() -> None:
+        disposition = state.headers.get(b"content-disposition")
+        if not disposition:
+            raise _invalid("multipart part is missing Content-Disposition")
+        _kind, params = parse_options_header(disposition)
+        name = params.get(b"name", b"").decode("utf-8", errors="replace")
+        if name not in _SWEEP_ALLOWED_FIELDS:
+            raise _invalid(f"unknown multipart field: {name}")
+        if name in state.parts:
+            raise _invalid(f"duplicate multipart field: {name}")
+        state.current = name
+        state.parts[name] = bytearray()
+
+    def on_part_data(data: bytes, start: int, end: int) -> None:
+        if state.current is None:
+            raise _invalid("malformed multipart body")
+        target = state.parts[state.current]
+        limit = (
+            _SWEEP_METADATA_MAX_BYTES if state.current == "metadata" else max_file_bytes
+        )
+        if len(target) + (end - start) > limit:
+            if state.current == "metadata":
+                raise _invalid("metadata field exceeds 8 KiB")
+            raise PayloadTooLargeError(
+                AppErrorDetail(
+                    code="payload_too_large", message="WAV upload exceeds 20 MiB"
+                )
+            )
+        target.extend(data[start:end])
+
+    def on_end() -> None:
+        state.ended = True
+
+    parser = multipart.MultipartParser(
+        options[b"boundary"],
+        {
+            "on_part_begin": on_part_begin,
+            "on_header_field": on_header_field,
+            "on_header_value": on_header_value,
+            "on_header_end": on_header_end,
+            "on_headers_finished": on_headers_finished,
+            "on_part_data": on_part_data,
+            "on_end": on_end,
+        },
+    )
+    total = 0
+    try:
+        async for chunk in request.stream():
+            total += len(chunk)
+            if total > max_total:
+                raise PayloadTooLargeError(
+                    AppErrorDetail(
+                        code="payload_too_large", message="sweep upload is too large"
+                    )
+                )
+            parser.write(chunk)
+        parser.finalize()
+    except (MultipartParseError, FormParserError) as error:
+        raise _invalid("malformed multipart body") from error
+    if not state.ended:
+        raise _invalid("malformed multipart termination")
+    try:
+        metadata = json.loads(bytes(state.parts.get("metadata", b"{}")).decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise _invalid("metadata must be JSON") from error
+    levels = metadata.get("levels") if isinstance(metadata, dict) else None
+    if (
+        not isinstance(levels, list)
+        or not all(isinstance(item, str) for item in levels)
+        or set(metadata) - {"levels"}
+    ):
+        raise _invalid('metadata must be {"levels": ["label", ...]}')
+    expected = list(_SWEEP_FILE_FIELDS[: len(levels)])
+    present = sorted(name for name in state.parts if name != "metadata")
+    if not levels or present != expected:
+        raise _invalid("upload recording_1..recording_N matching the level labels")
+    return [bytes(state.parts[name]) for name in expected], levels

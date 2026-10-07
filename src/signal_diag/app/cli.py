@@ -35,6 +35,13 @@ from signal_diag.app.reporting import (
     render_report_json,
 )
 from signal_diag.app.service import DiagnosisApplicationService
+from signal_diag.app.sweep import SweepDiagnosis, diagnose_sweep, stimulus_wav
+from signal_diag.app.sweep_reporting import (
+    THRESHOLD_NOTICE,
+    build_sweep_report,
+    render_sweep_html,
+    render_sweep_json,
+)
 from signal_diag.signal import WavLoadLimits
 
 _DEFAULT_QUESTION = "Why does this signal sound distorted?"
@@ -133,6 +140,26 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("single_tone",),
         default=None,
     )
+
+    sweep = subparsers.add_parser("sweep", help="sweep stimulus test (D054)")
+    sweep_commands = sweep.add_subparsers(dest="sweep_command", required=True)
+    sweep_stimulus = sweep_commands.add_parser("stimulus")
+    sweep_stimulus.add_argument(
+        "--rate", type=int, choices=(44_100, 48_000), default=48_000
+    )
+    sweep_stimulus.add_argument("--out", type=Path, required=True)
+    sweep_diagnose = sweep_commands.add_parser("diagnose")
+    sweep_diagnose.add_argument(
+        "recordings", type=Path, nargs="+", help="lowest level first"
+    )
+    sweep_diagnose.add_argument(
+        "--level",
+        action="append",
+        default=None,
+        help="label per recording, in order (default L1, L2, L3)",
+    )
+    sweep_diagnose.add_argument("--output", choices=("text", "json"), default="text")
+    sweep_diagnose.add_argument("--html-output", type=Path, default=None)
     return parser
 
 
@@ -750,6 +777,64 @@ async def _intake_diagnose(
         await service.aclose()
 
 
+def _print_sweep_text(diagnosis: SweepDiagnosis) -> None:
+    print(f"outcome: {diagnosis.outcome}")
+    print(f"summary: {diagnosis.summary}")
+    print(
+        f"engine: {diagnosis.engine_version}; profile: {diagnosis.profile_id} "
+        f"{diagnosis.profile_version}; model calls: {diagnosis.model_calls}"
+    )
+    print(THRESHOLD_NOTICE)
+    for level in diagnosis.levels:
+        print(f"level {level.level_label}: {level.outcome}")
+        for claim in level.claims:
+            print(f"  - {claim.fault_type}: {claim.statement}")
+        bands = [
+            f"{band.center_hz:g} Hz {band.thd_percent:.2f}%"
+            for band in level.measurement.bands
+            if band.measurable and band.thd_percent is not None
+        ]
+        print("  band THD: " + ("; ".join(bands) if bands else "no measurable band"))
+
+
+def _sweep(args: argparse.Namespace) -> int:
+    try:
+        if args.sweep_command == "stimulus":
+            args.out.write_bytes(stimulus_wav(args.rate))
+            print(f"wrote {args.out} (sweep-stimulus-1.0, {args.rate} Hz)")
+            return 0
+        labels = args.level or [
+            f"L{index}" for index in range(1, len(args.recordings) + 1)
+        ]
+        if len(labels) != len(args.recordings):
+            raise ApplicationError(
+                AppErrorDetail(
+                    code="invalid_request",
+                    message="give one --level per recording",
+                )
+            )
+        max_bytes = WavLoadLimits().max_upload_bytes
+        recordings = [
+            (_read_wav_path(path, max_bytes), label)
+            for path, label in zip(args.recordings, labels, strict=True)
+        ]
+        diagnosis = diagnose_sweep(recordings)
+    except ApplicationError as error:
+        _print_error(error.detail.code, error.detail.message)
+        return _exit_for_application_error(error)
+    except OSError as error:
+        _print_error("invalid_request", str(error))
+        return 2
+    report = build_sweep_report(diagnosis, generated_at=datetime.now(UTC))
+    if args.output == "json":
+        sys.stdout.write(render_sweep_json(report))
+    else:
+        _print_sweep_text(diagnosis)
+    if args.html_output is not None:
+        args.html_output.write_text(render_sweep_html(report), encoding="utf-8")
+    return 0
+
+
 def main(
     argv: Sequence[str] | None = None,
     *,
@@ -772,6 +857,8 @@ def main(
         return asyncio.run(_intake_draft(args, service_factory))
     if args.command == "intake" and args.intake_command == "diagnose":
         return asyncio.run(_intake_diagnose(args, service_factory))
+    if args.command == "sweep":
+        return _sweep(args)
     return 2
 
 
