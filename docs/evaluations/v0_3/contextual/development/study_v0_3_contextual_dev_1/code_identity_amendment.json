@@ -856,5 +856,22 @@
     "qualification_recompute_unchanged": true,
     "scope": "D054: sweep stimulus test as a separate entry (dsp/sweep.py, tools/sweep.py, rules/sweep.py with profile_s1_sweep 1.0.0-demo, app/sweep.py, sweep_reporting.py, CLI sweep, API sweep routes, /sweep page); contextual engine, planner prompt v9.11, runtime, finish validation, contextual rule thresholds and frozen tools/dsp modules unchanged; model_calls=0",
     "selected_threshold_percent_unchanged": 5.0
+  },
+  {
+    "amendment_id": "d054_sweep_analysis_1_1",
+    "amendment_kind": "append_only_code_identity",
+    "calibration_recompute_unchanged": true,
+    "causal_policy_version": "v9_11_mode_aware_no_fault_recovery",
+    "created_at_utc": "2026-10-07T23:30:00+00:00",
+    "current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "model_calls": 0,
+    "original_calibration_code_sha256": "da72a8e856712af019a4bdd8fbdf7c3c20be59d6593793fb3e91f0f49b2a5ea9",
+    "prior_bridge_current_implementation_sha256": "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3",
+    "product_tree_sha256": "29b81e34c7c9cc0c3b6e4cecde770176bd1edde959d5ec11e062274d6dd45dcd",
+    "prompt_sha256": "b4c279dfcbee2d5c22f7eb6d5b4f211555da95bbeb2e2867b68a3f1d11681ca0",
+    "prompt_version": "v0.3-s1-planner-9.11",
+    "qualification_recompute_unchanged": true,
+    "scope": "D054 correction: sweep-analysis-1.1 reads harmonic order n at n*f and corrects the analytic sweep spectrum magnitude (dsp/sweep.py); contextual engine, planner prompt v9.11, contextual rules and frozen modules unchanged; model_calls=0",
+    "selected_threshold_percent_unchanged": 5.0
   }
 ]
