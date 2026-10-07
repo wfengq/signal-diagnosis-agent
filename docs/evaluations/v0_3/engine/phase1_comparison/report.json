@@ -1,0 +1,2394 @@
+{
+ "engine_version": "s1-engine-1.0",
+ "known_limitations": {
+  "dff3ebd9dffee874": "nominal_single_tone clipping case also meets the harmonic gate; clipping creates even harmonics the rules cannot separate (sweep stimulus, phase 2)"
+ },
+ "model_calls": 0,
+ "rows": [
+  {
+   "case_id": "825a759a0ea47bb7",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "contextual_dev",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "857fac53e4d2e57e",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_dev",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "abd9010438d4ad93",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_dev",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "a4a0853be9983f8c",
+   "engine_correct": true,
+   "engine_faults": [
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_dev",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "2be730b9113701de",
+   "engine_correct": true,
+   "engine_faults": [
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_dev",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "6fb80bbda391c26c",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_dev",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "aa9b4a91b0253c33",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_dev",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "393940e92c58cf0b",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "contextual_dev",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "04f4068ec91d2621",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "contextual_dev",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "163185980dc8f7a4",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "contextual_dev",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "inconclusive"
+  },
+  {
+   "case_id": "ce8b413cf7382c3d",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "contextual_dev",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "dff3ebd9dffee874",
+   "engine_correct": false,
+   "engine_faults": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_dev",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "35967af7b71c5b75",
+   "engine_correct": true,
+   "engine_faults": [
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_dev",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "5f7ed6fe137f73b3",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "contextual_dev",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "inconclusive"
+  },
+  {
+   "case_id": "eabaecd422b2eeda",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "contextual_dev",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "43bbc0fb08d88ec3",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_dev",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "d4bb668a379dea3b",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "contextual_dev",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "inconclusive"
+  },
+  {
+   "case_id": "e3c036eb778237c8",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "contextual_dev",
+   "mode": "single_signal",
+   "scoreable": false,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "inconclusive"
+  },
+  {
+   "case_id": "3e1ca5f1bc34a5a8",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "contextual_dev",
+   "mode": "single_signal",
+   "scoreable": false,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "inconclusive"
+  },
+  {
+   "case_id": "eb8d416412ce3c22",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "contextual_dev",
+   "mode": "single_signal",
+   "scoreable": false,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "inconclusive"
+  },
+  {
+   "case_id": "f159f483605aed01",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "contextual_validation",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "84fd2af41fdc1d54",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_validation",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "313d7f95b2e95656",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_validation",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "6334f80c9b6b30be",
+   "engine_correct": true,
+   "engine_faults": [
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_validation",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "773852f7513151f1",
+   "engine_correct": true,
+   "engine_faults": [
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_validation",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "2ca9870c96ed589d",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_validation",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "b1584e9fd6bf5c1d",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_validation",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "e333ac4a1bdcbd32",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "contextual_validation",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "c532d055b45329ab",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "contextual_validation",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "91280fa05c6dfd2a",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "contextual_validation",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "inconclusive"
+  },
+  {
+   "case_id": "207890c0f8d99c8b",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "contextual_validation",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "7fd4173cde11c0e3",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_validation",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "f4ba6f42e587256c",
+   "engine_correct": true,
+   "engine_faults": [
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_validation",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "76054f40e6aeec75",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "contextual_validation",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "inconclusive"
+  },
+  {
+   "case_id": "2a0d47d7d4f05d7f",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "contextual_validation",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "675073735bc06f76",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "contextual_validation",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "651c196e5385a893",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "contextual_validation",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "inconclusive"
+  },
+  {
+   "case_id": "97994d18ab57b7ed",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "contextual_validation",
+   "mode": "single_signal",
+   "scoreable": false,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "inconclusive"
+  },
+  {
+   "case_id": "54c6b454b876f8f7",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "contextual_validation",
+   "mode": "single_signal",
+   "scoreable": false,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "inconclusive"
+  },
+  {
+   "case_id": "0b4fabbb2d7eae08",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "contextual_validation",
+   "mode": "single_signal",
+   "scoreable": false,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "inconclusive"
+  },
+  {
+   "case_id": "held-t1-00",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t1",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t1-01",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t1",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t1-02",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t1",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t1-03",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t1",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t1-04",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t1",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t1-05",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t1",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t1-06",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t1",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t1-07",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t1",
+   "mode": "nominal_single_tone",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t1-12",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t1",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t1-13",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t1",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t1-14",
+   "engine_correct": true,
+   "engine_faults": [
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t1",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t1-15",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t1",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t1-16",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t1",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t1-17",
+   "engine_correct": true,
+   "engine_faults": [
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t1",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t1-18",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t1",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t1-19",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t1",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t1-20",
+   "engine_correct": true,
+   "engine_faults": [
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t1",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t1-21",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t1",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t1-22",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t1",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t1-23",
+   "engine_correct": true,
+   "engine_faults": [
+    "harmonic_distortion"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t1",
+   "mode": "paired_reference",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t2-00",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t2-01",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t2-02",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t2-03",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t2-04",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t2-05",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t2-06",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t2-07",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "held-t2-12",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t2-13",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t2-14",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t2-15",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t2-16",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t2-17",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t2-18",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t2-19",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t2-20",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t2-21",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t2-22",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "held-t2-23",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "increment_heldout_t2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_dev_clean_01",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_dev_clean_02",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_dev_clipping_01",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_dev_clipping_boundary",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_dev_harmonic_boundary",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_dev_harmonic_01",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_dev_combined_01",
+   "engine_correct": false,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_dev_invalid_noise_01",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_held_clean_01",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_held_clean_02",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_held_clean_03",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_held_clipping_01",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_held_clipping_02",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_held_clipping_03",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_held_clipping_04",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_held_harmonic_01",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_held_harmonic_02",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_held_harmonic_03",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_held_harmonic_04",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_held_combined_01",
+   "engine_correct": false,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_held_combined_02",
+   "engine_correct": false,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_held_combined_03",
+   "engine_correct": false,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_held_invalid_noise_01",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_held_invalid_noise_02",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v11_dev_clean_01",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v11_dev_clean_02",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v11_dev_clipping_boundary",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_dev_clipping_strong",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_dev_harmonic_boundary",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_dev_harmonic_strong",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_dev_combined_01",
+   "engine_correct": false,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_dev_invalid_noise_01",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_clean_01",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_clean_02",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_clean_03",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_clipping_01",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_clipping_02",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_clipping_03",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_clipping_04",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_harmonic_01",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_harmonic_02",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_harmonic_03",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_harmonic_04",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_combined_01",
+   "engine_correct": false,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_combined_02",
+   "engine_correct": false,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_combined_03",
+   "engine_correct": false,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_invalid_noise_01",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v11_held_invalid_noise_02",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1_1",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v12_dev_clean_01",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v12_dev_clean_02",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v12_dev_clipping_01",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_dev_clipping_02",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_dev_harmonic_01",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_dev_harmonic_02",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_dev_combo_01",
+   "engine_correct": false,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_dev_noise_01",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_clean_01",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_clean_02",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_clean_03",
+   "engine_correct": true,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_clipping_01",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_clipping_02",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_clipping_03",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_clipping_04",
+   "engine_correct": true,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_harmonic_01",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_harmonic_02",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "no_supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_harmonic_03",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_harmonic_04",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_combo_01",
+   "engine_correct": false,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_combo_02",
+   "engine_correct": false,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_combo_03",
+   "engine_correct": false,
+   "engine_faults": [
+    "clipping"
+   ],
+   "engine_outcome": "supported_fault",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "success",
+   "termination_reason": "planner_finished",
+   "truth_causal": [
+    "clipping",
+    "harmonic_distortion"
+   ],
+   "truth_outcome": "supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_noise_01",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  },
+  {
+   "case_id": "case_v12_held_noise_02",
+   "engine_correct": false,
+   "engine_faults": [],
+   "engine_outcome": "inconclusive",
+   "group": "v02_s1_distortion_v1_2",
+   "mode": "single_signal",
+   "scoreable": true,
+   "status": "inconclusive",
+   "termination_reason": "planner_finished",
+   "truth_causal": [],
+   "truth_outcome": "no_supported_fault"
+  }
+ ],
+ "schema": "engine_phase1_comparison/1",
+ "sets": {
+  "contextual_dev": {
+   "engine_correct": 16,
+   "engine_not_worse": false,
+   "engine_only_wrong": [
+    "dff3ebd9dffee874"
+   ],
+   "errors": 0,
+   "planner_correct": 17,
+   "planner_only_wrong": [],
+   "planner_source": "agent_v9_11_dev_confirmation_2 (prompt v0.3-s1-planner-9.11)",
+   "runs": 20,
+   "scored": 17
+  },
+  "contextual_validation": {
+   "engine_correct": 17,
+   "engine_not_worse": true,
+   "errors": 0,
+   "planner_correct": 16,
+   "planner_source": "agent_v9_11_validation_run_1 corrected scoring (prompt v9.11)",
+   "runs": 20,
+   "scored": 17
+  },
+  "increment_heldout_t1": {
+   "engine_correct": 12,
+   "engine_not_worse": true,
+   "engine_only_wrong": [],
+   "errors": 0,
+   "planner_correct": 12,
+   "planner_only_wrong": [],
+   "planner_source": "study_s1_agent_increment_1 runs/heldout_h1 agent arm (prompt v9.15)",
+   "runs": 20,
+   "scored": 20
+  },
+  "increment_heldout_t2": {
+   "engine_correct": 14,
+   "engine_not_worse": true,
+   "engine_only_wrong": [],
+   "errors": 0,
+   "planner_correct": 14,
+   "planner_only_wrong": [],
+   "planner_source": "study_s1_agent_increment_1 runs/heldout_h1 agent arm (prompt v9.15)",
+   "runs": 20,
+   "scored": 20
+  },
+  "v02_s1_distortion_v1": {
+   "engine_correct": 11,
+   "errors": 0,
+   "note": "Truth labels predate D037: single-file mode never attributes harmonic distortion, and invalid-noise cases are labelled no fault. Used for stability (no errors) only; not comparable with the accepted V0.2 79/80, which used another path.",
+   "runs": 24,
+   "scored": 24
+  },
+  "v02_s1_distortion_v1_1": {
+   "engine_correct": 11,
+   "errors": 0,
+   "note": "Truth labels predate D037: single-file mode never attributes harmonic distortion, and invalid-noise cases are labelled no fault. Used for stability (no errors) only; not comparable with the accepted V0.2 79/80, which used another path.",
+   "runs": 24,
+   "scored": 24
+  },
+  "v02_s1_distortion_v1_2": {
+   "engine_correct": 11,
+   "errors": 0,
+   "note": "Truth labels predate D037: single-file mode never attributes harmonic distortion, and invalid-noise cases are labelled no fault. Used for stability (no errors) only; not comparable with the accepted V0.2 79/80, which used another path.",
+   "runs": 24,
+   "scored": 24
+  }
+ }
+}

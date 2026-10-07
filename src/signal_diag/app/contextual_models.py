@@ -39,6 +39,19 @@ class ContextualRunSubmission(BaseModel):
     status: Literal["queued"] = "queued"
 
 
+DiagnosisPath = Literal["engine", "planner"]
+
+
+class DiagnosisIdentity(BaseModel):
+    """Who reached the verdict (§28): the deterministic engine or the LLM planner."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    kind: Literal["deterministic_engine", "llm_planner"]
+    engine_version: str | None = None
+    rule_profiles: tuple[str, ...] = ()
+
+
 class ContextualAppRunSnapshot(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
 
@@ -54,7 +67,8 @@ class ContextualAppRunSnapshot(BaseModel):
     stimulus_context: StimulusContext
     effective_capabilities: EffectiveCapabilities
     test_preview: WaveformPreview
-    planner_identity: PlannerIdentity
+    planner_identity: PlannerIdentity | None = None
+    diagnosis_identity: DiagnosisIdentity | None = None
     trace_events: tuple[TraceEventView, ...] = ()
     result: AgentRunResult | None = None
     application_error: AppErrorDetail | None = None
@@ -128,7 +142,8 @@ class ContextualDiagnosisReport(BaseModel):
     effective_capabilities: EffectiveCapabilities
     analyzed_channel: ChannelMode
     user_request: str = Field(min_length=1, max_length=2_000)
-    planner_identity: PlannerIdentity
+    planner_identity: PlannerIdentity | None = None
+    diagnosis_identity: DiagnosisIdentity | None = None
     test_preview: WaveformPreview
     trace_events: tuple[TraceEventView, ...]
     result: AgentRunResult

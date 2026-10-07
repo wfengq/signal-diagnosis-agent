@@ -17,9 +17,12 @@ Phase 5 accepted; V0.2 complete demonstrable vertical slice
 Accepted product identity at that anchor: DeepSeek `deepseek-v4-flash`, prompt
 `v0.2-s1-planner-8.1`, official held-out **79/80**.
 
-**HEAD live product** (this branch tip) is the V0.3 contextual path: public
-`RealLLMPlanner` / `build_product_service` use prompt `v0.3-s1-planner-9.11`
-and causal policy `v9_11_mode_aware_no_fault_recovery`. Reports are
+**HEAD live product** (this branch tip) is the V0.3 contextual path. Since
+D053, the CLI and API default to `build_engine_service`: contextual verdicts
+come from the deterministic engine `s1-engine-1.0` (§28) with causal policy
+`v9_11_mode_aware_no_fault_recovery`, and need no model credentials. The
+`RealLLMPlanner` path (prompt `v0.3-s1-planner-9.11`, unchanged
+`build_product_service`) remains an explicit `diagnosis_path=planner`. Reports are
 **uncertified by Phase 4.3.1**. **Default user path is single-file**
 (`single_signal`): clipping may be confirmed; harmonic attribution stays
 conservative without reference/nominal context (D037). Optional upgrades:
@@ -41,9 +44,8 @@ verdicts only through versioned rules. LLMs move to the two ends: intake and
 test guidance before a run, plain-language explanation after it. They never
 decide a verdict. The work proceeds in phases (engine, exponential-sweep
 stimulus, explanation, test guide), and each phase needs its own design,
-contract additions, test IDs and authorization. **Until phase 1 lands, HEAD
-still runs the v9.11 planner path described above.** No further planner prompt
-iterations are planned. See
+contract additions, test IDs and authorization. Phase 1 landed with D053.
+No further planner prompt iterations are planned. See
 `docs/superpowers/specs/2026-10-07-route-adjustment-device-testing-design.md`.
 
 Phase 1–5 contracts (`CONTRACTS_V0_2.md` §§1–64) remain frozen byte-stable.
@@ -68,7 +70,7 @@ Before modifying product code, read:
 - `docs/ARCHITECTURE_V0_2.md` (especially §§12–18)
 - `docs/CONTRACTS_V0_2.md` (frozen §§1–64)
 - `docs/TEST_PLAN_V0_2.md` (required T001–T285)
-- `docs/DECISIONS.md` (D001–D052; D052 sets the current route)
+- `docs/DECISIONS.md` (D001–D053; D052 sets the current route)
 - `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and `docs/TEST_PLAN_V0_3_CONTEXTUAL.md`
   when touching contextual / HEAD live product paths
 - the relevant specification and plan under `docs/superpowers/`
@@ -137,9 +139,9 @@ The following rules remain mandatory:
 - supported claims cite valid same-run Evidence;
 - rule conclusions cite valid same-run rule-evaluation IDs;
 - knowledge explains claims but never substitutes for signal Evidence;
-- until D052 phase 1 lands, `RealLLMPlanner` is the product diagnosis path;
-  afterwards the deterministic engine is the default and `RealLLMPlanner`
-  remains only an explicit, non-default path for comparison and reproduction;
+- the deterministic engine is the default contextual diagnosis path (D053);
+  `RealLLMPlanner` remains only an explicit, non-default path for comparison
+  and reproduction;
 - LLM components (intake, test guide, explanation) never decide verdicts,
   create metrics or thresholds, or replace Evidence;
 - `ScriptedPlanner` is a deterministic test double and never a silent fallback;

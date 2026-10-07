@@ -8,6 +8,8 @@ function appendText(parent, tagName, value, className = "") {
 
 /** When false, submit-run stays disabled (planner health gate). */
 let plannerHealthAllowsSubmit = false;
+/** Free-text drafting (D047) needs model credentials even when the engine diagnoses. */
+let intakeDraftAvailable = false;
 
 /** Client-held test WAV for D037 upgrade resubmits (cleared on reload). */
 const heldTestSignal = {
@@ -102,7 +104,23 @@ function renderPlannerReadiness(health) {
   panel.replaceChildren();
   appendText(panel, "h2", "运行状态");
   const identity = health && health.planner_identity ? health.planner_identity : {};
-  if (health && health.planner_configured) {
+  const engine = health && health.diagnosis_engine ? health.diagnosis_engine : null;
+  if (engine && engine.available && engine.default_path === "engine") {
+    appendText(
+      panel,
+      "p",
+      `诊断由确定性引擎 ${engine.engine_version} 按版本化规则给出，不需要模型凭据。`,
+      "planner-readiness",
+    );
+    if (!health.planner_configured) {
+      appendText(
+        panel,
+        "p",
+        "文字起草上下文需要模型凭据；没有时请用“高级：手动设置上下文”。",
+        "muted intake-unavailable",
+      );
+    }
+  } else if (health && health.planner_configured) {
     appendText(
       panel,
       "p",
@@ -524,6 +542,12 @@ function renderSummary(snapshot) {
   if (snapshot.context_origin === "intake_confirmed") {
     fact("上下文来源", "文字草稿，经用户确认");
   }
+  const decidedBy = snapshot.diagnosis_identity;
+  if (decidedBy && decidedBy.kind === "deterministic_engine") {
+    fact("诊断依据", `确定性引擎 ${decidedBy.engine_version}（版本化规则）`);
+  } else if (snapshot.planner_identity) {
+    fact("诊断依据", `模型 planner ${snapshot.planner_identity.prompt_version}`);
+  }
   const claims = (diagnosis && diagnosis.claims) || [];
   if (claims.length) {
     appendText(body, "p", claims[0].statement, "summary-claim");
@@ -758,7 +782,14 @@ async function loadEvaluation() {
 async function loadPlannerHealth() {
   try {
     const health = await apiJson("/api/v1/health");
-    plannerHealthAllowsSubmit = Boolean(health.planner_configured);
+    const engine = health.diagnosis_engine;
+    plannerHealthAllowsSubmit = Boolean(
+      (engine && engine.available && engine.default_path === "engine") ||
+        health.planner_configured,
+    );
+    intakeDraftAvailable = Boolean(health.planner_configured);
+    const draftButton = document.getElementById("intake-draft");
+    if (draftButton) draftButton.disabled = !intakeDraftAvailable;
     renderPlannerReadiness(health);
   } catch (_error) {
     plannerHealthAllowsSubmit = false;
