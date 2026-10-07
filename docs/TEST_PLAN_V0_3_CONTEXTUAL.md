@@ -551,3 +551,17 @@ alter T-CX001–T-CX427 meanings or the Workstream A/B tests.
 | T-CX431 | The independent external reference analyzer still reproduces its sealed F0 and does not import `dsp.pitch` |
 | T-CX432 | With the guard on, noise stays unvoiced and an aperiodic recording stays unreliable with invalid harmonic analysis |
 | T-CX433 | `GuardedSignalToolService` estimates with the guard and the base `SignalToolService` without it; only `app/service.py` (both run paths) and the planner-ablation adapter's fixed arm use the guarded service; evaluation runners, the agent-increment harness, the regression workbench and `tools/service.py` do not |
+
+T-CX434–T-CX440 are additive definitions for D050
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §27). They make no model call and must not
+alter T-CX001–T-CX433 meanings.
+
+| ID | Definition |
+|----|------------|
+| T-CX434 | Windows are 0.25 s with 50 % overlap and cover the file; overlapping FAIL windows merge into one interval per fault and channel, and every interval's Evidence and evaluation IDs are present in the same localization |
+| T-CX435 | Every H1 held-out T2 case with fault spans is localized: clipping in `single_signal`, harmonic distortion in `nominal_single_tone` with the declared 440 Hz |
+| T-CX436 | Clean H1 held-out T2 cases and V0.2 clean synthetic cases produce no interval |
+| T-CX437 | `single_signal` never scans harmonics: no harmonic interval or harmonic Evidence |
+| T-CX438 | A contextual run calls the scan once after the diagnosis; the diagnosis and the agent's Evidence are the same with the scan on and off, and the scan's Evidence is separate |
+| T-CX439 | With localization set, the snapshot, report JSON, HTML report, CLI text and Web UI show it; unset, the snapshot and report JSON omit `fault_localization` and the HTML has no section |
+| T-CX440 | Browser proof with a stub planner (manual, not in CI): the 故障位置 panel shows the intervals with the right scope note, with no page error and no horizontal overflow at 1440 px and 390 px |

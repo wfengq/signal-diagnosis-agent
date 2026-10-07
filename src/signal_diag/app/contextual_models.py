@@ -12,6 +12,7 @@ from signal_diag.app.context_guidance import (
     ContextGuidance,
     validate_observed_facts_against_evidence,
 )
+from signal_diag.app.fault_localization import FaultLocalization
 from signal_diag.app.models import (
     AppErrorDetail,
     AppRunStatus,
@@ -60,6 +61,8 @@ class ContextualAppRunSnapshot(BaseModel):
     context_guidance: ContextGuidance | None = None
     # §25: set only for runs submitted from a confirmed free-text intake draft.
     context_origin: Literal["intake_confirmed"] | None = None
+    # §27: deterministic segment scan of the test signal (D050).
+    fault_localization: FaultLocalization | None = None
 
     @model_validator(mode="after")
     def validate_lifecycle(self) -> ContextualAppRunSnapshot:
@@ -131,6 +134,7 @@ class ContextualDiagnosisReport(BaseModel):
     result: AgentRunResult
     context_guidance: ContextGuidance | None = None
     context_origin: Literal["intake_confirmed"] | None = None
+    fault_localization: FaultLocalization | None = None
 
     @field_validator("generated_at")
     @classmethod

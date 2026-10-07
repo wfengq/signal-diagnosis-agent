@@ -36,6 +36,7 @@ from signal_diag.app.errors import (
     InvalidRequestError,
     PlannerNotConfiguredError,
 )
+from signal_diag.app.fault_localization import localize_faults
 from signal_diag.app.guarded_tools import GuardedSignalToolService
 from signal_diag.app.models import (
     AppErrorDetail,
@@ -453,8 +454,22 @@ class DiagnosisApplicationService:
                 stimulus_context=stimulus_context,
             )
             events = assemble_agent_events(recorder.records, result)
+            diagnosis = result.diagnosis
+            diagnosed_faults = frozenset(
+                claim.fault_type
+                for claim in (diagnosis.claims if diagnosis is not None else ())
+                if diagnosis is not None and diagnosis.outcome == "supported_fault"
+            )
+            localization = await asyncio.to_thread(
+                localize_faults,
+                test_source_record,
+                mode=mode,
+                nominal_fundamental_hz=nominal_fundamental_hz,
+                diagnosed_faults=diagnosed_faults,
+            )
             return ContextualRunExecutionResult(
                 result=result,
+                fault_localization=localization,
                 trace_events=project_agent_events(events),
                 effective_capabilities=_terminal_capabilities(
                     mode=mode,

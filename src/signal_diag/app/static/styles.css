@@ -121,6 +121,10 @@ a {
   outline-offset: 1px;
 }
 
+.localization-review {
+  color: var(--warn);
+}
+
 #intake-plan {
   font-weight: 600;
 }

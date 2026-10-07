@@ -1009,3 +1009,26 @@ runners, recorded studies, the regression workbench, dataset validation, the
 independent external reference analyzer), the frozen `tools/service.py`, `dsp/harmonics.py` and `dsp/contextual.py`,
 Workstream A tests T-A-* and T-B-*, rule thresholds and prompts. Whether to run
 a new T2 study on the guarded product is a separate decision.
+
+## D050 — Product fault time localization by deterministic segment scan
+
+**Decision (operator 2026-10-07):** approve the localization design
+(`docs/superpowers/specs/2026-10-07-fault-time-localization-design.md`) with the
+recommended options: 1A (show scan findings the diagnosis did not adopt,
+labelled as needing review), 2A (single-file mode does not scan THD windows),
+3A (contextual runs only). Contract: `CONTRACTS_V0_3_CONTEXTUAL.md` §27.
+Tests: T-CX434–T-CX440.
+
+**Why:** the product only concluded on the whole file. With the D049 guard,
+the agent-increment study's deterministic segment scan reproduces all 24 H1
+held-out T2 conclusions and localizes all 12 fault-span cases offline, so
+localization needs no model call and no new threshold.
+
+**Measured cost (offline):** a 30 s stereo 48 kHz file takes about 1.8 s
+(717 calls, clipping only) and about 3.9 s (1,434 calls, with harmonics); the
+scan runs in a worker thread.
+
+**Unchanged:** the diagnosis prompt v9.11, the agent runtime and its
+conclusions, rule thresholds, the frozen `tools/`, `dsp/harmonics.py` and
+`dsp/contextual.py`, the contextual calibration identity, the recorded
+studies and the study's own B2 code, and the accepted V0.2 79/80.

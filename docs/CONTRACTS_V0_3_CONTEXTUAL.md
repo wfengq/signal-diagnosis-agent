@@ -1962,3 +1962,40 @@ adapter's fixed arm, which mirrors the product arm's tools. Evaluation runners,
 recorded studies, the regression workbench and dataset validation keep the
 default. The V0.3 Workstream A rule "no F0 re-selection" continues to hold for
 the default path.
+
+## 27. Product fault time localization (D050)
+
+After a contextual run's diagnosis finishes, the live product runs a
+deterministic segment scan, `product-segment-scan-1.0`
+(`app/fault_localization.py`), on the test file. Windows are 0.25 s with 50 %
+overlap; the last window ends at the file end. A mono file is scanned on
+`mixdown`; a stereo file on `left`, `right` and `mixdown`. Each window calls
+`detect_clipping` through `GuardedSignalToolService` (§26).
+`analyze_harmonic_distortion` is called only in `nominal_single_tone` mode with
+the declared fundamental; `single_signal` and `paired_reference` scan clipping
+only (D037).
+
+The scan's Evidence is judged by `profile_s1_segment_evidence` 1.0.0
+(`rules/profiles/s1_segment_evidence_v1.yaml`, unchanged demonstration
+thresholds). A FAIL of `rule_clipping_detected_absent`,
+`rule_clipping_ratio_acceptable` or `rule_flat_top_absent` supports clipping in
+that window; a FAIL of `rule_thd_acceptable` supports harmonic distortion. The
+window position comes from the cited Evidence's `time_range` and `channel`
+(§24.2). FAIL windows for the same fault and channel that overlap or touch are
+merged into one interval that keeps every window's Evidence and evaluation IDs.
+
+An interval has `agrees_with_diagnosis = true` when the diagnosis outcome is
+`supported_fault` and one of its claims has the same `fault_type`; otherwise
+the interval is shown as a scan finding the diagnosis did not adopt and needs
+review. It is never a conclusion.
+
+The scan does not change the agent's diagnosis, claims, Evidence or
+references; its Evidence and rule evaluations are kept separately. The
+contextual snapshot and `ContextualDiagnosisReport` carry an optional
+`fault_localization` with `scan_version`, `window_s`, `overlap`, `channels`,
+`harmonic_scanned`, `windows_scanned`, `tool_calls`, `intervals`, and the
+Evidence and FAIL rule evaluations the intervals cite. When it is unset, the
+snapshot and report JSON omit it, so earlier report shapes are unchanged. The
+HTML report adds a `fault-localization` section, the CLI text output adds
+`fault_localization:` lines, and the Web UI shows a 故障位置 panel. The V0.2
+single-file run path is not scanned.
