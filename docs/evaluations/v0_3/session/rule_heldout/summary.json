@@ -1,0 +1,17 @@
+{
+  "bar": 0.9,
+  "case_set": "heldout",
+  "cases": 20,
+  "extra_rounds": 2,
+  "final_correct": 1.0,
+  "mean_rounds": 2.1,
+  "meets_bar": true,
+  "model_calls": 0,
+  "policy": "session-rules-1.0",
+  "schema": "session_eval/1",
+  "statuses": {
+    "blocked_by_user": 1,
+    "budget_exhausted": 1,
+    "resolved": 18
+  }
+}

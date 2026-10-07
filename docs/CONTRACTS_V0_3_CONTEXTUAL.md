@@ -2645,3 +2645,9 @@ analysed sweep run.
 **Acceptance (D060).** The rule policy ships as the default when it reaches
 final correctness ≥ 0.9 on 20 frozen held-out scenarios. A model policy
 (phase B) must beat it under D060 3A.
+
+**Result.** On the held-out set (Cursor, #97; SHA-256
+`669ee1098562a624942076d9c0341eabd83c436bd2bfb31200f20d48a2620ba9`, copied to
+`evaluation/assets/session_cases_heldout.json`) the rule policy scored 20/20
+with 2.1 mean rounds and 2 extra rounds
+(`docs/evaluations/v0_3/session/rule_heldout/`). It is the default policy.

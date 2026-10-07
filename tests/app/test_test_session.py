@@ -1,4 +1,4 @@
-"""T-CX503–T-CX511: multi-round test sessions, rule policy and sandbox (D060). No network."""
+"""T-CX503–T-CX512: multi-round test sessions, rule policy and sandbox (D060). No network."""
 
 from __future__ import annotations
 
@@ -280,3 +280,25 @@ async def test_t_cx511_web_ui_wiring() -> None:
     async with _client(app=app) as client:
         served = await client.get("/static/session.js")
         assert served.status_code == 200 and served.headers["content-type"].startswith("text/javascript")
+
+
+def test_t_cx512_heldout_set_is_frozen_and_the_recorded_acceptance_holds() -> None:
+    import hashlib
+
+    from signal_diag.app.test_session import RULE_POLICY_VERSION
+
+    root = Path(__file__).resolve().parents[2]
+    frozen = root / "docs" / "evaluations" / "v0_3" / "session" / "heldout" / "session_cases_heldout.json"
+    asset = root / "src" / "signal_diag" / "evaluation" / "assets" / "session_cases_heldout.json"
+    digest = "669ee1098562a624942076d9c0341eabd83c436bd2bfb31200f20d48a2620ba9"
+    assert hashlib.sha256(frozen.read_bytes()).hexdigest() == digest
+    assert hashlib.sha256(asset.read_bytes()).hexdigest() == digest
+    cases = load_cases("heldout")
+    assert len(cases) == 20 and not {c["case_id"] for c in cases} & {c["case_id"] for c in load_cases("dev")}
+    recorded = json.loads((root / "docs" / "evaluations" / "v0_3" / "session" / "rule_heldout" / "summary.json").read_text())
+    assert recorded["policy"] == RULE_POLICY_VERSION and recorded["case_set"] == "heldout"
+    assert recorded["cases"] == 20 and recorded["final_correct"] >= 0.9 and recorded["model_calls"] == 0
+    by_id = {case["case_id"]: case for case in cases}
+    for case_id in ("h04", "h12", "h20"):
+        state, _ = run_session(by_id[case_id])
+        assert score(by_id[case_id], state)["correct"], case_id

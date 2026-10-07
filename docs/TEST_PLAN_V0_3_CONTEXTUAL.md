@@ -685,7 +685,7 @@ alter T-CX001–T-CX497 meanings; T-CX488 and T-CX490 now expect prompt
 | T-CX500 | The held-out scenarios match the frozen SHA-256 in both copies, number 20 with the D059 distribution, repeat no development text, quote their own text, and each expected plan passes the validator |
 | T-CX501 | `guide_eval` runs the held-out set offline with no model call and full accuracy; rows and summary carry the case set, prompt version and rejection fields; a scripted live run records every rejection; no credential text or trailing whitespace is written |
 
-T-CX503–T-CX511 are additive definitions for D060 phase A
+T-CX503–T-CX512 are additive definitions for D060 phase A
 (`CONTRACTS_V0_3_CONTEXTUAL.md` §32). They make no model call and must not
 alter T-CX001–T-CX501 meanings. T-CX502 (a conditional D059 slot) is unused.
 
@@ -700,3 +700,4 @@ alter T-CX001–T-CX501 meanings. T-CX502 (a conditional D059 slot) is unused.
 | T-CX509 | The API starts sessions, returns the next step, accepts matching sweep runs and answers, rejects mismatched runs, bad answers, bad parameters and non-sweep plans, and returns 404 for unknown sessions |
 | T-CX510 | CLI `session simulate` prints the steps, summary and correctness, emits JSON on request, and exits 2 for an unknown scenario |
 | T-CX511 | The sweep page has the session panel and loads `session.js`, which sets text without `innerHTML` and links analysed runs; the script is served as JavaScript |
+| T-CX512 | The 20 held-out session scenarios match the frozen SHA-256 in both copies and share no id with the development set; the recorded rule-policy acceptance (`rule_heldout/summary.json`) names the current policy and meets the 0.9 bar with no model call; sample held-out sessions still end correctly |

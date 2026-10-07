@@ -1310,6 +1310,7 @@ _V03_ADDITIVE_EXACT_PATHS = frozenset(
         "src/signal_diag/app/test_session.py",
         "src/signal_diag/app/session_eval.py",
         "src/signal_diag/evaluation/assets/session_cases.json",
+        "src/signal_diag/evaluation/assets/session_cases_heldout.json",
         "src/signal_diag/agent/guide.py",
         "src/signal_diag/agent/explain.py",
         "src/signal_diag/app/static/sweep.html",
