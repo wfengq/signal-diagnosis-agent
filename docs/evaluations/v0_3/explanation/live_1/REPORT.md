@@ -55,6 +55,6 @@ Rejected model drafts are not retained in the eval artifact; each row stores the
 
 ## Safety
 
-- `DEEPSEEK_API_KEY` was present in the environment only; it was not printed or written to outputs.
-- Grep / literal-key scan of `summary.json`, `results.jsonl`, and `review.md`: no key material and no `sk-` substring.
+- The provider API key stayed in the process environment only; it was not printed or written to outputs.
+- Literal-key scan of `summary.json`, `results.jsonl`, and `review.md`: no provider key material and no provider key-prefix tokens.
 - No audio artifacts were produced or committed.
