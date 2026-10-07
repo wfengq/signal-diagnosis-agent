@@ -1247,3 +1247,36 @@ operator's tooling.
 - planner prompt v9.11 and intake prompt 1.1;
 - the frozen modules;
 - V0.2 79/80 and every recorded study.
+
+## D056 — pOD-set validation of the sweep test (D054 4A appendix)
+
+**Decision (operator 2026-10-07):** approve
+`docs/superpowers/specs/2026-10-07-sweep-podset-validation-design.md` with options:
+
+- 1A: a public `analyze_known_sweep` in `dsp/sweep.py`;
+- 2A: 486 recordings (27 pedals × 6 gains × tone 3 × 3 levels);
+- 3A: the five criteria fixed before the run;
+- 4A: a failing criterion is reported as is.
+
+**Result** (`docs/evaluations/v0_3/sweep/podset_check_1/REPORT.md`, no model
+calls):
+
+| Criterion | Result | Status |
+|---|---|---|
+| Synthetic check | worst error 0.009 pp | pass |
+| Gain monotonicity | 99.1 % | pass |
+| Independent short-time-spectrum cross-check | 99.8 % | pass |
+| Low-gain median | 0.12 % | below the limit (reported only) |
+| Level monotonicity | 86.2 %, below the 95 % bar | **fail** |
+
+The level failures are concentrated in five pedals. All of them in the
+cross-checked bands are confirmed by the independent method, and they are
+not explained by harmonic energy moving above order 5: those pedals really do
+have relatively fewer harmonics at higher input levels. The criterion is not
+changed.
+
+The dataset's sweep levels are −4, −10 and −16 dBFS (measured), not the stated
+−6, −12 and −24 dBFS.
+
+**Unchanged:** the product sweep test (stimulus, analysis 1.1, rules), the
+explanation layer, the engine and planner prompts, and the frozen modules.

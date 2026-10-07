@@ -630,3 +630,16 @@ alter T-CX001–T-CX465 meanings.
 | T-CX474 | CLI `--explain template` prints and embeds the explanation for contextual and sweep runs, `--explain model` without enablement exits 2, and runs without `--explain` are unchanged |
 | T-CX475 | Both pages load `explanation.js`, keep the AI button hidden until health allows it, and set text without `innerHTML`; browser proof (manual, not in CI) with a scripted explainer: template on both pages, the fallback note after the AI button, no page error and no horizontal overflow at 1440 px and 390 px |
 | T-CX476 | The acceptance harness writes `results.jsonl`, `summary.json` and a 20-sample `review.md` for 50 cases offline with no model call and no credential text, and in live mode counts model calls, pass rate and fallback reasons |
+
+T-CX477–T-CX482 are additive definitions for D056
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §29.1). They download nothing, make no model
+call and must not alter T-CX001–T-CX476 meanings.
+
+| ID | Definition |
+|----|------------|
+| T-CX477 | `estimate_sweep_rate` recovers L within 0.5 % for a pOD-set-like sweep (5 Hz–24 kHz, 4 s, no silence) and for the product sweep, and rejects a non-sweep |
+| T-CX478 | On a pOD-set-like sweep, the identity reads ≤ 0.05 % in every band, an alias-free polynomial is within 0.1 pp of theory from 125 Hz to 4 kHz, and a filtered device follows the steady-tone THD within 15 % |
+| T-CX479 | A 40-sample lag and level normalization leave band THD unchanged; the analysis is deterministic and rejects a recording shorter than the stimulus |
+| T-CX480 | The range reader extracts only the named zip members, and the manifest records their sizes and SHA-256; 18 sweep files per pedal |
+| T-CX481 | The synthetic check passes on the dataset-format dry sweep; the short-time-spectrum cross-check agrees at 1, 2 and 4 kHz; the criteria count level and gain monotonicity and cross-check agreement, including the tolerance |
+| T-CX482 | An end-to-end run on a simulated cache verifies hashes, writes only `manifest.json`, `results.json` and `summary.json` (no audio), reports the design pedal separately and the onset at the demo limit, and refuses a tampered file |
