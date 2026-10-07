@@ -1385,6 +1385,24 @@ kept, and one draft swapped the reference and test files.
 bars, the 40 development scenarios and `live_1`;
 `SIGNAL_DIAG_GUIDE_MODEL` stays off until the held-out set passes.
 
+**Amendment — guide model path enabled (operator 2026-10-07):** the `live_2`
+acceptance run (`docs/evaluations/v0_3/guide/live_2_heldout/`, prompt
+`v0.3-s1-guide-1.1`, #95) met every bar on the frozen held-out set: plan
+accuracy 0.95, parameter accuracy 0.95, 0 number rejections, 0 unnecessary
+questions, no fallbacks. The development set scored 0.975 / 0.975 (`live_1`:
+0.775 / 0.65). The only miss in each set is a conflict scenario (`h08`, `g38`:
+"only one recording, but the device can be re-tested") answered with
+`existing_recording` instead of `sweep_levels`; that plan still yields a valid
+diagnosis and the user confirms every plan.
+
+- The operator approves enabling the model draft in deployment
+  (`SIGNAL_DIAG_GUIDE_MODEL=enabled` with `DEEPSEEK_API_KEY`). The code default
+  stays off; the questionnaire stays available, every draft is validated and
+  falls back to the questionnaire, and nothing runs before the user confirms.
+- Each AI draft is one model call.
+- Any later prompt change, including a fix for the conflict case, needs new
+  frozen held-out scenarios and the same acceptance (D059).
+
 ## D060 — Multi-round test sessions (bounded agent) and result Q&A
 
 **Context:** the research memo

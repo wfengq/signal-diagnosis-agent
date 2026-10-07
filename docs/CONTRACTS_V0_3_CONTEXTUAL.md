@@ -2568,3 +2568,9 @@ prompt 1.1, and copied byte for byte to
 enabled, with the §31 bars (plan and key-parameter accuracy each ≥ 90 %, no
 number rejection). The development set is reported for comparison with
 `live_1`.
+
+**Enablement (D059 amendment):** `live_2` met the bars on the held-out set
+(plan and parameter accuracy 0.95, no number rejection). The operator approved
+setting `SIGNAL_DIAG_GUIDE_MODEL=enabled` in deployment; the code default is
+unchanged (off), and the questionnaire, validation, fallback and confirmation
+rules above still apply.
