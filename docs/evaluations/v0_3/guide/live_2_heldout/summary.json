@@ -1,0 +1,26 @@
+{
+  "bars": {
+    "number_rejections": 0,
+    "parameter_accuracy": 0.9,
+    "plan_accuracy": 0.9
+  },
+  "by_expected_plan": {
+    "existing_recording": "4/4",
+    "nominal_tone": "4/4",
+    "paired_reference": "4/4",
+    "sweep_levels": "7/8"
+  },
+  "case_set": "heldout",
+  "cases": 20,
+  "fallback_reasons": {},
+  "live": true,
+  "meets_bar": true,
+  "model_calls": 20,
+  "number_rejections": 0,
+  "parameter_accuracy": 0.95,
+  "plan_accuracy": 0.95,
+  "prompt_version": "v0.3-s1-guide-1.1",
+  "rejection_details": {},
+  "schema": "guide_eval/1",
+  "unnecessary_question_cases": 0
+}
