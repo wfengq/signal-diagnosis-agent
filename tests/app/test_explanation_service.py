@@ -121,7 +121,6 @@ def test_t_cx472_builder_requires_credentials_and_the_enable_flag() -> None:
     assert build_explanation_service(keyed).status().model_available is False
     flagged = {"SIGNAL_DIAG_EXPLAIN_MODEL": "enabled"}
     assert build_explanation_service(flagged).status().model_available is False
-    pytest.importorskip("openai")
     enabled = build_explanation_service({**keyed, **flagged})
     assert enabled.status().model_available is True
     asyncio.run(enabled.aclose())
