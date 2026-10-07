@@ -1132,6 +1132,8 @@ to the engine) and 4A (explain any shortfall and let the operator decide).
 
 **Result (offline, no model call, `phase1_comparison/report.json`):**
 - No errors and no validation rejections across 174 recorded cases.
+  *(Correction 2026-10-07: the committed report has 152 rows — 20 + 20
+  contextual, 20 + 20 increment held-out and 3 × 24 V0.2 — not 174.)*
 - Contextual validation: 17/17 against the recorded v9.11's 16/17.
 - Contextual development: 16/17 against 17/17; the gap is the accepted
   limitation.
