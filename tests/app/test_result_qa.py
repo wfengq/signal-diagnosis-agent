@@ -247,3 +247,77 @@ def test_t_cx515_builder_requires_credentials_and_the_enable_flag() -> None:
     enabled = build_qa_service({**keyed, **flagged})
     assert enabled.status().model_available is True
     asyncio.run(enabled.aclose())
+
+
+def _rule(packet: ExplanationPacket, label: str) -> str:
+    return next(item.ref_id for item in packet.items if item.label == label)
+
+
+def test_t_cx519_metric_names_negations_and_the_run_verdict_pass() -> None:
+    no_fault, single, inconclusive = (
+        _packet("no_fault"),
+        _packet("single"),
+        _packet("inconclusive"),
+    )
+    clip_rule = _rule(no_fault, "rule_test_clipping_ratio_acceptable")
+    validate_answer(
+        _answer("削波比观测值为 0，低于演示阈值 0.01。", clip_rule), no_fault
+    )
+    validate_answer(
+        _answer(
+            "The clipping ratio measured 0 against a demo threshold of 0.01.", clip_rule
+        ),
+        no_fault,
+    )
+    thd_rule = _rule(single, "rule_thd_acceptable")
+    validate_answer(
+        _answer("总谐波失真为 1.74%，低于 5.00% 的演示阈值。", thd_rule), single
+    )
+    validate_answer(
+        _answer("Total harmonic distortion measured 1.74%.", thd_rule), single
+    )
+    claim = _ref(inconclusive, "claim")
+    validate_answer(
+        _answer("单文件模式下没有参考时，谐波失真无法归因。", claim), inconclusive
+    )
+    validate_answer(_answer("无法判定不等于设备没有问题。", claim), inconclusive)
+    rules = [
+        _rule(inconclusive, "rule_even_harmonic_growth_acceptable"),
+        _rule(inconclusive, "rule_nominal_thd_acceptable"),
+    ]
+    validate_answer(
+        _answer("偶次谐波增长和标称总谐波失真两项规则均为不适用。", *rules),
+        inconclusive,
+    )
+    run = _ref(no_fault, "run")
+    validate_answer(_answer("The run reports no supported fault.", run), no_fault)
+
+
+def test_t_cx519_affirmed_unsupported_faults_are_still_rejected() -> None:
+    no_fault, inconclusive, clipping = (
+        _packet("no_fault"),
+        _packet("inconclusive"),
+        _packet("clipping"),
+    )
+    claim = _ref(no_fault, "claim")
+    clip_rule = _rule(no_fault, "rule_test_clipping_ratio_acceptable")
+    assert _rejected(_answer("本次存在削波。", claim), no_fault) == "fault_mismatch"
+    assert (
+        _rejected(_answer("削波比为 0，但仍存在削波。", clip_rule), no_fault)
+        == "fault_mismatch"
+    )
+    assert (
+        _rejected(_answer("The device has harmonic distortion.", claim), no_fault)
+        == "fault_mismatch"
+    )
+    assert (
+        _rejected(_answer("设备没有问题。", _ref(inconclusive, "claim")), inconclusive)
+        == "fault_mismatch"
+    )
+    assert _rejected(
+        _answer("The run reports no supported fault.", _ref(clipping, "run")), clipping
+    ) == ("fault_mismatch")
+    assert (
+        _rejected(_answer("本次运行判定无法判定。", _ref(clipping, "claim")), clipping)
+        == "fault_mismatch"
+    )

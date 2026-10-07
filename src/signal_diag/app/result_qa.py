@@ -16,6 +16,8 @@ import re
 from pydantic import BaseModel, ConfigDict
 
 from signal_diag.app.explanation import (
+    _FAULT_TERMS,
+    _NEGATIONS,
     STEP_TEXT,
     ExplanationPacket,
     ExplanationRejected,
@@ -25,7 +27,7 @@ from signal_diag.app.explanation import (
     template_explanation,
 )
 
-QA_VERSION = "result-qa-1.0"
+QA_VERSION = "result-qa-1.1"
 MAX_ANSWER_SENTENCES = 4
 MAX_QUESTION_CHARS = 500
 # Hardware the evidence never identifies; naming it would be speculation.
@@ -35,6 +37,49 @@ _COMPONENTS = re.compile(
     r"power supply|transformer|cable|connector)s?\b)",
     re.IGNORECASE,
 )
+
+
+# §33.1: a fault word that names a metric or rule ("削波比", "总谐波失真",
+# "clipping ratio") or is negated before or after ("谐波失真无法归因",
+# "不等于没有问题") does not assert that fault.
+_METRIC_AFTER = ("比", "率", "规则", "检查", "ratio", "rule", "check", "measured")
+_METRIC_BEFORE = ("总", "total ")
+_NEGATIONS_AFTER = ("无法", "不能", "未", "不", "cannot", "is not", "was not", "not ")
+
+
+def _asserted(text: str, term: str) -> bool:
+    lowered, needle = text.lower(), term.lower()
+    start = 0
+    while (index := lowered.find(needle, start)) >= 0:
+        end = index + len(needle)
+        before, after = (
+            lowered[max(0, index - 8) : index],
+            lowered[end : end + 12].lstrip(),
+        )
+        metric = after.startswith(_METRIC_AFTER) or before.endswith(_METRIC_BEFORE)
+        negated = any(word in before for word in _NEGATIONS) or after.startswith(
+            _NEGATIONS_AFTER
+        )
+        if not (metric or negated):
+            return True
+        start = index + 1
+    return False
+
+
+def _check_faults(text: str, refs: tuple[str, ...], packet: ExplanationPacket) -> None:
+    items = [item for ref in refs if (item := packet.item(ref)) is not None]
+    supported = {fault for item in items for fault in item.supports}
+    if any(item.kind == "run" for item in items):
+        # The run item stands for the run's verdict: the faults its claims support.
+        supported |= {
+            fault
+            for claim in packet.claim_ids
+            if (item := packet.item(claim))
+            for fault in item.supports
+        }
+    for fault, terms in _FAULT_TERMS.items():
+        if any(_asserted(text, term) for term in terms) and fault not in supported:
+            raise QARejected("fault_mismatch", f"mentions {fault} without citing it")
 
 
 class QAAnswer(BaseModel):
@@ -75,9 +120,12 @@ def validate_answer(answer: QAAnswer, packet: ExplanationPacket) -> None:
         )
     for sentence in answer.sentences:
         try:
-            check_sentence(sentence.text, sentence.refs, packet, "meaning")
+            check_sentence(
+                sentence.text, sentence.refs, packet, "meaning", check_faults=False
+            )
         except ExplanationRejected as rejected:
             raise QARejected(rejected.check, rejected.detail) from rejected
+        _check_faults(sentence.text, sentence.refs, packet)
         if mentions_component(sentence.text):
             raise QARejected(
                 "speculation", "the evidence does not identify hardware components"

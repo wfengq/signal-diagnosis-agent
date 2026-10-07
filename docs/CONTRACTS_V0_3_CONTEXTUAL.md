@@ -2705,3 +2705,34 @@ only (#101; SHA-256
 `c323c5ae60b69a0de0b582eb971f296f2159c9a66d94935613a50fddb57d781d`, frozen
 under `docs/evaluations/v0_3/qa/heldout/` and copied to
 `evaluation/assets/qa_cases_heldout.json`): 15 to answer, 5 to decline.
+
+### 33.1 Result Q&A check 1.1 and prompt 1.1 (D060 C)
+
+**Why.** On the held-out questions (live_1, #103) the model declined all five
+questions it should decline, but only 13 of 20 answers passed the checks: all
+7 rejections were `fault_mismatch` on sentences that named a metric or rule
+("削波比为 0", "总谐波失真为 0.42%"), negated a fault ("谐波失真无法归因",
+"无法判定不等于没有问题"), or cited the run for its verdict.
+
+**Check `result-qa-1.1`.** Q&A sentences keep every §30 sentence check except
+the fault check, which Q&A replaces with its own: a fault word does not assert
+that fault when it names a metric or rule (followed by 比/率/规则/检查, ratio,
+rule, check or measured, or preceded by 总/total) or is negated just before
+or after it (无法, 不能, 未, 不, not, cannot). Citing the run item counts as
+citing the faults its claims support. Any other mention of a fault the cited
+items do not support is still rejected. The explanation layer (§30) is unchanged.
+
+**Prompt `v0.3-s1-qa-1.1`** adds two rules: describe what the run measured and
+which checks failed, never that it "only" did one check; for a sweep, speak of
+the level where distortion starts only when at least two levels were tested.
+
+**Acceptance.** Because live_1 informed 1.1, the first held-out set is used.
+Acceptance of 1.1 runs on 20 new held-out questions written by Cursor
+(`--cases heldout_2`), with the same three bars as §33. live_1 is kept as a
+below-bar record.
+
+**Round-2 held-out questions.** Written by an independent subagent from the
+round-2 brief (`docs/evaluations/v0_3/qa/heldout_2/`, SHA-256
+`25eb24e0af6f7c94f4624594ecd3d7d078a474931823c6d18aa4f7f58bfe661d`, copied to
+`evaluation/assets/qa_cases_heldout_2.json`); they replace #104, whose set
+repeated 13 earlier questions verbatim.

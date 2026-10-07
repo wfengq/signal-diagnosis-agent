@@ -30,7 +30,7 @@ async def test_t_cx516_contextual_questions_endpoint() -> None:
         health = (await client.get("/api/v1/health")).json()
         assert health["qa"] == {
             "model_available": False,
-            "prompt_version": "v0.3-s1-qa-1.0",
+            "prompt_version": "v0.3-s1-qa-1.1",
         }
         service = app.state.service
         submission = await _submit(service)

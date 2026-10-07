@@ -1,0 +1,146 @@
+{
+  "schema": "qa_cases/1",
+  "note": "D060 C held-out questions round 2 (independent subagent, written from the brief only)",
+  "cases": [
+    {
+      "case_id": "h2q01",
+      "run": "abd9010438d4ad93",
+      "language": "zh",
+      "expect": "answer",
+      "question": "这次测出来的削波比例和THD具体是多少？我想记到测试表里。"
+    },
+    {
+      "case_id": "h2q02",
+      "run": "aa9b4a91b0253c33",
+      "language": "zh",
+      "expect": "decline",
+      "question": "到底是功放芯片烧了还是喇叭单元本身坏了？我想知道该换哪个件。"
+    },
+    {
+      "case_id": "h2q03",
+      "run": "2be730b9113701de",
+      "language": "zh",
+      "expect": "decline",
+      "question": "拿去售后修大概要花多少钱？值不值得修？"
+    },
+    {
+      "case_id": "h2q04",
+      "run": "393940e92c58cf0b",
+      "language": "zh",
+      "expect": "answer",
+      "question": "这个结果算是符合行业标准了吗？我能直接拿它去当产品认证的依据吗？"
+    },
+    {
+      "case_id": "h2q05",
+      "run": "04f4068ec91d2621",
+      "language": "zh",
+      "expect": "answer",
+      "question": "没检出问题挺好，不过削波比例具体测出来是多少？离判定阈值还差多远？"
+    },
+    {
+      "case_id": "h2q06",
+      "run": "ce8b413cf7382c3d",
+      "language": "en",
+      "expect": "answer",
+      "question": "The THD is shown as a percentage. Can you convert that to dB for me? Our spec sheet lists everything in dB."
+    },
+    {
+      "case_id": "h2q07",
+      "run": "dff3ebd9dffee874",
+      "language": "en",
+      "expect": "decline",
+      "question": "Which component on the board is causing this — the output transistor, a coupling cap, or the DAC?"
+    },
+    {
+      "case_id": "h2q08",
+      "run": "35967af7b71c5b75",
+      "language": "zh",
+      "expect": "decline",
+      "question": "这台老收音机用了十几年了，是不是里面电容老化了？能看出是哪个元件出的毛病吗？"
+    },
+    {
+      "case_id": "h2q09",
+      "run": "5f7ed6fe137f73b3",
+      "language": "zh",
+      "expect": "answer",
+      "question": "结果是“不确定”，那应该就是没大问题吧？我明天就要交货了，能不能当作合格？"
+    },
+    {
+      "case_id": "h2q10",
+      "run": "eabaecd422b2eeda",
+      "language": "en",
+      "expect": "decline",
+      "question": "I have three more speakers of the same model in the storeroom. Since this one came out clean, can I assume they're all fine too?"
+    },
+    {
+      "case_id": "h2q11",
+      "run": "43bbc0fb08d88ec3",
+      "language": "zh",
+      "expect": "answer",
+      "question": "好吧，查出问题了。接下来我该怎么做？先干啥后干啥？"
+    },
+    {
+      "case_id": "h2q12",
+      "run": "d4bb668a379dea3b",
+      "language": "en",
+      "expect": "answer",
+      "question": "ok so it's inconclusive, not a fail. honestly that basically means my mic preamp is fine, right?"
+    },
+    {
+      "case_id": "h2q13",
+      "run": "3e1ca5f1bc34a5a8",
+      "language": "zh",
+      "expect": "answer",
+      "question": "为什么只给了个不确定的结论？是录音本身有问题，还是缺了什么信息才判断不了？"
+    },
+    {
+      "case_id": "h2q14",
+      "run": "sweep_clean",
+      "language": "zh",
+      "expect": "answer",
+      "question": "扫频这一轮看下来，各频段的谐波失真水平大概怎样？有没有哪个频段偏高？"
+    },
+    {
+      "case_id": "h2q15",
+      "run": "sweep_onset_three_levels",
+      "language": "zh",
+      "expect": "answer",
+      "question": "我一共扫了几档音量，失真是从哪一档开始出现的？"
+    },
+    {
+      "case_id": "h2q16",
+      "run": "sweep_hard_clip",
+      "language": "zh",
+      "expect": "answer",
+      "question": "音量开到多大的时候开始失真？想找到一个安全的上限。"
+    },
+    {
+      "case_id": "h2q17",
+      "run": "sweep_recorder_full_scale",
+      "language": "en",
+      "expect": "answer",
+      "question": "Is it possible the problem is on my recording side and not the amp? I had the interface gain cranked pretty high."
+    },
+    {
+      "case_id": "h2q18",
+      "run": "sweep_noisy",
+      "language": "zh",
+      "expect": "answer",
+      "question": "说是背景噪声太大没法判断，那我重录的时候需要注意些什么？"
+    },
+    {
+      "case_id": "h2q19",
+      "run": "dff3ebd9dffee874",
+      "language": "zh",
+      "expect": "answer",
+      "question": "我播放的是1kHz正弦，测出来的基频和我设定的对得上吗？"
+    },
+    {
+      "case_id": "h2q20",
+      "run": "2be730b9113701de",
+      "language": "en",
+      "expect": "answer",
+      "question": "Did my reference file and the device recording line up properly? I'm worried clock drift between the two messed up the comparison."
+    }
+  ]
+}

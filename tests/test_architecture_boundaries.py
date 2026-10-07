@@ -1316,6 +1316,7 @@ _V03_ADDITIVE_EXACT_PATHS = frozenset(
         "src/signal_diag/app/qa_eval.py",
         "src/signal_diag/evaluation/assets/qa_cases.json",
         "src/signal_diag/evaluation/assets/qa_cases_heldout.json",
+        "src/signal_diag/evaluation/assets/qa_cases_heldout_2.json",
         "src/signal_diag/agent/qa.py",
         "src/signal_diag/agent/guide.py",
         "src/signal_diag/agent/explain.py",
