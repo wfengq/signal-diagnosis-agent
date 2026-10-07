@@ -1384,3 +1384,33 @@ kept, and one draft swapped the reference and test files.
 **Unchanged:** the plan catalog, questionnaire, confirmation, §31 checks,
 bars, the 40 development scenarios and `live_1`;
 `SIGNAL_DIAG_GUIDE_MODEL` stays off until the held-out set passes.
+
+## D060 — Multi-round test sessions (bounded agent) and result Q&A
+
+**Context:** the research memo
+`docs/superpowers/specs/2026-10-07-agent-role-research-memo.md` (operator
+option A) found that an LLM between diagnostic tools and the verdict adds no
+accuracy (D052, outside studies), while deciding the next test and talking to
+the user fit the conditions for an agent: the path cannot be fixed in advance
+and every step returns a verifiable engine result.
+
+**Decision (operator 2026-10-07):** approve
+`docs/superpowers/specs/2026-10-07-test-session-agent-design.md` with options
+1A–4A:
+
+- 1A: phases in order: A (session framework, deterministic rule policy,
+  offline sandbox; no model), B (model policy), C (result Q&A);
+- 2A: sessions work with the model off; the rule policy decides the next step;
+- 3A: the model policy ships only if, on frozen held-out scenarios, it reaches
+  final correctness ≥ 0.9 and ≥ the rule policy, average rounds ≤ rule + 0.5,
+  pass^3 ≥ 0.8, drops at least 30 points under shuffled results, and is clearly
+  better than the rule policy (+5 points correctness or −0.5 rounds);
+  otherwise the rule policy alone ships;
+- 4A: the sandbox uses synthetic devices only for now.
+
+Item 5 (who writes the held-out session scenarios) is decided before the
+phase A acceptance run.
+
+**Unchanged:** the engine, sweep analysis, rules, thresholds and verdicts; the
+explanation layer, test guide, questionnaire and plan catalog; V0.2 79/80 and
+every recorded run. New model paths stay off by default.
