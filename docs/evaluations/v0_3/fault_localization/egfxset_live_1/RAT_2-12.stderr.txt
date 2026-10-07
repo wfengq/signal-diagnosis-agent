@@ -1,0 +1,60 @@
+Task exception was never retrieved
+future: <Task finished name='Task-39' coro=<AsyncClient.aclose() done, defined at /home/ubuntu/.local/lib/python3.12/site-packages/httpx2/_client.py:2198> exception=RuntimeError('Event loop is closed')>
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpx2/_client.py", line 2205, in aclose
+    await self._transport.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpx2/_transports/default.py", line 400, in aclose
+    await self._pool.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpcore2/_async/connection_pool.py", line 382, in aclose
+    await self._close_connections(closing_connections)
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpcore2/_async/connection_pool.py", line 374, in _close_connections
+    await connection.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpcore2/_async/connection.py", line 157, in aclose
+    await self._connection.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpcore2/_async/http11.py", line 236, in aclose
+    await self._network_stream.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpcore2/_backends/anyio.py", line 55, in aclose
+    await self._stream.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/anyio/streams/tls.py", line 248, in aclose
+    await self.transport_stream.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1467, in aclose
+    self._transport.close()
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 1211, in close
+    super().close()
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 875, in close
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 795, in call_soon
+    self._check_closed()
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 541, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Task exception was never retrieved
+future: <Task finished name='Task-40' coro=<AsyncClient.aclose() done, defined at /home/ubuntu/.local/lib/python3.12/site-packages/httpx2/_client.py:2198> exception=RuntimeError('Event loop is closed')>
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpx2/_client.py", line 2205, in aclose
+    await self._transport.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpx2/_transports/default.py", line 400, in aclose
+    await self._pool.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpcore2/_async/connection_pool.py", line 382, in aclose
+    await self._close_connections(closing_connections)
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpcore2/_async/connection_pool.py", line 374, in _close_connections
+    await connection.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpcore2/_async/connection.py", line 157, in aclose
+    await self._connection.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpcore2/_async/http11.py", line 236, in aclose
+    await self._network_stream.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/httpcore2/_backends/anyio.py", line 55, in aclose
+    await self._stream.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/anyio/streams/tls.py", line 248, in aclose
+    await self.transport_stream.aclose()
+  File "/home/ubuntu/.local/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1467, in aclose
+    self._transport.close()
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 1211, in close
+    super().close()
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 875, in close
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 795, in call_soon
+    self._check_closed()
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 541, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed

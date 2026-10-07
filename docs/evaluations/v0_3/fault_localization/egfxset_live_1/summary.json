@@ -1,0 +1,808 @@
+{
+  "study_id": "egfxset_live_1",
+  "question": "On the 26 EGFxSet pairs whose offline D051 scan found harmonic windows, does the live product planner adopt harmonic_distortion, so those intervals are actually shown?",
+  "pairs_planned": 26,
+  "pairs_completed": 26,
+  "pairs_adopting_harmonic_distortion": 1,
+  "pairs_showing_harmonic_intervals": 1,
+  "http_calls_total": 96,
+  "incomplete": false,
+  "per_case_cap": 21,
+  "total_cap": 546,
+  "product_prompt": "v0.3-s1-planner-9.11",
+  "data_dir": "/tmp/egfxset_data",
+  "audio_committed": false,
+  "note": "Live flow check only; not an accuracy metric. Handoff prompt file was not present in this agent environment; reconstructed from the operator authorization summary (26 pairs, once each, egfxset_live_1/, no code change, no audio commit).",
+  "cases": [
+    {
+      "case_id": "TubeScreamer_2-0",
+      "effect": "TubeScreamer",
+      "note": "2-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "inconclusive",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          0.75,
+          2.25
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 1.5,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 6,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 14,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "TubeScreamer_3-0",
+      "effect": "TubeScreamer",
+      "note": "3-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "inconclusive",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          0.25,
+          3.0
+        ],
+        [
+          "mixdown",
+          3.5,
+          4.0
+        ],
+        [
+          "mixdown",
+          4.25,
+          5.0
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 4.0,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 16,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 4,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "TubeScreamer_5-0",
+      "effect": "TubeScreamer",
+      "note": "5-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "inconclusive",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          2.25,
+          3.5
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 1.25,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 5,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 14,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "TubeScreamer_6-0",
+      "effect": "TubeScreamer",
+      "note": "6-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "inconclusive",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          2.75,
+          3.75
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 1.0,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 4,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 16,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "RAT_1-12",
+      "effect": "RAT",
+      "note": "1-12",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "inconclusive",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          0.25,
+          2.25
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 2.0,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 8,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 11,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "RAT_2-0",
+      "effect": "RAT",
+      "note": "2-0",
+      "exit_code": 1,
+      "http_calls": 5,
+      "outcome": null,
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          1.0,
+          2.0
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 1.0,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 4,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 14,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "RAT_2-12",
+      "effect": "RAT",
+      "note": "2-12",
+      "exit_code": 1,
+      "http_calls": 5,
+      "outcome": null,
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          0.25,
+          3.75
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 3.5,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 14,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 5,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "RAT_3-0",
+      "effect": "RAT",
+      "note": "3-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "inconclusive",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          1.0,
+          3.0
+        ],
+        [
+          "mixdown",
+          3.5,
+          4.0
+        ],
+        [
+          "mixdown",
+          4.75,
+          5.0
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 2.75,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 11,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 6,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "RAT_3-12",
+      "effect": "RAT",
+      "note": "3-12",
+      "exit_code": 1,
+      "http_calls": 5,
+      "outcome": null,
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          0.25,
+          3.5
+        ],
+        [
+          "mixdown",
+          3.75,
+          4.5
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 4.0,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 16,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 2,
+      "whole_file_paired_offline": "harmonic_growth",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "RAT_4-12",
+      "effect": "RAT",
+      "note": "4-12",
+      "exit_code": 1,
+      "http_calls": 5,
+      "outcome": null,
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          0.0,
+          3.5
+        ],
+        [
+          "mixdown",
+          3.75,
+          4.5
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 4.25,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 17,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 3,
+      "whole_file_paired_offline": "harmonic_growth",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "RAT_5-0",
+      "effect": "RAT",
+      "note": "5-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "inconclusive",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          2.0,
+          3.5
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 1.5,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 6,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 14,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "RAT_5-12",
+      "effect": "RAT",
+      "note": "5-12",
+      "exit_code": 1,
+      "http_calls": 5,
+      "outcome": null,
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          0.5,
+          1.75
+        ],
+        [
+          "mixdown",
+          2.0,
+          3.25
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 2.5,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 10,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 8,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "RAT_6-0",
+      "effect": "RAT",
+      "note": "6-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "inconclusive",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          2.25,
+          3.25
+        ],
+        [
+          "mixdown",
+          3.5,
+          4.0
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 1.5,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 6,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 13,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "RAT_6-12",
+      "effect": "RAT",
+      "note": "6-12",
+      "exit_code": 1,
+      "http_calls": 5,
+      "outcome": null,
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          0.25,
+          1.0
+        ],
+        [
+          "mixdown",
+          1.25,
+          2.75
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 2.25,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 9,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 10,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "BluesDriver_2-0",
+      "effect": "BluesDriver",
+      "note": "2-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "supported_fault",
+      "diagnosed_faults": [
+        "harmonic_distortion"
+      ],
+      "adopts_harmonic_distortion": true,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          0.75,
+          1.5
+        ],
+        [
+          "mixdown",
+          2.0,
+          2.75
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 1.5,
+      "shown_harmonic_intervals": [
+        [
+          "mixdown",
+          0.75,
+          1.5
+        ],
+        [
+          "mixdown",
+          2.0,
+          2.75
+        ]
+      ],
+      "harmonic_windows_withheld": 0,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 10,
+      "whole_file_paired_offline": "harmonic_growth",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "BluesDriver_3-0",
+      "effect": "BluesDriver",
+      "note": "3-0",
+      "exit_code": 1,
+      "http_calls": 5,
+      "outcome": null,
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          0.25,
+          0.5
+        ],
+        [
+          "mixdown",
+          1.25,
+          2.0
+        ],
+        [
+          "mixdown",
+          2.25,
+          3.0
+        ],
+        [
+          "mixdown",
+          3.5,
+          4.0
+        ],
+        [
+          "mixdown",
+          4.25,
+          5.0
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 3.0,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 12,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 4,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "BluesDriver_5-0",
+      "effect": "BluesDriver",
+      "note": "5-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "inconclusive",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          2.0,
+          2.25
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 0.25,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 1,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 14,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "BluesDriver_6-0",
+      "effect": "BluesDriver",
+      "note": "6-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "inconclusive",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          3.0,
+          3.25
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 0.25,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 1,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 19,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "Chorus_2-0",
+      "effect": "Chorus",
+      "note": "2-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "inconclusive",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          2.0,
+          2.25
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 0.25,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 1,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 11,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "Chorus_4-12",
+      "effect": "Chorus",
+      "note": "4-12",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "supported_fault",
+      "diagnosed_faults": [
+        "clipping"
+      ],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          0.0,
+          0.25
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 0.25,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 1,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 5,
+      "whole_file_paired_offline": "no_growth",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "Chorus_6-0",
+      "effect": "Chorus",
+      "note": "6-0",
+      "exit_code": 1,
+      "http_calls": 5,
+      "outcome": null,
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          2.25,
+          2.75
+        ],
+        [
+          "mixdown",
+          3.0,
+          3.25
+        ],
+        [
+          "mixdown",
+          3.5,
+          3.75
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 1.0,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 4,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 12,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "Phaser_2-0",
+      "effect": "Phaser",
+      "note": "2-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "no_supported_fault",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          0.0,
+          0.25
+        ],
+        [
+          "mixdown",
+          0.5,
+          0.75
+        ],
+        [
+          "mixdown",
+          1.0,
+          1.25
+        ],
+        [
+          "mixdown",
+          1.75,
+          2.0
+        ],
+        [
+          "mixdown",
+          4.5,
+          4.75
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 1.25,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 5,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 8,
+      "whole_file_paired_offline": "no_growth",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "Phaser_3-0",
+      "effect": "Phaser",
+      "note": "3-0",
+      "exit_code": 1,
+      "http_calls": 5,
+      "outcome": null,
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          0.25,
+          0.5
+        ],
+        [
+          "mixdown",
+          1.75,
+          2.25
+        ],
+        [
+          "mixdown",
+          2.5,
+          3.0
+        ],
+        [
+          "mixdown",
+          3.5,
+          3.75
+        ],
+        [
+          "mixdown",
+          4.5,
+          4.75
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 1.75,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 7,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 4,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "Phaser_4-12",
+      "effect": "Phaser",
+      "note": "4-12",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "no_supported_fault",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          3.0,
+          3.25
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 0.25,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 1,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 4,
+      "whole_file_paired_offline": "no_growth",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "Phaser_5-0",
+      "effect": "Phaser",
+      "note": "5-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "inconclusive",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          2.5,
+          3.5
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 1.0,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 4,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 15,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    },
+    {
+      "case_id": "Phaser_6-0",
+      "effect": "Phaser",
+      "note": "6-0",
+      "exit_code": 0,
+      "http_calls": 3,
+      "outcome": "inconclusive",
+      "diagnosed_faults": [],
+      "adopts_harmonic_distortion": false,
+      "offline_scan_harmonic_intervals": [
+        [
+          "mixdown",
+          2.5,
+          2.75
+        ],
+        [
+          "mixdown",
+          3.0,
+          3.75
+        ]
+      ],
+      "offline_scan_harmonic_seconds": 1.0,
+      "shown_harmonic_intervals": [],
+      "harmonic_windows_withheld": 4,
+      "harmonic_basis": "reference_growth",
+      "windows_not_comparable": 16,
+      "whole_file_paired_offline": "not_comparable",
+      "planner_prompt_version": "v0.3-s1-planner-9.11",
+      "model": "deepseek-v4-flash"
+    }
+  ]
+}
