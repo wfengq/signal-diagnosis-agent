@@ -82,7 +82,7 @@ For `illegal_output` rows the eval stores `draft: null` (rejected model text is 
 
 ## Gate status
 
-- Automatic bars: **not met** (`plan_accuracy` 0.775 &lt; 0.9; `parameter_accuracy` 0.65 &lt; 0.9; `number_rejections` 0 meets its bar alone).
+- Automatic bars: **not met** (plan_accuracy 0.775 below 0.9; parameter_accuracy 0.65 below 0.9; number_rejections 0 meets its bar alone).
 - Do **not** enable `SIGNAL_DIAG_GUIDE_MODEL`. Whether to enable is an operator decision after reviewing these results, recorded as an amendment to D057.
 
 ## Safety
