@@ -2091,3 +2091,122 @@ The offline comparison report
 `python -m signal_diag.app.engine_comparison`. It lists every recorded case
 with ground truth and sets the engine's per-set correctness next to the recorded
 planner's.
+
+## 29. Sweep stimulus test (D054)
+
+The sweep test is a separate product entry next to contextual diagnosis, like
+the regression workbench (D042). It never calls a model and does not change the
+contextual runtime, the engine (§28), finish validation, the contextual rule
+profiles or the frozen `tools/contracts.py`, `tools/service.py`,
+`dsp/clipping.py` and `agent/diagnosis.py`.
+
+**Stimulus `sweep-stimulus-1.0`** (`dsp/sweep.py`): a synchronized exponential
+sweep (Novak 2015) from 20 Hz to 20 kHz. Its length is about 8 s, rounded so the
+sweep stays synchronized. The peak is 0.5 (−6 dBFS), with 50 ms cosine fades,
+0.5 s of leading silence and 1.0 s of trailing silence. It is available at
+48 kHz and 44.1 kHz only. Generation is deterministic, and the parameters have
+a SHA-256 digest. The downloadable file (`app/sweep.py` `stimulus_wav`) is
+mono 24-bit PCM, with a LIST/INFO `ICMT` chunk after the samples reading
+`sweep-stimulus-1.0 sha256:<digest>`. Readers that skip unknown chunks,
+including `load_wav_bytes`, ignore it.
+
+**Analysis `sweep-analysis-1.0`** (numpy only). One recording is converted to
+mono and analysed in these steps:
+
+- **Alignment:** cross-correlation with the stimulus gives the lag and a
+  normalized correlation.
+- **Clock drift:** estimated from two 10 % segments at 55 % and 80 % of the
+  sweep.
+- **SNR:** sweep energy over the leading-silence noise.
+- **Linear and harmonic responses:** deconvolution by the analytic inverse
+  spectrum gives the linear response and orders 2–5. Each harmonic response
+  sits at `-L·ln(n)` and is cut with a 50 ms Hann window.
+- **Band THD:** computed for octave bands 63 Hz–16 kHz from the orders whose
+  frequency stays below Nyquist.
+- **Measurability:** a band is measurable when its noise-floor THD, taken from
+  a noise window, is at most 0.5 %. Unmeasurable bands are never judged.
+- **Recorder clipping:** reported as `full_scale_ratio`, the share of sweep
+  samples in runs of at least 2 consecutive samples with |y| ≥ 0.99. Clipped
+  samples map to a sweep frequency span through the instantaneous frequency.
+  The flat-top detector of `dsp/clipping.py` is not used here: it misfires on
+  the crests of the low-frequency part of a sweep.
+
+The analysis marks a recording invalid only when it contains non-finite
+samples or is too short to hold the whole stimulus. Every other quality signal
+is judged by rules.
+
+**Facts and rules.** `tools/sweep.py` turns one analysis into a
+`SweepMeasurement` with compact facts (`swf_…`): `analysis_valid`,
+`alignment_correlation`, `drift_abs_ppm`, `snr_db`, `full_scale_ratio`, and
+`band_thd_percent` per band, with `not_applicable` for unmeasurable bands.
+These facts are not V0.2 Evidence, because the frozen `ToolName` cannot name
+them.
+
+`rules/sweep.py` evaluates `profile_s1_sweep` 1.0.0-demo
+(`rules/profiles/s1_sweep_v1.yaml`) into `swr_…` evaluations, one per rule and
+fact. All thresholds are demonstration values, not industry standards:
+
+| Role | Rule | Threshold |
+|---|---|---|
+| validity | `analysis_valid` | true |
+| validity | alignment correlation | ≥ 0.3 |
+| validity | absolute drift | ≤ 200 ppm |
+| validity | SNR | ≥ 40 dB |
+| clipping | full-scale ratio | ≤ 0.01 |
+| harmonic | each band's THD | ≤ 5 % |
+
+**Verdict per level** (`app/sweep.py`, `sweep-engine-1.0`):
+
+1. If any validity evaluation is not `pass`, the level is `inconclusive`.
+2. Otherwise, a failing full-scale evaluation gives a `clipping` claim with the
+   clipped frequency span.
+3. Failing band evaluations give one `harmonic_distortion` claim with the bands
+   and each band's dominant order.
+4. If neither applies, and the full-scale rule and at least one band pass, the
+   level is `no_supported_fault`.
+5. Otherwise the level is `inconclusive`, because no band was measurable.
+
+Every claim cites `swr_` evaluations and `swf_` facts of its own level. Reports
+refuse foreign citations.
+
+Clipping inside the device below the recorder's full scale is reported as
+harmonic distortion, usually with odd dominant orders. Only recorder full scale
+is reported as `clipping`.
+
+**Multiple levels.** A run takes 1–3 recordings in increasing level order.
+Labels must be unique, 1–64 characters long. Every recording has the same
+sample rate, which is the first recording's rate unless one is given.
+
+- The onset level is the first level with `supported_fault`.
+- The run outcome is:
+  - `supported_fault` when an onset exists;
+  - `no_supported_fault` when every level passes;
+  - `inconclusive` otherwise.
+- The summary names the onset and the lower levels that pass.
+
+**Surfaces:**
+
+- **Reports:** `app/sweep_reporting.py` builds the JSON report
+  (`sweep-report-1.0`, with a threshold notice) and a standalone HTML report.
+  The HTML has an inline SVG band-THD chart (one line per level and a dashed
+  5 % demo-limit line), a band table, claims and rule evaluations. The API
+  payload carries the same chart as `chart_svg`.
+- **CLI:**
+  - `signal-diag sweep stimulus --rate {44100,48000} --out PATH`;
+  - `signal-diag sweep diagnose REC... [--level LABEL ...] [--output text|json]
+    [--html-output PATH]`. Levels default to `L1`, `L2` and `L3`.
+- **API** (routes in `api.py`, upload parser in `multipart.py`; the T269
+  FastAPI boundary is unchanged):
+  - `GET /api/v1/sweep/stimulus?rate=` returns `audio/wav` as an attachment;
+  - `POST /api/v1/sweep-runs` takes multipart `metadata`
+    (`{"levels": [...]}`) and `recording_1`…`recording_N`, each at most
+    20 MiB;
+  - `GET /api/v1/sweep-runs/{run_id}`;
+  - `GET /api/v1/sweep-runs/{run_id}/report.json|report.html`.
+
+  Runs are kept in memory, the most recent 16 only. Errors use the existing
+  error envelope and codes.
+- **Web UI:** `/sweep` (`static/sweep.html`, `static/sweep.js`), linked from
+  the main page. It offers stimulus download, recording guidance, 1–3 level
+  uploads, the chart with a legend, the band table, claims and report links.
+  Dynamic text is set with `textContent`.

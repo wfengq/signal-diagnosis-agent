@@ -1148,3 +1148,52 @@ selected channel, which is a third of that.
 builder lives in `app/engine_service.py`), and the frozen T213, T251, T264,
 T282 and T-CX301; the runtime and finish validation; rule thresholds; the V0.2 path; V0.2
 79/80 and every recorded study.
+
+## D054 — Sweep stimulus test (D052 phase 2)
+
+**Decision (operator 2026-10-07):** approve
+`docs/superpowers/specs/2026-10-07-sweep-stimulus-phase2-design.md` with options:
+
+- 1A: own numpy implementation after Novak 2015, with no new dependency;
+- 2A: 1–3 recordings at different levels per run, with an onset summary;
+- 3A: fixed stimulus parameters;
+- 4A: synthetic devices in CI, with real recordings as a later, separately
+  licensed appendix.
+
+**What landed** (§29): a versioned synchronized sweep, its deterministic
+analysis, compact sweep facts, the `profile_s1_sweep` 1.0.0-demo rules, a
+deterministic per-level verdict with a multi-level onset summary, and JSON and
+HTML reports, CLI, API and a `/sweep` page. No model is called.
+
+**Deviations from the design text:**
+
+- **Recorder clipping** uses a full-scale run detector (|y| ≥ 0.99, runs of at
+  least 2 samples), not the existing flat-top detector. That detector flags the
+  crests of the low-frequency sweep segment as clipping.
+- **Clock drift** is a validity rule, not a DSP invalidation. A wrong stimulus
+  would otherwise be reported as drift; the alignment rule catches it instead.
+- **Device clipping below full scale** is reported as harmonic distortion,
+  usually with odd dominant orders, and not as a `clipping` claim. Only the
+  recorder reaching full scale is `clipping`.
+
+**Result (offline, synthetic devices, CI):**
+
+- Polynomial device: band THD within 0.05 percentage points of the analytic
+  value at 48 and 44.1 kHz, with delays of 0, 0.2 and 1.5 s.
+- Identity, chorus and 80 Hz high-pass: below 0.1 % in bands from 125 Hz up.
+- Low-band clipping: shows only in the low bands.
+- Noise, a wrong stimulus, 500 ppm drift and truncation: each is inconclusive.
+- Three levels: give the expected onset.
+- Speed: one recording takes about 0.2 s and three about 0.6 s on the
+  development container.
+
+**Not yet shown:** behaviour on real device recordings (4A appendix). The
+thresholds are demonstration values, not standards.
+
+**Unchanged:**
+
+- the contextual engine, runtime, finish validation and planner prompt v9.11;
+- the contextual rule profiles;
+- the frozen T-CX351 modules, `app/composition.py` (T-CX301), T213, T251, T264,
+  T269, T282 and T283;
+- the V0.2 path, V0.2 79/80 and every recorded study.

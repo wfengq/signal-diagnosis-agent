@@ -1,0 +1,45 @@
+profile_id: profile_s1_sweep
+version: 1.0.0-demo
+description: >-
+  Sweep stimulus test (D054). Demonstration thresholds for the versioned
+  synchronized sweep, not industry standards or SLAs.
+rules:
+  - rule_id: rule_sweep_analysis_valid
+    metric: analysis_valid
+    role: validity
+    comparator: eq
+    threshold: true
+    description: The recording contains the whole stimulus and only finite samples.
+  - rule_id: rule_sweep_alignment_acceptable
+    metric: alignment_correlation
+    role: validity
+    comparator: gte
+    threshold: 0.3
+    description: The recording matches the versioned stimulus (demonstration threshold).
+  - rule_id: rule_sweep_drift_acceptable
+    metric: drift_abs_ppm
+    role: validity
+    comparator: lte
+    threshold: 200.0
+    unit: ppm
+    description: Playback and recording clocks agree (demonstration threshold).
+  - rule_id: rule_sweep_snr_acceptable
+    metric: snr_db
+    role: validity
+    comparator: gte
+    threshold: 40.0
+    unit: dB
+    description: The sweep is well above the recording's noise floor (demonstration threshold).
+  - rule_id: rule_sweep_full_scale_acceptable
+    metric: full_scale_ratio
+    role: clipping
+    comparator: lte
+    threshold: 0.01
+    description: At most 1% of the sweep reaches full scale, the unchanged demonstration clipping limit.
+  - rule_id: rule_sweep_band_thd_acceptable
+    metric: band_thd_percent
+    role: harmonic
+    comparator: lte
+    threshold: 5.0
+    unit: "%"
+    description: Octave-band THD (orders 2-5) is at most the unchanged 5% demonstration limit.

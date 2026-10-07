@@ -314,3 +314,57 @@ article {
     max-width: 100%;
   }
 }
+
+/* Sweep test (D054): band THD chart, legend and table. */
+.sweep-chart {
+  display: block;
+  width: 100%;
+  max-width: 40rem;
+  height: auto;
+}
+
+.sweep-chart .sc-hit:hover + .sc-dot,
+.sweep-chart .sc-hit:focus + .sc-dot {
+  stroke: #0b0b0b;
+}
+
+.sweep-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0;
+  margin: 0 0 0.5rem;
+}
+
+.sweep-chart-scroll {
+  overflow-x: auto;
+}
+
+.sweep-chart-scroll .sweep-chart {
+  min-width: 34rem;
+}
+
+.sweep-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sweep-table th,
+.sweep-table td {
+  border: 1px solid var(--line);
+  padding: 0.3rem 0.45rem;
+  text-align: left;
+}
+
+.sweep-levels {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.sweep-levels fieldset {
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+}

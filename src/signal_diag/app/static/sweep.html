@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>扫频测试 · Sweep test</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-row">
+      <h1 class="page-title">扫频测试 <span class="muted">Sweep test</span></h1>
+      <a href="/">返回诊断（Back to diagnosis）</a>
+    </div>
+    <p class="banner">
+      注意：本服务仅供本机单人使用，没有登录保护，请勿暴露到不受信任的网络。
+      <span class="banner-en">Warning: local single-user/no-auth service. Do not expose this
+      server to an untrusted network.</span>
+    </p>
+    <p class="banner">
+      规则阈值是演示设置，不是行业标准或服务承诺。
+      <span class="banner-en">Thresholds are profile_s1_sweep 1.0.0-demo demonstration
+      settings (1% full scale, 5% band THD), not industry standards or SLAs.</span>
+    </p>
+  </header>
+  <main>
+    <section id="sweep-stimulus" aria-labelledby="stimulus-heading">
+      <h2 id="stimulus-heading">1. 下载测试信号</h2>
+      <p>
+        <label for="sweep-rate">采样率（Sample rate）</label>
+        <select id="sweep-rate">
+          <option value="48000" selected>48000 Hz</option>
+          <option value="44100">44100 Hz</option>
+        </select>
+        <a id="stimulus-link" href="/api/v1/sweep/stimulus?rate=48000" download>下载扫频信号 WAV（sweep-stimulus-1.0）</a>
+      </p>
+      <p class="muted">20 Hz–20 kHz 同步扫频，约 8 秒，峰值 −6 dBFS，前后带静音。</p>
+    </section>
+
+    <section id="sweep-guide" aria-labelledby="guide-heading">
+      <h2 id="guide-heading">2. 播放并录音</h2>
+      <ol>
+        <li>通过被测设备播放该文件，用同一采样率从播放开始前录音到结束后（前面多录一点静音没关系）。</li>
+        <li>录音电平保持在满刻度以下；不要做任何处理或归一化。</li>
+        <li>可选：在 2–3 个不同音量下各录一次（由低到高），用来找出失真从哪一级开始。</li>
+      </ol>
+    </section>
+
+    <section id="sweep-upload" aria-labelledby="upload-heading">
+      <h2 id="upload-heading">3. 上传录音</h2>
+      <form id="sweep-form">
+        <div class="sweep-levels">
+          <fieldset>
+            <legend>电平 1（必填，最低）</legend>
+            <label for="level-label-1">标签</label>
+            <input id="level-label-1" type="text" value="-12 dB" maxlength="64" autocomplete="off">
+            <label for="level-file-1">录音 WAV</label>
+            <input id="level-file-1" type="file" accept=".wav,audio/wav">
+          </fieldset>
+          <fieldset>
+            <legend>电平 2（可选）</legend>
+            <label for="level-label-2">标签</label>
+            <input id="level-label-2" type="text" value="-6 dB" maxlength="64" autocomplete="off">
+            <label for="level-file-2">录音 WAV</label>
+            <input id="level-file-2" type="file" accept=".wav,audio/wav">
+          </fieldset>
+          <fieldset>
+            <legend>电平 3（可选，最高）</legend>
+            <label for="level-label-3">标签</label>
+            <input id="level-label-3" type="text" value="0 dB" maxlength="64" autocomplete="off">
+            <label for="level-file-3">录音 WAV</label>
+            <input id="level-file-3" type="file" accept=".wav,audio/wav">
+          </fieldset>
+        </div>
+        <p><button id="sweep-submit" type="submit">分析（Analyze）</button></p>
+        <p id="sweep-status" class="muted" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section id="sweep-result" aria-labelledby="result-heading" hidden>
+      <h2 id="result-heading">结果</h2>
+      <p id="sweep-summary"></p>
+      <p id="sweep-identity" class="muted"></p>
+      <h3>各倍频程 THD（Band THD）</h3>
+      <ul id="sweep-legend" class="sweep-legend"></ul>
+      <div id="sweep-chart" class="sweep-chart-scroll"></div>
+      <table class="sweep-table">
+        <thead id="sweep-table-head"></thead>
+        <tbody id="sweep-table-body"></tbody>
+      </table>
+      <p class="muted">“不可测”：该频带噪声底过高，或谐波超出奈奎斯特频率，不参与判定。</p>
+      <h3>诊断依据（Claims）</h3>
+      <div id="sweep-claims"></div>
+      <p>
+        <a id="sweep-report-json" href="#" download>下载 JSON 报告</a> ·
+        <a id="sweep-report-html" href="#" download>下载 HTML 报告</a>
+      </p>
+    </section>
+  </main>
+  <script src="/static/sweep.js"></script>
+</body>
+</html>

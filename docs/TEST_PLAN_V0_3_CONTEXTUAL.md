@@ -596,3 +596,19 @@ alter T-CX001–T-CX447 meanings.
 | T-CX454 | Engine runs carry `diagnosis_identity` and omit `planner_identity` in the snapshot and report JSON; the HTML has the engine section and no planner section; the CLI defaults to the engine; the health response keeps the T264 fields and adds `diagnosis_engine` |
 | T-CX455 | The Web UI enables diagnosis from `diagnosis_engine` without credentials, disables free-text drafting without credentials and shows who decided the verdict |
 | T-CX456 | Browser proof with the engine service and no credentials (manual, not in CI): a diagnosis completes, the summary shows the engine, drafting is disabled, with no page error and no horizontal overflow at 1440 px and 390 px |
+
+T-CX457–T-CX465 are additive definitions for D054
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §29). They make no model call and must not
+alter T-CX001–T-CX456 meanings.
+
+| ID | Definition |
+|----|------------|
+| T-CX457 | The stimulus is versioned and byte-identical across calls at 44.1 and 48 kHz, starts at 20 Hz after silent padding, peaks at 0.5, and rejects other rates; the downloadable WAV is 24-bit, round-trips through `load_wav_bytes`, carries the version and parameter digest, and a loopback diagnoses as no fault |
+| T-CX458 | A polynomial device's band THD matches the analytic value within 0.05 percentage points; identity, chorus and high-pass devices stay below 0.1 % in bands from 125 Hz up |
+| T-CX459 | Low-band clipping exceeds 5 % only in the low bands; hard and soft clipping exceed 5 % with odd dominant orders; recorder full scale yields a clipped ratio and a frequency span |
+| T-CX460 | Delay and sample rate do not change results; a wrong stimulus has low alignment, noise lowers SNR and makes bands unmeasurable, 500 ppm drift is measured as above 200 ppm, truncated and non-finite recordings are invalid, and bands respect Nyquist |
+| T-CX461 | The profile is `profile_s1_sweep` 1.0.0-demo; clean, harmonic, full-scale, noisy, drifted, wrong-stimulus and truncated recordings give the defined verdicts with same-run citations; device clipping below full scale is harmonic distortion; three levels report the onset; bad inputs map to app error codes; IDs are deterministic |
+| T-CX462 | Repeated analysis of the same recording is identical |
+| T-CX463 | JSON and HTML reports carry the threshold notice, escape labels, list cited evaluations and refuse claims citing another level; the chart follows the mark specs (2 px lines, validated series colours, dashed demo limit, 24 px hover targets) with no inline style or script |
+| T-CX464 | The CLI writes the stimulus, diagnoses 1–3 recordings with labels in text and JSON, writes the HTML report and exits 2 on usage and WAV errors |
+| T-CX465 | The API serves the stimulus, runs and reports with the CSP header, returns 404 for unknown runs and report kinds, rejects malformed uploads with 422, and serves `/sweep` and `sweep.js`; the page links from `/` and sets dynamic text without `innerHTML`; browser proof (manual, not in CI): three levels give the onset summary, chart, table and claims with no page error and no horizontal overflow at 1100 px and 390 px |

@@ -9,6 +9,7 @@ from importlib.resources import files
 from typing import Any, Literal, cast
 
 from fastapi import FastAPI, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, ConfigDict, Field
@@ -25,7 +26,9 @@ from signal_diag.app.contextual_reporting import (
 from signal_diag.app.engine_service import build_engine_service
 from signal_diag.app.errors import (
     ApplicationError,
+    InvalidRequestError,
     ReportUnavailableError,
+    RunNotFoundError,
     RunNotTerminalError,
     sanitize_application_error,
 )
@@ -36,7 +39,11 @@ from signal_diag.app.models import (
     AppRunSnapshot,
     DemoPresetId,
 )
-from signal_diag.app.multipart import parse_contextual_wav_upload, parse_wav_upload
+from signal_diag.app.multipart import (
+    parse_contextual_wav_upload,
+    parse_sweep_upload,
+    parse_wav_upload,
+)
 from signal_diag.app.regression import build_regression_service
 from signal_diag.app.regression_api import (
     _http_status_for_error,
@@ -49,6 +56,18 @@ from signal_diag.app.reporting import (
     render_report_json,
 )
 from signal_diag.app.service import DiagnosisApplicationService
+from signal_diag.app.sweep import (
+    SUPPORTED_RATES,
+    SweepRunStore,
+    diagnose_sweep,
+    stimulus_wav,
+)
+from signal_diag.app.sweep_reporting import (
+    build_sweep_report,
+    render_sweep_html,
+    render_sweep_json,
+    sweep_payload,
+)
 from signal_diag.signal import WavLoadLimits
 from signal_diag.signal.models import ChannelMode
 
@@ -59,6 +78,7 @@ _STATIC_MEDIA_TYPES = {
     "app.js": "text/javascript; charset=utf-8",
     "intake_flow.js": "text/javascript; charset=utf-8",
     "regression.js": "text/javascript; charset=utf-8",
+    "sweep.js": "text/javascript; charset=utf-8",
 }
 _STATUS_BY_CODE = {
     "invalid_request": 422,
@@ -196,6 +216,7 @@ def create_app(
     app.state.owns_service = owned
     app.state.regression_service = regression_service
     app.include_router(build_regression_router(regression_service))
+    sweep_runs = SweepRunStore()
 
     @app.middleware("http")
     async def add_security_headers(
@@ -411,6 +432,66 @@ def create_app(
                 "Content-Disposition": (
                     f'attachment; filename="{snapshot.run_id}.report.html"'
                 ),
+                "Content-Security-Policy": _CSP,
+            },
+        )
+
+    @app.get("/sweep")
+    async def sweep_page() -> Response:
+        return _packaged_static("sweep.html", "text/html; charset=utf-8")
+
+    @app.get("/api/v1/sweep/stimulus")
+    async def sweep_stimulus(rate: int = 48_000) -> Response:
+        if rate not in SUPPORTED_RATES:
+            raise InvalidRequestError(
+                AppErrorDetail(
+                    code="invalid_request",
+                    message=f"rate must be one of {SUPPORTED_RATES}",
+                )
+            )
+        data = await run_in_threadpool(stimulus_wav, rate)
+        return Response(
+            content=data,
+            media_type="audio/wav",
+            headers={
+                "Content-Disposition": f'attachment; filename="sweep-stimulus-1.0-{rate}.wav"',
+                "Content-Security-Policy": _CSP,
+            },
+        )
+
+    @app.post("/api/v1/sweep-runs")
+    async def create_sweep_run(request: Request) -> JSONResponse:
+        recordings, labels = await parse_sweep_upload(
+            request, max_file_bytes=_MAX_FILE_BYTES
+        )
+        diagnosis = await run_in_threadpool(
+            diagnose_sweep, list(zip(recordings, labels, strict=True))
+        )
+        sweep_runs.put(diagnosis)
+        return JSONResponse(content=sweep_payload(diagnosis))
+
+    @app.get("/api/v1/sweep-runs/{run_id}")
+    async def get_sweep_run(run_id: str) -> JSONResponse:
+        return JSONResponse(content=sweep_payload(sweep_runs.get(run_id)))
+
+    @app.get("/api/v1/sweep-runs/{run_id}/report.{kind}")
+    async def sweep_report(run_id: str, kind: str) -> Response:
+        if kind not in ("json", "html"):
+            raise RunNotFoundError(
+                AppErrorDetail(code="run_not_found", message="unknown report kind")
+            )
+        built = build_sweep_report(
+            sweep_runs.get(run_id), generated_at=datetime.now(UTC)
+        )
+        content = (
+            render_sweep_json(built) if kind == "json" else render_sweep_html(built)
+        )
+        media = "application/json" if kind == "json" else "text/html; charset=utf-8"
+        return Response(
+            content=content,
+            media_type=media,
+            headers={
+                "Content-Disposition": f'attachment; filename="{run_id}.report.{kind}"',
                 "Content-Security-Policy": _CSP,
             },
         )
