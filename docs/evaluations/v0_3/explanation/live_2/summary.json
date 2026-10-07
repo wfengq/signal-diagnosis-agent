@@ -1,0 +1,21 @@
+{
+  "cases": 50,
+  "claims_covered": 50,
+  "fallback_reasons": {},
+  "groups": {
+    "contextual_dev": 20,
+    "contextual_validation": 20,
+    "sweep": 10
+  },
+  "human_review": "pending: operator scores review.md (no wrong statement in 20 samples)",
+  "live": true,
+  "meets_validation_bar": true,
+  "model_calls": 50,
+  "model_explanations": 50,
+  "pass_rate_bar": 0.9,
+  "rejection_details": {},
+  "schema": "explanation_eval/1",
+  "steps_on_menu": 50,
+  "validation_pass_rate": 1.0,
+  "validator_version": "explain-validator-1.1"
+}
