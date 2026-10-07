@@ -1456,3 +1456,10 @@ the default; the model answer (prompt `v0.3-s1-qa-1.0`) stays off until, on
 20 frozen held-out questions written by Cursor, it reaches validation pass
 rate ≥ 0.9, model decline rate ≥ 0.9 on unanswerable questions, and 0 wrong
 statements in the operator's review of 20 answers.
+
+**Phase C live_1 and 1.1 (operator, 2026-10-07):** on the first held-out
+questions (#101, #103) the model declined 5/5 questions it should decline but
+passed the checks on 13/20 (0.65 < 0.9); all 7 rejections were the fault check
+misreading metric names, negations and run citations. The operator approved
+(a) keeping live_1 as a below-bar record and (b) result-qa check 1.1 with
+prompt `v0.3-s1-qa-1.1` (§33.1), accepted only on 20 new held-out questions.

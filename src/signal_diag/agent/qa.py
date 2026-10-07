@@ -1,4 +1,4 @@
-"""Result Q&A answerer (v0.3-s1-qa-1.0, D060 phase C).
+"""Result Q&A answerer (v0.3-s1-qa-1.1, D060 phase C, §33.1).
 
 One model call answers one question about a finished run from its explanation
 packet. The model sees only the packet and the question (no waveform, spectrum
@@ -13,7 +13,7 @@ from typing import Protocol, runtime_checkable
 
 from signal_diag.agent.intake import IntakeCallLimits, IntakeChatClient
 
-QA_PROMPT_VERSION = "v0.3-s1-qa-1.0"
+QA_PROMPT_VERSION = "v0.3-s1-qa-1.1"
 QA_LIMITS = IntakeCallLimits(max_output_tokens=800, timeout_s=45.0)
 
 SYSTEM_PROMPT = (
@@ -38,7 +38,11 @@ SYSTEM_PROMPT = (
     "inconclusive result fine. "
     "6. Call thresholds demonstration values (演示阈值 / demo threshold). Never mention "
     "standards, certification, compliance or pass/fail grades. "
-    "7. Answer in the requested language; each sentence at most 120 characters."
+    "7. Describe what this run measured and which checks failed; never say the run "
+    "'only' did one check. "
+    "8. For a sweep, say at which level distortion starts only when at least two levels "
+    "were tested; with one level, say that only that level was tested. "
+    "9. Answer in the requested language; each sentence at most 120 characters."
 )
 
 

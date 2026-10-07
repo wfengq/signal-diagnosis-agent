@@ -47,7 +47,13 @@ from signal_diag.app.result_qa import QA_VERSION
 from signal_diag.app.sweep import diagnose_sweep
 
 EVAL_SCHEMA = "qa_eval/1"
-CASE_SETS = {"dev": "qa_cases.json", "heldout": "qa_cases_heldout.json"}
+# "heldout" (#101) was used by live_1 and informed result-qa 1.1 (§33.1);
+# acceptance of 1.1 runs on "heldout_2".
+CASE_SETS = {
+    "dev": "qa_cases.json",
+    "heldout": "qa_cases_heldout.json",
+    "heldout_2": "qa_cases_heldout_2.json",
+}
 PASS_RATE_BAR = 0.9
 DECLINE_BAR = 0.9
 REVIEW_SAMPLES = 20
@@ -244,7 +250,9 @@ async def _run(
         json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    (out / "review.md").write_text(review_markdown(rows) + "\n", encoding="utf-8")
+    # review_markdown already ends with a newline; adding one leaves a blank
+    # line at EOF that `git diff --check` rejects.
+    (out / "review.md").write_text(review_markdown(rows), encoding="utf-8")
     return summary
 
 

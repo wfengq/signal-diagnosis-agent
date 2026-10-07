@@ -584,7 +584,12 @@ def _check_wording(lowered: str) -> None:
 
 
 def _check_sentence(
-    text: str, refs: Sequence[str], packet: ExplanationPacket, section: SectionKind
+    text: str,
+    refs: Sequence[str],
+    packet: ExplanationPacket,
+    section: SectionKind,
+    *,
+    check_faults: bool = True,
 ) -> None:
     if len(text) > MAX_CHARS:
         raise ExplanationRejected("length", f"sentence longer than {MAX_CHARS} characters")
@@ -604,6 +609,8 @@ def _check_sentence(
     for number in _parse_numbers(text):
         if not _number_allowed(number, allowed):
             raise ExplanationRejected("number", f"number {number[0]:g} is not a cited value")
+    if not check_faults:
+        return
     supported = {fault for item in items for fault in item.supports}
     for fault, terms in _FAULT_TERMS.items():
         negatable = fault in ("clipping", "harmonic_distortion")
@@ -619,10 +626,18 @@ def _check_sentence(
 
 
 def check_sentence(
-    text: str, refs: Sequence[str], packet: ExplanationPacket, section: SectionKind = "meaning"
+    text: str,
+    refs: Sequence[str],
+    packet: ExplanationPacket,
+    section: SectionKind = "meaning",
+    *,
+    check_faults: bool = True,
 ) -> None:
-    """One sentence against the §30 checks (citation, ids, wording, numbers, faults)."""
-    _check_sentence(text, refs, packet, section)
+    """One sentence against the §30 checks (citation, ids, wording, numbers, faults).
+
+    ``check_faults=False`` leaves the fault check to the caller (§33.1).
+    """
+    _check_sentence(text, refs, packet, section, check_faults=check_faults)
 
 
 def validate_explanation(draft: ExplanationDraft, packet: ExplanationPacket) -> None:
