@@ -336,15 +336,110 @@ def analyze_sweep_recording(recording: np.ndarray, sample_rate_hz: int) -> Sweep
     )
 
 
+KNOWN_SWEEP_ANALYSIS_VERSION = "known-sweep-analysis-1.0"
+_KNOWN_PAD_S = 1.0
+_KNOWN_MAX_LAG_S = 0.1
+
+
+@dataclass(frozen=True, slots=True)
+class KnownSweepAnalysis:
+    """Band THD of a device driven by a known external exponential sweep (D056)."""
+
+    version: str
+    rate_l: float
+    start_frequency_hz: float
+    lag_samples: int
+    bands: tuple[BandResult, ...]
+
+
+def estimate_sweep_rate(stimulus: np.ndarray, sample_rate_hz: int) -> tuple[float, float]:
+    """``L`` and the start frequency of an exponential sweep, f(t) = f0·exp(t/L).
+
+    Fitted to the median instantaneous frequency in 10 ms steps between
+    100 Hz and 8 kHz, where the analytic phase is reliable.
+    """
+    values = np.asarray(stimulus, dtype=np.float64).reshape(-1)
+    n = len(values)
+    weights = np.zeros(n)
+    weights[0] = 1.0
+    weights[1 : (n + 1) // 2] = 2.0
+    if n % 2 == 0:
+        weights[n // 2] = 1.0
+    phase = np.unwrap(np.angle(np.fft.ifft(np.fft.fft(values) * weights)))
+    frequency = np.diff(phase) * sample_rate_hz / (2 * np.pi)
+    hop = sample_rate_hz // 100
+    centers = np.arange(hop // 2, len(frequency) - hop, hop)
+    medians = np.array([np.median(frequency[c - hop // 2 : c + hop // 2]) for c in centers])
+    usable = (medians > 100.0) & (medians < 8_000.0)
+    if usable.sum() < 10:
+        raise ValueError("stimulus is not an exponential sweep through 100 Hz–8 kHz")
+    slope, intercept = np.polyfit(centers[usable] / sample_rate_hz, np.log(medians[usable]), 1)
+    if slope <= 0:
+        raise ValueError("stimulus frequency does not rise")
+    return float(1.0 / slope), float(np.exp(intercept))
+
+
+def analyze_known_sweep(
+    recording: np.ndarray, stimulus: np.ndarray, sample_rate_hz: int
+) -> KnownSweepAnalysis:
+    """Deconvolve ``recording`` by the measured spectrum of ``stimulus``.
+
+    The stimulus need not be the versioned product sweep or synchronized; only
+    magnitudes are used. Band THD shares ``_bands`` with the product analysis
+    (orders read at n·f, noise floor at the same bands). The recording is the
+    device output aligned to the stimulus within 0.1 s; level normalization
+    does not affect THD. Recorder full scale is not judged.
+    """
+    dry = np.asarray(stimulus, dtype=np.float64).reshape(-1)
+    wet = np.asarray(recording, dtype=np.float64).reshape(-1)
+    if not (np.all(np.isfinite(dry)) and np.all(np.isfinite(wet))):
+        raise ValueError("non-finite samples")
+    if len(wet) < 0.9 * len(dry):
+        raise ValueError("recording is shorter than the stimulus")
+    rate_l, f_start = estimate_sweep_rate(dry, sample_rate_hz)
+    max_lag = round(_KNOWN_MAX_LAG_S * sample_rate_hz)
+    lag, _ = _xcorr_lag(dry, wet, max_lag)
+    pad = round(_KNOWN_PAD_S * sample_rate_hz)
+    length = max(len(dry), len(wet)) + pad
+    size = 1 << int(np.ceil(np.log2(2 * length)))
+    freqs = np.fft.rfftfreq(size, 1 / sample_rate_hz)
+    dry_spectrum = np.fft.rfft(np.concatenate([np.zeros(pad), dry]), size)
+    wet_spectrum = np.fft.rfft(np.concatenate([np.zeros(pad), wet]), size)
+    band = (freqs >= F1_HZ) & (freqs <= F2_HZ) & (np.abs(dry_spectrum) > 1e-9 * np.abs(dry_spectrum).max())
+    response = np.zeros_like(wet_spectrum)
+    response[band] = wet_spectrum[band] / dry_spectrum[band]
+    impulse = np.fft.irfft(response, size)
+    window = round(IR_WINDOW_S * sample_rate_hz)
+    taper = np.hanning(window)
+    spectra: dict[int, np.ndarray] = {}
+    for order in range(1, MAX_ORDER + 1):
+        start = (lag - round(rate_l * np.log(order) * sample_rate_hz) - window // 4) % size
+        spectra[order] = np.fft.rfft(impulse[(start + np.arange(window)) % size] * taper, _SPECTRUM_SIZE)
+    noise_index = (lag + round(0.3 * sample_rate_hz) + np.arange(window)) % size
+    noise = np.fft.rfft(impulse[noise_index] * taper, _SPECTRUM_SIZE)
+    bands = _bands(np.fft.rfftfreq(_SPECTRUM_SIZE, 1 / sample_rate_hz), spectra, noise, sample_rate_hz)
+    return KnownSweepAnalysis(
+        version=KNOWN_SWEEP_ANALYSIS_VERSION,
+        rate_l=round(rate_l, 6),
+        start_frequency_hz=round(f_start, 4),
+        lag_samples=lag,
+        bands=bands,
+    )
+
+
 __all__ = [
     "BAND_CENTERS_HZ",
+    "KNOWN_SWEEP_ANALYSIS_VERSION",
     "SUPPORTED_RATES",
     "SWEEP_ANALYSIS_VERSION",
     "SWEEP_STIMULUS_VERSION",
     "BandResult",
+    "KnownSweepAnalysis",
     "SweepAnalysis",
     "SweepStimulusSpec",
+    "analyze_known_sweep",
     "analyze_sweep_recording",
+    "estimate_sweep_rate",
     "generate_stimulus",
     "stimulus_spec",
 ]
