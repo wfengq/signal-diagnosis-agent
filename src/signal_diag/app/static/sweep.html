@@ -47,6 +47,14 @@
       </ol>
     </section>
 
+    <section id="sweep-session" aria-labelledby="session-heading">
+      <h2 id="session-heading">多轮测试会话（可选）</h2>
+      <p class="muted">一次测不清楚时，会话会根据每轮结果建议下一轮测哪些电平、先处理哪些测量问题，直到失真起点精确到 3 dB 或确认没有失真。建议由固定规则给出，不调用 AI。</p>
+      <p><button id="session-start" type="button">开始会话</button>
+        <span id="session-status" class="muted" role="status" aria-live="polite"></span></p>
+      <div id="session-body"></div>
+    </section>
+
     <section id="sweep-upload" aria-labelledby="upload-heading">
       <h2 id="upload-heading">3. 上传录音</h2>
       <form id="sweep-form">
@@ -108,6 +116,7 @@
   </main>
   <script src="/static/guide.js"></script>
   <script src="/static/explanation.js"></script>
+  <script src="/static/session.js"></script>
   <script src="/static/sweep.js"></script>
 </body>
 </html>

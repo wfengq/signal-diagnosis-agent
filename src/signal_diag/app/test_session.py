@@ -13,8 +13,9 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections.abc import Mapping, Sequence
-from typing import Annotated, Literal
+from collections import OrderedDict
+from collections.abc import Callable, Mapping, Sequence
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -154,6 +155,7 @@ class SessionState(BaseModel):
     start_outcome: Outcome | None = None
     answers: dict[str, bool | float | str] = Field(default_factory=dict)
     asked: tuple[str, ...] = ()
+    open_ask: AskUser | None = None
     rounds: tuple[SessionRound, ...] = ()
     pending: ProposeTest | None = None
     finished: Finish | None = None
@@ -214,6 +216,8 @@ def apply_answer(state: SessionState, field: str, value: bool | float | str) -> 
     checked = _check_answer(field, value)
     answers = {**state.answers, field: checked}
     update: dict[str, object] = {"answers": answers}
+    if state.open_ask is not None and state.open_ask.field == field:
+        update["open_ask"] = None
     if field == "connection":
         update["connection"] = checked
     return state.model_copy(update=update)
@@ -377,6 +381,8 @@ def validate_action(action: ProposeTest | AskUser | Finish, state: SessionState)
         raise SessionRejected("state", "the session has finished")
     if state.pending is not None:
         raise SessionRejected("state", "a proposed test is waiting for its result")
+    if state.open_ask is not None:
+        raise SessionRejected("state", f"waiting for the answer to {state.open_ask.field}")
     if isinstance(action, ProposeTest):
         _validate_proposal(action, state)
     elif isinstance(action, AskUser):
@@ -539,8 +545,69 @@ def apply_action(state: SessionState, action: ProposeTest | AskUser | Finish) ->
     if isinstance(action, ProposeTest):
         return state.model_copy(update={"pending": action})
     if isinstance(action, AskUser):
-        return state.model_copy(update={"asked": (*state.asked, action.field)})
+        return state.model_copy(update={"asked": (*state.asked, action.field), "open_ask": action})
     return state.model_copy(update={"finished": action})
+
+
+Policy = Callable[[SessionState], "ProposeTest | AskUser | Finish"]
+
+
+def waiting_on_user(state: SessionState) -> bool:
+    return state.finished is not None or state.pending is not None or state.open_ask is not None
+
+
+def advance(state: SessionState, policy: Policy = rule_next_action) -> SessionState:
+    """Apply the policy's next step unless the session is waiting on the user."""
+    if waiting_on_user(state):
+        return state
+    return apply_action(state, policy(state))
+
+
+def session_view(state: SessionState, language: Literal["zh", "en"] = "zh") -> dict[str, Any]:
+    """The JSON a client shows: what to do next, progress and the summary."""
+    found = resolution(state)
+    if state.finished is not None:
+        next_step: dict[str, Any] = {"kind": "finish", "status": state.finished.status}
+    elif state.pending is not None:
+        next_step = {
+            "kind": "propose_test",
+            "plan_id": state.pending.plan_id,
+            "levels_db": list(state.pending.levels_db),
+            "level_labels": [level_label(level) for level in state.pending.levels_db],
+            "fix": state.pending.fix,
+            "reason_refs": list(state.pending.reason_refs),
+        }
+    elif state.open_ask is not None:
+        next_step = {"kind": "ask_user", "field": state.open_ask.field, "question": state.open_ask.question}
+    else:
+        next_step = {"kind": "none"}
+    return {
+        "session": state.model_dump(mode="json"),
+        "next": next_step,
+        "resolution": found.model_dump(mode="json"),
+        "rounds_left": state.max_rounds - len(state.rounds),
+        "summary": list(summary_lines(state, language)),
+        "policy": RULE_POLICY_VERSION,
+        "model_calls": 0,
+    }
+
+
+class SessionStore:
+    """Recent sessions in memory."""
+
+    def __init__(self, limit: int = 64) -> None:
+        self._limit = limit
+        self._sessions: OrderedDict[str, SessionState] = OrderedDict()
+
+    def put(self, state: SessionState) -> SessionState:
+        self._sessions[state.session_id] = state
+        self._sessions.move_to_end(state.session_id)
+        while len(self._sessions) > self._limit:
+            self._sessions.popitem(last=False)
+        return state
+
+    def get(self, session_id: str) -> SessionState | None:
+        return self._sessions.get(session_id)
 
 
 def summary_lines(state: SessionState, language: Literal["zh", "en"] = "zh") -> tuple[str, ...]:
@@ -588,6 +655,8 @@ __all__ = [
     "SessionRejected",
     "SessionRound",
     "SessionState",
+    "SessionStore",
+    "advance",
     "apply_action",
     "apply_answer",
     "ask",
@@ -599,6 +668,8 @@ __all__ = [
     "record_result",
     "resolution",
     "rule_next_action",
+    "session_view",
     "summary_lines",
     "validate_action",
+    "waiting_on_user",
 ]

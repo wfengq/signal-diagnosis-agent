@@ -228,6 +228,15 @@ def build_parser() -> argparse.ArgumentParser:
     guide_confirm.add_argument("--test-file", default=None)
     guide_confirm.add_argument("--reference-file", default=None)
     guide_confirm.add_argument("--nominal-hz", type=float, default=None)
+
+    session = subparsers.add_parser("session", help="multi-round test session (D060)")
+    session_commands = session.add_subparsers(dest="session_command", required=True)
+    session_simulate = session_commands.add_parser(
+        "simulate", help="run a sandbox scenario with the rule policy (no model)"
+    )
+    session_simulate.add_argument("case_id")
+    session_simulate.add_argument("--cases", choices=("dev", "heldout"), default="dev")
+    session_simulate.add_argument("--output", choices=("text", "json"), default="text")
     return parser
 
 
@@ -947,6 +956,34 @@ def _print_draft_or_questionnaire(result: GuideResult) -> None:
         print(f"  {item.question_id}: {item.text_zh} [{options}]")
 
 
+def _session(args: argparse.Namespace) -> int:
+    from signal_diag.app.session_eval import load_cases, run_session, score
+    from signal_diag.app.test_session import summary_lines
+
+    cases = {case["case_id"]: case for case in load_cases(args.cases)}
+    if args.case_id not in cases:
+        print(f"unknown scenario {args.case_id!r}", file=sys.stderr)
+        return 2
+    state, log = run_session(cases[args.case_id])
+    row = score(cases[args.case_id], state)
+    if args.output == "json":
+        print(json.dumps({"score": row, "steps": log, "summary": list(summary_lines(state))}, ensure_ascii=False, indent=2))
+        return 0
+    for index, entry in enumerate(log, 1):
+        action = entry["action"]
+        if action["kind"] == "propose_test":
+            fix = f" fix={action['fix']}" if action["fix"] else ""
+            print(f"{index}. test {action['levels_db']}{fix} -> {entry.get('result')}")
+        elif action["kind"] == "ask_user":
+            print(f"{index}. ask {action['field']} -> {entry.get('answer')}")
+        else:
+            print(f"{index}. finish {action['status']}")
+    for line in summary_lines(state):
+        print(line)
+    print(f"correct: {row['correct']} (expected {row['expected_status']}, onset {row['expected_onset_db']})")
+    return 0
+
+
 def _guide(args: argparse.Namespace) -> int:
     try:
         if args.guide_command == "draft":
@@ -1022,6 +1059,8 @@ def main(
         return _sweep(args)
     if args.command == "guide":
         return _guide(args)
+    if args.command == "session":
+        return _session(args)
     return 2
 
 

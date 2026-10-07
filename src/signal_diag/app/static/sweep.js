@@ -108,6 +108,7 @@
     byId("sweep-report-html").href = `${base}/report.html`;
     byId("sweep-result").hidden = false;
     window.SignalGuide.linkRun(plan, payload.run_id);
+    if (window.SignalSession) window.SignalSession.linkRun(payload.run_id);
     window.SignalExplanation.show(
       {
         panel: "sweep-explanation-panel",

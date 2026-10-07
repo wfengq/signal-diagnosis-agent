@@ -90,6 +90,15 @@ from signal_diag.app.test_plan import (
     confirm_plan,
     questionnaire_draft,
 )
+from signal_diag.app.test_session import (
+    SessionRejected,
+    SessionStore,
+    advance,
+    apply_answer,
+    new_session,
+    record_result,
+    session_view,
+)
 from signal_diag.signal import WavLoadLimits
 from signal_diag.signal.models import ChannelMode
 
@@ -103,6 +112,7 @@ _STATIC_MEDIA_TYPES = {
     "sweep.js": "text/javascript; charset=utf-8",
     "explanation.js": "text/javascript; charset=utf-8",
     "guide.js": "text/javascript; charset=utf-8",
+    "session.js": "text/javascript; charset=utf-8",
 }
 _STATUS_BY_CODE = {
     "invalid_request": 422,
@@ -256,6 +266,32 @@ class _LinkBody(BaseModel):
     run_id: str = Field(min_length=1, max_length=80)
 
 
+class _SessionBody(BaseModel):
+    """§32: start a multi-round test session (rule policy, no model)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    plan_key: str | None = Field(default=None, max_length=80)
+    sample_rate_hz: int = 48_000
+    connection: str | None = None
+    max_rounds: int = 4
+    start_outcome: Literal["supported_fault", "no_supported_fault", "inconclusive"] | None = None
+    answers: dict[str, bool | float | str] = Field(default_factory=dict)
+    language: Literal["zh", "en"] = "zh"
+
+
+class _SessionAnswerBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    field: str = Field(min_length=1, max_length=40)
+    value: bool | float | str
+    language: Literal["zh", "en"] = "zh"
+
+
+def _session_error(rejected: SessionRejected) -> InvalidRequestError:
+    return InvalidRequestError(AppErrorDetail(code="invalid_request", message=str(rejected)))
+
+
 def _plan_error(rejected: PlanRejected) -> InvalidRequestError:
     return InvalidRequestError(AppErrorDetail(code="invalid_request", message=str(rejected)))
 
@@ -275,6 +311,7 @@ def create_app(
 
     guide = guide_service if guide_service is not None else build_guide_service(os.environ)
     plans = PlanStore()
+    sessions = SessionStore()
     regression_service = build_regression_service()
 
     @asynccontextmanager
@@ -664,6 +701,60 @@ def create_app(
             _service(request).get_contextual_run(body.run_id)
         plans.link(plan_key, body.run_id)
         return JSONResponse(content={"plan_key": plan_key, "run_id": body.run_id})
+
+    def _session(session_id: str) -> Any:
+        state = sessions.get(session_id)
+        if state is None:
+            raise RunNotFoundError(
+                AppErrorDetail(code="run_not_found", message="unknown test session")
+            )
+        return state
+
+    @app.post("/api/v1/test-sessions")
+    async def create_test_session(body: _SessionBody) -> JSONResponse:
+        rate, connection = body.sample_rate_hz, body.connection
+        if body.plan_key is not None:
+            record = _plan(body.plan_key)
+            if record.plan_id != "sweep_levels":
+                raise _session_error(SessionRejected("plan", "a session starts from a sweep plan"))
+            rate = record.parameters.sample_rate_hz or rate
+            connection = record.parameters.connection or connection
+        try:
+            state = new_session(
+                sample_rate_hz=rate,
+                connection=connection,
+                max_rounds=body.max_rounds,
+                start_outcome=body.start_outcome,
+                answers=body.answers,
+                seed=body.plan_key or "",
+            )
+            state = sessions.put(advance(state))
+        except SessionRejected as rejected:
+            raise _session_error(rejected) from rejected
+        return JSONResponse(content=session_view(state, body.language))
+
+    @app.get("/api/v1/test-sessions/{session_id}")
+    async def get_test_session(session_id: str, language: Literal["zh", "en"] = "zh") -> JSONResponse:
+        return JSONResponse(content=session_view(_session(session_id), language))
+
+    @app.post("/api/v1/test-sessions/{session_id}/answers")
+    async def answer_test_session(session_id: str, body: _SessionAnswerBody) -> JSONResponse:
+        state = _session(session_id)
+        try:
+            state = sessions.put(advance(apply_answer(state, body.field, body.value)))
+        except SessionRejected as rejected:
+            raise _session_error(rejected) from rejected
+        return JSONResponse(content=session_view(state, body.language))
+
+    @app.post("/api/v1/test-sessions/{session_id}/runs")
+    async def add_test_session_run(session_id: str, body: _LinkBody) -> JSONResponse:
+        state = _session(session_id)
+        diagnosis = sweep_runs.get(body.run_id)
+        try:
+            state = sessions.put(advance(record_result(state, diagnosis)))
+        except SessionRejected as rejected:
+            raise _session_error(rejected) from rejected
+        return JSONResponse(content=session_view(state))
 
     @app.get("/")
     async def root() -> Response:

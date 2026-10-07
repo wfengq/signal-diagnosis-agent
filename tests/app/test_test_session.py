@@ -1,4 +1,4 @@
-"""T-CX503–T-CX508: multi-round test sessions, rule policy and sandbox (D060). No network."""
+"""T-CX503–T-CX511: multi-round test sessions, rule policy and sandbox (D060). No network."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ import pytest
 from signal_diag.app.session_eval import (
     load_cases,
     oracle_onset,
+    render,
     run,
     run_session,
     score,
@@ -106,7 +107,10 @@ def test_t_cx504_validator_rejects_each_violation() -> None:
     _rejected(ProposeTest(levels_db=(-9.0,), reason_refs=(START,)), one, "citation")
     validate_action(AskUser(field="max_level_db", question="?"), one)
     asked = apply_action(one, AskUser(field="max_level_db", question="?"))
-    _rejected(AskUser(field="max_level_db", question="?"), asked, "ask")
+    _rejected(ProposeTest(levels_db=(-9.0,), reason_refs=(ref,)), asked, "state")
+    answered = apply_answer(asked, "max_level_db", 0.0)
+    assert answered.open_ask is None
+    _rejected(AskUser(field="max_level_db", question="?"), answered, "ask")
 
     full = _state(*[_round((-12.0,), ("no_supported_fault",), index=i) for i in range(1)], max_rounds=1)
     _rejected(ProposeTest(levels_db=(-9.0,), reason_refs=(full.rounds[0].observations[0].ref,)), full, "budget")
@@ -199,3 +203,80 @@ def test_t_cx508_scenarios_and_harness(tmp_path: Path) -> None:
     assert {row["case_id"] for row in rows} == {"s02", "s27"} and all(row["steps"] for row in rows[:1])
     for name in ("results.jsonl", "summary.json"):
         assert all(line == line.rstrip() for line in (tmp_path / name).read_text(encoding="utf-8").splitlines())
+
+
+async def _upload(client: object, case: dict, levels: list[float]) -> str:
+    files = {
+        f"recording_{index}": (f"{index}.wav", render(case, level, frozenset()), "audio/wav")
+        for index, level in enumerate(levels, 1)
+    }
+    data = {"metadata": json.dumps({"levels": [level_label(level) for level in levels]})}
+    response = await client.post("/api/v1/sweep-runs", files=files, data=data)  # type: ignore[attr-defined]
+    return str(response.json()["run_id"])
+
+
+@pytest.mark.asyncio
+async def test_t_cx509_api_session_flow() -> None:
+    from signal_diag.app.api import create_app
+    from signal_diag.app.engine_service import build_engine_service
+    from tests.app.test_api import _client
+
+    case = next(c for c in load_cases("dev") if c["case_id"] == "s01")
+    app = create_app(service=build_engine_service(environ={}))
+    async with _client(app=app) as client:
+        view = (await client.post("/api/v1/test-sessions", json={})).json()
+        session_id = view["session"]["session_id"]
+        assert view["next"]["kind"] == "propose_test" and view["next"]["level_labels"] == ["-12 dB", "-6 dB", "0 dB"]
+        assert view["model_calls"] == 0 and view["rounds_left"] == 4
+        run_id = await _upload(client, case, [-12.0, -6.0, 0.0])
+        view = (await client.post(f"/api/v1/test-sessions/{session_id}/runs", json={"run_id": run_id})).json()
+        assert view["next"]["level_labels"] == ["-9 dB"] and view["resolution"]["onset_db"] == -6.0
+        wrong = await _upload(client, case, [-12.0])
+        rejected = await client.post(f"/api/v1/test-sessions/{session_id}/runs", json={"run_id": wrong})
+        assert rejected.status_code == 422
+        run_id = await _upload(client, case, [-9.0])
+        view = (await client.post(f"/api/v1/test-sessions/{session_id}/runs", json={"run_id": run_id})).json()
+        assert view["next"] == {"kind": "finish", "status": "resolved"}
+        assert (await client.get(f"/api/v1/test-sessions/{session_id}")).json()["next"]["kind"] == "finish"
+
+        asked = (await client.post("/api/v1/test-sessions", json={"start_outcome": "inconclusive"})).json()
+        assert asked["next"]["kind"] == "ask_user" and asked["next"]["field"] == "can_retest"
+        sid = asked["session"]["session_id"]
+        bad = await client.post(f"/api/v1/test-sessions/{sid}/answers", json={"field": "can_retest", "value": "maybe"})
+        assert bad.status_code == 422
+        done = (await client.post(f"/api/v1/test-sessions/{sid}/answers", json={"field": "can_retest", "value": False})).json()
+        assert done["next"] == {"kind": "finish", "status": "blocked_by_user"}
+        assert (await client.get("/api/v1/test-sessions/sess_missing")).status_code == 404
+        assert (await client.post("/api/v1/test-sessions", json={"max_rounds": 9})).status_code == 422
+        plan = (await client.post("/api/v1/test-plans/confirm", json={"plan_id": "existing_recording", "source": "questionnaire"})).json()
+        assert (await client.post("/api/v1/test-sessions", json={"plan_key": plan["plan_key"]})).status_code == 422
+
+
+def test_t_cx510_cli_session_simulate(capsys: pytest.CaptureFixture[str]) -> None:
+    from signal_diag.app.cli import main
+
+    assert main(["session", "simulate", "s29"]) == 0
+    out = capsys.readouterr().out
+    assert "ask can_retest -> False" in out and "finish blocked_by_user" in out and "correct: True" in out
+    assert main(["session", "simulate", "s27", "--output", "json"]) == 0
+    assert json.loads(capsys.readouterr().out)["score"]["correct"] is True
+    assert main(["session", "simulate", "nope"]) == 2
+
+
+@pytest.mark.asyncio
+async def test_t_cx511_web_ui_wiring() -> None:
+    from signal_diag.app.api import create_app
+    from signal_diag.app.engine_service import build_engine_service
+    from tests.app.test_api import _client
+
+    static = Path(__file__).resolve().parents[2] / "src" / "signal_diag" / "app" / "static"
+    script = (static / "session.js").read_text(encoding="utf-8")
+    assert "innerHTML" not in script and "textContent" in script
+    assert "/api/v1/test-sessions" in script and "SignalSession" in script
+    page = (static / "sweep.html").read_text(encoding="utf-8")
+    assert 'id="session-start"' in page and 'src="/static/session.js"' in page
+    assert "SignalSession.linkRun" in (static / "sweep.js").read_text(encoding="utf-8")
+    app = create_app(service=build_engine_service(environ={}))
+    async with _client(app=app) as client:
+        served = await client.get("/static/session.js")
+        assert served.status_code == 200 and served.headers["content-type"].startswith("text/javascript")
