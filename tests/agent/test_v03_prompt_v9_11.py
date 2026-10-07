@@ -711,8 +711,24 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert withholding["prior_bridge_current_implementation_sha256"] == (
         paired["current_implementation_sha256"]
     )
-    assert withholding["current_implementation_sha256"] == contextual_implementation_sha256()
-    assert withholding["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert withholding["current_implementation_sha256"] == (
+        "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3"
+    )
+    assert withholding["product_tree_sha256"] == (
+        "46ca2e37483f34cd3daf01679b38d3a3f8587faca4145b25f09b1d9803fb6e27"
+    )
     assert withholding["prompt_sha256"] == oq014["prompt_sha256"]
     assert withholding["prompt_version"] == "v0.3-s1-planner-9.11"
     assert withholding["model_calls"] == 0
+    engine = next(
+        row for row in rows if row["amendment_id"] == "d053_deterministic_engine_default"
+    )
+    assert engine["amendment_kind"] == "append_only_code_identity"
+    assert engine["prior_bridge_current_implementation_sha256"] == (
+        withholding["current_implementation_sha256"]
+    )
+    assert engine["current_implementation_sha256"] == contextual_implementation_sha256()
+    assert engine["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert engine["prompt_sha256"] == oq014["prompt_sha256"]
+    assert engine["prompt_version"] == "v0.3-s1-planner-9.11"
+    assert engine["model_calls"] == 0

@@ -1111,3 +1111,39 @@ adopted harmonic distortion.
 `CONTRACTS_V0_2.md` §§1–64, the `signal`, `dsp`, `tools`, `rules` and
 `knowledge` layers, Evidence and rule-evaluation models, and D037. Until phase 1
 lands, HEAD keeps running the v9.11 planner path as before.
+
+## D053 — Deterministic engine as the contextual product default (D052 phase 1)
+
+**Decision (operator 2026-10-07):** approve
+`docs/superpowers/specs/2026-10-07-engine-phase1-design.md` with options 1A
+(engine as a deterministic `PlannerModel` on the existing runtime), 2A
+(`planner_identity` optional, omitted for engine runs), 3A (CLI and API default
+to the engine) and 4A (explain any shortfall and let the operator decide).
+
+**Amendment after the first comparison (operator option A):**
+- In `single_signal`, when the whole file does not support clipping, the
+  engine checks clipping on every D050 window and channel. This recovers four
+  increment-study T2 cases whose clipping is confined to one channel and a
+  short span.
+- One `nominal_single_tone` clipping case (`dff3ebd9dffee874`) also meets the
+  harmonic gate, because clipping creates even harmonics the rules cannot
+  separate. This is accepted as a known limitation until the sweep stimulus of
+  phase 2.
+
+**Result (offline, no model call, `phase1_comparison/report.json`):**
+- No errors and no validation rejections across 174 recorded cases.
+- Contextual validation: 17/17 against the recorded v9.11's 16/17.
+- Contextual development: 16/17 against 17/17; the gap is the accepted
+  limitation.
+- Increment held-out T1: 12/20; T2: 14/20. Both equal the recorded agent, case
+  by case.
+- On the 26 EGFxSet live pairs (local check), the engine reaches a verdict on
+  26, against 17 for the planner, and agrees with it on all 17.
+
+**Cost:** a 30 s stereo 48 kHz single file takes about 12 s when every window
+on every channel is checked. In the product, the runtime analyses the one
+selected channel, which is a third of that.
+
+**Unchanged:** `build_product_service` and the frozen T213, T251, T264 and
+T282; the runtime and finish validation; rule thresholds; the V0.2 path; V0.2
+79/80 and every recorded study.

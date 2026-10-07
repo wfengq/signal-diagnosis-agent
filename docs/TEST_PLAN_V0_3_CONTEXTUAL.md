@@ -580,3 +580,19 @@ alter T-CX001–T-CX440 meanings; T-CX434 and T-CX439 now expect scan version
 | T-CX445 | A paired run's snapshot, report JSON, HTML report, CLI text and Web UI show `harmonic_basis`, the comparison windows, the not-comparable count and, when the diagnosis does not support harmonic distortion, the withheld count with no harmonic interval; single-file output omits the paired fields |
 | T-CX446 | Browser proof with a stub planner (manual, not in CI): a paired manual run shows the reference-comparison note and the withheld count, with no page error and no horizontal overflow at 1440 px and 390 px |
 | T-CX447 | Without a harmonic diagnosis (none, or clipping only), paired harmonic windows yield no interval, no contextual Evidence and no growth evaluation, and `harmonic_windows_withheld` counts them; with one, it is 0; other modes omit it |
+
+T-CX448–T-CX456 are additive definitions for D053
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §28). They make no model call and must not
+alter T-CX001–T-CX447 meanings.
+
+| ID | Definition |
+|----|------------|
+| T-CX448 | The engine is a `PlannerModel` that imports no model client; single-file runs call whole-file clipping and harmonic tools and, only without whole-file clipping, every clipping window; contextual runs make one comparison call; supported faults cite knowledge; short files finish |
+| T-CX449 | Regenerating `phase1_comparison/report.json` reproduces the committed file byte for byte, with no errors and every run finished by `planner_finished` |
+| T-CX450 | Repeated engine runs on the same input give the same outcome and claims |
+| T-CX451 | Single-file runs never attribute harmonic distortion, on a synthetic harmonic tone and on every single-file row of the report |
+| T-CX452 | Every set with recorded planner results has engine correctness not below the planner's, apart from the cases listed as accepted limitations, which are exactly the cases where only the engine is wrong |
+| T-CX453 | `build_engine_service` diagnoses without credentials, rejects `diagnosis_path=planner` without credentials and builds `RealLLMPlanner` with them; `build_product_service` keeps the planner default and has no engine |
+| T-CX454 | Engine runs carry `diagnosis_identity` and omit `planner_identity` in the snapshot and report JSON; the HTML has the engine section and no planner section; the CLI defaults to the engine; the health response keeps the T264 fields and adds `diagnosis_engine` |
+| T-CX455 | The Web UI enables diagnosis from `diagnosis_engine` without credentials, disables free-text drafting without credentials and shows who decided the verdict |
+| T-CX456 | Browser proof with the engine service and no credentials (manual, not in CI): a diagnosis completes, the summary shows the engine, drafting is disabled, with no page error and no horizontal overflow at 1440 px and 390 px |
