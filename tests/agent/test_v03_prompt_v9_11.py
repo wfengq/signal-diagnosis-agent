@@ -755,8 +755,22 @@ def test_t_cx254_v911_behavior_identity_is_preserved_and_active_bridge_matches()
     assert analysis["prior_bridge_current_implementation_sha256"] == (
         sweep["current_implementation_sha256"]
     )
-    assert analysis["current_implementation_sha256"] == contextual_implementation_sha256()
-    assert analysis["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert analysis["current_implementation_sha256"] == (
+        "9939842ca31ce0638d3ad985f418dbce80b6065b63ebbdb6daba9515ca1d67e3"
+    )
+    assert analysis["product_tree_sha256"] == (
+        "29b81e34c7c9cc0c3b6e4cecde770176bd1edde959d5ec11e062274d6dd45dcd"
+    )
     assert analysis["prompt_sha256"] == oq014["prompt_sha256"]
     assert analysis["prompt_version"] == "v0.3-s1-planner-9.11"
     assert analysis["model_calls"] == 0
+    explanation = next(row for row in rows if row["amendment_id"] == "d055_explanation_layer")
+    assert explanation["amendment_kind"] == "append_only_code_identity"
+    assert explanation["prior_bridge_current_implementation_sha256"] == (
+        analysis["current_implementation_sha256"]
+    )
+    assert explanation["current_implementation_sha256"] == contextual_implementation_sha256()
+    assert explanation["product_tree_sha256"] == contextual_product_tree_sha256()
+    assert explanation["prompt_sha256"] == oq014["prompt_sha256"]
+    assert explanation["prompt_version"] == "v0.3-s1-planner-9.11"
+    assert explanation["model_calls"] == 0

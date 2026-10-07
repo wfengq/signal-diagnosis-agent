@@ -612,3 +612,21 @@ alter T-CX001–T-CX456 meanings.
 | T-CX463 | JSON and HTML reports carry the threshold notice, escape labels, list cited evaluations and refuse claims citing another level; the chart follows the mark specs (2 px lines, validated series colours, dashed demo limit, 24 px hover targets) with no inline style or script |
 | T-CX464 | The CLI writes the stimulus, diagnoses 1–3 recordings with labels in text and JSON, writes the HTML report and exits 2 on usage and WAV errors |
 | T-CX465 | The API serves the stimulus, runs and reports with the CSP header, returns 404 for unknown runs and report kinds, rejects malformed uploads with 422, and serves `/sweep` and `sweep.js`; the page links from `/` and sets dynamic text without `innerHTML`; browser proof (manual, not in CI): three levels give the onset summary, chart, table and claims with no page error and no horizontal overflow at 1100 px and 390 px |
+
+T-CX466–T-CX476 are additive definitions for D055
+(`CONTRACTS_V0_3_CONTEXTUAL.md` §30). They make no model call and must not
+alter T-CX001–T-CX465 meanings.
+
+| ID | Definition |
+|----|------------|
+| T-CX466 | Display values follow the per-unit forms; contextual and sweep packets are deterministic (equal packets and digests), cite exactly the claims' rule evaluations, carry levels, bands and knowledge, and contain no raw arrays |
+| T-CX467 | The next-step menu follows the verdict and failing rules for contextual (clipping, single-file, inconclusive paired, no fault) and sweep (full scale, onset, noise, wrong stimulus, clean) runs, and every trigger ref is a packet item |
+| T-CX468 | The validator rejects each violation with its check name (structure, citation, conclusion coverage, number, wording, ids in text, length, next step off menu or untriggered, fault mismatch including inconclusive phrased as fine) and accepts rounding, kHz conversion and negated fault mentions |
+| T-CX469 | The template passes validation on all 152 recorded engine cases and on synthetic sweep cases, in Chinese and English |
+| T-CX470 | The template is deterministic, its meaning sentences cite knowledge, and its steps follow the menu |
+| T-CX471 | The model adapter sends the fixed system prompt and only the packet and template baseline, wraps transport failures as `ExplainerError`, and rejects an empty model name |
+| T-CX472 | The service returns the template by default with no model call; asking for the model when unavailable is `planner_not_configured`; a valid model draft is returned as `model`; illegal JSON, validation failures and provider errors fall back to the template with the reason; the builder needs both credentials and the enable flag |
+| T-CX473 | The API explains completed contextual and sweep runs in both languages, rejects extra body keys and unknown runs, returns 503 for an unavailable model, reports `explanation` in health, and adds the latest explanation to JSON and HTML reports only after one exists |
+| T-CX474 | CLI `--explain template` prints and embeds the explanation for contextual and sweep runs, `--explain model` without enablement exits 2, and runs without `--explain` are unchanged |
+| T-CX475 | Both pages load `explanation.js`, keep the AI button hidden until health allows it, and set text without `innerHTML`; browser proof (manual, not in CI) with a scripted explainer: template on both pages, the fallback note after the AI button, no page error and no horizontal overflow at 1440 px and 390 px |
+| T-CX476 | The acceptance harness writes `results.jsonl`, `summary.json` and a 20-sample `review.md` for 50 cases offline with no model call and no credential text, and in live mode counts model calls, pass rate and fallback reasons |
