@@ -1197,3 +1197,17 @@ thresholds are demonstration values, not standards.
 - the frozen T-CX351 modules, `app/composition.py` (T-CX301), T213, T251, T264,
   T269, T282 and T283;
 - the V0.2 path, V0.2 79/80 and every recorded study.
+
+**Correction (2026-10-07, `sweep-analysis-1.1`):** while preparing the
+public-data check, a device with a low-pass filter after its nonlinearity
+showed that 1.0 read order n at the input frequency f instead of at n·f. The
+analytic sweep spectrum also had its magnitude inverted (√(f/L) instead of
+√(L/f)). Together the two errors cancelled for frequency-flat devices, which
+is why the 1.0 tests passed, but the band THD of any device whose response
+changes with frequency was wrong. With a 1.5 kHz low-pass after the polynomial,
+for example, 1.0 reported 2.50 % at every band against steady-tone values of
+2.48 %, 2.29 %, 1.33 % and 0.68 % at 250 Hz, 500 Hz, 1 kHz and 2 kHz. Version
+1.1 reads order n at n·f, measures the noise floor at the same bands, uses
+only orders whose n·f stays within f2, and corrects the magnitude. It reports
+2.48 %, 2.23 %, 1.36 % and 0.73 % there. T-CX458 adds this case. The synthetic
+flat-device results above are unchanged.

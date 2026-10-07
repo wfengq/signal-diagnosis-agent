@@ -2110,7 +2110,7 @@ mono 24-bit PCM, with a LIST/INFO `ICMT` chunk after the samples reading
 `sweep-stimulus-1.0 sha256:<digest>`. Readers that skip unknown chunks,
 including `load_wav_bytes`, ignore it.
 
-**Analysis `sweep-analysis-1.0`** (numpy only). One recording is converted to
+**Analysis `sweep-analysis-1.1`** (numpy only; 1.1 corrects 1.0, see D054). One recording is converted to
 mono and analysed in these steps:
 
 - **Alignment:** cross-correlation with the stimulus gives the lag and a
@@ -2118,13 +2118,17 @@ mono and analysed in these steps:
 - **Clock drift:** estimated from two 10 % segments at 55 % and 80 % of the
   sweep.
 - **SNR:** sweep energy over the leading-silence noise.
-- **Linear and harmonic responses:** deconvolution by the analytic inverse
-  spectrum gives the linear response and orders 2–5. Each harmonic response
-  sits at `-L·ln(n)` and is cut with a 50 ms Hann window.
-- **Band THD:** computed for octave bands 63 Hz–16 kHz from the orders whose
-  frequency stays below Nyquist.
+- **Linear and harmonic responses:** deconvolution by the analytic sweep
+  spectrum (Novak 2015 eq. 42, magnitude ½·√(L/f)) gives the linear response
+  and orders 2–5. Each harmonic response sits at `-L·ln(n)` and is cut with a
+  50 ms Hann window.
+- **Band THD:** computed for octave bands 63 Hz–16 kHz. Order n of a band
+  centred at f is read at n·f in its response and compared with the linear
+  response at f. Only orders whose n·f band stays within f2 and below Nyquist
+  are used.
 - **Measurability:** a band is measurable when its noise-floor THD, taken from
-  a noise window, is at most 0.5 %. Unmeasurable bands are never judged.
+  a noise window at the same n·f bands, is at most 0.5 %. Unmeasurable bands
+  are never judged.
 - **Recorder clipping:** reported as `full_scale_ratio`, the share of sweep
   samples in runs of at least 2 consecutive samples with |y| ≥ 0.99. Clipped
   samples map to a sweep frequency span through the instantaneous frequency.

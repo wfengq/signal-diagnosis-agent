@@ -17,7 +17,7 @@ from dataclasses import dataclass
 import numpy as np
 
 SWEEP_STIMULUS_VERSION = "sweep-stimulus-1.0"
-SWEEP_ANALYSIS_VERSION = "sweep-analysis-1.0"
+SWEEP_ANALYSIS_VERSION = "sweep-analysis-1.1"
 SUPPORTED_RATES = (44_100, 48_000)
 F1_HZ = 20.0
 F2_HZ = 20_000.0
@@ -160,7 +160,7 @@ def _inverse_spectrum(spec: SweepStimulusSpec, freqs: np.ndarray) -> np.ndarray:
     f = freqs[nonzero]
     out[nonzero] = (
         0.5
-        * np.sqrt(f / spec.rate_l)
+        * np.sqrt(spec.rate_l / f)
         * np.exp(1j * 2 * np.pi * f * spec.rate_l * (1 - np.log(f / spec.f1_hz)) - 1j * np.pi / 4)
     )
     return out
@@ -197,19 +197,25 @@ def _harmonic_spectra(
 def _bands(
     freqs: np.ndarray, spectra: dict[int, np.ndarray], noise: np.ndarray, rate: int
 ) -> tuple[BandResult, ...]:
-    nyquist = rate / 2
+    # Harmonic n of the band is read at n·f, so it needs n·f inside the
+    # deconvolved range (f1–f2) and below Nyquist.
+    limit = min(rate / 2, F2_HZ)
     results: list[BandResult] = []
     for center in BAND_CENTERS_HZ:
         low, high = center / np.sqrt(2), center * np.sqrt(2)
         mask = (freqs >= low) & (freqs < high)
-        orders = tuple(n for n in range(2, MAX_ORDER + 1) if n * high < nyquist)
+        orders = tuple(n for n in range(2, MAX_ORDER + 1) if n * high <= limit)
         linear = float(np.sqrt(np.mean(np.abs(spectra[1][mask]) ** 2))) if mask.any() else 0.0
         if not orders or linear <= 0.0:
             results.append(BandResult(center, False, None, None, None, orders))
             continue
-        energies = {n: float(np.mean(np.abs(spectra[n][mask]) ** 2)) for n in orders}
+        # The n-th harmonic of an input at f sits at n·f in its response, so
+        # harmonics and their noise reference are both read at n·f.
+        masks = {n: (freqs >= n * low) & (freqs < n * high) for n in orders}
+        energies = {n: float(np.mean(np.abs(spectra[n][masks[n]]) ** 2)) for n in orders}
+        noise_energy = sum(float(np.mean(np.abs(noise[masks[n]]) ** 2)) for n in orders)
         thd = 100.0 * float(np.sqrt(sum(energies.values()))) / linear
-        floor = 100.0 * float(np.sqrt(np.mean(np.abs(noise[mask]) ** 2) * len(orders))) / linear
+        floor = 100.0 * float(np.sqrt(noise_energy)) / linear
         dominant = max(energies, key=lambda n: energies[n])
         results.append(
             BandResult(
