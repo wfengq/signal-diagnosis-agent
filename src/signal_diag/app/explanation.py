@@ -618,6 +618,13 @@ def _check_sentence(
             raise ExplanationRejected("fault_mismatch", f"mentions {fault} without citing it")
 
 
+def check_sentence(
+    text: str, refs: Sequence[str], packet: ExplanationPacket, section: SectionKind = "meaning"
+) -> None:
+    """One sentence against the §30 checks (citation, ids, wording, numbers, faults)."""
+    _check_sentence(text, refs, packet, section)
+
+
 def validate_explanation(draft: ExplanationDraft, packet: ExplanationPacket) -> None:
     """Raise ``ExplanationRejected`` unless the draft passes every §30 check."""
     kinds = tuple(section.kind for section in draft.sections)
@@ -926,6 +933,7 @@ __all__ = [
     "Language",
     "NextStepOption",
     "PacketItem",
+    "check_sentence",
     "contextual_packet",
     "display",
     "sweep_packet",

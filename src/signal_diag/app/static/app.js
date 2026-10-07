@@ -827,6 +827,7 @@ async function loadPlannerHealth() {
     if (draftButton) draftButton.disabled = !intakeDraftAvailable;
     renderPlannerReadiness(health);
     await window.SignalExplanation.loadAvailability();
+    await window.SignalQA.loadAvailability();
   } catch (_error) {
     plannerHealthAllowsSubmit = false;
     renderPlannerHealthFailure();
