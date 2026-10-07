@@ -721,3 +721,11 @@ T-CX519–T-CX521 are additive definitions for result-qa 1.1 (§33.1).
 | T-CX519 | Q&A sentences that name a metric or rule, negate a fault, or cite the run for its verdict pass; sentences that assert a fault the cited items do not support are still rejected |
 | T-CX520 | The offline review ends with a single newline; `heldout_2` is a registered case set; the check and prompt report versions 1.1 and the prompt carries the two new rules |
 | T-CX521 | The 20 round-2 held-out questions match the frozen SHA-256 in both copies, share no id or question text with the development and first held-out sets, and run through the offline harness with no model call |
+
+T-CX522–T-CX524 are additive definitions for result-qa 1.2 (§33.2).
+
+| ID | Requirement |
+| --- | --- |
+| T-CX522 | Analysis and detection names after a fault word pass the Q&A fault check; an asserted unsupported fault and a step id used as a citation are still rejected |
+| T-CX523 | The check and prompt report versions 1.2; the prompt forbids step ids in refs and banned wording even when denied; `heldout_3` is a registered case set |
+| T-CX524 | The 20 round-3 held-out questions match the frozen SHA-256 in both copies, share no id or question text with earlier sets, and run through the offline harness with no model call |

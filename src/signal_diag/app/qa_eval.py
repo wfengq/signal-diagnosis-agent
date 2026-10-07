@@ -47,12 +47,13 @@ from signal_diag.app.result_qa import QA_VERSION
 from signal_diag.app.sweep import diagnose_sweep
 
 EVAL_SCHEMA = "qa_eval/1"
-# "heldout" (#101) was used by live_1 and informed result-qa 1.1 (§33.1);
-# acceptance of 1.1 runs on "heldout_2".
+# "heldout" (#101) informed result-qa 1.1 (§33.1) and "heldout_2" (#105)
+# informed 1.2 (§33.2); acceptance of 1.2 runs on "heldout_3".
 CASE_SETS = {
     "dev": "qa_cases.json",
     "heldout": "qa_cases_heldout.json",
     "heldout_2": "qa_cases_heldout_2.json",
+    "heldout_3": "qa_cases_heldout_3.json",
 }
 PASS_RATE_BAR = 0.9
 DECLINE_BAR = 0.9

@@ -107,7 +107,7 @@ def test_t_cx520_review_ends_with_one_newline_and_heldout_2_is_registered(
     review = (tmp_path / "review.md").read_text(encoding="utf-8")
     assert review.endswith("\n") and not review.endswith("\n\n")
     assert CASE_SETS["heldout_2"] == "qa_cases_heldout_2.json"
-    assert QA_VERSION == "result-qa-1.1" and QA_PROMPT_VERSION == "v0.3-s1-qa-1.1"
+    assert QA_VERSION.startswith("result-qa-1.") and QA_PROMPT_VERSION.startswith("v0.3-s1-qa-1.")
     assert (
         "'only' did one check" in SYSTEM_PROMPT
         and "at least two levels" in SYSTEM_PROMPT
@@ -129,3 +129,14 @@ def test_t_cx521_heldout_2_questions_are_frozen_and_new(tmp_path: Path) -> None:
     assert not {c["question"] for c in cases} & {c["question"] for c in earlier}
     summary = asyncio.run(_run(ROOT, tmp_path, live=False, case_set="heldout_2"))
     assert summary["model_calls"] == 0 and summary["expect"] == {"answer": 15, "decline": 5}
+
+
+def test_t_cx523_prompt_1_2_rules_and_heldout_3_is_registered() -> None:
+    from signal_diag.agent.qa import QA_PROMPT_VERSION, SYSTEM_PROMPT
+    from signal_diag.app.qa_eval import CASE_SETS
+    from signal_diag.app.result_qa import QA_VERSION
+
+    assert QA_VERSION == "result-qa-1.2" and QA_PROMPT_VERSION == "v0.3-s1-qa-1.2"
+    assert CASE_SETS["heldout_3"] == "qa_cases_heldout_3.json"
+    assert "never put a step_id in refs" in SYSTEM_PROMPT
+    assert "not even to deny them" in SYSTEM_PROMPT and "合格" in SYSTEM_PROMPT

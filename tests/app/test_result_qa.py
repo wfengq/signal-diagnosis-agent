@@ -321,3 +321,14 @@ def test_t_cx519_affirmed_unsupported_faults_are_still_rejected() -> None:
         _rejected(_answer("本次运行判定无法判定。", _ref(clipping, "claim")), clipping)
         == "fault_mismatch"
     )
+
+
+def test_t_cx522_analysis_and_detection_names_are_not_fault_assertions() -> None:
+    inconclusive = _packet("inconclusive")
+    claim = _ref(inconclusive, "claim")
+    validate_answer(_answer("谐波失真分析规则判定为不适用。", claim), inconclusive)
+    validate_answer(_answer("The harmonic distortion analysis was not applicable.", claim), inconclusive)
+    validate_answer(_answer("削波检测没有给出结论。", claim), inconclusive)
+    assert _rejected(_answer("分析显示存在谐波失真。", claim), inconclusive) == "fault_mismatch"
+    menu_step = "run_sweep_test"
+    assert _rejected(_answer("建议做扫频测试。", menu_step), inconclusive) == "citation"
