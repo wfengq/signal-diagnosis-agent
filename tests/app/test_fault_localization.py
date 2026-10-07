@@ -54,7 +54,7 @@ def _tone(seconds: float = 1.0, rate: int = 8_000) -> SignalRecord:
 
 
 def test_t_cx434_windows_are_fixed_and_cover_the_file() -> None:
-    assert SCAN_VERSION == "product-segment-scan-1.0"
+    assert SCAN_VERSION == "product-segment-scan-1.1"
     assert (WINDOW_S, OVERLAP) == (0.25, 0.5)
     windows = scan_windows(_tone(seconds=1.0))
     assert windows[0].start_s == 0.0 and windows[0].end_s == pytest.approx(0.25)

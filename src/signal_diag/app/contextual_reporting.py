@@ -5,6 +5,7 @@ from __future__ import annotations
 import html
 import json
 from datetime import datetime
+from typing import Any
 
 from signal_diag.app.context_guidance import validate_observed_facts_against_evidence
 from signal_diag.app.contextual_models import (
@@ -74,13 +75,30 @@ def build_contextual_diagnosis_report(
     )
 
 
-def _unset_optional_fields(model: ContextualAppRunSnapshot | ContextualDiagnosisReport) -> set[str] | None:
+_LOCALIZATION_OPTIONAL = (
+    "harmonic_basis",
+    "comparison_overlap",
+    "windows_not_comparable",
+    "harmonic_windows_withheld",
+)
+
+
+def _unset_optional_fields(
+    model: ContextualAppRunSnapshot | ContextualDiagnosisReport,
+) -> dict[str, Any] | None:
     # §25/§27: unset optional additions are omitted, so older runs keep their shape.
-    unset = {
-        name
+    unset: dict[str, Any] = {
+        name: True
         for name in ("context_origin", "fault_localization")
         if getattr(model, name) is None
     }
+    localization = model.fault_localization
+    if localization is not None:
+        nested = {
+            name: True for name in _LOCALIZATION_OPTIONAL if getattr(localization, name) is None
+        }
+        if nested:
+            unset["fault_localization"] = nested
     return unset or None
 
 
@@ -117,6 +135,16 @@ def _ref_link(kind: str, reference_id: str) -> str:
 _FAULT_LABELS = {"clipping": "clipping", "harmonic_distortion": "harmonic distortion"}
 
 
+_HARMONIC_BASIS_TEXT = {
+    None: "harmonic windows not scanned",
+    "nominal_thd": "harmonic windows scanned at the declared fundamental",
+    "reference_growth": (
+        "harmonic windows compared with the same span of the reference "
+        "(non-overlapping windows)"
+    ),
+}
+
+
 def _fault_localization_html(localization: dict[str, object] | None) -> list[str]:
     """§27: fault time locations from the deterministic segment scan."""
     if not localization:
@@ -129,13 +157,29 @@ def _fault_localization_html(localization: dict[str, object] | None) -> list[str
             f"{_esc(localization['window_s'])} s windows, "
             f"{_esc(localization['overlap'])} overlap, channels "
             f"{_esc(', '.join(localization['channels']))}; "  # type: ignore[arg-type]
-            "harmonic windows "
-            f"{'scanned' if localization['harmonic_scanned'] else 'not scanned'}.</p>"
+            f"{_esc(_HARMONIC_BASIS_TEXT[localization.get('harmonic_basis')])}.</p>"  # type: ignore[index]
         ),
     ]
+    not_comparable = localization.get("windows_not_comparable")
+    if not_comparable is not None:
+        parts.append(
+            f"<p>Reference comparison windows that could not be compared: "
+            f"{_esc(not_comparable)}.</p>"
+        )
+    withheld = localization.get("harmonic_windows_withheld")
+    if withheld:
+        parts.append(
+            f"<p>{_esc(withheld)} reference comparison windows showed harmonic growth; "
+            "their locations are not shown because the diagnosis did not support "
+            "harmonic distortion.</p>"
+        )
     intervals = localization.get("intervals") or ()
     if not intervals:
-        parts.append("<p>No segment rule failed; no fault location to report.</p>")
+        parts.append(
+            "<p>No fault location to list.</p>"
+            if localization.get("harmonic_windows_withheld")
+            else "<p>No segment rule failed; no fault location to report.</p>"
+        )
     for interval in intervals:  # type: ignore[attr-defined]
         status = (
             "matches the diagnosis"

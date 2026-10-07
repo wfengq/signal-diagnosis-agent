@@ -466,6 +466,7 @@ class DiagnosisApplicationService:
                 mode=mode,
                 nominal_fundamental_hz=nominal_fundamental_hz,
                 diagnosed_faults=diagnosed_faults,
+                reference=reference_source_record if mode == "paired_reference" else None,
             )
             return ContextualRunExecutionResult(
                 result=result,
