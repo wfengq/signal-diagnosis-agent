@@ -2352,3 +2352,43 @@ without credentials and replaces any rejected model output.
   CI.
 - **Bar for enabling the model path:** a validation pass rate of at least
   90 %, and 0 wrong statements in the 20 reviewed samples.
+
+### 29.1 Appendix: offline validation with a known external sweep (D056)
+
+`dsp/sweep.py` adds two functions:
+
+- `estimate_sweep_rate(stimulus, rate)` returns L and the start frequency of
+  an exponential sweep, fitted to the median analytic instantaneous frequency
+  between 100 Hz and 8 kHz.
+- `analyze_known_sweep(recording, stimulus, rate)`
+  (`known-sweep-analysis-1.0`) deconvolves a recording by the measured
+  spectrum of a known, not necessarily synchronized, exponential sweep. It
+  aligns the recording within 0.1 s and computes band THD with the same band
+  code as `sweep-analysis-1.1`. It does not judge full scale, so recordings
+  normalized in level can be analysed.
+
+The product sweep test, its stimulus and its rules are unchanged; the functions
+are used by the offline pOD-set validation (`evaluation/podset.py`).
+
+**pOD-set validation.**
+
+- **Data:** pOD-set, DOI 10.5281/zenodo.15389653, CC BY-NC 4.0. Files are
+  fetched by HTTP range requests into a cache outside the repository; only
+  hashes and derived numbers are committed.
+- **Selection:** 27 pedals × gain indices 0–5 × tone index 3 × three levels,
+  486 recordings in all.
+- **Fixed acceptance criteria** (approved design, set before the full run):
+  1. **Synthetic check:** an alias-free polynomial on the dataset's dry sweep
+     is within 0.1 percentage points of theory from 125 Hz to 4 kHz, and the
+     identity reads at most 0.05 %.
+  2. **Level monotonicity:** THD does not fall from −24 to −12 to −6 dBFS,
+     with a tolerance of max(0.2 pp, 10 %), in at least 95 % of comparisons.
+  3. **Gain monotonicity:** the same holds over gain, in at least 90 % of
+     comparisons.
+  4. **Low gain:** the median THD at the lowest gain is reported per pedal; a
+     median below 1 % is expected but not required.
+  5. **Cross-check:** at 1, 2 and 4 kHz, an independent short-time-spectrum
+     THD agrees within max(15 %, 0.3 pp) in at least 90 % of comparisons where
+     THD ≥ 0.5 %.
+- **Reporting:** the design pedal (King of Tone) is also reported excluded. A
+  criterion that fails is reported as is.
