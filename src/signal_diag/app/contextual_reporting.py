@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import html
 import json
-from collections.abc import Mapping
 from datetime import datetime
 from typing import Any
 
@@ -67,7 +66,6 @@ def build_contextual_diagnosis_report(
         analyzed_channel=snapshot.analyzed_channel,
         user_request=snapshot.user_request,
         planner_identity=snapshot.planner_identity,
-        diagnosis_identity=snapshot.diagnosis_identity,
         test_preview=snapshot.test_preview,
         trace_events=snapshot.trace_events,
         result=result,
@@ -91,12 +89,7 @@ def _unset_optional_fields(
     # §25/§27: unset optional additions are omitted, so older runs keep their shape.
     unset: dict[str, Any] = {
         name: True
-        for name in (
-            "context_origin",
-            "fault_localization",
-            "planner_identity",
-            "diagnosis_identity",
-        )
+        for name in ("context_origin", "fault_localization")
         if getattr(model, name) is None
     }
     localization = model.fault_localization
@@ -113,21 +106,10 @@ def dump_contextual_snapshot(snapshot: ContextualAppRunSnapshot) -> dict[str, ob
     return snapshot.model_dump(mode="json", exclude=_unset_optional_fields(snapshot))
 
 
-def render_contextual_report_json(
-    report: ContextualDiagnosisReport,
-    *,
-    explanation: Mapping[str, object] | None = None,
-    test_plan: Mapping[str, object] | None = None,
-) -> str:
-    """``explanation`` (§30) and ``test_plan`` (§31) are added only when present."""
-    payload = report.model_dump(mode="json", exclude=_unset_optional_fields(report))
-    if explanation is not None:
-        payload["explanation"] = dict(explanation)
-    if test_plan is not None:
-        payload["test_plan"] = dict(test_plan)
+def render_contextual_report_json(report: ContextualDiagnosisReport) -> str:
     return (
         json.dumps(
-            payload,
+            report.model_dump(mode="json", exclude=_unset_optional_fields(report)),
             ensure_ascii=False,
             allow_nan=False,
             sort_keys=True,
@@ -218,16 +200,13 @@ def _fault_localization_html(localization: dict[str, object] | None) -> list[str
     return parts
 
 
-def render_contextual_report_html(
-    report: ContextualDiagnosisReport, *, explanation_html: str | None = None
-) -> str:
+def render_contextual_report_html(report: ContextualDiagnosisReport) -> str:
     data = report.model_dump(mode="json")
     test_source = data["test_source"]
     reference_source = data.get("reference_source")
     context = data["stimulus_context"]
     capabilities = data["effective_capabilities"]
-    planner = data.get("planner_identity")
-    identity = data.get("diagnosis_identity")
+    planner = data["planner_identity"]
     preview = data["test_preview"]
     result = data["result"]
     diagnosis = result.get("diagnosis")
@@ -340,35 +319,17 @@ def render_contextual_report_html(
     parts.extend(
         [
             "</section>",
+            '<section id="planner">',
+            "<h2>Planner identity</h2>",
+            "<dl>",
+            f"<dt>provider</dt><dd>{_esc(planner['provider'])}</dd>",
+            f"<dt>model</dt><dd>{_esc(planner['model'])}</dd>",
+            f"<dt>prompt</dt><dd>{_esc(planner['prompt_version'])}</dd>",
+            "</dl>",
         ]
     )
-    if identity is not None and identity["kind"] == "deterministic_engine":
-        parts.extend(
-            [
-                '<section id="diagnosis-engine">',
-                "<h2>Diagnosis engine</h2>",
-                (
-                    "<p>The verdict was reached by the deterministic engine "
-                    f"{_esc(identity['engine_version'])} from versioned rules "
-                    f"({_esc(', '.join(identity['rule_profiles']))}); "
-                    "no model decided it.</p>"
-                ),
-            ]
-        )
-    if planner is not None:
-        parts.extend(
-            [
-                '<section id="planner">',
-                "<h2>Planner identity</h2>",
-                "<dl>",
-                f"<dt>provider</dt><dd>{_esc(planner['provider'])}</dd>",
-                f"<dt>model</dt><dd>{_esc(planner['model'])}</dd>",
-                f"<dt>prompt</dt><dd>{_esc(planner['prompt_version'])}</dd>",
-                "</dl>",
-            ]
-        )
-        if not planner.get("phase4_certified_default"):
-            parts.append(f"<p>{_esc(_UNCERTIFIED_LABEL)}</p>")
+    if not planner.get("phase4_certified_default"):
+        parts.append(f"<p>{_esc(_UNCERTIFIED_LABEL)}</p>")
     parts.extend(
         [
             "</section>",
@@ -548,7 +509,6 @@ def render_contextual_report_html(
             "<h2>Limits</h2>",
             f"<p>{_esc(_DEMO_PROFILE_LABEL)}</p>",
             "</section>",
-            *((explanation_html,) if explanation_html else ()),
             "</body>",
             "</html>",
             "",

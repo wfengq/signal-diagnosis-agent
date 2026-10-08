@@ -8,8 +8,6 @@ function appendText(parent, tagName, value, className = "") {
 
 /** When false, submit-run stays disabled (planner health gate). */
 let plannerHealthAllowsSubmit = false;
-/** Free-text drafting (D047) needs model credentials even when the engine diagnoses. */
-let intakeDraftAvailable = false;
 
 /** Client-held test WAV for D037 upgrade resubmits (cleared on reload). */
 const heldTestSignal = {
@@ -104,23 +102,7 @@ function renderPlannerReadiness(health) {
   panel.replaceChildren();
   appendText(panel, "h2", "运行状态");
   const identity = health && health.planner_identity ? health.planner_identity : {};
-  const engine = health && health.diagnosis_engine ? health.diagnosis_engine : null;
-  if (engine && engine.available && engine.default_path === "engine") {
-    appendText(
-      panel,
-      "p",
-      `诊断由确定性引擎 ${engine.engine_version} 按版本化规则给出，不需要模型凭据。`,
-      "planner-readiness",
-    );
-    if (!health.planner_configured) {
-      appendText(
-        panel,
-        "p",
-        "文字起草上下文需要模型凭据；没有时请用“高级：手动设置上下文”。",
-        "muted intake-unavailable",
-      );
-    }
-  } else if (health && health.planner_configured) {
+  if (health && health.planner_configured) {
     appendText(
       panel,
       "p",
@@ -542,12 +524,6 @@ function renderSummary(snapshot) {
   if (snapshot.context_origin === "intake_confirmed") {
     fact("上下文来源", "文字草稿，经用户确认");
   }
-  const decidedBy = snapshot.diagnosis_identity;
-  if (decidedBy && decidedBy.kind === "deterministic_engine") {
-    fact("诊断依据", `确定性引擎 ${decidedBy.engine_version}（版本化规则）`);
-  } else if (snapshot.planner_identity) {
-    fact("诊断依据", `模型 planner ${snapshot.planner_identity.prompt_version}`);
-  }
   const claims = (diagnosis && diagnosis.claims) || [];
   if (claims.length) {
     appendText(body, "p", claims[0].statement, "summary-claim");
@@ -716,24 +692,7 @@ function renderTerminal(snapshot) {
     htmlLink.setAttribute("href", `${base}/report.html`);
     jsonLink.hidden = false;
     htmlLink.hidden = false;
-    if (isContextualSnapshot(snapshot) && activePlan) {
-      window.SignalGuide.linkRun(activePlan, snapshot.run_id);
-    }
-    if (isContextualSnapshot(snapshot) && snapshot.result && snapshot.result.diagnosis) {
-      window.SignalExplanation.show(
-        {
-          panel: "explanation-panel",
-          body: "explanation-body",
-          button: "explanation-model",
-          status: "explanation-status",
-        },
-        `${base}/explanation`,
-      );
-    } else {
-      window.SignalExplanation.hide("explanation-panel");
-    }
   } else {
-    window.SignalExplanation.hide("explanation-panel");
     jsonLink.removeAttribute("href");
     htmlLink.removeAttribute("href");
     jsonLink.hidden = true;
@@ -796,38 +755,11 @@ async function loadEvaluation() {
   renderEvaluation(summary);
 }
 
-/** §31: a confirmed test plan opened this page (?plan=...). */
-let activePlan = null;
-
-async function loadActivePlan() {
-  activePlan = await window.SignalGuide.loadPlanFromUrl();
-  if (!activePlan) return;
-  const mode = { paired_reference: "paired_reference", nominal_tone: "nominal_single_tone" }[activePlan.plan_id];
-  const panel = document.getElementById("manual-panel");
-  if (mode && panel) {
-    panel.open = true;
-    document.getElementById("diagnostic-mode").value = mode;
-    if (activePlan.parameters.nominal_fundamental_hz) {
-      document.getElementById("nominal-fundamental-hz").value = String(activePlan.parameters.nominal_fundamental_hz);
-    }
-    updateContextualFields();
-  }
-}
-
 async function loadPlannerHealth() {
   try {
     const health = await apiJson("/api/v1/health");
-    const engine = health.diagnosis_engine;
-    plannerHealthAllowsSubmit = Boolean(
-      (engine && engine.available && engine.default_path === "engine") ||
-        health.planner_configured,
-    );
-    intakeDraftAvailable = Boolean(health.planner_configured);
-    const draftButton = document.getElementById("intake-draft");
-    if (draftButton) draftButton.disabled = !intakeDraftAvailable;
+    plannerHealthAllowsSubmit = Boolean(health.planner_configured);
     renderPlannerReadiness(health);
-    await window.SignalExplanation.loadAvailability();
-    await window.SignalQA.loadAvailability();
   } catch (_error) {
     plannerHealthAllowsSubmit = false;
     renderPlannerHealthFailure();
@@ -1047,7 +979,6 @@ function bindUi() {
   loadEvaluation().catch((error) => {
     showError(error instanceof Error ? error.message : String(error));
   });
-  loadActivePlan().catch(() => {});
 }
 
 /** Files chosen for intake, held in page memory until the user confirms (§25). */
