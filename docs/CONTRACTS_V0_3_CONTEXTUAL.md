@@ -2756,3 +2756,8 @@ certified, IEC, AES or SLA, not even to deny them.
 **Acceptance.** live_2 informed 1.2, so acceptance runs on 20 new questions
 (`--cases heldout_3`) written by a fresh subagent, with the same bars as §33.
 live_2 is kept as a below-bar record.
+
+**Round-3 held-out questions.** Written by a fresh subagent from the round-3
+brief (`docs/evaluations/v0_3/qa/heldout_3/`, SHA-256
+`5833302070a5f096ed3f2d8bb19a761ae9d1f6102bfc269cc383f53e91d2cc47`, copied to
+`evaluation/assets/qa_cases_heldout_3.json`).

@@ -140,3 +140,20 @@ def test_t_cx523_prompt_1_2_rules_and_heldout_3_is_registered() -> None:
     assert CASE_SETS["heldout_3"] == "qa_cases_heldout_3.json"
     assert "never put a step_id in refs" in SYSTEM_PROMPT
     assert "not even to deny them" in SYSTEM_PROMPT and "合格" in SYSTEM_PROMPT
+
+
+def test_t_cx524_heldout_3_questions_are_frozen_and_new(tmp_path: Path) -> None:
+    import hashlib
+
+    digest = "5833302070a5f096ed3f2d8bb19a761ae9d1f6102bfc269cc383f53e91d2cc47"
+    frozen = ROOT / "docs" / "evaluations" / "v0_3" / "qa" / "heldout_3" / "qa_cases_heldout_3.json"
+    asset = ROOT / "src" / "signal_diag" / "evaluation" / "assets" / "qa_cases_heldout_3.json"
+    assert hashlib.sha256(frozen.read_bytes()).hexdigest() == digest
+    assert hashlib.sha256(asset.read_bytes()).hexdigest() == digest
+    cases = load_cases("heldout_3")
+    earlier = load_cases("dev") + load_cases("heldout") + load_cases("heldout_2")
+    assert len(cases) == 20
+    assert not {c["case_id"] for c in cases} & {c["case_id"] for c in earlier}
+    assert not {c["question"] for c in cases} & {c["question"] for c in earlier}
+    summary = asyncio.run(_run(ROOT, tmp_path, live=False, case_set="heldout_3"))
+    assert summary["model_calls"] == 0 and summary["expect"] == {"answer": 15, "decline": 5}
