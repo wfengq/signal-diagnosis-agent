@@ -1463,3 +1463,10 @@ passed the checks on 13/20 (0.65 < 0.9); all 7 rejections were the fault check
 misreading metric names, negations and run citations. The operator approved
 (a) keeping live_1 as a below-bar record and (b) result-qa check 1.1 with
 prompt `v0.3-s1-qa-1.1` (§33.1), accepted only on 20 new held-out questions.
+
+**Phase C live_2 and 1.2 (operator, 2026-10-07):** on the round-2 held-out
+questions (#105, #106) the model declined 5/5 and passed the checks on 17/20
+(0.85 < 0.9); none of the three rejections stated a wrong fact. The operator
+chose option A: result-qa check 1.2 and prompt `v0.3-s1-qa-1.2` (§33.2),
+accepted only on 20 new round-3 questions written by a fresh subagent; the
+bar stays at 0.9 and live_2 is kept as a below-bar record.

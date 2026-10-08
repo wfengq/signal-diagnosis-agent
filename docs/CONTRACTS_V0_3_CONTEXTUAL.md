@@ -2736,3 +2736,28 @@ round-2 brief (`docs/evaluations/v0_3/qa/heldout_2/`, SHA-256
 `25eb24e0af6f7c94f4624594ecd3d7d078a474931823c6d18aa4f7f58bfe661d`, copied to
 `evaluation/assets/qa_cases_heldout_2.json`); they replace #104, whose set
 repeated 13 earlier questions verbatim.
+
+### 33.2 Result Q&A check 1.2 and prompt 1.2 (D060 C)
+
+**Why.** On the round-2 held-out questions (live_2, #106) 17 of 20 answers
+passed (0.85 < 0.9) and the model declined 5/5. The three rejections contained
+no wrong fact: "谐波失真分析规则" was misread as a fault assertion; an answer
+used the banned word "合格" to decline a pass/fail verdict; an answer put the
+step id `rerecord_quieter` in its citations.
+
+**Check `result-qa-1.2`.** As 1.1, and analysis or detection names (分析,
+检测, analysis, detection after the fault word) also do not assert a fault.
+The wording ban is unchanged: banned words stay banned even when negated.
+
+**Prompt `v0.3-s1-qa-1.2`** adds: `refs` holds only packet `ref_id` values and
+never a step id; never write 标准, 合格, 达标, 认证, standard, compliant,
+certified, IEC, AES or SLA, not even to deny them.
+
+**Acceptance.** live_2 informed 1.2, so acceptance runs on 20 new questions
+(`--cases heldout_3`) written by a fresh subagent, with the same bars as §33.
+live_2 is kept as a below-bar record.
+
+**Round-3 held-out questions.** Written by a fresh subagent from the round-3
+brief (`docs/evaluations/v0_3/qa/heldout_3/`, SHA-256
+`5833302070a5f096ed3f2d8bb19a761ae9d1f6102bfc269cc383f53e91d2cc47`, copied to
+`evaluation/assets/qa_cases_heldout_3.json`).

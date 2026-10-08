@@ -27,7 +27,7 @@ from signal_diag.app.explanation import (
     template_explanation,
 )
 
-QA_VERSION = "result-qa-1.1"
+QA_VERSION = "result-qa-1.2"
 MAX_ANSWER_SENTENCES = 4
 MAX_QUESTION_CHARS = 500
 # Hardware the evidence never identifies; naming it would be speculation.
@@ -42,7 +42,21 @@ _COMPONENTS = re.compile(
 # §33.1: a fault word that names a metric or rule ("削波比", "总谐波失真",
 # "clipping ratio") or is negated before or after ("谐波失真无法归因",
 # "不等于没有问题") does not assert that fault.
-_METRIC_AFTER = ("比", "率", "规则", "检查", "ratio", "rule", "check", "measured")
+# 1.2 (§33.2): analysis and detection names ("谐波失真分析规则") as well.
+_METRIC_AFTER = (
+    "比",
+    "率",
+    "规则",
+    "检查",
+    "分析",
+    "检测",
+    "ratio",
+    "rule",
+    "check",
+    "measured",
+    "analysis",
+    "detection",
+)
 _METRIC_BEFORE = ("总", "total ")
 _NEGATIONS_AFTER = ("无法", "不能", "未", "不", "cannot", "is not", "was not", "not ")
 
