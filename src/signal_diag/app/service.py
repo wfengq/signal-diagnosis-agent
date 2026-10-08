@@ -10,7 +10,6 @@ from datetime import UTC, datetime
 from typing import Literal, Protocol, runtime_checkable
 
 from signal_diag.agent.diagnosis import CausalPolicyVersion
-from signal_diag.agent.engine import ENGINE_LIMITS, ENGINE_VERSION
 from signal_diag.agent.intake import (
     ContextDraft,
     IntakeCallLimits,
@@ -25,8 +24,6 @@ from signal_diag.agent.runtime import DistortionDiagnosisRuntime
 from signal_diag.app.contextual_models import (
     ContextualAppRunSnapshot,
     ContextualRunSubmission,
-    DiagnosisIdentity,
-    DiagnosisPath,
 )
 from signal_diag.app.contextual_runs import (
     BoundedContextualRunExecutor,
@@ -103,9 +100,6 @@ class ApplicationDependencies:
     knowledge_index: KnowledgeIndex
     causal_policy_version: CausalPolicyVersion = "v9_4_legacy"
     intake_planner_factory: Callable[[], IntakePlanner] | None = None
-    # §28 (D053): the deterministic engine, when this service offers one.
-    engine_factory: PlannerFactory | None = None
-    default_diagnosis_path: DiagnosisPath = "planner"
 
 
 def _utc_now() -> datetime:
@@ -120,21 +114,6 @@ def _planner_not_configured_detail() -> AppErrorDetail:
             "submitting a diagnosis. The application does not fall back to "
             "ScriptedPlanner."
         ),
-    )
-
-
-def _diagnosis_identity(path: DiagnosisPath, mode: str) -> DiagnosisIdentity:
-    if path == "planner":
-        return DiagnosisIdentity(kind="llm_planner")
-    profiles = (
-        ("profile_s1_distortion",)
-        if mode == "single_signal"
-        else ("profile_s1_contextual_comparison_v9_10",)
-    )
-    return DiagnosisIdentity(
-        kind="deterministic_engine",
-        engine_version=ENGINE_VERSION,
-        rule_profiles=profiles,
     )
 
 
@@ -352,13 +331,8 @@ class DiagnosisApplicationService:
         user_request: str,
         channel: ChannelMode = "mixdown",
         context_origin: Literal["intake_confirmed"] | None = None,
-        diagnosis_path: DiagnosisPath | None = None,
     ) -> ContextualRunSubmission:
-        path = diagnosis_path or self._dependencies.default_diagnosis_path
-        engine_factory = self._dependencies.engine_factory
-        if path == "engine" and engine_factory is None:
-            raise _invalid_request("this service has no diagnosis engine")
-        if path == "planner" and not self._dependencies.planner_configured:
+        if not self._dependencies.planner_configured:
             raise PlannerNotConfiguredError(_planner_not_configured_detail())
         question = _normalize_question(user_request)
         if mode == "single_signal":
@@ -458,25 +432,17 @@ class DiagnosisApplicationService:
             stimulus_context=stimulus_context,
             effective_capabilities=queued_caps,
             test_preview=test_preview,
-            planner_identity=(
-                self._dependencies.planner_identity if path == "planner" else None
-            ),
-            diagnosis_identity=_diagnosis_identity(path, mode),
+            planner_identity=self._dependencies.planner_identity,
             context_origin=context_origin,
         )
 
         async def execute() -> ContextualRunExecutionResult:
-            if path == "engine":
-                assert engine_factory is not None
-                inner = engine_factory()
-            else:
-                inner = self._dependencies.planner_factory()
+            inner = self._dependencies.planner_factory()
             recorder = RecordingPlanner(inner)
             runtime = DistortionDiagnosisRuntime(
                 repository=self._dependencies.repository,
                 tool_service=GuardedSignalToolService(self._dependencies.repository),
                 planner=recorder,
-                **({"limits": ENGINE_LIMITS} if path == "engine" else {}),
                 rule_engine=self._dependencies.rule_engine,
                 rule_profile_loader=self._dependencies.rule_profile_loader,
                 knowledge_index=self._dependencies.knowledge_index,
@@ -555,14 +521,6 @@ class DiagnosisApplicationService:
         if timeout_s is None:
             return await waiter
         return await asyncio.wait_for(waiter, timeout=timeout_s)
-
-    def diagnosis_engine_status(self) -> dict[str, object]:
-        """§28 health fields for the diagnosis engine."""
-        return {
-            "available": self._dependencies.engine_factory is not None,
-            "engine_version": ENGINE_VERSION,
-            "default_path": self._dependencies.default_diagnosis_path,
-        }
 
     async def aclose(self) -> None:
         await self._executor.aclose()

@@ -10,7 +10,6 @@
   <header>
     <div class="header-row">
       <h1 class="page-title">信号失真诊断 <span class="muted">Signal Diagnosis Agent</span></h1>
-      <a href="/sweep">扫频测试（Sweep test）</a>
       <a href="/regression">回归排查工作台（Regression troubleshooting workbench）</a>
     </div>
     <p class="banner">
@@ -27,40 +26,6 @@
   <main>
   <div class="layout">
     <div class="col-input">
-      <section id="plan-banner" hidden></section>
-      <section id="guide-panel" aria-labelledby="guide-heading">
-        <h2 id="guide-heading">我要测试一台设备</h2>
-        <p class="muted">描述问题，产品推荐一个测试方案（做什么测试、怎么接线、录几个音量）。你确认后才会执行，结论仍由确定性引擎给出。</p>
-        <p>
-          <label for="guide-text">问题描述</label>
-          <textarea id="guide-text" rows="2" placeholder="例如：我的音箱一开大声就破音，可以用声卡录"></textarea>
-        </p>
-        <p>
-          <button id="guide-model" type="button" hidden>用 AI 生成测试方案</button>
-          <button id="guide-start" type="button">用问卷选择方案</button>
-          <span id="guide-status" class="muted" role="status" aria-live="polite"></span>
-        </p>
-        <div id="guide-questions"></div>
-        <form id="guide-plan" hidden>
-          <ul id="guide-notes" class="muted"></ul>
-          <p><label for="guide-plan-id">方案</label> <select id="guide-plan-id"></select></p>
-          <div id="guide-sweep-fields">
-            <p><label for="guide-rate">采样率</label>
-              <select id="guide-rate"><option value="48000">48000 Hz</option><option value="44100">44100 Hz</option></select></p>
-            <p><label for="guide-connection">接线方式</label> <select id="guide-connection"></select></p>
-            <p>音量（由低到高）：
-              <input id="guide-level-1" maxlength="64" aria-label="音量 1">
-              <input id="guide-level-2" maxlength="64" aria-label="音量 2">
-              <input id="guide-level-3" maxlength="64" aria-label="音量 3"></p>
-          </div>
-          <p id="guide-hz-field" hidden><label for="guide-hz">单音频率（Hz）</label> <input id="guide-hz" inputmode="decimal"></p>
-          <p><button type="submit">确认方案</button></p>
-        </form>
-        <div id="guide-result" hidden>
-          <ol id="guide-steps"></ol>
-          <p><a id="guide-next" href="/">按方案开始测试</a></p>
-        </div>
-      </section>
       <section id="intake-panel" aria-labelledby="intake-heading">
         <h2 id="intake-heading">描述问题</h2>
         <p class="muted">
@@ -218,14 +183,6 @@
           <a id="report-html" hidden>下载 HTML 报告</a>
         </p>
       </section>
-      <section id="explanation-panel" hidden>
-        <h2>解释</h2>
-        <div id="explanation-body"></div>
-        <p>
-          <button id="explanation-model" type="button" hidden>用 AI 改写成更易读的说明</button>
-          <span id="explanation-status" class="muted" role="status" aria-live="polite"></span>
-        </p>
-      </section>
       <section id="localization-panel" hidden>
         <h2>故障位置</h2>
         <p class="muted">
@@ -313,9 +270,6 @@
     </section>
   </details>
   <script src="/static/intake_flow.js" defer></script>
-  <script src="/static/guide.js" defer></script>
-  <script src="/static/explanation.js" defer></script>
-  <script src="/static/qa.js" defer></script>
   <script src="/static/app.js" defer></script>
 </body>
 </html>

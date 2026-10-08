@@ -17,12 +17,9 @@ Phase 5 accepted; V0.2 complete demonstrable vertical slice
 Accepted product identity at that anchor: DeepSeek `deepseek-v4-flash`, prompt
 `v0.2-s1-planner-8.1`, official held-out **79/80**.
 
-**HEAD live product** (this branch tip) is the V0.3 contextual path. Since
-D053, the CLI and API default to `build_engine_service`: contextual verdicts
-come from the deterministic engine `s1-engine-1.0` (§28) with causal policy
-`v9_11_mode_aware_no_fault_recovery`, and need no model credentials. The
-`RealLLMPlanner` path (prompt `v0.3-s1-planner-9.11`, unchanged
-`build_product_service`) remains an explicit `diagnosis_path=planner`. Reports are
+**HEAD live product** (this branch tip) is the V0.3 contextual path: public
+`RealLLMPlanner` / `build_product_service` use prompt `v0.3-s1-planner-9.11`
+and causal policy `v9_11_mode_aware_no_fault_recovery`. Reports are
 **uncertified by Phase 4.3.1**. **Default user path is single-file**
 (`single_signal`): clipping may be confirmed; harmonic attribution stays
 conservative without reference/nominal context (D037). Optional upgrades:
@@ -37,32 +34,11 @@ cite HEAD quality numbers in place of the V0.2 **79/80**. To demonstrate the acc
 product, check out `ff16e2a` / `b48790c` rather than assuming HEAD matches
 those artifacts.
 
-**Route adjustment (D052, approved 2026-10-07):** the product is repositioned
-for engineers testing audio devices. The diagnosis core will become a
-deterministic engine that runs every detector a test plan requires and reaches
-verdicts only through versioned rules. LLMs move to the two ends: intake and
-test guidance before a run, plain-language explanation after it. They never
-decide a verdict. The work proceeds in phases (engine, exponential-sweep
-stimulus, explanation, test guide), and each phase needs its own design,
-contract additions, test IDs and authorization. Phase 1 landed with D053;
-phase 2, the sweep stimulus test (§29, `/sweep`, CLI `sweep`), landed with
-D054 as a separate entry with demo thresholds (`profile_s1_sweep`
-1.0.0-demo); phase 3, the explanation layer (§30), landed with D055: a
-deterministic template by default, and an optional model rewrite (prompt
-`v0.3-s1-explain-1.0`) that is off unless `SIGNAL_DIAG_EXPLAIN_MODEL=enabled`
-and passes fail-closed validation (wording check 1.1, D058); phase 4, the test guide (§31), landed with
-D057: a deterministic questionnaire by default and an optional model draft
-(prompt `v0.3-s1-guide-1.1` since D059, off unless `SIGNAL_DIAG_GUIDE_MODEL=enabled`; the operator approved enabling it in deployment after `live_2`)
-that may only choose from a fixed plan catalog. D060 adds multi-round test
-sessions (§32): phase A is a deterministic rule policy with an offline
-sandbox (accepted 20/20 on frozen held-out scenarios; phase B, a model policy,
-is deferred). Phase C adds result Q&A (§33): a deterministic answer by default
-and an optional model answer (prompt `v0.3-s1-qa-1.3`) that must cite the run's
-evidence and decline what it cannot answer. The model answer was not accepted
-(live_4, D060): `SIGNAL_DIAG_QA_MODEL` stays off and no further Q&A iterations
-are planned.
-No further planner prompt iterations are planned. See
-`docs/superpowers/specs/2026-10-07-route-adjustment-device-testing-design.md`.
+**Archived route (D061):** the D052 device-testing route (#80–#111: the
+deterministic engine default, sweep test, explanation layer, test guide,
+multi-round sessions and result Q&A, decisions D052–D060) lives on branch
+`device-testing` at `c2e253b`. Main stays on the LLM-planner line described
+here and in the README. Do not merge that branch back without a new design.
 
 Phase 1–5 contracts (`CONTRACTS_V0_2.md` §§1–64) remain frozen byte-stable.
 Additive V0.3 surfaces live in `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and
@@ -86,7 +62,7 @@ Before modifying product code, read:
 - `docs/ARCHITECTURE_V0_2.md` (especially §§12–18)
 - `docs/CONTRACTS_V0_2.md` (frozen §§1–64)
 - `docs/TEST_PLAN_V0_2.md` (required T001–T285)
-- `docs/DECISIONS.md` (D001–D060; D052 sets the current route)
+- `docs/DECISIONS.md` (D001–D051, D061; D052–D060 on branch `device-testing`)
 - `docs/CONTRACTS_V0_3_CONTEXTUAL.md` and `docs/TEST_PLAN_V0_3_CONTEXTUAL.md`
   when touching contextual / HEAD live product paths
 - the relevant specification and plan under `docs/superpowers/`
@@ -155,13 +131,8 @@ The following rules remain mandatory:
 - supported claims cite valid same-run Evidence;
 - rule conclusions cite valid same-run rule-evaluation IDs;
 - knowledge explains claims but never substitutes for signal Evidence;
-- the deterministic engine is the default contextual diagnosis path (D053);
-  `RealLLMPlanner` remains only an explicit, non-default path for comparison
-  and reproduction;
-- LLM components (intake, test guide, explanation) never decide verdicts,
-  create metrics or thresholds, or replace Evidence;
-- `ScriptedPlanner` is a deterministic test double and never a silent fallback;
-  a missing or failing LLM never silently falls back to a stub.
+- `RealLLMPlanner` is the product path;
+- `ScriptedPlanner` is a deterministic test double and never a silent fallback.
 
 ## Preserved evidence
 
