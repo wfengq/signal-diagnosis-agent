@@ -23,11 +23,12 @@ from signal_diag.app.explanation import (
     ExplanationRejected,
     ExplanationSentence,
     Language,
+    _check_wording,
     check_sentence,
     template_explanation,
 )
 
-QA_VERSION = "result-qa-1.2"
+QA_VERSION = "result-qa-1.3"
 MAX_ANSWER_SENTENCES = 4
 MAX_QUESTION_CHARS = 500
 # Hardware the evidence never identifies; naming it would be speculation.
@@ -61,6 +62,55 @@ _METRIC_BEFORE = ("总", "total ")
 _NEGATIONS_AFTER = ("无法", "不能", "未", "不", "cannot", "is not", "was not", "not ")
 
 
+# 1.3 (§33.3): a fault word right after a measurement verb ("测量了削波比例与
+# 谐波失真") names what was measured, unless the same stretch asserts a finding.
+_MEASURED = ("测量了", "测了", "检查了", "分析了", "measured", "checked")
+_FINDING = (
+    "存在",
+    "出现",
+    "检测到",
+    "发现",
+    "支持",
+    "判定为",
+    "found",
+    "shows",
+    "detected",
+    "has ",
+)
+
+# 1.3 (§33.3): a sentence may name a verdict word (合格, 标准, certification, ...)
+# only to refuse that verdict, next to the demonstration qualifier, and without
+# any affirmative verdict ("符合", "meets", or a bare "不合格").
+_VERDICT_WORDS = re.compile(
+    r"(标准|合格|达标|认证|(?<![A-Za-z])(?:standards?|compliant|certifi(?:ed|cation)|IEC|AES|SLA)(?![A-Za-z]))",
+    re.IGNORECASE,
+)
+_REFUSAL = re.compile(
+    r"(无法|不能|未做|未作|未进行|不做|不作|不涉及|没有做|cannot|can't|can not|does not|do not|did not|not able)",
+    re.IGNORECASE,
+)
+_EITHER_WAY = re.compile(r"合格(?:或|与|还是|和)不合格")
+_AFFIRMATIVE = re.compile(
+    r"(符合|达到|满足|通过了?认证|不合格|(?<![A-Za-z])(?:meets?|compl(?:y|ies)|passes|qualif(?:y|ies))(?![A-Za-z]))",
+    re.IGNORECASE,
+)
+
+
+def _check_qa_wording(text: str) -> None:
+    lowered = text.lower()
+    demo = "演示" in lowered or "demo" in lowered
+    refusal = (
+        demo
+        and _REFUSAL.search(text) is not None
+        and _AFFIRMATIVE.search(_EITHER_WAY.sub("", text)) is None
+    )
+    scrubbed = _VERDICT_WORDS.sub(" ", text) if refusal else text
+    try:
+        _check_wording(scrubbed.lower())
+    except ExplanationRejected as rejected:
+        raise QARejected(rejected.check, rejected.detail) from rejected
+
+
 def _asserted(text: str, term: str) -> bool:
     lowered, needle = text.lower(), term.lower()
     start = 0
@@ -70,7 +120,15 @@ def _asserted(text: str, term: str) -> bool:
             lowered[max(0, index - 8) : index],
             lowered[end : end + 12].lstrip(),
         )
-        metric = after.startswith(_METRIC_AFTER) or before.endswith(_METRIC_BEFORE)
+        stretch = lowered[max(0, index - 24) : index]
+        measured = any(verb in stretch for verb in _MEASURED) and not any(
+            word in stretch for word in _FINDING
+        )
+        metric = (
+            after.startswith(_METRIC_AFTER)
+            or before.endswith(_METRIC_BEFORE)
+            or measured
+        )
         negated = any(word in before for word in _NEGATIONS) or after.startswith(
             _NEGATIONS_AFTER
         )
@@ -135,10 +193,16 @@ def validate_answer(answer: QAAnswer, packet: ExplanationPacket) -> None:
     for sentence in answer.sentences:
         try:
             check_sentence(
-                sentence.text, sentence.refs, packet, "meaning", check_faults=False
+                sentence.text,
+                sentence.refs,
+                packet,
+                "meaning",
+                check_faults=False,
+                check_wording=False,
             )
         except ExplanationRejected as rejected:
             raise QARejected(rejected.check, rejected.detail) from rejected
+        _check_qa_wording(sentence.text)
         _check_faults(sentence.text, sentence.refs, packet)
         if mentions_component(sentence.text):
             raise QARejected(

@@ -327,8 +327,85 @@ def test_t_cx522_analysis_and_detection_names_are_not_fault_assertions() -> None
     inconclusive = _packet("inconclusive")
     claim = _ref(inconclusive, "claim")
     validate_answer(_answer("谐波失真分析规则判定为不适用。", claim), inconclusive)
-    validate_answer(_answer("The harmonic distortion analysis was not applicable.", claim), inconclusive)
+    validate_answer(
+        _answer("The harmonic distortion analysis was not applicable.", claim),
+        inconclusive,
+    )
     validate_answer(_answer("削波检测没有给出结论。", claim), inconclusive)
-    assert _rejected(_answer("分析显示存在谐波失真。", claim), inconclusive) == "fault_mismatch"
+    assert (
+        _rejected(_answer("分析显示存在谐波失真。", claim), inconclusive)
+        == "fault_mismatch"
+    )
     menu_step = "run_sweep_test"
     assert _rejected(_answer("建议做扫频测试。", menu_step), inconclusive) == "citation"
+
+
+def test_t_cx525_verdict_refusals_with_demo_qualifier_pass() -> None:
+    clipping, no_fault = _packet("clipping"), _packet("no_fault")
+    clip_rule = _rule(clipping, "rule_test_clipping_ratio_acceptable")
+    claim = _ref(no_fault, "claim")
+    validate_answer(
+        _answer(
+            "本次运行只把测量结果与演示阈值比较，无法给出合格或不合格的判定。",
+            clip_rule,
+        ),
+        clipping,
+    )
+    validate_answer(
+        _answer("本次运行只与演示阈值比较，未做任何标准或认证判定。", claim), no_fault
+    )
+    validate_answer(
+        _answer(
+            "This run only compares measurements with demo thresholds and cannot give a certification verdict.",
+            claim,
+        ),
+        no_fault,
+    )
+
+
+def test_t_cx525_verdicts_and_bare_refusals_are_still_rejected() -> None:
+    no_fault, clipping = _packet("no_fault"), _packet("clipping")
+    claim = _ref(no_fault, "claim")
+    clip_claim = _ref(clipping, "claim")
+    assert _rejected(_answer("这台设备合格。", claim), no_fault) == "wording"
+    assert (
+        _rejected(_answer("按演示阈值，这台设备符合标准。", claim), no_fault)
+        == "wording"
+    )
+    assert (
+        _rejected(
+            _answer("无法确定原因，但按演示阈值这台不合格。", clip_claim), clipping
+        )
+        == "wording"
+    )
+    assert _rejected(_answer("无法给出合格判定。", claim), no_fault) == "wording"
+    assert (
+        _rejected(
+            _answer(
+                "It cannot say whether it meets the standard, per the demo thresholds.",
+                claim,
+            ),
+            no_fault,
+        )
+        == "wording"
+    )
+
+
+def test_t_cx526_measured_fault_names_are_not_assertions() -> None:
+    no_fault_single = _packet("single")
+    claim = _ref(no_fault_single, "claim")
+    validate_answer(
+        _answer("本次运行测量了削波比例与谐波失真，未发现受支持的故障。", claim),
+        no_fault_single,
+    )
+    validate_answer(
+        _answer(
+            "This run measured clipping and harmonic distortion and found no supported fault.",
+            claim,
+        ),
+        no_fault_single,
+    )
+    assert (
+        _rejected(_answer("测量了录音，结果显示存在谐波失真。", claim), no_fault_single)
+        == "fault_mismatch"
+    )

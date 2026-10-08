@@ -729,3 +729,12 @@ T-CX522–T-CX524 are additive definitions for result-qa 1.2 (§33.2).
 | T-CX522 | Analysis and detection names after a fault word pass the Q&A fault check; an asserted unsupported fault and a step id used as a citation are still rejected |
 | T-CX523 | The check and prompt report versions 1.2; the prompt forbids step ids in refs and banned wording even when denied; `heldout_3` is a registered case set |
 | T-CX524 | The 20 round-3 held-out questions match the frozen SHA-256 in both copies, share no id or question text with earlier sets, and run through the offline harness with no model call |
+
+T-CX525–T-CX528 are additive definitions for result-qa 1.3 (§33.3).
+
+| ID | Requirement |
+| --- | --- |
+| T-CX525 | A sentence that refuses a pass/standard/certification verdict next to the demonstration qualifier passes; a verdict ("合格", "符合标准", a bare "不合格", "meets the standard") or a refusal without the qualifier is still rejected |
+| T-CX526 | A fault word after a measurement verb ("测量了…谐波失真", "measured … harmonic distortion") passes; the same with a reported finding ("显示存在谐波失真") is still rejected |
+| T-CX527 | The check and prompt report versions 1.3; the prompt carries the verdict-refusal rule and example; `heldout_4` is a registered case set |
+| T-CX528 | The 20 round-4 held-out questions match the frozen SHA-256 in both copies, share no id or question text with earlier sets, and run through the offline harness with no model call |

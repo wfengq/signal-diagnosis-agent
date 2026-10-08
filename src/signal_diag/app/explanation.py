@@ -590,6 +590,7 @@ def _check_sentence(
     section: SectionKind,
     *,
     check_faults: bool = True,
+    check_wording: bool = True,
 ) -> None:
     if len(text) > MAX_CHARS:
         raise ExplanationRejected("length", f"sentence longer than {MAX_CHARS} characters")
@@ -604,7 +605,8 @@ def _check_sentence(
     if _ID_IN_TEXT.search(text):
         raise ExplanationRejected("ids_in_text", "identifiers belong in refs, not in text")
     lowered = text.lower()
-    _check_wording(lowered)
+    if check_wording:
+        _check_wording(lowered)
     allowed = [number for item in items for value in item.values for number in _parse_numbers(value)]
     for number in _parse_numbers(text):
         if not _number_allowed(number, allowed):
@@ -632,12 +634,16 @@ def check_sentence(
     section: SectionKind = "meaning",
     *,
     check_faults: bool = True,
+    check_wording: bool = True,
 ) -> None:
     """One sentence against the §30 checks (citation, ids, wording, numbers, faults).
 
-    ``check_faults=False`` leaves the fault check to the caller (§33.1).
+    ``check_faults=False`` and ``check_wording=False`` leave those checks to the
+    caller (§33.1, §33.3).
     """
-    _check_sentence(text, refs, packet, section, check_faults=check_faults)
+    _check_sentence(
+        text, refs, packet, section, check_faults=check_faults, check_wording=check_wording
+    )
 
 
 def validate_explanation(draft: ExplanationDraft, packet: ExplanationPacket) -> None:

@@ -47,13 +47,15 @@ from signal_diag.app.result_qa import QA_VERSION
 from signal_diag.app.sweep import diagnose_sweep
 
 EVAL_SCHEMA = "qa_eval/1"
-# "heldout" (#101) informed result-qa 1.1 (§33.1) and "heldout_2" (#105)
-# informed 1.2 (§33.2); acceptance of 1.2 runs on "heldout_3".
+# "heldout" (#101) informed result-qa 1.1 (§33.1), "heldout_2" (#105) informed
+# 1.2 (§33.2) and "heldout_3" (#107) informed 1.3 (§33.3); acceptance of 1.3 runs
+# on "heldout_4", the last round (§33.3).
 CASE_SETS = {
     "dev": "qa_cases.json",
     "heldout": "qa_cases_heldout.json",
     "heldout_2": "qa_cases_heldout_2.json",
     "heldout_3": "qa_cases_heldout_3.json",
+    "heldout_4": "qa_cases_heldout_4.json",
 }
 PASS_RATE_BAR = 0.9
 DECLINE_BAR = 0.9

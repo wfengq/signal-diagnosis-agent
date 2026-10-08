@@ -136,10 +136,9 @@ def test_t_cx523_prompt_1_2_rules_and_heldout_3_is_registered() -> None:
     from signal_diag.app.qa_eval import CASE_SETS
     from signal_diag.app.result_qa import QA_VERSION
 
-    assert QA_VERSION == "result-qa-1.2" and QA_PROMPT_VERSION == "v0.3-s1-qa-1.2"
+    assert QA_VERSION.startswith("result-qa-1.") and QA_PROMPT_VERSION.startswith("v0.3-s1-qa-1.")
     assert CASE_SETS["heldout_3"] == "qa_cases_heldout_3.json"
-    assert "never put a step_id in refs" in SYSTEM_PROMPT
-    assert "not even to deny them" in SYSTEM_PROMPT and "合格" in SYSTEM_PROMPT
+    assert "never put a step_id in refs" in SYSTEM_PROMPT and "合格" in SYSTEM_PROMPT
 
 
 def test_t_cx524_heldout_3_questions_are_frozen_and_new(tmp_path: Path) -> None:
@@ -156,4 +155,34 @@ def test_t_cx524_heldout_3_questions_are_frozen_and_new(tmp_path: Path) -> None:
     assert not {c["case_id"] for c in cases} & {c["case_id"] for c in earlier}
     assert not {c["question"] for c in cases} & {c["question"] for c in earlier}
     summary = asyncio.run(_run(ROOT, tmp_path, live=False, case_set="heldout_3"))
+    assert summary["model_calls"] == 0 and summary["expect"] == {"answer": 15, "decline": 5}
+
+
+def test_t_cx527_versions_1_3_and_prompt_verdict_refusal_rule() -> None:
+    from signal_diag.agent.qa import QA_PROMPT_VERSION, SYSTEM_PROMPT
+    from signal_diag.app.qa_eval import CASE_SETS
+    from signal_diag.app.result_qa import QA_VERSION
+
+    assert QA_VERSION == "result-qa-1.3" and QA_PROMPT_VERSION == "v0.3-s1-qa-1.3"
+    assert CASE_SETS["heldout_4"] == "qa_cases_heldout_4.json"
+    assert "refuse it in one sentence" in SYSTEM_PROMPT
+    assert "本次运行只与演示阈值比较，无法给出合格判定。" in SYSTEM_PROMPT
+
+
+def test_t_cx528_heldout_4_questions_are_frozen_and_new(tmp_path: Path) -> None:
+    import hashlib
+
+    digest = "b4897fc48e250c8d1e49ae9ea8ad13b908bc43e99291d83bbda66b0b0bbf25b3"
+    frozen = ROOT / "docs" / "evaluations" / "v0_3" / "qa" / "heldout_4" / "qa_cases_heldout_4.json"
+    asset = ROOT / "src" / "signal_diag" / "evaluation" / "assets" / "qa_cases_heldout_4.json"
+    assert hashlib.sha256(frozen.read_bytes()).hexdigest() == digest
+    assert hashlib.sha256(asset.read_bytes()).hexdigest() == digest
+    cases = load_cases("heldout_4")
+    earlier = (
+        load_cases("dev") + load_cases("heldout") + load_cases("heldout_2") + load_cases("heldout_3")
+    )
+    assert len(cases) == 20
+    assert not {c["case_id"] for c in cases} & {c["case_id"] for c in earlier}
+    assert not {c["question"] for c in cases} & {c["question"] for c in earlier}
+    summary = asyncio.run(_run(ROOT, tmp_path, live=False, case_set="heldout_4"))
     assert summary["model_calls"] == 0 and summary["expect"] == {"answer": 15, "decline": 5}

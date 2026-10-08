@@ -2761,3 +2761,36 @@ live_2 is kept as a below-bar record.
 brief (`docs/evaluations/v0_3/qa/heldout_3/`, SHA-256
 `5833302070a5f096ed3f2d8bb19a761ae9d1f6102bfc269cc383f53e91d2cc47`, copied to
 `evaluation/assets/qa_cases_heldout_3.json`).
+
+### 33.3 Result Q&A check 1.3 and prompt 1.3 (D060 C, last round)
+
+**Why.** On the round-3 held-out questions (live_3, #108) 17 of 20 answers
+passed (0.85 < 0.9) and the model declined 5/5. None of the three rejections
+stated a wrong fact: two refused a verdict the user asked for ("无法给出合格或不合格
+的判定", "未做任何标准或认证判定") and so used banned words; one named what was
+measured ("测量了削波比例与谐波失真").
+
+**Check `result-qa-1.3`.** Q&A runs its own wording check. A sentence may contain
+a verdict word (标准, 合格, 达标, 认证, standard, compliant, certified, certification,
+IEC, AES, SLA) only to refuse that verdict: it must also contain the demonstration
+qualifier (演示 / demo) and a refusal (无法, 不能, 未做, 不做, cannot, does not, ...)
+and no affirmative verdict (符合, 达到, 满足, 通过认证, 不合格 outside "合格或不合格",
+meets, complies, passes, qualifies). Every other use of those words is rejected as
+before. A fault word within 24 characters after a measurement verb (测量了, 测了,
+检查了, 分析了, measured, checked) names what was measured, unless that stretch also
+reports a finding (存在, 出现, 检测到, 发现, 支持, 判定为, found, shows, detected, has).
+The explanation layer (§30) is unchanged.
+
+**Prompt `v0.3-s1-qa-1.3`** replaces rule 6: never say or imply a pass, fail,
+qualification or standard/certification verdict; when the user asks for one,
+refuse it in one sentence that also says the run only compares measurements with
+demonstration thresholds.
+
+**Acceptance and stopping rule.** live_3 informed 1.3, so acceptance runs on 20
+new questions (`--cases heldout_4`) written by a fresh subagent, with the same
+bars as §33. This is the last round (operator, 2026-10-08): if live_4 misses either
+bar, result Q&A stays template-only and `SIGNAL_DIAG_QA_MODEL` stays off.
+
+**Round-4 held-out questions.** `docs/evaluations/v0_3/qa/heldout_4/`, SHA-256
+`b4897fc48e250c8d1e49ae9ea8ad13b908bc43e99291d83bbda66b0b0bbf25b3`, copied to
+`evaluation/assets/qa_cases_heldout_4.json`.
