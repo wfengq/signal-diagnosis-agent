@@ -2794,3 +2794,10 @@ bar, result Q&A stays template-only and `SIGNAL_DIAG_QA_MODEL` stays off.
 **Round-4 held-out questions.** `docs/evaluations/v0_3/qa/heldout_4/`, SHA-256
 `b4897fc48e250c8d1e49ae9ea8ad13b908bc43e99291d83bbda66b0b0bbf25b3`, copied to
 `evaluation/assets/qa_cases_heldout_4.json`.
+
+**Outcome (2026-10-08).** live_4 (#110) met both automatic bars (18/20 = 0.90,
+declines 5/5) but the review found one wrong statement (h4q04 advised re-recording
+"at a quieter level", the opposite of the menu step). Under the stopping rule the
+model path is not accepted: result Q&A stays template-only and
+`SIGNAL_DIAG_QA_MODEL` stays off. The review was delegated by the operator to Claude
+and is recorded as such (`docs/evaluations/v0_3/qa/live_4/REVIEW_VERDICT.md`).
