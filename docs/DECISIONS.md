@@ -1478,3 +1478,13 @@ verdict the user asked for, one named what was measured). The operator chose a
 last round: result-qa check 1.3 and prompt `v0.3-s1-qa-1.3` (§33.3), accepted only
 on 20 new round-4 questions; if live_4 misses either bar, result Q&A stays
 template-only and the model path stays off. The 0.9 bar is unchanged.
+
+**Phase C closed (2026-10-08):** live_4 (#110) met both automatic bars (0.90,
+declines 5/5). The operator delegated the human review to Claude, which found one
+wrong statement in 18 reviewed answers (h4q04: "re-record at a quieter level",
+contrary to the run's `rerecord_quieter` step), so the 0-wrong-statement bar is not
+met. Per the last-round stopping rule, result Q&A ships template-only and
+`SIGNAL_DIAG_QA_MODEL` stays off; no further Q&A prompt or check iterations are
+planned. Across four rounds no model answer that passed the checks stated a wrong
+measured value; the remaining risk is wrong advice in free text, which the checks
+cannot catch.
