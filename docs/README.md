@@ -64,12 +64,12 @@ Read these before changing behavior or public interfaces:
    - §30: explanation layer (D055); §30.1: wording check 1.1 (D058).
    - §31: test guide (D057); §31.1: guide prompt 1.1 and held-out scenarios (D059).
    - §32: multi-round test sessions (D060 phase A; phase B deferred).
-   - §33: result Q&A (D060 phase C); §33.1–§33.2: check and prompt 1.1, 1.2.
+   - §33: result Q&A (D060 phase C); §33.1–§33.3: check and prompt 1.1, 1.2, 1.3 (last round).
 
    Do not edit frozen §§1–64.
 4. [TEST_PLAN_V0_2.md](TEST_PLAN_V0_2.md) (T001–T285) and
    [TEST_PLAN_V0_3_CONTEXTUAL.md](TEST_PLAN_V0_3_CONTEXTUAL.md) (T-CX series,
-   through T-CX524).
+   through T-CX528).
 5. [DECISIONS.md](DECISIONS.md): D001–D060.
 6. [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md): OQ-001–OQ-026.
    - OQ-013–OQ-018 resolve gaps between the current code and the frozen V0.2

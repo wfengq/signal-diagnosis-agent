@@ -1470,3 +1470,11 @@ questions (#105, #106) the model declined 5/5 and passed the checks on 17/20
 chose option A: result-qa check 1.2 and prompt `v0.3-s1-qa-1.2` (§33.2),
 accepted only on 20 new round-3 questions written by a fresh subagent; the
 bar stays at 0.9 and live_2 is kept as a below-bar record.
+
+**Phase C live_3 and 1.3, last round (operator, 2026-10-08):** on the round-3
+held-out questions (#107, #108) the model declined 5/5 and passed the checks on
+17/20 (0.85 < 0.9); none of the rejections stated a wrong fact (two refused a
+verdict the user asked for, one named what was measured). The operator chose a
+last round: result-qa check 1.3 and prompt `v0.3-s1-qa-1.3` (§33.3), accepted only
+on 20 new round-4 questions; if live_4 misses either bar, result Q&A stays
+template-only and the model path stays off. The 0.9 bar is unchanged.
